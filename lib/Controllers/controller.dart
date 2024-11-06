@@ -12,7 +12,7 @@ class Controller extends GetxController {
   register(RegisterRequest registerRequest) async {
     bool result = await provider.register(registerRequest);
     if (result) {
-      Get.offAll(Login());
+      Get.offAll(Login);
     } else {
       showFailedSnackBar('Error', 'Internal Server Error');
     }
