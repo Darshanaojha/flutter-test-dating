@@ -1,4 +1,5 @@
 import 'package:dating_application/Screens/login.dart';
+import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -24,7 +25,7 @@ class _SplashState extends State<Splash> {
     final mQuery = MediaQuery.of(context).size;
     return Scaffold(
       body: Container(
-        color: Colors.green,
+        color: AppColors.primaryColor,
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

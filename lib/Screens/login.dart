@@ -1,9 +1,9 @@
-import 'package:dating_application/Screens/register_subpag/registerdetails.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
+import 'package:get/get.dart'; 
 import '../Controllers/controller.dart';
 import '../RequestModels/login.dart';
+import '../constants.dart';
+import 'register_subpag/registerdetails.dart'; 
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -45,12 +45,8 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
     Size size = MediaQuery.of(context).size;
 
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text('Login'),
-      //   centerTitle: true,
-      // ),
       body: Container(
-        color: Colors.green,
+        color: AppColors.primaryColor,
         child: Center(
           child: FadeTransition(
             opacity: _fadeInAnimation,
@@ -58,7 +54,7 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
               width: size.width * 0.9,
               height: size.height * 0.7,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.secondaryColor,
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: [
                   BoxShadow(
@@ -83,17 +79,16 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                       SizedBox(height: size.height * 0.05),
                       ElevatedButton(
                         onPressed: () {},
-                        child: Text('Login'),
                         style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          backgroundColor: Colors.black, // Text color
+                          foregroundColor: AppColors.textColor,
+                          backgroundColor: AppColors.buttonColor, 
                           padding: EdgeInsets.symmetric(
-                              vertical: 16.0, horizontal: 32.0), // Padding
+                              vertical: 16.0, horizontal: 32.0),
                           shape: RoundedRectangleBorder(
-                            // Rounded corners
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
+                        child: Text('Login', style: AppTextStyles.buttonText),
                       ),
                       SizedBox(height: size.height * 0.02),
                       _buildForgotPasswordButton(),
@@ -110,14 +105,29 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
   }
 
   Widget _buildTextField(
-      String label, Function(String) onSaved, TextInputType type, Size size) {
+    String label, Function(String) onSaved, TextInputType type, Size size) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
         keyboardType: type,
+        cursorColor: AppColors.cursorColor,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(),
+          labelStyle: AppTextStyles.labelText,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor),
+          ),
+          fillColor: AppColors.formFieldColor,
+          filled: true,
         ),
         onSaved: (value) => onSaved(value!),
         validator: (value) {
@@ -131,14 +141,29 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
   }
 
   Widget _buildPasswordField(
-      String label, Function(String) onSaved, Size size) {
+    String label, Function(String) onSaved, Size size) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
         obscureText: true,
+        cursorColor: AppColors.cursorColor,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(),
+          labelStyle: AppTextStyles.labelText,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor),
+          ),
+          fillColor: AppColors.formFieldColor,
+          filled: true,
         ),
         onSaved: (value) => onSaved(value!),
         validator: (value) {
@@ -158,9 +183,7 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
       },
       child: Text(
         'Forgot Password?',
-        style: TextStyle(
-          color: Colors.blue,
-        ),
+        style: AppTextStyles.buttonText,
       ),
     );
   }
@@ -176,9 +199,7 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
           },
           child: Text(
             'Don\'t have an account? Register here',
-            style: TextStyle(
-              color: Colors.blue,
-            ),
+            style: AppTextStyles.buttonText,
           ),
         ),
       ],
@@ -200,3 +221,4 @@ class ForgotPasswordScreen extends StatelessWidget {
     );
   }
 }
+

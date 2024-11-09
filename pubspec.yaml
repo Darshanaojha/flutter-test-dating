@@ -19,6 +19,12 @@ dependencies:
   permission_handler: ^11.3.1
   intl: ^0.18.0
   numberpicker: ^2.1.2
+  shared_preferences: ^2.3.2
+  pinput: ^5.0.0
+  fluttertoast: ^8.2.8
+  http: ^1.2.2
+  mime: ^2.0.0
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
@@ -27,3 +33,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/images/image.png
+    - assets/images/image1.jpg
+    - assets/images/image2.jpg
+    - assets/images/image3.jpg

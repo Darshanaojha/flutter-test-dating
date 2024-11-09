@@ -20,7 +20,7 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Dating Application',
        theme: ThemeData(
-         brightness: Brightness.light,
+         brightness: Brightness.dark,
           appBarTheme: AppBarTheme(
           systemOverlayStyle: SystemUiOverlayStyle.light,
           toolbarHeight: MediaQuery.of(context).size.height * 0.1,

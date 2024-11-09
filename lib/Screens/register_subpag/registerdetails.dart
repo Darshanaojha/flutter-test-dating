@@ -1,10 +1,8 @@
-
-import 'package:dating_application/Screens/register_subpag/register_subpage.dart';
+import 'package:dating_application/Screens/register_subpag/registrationotp.dart';
+import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
-
-
 class RegisterProfilePage extends StatefulWidget {
   const RegisterProfilePage({super.key});
 
@@ -45,7 +43,6 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
       vsync: this,
     )..forward();
 
-    // Create a fade-in animation
     _fadeInAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
@@ -79,14 +76,14 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Error'),
-        content: Text(message),
+        title: Text('Error', style: AppTextStyles.headingText),
+        content: Text(message, style: AppTextStyles.bodyText),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            child: Text('OK'),
+            child: Text('OK', style: AppTextStyles.bodyText),
           ),
         ],
       ),
@@ -99,12 +96,8 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
     final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
 
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text("User Profile"),
-      //   backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-      // ),
       body: Container(
-        color: Colors.green,
+        color: AppColors.primaryColor, // Set primary background color
         child: Center(
           child: FadeTransition(
             opacity: _fadeInAnimation,
@@ -112,11 +105,10 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
               width: screenSize.width * 0.95,
               height: screenSize.height * 0.85,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.secondaryColor,
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black26,
                     blurRadius: 10,
                     offset: Offset(0, 5),
                   ),
@@ -131,39 +123,39 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
                       children: [
                         // Name Field
                         _buildTextField("Name", nameController),
-        
+
                         // Email Field
                         _buildTextField("Email", emailController),
-        
+
                         // Mobile Field
                         _buildTextField("Mobile", mobileController),
-        
+
                         // Address Field
                         _buildTextField("Address", addressController),
-        
+
                         // Password Field
                         _buildTextField("Password", passwordController, obscureText: true),
-        
+
                         // Confirm Password Field
                         _buildTextField("Confirm Password", confirmPasswordController, obscureText: true),
-        
+
                         // Country Dropdown
                         _buildDropdown("Country", countries, selectedCountry, (value) {
                           setState(() {
                             selectedCountry = value;
                           });
                         }),
-        
+
                         // State Dropdown
                         _buildDropdown("State", states, selectedState, (value) {
                           setState(() {
                             selectedState = value;
                           });
                         }),
-        
+
                         // City Field
                         _buildTextField("City", cityController),
-        
+
                         // Fetch Lat/Long Button
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -171,19 +163,19 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
                             onPressed: fetchLatLong,
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                              backgroundColor: const Color.fromARGB(255, 6, 7, 7),
+                              backgroundColor: AppColors.buttonColor, // Use AppColors.buttonColor
                               foregroundColor: Colors.white,
                             ),
-                            child: Text("Fetch Latitude & Longitude"),
+                            child: Text("Fetch Latitude & Longitude", style: AppTextStyles.buttonText),
                           ),
                         ),
-        
+
                         // Show Latitude and Longitude only if fetched
                         if (isLatLongFetched) ...[
                           _buildTextField("Latitude", latitudeController, enabled: false),
                           _buildTextField("Longitude", longitudeController, enabled: false),
                         ],
-        
+
                         // Submit Button
                         SizedBox(height: 20),
                         ElevatedButton(
@@ -196,7 +188,7 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
                                 ));
                                 return;
                               }
-        
+
                               // Process form submission
                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                 content: Text("Form submitted successfully!"),
@@ -205,20 +197,20 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
                           },
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                            backgroundColor: const Color.fromARGB(255, 4, 5, 5),
+                            backgroundColor: AppColors.buttonColor, // Use AppColors.buttonColor
                             foregroundColor: Colors.white,
                           ),
-                          child: Text("Submit"),
+                          child: Text("Submit", style: AppTextStyles.buttonText),
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            Get.to(MultiStepFormPage());
+                            Get.to(OTPVerificationPage());
                           },
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                            backgroundColor: const Color.fromARGB(255, 4, 5, 5),
+                            backgroundColor: AppColors.buttonColor, // Use AppColors.buttonColor
                           ),
-                          child: Text('Next'),
+                          child: Text('Next', style: AppTextStyles.buttonText),
                         ),
                       ],
                     ),
@@ -250,15 +242,31 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
           }
           return null;
         },
+        style: AppTextStyles.inputFieldText, // Use AppTextStyles for text color and font
+        cursorColor: AppColors.textColor, // Set cursor color to white
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(),
+          labelStyle: AppTextStyles.labelText, // Use AppTextStyles for label styling
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor), // Set border color to white
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor), // Set focused border color to white
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor), // Set enabled border color to white
+          ),
+          fillColor: AppColors.formFieldColor, // Set background color
+          filled: true, // Ensure the background is filled
         ),
       ),
     );
   }
 
-  Widget _buildDropdown(
+  Widget  _buildDropdown(
     String label,
     List<String> items,
     String? selectedValue,
@@ -271,24 +279,27 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
         items: items.map((String value) {
           return DropdownMenuItem<String>(
             value: value,
-            child: Text(value),
+            child: Text(
+              value,
+              style: AppTextStyles.textStyle, 
+            ),
           );
         }).toList(),
         onChanged: onChanged,
         decoration: InputDecoration(
           labelText: label,
+          labelStyle: AppTextStyles.labelText, // Use AppTextStyles for label styling
           border: OutlineInputBorder(),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor), // Set border color to white
+          ),
         ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return '$label is required';
-          }
-          return null;
-        },
+        style: AppTextStyles.inputFieldText, // Use AppTextStyles for dropdown text styling
+        dropdownColor: AppColors.secondaryColor, // Set dropdown background color
       ),
     );
   }
 }
-
 
 

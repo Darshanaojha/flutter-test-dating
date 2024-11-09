@@ -1,5 +1,6 @@
 import 'package:dating_application/RequestModels/login.dart';
 import 'package:dating_application/constants.dart';
+import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get_connect/connect.dart';
 
@@ -69,4 +70,6 @@ class Provider extends GetConnect {
       return false;
     }
   }
+
+  static of(BuildContext context) {}
 }
