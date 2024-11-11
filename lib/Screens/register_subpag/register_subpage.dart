@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-
-import '../homepage/homepage.dart';
 import '../navigationbar/navigationpage.dart';
 
 class MultiStepFormPage extends StatefulWidget {
@@ -2273,7 +2271,7 @@ class _MultiStepFormPageState extends State<MultiStepFormPage> {
               },
               child: Text('OK'),
             ),
-            TextButton(onPressed: (){Get.to(HomePage());}, child: Text('Next'))
+            TextButton(onPressed: (){Get.to(NavigationBottomBar());}, child: Text('Next'))
           ],
         ),
       );

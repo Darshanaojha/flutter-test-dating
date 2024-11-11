@@ -1,11 +1,7 @@
+import 'package:dating_application/Screens/routings/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'package:get/get_navigation/src/routes/get_route.dart';
-
-import 'Screens/login.dart';
-import 'Screens/register.dart';
-import 'Screens/splash.dart';
 
 void main() {
   runApp(const MainApp());
@@ -27,12 +23,7 @@ class MainApp extends StatelessWidget {
         ),
       ),
       initialRoute: '/',
-      getPages: [
-        GetPage(name: '/', page: () => Splash()),
-        GetPage(name: '/login', page: () => Login()),
-        GetPage(name: '/register', page: ()=>Register()),
-        // Add other routes here
-      ],
+      getPages: routes,
     );
   }
 }

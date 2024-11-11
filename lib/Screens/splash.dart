@@ -11,39 +11,81 @@ class Splash extends StatefulWidget {
   State<Splash> createState() => _SplashState();
 }
 
-class _SplashState extends State<Splash> {
+class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
+  late AnimationController controller;
+  late Animation<double> opacityAnimation;
+  late Animation<double> scaleAnimation;
+
   @override
   void initState() {
     super.initState();
+
+ 
+    controller = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 3), 
+    )..forward();
+
+    opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: controller, curve: Curves.easeIn),
+    );
+
+    scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(parent: controller, curve: Curves.easeInOut),
+    );
+
     Future.delayed(Duration(seconds: 3), () {
-      Get.offAll(Login());
+      Get.offAll(() => Login()); 
     });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final mQuery = MediaQuery.of(context).size;
+
     return Scaffold(
       body: Container(
-        color: AppColors.primaryColor,
+        color: AppColors.primaryColor, // Replace with your color
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                "Dating",
-                style: GoogleFonts.lato(
-                  fontSize: mQuery.width * 0.08,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+              // First Text (Dating)
+              FadeTransition(
+                opacity: opacityAnimation,
+                child: ScaleTransition(
+                  scale: scaleAnimation,
+                  child: Text(
+                    "Dating",
+                    style: GoogleFonts.lato(
+                      fontSize: mQuery.width * 0.08,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
-              Text(
-                "Application",
-                style: GoogleFonts.lato(
-                  fontSize: mQuery.width * 0.04,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+              SizedBox(height: 10), 
+              
+              // Second Text (Application)
+              FadeTransition(
+                opacity: opacityAnimation,
+                child: ScaleTransition(
+                  scale: scaleAnimation,
+                  child: Text(
+                    "Application",
+                    style: GoogleFonts.lato(
+                      fontSize: mQuery.width * 0.04,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -52,5 +94,4 @@ class _SplashState extends State<Splash> {
       ),
     );
   }
-
 }

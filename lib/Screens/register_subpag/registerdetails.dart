@@ -289,11 +289,17 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
         decoration: InputDecoration(
           labelText: label,
           labelStyle: AppTextStyles.labelText, // Use AppTextStyles for label styling
-          border: OutlineInputBorder(),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: AppColors.textColor), // Set border color to white
-          ),
+
+                 border: OutlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.formFieldColor),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white), // Focused border color
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white), // Enabled border color
+                ),
         ),
         style: AppTextStyles.inputFieldText, // Use AppTextStyles for dropdown text styling
         dropdownColor: AppColors.secondaryColor, // Set dropdown background color

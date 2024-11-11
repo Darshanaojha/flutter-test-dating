@@ -12,6 +12,7 @@ const $profileUrl = "Authentication/profile";
 // const String $registerUrl = "Authentication/register";
 // const String $loginUrl = "Authentication/login";
 // const String $profileUrl = "Authentication/profile";
+
 class AppColors {
   static const Color primaryColor = Colors.black;
 
@@ -25,8 +26,8 @@ class AppColors {
   static const Color buttonColor = Colors.blue;
   static const Color formFieldColor =
       Color.fromARGB(255, 85, 84, 84);
-  static const Color inactiveColor = Colors.green;
-
+  static const Color inactiveColor = Colors.red;
+  static const Color activeColor = Colors.green;
   final Color successColor = Colors.green.withOpacity(0.3);
   final Color successBorderColor = Colors.green;
   final Color errorColor = Colors.red.withOpacity(0.3);

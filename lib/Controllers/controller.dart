@@ -9,6 +9,8 @@ import '../Screens/login.dart';
 class Controller extends GetxController {
   Provider provider = Get.put(Provider());
 
+  static var selectedIndex;
+
   register(RegisterRequest registerRequest) async {
     bool result = await provider.register(registerRequest);
     if (result) {
