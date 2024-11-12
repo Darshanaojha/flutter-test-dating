@@ -14,7 +14,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Dating Application',
+      title: 'FlamR',
        theme: ThemeData(
          brightness: Brightness.dark,
           appBarTheme: AppBarTheme(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../../constants.dart';
 import '../chatpage/userchatpage.dart';
-
 
 class ChatHistoryPage extends StatefulWidget {
   const ChatHistoryPage({super.key});
@@ -61,7 +61,8 @@ class _ChatHistoryPageState extends State<ChatHistoryPage> {
     final mQuery = MediaQuery.of(context).size; // For responsive design
 
     return Scaffold(
-      backgroundColor: AppColors.secondaryColor, // Using the secondary color for background
+      backgroundColor:
+          AppColors.secondaryColor, // Using the secondary color for background
       body: Stack(
         children: [
           Padding(
@@ -71,7 +72,7 @@ class _ChatHistoryPageState extends State<ChatHistoryPage> {
               children: [
                 // Search bar
                 TextField(
-                    cursorColor: AppColors.cursorColor,
+                  cursorColor: AppColors.cursorColor,
                   onChanged: (query) {
                     setState(() {
                       searchQuery = query;
@@ -79,13 +80,13 @@ class _ChatHistoryPageState extends State<ChatHistoryPage> {
                   },
                   decoration: InputDecoration(
                     hintText: 'Search Chat Users...',
-                    
+
                     hintStyle: AppTextStyles.customTextStyle(
                         color: Colors.grey), // Updated hint style
                     prefixIcon: Icon(Icons.search, color: AppColors.iconColor),
                     filled: true,
                     fillColor: AppColors.formFieldColor,
-                  
+
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: BorderSide.none,
@@ -108,7 +109,8 @@ class _ChatHistoryPageState extends State<ChatHistoryPage> {
                         SizedBox(width: 8),
                         Text(
                           '${getFilteredChatUsers().length} members',
-                          style: AppTextStyles.customTextStyle(color: Colors.grey),
+                          style:
+                              AppTextStyles.customTextStyle(color: Colors.grey),
                         ),
                       ],
                     ),
@@ -165,7 +167,8 @@ class _ChatHistoryPageState extends State<ChatHistoryPage> {
                                     children: [
                                       Text(
                                         user['name'],
-                                        style: AppTextStyles.bodyText, // Using heading style
+                                        style: AppTextStyles
+                                            .bodyText, // Using heading style
                                       ),
                                       SizedBox(width: 40),
                                       if (user['isOnline'])
@@ -179,8 +182,10 @@ class _ChatHistoryPageState extends State<ChatHistoryPage> {
                                     ],
                                   ),
                                   SizedBox(height: 4),
-                                  Text('${user['age']} years old', style: AppTextStyles.bodyText),
-                                  Text(user['gender'], style: AppTextStyles.bodyText),
+                                  Text('${user['age']} years old',
+                                      style: AppTextStyles.bodyText),
+                                  Text(user['gender'],
+                                      style: AppTextStyles.bodyText),
                                 ],
                               ),
                             ],
@@ -194,12 +199,18 @@ class _ChatHistoryPageState extends State<ChatHistoryPage> {
             ),
           ),
           if (isLoading)
+            // Center(
+            //   child: Padding(
+            //     padding: const EdgeInsets.all(8.0),
+            //     child: CircularProgressIndicator(
+            //       color: AppColors.acceptColor, // Set loading spinner color
+            //     ),
+            //   ),
+            // ),
             Center(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: CircularProgressIndicator(
-                  color: AppColors.acceptColor, // Set loading spinner color
-                ),
+              child: SpinKitCircle(
+                size: 150.0, // You can adjust the size as per your need
+                color: AppColors.acceptColor, // Set the color of the heart
               ),
             ),
         ],
@@ -207,7 +218,6 @@ class _ChatHistoryPageState extends State<ChatHistoryPage> {
     );
   }
 }
-
 
 class FullScreenImagePage extends StatelessWidget {
   final String imageUrl;

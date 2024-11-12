@@ -19,7 +19,7 @@ final routes=[
         GetPage(name: '/settings', page: ()=>SettingsPage()),
         GetPage(name: '/likes', page: ()=>LikesPage()),
         GetPage(name: '/messages', page: ()=>ChatHistoryPage()),
-        GetPage(name: '/profile', page: ()=>ProfilePage())
+        GetPage(name: '/profile', page: ()=>UserProfilePage())
         // Add other routes here
       
 ];

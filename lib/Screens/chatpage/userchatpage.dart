@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import 'package:get/get.dart';
 import '../../constants.dart';
@@ -262,7 +263,8 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         child: VideoPlayer(_controller),
       );
     } else {
-      return CircularProgressIndicator();
+      return SpinKitCircle( size: 150.0,  // You can adjust the size as per your need
+    color: AppColors.acceptColor,);
     }
   }
 }

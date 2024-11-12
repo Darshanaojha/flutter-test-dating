@@ -56,13 +56,12 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // First Text (Dating)
               FadeTransition(
                 opacity: opacityAnimation,
                 child: ScaleTransition(
                   scale: scaleAnimation,
                   child: Text(
-                    "Dating",
+                    "FlamR",
                     style: GoogleFonts.lato(
                       fontSize: mQuery.width * 0.08,
                       color: Colors.white,

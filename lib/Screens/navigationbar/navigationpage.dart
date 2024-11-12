@@ -1,4 +1,5 @@
 import 'package:dating_application/Controllers/controller.dart';
+import 'package:dating_application/Screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../constants.dart';
@@ -17,7 +18,7 @@ class NavigationController extends GetxController {
     HomePage(),
     LikesPage(),
     ChatHistoryPage(),
-    ProfilePage()
+    UserProfilePage()
   ];
 
   // Method to navigate to a different screen
@@ -25,7 +26,6 @@ class NavigationController extends GetxController {
     selectedIndex.value = index;
   }
 }
-
 class NavigationBottomBar extends StatelessWidget {
   const NavigationBottomBar({super.key});
 
@@ -38,21 +38,12 @@ class NavigationBottomBar extends StatelessWidget {
         preferredSize: Size.fromHeight(40),
         child: AppBar(
           elevation: 5,
-          title: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text('Dating App', style: AppTextStyles.headingText),
-          ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.settings),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SettingsPage()),
-                );
-              },
+          title: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text('FlamR', style: AppTextStyles.headingText),
             ),
-          ],
+          ),
           backgroundColor: AppColors.acceptColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
@@ -60,6 +51,27 @@ class NavigationBottomBar extends StatelessWidget {
               bottomRight: Radius.circular(30),
             ),
           ),
+          // Add the Settings icon to the leading side (left side)
+          leading: IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
+            },
+          ),
+          // Add the Logout button to the actions (right side)
+          actions: [
+            IconButton(
+              icon: Icon(Icons.exit_to_app),
+              onPressed: () {
+                // Add your logout functionality here
+                // Example:
+                Get.offAll(() => Login()); // Redirect to Login Page
+              },
+            ),
+          ],
         ),
       ),
       // Use Obx to reactively display the selected screen based on selectedIndex

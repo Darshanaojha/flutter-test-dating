@@ -1,5 +1,6 @@
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart'; // For smooth page indicator
 import 'package:get/get.dart'; // For GetX bottom sheet
 
@@ -365,9 +366,11 @@ class _LikesPageState extends State<LikesPage> {
   String selectedLocation = 'All';
   String selectedDesire = 'All'; // New filter for "Desires"
   int selectedAgeRange = 0; // 0: All, 1: 18-25, 2: 26-35, etc.
+  bool _isLoading = true;  
 
   final List<Map<String, dynamic>> users = [
     // Sample users
+  
     {
       'name': 'John Doe',
       'age': 25,
@@ -434,14 +437,15 @@ class _LikesPageState extends State<LikesPage> {
       return matchesGender && matchesLocation && matchesDesire && matchesAge;
     }).toList();
   }
+  
 Future<void> _showUpgradeBottomSheet() async {
   Get.bottomSheet(
     Padding(
       padding: const EdgeInsets.all(0.0),
       child: Container(
-        color: Colors.black,  // Set the background color to black
+        color: Colors.black, // Set the background color to black
         child: Column(
-          mainAxisSize: MainAxisSize.min,  // Minimize the space to fit content
+          mainAxisSize: MainAxisSize.min, // Minimize the space to fit content
           children: [
             // Title of the Bottom Sheet
             Padding(
@@ -450,7 +454,7 @@ Future<void> _showUpgradeBottomSheet() async {
                 'Found Uplift',
                 style: AppTextStyles.titleText.copyWith(
                   fontSize: 24,
-                  color: Colors.white,  // Set text color to white for contrast
+                  color: Colors.white, // Set text color to white for contrast
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -464,32 +468,83 @@ Future<void> _showUpgradeBottomSheet() async {
                 'and you can access earlier with premium benefits.',
                 style: AppTextStyles.bodyText.copyWith(
                   fontSize: 16,
-                  color: Colors.white,  // Set text color to white for contrast
+                  color: Colors.white, // Set text color to white for contrast
                 ),
                 textAlign: TextAlign.center,
               ),
             ),
             SizedBox(height: 20),
-            // Red card for price display
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 40),
-                decoration: BoxDecoration(
-                  color: Colors.red, // Red background
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '₹299',  // Price
-                  style: TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,  // White color for price text
+
+            // Orange Card with Icon, Text, and Discount Label
+            Stack(
+              children: [
+                // The Orange Card
+                Card(
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  color: Colors.orange, // Set card background color to orange
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0), // Increased padding
+                    child: Row(
+                      children: [
+                        // Icon for the card
+                        Icon(
+                          Icons.calendar_today,
+                          color: Colors.white, // Icon color is white for contrast
+                          size: 24, // Adjust size as needed
+                        ),
+                        SizedBox(width: 10),
+                        // Text for the card
+                        Expanded(
+                          child: Text(
+                            "24-hour Premium Plan - ₹299", // Plan description
+                            style: AppTextStyles.bodyText.copyWith(
+                              fontSize: 16,
+                              color: Colors.white, // White text for readability
+                            ),
+                          ),
+                        ),
+                        // Plan Status (text)
+                        Text(
+                          'Selected', // Status of the plan
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: 16,
+                            color: AppColors.buttonColor, // Color for the status text
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
+                
+                // Positioned Discount Label (20% OFF)
+                Positioned(
+                  top: 4, // Slightly higher position
+                  right: 2, // Position at the top-right corner
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.red, // Set the background color to red
+                      borderRadius: BorderRadius.circular(12), // Curved corners
+                    ),
+                    child: Text(
+                      '20% OFF', // Display the discount percentage
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12, // Smaller font size
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
+            
             SizedBox(height: 20),
+
             // Purchase Button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -515,12 +570,23 @@ Future<void> _showUpgradeBottomSheet() async {
         ),
       ),
     ),
-    isScrollControlled: true,  // Allow bottom sheet to have a controlled size
-    backgroundColor: Colors.transparent,  // Transparent background for the full-screen effect
+    isScrollControlled: true, // Allow bottom sheet to have a controlled size
+    backgroundColor: Colors.transparent, // Transparent background for the full-screen effect
   );
 }
 
-
+  Future<void> _fetchData() async {
+    await Future.delayed(Duration(seconds: 2));
+    setState(() {
+      _isLoading = false;  // Data is fetched, so hide the spinner
+    });
+  }
+@override
+  void initState() {
+    super.initState();
+    // Fetch the data when the page is loaded
+    _fetchData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -669,6 +735,7 @@ Future<void> _showUpgradeBottomSheet() async {
                               ),
                             ],
                           ),
+                         
                         ],
                       ),
                     );
@@ -701,6 +768,13 @@ Future<void> _showUpgradeBottomSheet() async {
               ),
             ),
           ),
+           if (_isLoading)
+            Center(
+              child: SpinKitCircle(
+                size: 150.0,  // Adjust the size of the spinner
+                color: AppColors.acceptColor,  // Set the spinner color
+              ),
+            ),
         ],
       ),
     );

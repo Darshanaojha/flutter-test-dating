@@ -24,6 +24,7 @@ class AppColors {
   static const Color deniedColor = Colors.red;
   static const Color iconColor = Colors.blue;
   static const Color buttonColor = Colors.blue;
+  static const Color chipColor = Colors.grey;
   static const Color formFieldColor =
       Color.fromARGB(255, 85, 84, 84);
   static const Color inactiveColor = Colors.red;
