@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../../constants.dart';
 import '../chatpage/userchatpage.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class ChatHistoryPage extends StatefulWidget {
   const ChatHistoryPage({super.key});
 
   @override
-  _ChatHistoryPageState createState() => _ChatHistoryPageState();
+  ChatHistoryPageState createState() => ChatHistoryPageState();
 }
 
-class _ChatHistoryPageState extends State<ChatHistoryPage> {
+class ChatHistoryPageState extends State<ChatHistoryPage> {
   final List<Map<String, dynamic>> chatUsers = [
     {
       'name': 'John Doe',
@@ -18,6 +19,7 @@ class _ChatHistoryPageState extends State<ChatHistoryPage> {
       'gender': 'Male',
       'imageUrl': 'https://www.example.com/profile1.jpg',
       'isOnline': true,
+      'lastMessageTime': DateTime.now().subtract(Duration(minutes: 10)),
     },
     {
       'name': 'Jane Smith',
@@ -25,6 +27,7 @@ class _ChatHistoryPageState extends State<ChatHistoryPage> {
       'gender': 'Female',
       'imageUrl': 'https://www.example.com/profile2.jpg',
       'isOnline': false,
+      'lastMessageTime': null, // This is the problematic null value
     },
     {
       'name': 'Alex Johnson',
@@ -32,6 +35,7 @@ class _ChatHistoryPageState extends State<ChatHistoryPage> {
       'gender': 'Non-binary',
       'imageUrl': 'https://www.example.com/profile3.jpg',
       'isOnline': true,
+      'lastMessageTime': DateTime.now().subtract(Duration(days: 1)),
     },
   ];
 
@@ -55,14 +59,14 @@ class _ChatHistoryPageState extends State<ChatHistoryPage> {
       });
     });
   }
+ 
 
   @override
   Widget build(BuildContext context) {
     final mQuery = MediaQuery.of(context).size; // For responsive design
 
     return Scaffold(
-      backgroundColor:
-          AppColors.secondaryColor, // Using the secondary color for background
+      backgroundColor: AppColors.secondaryColor,
       body: Stack(
         children: [
           Padding(
@@ -80,13 +84,11 @@ class _ChatHistoryPageState extends State<ChatHistoryPage> {
                   },
                   decoration: InputDecoration(
                     hintText: 'Search Chat Users...',
-
-                    hintStyle: AppTextStyles.customTextStyle(
-                        color: Colors.grey), // Updated hint style
+                    hintStyle:
+                        AppTextStyles.customTextStyle(color: Colors.grey),
                     prefixIcon: Icon(Icons.search, color: AppColors.iconColor),
                     filled: true,
                     fillColor: AppColors.formFieldColor,
-
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: BorderSide.none,
@@ -123,6 +125,12 @@ class _ChatHistoryPageState extends State<ChatHistoryPage> {
                     itemCount: getFilteredChatUsers().length,
                     itemBuilder: (context, index) {
                       final user = getFilteredChatUsers()[index];
+
+                      // Handle null lastMessageTime
+                      final lastMessageTime = user['lastMessageTime'];
+                      String timeAgoText = lastMessageTime != null
+                          ? timeago.format(lastMessageTime)
+                          : 'No messages yet';
 
                       return GestureDetector(
                         onTap: () {
@@ -164,13 +172,18 @@ class _ChatHistoryPageState extends State<ChatHistoryPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         user['name'],
-                                        style: AppTextStyles
-                                            .bodyText, // Using heading style
+                                        style: AppTextStyles.bodyText,
                                       ),
-                                      SizedBox(width: 40),
+                                      SizedBox(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.20),
                                       if (user['isOnline'])
                                         Text(
                                           'Online',
@@ -182,10 +195,13 @@ class _ChatHistoryPageState extends State<ChatHistoryPage> {
                                     ],
                                   ),
                                   SizedBox(height: 4),
-                                  Text('${user['age']} years old',
-                                      style: AppTextStyles.bodyText),
-                                  Text(user['gender'],
-                                      style: AppTextStyles.bodyText),
+                                  // Display time since last message
+                                  Text(
+                                    timeAgoText,
+                                    style: AppTextStyles.bodyText.copyWith(
+                                      color: Colors.grey,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ],
@@ -199,18 +215,10 @@ class _ChatHistoryPageState extends State<ChatHistoryPage> {
             ),
           ),
           if (isLoading)
-            // Center(
-            //   child: Padding(
-            //     padding: const EdgeInsets.all(8.0),
-            //     child: CircularProgressIndicator(
-            //       color: AppColors.acceptColor, // Set loading spinner color
-            //     ),
-            //   ),
-            // ),
             Center(
               child: SpinKitCircle(
-                size: 150.0, // You can adjust the size as per your need
-                color: AppColors.acceptColor, // Set the color of the heart
+                size: 150.0,
+                color: AppColors.acceptColor,
               ),
             ),
         ],

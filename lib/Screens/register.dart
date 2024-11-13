@@ -15,13 +15,13 @@ class Register extends StatefulWidget {
 
 class RegisterState extends State<Register> {
   Controller controller = Get.put(Controller());
-  final _formKey = GlobalKey<FormState>();
-  late RegisterRequest _registerRequest;
+  final formKey = GlobalKey<FormState>();
+  late RegisterRequest registerRequest;
 
   @override
   void initState() {
     super.initState();
-    _registerRequest = RegisterRequest(
+    registerRequest = RegisterRequest(
         name: '',
         email: '',
         mobile: '',
@@ -44,49 +44,49 @@ class RegisterState extends State<Register> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
-          key: _formKey,
+          key: formKey,
           child: ListView(
             children: [
-              _buildTextField('Name', (value) => _registerRequest.name = value,
+              buildTextField('Name', (value) => registerRequest.name = value,
                   TextInputType.text, size),
-              _buildTextField(
+              buildTextField(
                   'Email',
-                  (value) => _registerRequest.email = value,
+                  (value) => registerRequest.email = value,
                   TextInputType.emailAddress,
                   size),
-              _buildTextField(
+              buildTextField(
                   'Mobile',
-                  (value) => _registerRequest.mobile = value,
+                  (value) => registerRequest.mobile = value,
                   TextInputType.phone,
                   size),
-              _buildTextField('City', (value) => _registerRequest.city = value,
+              buildTextField('City', (value) => registerRequest.city = value,
                   TextInputType.text, size),
-              _buildTextField(
+              buildTextField(
                   'State',
-                  (value) => _registerRequest.state = value,
+                  (value) => registerRequest.state = value,
                   TextInputType.text,
                   size),
-              _buildTextField(
+              buildTextField(
                   'Address',
-                  (value) => _registerRequest.address = value,
+                  (value) => registerRequest.address = value,
                   TextInputType.text,
                   size),
-              _buildTextField(
+              buildTextField(
                   'Gender',
-                  (value) => _registerRequest.gender = value,
+                  (value) => registerRequest.gender = value,
                   TextInputType.text,
                   size),
-              _buildPasswordField('Password',
-                  (value) => _registerRequest.password = value, size),
-              _buildPasswordField('Confirm Password', (value) {
-                if (value != _registerRequest.password) {
+              buildPasswordField('Password',
+                  (value) => registerRequest.password = value, size),
+              buildPasswordField('Confirm Password', (value) {
+                if (value != registerRequest.password) {
                   return 'Passwords do not match';
                 }
                 return null;
               }, size),
               SizedBox(height: size.width * 0.05),
               ElevatedButton(
-                onPressed: _register,
+                onPressed: register,
                 style: ElevatedButton.styleFrom(
                   textStyle: GoogleFonts.lato(fontSize: size.width * 0.05),
                   padding: EdgeInsets.symmetric(vertical: size.width * 0.05),
@@ -100,7 +100,7 @@ class RegisterState extends State<Register> {
     );
   }
 
-  Widget _buildTextField(
+  Widget buildTextField(
       String label, Function(String) onSaved, TextInputType type, Size size) {
     return Padding(
       padding: EdgeInsets.only(bottom: 16.0),
@@ -122,7 +122,7 @@ class RegisterState extends State<Register> {
     );
   }
 
-  Widget _buildPasswordField(
+  Widget buildPasswordField(
       String label, Function(String) onSaved, Size size) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
@@ -144,16 +144,16 @@ class RegisterState extends State<Register> {
     );
   }
 
-  void _register() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+  void register() {
+    if (formKey.currentState!.validate()) {
+      formKey.currentState!.save();
 
-      String? validationError = _registerRequest.validate();
+      String? validationError = registerRequest.validate();
       if (validationError != null) {
         showFailedSnackBar('Error', validationError);
         return;
       }
-      controller.register(_registerRequest);
+      controller.register(registerRequest);
     }
   }
 }

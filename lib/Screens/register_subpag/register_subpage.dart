@@ -10,10 +10,10 @@ class MultiStepFormPage extends StatefulWidget {
   const MultiStepFormPage({super.key});
 
   @override
-  _MultiStepFormPageState createState() => _MultiStepFormPageState();
+  MultiStepFormPageState createState() => MultiStepFormPageState();
 }
 
-class _MultiStepFormPageState extends State<MultiStepFormPage> {
+class MultiStepFormPageState extends State<MultiStepFormPage> {
 
   int selectedDay = DateTime.now().day;
   int selectedMonth = DateTime.now().month;
@@ -24,8 +24,8 @@ class _MultiStepFormPageState extends State<MultiStepFormPage> {
   String description = ''; 
 
   int currentPage = 1;
-  final PageController _pageController =
-      PageController(); // Create a PageController instance
+  final PageController pageController =
+      PageController(); 
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class _MultiStepFormPageState extends State<MultiStepFormPage> {
     // Adjust text sizes, padding, and spacing dynamically based on screen size
     double padding = isPortrait ? 16.0 : 24.0;
     double fontSize = screenWidth < 400 ? 18 : 20;
-    double buttonFontSize = screenWidth < 400 ? 16 : 18;
+    //double buttonFontSize = screenWidth < 400 ? 16 : 18;
     double buttonHeight = screenHeight < 600 ? 48 : 56;
 
     return Scaffold(
@@ -70,7 +70,7 @@ class _MultiStepFormPageState extends State<MultiStepFormPage> {
                   height: screenHeight * 0.75, // Adjust height dynamically
                   child: PageView(
                     controller:
-                        _pageController, // Use the PageController instance
+                        pageController, // Use the PageController instance
                     onPageChanged: (pageIndex) {
                       setState(() {
                         currentPage = pageIndex + 1; // Update page number
@@ -104,7 +104,7 @@ class _MultiStepFormPageState extends State<MultiStepFormPage> {
                       borderRadius: BorderRadius.circular(40.0),
                     ),
                   ),
-                  onPressed: _nextStep, // Navigate to the next step
+                  onPressed: nextStep, // Navigate to the next step
 
                   child: Text(
                     'Next',
@@ -716,10 +716,9 @@ class _MultiStepFormPageState extends State<MultiStepFormPage> {
 // step 7
 
   Widget buildInterestStep(BuildContext context) {
-    // Reactive list to store user-entered interests
     RxList<String> selectedInterests = <String>[].obs;
-    TextEditingController _interestController = TextEditingController();
-    FocusNode _interestFocusNode = FocusNode();
+    TextEditingController interestController = TextEditingController();
+    FocusNode interestFocusNode = FocusNode();
 
     // Check if the user has selected at least 10 interests
     bool isSelectionValid() {
@@ -728,11 +727,11 @@ class _MultiStepFormPageState extends State<MultiStepFormPage> {
 
     // Function to handle adding a new interest
     void addInterest() {
-      String newInterest = _interestController.text.trim();
+      String newInterest = interestController.text.trim();
       if (newInterest.isNotEmpty && !selectedInterests.contains(newInterest)) {
         selectedInterests.add(newInterest); // Add the new interest to the list
-        _interestController.clear(); // Clear the input field after adding
-        _interestFocusNode
+        interestController.clear(); // Clear the input field after adding
+        interestFocusNode
             .unfocus(); // Unfocus the text field to close the keyboard
       }
     }
@@ -775,8 +774,8 @@ class _MultiStepFormPageState extends State<MultiStepFormPage> {
 
               // Input field to add a new interest
               TextField(
-                controller: _interestController,
-                focusNode: _interestFocusNode,
+                controller: interestController,
+                focusNode: interestFocusNode,
                 decoration: InputDecoration(
                   labelText: "Enter interest",
                   labelStyle: TextStyle(color: AppColors.textColor),
@@ -1017,20 +1016,20 @@ class _MultiStepFormPageState extends State<MultiStepFormPage> {
 
 // photos
   Widget buildPhotosOfUser(double fontSize) {
-    RxList<File?> _images = RxList<File?>();
+    RxList<File?> images = RxList<File?>();
 
-    Future<void> _pickImage(int index, ImageSource source) async {
+    Future<void> pickImage(int index, ImageSource source) async {
       final picker = ImagePicker();
       final pickedFile = await picker.pickImage(source: source);
 
       if (pickedFile != null) {
-        _images[index] =
+        images[index] =
             File(pickedFile.path); // Update the image at the specified index
       }
     }
 
     // Request camera permission
-    Future<void> _requestCameraPermission() async {
+    Future<void> requestCameraPermission() async {
       var status = await Permission.camera.request();
       if (status.isDenied) {
         Get.snackbar('', "Camera permission denied");
@@ -1038,7 +1037,7 @@ class _MultiStepFormPageState extends State<MultiStepFormPage> {
     }
 
     // Request gallery permission
-    Future<void> _requestGalleryPermission() async {
+    Future<void> requestGalleryPermission() async {
       var status = await Permission.photos.request();
       if (status.isDenied) {
         Get.snackbar("", "Gallery permission denied");
@@ -1053,13 +1052,13 @@ class _MultiStepFormPageState extends State<MultiStepFormPage> {
             crossAxisSpacing: 20.0,
             mainAxisSpacing: 40.0,
           ),
-          itemCount: _images.length + 1,
+          itemCount: images.length + 1,
           itemBuilder: (context, index) {
-            if (index == _images.length) {
+            if (index == images.length) {
               return Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    _images.add(null);
+                    images.add(null);
                   },
                   child: Icon(
                     Icons.add_a_photo,
@@ -1084,7 +1083,7 @@ class _MultiStepFormPageState extends State<MultiStepFormPage> {
                         border: Border.all(color: Colors.grey),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: _images[index] != null
+                      child: images[index] != null
                           ? GestureDetector(
                               onTap: () {
                                 // Show dialog when the image is tapped
@@ -1099,7 +1098,7 @@ class _MultiStepFormPageState extends State<MultiStepFormPage> {
                                           ElevatedButton(
                                             onPressed: () {
                                               Navigator.pop(context);
-                                              _pickImage(
+                                              pickImage(
                                                   index, ImageSource.camera);
                                             },
                                             child: const Icon(Icons.camera_alt),
@@ -1107,7 +1106,7 @@ class _MultiStepFormPageState extends State<MultiStepFormPage> {
                                           ElevatedButton(
                                             onPressed: () {
                                               Navigator.pop(context);
-                                              _pickImage(
+                                              pickImage(
                                                   index, ImageSource.gallery);
                                             },
                                             child: const Icon(Icons.photo),
@@ -1119,7 +1118,7 @@ class _MultiStepFormPageState extends State<MultiStepFormPage> {
                                 );
                               },
                               child: Image.file(
-                                _images[index]!,
+                                images[index]!,
                                 fit: BoxFit.cover,
                               ),
                             )
@@ -1137,7 +1136,7 @@ class _MultiStepFormPageState extends State<MultiStepFormPage> {
                                           ElevatedButton(
                                             onPressed: () {
                                               Navigator.pop(context);
-                                              _pickImage(
+                                              pickImage(
                                                   index, ImageSource.camera);
                                             },
                                             child: const Icon(Icons.camera_alt),
@@ -1145,7 +1144,7 @@ class _MultiStepFormPageState extends State<MultiStepFormPage> {
                                           ElevatedButton(
                                             onPressed: () {
                                               Navigator.pop(context);
-                                              _pickImage(
+                                              pickImage(
                                                   index, ImageSource.gallery);
                                             },
                                             child: const Icon(Icons.photo),
@@ -2196,7 +2195,7 @@ class _MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
-  Widget _buildConfirmationRow(String label, String value, IconData icon) {
+  Widget buildConfirmationRow(String label, String value, IconData icon) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -2217,45 +2216,45 @@ class _MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
-  void _nextStep() {
+  void nextStep() {
     if (currentPage == 1) {
-      _pageController.nextPage(
+      pageController.nextPage(
           duration: Duration(milliseconds: 300), curve: Curves.ease);
     } else if (currentPage == 2) {
       // If on page 2 (name), go to page 3 (gender)
-      _pageController.nextPage(
+      pageController.nextPage(
           duration: Duration(milliseconds: 300), curve: Curves.ease);
     } else if (currentPage == 3) {
       // If on page 3 (gender), go to page 4 (describe yourself)
-      _pageController.nextPage(
+      pageController.nextPage(
           duration: Duration(milliseconds: 300), curve: Curves.ease);
     } else if (currentPage == 4) {
       // If on page 4 (describe yourself), go to page 5 (confirmation)
-      _pageController.nextPage(
+      pageController.nextPage(
           duration: Duration(milliseconds: 300), curve: Curves.ease);
     } else if (currentPage == 5) {
-      _pageController.nextPage(
+      pageController.nextPage(
           duration: Duration(milliseconds: 300), curve: Curves.ease);
     } else if (currentPage == 6) {
-      _pageController.nextPage(
+      pageController.nextPage(
           duration: Duration(milliseconds: 300), curve: Curves.ease);
     } else if (currentPage == 7) {
-      _pageController.nextPage(
+      pageController.nextPage(
           duration: Duration(milliseconds: 300), curve: Curves.ease);
     } else if (currentPage == 8) {
-      _pageController.nextPage(
+      pageController.nextPage(
           duration: Duration(milliseconds: 300), curve: Curves.ease);
     } else if (currentPage == 9) {
-      _pageController.nextPage(
+      pageController.nextPage(
           duration: Duration(milliseconds: 300), curve: Curves.ease);
     } else if (currentPage == 10) {
-      _pageController.nextPage(
+      pageController.nextPage(
           duration: Duration(milliseconds: 300), curve: Curves.ease);
     } else if (currentPage == 11) {
-      _pageController.nextPage(
+      pageController.nextPage(
           duration: Duration(milliseconds: 300), curve: Curves.ease);
     } else if (currentPage == 12) {
-      _pageController.nextPage(
+      pageController.nextPage(
           duration: Duration(milliseconds: 300), curve: Curves.ease);
     } else {
       showDialog(

@@ -3,15 +3,17 @@ import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
+
 class RegisterProfilePage extends StatefulWidget {
   const RegisterProfilePage({super.key});
 
   @override
-  _RegisterProfilePageState createState() => _RegisterProfilePageState();
+  RegisterProfilePageState createState() => RegisterProfilePageState();
 }
 
-class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerProviderStateMixin {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+class RegisterProfilePageState extends State<RegisterProfilePage>
+    with TickerProviderStateMixin {
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
@@ -29,8 +31,8 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
   String? selectedState;
   bool isLatLongFetched = false;
 
-  late AnimationController _animationController;
-  late Animation<double> _fadeInAnimation;
+  late AnimationController animationController;
+  late Animation<double> fadeInAnimation;
 
   @override
   void initState() {
@@ -38,25 +40,26 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
     selectedCountry = countries[0];
     selectedState = states[0];
 
-    _animationController = AnimationController(
+    animationController = AnimationController(
       duration: Duration(seconds: 1),
       vsync: this,
     )..forward();
 
-    _fadeInAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    fadeInAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: animationController, curve: Curves.easeIn),
     );
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    animationController.dispose();
     super.dispose();
   }
 
   Future<void> fetchLatLong() async {
     try {
-      List<Location> locations = await locationFromAddress(addressController.text);
+      List<Location> locations =
+          await locationFromAddress(addressController.text);
       if (locations.isNotEmpty) {
         setState(() {
           latitudeController.text = locations.first.latitude.toString();
@@ -64,15 +67,15 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
           isLatLongFetched = true; // Mark Lat/Long as fetched
         });
       } else {
-        _showErrorDialog('No location found for the provided address');
+        showErrorDialog('No location found for the provided address');
       }
     } catch (e) {
-      _showErrorDialog('Error fetching location: $e');
+      showErrorDialog('Error fetching location: $e');
     }
   }
 
   // Show error dialog
-  void _showErrorDialog(String message) {
+  void showErrorDialog(String message) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -93,14 +96,15 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+    final isPortrait =
+        MediaQuery.of(context).orientation == Orientation.portrait;
 
     return Scaffold(
       body: Container(
         color: AppColors.primaryColor, // Set primary background color
         child: Center(
           child: FadeTransition(
-            opacity: _fadeInAnimation,
+            opacity: fadeInAnimation,
             child: Container(
               width: screenSize.width * 0.95,
               height: screenSize.height * 0.85,
@@ -118,43 +122,47 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
                 padding: EdgeInsets.all(isPortrait ? 16.0 : 24.0),
                 child: SingleChildScrollView(
                   child: Form(
-                    key: _formKey,
+                    key: formKey,
                     child: Column(
                       children: [
                         // Name Field
-                        _buildTextField("Name", nameController),
+                        buildTextField("Name", nameController),
 
                         // Email Field
-                        _buildTextField("Email", emailController),
+                        buildTextField("Email", emailController),
 
                         // Mobile Field
-                        _buildTextField("Mobile", mobileController),
+                        buildTextField("Mobile", mobileController),
 
                         // Address Field
-                        _buildTextField("Address", addressController),
+                        buildTextField("Address", addressController),
 
                         // Password Field
-                        _buildTextField("Password", passwordController, obscureText: true),
+                        buildTextField("Password", passwordController,
+                            obscureText: true),
 
                         // Confirm Password Field
-                        _buildTextField("Confirm Password", confirmPasswordController, obscureText: true),
+                        buildTextField(
+                            "Confirm Password", confirmPasswordController,
+                            obscureText: true),
 
                         // Country Dropdown
-                        _buildDropdown("Country", countries, selectedCountry, (value) {
+                        buildDropdown("Country", countries, selectedCountry,
+                            (value) {
                           setState(() {
                             selectedCountry = value;
                           });
                         }),
 
                         // State Dropdown
-                        _buildDropdown("State", states, selectedState, (value) {
+                        buildDropdown("State", states, selectedState, (value) {
                           setState(() {
                             selectedState = value;
                           });
                         }),
 
                         // City Field
-                        _buildTextField("City", cityController),
+                        buildTextField("City", cityController),
 
                         // Fetch Lat/Long Button
                         Padding(
@@ -162,53 +170,66 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
                           child: ElevatedButton(
                             onPressed: fetchLatLong,
                             style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                              backgroundColor: AppColors.buttonColor, // Use AppColors.buttonColor
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 14, horizontal: 30),
+                              backgroundColor: AppColors
+                                  .buttonColor, // Use AppColors.buttonColor
                               foregroundColor: Colors.white,
                             ),
-                            child: Text("Fetch Latitude & Longitude", style: AppTextStyles.buttonText),
+                            child: Text("Fetch Latitude & Longitude",
+                                style: AppTextStyles.buttonText),
                           ),
                         ),
 
                         // Show Latitude and Longitude only if fetched
                         if (isLatLongFetched) ...[
-                          _buildTextField("Latitude", latitudeController, enabled: false),
-                          _buildTextField("Longitude", longitudeController, enabled: false),
+                          buildTextField("Latitude", latitudeController,
+                              enabled: false),
+                          buildTextField("Longitude", longitudeController,
+                             enabled: false),
                         ],
 
                         // Submit Button
                         SizedBox(height: 20),
                         ElevatedButton(
                           onPressed: () {
-                            if (_formKey.currentState!.validate()) {
+                            if (formKey.currentState!.validate()) {
                               // Check if password and confirm password match
-                              if (passwordController.text != confirmPasswordController.text) {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              if (passwordController.text !=
+                                  confirmPasswordController.text) {
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(
                                   content: Text("Passwords do not match!"),
                                 ));
                                 return;
                               }
 
                               // Process form submission
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
                                 content: Text("Form submitted successfully!"),
                               ));
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                            backgroundColor: AppColors.buttonColor, // Use AppColors.buttonColor
+                            padding: EdgeInsets.symmetric(
+                                vertical: 14, horizontal: 30),
+                            backgroundColor: AppColors
+                                .buttonColor, // Use AppColors.buttonColor
                             foregroundColor: Colors.white,
                           ),
-                          child: Text("Submit", style: AppTextStyles.buttonText),
+                          child:
+                              Text("Submit", style: AppTextStyles.buttonText),
                         ),
                         ElevatedButton(
                           onPressed: () {
                             Get.to(OTPVerificationPage());
                           },
                           style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                            backgroundColor: AppColors.buttonColor, // Use AppColors.buttonColor
+                            padding: EdgeInsets.symmetric(
+                                vertical: 14, horizontal: 30),
+                            backgroundColor: AppColors
+                                .buttonColor, // Use AppColors.buttonColor
                           ),
                           child: Text('Next', style: AppTextStyles.buttonText),
                         ),
@@ -224,7 +245,7 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
     );
   }
 
-  Widget _buildTextField(
+  Widget buildTextField(
     String label,
     TextEditingController controller, {
     bool obscureText = false,
@@ -242,22 +263,29 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
           }
           return null;
         },
-        style: AppTextStyles.inputFieldText, // Use AppTextStyles for text color and font
+        style: AppTextStyles
+            .inputFieldText, // Use AppTextStyles for text color and font
         cursorColor: AppColors.textColor, // Set cursor color to white
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: AppTextStyles.labelText, // Use AppTextStyles for label styling
+          labelStyle:
+              AppTextStyles.labelText, // Use AppTextStyles for label styling
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: AppColors.textColor), // Set border color to white
+            borderSide: BorderSide(
+                color: AppColors.textColor), // Set border color to white
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: AppColors.textColor), // Set focused border color to white
+            borderSide: BorderSide(
+                color:
+                    AppColors.textColor), // Set focused border color to white
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: AppColors.textColor), // Set enabled border color to white
+            borderSide: BorderSide(
+                color:
+                    AppColors.textColor), // Set enabled border color to white
           ),
           fillColor: AppColors.formFieldColor, // Set background color
           filled: true, // Ensure the background is filled
@@ -266,7 +294,7 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
     );
   }
 
-  Widget  _buildDropdown(
+  Widget buildDropdown(
     String label,
     List<String> items,
     String? selectedValue,
@@ -281,31 +309,32 @@ class _RegisterProfilePageState extends State<RegisterProfilePage> with TickerPr
             value: value,
             child: Text(
               value,
-              style: AppTextStyles.textStyle, 
+              style: AppTextStyles.textStyle,
             ),
           );
         }).toList(),
         onChanged: onChanged,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: AppTextStyles.labelText, // Use AppTextStyles for label styling
+          labelStyle:
+              AppTextStyles.labelText, // Use AppTextStyles for label styling
 
-                 border: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.formFieldColor),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white), // Focused border color
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white), // Enabled border color
-                ),
+          border: OutlineInputBorder(
+            borderSide: BorderSide(color: AppColors.formFieldColor),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.white), // Focused border color
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.white), // Enabled border color
+          ),
         ),
-        style: AppTextStyles.inputFieldText, // Use AppTextStyles for dropdown text styling
-        dropdownColor: AppColors.secondaryColor, // Set dropdown background color
+        style: AppTextStyles
+            .inputFieldText, // Use AppTextStyles for dropdown text styling
+        dropdownColor:
+            AppColors.secondaryColor, // Set dropdown background color
       ),
     );
   }
 }
-
-

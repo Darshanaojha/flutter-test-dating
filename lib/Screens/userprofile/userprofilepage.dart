@@ -3,7 +3,9 @@ import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
 
+import '../settings/setting.dart';
 import 'editprofile/edituserprofile.dart';
 import 'membership/membershippage.dart';
 
@@ -11,11 +13,11 @@ class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
 
   @override
-  _UserProfilePageState createState() => _UserProfilePageState();
+  UserProfilePageState createState() => UserProfilePageState();
 }
 
-class _UserProfilePageState extends State<UserProfilePage> {
-  bool _isLoading = true; // Used to simulate loading state for fetching data
+class UserProfilePageState extends State<UserProfilePage> {
+  bool isLoading = true; // Used to simulate loading state for fetching data
 
   // Dummy data for user profile (replace with actual data)
   List<String> userPhotos = [
@@ -31,17 +33,17 @@ class _UserProfilePageState extends State<UserProfilePage> {
   String userProfileCompletion = '80% Complete';
 
   // Simulate data fetching (loading state)
-  Future<void> _fetchData() async {
+  Future<void> fetchData() async {
     await Future.delayed(Duration(seconds: 2)); // Simulate network delay
     setState(() {
-      _isLoading = false;
+      isLoading = false;
     });
   }
 
   @override
   void initState() {
     super.initState();
-    _fetchData();
+    fetchData();
   }
 
   @override
@@ -62,13 +64,17 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     itemBuilder: (context, index) {
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: Image.asset(
-                            userPhotos[index],
-                            fit: BoxFit.cover,
-                            width: 150,
-                            height: 200,
+                        child: GestureDetector(
+                          onTap: () =>
+                              showFullImageDialog(context, userPhotos[index]),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: Image.asset(
+                              userPhotos[index],
+                              fit: BoxFit.cover,
+                              width: 150,
+                              height: 200,
+                            ),
                           ),
                         ),
                       );
@@ -82,9 +88,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(userName,
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold)),
+                      Text(userName, style: AppTextStyles.titleText),
                       IconButton(
                         icon: Icon(Icons.edit, size: 30, color: Colors.blue),
                         onPressed: () {
@@ -101,7 +105,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   child: Row(
                     children: [
                       Text('$userAge years old | $userGender',
-                          style: TextStyle(fontSize: 16)),
+                          style: AppTextStyles.labelText),
                     ],
                   ),
                 ),
@@ -117,10 +121,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Profile Completion: $userProfileCompletion',
-                              style: TextStyle(fontSize: 18)),
+                              style: AppTextStyles.labelText),
                           SizedBox(height: 10),
                           Text('Complete your profile to unlock more features!',
-                              style: TextStyle(fontSize: 14)),
+                              style: AppTextStyles.labelText),
                         ],
                       ),
                     ),
@@ -150,10 +154,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                             SizedBox(width: 56),
                             Text(
                               'Membership',
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
+                              style: AppTextStyles.titleText,
                             ),
                           ],
                         ),
@@ -168,7 +169,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     color: Colors.orange, // Set the color to orange
                     elevation: 5,
                     child: InkWell(
-                      onTap: showPingBottomSheet,
+                      onTap: showMessageBottomSheet,
                       child: Container(
                         padding: EdgeInsets.all(16),
                         width: double.infinity,
@@ -182,11 +183,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
                             ),
                             SizedBox(width: 76),
                             Text(
-                              'Pings',
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
+                              'Messages',
+                              style: AppTextStyles.titleText,
                             ),
                           ],
                         ),
@@ -220,11 +218,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                     66), // Add spacing between the icon and the text
                             Text(
                               'Uplift Profile',
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: AppTextStyles.titleText,
                             ),
                           ],
                         ),
@@ -243,7 +237,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                         subtitle: 'Add partners to your constellation',
                         icon: Icons.arrow_forward,
                         onTap: () {
-                          Get.to(AddPartnersPage());
+                          Get.to(AddPartnerPage());
                         },
                       ),
 
@@ -271,7 +265,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                         subtitle: 'Manage app preferences',
                         icon: Icons.settings,
                         onTap: () {
-                          // Navigate or show app settings
+                         Get.to(SettingsPage());
                         },
                       ),
                       SettingCard(
@@ -303,12 +297,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
           ),
 
           // Loading spinner (SpinKitCircle) - Only visible when _isLoading is true
-          if (_isLoading)
+          if (isLoading)
             Center(
               child: SpinKitCircle(
-                size: 100.0, // Adjust the size as needed
-                color: Colors
-                    .blue, // Choose the spinner color that matches your app
+                size: 150.0, // Adjust the size as needed
+                color: AppColors.acceptColor,
+                // Choose the spinner color that matches your app
               ),
             ),
         ],
@@ -316,8 +310,30 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
+  void showFullImageDialog(BuildContext context, String imagePath) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.black.withOpacity(0.9),
+          child: GestureDetector(
+            onTap: () => Navigator.of(context).pop(), // Close dialog on tap
+            child: Center(
+              child: Image.asset(
+                imagePath,
+                fit: BoxFit.contain, // Adjust the image size to fit
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   // Card widget for feature sections like Membership, Pings, etc.
-  Widget _buildFeatureCard(String title, IconData icon, VoidCallback onTap) {
+  Widget buildFeatureCard(String title, IconData icon, VoidCallback onTap) {
     return Card(
       elevation: 5,
       child: InkWell(
@@ -341,7 +357,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   // General Card for Settings Sections (My Constellation, Edit Profile, etc.)
-  Widget _buildSettingCard(
+  Widget buildSettingCard(
       String title, String subtitle, IconData icon, VoidCallback onTap) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -358,7 +374,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   // Helper function for settings items like Magazine, Help, etc.
-  Widget _buildSettingItem(String title) {
+  Widget buildSettingItem(String title) {
     return ListTile(
       title: Text(title),
       onTap: () {
@@ -366,7 +382,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
       },
     );
   }
-void showShareProfileBottomSheet() {
+
+ void showShareProfileBottomSheet() {
   showModalBottomSheet(
     context: context,
     builder: (context) {
@@ -398,7 +415,9 @@ void showShareProfileBottomSheet() {
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context); // Dismiss bottom sheet
-                        // Implement share functionality here
+                        
+                        // Share the user profile
+                        shareUserProfile();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.activeColor, // Button color from AppColors
@@ -454,10 +473,18 @@ void showShareProfileBottomSheet() {
   );
 }
 
+// Function to share the user profile
+void shareUserProfile() {
+  final String profileUrl = 'https://example.com/user-profile'; // Replace with the actual profile URL or content
+  final String profileDetails = "Check out this profile:\nJohn Doe\nAge: 25\nGender: Male\n$profileUrl";
+
+  // Use share_plus to share the profile link or details to other apps
+  Share.share(profileDetails);
+}
 
 }
 
-Future<void> showPingBottomSheet() async {
+Future<void> showMessageBottomSheet() async {
   Get.bottomSheet(
     Padding(
       padding: const EdgeInsets.all(16.0),
@@ -465,7 +492,7 @@ Future<void> showPingBottomSheet() async {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Send a Ping', style: AppTextStyles.inputFieldText),
+            Text('Send a Message', style: AppTextStyles.inputFieldText),
             SizedBox(height: 20),
             TextField(
               // controller: _pingController,
@@ -506,7 +533,7 @@ Future<void> showPingBottomSheet() async {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.buttonColor,
               ),
-              child: Text('Send Ping', style: AppTextStyles.buttonText),
+              child: Text('Send Message', style: AppTextStyles.buttonText),
             ),
           ],
         ),
@@ -688,7 +715,7 @@ class SettingCard extends StatelessWidget {
           child: ListTile(
             title: Text(
               title,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: AppTextStyles.titleText,
             ),
             subtitle: Text(subtitle, style: TextStyle(fontSize: 14)),
             trailing: Icon(icon),

@@ -8,17 +8,17 @@ class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
   @override
-  _SettingsPageState createState() => _SettingsPageState();
+  SettingsPageState createState() => SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class SettingsPageState extends State<SettingsPage> {
   double maxDistance = 50.0;
-  RangeValues _ageRange = RangeValues(18, 35); 
-  final List<String> _lookingFor = [];
-  final TextEditingController _desireController = TextEditingController();
-  bool _showOnlineUsers = false;
-  String _currentLocation = "Fetching..."; // To be updated with Geolocator
-  String _locationSelection = "Current Location"; // For Location Selection
+  RangeValues ageRange = RangeValues(18, 35); 
+  final List<String> lookingFor = [];
+  final TextEditingController desireController = TextEditingController();
+  bool showOnlineUsers = false;
+  String currentLocation = "Fetching..."; // To be updated with Geolocator
+  String locationSelection = "Current Location"; // For Location Selection
 
   // Gender options for "Looking For"
   final List<String> genderOptions = ['Male', 'Female', 'Non-Binary'];
@@ -35,11 +35,11 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation();  // Initial call to fetch location if possible
+    getCurrentLocation();  // Initial call to fetch location if possible
   }
 
   // Method to check and get the current location using Geolocator
-  Future<void> _getCurrentLocation() async {
+  Future<void> getCurrentLocation() async {
     // Check location permission
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
@@ -50,18 +50,18 @@ class _SettingsPageState extends State<SettingsPage> {
     if (permission == LocationPermission.deniedForever) {
       // If permission is denied forever, show a message
       setState(() {
-        _currentLocation = "Location permissions are permanently denied";
+        currentLocation = "Location permissions are permanently denied";
       });
     } else if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
   
       Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       setState(() {
-        _currentLocation = "Lat: ${position.latitude}, Long: ${position.longitude}";
+        currentLocation = "Lat: ${position.latitude}, Long: ${position.longitude}";
       });
     } else {
       // Handle other cases
       setState(() {
-        _currentLocation = "Unable to fetch location";
+        currentLocation = "Unable to fetch location";
       });
     }
   }
@@ -98,19 +98,19 @@ class _SettingsPageState extends State<SettingsPage> {
             // Age Range
             Text("Age Range", style: AppTextStyles.subheadingText),
             RangeSlider(
-              values: _ageRange,
+              values: ageRange,
               min: 18,
               max: 100,
               divisions: 82,
               labels: RangeLabels(
-                _ageRange.start.round().toString(),
-                _ageRange.end.round().toString(),
+                ageRange.start.round().toString(),
+                ageRange.end.round().toString(),
               ),
               activeColor: AppColors.activeColor,
               inactiveColor: AppColors.inactiveColor,
               onChanged: (RangeValues values) {
                 setState(() {
-                  _ageRange = values;
+                  ageRange = values;
                 });
               },
             ),
@@ -121,13 +121,13 @@ class _SettingsPageState extends State<SettingsPage> {
             ...genderOptions.map((gender) {
               return CheckboxListTile(
                 title: Text(gender, style: AppTextStyles.textStyle),
-                value: _lookingFor.contains(gender),
+                value: lookingFor.contains(gender),
                 onChanged: (bool? selected) {
                   setState(() {
                     if (selected == true) {
-                      _lookingFor.add(gender);  // Add to list if selected
+                      lookingFor.add(gender);  // Add to list if selected
                     } else {
-                      _lookingFor.remove(gender);  // Remove from list if unselected
+                      lookingFor.remove(gender);  // Remove from list if unselected
                     }
                   });
                 },
@@ -137,18 +137,18 @@ class _SettingsPageState extends State<SettingsPage> {
             SizedBox(height: 20),
 
             // Display selected "Looking For" options
-            Text("Selected: ${_lookingFor.join(", ")}", style: AppTextStyles.textStyle),
+            Text("Selected: ${lookingFor.join(", ")}", style: AppTextStyles.textStyle),
             SizedBox(height: 20),
 
             // My Location
             Text("My Location", style: AppTextStyles.subheadingText),
             ListTile(
               tileColor: AppColors.secondaryColor,
-              title: Text(_locationSelection, style: AppTextStyles.textStyle),
+              title: Text(locationSelection, style: AppTextStyles.textStyle),
               trailing: Icon(Icons.arrow_drop_down, color: AppColors.accentColor),
               onTap: () async {
                 // Show a dialog to select location type (current location or predefined list)
-                await _showLocationSelectionDialog();
+                await showLocationSelectionDialog();
               },
             ),
             SizedBox(height: 20),
@@ -156,7 +156,7 @@ class _SettingsPageState extends State<SettingsPage> {
             // Search By
             Text("Search By", style: AppTextStyles.subheadingText),
             TextField(
-              controller: _desireController,
+              controller: desireController,
               cursorColor: AppColors.cursorColor,
               decoration: InputDecoration(
                 hintText: 'Enter your desires...',
@@ -182,15 +182,15 @@ class _SettingsPageState extends State<SettingsPage> {
             // Recent Online Users Toggle
             Text("Show Recent Online Users", style: AppTextStyles.subheadingText),
             SwitchListTile(
-              value: _showOnlineUsers,
+              value: showOnlineUsers,
               onChanged: (bool value) {
                 setState(() {
-                  _showOnlineUsers = value;
+                  showOnlineUsers = value;
                 });
               },
               activeColor: AppColors.acceptColor,
               title: Text(
-                _showOnlineUsers ? "Online Users Visible" : "Hide Online Users",
+                showOnlineUsers ? "Online Users Visible" : "Hide Online Users",
                 style: AppTextStyles.textStyle,
               ),
             ),
@@ -201,7 +201,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   // Method to show location selection dialog
-  Future<void> _showLocationSelectionDialog() async {
+  Future<void> showLocationSelectionDialog() async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -214,25 +214,25 @@ class _SettingsPageState extends State<SettingsPage> {
               RadioListTile<String>(
                 title: Text("Use Current Location", style: AppTextStyles.textStyle),
                 value: "Current Location",
-                groupValue: _locationSelection,
+                groupValue: locationSelection,
                 onChanged: (value) {
                   setState(() {
-                    _locationSelection = value!;
+                    locationSelection = value!;
                   });
                   Navigator.pop(context);
-                  _getCurrentLocation(); // Fetch current location
+                  getCurrentLocation(); // Fetch current location
                 },
               ),
               RadioListTile<String>(
                 title: Text("Select from List", style: AppTextStyles.textStyle),
                 value: "Select from List",
-                groupValue: _locationSelection,
+                groupValue: locationSelection,
                 onChanged: (value) {
                   setState(() {
-                    _locationSelection = value!;
+                    locationSelection = value!;
                   });
                   Navigator.pop(context);
-                  _showLocationListDialog();
+                  showLocationListDialog();
                 },
               ),
             ],
@@ -243,7 +243,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   // Show a dialog for selecting from predefined locations
-  Future<void> _showLocationListDialog() async {
+  Future<void> showLocationListDialog() async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -257,8 +257,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 title: Text(location, style: AppTextStyles.textStyle),
                 onTap: () {
                   setState(() {
-                    _currentLocation = location;
-                    _locationSelection = location;
+                    currentLocation = location;
+                    locationSelection = location;
                   });
                   Navigator.pop(context);
                 },

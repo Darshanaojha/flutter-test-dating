@@ -3,6 +3,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../constants.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -56,9 +57,9 @@ class _HomePageState extends State<HomePage> {
   bool _isLiked = false;
   bool _isDisliked = false;
   bool _isLoading = true;
-  int _pingCount = 0;
-  final TextEditingController _pingController = TextEditingController();
-  final FocusNode _pingFocusNode = FocusNode();
+  int messageCount = 0;
+  final TextEditingController messageController = TextEditingController();
+  final FocusNode messageFocusNode = FocusNode();
   final PageController _pageController = PageController();
   final PageController _imagePageController = PageController();
 
@@ -77,17 +78,39 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    _pingFocusNode.dispose();
+    messageFocusNode.dispose();
     super.dispose();
   }
 
   void _incrementPing() {
     setState(() {
-      _pingCount++;
+      messageCount++;
     });
   }
 
-  void _showPingBottomSheet() {
+  void _showFullImageDialog(BuildContext context, String imagePath) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.black.withOpacity(0.9),
+          child: GestureDetector(
+            onTap: () => Navigator.of(context).pop(), // Close dialog on tap
+            child: Center(
+              child: Image.asset(
+                imagePath,
+                fit: BoxFit.contain, // Adjust the image size to fit
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void showmessageBottomSheet() {
     Get.bottomSheet(
       Padding(
         padding: const EdgeInsets.all(16.0),
@@ -95,12 +118,12 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Send a Ping', style: AppTextStyles.inputFieldText),
+              Text('Send a Message', style: AppTextStyles.inputFieldText),
               SizedBox(height: 20),
               TextField(
-                controller: _pingController,
+                controller: messageController,
                 cursorColor: AppColors.cursorColor,
-                focusNode: _pingFocusNode,
+                focusNode: messageFocusNode,
                 decoration: InputDecoration(
                   labelText: 'Write your message...',
                   labelStyle: AppTextStyles.labelText,
@@ -122,21 +145,21 @@ class _HomePageState extends State<HomePage> {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  if (_pingController.text.isNotEmpty) {
+                  if (messageController.text.isNotEmpty) {
                     setState(() {
-                      _pingCount--;
+                      messageCount--;
                     });
-                    _pingController.clear();
+                    messageController.clear();
                     Get.back();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Ping sent!')),
+                      SnackBar(content: Text('Message sent!')),
                     );
                   }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.buttonColor,
                 ),
-                child: Text('Send Ping', style: AppTextStyles.buttonText),
+                child: Text('Send Message', style: AppTextStyles.buttonText),
               ),
             ],
           ),
@@ -187,15 +210,27 @@ class _HomePageState extends State<HomePage> {
                                     scrollDirection: Axis.vertical,
                                     itemCount: users[index]['images'].length,
                                     itemBuilder: (context, imgIndex) {
-                                      return Container(
-                                        margin: EdgeInsets.only(bottom: 12),
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(15),
-                                          child: Image.asset(
-                                            users[index]['images'][imgIndex],
-                                            fit: BoxFit.cover,
-                                            width: MediaQuery.of(context).size.width * 0.9,
-                                            height: MediaQuery.of(context).size.height * 0.45,
+                                      return GestureDetector(
+                                        onTap: () => _showFullImageDialog(
+                                            context,
+                                            users[index]['images'][imgIndex]),
+                                        child: Container(
+                                          margin: EdgeInsets.only(bottom: 12),
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            child: Image.asset(
+                                              users[index]['images'][imgIndex],
+                                              fit: BoxFit.cover,
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.9,
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.45,
+                                            ),
                                           ),
                                         ),
                                       );
@@ -203,44 +238,66 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   Positioned(
                                     bottom: 10,
-                                    left: 0,
                                     right: 0,
                                     child: Padding(
                                       padding: EdgeInsets.symmetric(
-                                          horizontal: MediaQuery.of(context).size.width * 0.1),
-                                      child: SmoothPageIndicator(
-                                        controller: _imagePageController,
-                                        count: users[index]['images'].length,
-                                        effect: ExpandingDotsEffect(
-                                          dotHeight: 10,
-                                          dotWidth: 10,
-                                          spacing: 10,
-                                          radius: 5,
-                                          dotColor: Colors.grey.withOpacity(0.5),
-                                          activeDotColor: AppColors.acceptColor,
+                                        vertical:
+                                            MediaQuery.of(context).size.height *
+                                                0.1, // Adjust vertical padding
+                                      ),
+                                      child: Transform.rotate(
+                                        angle:
+                                            -1.5708, // -1.5708 radians = 90 degrees counterclockwise
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment
+                                              .center, // Centers the dots horizontally
+                                          children: [
+                                            SmoothPageIndicator(
+                                              controller: _imagePageController,
+                                              count:
+                                                  users[index]['images'].length,
+                                              effect: ExpandingDotsEffect(
+                                                dotHeight: 10,
+                                                dotWidth: 10,
+                                                spacing: 10,
+                                                radius: 5,
+                                                dotColor: Colors.grey
+                                                    .withOpacity(0.5),
+                                                activeDotColor:
+                                                    AppColors.acceptColor,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),
-                                  ),
+                                  )
                                 ],
                               ),
                             ),
                             SizedBox(height: 16),
-                            Text(users[index]['name'], style: AppTextStyles.headingText),
+                            Text(users[index]['name'],
+                                style: AppTextStyles.headingText),
                             Row(
                               children: [
-                                Text('${users[index]['age']} years old | ', style: AppTextStyles.bodyText),
-                                Text('${users[index]['location']} | ', style: AppTextStyles.bodyText),
-                                Text('${users[index]['km']} km away', style: AppTextStyles.bodyText),
+                                Text('${users[index]['age']} years old | ',
+                                    style: AppTextStyles.bodyText),
+                                Text('${users[index]['location']} | ',
+                                    style: AppTextStyles.bodyText),
+                                Text('${users[index]['km']} km away',
+                                    style: AppTextStyles.bodyText),
                               ],
                             ),
                             SizedBox(height: 4),
-                            Text('Last Seen: ${users[index]['lastSeen']}', style: AppTextStyles.bodyText),
+                            Text('Last Seen: ${users[index]['lastSeen']}',
+                                style: AppTextStyles.bodyText),
                             SizedBox(height: 12),
-                            Text('Desires:', style: AppTextStyles.subheadingText),
+                            Text('Desires:',
+                                style: AppTextStyles.subheadingText),
                             Flexible(
                               child: GridView.builder(
-                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 3,
                                   crossAxisSpacing: 4.0,
                                   mainAxisSpacing: 0.0,
@@ -262,7 +319,8 @@ class _HomePageState extends State<HomePage> {
                                         borderRadius: BorderRadius.circular(18),
                                       ),
                                       elevation: 4,
-                                      labelPadding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+                                      labelPadding: EdgeInsets.symmetric(
+                                          horizontal: 8.0, vertical: 6.0),
                                     ),
                                   );
                                 },
@@ -290,7 +348,8 @@ class _HomePageState extends State<HomePage> {
                       if (_isLiked) _isDisliked = false;
                     });
                   },
-                  backgroundColor: _isLiked ? AppColors.acceptColor : Colors.grey,
+                  backgroundColor:
+                      _isLiked ? AppColors.acceptColor : Colors.grey,
                   child: Icon(
                     Icons.favorite,
                     size: 30,
@@ -305,7 +364,8 @@ class _HomePageState extends State<HomePage> {
                       if (_isDisliked) _isLiked = false;
                     });
                   },
-                  backgroundColor: _isDisliked ? AppColors.deniedColor : Colors.grey,
+                  backgroundColor:
+                      _isDisliked ? AppColors.deniedColor : Colors.grey,
                   child: Icon(
                     Icons.thumb_down,
                     size: 30,
@@ -319,7 +379,7 @@ class _HomePageState extends State<HomePage> {
             bottom: 16,
             right: 16,
             child: FloatingActionButton(
-              onPressed: _showPingBottomSheet,
+              onPressed: showmessageBottomSheet,
               backgroundColor: AppColors.buttonColor,
               child: Stack(
                 alignment: Alignment.center,
@@ -329,7 +389,7 @@ class _HomePageState extends State<HomePage> {
                     size: 30,
                     color: AppColors.textColor,
                   ),
-                  if (_pingCount > 0)
+                  if (messageCount > 0)
                     Positioned(
                       top: 0,
                       right: 0,
@@ -337,7 +397,7 @@ class _HomePageState extends State<HomePage> {
                         radius: 10,
                         backgroundColor: AppColors.deniedColor,
                         child: Text(
-                          '$_pingCount',
+                          '$messageCount',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -355,4 +415,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
