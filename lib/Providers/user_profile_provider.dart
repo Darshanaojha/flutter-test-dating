@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart';
 
-final String baseUrl = "http://192.168.1.22/dating_backend_springboot/admin";
-
 class UserProfileProvider extends GetConnect {
-  // Gender
+
   Future<bool> fetchGenders() async {
     try {
       final response = await get(Uri.parse('$baseUrl/Common/gender'));
@@ -32,8 +30,6 @@ class UserProfileProvider extends GetConnect {
       return false;
     }
   }
-
-  //Preferences
   Future<bool> fetchPreferences() async {
     try {
       final response = await get(Uri.parse('$baseUrl/Common/all_preferences'));

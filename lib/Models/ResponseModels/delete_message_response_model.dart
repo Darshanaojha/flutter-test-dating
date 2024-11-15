@@ -9,7 +9,6 @@ class DeleteMessageResponse {
     required this.error,
   });
 
-  // Factory constructor to create DeleteMessageResponse from JSON
   factory DeleteMessageResponse.fromJson(Map<String, dynamic> json) {
     return DeleteMessageResponse(
       success: json['success'],
@@ -18,7 +17,6 @@ class DeleteMessageResponse {
     );
   }
 
-  // Method to convert DeleteMessageResponse object to JSON
   Map<String, dynamic> toJson() {
     return {
       'success': success,

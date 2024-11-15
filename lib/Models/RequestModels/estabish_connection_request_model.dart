@@ -6,7 +6,7 @@ class EstablishConnectionMessageRequest {
     required this.receiverId,
     required this.message,
   }) {
-    // Validation logic for the fields
+
     if (receiverId.isEmpty) {
       throw ArgumentError("Receiver ID is required.");
     }
@@ -21,7 +21,6 @@ class EstablishConnectionMessageRequest {
     }
   }
 
-  // Factory constructor to create EstablishConnectionMessageRequest from JSON
   factory EstablishConnectionMessageRequest.fromJson(Map<String, dynamic> json) {
     return EstablishConnectionMessageRequest(
       receiverId: json['receiver_id'],
@@ -29,7 +28,6 @@ class EstablishConnectionMessageRequest {
     );
   }
 
-  // Method to convert EstablishConnectionMessageRequest object to JSON
   Map<String, dynamic> toJson() {
     return {
       'receiver_id': receiverId,
