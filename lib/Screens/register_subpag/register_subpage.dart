@@ -1218,8 +1218,8 @@ Widget buildUserDescriptionStep(Size screenSize) {
                 ? "Notification Permission"
                 : "Location Permission",
             style: AppTextStyles.titleText.copyWith(
-              fontSize: screenSize.width * 0.05, // Responsive font size
-              color: AppColors.textColor, // Consistent text color
+              fontSize: screenSize.width * 0.05,
+              color: AppColors.textColor,
             ),
           ),
           content: Text(
@@ -1227,15 +1227,13 @@ Widget buildUserDescriptionStep(Size screenSize) {
                 ? "Do you allow the app to send notifications?"
                 : "Do you allow the app to access your location?",
             style: AppTextStyles.bodyText.copyWith(
-              fontSize: screenSize.width * 0.04, // Responsive font size
-              color: AppColors.textColor, // Consistent text color
+              fontSize: screenSize.width * 0.04,
+              color: AppColors.textColor,
             ),
           ),
           actions: <Widget>[
-            // Deny button
             TextButton(
               onPressed: () {
-                // Update the corresponding permission as denied
                 if (permissionType == 'notification') {
                   notificationGranted.value = false;
                 } else if (permissionType == 'location') {

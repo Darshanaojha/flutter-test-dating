@@ -1,4 +1,3 @@
-import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,10 +9,7 @@ import '../settings/setting.dart';
 import '../userprofile/userprofilepage.dart';
 
 class NavigationController extends GetxController {
-  // Track the selected index
   final Rx<int> selectedIndex = 0.obs;
-
-  // Store the pages themselves (not the result of Get.to())
   final List<Widget> screens = [
     HomePage(),
     LikesPage(),
@@ -21,13 +17,63 @@ class NavigationController extends GetxController {
     UserProfilePage()
   ];
 
-  // Method to navigate to a different screen
   void navigateTo(int index) {
     selectedIndex.value = index;
   }
 }
+
 class NavigationBottomBar extends StatelessWidget {
   const NavigationBottomBar({super.key});
+
+  double getResponsiveFontSize(BuildContext context, double scale) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth * scale;
+  }
+
+  void showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Logout',
+              style: AppTextStyles.headingText
+                  .copyWith(fontSize: getResponsiveFontSize(context, 0.04))),
+          content: Text('Are you sure you want to log out?',
+              style: AppTextStyles.headingText
+                  .copyWith(fontSize: getResponsiveFontSize(context, 0.04))),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.textColor,
+                backgroundColor: AppColors.primaryColor, 
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); 
+              },
+              child: Text('No',
+                  style: AppTextStyles.headingText.copyWith(
+                      fontSize: getResponsiveFontSize(context, 0.04))),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.textColor,
+                backgroundColor:
+                    AppColors.inactiveColor, 
+              ),
+              onPressed: () {
+                Get.offAll(() =>
+                    Login());
+              },
+              child: Text('Yes',
+                  style: AppTextStyles.headingText.copyWith(
+                      fontSize: getResponsiveFontSize(context, 0.04))),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,13 +81,18 @@ class NavigationBottomBar extends StatelessWidget {
 
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(40),
+        preferredSize: Size.fromHeight(60),
         child: AppBar(
           elevation: 5,
           title: Center(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text('FlamR', style: AppTextStyles.headingText),
+              child: Text(
+                'FlamR',
+                style: AppTextStyles.headingText.copyWith(
+                  fontSize: getResponsiveFontSize(context, 0.08),
+                ),
+              ),
             ),
           ),
           backgroundColor: AppColors.acceptColor,
@@ -51,7 +102,6 @@ class NavigationBottomBar extends StatelessWidget {
               bottomRight: Radius.circular(30),
             ),
           ),
-          // Add the Settings icon to the leading side (left side)
           leading: IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
@@ -61,76 +111,80 @@ class NavigationBottomBar extends StatelessWidget {
               );
             },
           ),
-          // Add the Logout button to the actions (right side)
           actions: [
             IconButton(
               icon: Icon(Icons.exit_to_app),
               onPressed: () {
-                // Add your logout functionality here
-                // Example:
-                Get.offAll(() => Login()); // Redirect to Login Page
+                showLogoutDialog(context);
               },
             ),
           ],
         ),
       ),
-      // Use Obx to reactively display the selected screen based on selectedIndex
       body: Obx(() {
         return controller.screens[controller.selectedIndex.value];
       }),
-
-      // The Bottom Navigation Bar with animated icons
       bottomNavigationBar: Obx(() {
-        return NavigationBar(
-          selectedIndex: controller.selectedIndex.value,
-          onDestinationSelected: (index) {
-            controller.navigateTo(index); // Change the index and navigate
-          },
-          backgroundColor: AppColors.primaryColor,
-          height: 80,
-          elevation: 1,
-          destinations: [
-            NavigationDestination(
-              icon: AnimatedScale(
-                scale: controller.selectedIndex.value == 0
-                    ? 1.2
-                    : 1.0, // Scale effect on selection
-                duration: const Duration(milliseconds: 300),
-                child: Icon(Icons.home),
-              ),
-              label: 'Home',
+        return AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          decoration: BoxDecoration(
+            color: AppColors.primaryColor,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
             ),
-            NavigationDestination(
-              icon: AnimatedScale(
-                scale: controller.selectedIndex.value == 1
-                    ? 1.2
-                    : 1.0, // Scale effect on selection
-                duration: const Duration(milliseconds: 300),
-                child: Icon(Icons.favorite),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                offset: Offset(0, -2),
+                blurRadius: 8,
               ),
-              label: 'Likes',
-            ),
-            NavigationDestination(
-              icon: AnimatedScale(
-                scale: controller.selectedIndex.value == 2
-                    ? 1.2
-                    : 1.0, // Scale effect on selection
-                duration: const Duration(milliseconds: 300),
-                child: Icon(Icons.message),
+            ],
+          ),
+          child: NavigationBar(
+            selectedIndex: controller.selectedIndex.value,
+            onDestinationSelected: (index) {
+              controller.navigateTo(index);
+            },
+            backgroundColor: AppColors.primaryColor,
+            height: 80,
+            elevation: 1,
+            destinations: [
+              NavigationDestination(
+                icon: AnimatedScale(
+                  scale: controller.selectedIndex.value == 0 ? 1.2 : 1.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: Icon(Icons.home),
+                ),
+                label: 'Home',
               ),
-              label: 'Messages',
-            ),
-            NavigationDestination(
-              icon: AnimatedScale(
-                scale: controller.selectedIndex.value == 3
-                    ? 1.2
-                    : 1.0, // Scale effect on selection
-                duration: const Duration(milliseconds: 300),
-                child: Icon(Icons.account_circle),
+              NavigationDestination(
+                icon: AnimatedScale(
+                  scale: controller.selectedIndex.value == 1 ? 1.2 : 1.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: Icon(Icons.favorite),
+                ),
+                label: 'Likes',
               ),
-              label: 'Profile',
-            ),
-          ],
+              NavigationDestination(
+                icon: AnimatedScale(
+                  scale: controller.selectedIndex.value == 2 ? 1.2 : 1.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: Icon(Icons.message),
+                ),
+                label: 'Messages',
+              ),
+              NavigationDestination(
+                icon: AnimatedScale(
+                  scale: controller.selectedIndex.value == 3 ? 1.2 : 1.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: Icon(Icons.account_circle),
+                ),
+                label: 'Profile',
+              ),
+            ],
+          ),
         );
       }),
     );
