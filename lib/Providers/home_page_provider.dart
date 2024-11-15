@@ -1,101 +1,99 @@
-import 'dart:convert';
-
-import 'package:flutter/material.dart';
+import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart';
 
-final String baseUrl = "http://192.168.1.22/dating_backend_springboot/admin";
+import '../Models/ResponseModels/ProfileResponse.dart';
+import '../Models/ResponseModels/all_active_user_resposne_model.dart';
+import '../Models/ResponseModels/get_all_desires_model_response.dart';
+import '../constants.dart';
 
 class HomePageProvider extends GetConnect {
-  // Desires
-  Future<bool> fetchDesires() async {
+  Future<DesiresResponse?> fetchDesires() async {
     try {
-      final response = await get(Uri.parse('$baseUrl/Common/all_desires'));
-      final jsonResponse = jsonDecode(response.body);
+      Response response = await get('$baseUrl/Common/all_desires');
+
       if (response.statusCode == 200) {
-        if (jsonResponse['error']['code'] == 0) {
-          debugPrint('Desires: ${jsonResponse['payload']['data']}');
-          return true;
+        if (response.body['error']['code'] == 0) {
+          return DesiresResponse.fromJson(response.body);
         } else {
-          debugPrint(
-              "Error occurred in Desires: ${jsonResponse['error']['message']} Status: ${jsonResponse['error']['code']}");
-          return false;
+          failure('Error', response.body['error']['message']);
+          return null;
         }
       } else {
-        debugPrint(
-            'Failed to load Desires. Status code: ${response.statusCode}');
-        debugPrint("${jsonResponse['error']['message']}");
-        return false;
+        failure('Error', response.body['error']['message']);
+        return null;
       }
     } catch (e) {
-      debugPrint('An error occurred in Desires: $e');
-      return false;
+      failure('Error', e.toString());
+      return null;
     }
   }
 
-  final token =
-      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUaGVfY2xhaW0iLCJhdWQiOiJUaGVfQXVkIiwiaWF0IjoxNzMxMzk4MDUyLCJuYmYiOjE3MzEzOTgwNTIsImV4cCI6MTczMzk5MDA1MiwiZGF0YSI6WyIyOSIsInVzZXIiLCIzIl19.9BehUe9zCCEia9UU2EguEJygGY-Hxe968Rawm7dvnYc";
-// Profiles
-  Future<bool> fetchProfile() async {
+  Future<ProfileResponse?> fetchProfile() async {
     try {
-      final response = await get(
-        Uri.parse('$baseUrl/Profile/profile'),
+      EncryptedSharedPreferences preferences =
+          EncryptedSharedPreferences.getInstance();
+      String? token = preferences.getString('token');
+      if (token == null || token.isEmpty) {
+        failure('Error', 'Token not found');
+        return null;
+      }
+
+      Response response = await get(
+        '$baseUrl/Profile/profile',
         headers: {
           'Authorization': 'Bearer $token',
         },
       );
-      final jsonResponse = jsonDecode(response.body);
-      debugPrint(jsonResponse);
+
       if (response.statusCode == 200) {
-        if (jsonResponse['error']['code'] == 0) {
-          debugPrint('Profile: ${jsonResponse['payload']['data']}');
-          return true;
+        if (response.body['error']['code'] == 0) {
+          return ProfileResponse.fromJson(response.body);
         } else {
-          debugPrint(
-              "Error occurred in Profile: ${jsonResponse['error']['message']} Status: ${jsonResponse['error']['code']}");
-          return false;
+          failure('Error', response.body['error']['message']);
+          return null;
         }
       } else {
-        debugPrint(
-            'Failed to load Profile. Status code: ${response.statusCode}');
-        debugPrint("${jsonResponse['error']['message']}");
-        return false;
+        failure('Error', response.body['error']['message']);
+        return null;
       }
     } catch (e) {
-      debugPrint('An error occurred in Profile: $e');
-      return false;
+      failure('Error', e.toString());
+      return null;
     }
   }
 
-  // All Active Users
-  Future<bool> fetchAllActiveUsers() async {
+  Future<AllActiveUsersResponse?> fetchAllActiveUsers() async {
     try {
-      final response = await post(
-        Uri.parse('$baseUrl/Profile/fetch_all_active_user'),
+      EncryptedSharedPreferences preferences =
+          EncryptedSharedPreferences.getInstance();
+      String? token = preferences.getString('token');
+      if (token == null || token.isEmpty) {
+        failure('Error', 'Token not found');
+        return null;
+      }
+
+      Response response = await post(
+        '$baseUrl/Profile/fetch_all_active_user',
+        null,
         headers: {
           'Authorization': 'Bearer $token',
         },
       );
-      final jsonResponse = jsonDecode(response.body);
-      debugPrint(jsonResponse);
+
       if (response.statusCode == 200) {
-        if (jsonResponse['error']['code'] == 0) {
-          debugPrint('All Active Users: ${jsonResponse['payload']['data']}');
-          return true;
+        if (response.body['error']['code'] == 0) {
+          return AllActiveUsersResponse.fromJson(response.body);
         } else {
-          debugPrint(
-              "Error occurred in All Active Users: ${jsonResponse['error']['message']} Status: ${jsonResponse['error']['code']}");
-          return false;
+          failure('Error', response.body['error']['message']);
+          return null;
         }
       } else {
-        debugPrint(
-            'Failed to load All Active Users. Status code: ${response.statusCode}');
-        debugPrint("${jsonResponse['error']['message']}");
-        return false;
+        failure('Error', response.body['error']['message']);
+        return null;
       }
     } catch (e) {
-      debugPrint('An error occurred in All Active Users: $e');
-      return false;
+      failure('Error', e.toString());
+      return null;
     }
   }
 }
