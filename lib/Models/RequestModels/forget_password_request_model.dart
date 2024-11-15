@@ -6,7 +6,7 @@ class ForgetPasswordRequest {
     required this.email,
     required this.newPassword,
   }) {
-    // Validate the fields during object creation
+
     if (!_isValidEmail(email)) {
       throw ArgumentError("Invalid email format.");
     }
@@ -15,7 +15,6 @@ class ForgetPasswordRequest {
     }
   }
 
-  // Factory constructor to create ForgetPasswordRequest from JSON
   factory ForgetPasswordRequest.fromJson(Map<String, dynamic> json) {
     return ForgetPasswordRequest(
       email: json['email'],
