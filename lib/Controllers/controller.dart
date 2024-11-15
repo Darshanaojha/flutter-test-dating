@@ -1,33 +1,41 @@
-
-import 'package:dating_application/Models/RequestModels/user_login_request_model.dart';
-import 'package:dating_application/constants.dart';
+import 'package:dating_application/Providers/login_provider.dart';
+import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 
-
-
-import '../Providers/provider.dart';
-import '../Screens/login.dart';
+import '../Models/ResponseModels/user_login_response_model.dart';
+import '../constants.dart';
 
 class Controller extends GetxController {
-  Provider provider = Get.put(Provider());
+  Future<void> storeUserData(UserLoginResponse userLoginResponse) async {
+    try {
+      EncryptedSharedPreferences preferences =
+          EncryptedSharedPreferences.getInstance();
 
-  // static var selectedIndex;
+      await preferences.setString('token', userLoginResponse.payload.token);
+      await preferences.setString('userId', userLoginResponse.payload.userId);
+      await preferences.setString('email', userLoginResponse.payload.email);
+      await preferences.setString('contact', userLoginResponse.payload.contact);
+    } catch (e) {
+      failure('Error', e.toString());
+    }
+  }
 
-  // register(RegisterRequest registerRequest) async {
-  //   bool result = await provider.register(registerRequest);
-  //   if (result) {
-  //     Get.offAll(Login);
-  //   } else {
-  //     showFailedSnackBar('Error', 'Internal Server Error');
-  //   }
-  // }
+  Future<bool> login(dynamic userLoginRequest) async {
+    try {
+      final UserLoginResponse? response =
+          await LoginProvider().userLogin(userLoginRequest);
 
-  login(UserLoginRequest loginRequest) async {
-    bool result = await provider.login(loginRequest);
-    if (result) {
-    //  Get.offAll(Home());
-    } else {
-      failure('Error', 'Internal Server Error');
+      if (response != null) {
+        await storeUserData(response);
+        success('Success', 'Login successful!');
+        return true;
+      } else {
+        failure('Error', 'Login failed. Please check your credentials.');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
     }
   }
 }

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-const $Url = "http://192.168.1.22/dating_backend_springboot/admin/";
-const $registerUrl = "Authentication/register";
-const $loginUrl = "Authentication/login";
-const $profileUrl = "Authentication/profile";
+const baseurl = "http://192.168.1.22/dating_backend_springboot/admin/";
+const registerUrl = "Authentication/register";
+const loginUrl = "Authentication/login";
+const profileUrl = "Authentication/profile";
 
 // Base URLs
 // const String $baseUrl = "http://192.168.1.22/dating_backend_springboot/admin/";

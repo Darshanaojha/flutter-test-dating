@@ -55,7 +55,7 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
     // Calculate responsive font size based on screen width
    double fontSize = size.width * 0.03; // Adjust multiplier as needed
     double subheadingFontSize = size.width * 0.045;
-    double buttonFontSize = size.width * 0.045;
+    double buttonFontSize = size.width * 0.035;
 
     final defaultPinTheme = PinTheme(
       width: size.width * 0.15,
