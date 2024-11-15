@@ -1,3 +1,5 @@
+
+
 import 'package:dating_application/RequestModels/login.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -6,6 +8,7 @@ import 'package:get/get_connect/connect.dart';
 
 import '../RequestModels/register.dart';
 import '../ResponseModels/profile.dart';
+
 
 class Provider extends GetConnect {
   Future<bool> register(RegisterRequest registerRequest) async {

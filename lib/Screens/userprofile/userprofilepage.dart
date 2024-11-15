@@ -56,7 +56,7 @@ class UserProfilePageState extends State<UserProfilePage> {
             child: Column(
               children: [
                 // User Photos (Horizontal Scrolling)
-                Container(
+                SizedBox(
                   height: 200,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
@@ -395,7 +395,7 @@ class UserProfilePageState extends State<UserProfilePage> {
         child: Wrap(
           children: [
             // Create a container with a width equal to the screen width, but with some margin for responsiveness
-            Container(
+            SizedBox(
               width: screenWidth - 32, // Margin of 16 on both sides
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -694,12 +694,12 @@ class SettingCard extends StatelessWidget {
 
   // Constructor with an optional width parameter
   const SettingCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.subtitle,
     required this.icon,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

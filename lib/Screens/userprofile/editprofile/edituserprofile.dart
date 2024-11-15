@@ -423,7 +423,7 @@ class InfoField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
 
-  InfoField({required this.label, required this.controller});
+  const InfoField({super.key, required this.label, required this.controller});
 
   @override
   Widget build(BuildContext context) {

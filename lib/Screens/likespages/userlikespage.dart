@@ -287,7 +287,7 @@ class LikesPageState extends State<LikesPage> {
                 ),
               ),
               // Filters section with horizontal scroll
-              Container(
+              SizedBox(
                 height: 60,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
@@ -432,7 +432,7 @@ class LikesPageState extends State<LikesPage> {
           Positioned(
             bottom: 16,
             right: 16,
-            child: Container(
+            child: SizedBox(
               width: 160,
               height: 60,
               child: FloatingActionButton(

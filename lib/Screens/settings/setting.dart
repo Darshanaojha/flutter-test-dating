@@ -133,7 +133,7 @@ class SettingsPageState extends State<SettingsPage> {
                 },
                 activeColor: AppColors.activeColor,
               );
-            }).toList(),
+            }),
             SizedBox(height: 20),
 
             // Display selected "Looking For" options

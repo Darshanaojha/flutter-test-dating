@@ -1060,14 +1060,14 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   onPressed: () {
                     images.add(null);
                   },
+                  style: ElevatedButton.styleFrom(
+                    shape: CircleBorder(),
+                    padding: EdgeInsets.all(16),
+                  ),
                   child: Icon(
                     Icons.add_a_photo,
                     size: 60,
                     color: Colors.grey.shade600,
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    shape: CircleBorder(),
-                    padding: EdgeInsets.all(16),
                   ),
                 ),
               );

@@ -8,7 +8,7 @@ const $loginUrl = "Authentication/login";
 const $profileUrl = "Authentication/profile";
 
 // Base URLs
-// const String $baseUrl = "http://localhost/datingApplication/admin/";
+// const String $baseUrl = "http://192.168.1.22/dating_backend_springboot/admin/";
 // const String $registerUrl = "Authentication/register";
 // const String $loginUrl = "Authentication/login";
 // const String $profileUrl = "Authentication/profile";

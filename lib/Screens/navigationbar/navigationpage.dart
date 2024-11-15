@@ -1,4 +1,4 @@
-
+import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

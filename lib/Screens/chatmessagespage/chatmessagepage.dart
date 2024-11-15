@@ -230,8 +230,7 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
 class FullScreenImagePage extends StatelessWidget {
   final String imageUrl;
 
-  const FullScreenImagePage({Key? key, required this.imageUrl})
-      : super(key: key);
+  const FullScreenImagePage({super.key, required this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
