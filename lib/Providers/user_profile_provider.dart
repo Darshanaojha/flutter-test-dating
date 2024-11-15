@@ -1,229 +1,187 @@
 import 'dart:convert';
-
+import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
+import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart';
+
+import '../Models/RequestModels/update_emailid_request_model.dart';
+import '../Models/ResponseModels/get_all_benifites_response_model.dart';
+import '../Models/ResponseModels/get_all_gender_from_response_model.dart';
+import '../Models/ResponseModels/get_all_headlines_response_model.dart';
+import '../Models/ResponseModels/get_all_saftey_guidelines_response_model.dart';
+import '../Models/ResponseModels/get_all_whoareyoulookingfor_response_model.dart';
+import '../Models/ResponseModels/subgender_response_model.dart';
+import '../Models/ResponseModels/update_emailid_response_model.dart';
+import '../Models/ResponseModels/user_upload_images_response_model.dart';
+import '../constants.dart';
 
 class UserProfileProvider extends GetConnect {
-
-  Future<bool> fetchGenders() async {
+  Future<GenderResponse?> fetchGenders() async {
     try {
-      final response = await get(Uri.parse('$baseUrl/Common/gender'));
-      final jsonResponse = jsonDecode(response.body);
+      Response response = await get('$baseurl/Common/gender');
+
       if (response.statusCode == 200) {
-        if (jsonResponse['error']['code'] == 0) {
-          debugPrint('Gender: ${jsonResponse['payload']['data']}');
-          return true;
+        if (response.body['error']['code'] == 0) {
+          return GenderResponse.fromJson(response.body);
         } else {
-          debugPrint(
-              "Error occured in Gender: ${jsonResponse['error']['message']} Status: ${jsonResponse['error']['code']}");
-          return false;
+          failure('Error', response.body['error']['message']);
+          return null;
         }
       } else {
-        debugPrint(
-            'Failed to load Gender. Status code: ${response.statusCode}');
-        debugPrint("${jsonResponse['error']['message']}");
-        return false;
+        failure('Error', response.body.toString());
+        return null;
       }
     } catch (e) {
-      debugPrint('An error occurred in Gender: $e');
-      return false;
+      failure('Error', e.toString());
+      return null;
     }
   }
-  Future<bool> fetchPreferences() async {
+
+  Future<UserPreferencesResponse?> fetchPreferences() async {
     try {
-      final response = await get(Uri.parse('$baseUrl/Common/all_preferences'));
-      final jsonResponse = jsonDecode(response.body);
+      Response response = await get('$baseUrl/Common/all_preferences');
+
       if (response.statusCode == 200) {
-        if (jsonResponse['error']['code'] == 0) {
-          debugPrint('Preferences: ${jsonResponse['payload']['data']}');
-          return true;
+        if (response.body['error']['code'] == 0) {
+          return UserPreferencesResponse.fromJson(response.body);
         } else {
-          debugPrint(
-              "Error occurred in Preferences: ${jsonResponse['error']['message']} Status: ${jsonResponse['error']['code']}");
-          return false;
+          failure('Error', response.body['error']['message']);
+          return null;
         }
       } else {
-        debugPrint(
-            'Failed to load Preferences. Status code: ${response.statusCode}');
-        debugPrint("${jsonResponse['error']['message']}");
-        return false;
+        failure('Error', response.body.toString());
+        return null;
       }
     } catch (e) {
-      debugPrint('An error occurred in Preferences: $e');
-      return false;
+      failure('Error', e.toString());
+      return null;
     }
   }
 
 // Benifits
-  Future<bool> fetchBenefits() async {
+  Future<BenefitsResponse?> fetchBenefits() async {
     try {
-      final response = await get(Uri.parse('$baseUrl/Common/all_benefits'));
-      final jsonResponse = jsonDecode(response.body);
+      Response response = await get('$baseUrl/Common/all_benefits');
+
       if (response.statusCode == 200) {
-        if (jsonResponse['error']['code'] == 0) {
-          debugPrint('Benefits: ${jsonResponse['payload']['data']}');
-          return true;
+        if (response.body['error']['code'] == 0) {
+          return BenefitsResponse.fromJson(response.body);
         } else {
-          debugPrint(
-              "Error occurred in Benefits: ${jsonResponse['error']['message']} Status: ${jsonResponse['error']['code']}");
-          return false;
+          failure('Error', response.body['error']['message']);
+          return null;
         }
       } else {
-        debugPrint(
-            'Failed to load Benefits. Status code: ${response.statusCode}');
-        debugPrint("${jsonResponse['error']['message']}");
-        return false;
+        failure('Error', response.body.toString());
+        return null;
       }
     } catch (e) {
-      debugPrint('An error occurred in Benefits: $e');
-      return false;
+      failure('Error', e.toString());
+      return null;
     }
   }
 
 // Safety Guidelines
-  Future<bool> fetchSafetyGuidelines() async {
+  Future<SafetyGuidelinesResponse?> fetchSafetyGuidelines() async {
     try {
-      final response =
-          await get(Uri.parse('$baseUrl/Common/all_safety_guidelines'));
-      final jsonResponse = jsonDecode(response.body);
+      Response response = await get('$baseUrl/Common/all_safety_guidelines');
+
       if (response.statusCode == 200) {
-        if (jsonResponse['error']['code'] == 0) {
-          debugPrint('Safety Guidelines: ${jsonResponse['payload']['data']}');
-          return true;
+        if (response.body['error']['code'] == 0) {
+          return SafetyGuidelinesResponse.fromJson(response.body);
         } else {
-          debugPrint(
-              "Error occurred in Safety Guidelines: ${jsonResponse['error']['message']} Status: ${jsonResponse['error']['code']}");
-          return false;
+          failure('Error', response.body['error']['message']);
+          return null;
         }
       } else {
-        debugPrint(
-            'Failed to load Safety Guidelines. Status code: ${response.statusCode}');
-        debugPrint("${jsonResponse['error']['message']}");
-        return false;
+        failure('Error', response.body.toString());
+        return null;
       }
     } catch (e) {
-      debugPrint('An error occurred in Safety Guidelines: $e');
-      return false;
+      failure('Error', e.toString());
+      return null;
     }
   }
 
 // Headlines
-  Future<bool> fetchHeadlines() async {
+  Future<HeadlinesResponse?> fetchHeadlines() async {
     try {
-      final response = await get(Uri.parse('$baseUrl/Common/all_headlines'));
-      final jsonResponse = jsonDecode(response.body);
+      Response response = await get('$baseUrl/Common/all_headlines');
+
       if (response.statusCode == 200) {
-        if (jsonResponse['error']['code'] == 0) {
-          debugPrint('Headlines: ${jsonResponse['payload']['data']}');
-          return true;
+        if (response.body['error']['code'] == 0) {
+          return HeadlinesResponse.fromJson(response.body);
         } else {
-          debugPrint(
-              "Error occurred in Headlines: ${jsonResponse['error']['message']} Status: ${jsonResponse['error']['code']}");
-          return false;
+          failure('Error', response.body['error']['message']);
+          return null;
         }
       } else {
-        debugPrint(
-            'Failed to load Headlines. Status code: ${response.statusCode}');
-        debugPrint("${jsonResponse['error']['message']}");
-        return false;
+        failure('Error', response.body.toString());
+        return null;
       }
     } catch (e) {
-      debugPrint('An error occurred in Headlines: $e');
-      return false;
+      failure('Error', e.toString());
+      return null;
     }
   }
 
 // Sub Gender
-  Future<bool> fetchSubGender(String id) async {
+  Future<SubGenderResponse?> fetchSubGender(
+      SubGenderRequest subGenderRequest) async {
     try {
-      final response = await post(Uri.parse('$baseUrl/Common/sub_gender'),
-          body: jsonEncode({
-            "gender_id": id,
-          }));
-      final jsonResponse = jsonDecode(response.body);
+      Response response =
+          await post('$baseUrl/Common/sub_gender', subGenderRequest);
+
       if (response.statusCode == 200) {
-        if (jsonResponse['error']['code'] == 0) {
-          debugPrint('Headlines: ${jsonResponse['payload']['data']}');
-          return true;
+        if (response.body['error']['code'] == 0) {
+          return SubGenderResponse.fromJson(response.body);
         } else {
-          debugPrint(
-              "Error occurred in Sub Gender: ${jsonResponse['error']['message']} Status: ${jsonResponse['error']['code']}");
-          return false;
+          failure('Error', response.body['error']['message']);
+          return null;
         }
       } else {
-        debugPrint(
-            'Failed to load Sub Gender. Status code: ${response.statusCode}');
-        return false;
+        failure('Error', response.body.toString());
+        return null;
       }
     } catch (e) {
-      debugPrint("An error occurred in Sub Gender: $e");
-      return false;
+      failure('Error', e.toString());
+      return null;
     }
   }
 
-  final token =
-      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUaGVfY2xhaW0iLCJhdWQiOiJUaGVfQXVkIiwiaWF0IjoxNzMxMzk4MDUyLCJuYmYiOjE3MzEzOTgwNTIsImV4cCI6MTczMzk5MDA1MiwiZGF0YSI6WyIyOSIsInVzZXIiLCIzIl19.9BehUe9zCCEia9UU2EguEJygGY-Hxe968Rawm7dvnYc";
-
-  // User Uploaded Photo
-  Future<bool> fetchProfileUserPhotos() async {
+  Future<UserUploadImagesResponse?> fetchProfileUserPhotos() async {
     try {
-      final response = await get(
-        Uri.parse('$baseUrl/Profile/userphotos'),
+      EncryptedSharedPreferences preferences =
+          EncryptedSharedPreferences.getInstance();
+      String? token = preferences.getString('token');
+      if (token == null || token.isEmpty) {
+        failure('Error', 'Token not found');
+        return null;
+      }
+      Response response = await post(
+        '$baseUrl/Profile/userphotos',
+        null,
         headers: {
           'Authorization': 'Bearer $token',
         },
       );
-      final jsonResponse = jsonDecode(response.body);
-      debugPrint(jsonResponse);
+
       if (response.statusCode == 200) {
-        if (jsonResponse['error']['code'] == 0) {
-          debugPrint('Profile User Photo: ${jsonResponse['payload']['data']}');
-          return true;
+        if (response.body['error']['code'] == 0) {
+          return UserUploadImagesResponse.fromJson(response.body);
         } else {
-          debugPrint(
-              "Error occurred in Profile User Photo: ${jsonResponse['error']['message']} Status: ${jsonResponse['error']['code']}");
-          return false;
+          failure('Error', response.body['error']['message']);
+          return null;
         }
       } else {
-        debugPrint(
-            'Failed to load Profile User Photo. Status code: ${response.statusCode}');
-        debugPrint("${jsonResponse['error']['message']}");
-        return false;
+        failure('Error', response.body.toString());
+        return null;
       }
     } catch (e) {
-      debugPrint('An error occurred in Profile User Photo: $e');
-      return false;
+      failure('Error', e.toString());
+      return null;
     }
   }
 
-   // Update Email 
-  Future<bool> updateEmail(Map<String,dynamic> data) async {
-    try {
-      final response = await post(
-          Uri.parse('$baseUrl/Profile/update_email'), headers: {
-          'Authorization': 'Bearer $token',
-        },
-          body: data);
-      final jsonResponse = jsonDecode(response.body);
-      if (response.statusCode == 200) {
-        if (jsonResponse['error']['code'] == 0) {
-          debugPrint('Update Email: ${jsonResponse['payload']['message']}');
-          return true;
-        } else {
-          debugPrint(
-              "Error occured in Update Email: ${jsonResponse['error']['message']} Status: ${jsonResponse['error']['code']}");
-          return false;
-        }
-      } else {
-        debugPrint(
-            'Failed to load Update Email. Status code: ${response.statusCode}');
-        debugPrint("${jsonResponse['error']['message']}");
-        return false;
-      }
-    } catch (e) {
-      debugPrint('An error occurred in Update Email: $e');
-      return false;
-    }
-  }
+  // Update Email
+ 
 }

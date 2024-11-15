@@ -1,5 +1,5 @@
 class SubGenderRequest {
-  final int genderId;
+  final String genderId;
 
   SubGenderRequest({
     required this.genderId,
@@ -10,11 +10,12 @@ class SubGenderRequest {
 
   // Factory constructor to create SubGenderRequest from JSON
   factory SubGenderRequest.fromJson(Map<String, dynamic> json) {
-    int genderId = json['gender_id'] ?? 0;  // Default to 0 if 'gender_id' is not present
-    
+    String genderId =
+        json['gender_id'] ?? '0'; // Default to 0 if 'gender_id' is not present
+
     // Validate genderId
     validateGenderId(genderId);
-    
+
     return SubGenderRequest(
       genderId: genderId,
     );
@@ -28,8 +29,8 @@ class SubGenderRequest {
   }
 
   // Validate genderId (It should be a positive integer)
-  static void validateGenderId(int genderId) {
-    if (genderId <= 0) {
+  static void validateGenderId(String genderId) {
+    if (int.parse(genderId) <= 0) {
       throw FormatException('Gender ID must be a positive integer');
     }
   }
