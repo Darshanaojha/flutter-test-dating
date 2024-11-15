@@ -9,7 +9,7 @@ class EditMessageRequest {
     required this.messageType,
   });
 
-  // Factory constructor to create EditMessageRequest from JSON
+
   factory EditMessageRequest.fromJson(Map<String, dynamic> json) {
     return EditMessageRequest(
       message: json['message'] ?? '',
@@ -18,7 +18,6 @@ class EditMessageRequest {
     );
   }
 
-  // Method to convert EditMessageRequest object to JSON
   Map<String, dynamic> toJson() {
     return {
       'message': message,
@@ -27,7 +26,6 @@ class EditMessageRequest {
     };
   }
 
-  // Validation for fields
   String? validate() {
     if (message.isEmpty) {
       return "Message cannot be empty.";

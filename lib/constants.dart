@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-const String baseurl = "http://192.168.1.22/dating_backend_springboot/admin/";
-const String registerUrl = "Authentication/register";
-const String loginUrl = "Authentication/login";
-const String profileUrl = "Authentication/profile";
+const baseurl = "http://192.168.1.22/dating_backend_springboot/admin";
+const registerUrl = "Authentication/register";
+const loginUrl = "Authentication/login";
+const profileUrl = "Authentication/profile";
 
-
+// Base URLs
+// const String $baseUrl = "http://192.168.1.22/dating_backend_springboot/admin/";
+// const String $registerUrl = "Authentication/register";
+// const String $loginUrl = "Authentication/login";
+// const String $profileUrl = "Authentication/profile";
 
 class AppColors {
   static const Color primaryColor = Colors.black;
@@ -21,8 +25,7 @@ class AppColors {
   static const Color iconColor = Colors.blue;
   static const Color buttonColor = Colors.blue;
   static const Color chipColor = Colors.grey;
-  static const Color formFieldColor =
-      Color.fromARGB(255, 85, 84, 84);
+  static const Color formFieldColor = Color.fromARGB(255, 85, 84, 84);
   static const Color inactiveColor = Colors.red;
   static const Color activeColor = Colors.green;
   static Color successColor = Colors.green.withOpacity(0.3);
@@ -31,25 +34,23 @@ class AppColors {
   static Color errorBorderColor = Colors.red;
 }
 
-
 class AppTextStyles {
   static const String baseFontFamily = 'raleway';
-  static const double headingSize = 32.0;       
-  static const double subheadingSize = 24.0;  
-  static const double titleSize = 20.0;       
-  static const double bodySize = 16.0;  
-  static const double buttonSize = 14.0;      
-  static const double labelSize = 14.0;   
-  static const double inputFieldSize = 16.0; 
-  static const double textSize = 12.0; 
-
+  static const double headingSize = 32.0;
+  static const double subheadingSize = 24.0;
+  static const double titleSize = 20.0;
+  static const double bodySize = 16.0;
+  static const double buttonSize = 14.0;
+  static const double labelSize = 14.0;
+  static const double inputFieldSize = 16.0;
+  static const double textSize = 12.0;
 
   static TextStyle headingText = GoogleFonts.raleway(
     fontSize: headingSize,
     fontWeight: FontWeight.bold,
     color: Colors.white,
   );
-   static TextStyle textStyle = GoogleFonts.raleway(
+  static TextStyle textStyle = GoogleFonts.raleway(
     fontSize: textSize,
     fontWeight: FontWeight.bold,
     color: Colors.white,
@@ -95,7 +96,10 @@ class AppTextStyles {
     fontWeight: FontWeight.bold,
     color: Colors.red,
   );
-  static TextStyle customTextStyle({double fontSize = 16.0, FontWeight fontWeight = FontWeight.normal, Color color = Colors.black}) {
+  static TextStyle customTextStyle(
+      {double fontSize = 16.0,
+      FontWeight fontWeight = FontWeight.normal,
+      Color color = Colors.black}) {
     return GoogleFonts.raleway(
       fontSize: fontSize,
       fontWeight: fontWeight,
@@ -127,7 +131,7 @@ void success(title, message) {
     '',
     titleText: Text(
       title,
-      style: GoogleFonts.lato(
+      style: GoogleFonts.raleway(
         color: Colors.white,
         fontSize: 16,
         fontWeight: FontWeight.bold,
@@ -135,7 +139,7 @@ void success(title, message) {
     ),
     messageText: Text(
       message,
-      style: GoogleFonts.lato(
+      style: GoogleFonts.raleway(
         color: Colors.white,
         fontSize: 14,
       ),
@@ -153,7 +157,7 @@ void failure(title, message) {
     '',
     titleText: Text(
       title,
-      style: GoogleFonts.lato(
+      style: GoogleFonts.raleway(
         color: Colors.white,
         fontSize: 16,
         fontWeight: FontWeight.bold,
@@ -161,7 +165,7 @@ void failure(title, message) {
     ),
     messageText: Text(
       message,
-      style: GoogleFonts.lato(
+      style: GoogleFonts.raleway(
         color: Colors.white,
         fontSize: 14,
       ),
@@ -172,4 +176,3 @@ void failure(title, message) {
     borderWidth: 2,
   );
 }
-

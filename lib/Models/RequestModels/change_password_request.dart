@@ -6,7 +6,7 @@ class ChangePasswordRequest {
     required this.oldPassword,
     required this.newPassword,
   }) {
-    // Validation for old password
+
     if (oldPassword.isEmpty) {
       throw ArgumentError("Old password is required.");
     }
@@ -14,7 +14,7 @@ class ChangePasswordRequest {
       throw ArgumentError("Old password must be at least 8 characters long.");
     }
 
-    // Validation for new password
+
     if (newPassword.isEmpty) {
       throw ArgumentError("New password is required.");
     }
@@ -29,7 +29,7 @@ class ChangePasswordRequest {
     }
   }
 
-  // Factory constructor to create ChangePasswordRequest from JSON
+
   factory ChangePasswordRequest.fromJson(Map<String, dynamic> json) {
     return ChangePasswordRequest(
       oldPassword: json['old_password'],
@@ -37,7 +37,7 @@ class ChangePasswordRequest {
     );
   }
 
-  // Method to convert ChangePasswordRequest object to JSON
+
   Map<String, dynamic> toJson() {
     return {
       'old_password': oldPassword,
@@ -45,7 +45,7 @@ class ChangePasswordRequest {
     };
   }
 
-  // Helper method to validate password strength
+
   bool isValidPassword(String password) {
     final RegExp passwordPattern = RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#\$%^&*()_+\-=\[\]{};:\\|,.<>\/?]).{8,}$');
     return passwordPattern.hasMatch(password);

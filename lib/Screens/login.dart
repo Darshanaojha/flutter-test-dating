@@ -211,3 +211,18 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
   }
 }
 
+// Forgot Password Screen
+class ForgotPasswordScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Forgot Password'),
+      ),
+      body: Center(
+        child: Text('Forgot Password screen content here'),
+      ),
+    );
+  }
+}
+

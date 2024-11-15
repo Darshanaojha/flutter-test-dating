@@ -1,23 +1,22 @@
-class ChangePasswordResponse {
+class EditMessageResponse {
   final bool success;
   final Payload payload;
-  final Error error;
+  final ApiError error;
 
-  ChangePasswordResponse({
+  EditMessageResponse({
     required this.success,
     required this.payload,
     required this.error,
   });
 
 
-  factory ChangePasswordResponse.fromJson(Map<String, dynamic> json) {
-    return ChangePasswordResponse(
+  factory EditMessageResponse.fromJson(Map<String, dynamic> json) {
+    return EditMessageResponse(
       success: json['success'],
       payload: Payload.fromJson(json['payload']),
-      error: Error.fromJson(json['error']),
+      error: ApiError.fromJson(json['error']),
     );
   }
-
 
   Map<String, dynamic> toJson() {
     return {
@@ -35,10 +34,9 @@ class Payload {
     required this.message,
   });
 
-
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
-      message: json['message'],
+      message: json['message'] ?? '', 
     );
   }
 
@@ -50,24 +48,24 @@ class Payload {
   }
 }
 
-class Error {
+class ApiError {
   final int code;
   final String message;
 
-  Error({
+  ApiError({
     required this.code,
     required this.message,
   });
 
 
-  factory Error.fromJson(Map<String, dynamic> json) {
-    return Error(
+  factory ApiError.fromJson(Map<String, dynamic> json) {
+    return ApiError(
       code: json['code'],
-      message: json['message'],
+      message: json['message'] ?? '',
     );
   }
 
-
+ 
   Map<String, dynamic> toJson() {
     return {
       'code': code,
