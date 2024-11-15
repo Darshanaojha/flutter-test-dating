@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-const $baseUrl = "http://192.168.1.22/dating_backend_springboot/admin/";
+const $Url = "http://192.168.1.22/dating_backend_springboot/admin/";
 const $registerUrl = "Authentication/register";
 const $loginUrl = "Authentication/login";
 const $profileUrl = "Authentication/profile";
@@ -131,7 +131,7 @@ void success(title, message) {
     '',
     titleText: Text(
       title,
-      style: GoogleFonts.lato(
+      style: GoogleFonts.raleway(
         color: Colors.white,
         fontSize: 16,
         fontWeight: FontWeight.bold,
@@ -139,7 +139,7 @@ void success(title, message) {
     ),
     messageText: Text(
       message,
-      style: GoogleFonts.lato(
+      style: GoogleFonts.raleway(
         color: Colors.white,
         fontSize: 14,
       ),
@@ -157,7 +157,7 @@ void failure(title, message) {
     '',
     titleText: Text(
       title,
-      style: GoogleFonts.lato(
+      style: GoogleFonts.raleway(
         color: Colors.white,
         fontSize: 16,
         fontWeight: FontWeight.bold,
@@ -165,7 +165,7 @@ void failure(title, message) {
     ),
     messageText: Text(
       message,
-      style: GoogleFonts.lato(
+      style: GoogleFonts.raleway(
         color: Colors.white,
         fontSize: 14,
       ),
@@ -176,19 +176,3 @@ void failure(title, message) {
     borderWidth: 2,
   );
 }
-
-// class FirebaseConstants {
-//   static const String apiKey = '';
-//   static const String appId = '';
-//   static const String messagingSenderId = '';
-//   static const String projectId = '';
-//   static const String storageBucket = '';
-
-//   static const FirebaseOptions firebaseOptions = FirebaseOptions(
-//     apiKey: apiKey,
-//     appId: appId,
-//     messagingSenderId: messagingSenderId,
-//     projectId: projectId,
-//     storageBucket: storageBucket,
-//   );
-// }

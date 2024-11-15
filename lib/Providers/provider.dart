@@ -12,7 +12,7 @@ class Provider extends GetConnect {
   Future<bool> login(UserLoginRequest loginRequest) async {
     try {
       Response response = await post(
-        $baseUrl + $loginUrl,
+        $Url + $loginUrl,
         loginRequest,
       );
       if (response.statusCode == 200) {
