@@ -2,16 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-const $baseUrl = "http://192.168.1.22/dating_backend_springboot/admin/";
-const $registerUrl = "Authentication/register";
-const $loginUrl = "Authentication/login";
-const $profileUrl = "Authentication/profile";
+const String baseurl = "http://192.168.1.22/dating_backend_springboot/admin/";
+const String registerUrl = "Authentication/register";
+const String loginUrl = "Authentication/login";
+const String profileUrl = "Authentication/profile";
 
-// Base URLs
-// const String $baseUrl = "http://192.168.1.22/dating_backend_springboot/admin/";
-// const String $registerUrl = "Authentication/register";
-// const String $loginUrl = "Authentication/login";
-// const String $profileUrl = "Authentication/profile";
+
 
 class AppColors {
   static const Color primaryColor = Colors.black;
@@ -177,18 +173,3 @@ void failure(title, message) {
   );
 }
 
-// class FirebaseConstants {
-//   static const String apiKey = '';
-//   static const String appId = '';
-//   static const String messagingSenderId = '';
-//   static const String projectId = '';
-//   static const String storageBucket = '';
-
-//   static const FirebaseOptions firebaseOptions = FirebaseOptions(
-//     apiKey: apiKey,
-//     appId: appId,
-//     messagingSenderId: messagingSenderId,
-//     projectId: projectId,
-//     storageBucket: storageBucket,
-//   );
-// }
