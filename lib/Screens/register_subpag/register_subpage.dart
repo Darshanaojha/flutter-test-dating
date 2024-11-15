@@ -14,18 +14,16 @@ class MultiStepFormPage extends StatefulWidget {
 }
 
 class MultiStepFormPageState extends State<MultiStepFormPage> {
-
   int selectedDay = DateTime.now().day;
   int selectedMonth = DateTime.now().month;
   int selectedYear = DateTime.now().year;
 
   String name = '';
   String? gender;
-  String description = ''; 
+  String description = '';
 
   int currentPage = 1;
-  final PageController pageController =
-      PageController(); 
+  final PageController pageController = PageController();
 
   @override
   Widget build(BuildContext context) {
@@ -77,19 +75,19 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       });
                     },
                     children: [
-                      buildBirthdayStep(),
-                      buildNameStep(),
-                      buildGenderStep(),
-                      buildBestDescribeYouStep(),
-                      buildLookingForStep(),
-                      buildRelationshipStatusInterestStep(context),
-                      buildInterestStep(context),
-                      buildUserDescriptionStep(fontSize),
-                      buildPhotosOfUser(fontSize),
-                      buildPermissionRequestStep(fontSize),
-                      buildPaymentWidget(fontSize),
-                      buildSafetyGuidelinesWidget(fontSize),
-                      buildProfileSummaryPage(fontSize),
+                      buildBirthdayStep(screenSize),
+                      buildNameStep(screenSize),
+                      buildGenderStep(screenSize),
+                      buildBestDescribeYouStep(screenSize),
+                      buildLookingForStep(screenSize),
+                      buildRelationshipStatusInterestStep(context, screenSize),
+                      buildInterestStep(context, screenSize),
+                      buildUserDescriptionStep(screenSize),
+                      buildPhotosOfUser(screenSize),
+                      buildPermissionRequestStep(screenSize),
+                      buildPaymentWidget(screenSize),
+                      buildSafetyGuidelinesWidget(screenSize),
+                      buildProfileSummaryPage(screenSize),
                     ],
                   ),
                 ),
@@ -156,7 +154,17 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
-  Widget buildBirthdayStep() {
+  Widget buildBirthdayStep(Size screenSize) {
+    final screenSize = MediaQuery.of(context).size; // Get screen size
+
+    // Use a base font size and scale it based on the screen width
+    double titleFontSize =
+        screenSize.width * 0.05; // 7% of screen width for title
+    double subHeadingFontSize =
+        screenSize.width * 0.045; // 4.5% of screen width for subheading
+    double datePickerFontSize =
+        screenSize.width * 0.05; // 5% of screen width for date picker labels
+
     return Card(
       elevation: 12,
       shape: RoundedRectangleBorder(
@@ -170,8 +178,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             // Heading with AppTextStyles
             Text(
               "What is your date of birth?",
-              style:
-                  AppTextStyles.titleText, // Use titleText from AppTextStyles
+              style: AppTextStyles.titleText.copyWith(
+                fontSize: titleFontSize, // Adjust font size dynamically
+              ),
             ),
             SizedBox(height: 40),
 
@@ -181,6 +190,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               style: AppTextStyles.bodyText.copyWith(
                 color:
                     Colors.redAccent, // This text is red, using color directly
+                fontSize: subHeadingFontSize, // Adjust font size dynamically
               ),
             ),
             SizedBox(height: 43),
@@ -229,30 +239,35 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             SizedBox(height: 20),
 
             // Next button with AppTextStyles.buttonText for consistent button text style
-            // ElevatedButton(
-            //   onPressed: () {
-            //     DateTime selectedDate = DateTime(selectedYear, selectedMonth, selectedDay);
-            //     DateTime now = DateTime.now();
-            //     if (now.difference(selectedDate).inDays >= 18 * 365) {
-            //       // Proceed with further steps
-            //     } else {
-            //       // Show an error if the age is under 18
-            //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            //         content: Text(
-            //           'You must be at least 18 years old to proceed.',
-            //           style: AppTextStyles.bodyText, // Ensure the error message style is consistent
-            //         ),
-            //         backgroundColor: Colors.red,
-            //       ));
-            //     }
-            //   },
-            //   style: ElevatedButton.styleFrom(
-            //     padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-            //     backgroundColor: AppColors.buttonColor, // Consistent button color
-            //     foregroundColor: AppColors.textColor, // Button text color
-            //   ),
-            //   child: Text('Next', style: AppTextStyles.buttonText), // Consistent button text style
-            // ),
+            ElevatedButton(
+              onPressed: () {
+                DateTime selectedDate =
+                    DateTime(selectedYear, selectedMonth, selectedDay);
+                DateTime now = DateTime.now();
+                if (now.difference(selectedDate).inDays >= 18 * 365) {
+                  // Proceed with further steps
+                } else {
+                  // Show an error if the age is under 18
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(
+                      'You must be at least 18 years old to proceed.',
+                      style: AppTextStyles
+                          .bodyText, // Ensure the error message style is consistent
+                    ),
+                    backgroundColor: Colors.red,
+                  ));
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                backgroundColor:
+                    AppColors.buttonColor, // Consistent button color
+                foregroundColor: AppColors.textColor, // Button text color
+              ),
+              child: Text('Next',
+                  style:
+                      AppTextStyles.buttonText), // Consistent button text style
+            ),
           ],
         ),
       ),
@@ -260,42 +275,539 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
   // Step 2: Name Input
-  Widget buildNameStep() {
-    return Card(
-      elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+  Widget buildNameStep(Size screenSize) {
+  // Define font sizes based on screen width
+  double titleFontSize = screenSize.width * 0.05; // 8% of screen width for title
+  double labelfontSize = screenSize.width * 0.03; // 5% for label text
+  double inputTextFontSize = screenSize.width * 0.045; // 4.5% for input text font
+
+  return Card(
+    elevation: 8,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Heading text with responsive font size
+          Text(
+            "What do we call you?",
+            style: AppTextStyles.titleText.copyWith(
+              fontWeight: FontWeight.bold,
+              fontSize: titleFontSize, // Dynamic font size for title
+            ),
+          ),
+          SizedBox(height: 20),
+          
+          // Name input field with dynamic font size for label and text
+          TextField(
+            onChanged: (value) {
+              name = value;
+            },
+            decoration: InputDecoration(
+              labelText: "Your Name",
+              labelStyle: AppTextStyles.labelText.copyWith(
+                fontSize: labelfontSize, // Responsive label font size
+                color: AppColors.textColor, // Consistent label color
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: AppColors.textColor),
+              ),
+              filled: true,
+              fillColor: AppColors.formFieldColor,
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: AppColors.textColor),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: AppColors.textColor),
+              ),
+            ),
+            style: AppTextStyles.inputFieldText.copyWith(
+              fontSize: inputTextFontSize, // Responsive text font size
+              color: AppColors.textColor,
+            ),
+            cursorColor: AppColors.cursorColor, // Consistent cursor color
+          ),
+        ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
+    ),
+  );
+}
+
+  // Step 3: Gender Selection
+  Widget buildGenderStep(Size screenSize) {
+  List<String> genderOptions = ['Male', 'Female', 'Non-Binary'];
+  Rx<int> selectedGenderIndex =
+      Rx<int>(-1); // -1 means no option is selected initially
+
+  // Define font sizes based on screen width for responsiveness
+  double titleFontSize = screenSize.width * 0.05; // 8% of screen width for title
+  double optionfontSize = screenSize.width * 0.03; // 5% for options text
+
+  return Card(
+    elevation: 8,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Heading text with responsive font size
+          Text(
+            "Select your gender",
+            style: AppTextStyles.titleText.copyWith(
+              fontSize: titleFontSize, // Responsive font size for the heading
+              fontWeight: FontWeight.bold,
+              color: AppColors.textColor, // Consistent text color
+            ),
+          ),
+          SizedBox(height: 20),
+
+          // Gender options using RadioListTile
+          Obx(() {
+            return Column(
+              children: List.generate(genderOptions.length, (index) {
+                return RadioListTile<int>(
+                  title: Text(
+                    genderOptions[index],
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: optionfontSize, // Responsive font size for options
+                      color: AppColors.textColor, // Consistent text color
+                    ),
+                  ),
+                  value: index,
+                  groupValue: selectedGenderIndex.value,
+                  onChanged: (int? value) {
+                    selectedGenderIndex.value = value ?? -1;
+                  },
+                  activeColor: AppColors.buttonColor, // Consistent active color
+                );
+              }),
+            );
+          }),
+        ],
+      ),
+    ),
+  );
+}
+
+
+  // Step 4: Describe Yourself (New Step)
+ Widget buildBestDescribeYouStep(Size screenSize) {
+  // RxString to store the selected option
+  RxString selectedOption = ''.obs;
+
+  List<String> options = [
+    'Pansexual',
+    'Polysexual',
+    'Bisexual',
+    'Asexual',
+    'Other'
+  ];
+
+  // Calculate font sizes based on screen width
+  double titleFontSize = screenSize.width * 0.05; // 8% of screen width for title
+  double descriptionfontSize = screenSize.width * 0.03; // 5% for description
+  double optionfontSize = screenSize.width * 0.03; // 5% for options text
+
+  return Card(
+    elevation: 8,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Heading Text using responsive font size
+          Text(
+            "Which Best Describe You",
+            style: AppTextStyles.titleText.copyWith(
+              fontSize: titleFontSize, // Responsive font size for title
+              fontWeight: FontWeight.bold,
+              color: AppColors.textColor, // Consistent text color
+            ),
+          ),
+          SizedBox(height: 20),
+
+          // Description Text using responsive font size
+          Text(
+            "Select the option that best describes your identity.",
+            style: AppTextStyles.bodyText.copyWith(
+              fontSize: descriptionfontSize, // Responsive font size for description
+              color: AppColors.textColor, // Consistent text color
+            ),
+          ),
+          SizedBox(height: 20),
+
+          // Options using RadioListTile with responsive font size
+          Obx(() {
+            return Column(
+              children: List.generate(options.length, (index) {
+                return RadioListTile<String>(
+                  title: Text(
+                    options[index],
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: optionfontSize, // Responsive font size for options
+                      color: AppColors.textColor, // Consistent text color
+                    ),
+                  ),
+                  value: options[index],
+                  groupValue: selectedOption.value,
+                  onChanged: (String? value) {
+                    selectedOption.value = value ?? '';
+                  },
+                  activeColor: AppColors.buttonColor, // Consistent active color
+                  contentPadding: EdgeInsets.zero, // Clean up extra padding
+                );
+              }),
+            );
+          }),
+        ],
+      ),
+    ),
+  );
+}
+
+// step 5 who are you looking for
+  Widget buildLookingForStep(Size screenSize) {
+  // RxList for selected options
+  RxList<bool> selectedOptions = [false, false, false, false, false].obs;
+  List<String> options = ['Men', 'Women', 'Men+MenCouple', 'Agender', 'Both'];
+
+  // Calculate font sizes based on screen width
+  double titleFontSize = screenSize.width * 0.05; // 8% of screen width for title
+  double descriptionfontSize = screenSize.width * 0.03; // 5% for description
+  double optionfontSize = screenSize.width * 0.03; // 5% for options text
+
+  return Card(
+    elevation: 8,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Heading Text using responsive font size
+          Text(
+            "Who are you looking for?",
+            style: AppTextStyles.titleText.copyWith(
+              fontSize: titleFontSize, // Responsive font size for title
+              fontWeight: FontWeight.bold,
+              color: AppColors.textColor, // Consistent text color
+            ),
+          ),
+          SizedBox(height: 20),
+
+          // Description Text using responsive font size
+          Text(
+            "Select the gender(s) you're interested in.",
+            style: AppTextStyles.bodyText.copyWith(
+              fontSize: descriptionfontSize, // Responsive font size for description
+              color: AppColors.textColor, // Consistent text color
+            ),
+          ),
+          SizedBox(height: 20),
+
+          // Checkbox options using Obx and reactive list
+          Obx(() {
+            return Column(
+              children: List.generate(options.length, (index) {
+                return CheckboxListTile(
+                  title: Text(
+                    options[index],
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: optionfontSize, // Responsive font size for options
+                      color: AppColors.textColor, // Consistent text color
+                    ),
+                  ),
+                  value: selectedOptions[index],
+                  onChanged: (bool? value) {
+                    selectedOptions[index] = value ?? false;
+                  },
+                  activeColor: AppColors.buttonColor, // Consistent active color
+                  checkColor: Colors.white, // Use white for check mark color
+                  contentPadding: EdgeInsets.zero, // Remove padding for a cleaner look
+                );
+              }),
+            );
+          }),
+        ],
+      ),
+    ),
+  );
+}
+
+// Step 6: Gender Identity Selection
+  Widget buildRelationshipStatusInterestStep(BuildContext context, Size screenSize) {
+  List<String> options = [
+    'Casual',
+    'In a Friendship',
+    "For Fun",
+    'Enjoyment',
+    'Swings',
+    'Serious',
+    'Looking for Fun',
+    'Not Interested',
+    'Open to Ideas',
+    'Looking for Commitment',
+    'Love',
+    'Casual Chat'
+  ];
+
+  RxList<bool> selectedOptions = List.filled(options.length, false).obs;
+  RxList<String> selectedStatus = <String>[].obs;
+
+  void updateSelectedStatus() {
+    selectedStatus.clear();
+    for (int i = 0; i < selectedOptions.length; i++) {
+      if (selectedOptions[i]) {
+        selectedStatus.add(options[i]);
+      }
+    }
+  }
+
+  // Calculate responsive font sizes based on screen width
+  double screenWidth = screenSize.width;
+  double titleFontSize = screenWidth * 0.05; // 8% of screen width for title
+  double bodyFontSize = screenWidth * 0.03;  // 3% of screen width for body text
+  double chipFontSize = screenWidth * 0.03; // 4.5% for chip text
+
+  return Card(
+    elevation: 8,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Heading text using AppTextStyles
+            // Relationship Heading
             Text(
-              "What do we call you?",
+              "Relationship",
               style: AppTextStyles.titleText.copyWith(
+                fontSize: titleFontSize, // Responsive title font size
                 fontWeight: FontWeight.bold,
-                fontSize: AppTextStyles.titleSize,
+                color: AppColors.textColor,
               ),
             ),
             SizedBox(height: 20),
+
+            // Description Text
+            Text(
+              "Let people know what you are into. You can add or edit desires as often as you want.",
+              style: AppTextStyles.bodyText.copyWith(
+                fontSize: bodyFontSize, // Responsive body font size
+                color: AppColors.textColor,
+              ),
+            ),
+            SizedBox(height: 20),
+
+            // Selected Status Chips
+            Obx(() {
+              return selectedStatus.isNotEmpty
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "You selected:",
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: bodyFontSize,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: selectedStatus.map((status) {
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: Chip(
+                                  label: Text(status),
+                                  backgroundColor: AppColors.buttonColor,
+                                  labelStyle: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: chipFontSize, // Responsive font size for chips
+                                  ),
+                                  onDeleted: () {
+                                    int index = options.indexOf(status);
+                                    selectedOptions[index] = false;
+                                    updateSelectedStatus();
+                                  },
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                      ],
+                    )
+                  : Container();
+            }),
+
+            // Select Interests Heading
+            Text(
+              "Select your interests:",
+              style: AppTextStyles.bodyText.copyWith(
+                fontSize: bodyFontSize, // Responsive font size for interest heading
+                fontWeight: FontWeight.bold,
+                color: AppColors.textColor,
+              ),
+            ),
+            SizedBox(height: 10),
+
+            // Interest Chips (Selectable)
+            SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: List.generate(options.length, (index) {
+                  return GestureDetector(
+                    onTap: () {
+                      selectedOptions[index] = !selectedOptions[index];
+                      updateSelectedStatus();
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Chip(
+                        label: Text(options[index]),
+                        backgroundColor: selectedOptions[index]
+                            ? AppColors.buttonColor
+                            : AppColors.formFieldColor,
+                        labelStyle: TextStyle(
+                          color: selectedOptions[index]
+                              ? Colors.white
+                              : AppColors.textColor,
+                          fontSize: chipFontSize, // Responsive font size for chips
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+
+            // Cancel Button
+            Obx(() {
+              return selectedStatus.isNotEmpty
+                  ? Align(
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          selectedOptions.value =
+                              List.filled(options.length, false);
+                          updateSelectedStatus();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.deniedColor,
+                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        ),
+                        child: Text(
+                          'Cancel',
+                          style: AppTextStyles.buttonText.copyWith(
+                            fontSize: AppTextStyles.buttonSize,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Container();
+            }),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+// step 7
+Widget buildInterestStep(BuildContext context, Size screenSize) {
+  RxList<String> selectedInterests = <String>[].obs;
+  TextEditingController interestController = TextEditingController();
+  FocusNode interestFocusNode = FocusNode();
+
+  // Check if the user has selected at least 10 interests
+  bool isSelectionValid() {
+    return selectedInterests.length >= 10;
+  }
+
+  // Function to handle adding a new interest
+  void addInterest() {
+    String newInterest = interestController.text.trim();
+    if (newInterest.isNotEmpty && !selectedInterests.contains(newInterest)) {
+      selectedInterests.add(newInterest); // Add the new interest to the list
+      interestController.clear(); // Clear the input field after adding
+      interestFocusNode.unfocus(); // Unfocus the text field to close the keyboard
+    }
+  }
+
+  // Calculate responsive font sizes based on screen width
+  double screenWidth = screenSize.width;
+  double titleFontSize = screenWidth * 0.05; // 8% of screen width for title
+  double bodyFontSize = screenWidth * 0.03;  // 5% of screen width for body text
+  double chipFontSize = screenWidth * 0.045; // 4.5% for chip text
+  double inputFontSize = screenWidth * 0.045; // 4.5% for input text
+  double buttonFontSize = screenWidth * 0.045; // 4.5% for button text
+
+  return Card(
+    elevation: 8,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Title
+            Text(
+              "What are your interests?",
+              style: AppTextStyles.titleText.copyWith(
+                fontSize: titleFontSize, // Responsive title font size
+                fontWeight: FontWeight.bold,
+                color: AppColors.textColor, // Consistent text color from AppColors
+              ),
+            ),
+            SizedBox(height: 20),
+            Text(
+              "Enter your interests one by one. Select at least 10.",
+              style: AppTextStyles.bodyText.copyWith(
+                fontSize: bodyFontSize, // Responsive body font size
+                color: AppColors.textColor.withOpacity(0.7), // Consistent text color
+              ),
+            ),
+            SizedBox(height: 20),
+
+            // Input field to add a new interest
             TextField(
-              onChanged: (value) {
-                name = value;
-              },
+              controller: interestController,
+              focusNode: interestFocusNode,
               decoration: InputDecoration(
-                labelText: "Your Name",
-                labelStyle: AppTextStyles.labelText.copyWith(
-                  color: AppColors.textColor, // Consistent label text color
-                ),
+                labelText: "Enter interest",
+                labelStyle: TextStyle(color: AppColors.textColor),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide(color: AppColors.textColor),
                 ),
                 filled: true,
-                fillColor: AppColors
-                    .formFieldColor, // Consistent form field background color
+                fillColor: AppColors.formFieldColor, // Background color for the input
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide(color: AppColors.textColor),
@@ -305,1181 +817,771 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   borderSide: BorderSide(color: AppColors.textColor),
                 ),
               ),
-              style: AppTextStyles.inputFieldText.copyWith(
-                color:
-                    AppColors.textColor, // Consistent text color for the input
+              style: TextStyle(color: AppColors.textColor, fontSize: inputFontSize), // Responsive input text
+              cursorColor: AppColors.textColor, // Cursor color
+              onSubmitted: (_) {
+                addInterest(); // Add interest when the "Enter" key is pressed
+              },
+            ),
+            SizedBox(height: 20),
+
+            // Button to add the interest to the list
+            ElevatedButton(
+              onPressed: addInterest,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.buttonColor, // Consistent button color
+                foregroundColor: AppColors.textColor,
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
+              child: Text(
+                'Add Interest',
+                style: AppTextStyles.buttonText.copyWith(
+                  fontSize: buttonFontSize, // Responsive button font size
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+
+            // Reactive display of selected interests
+            Obx(() {
+              return selectedInterests.isNotEmpty
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Your Interest:",
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: bodyFontSize, // Responsive font size for selected interests heading
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
+                            children: selectedInterests.map((interest) {
+                              return Chip(
+                                label: Text(interest),
+                                backgroundColor: AppColors.buttonColor, // Consistent chip background color
+                                labelStyle: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: chipFontSize, // Responsive font size for chips
+                                ),
+                                onDeleted: () {
+                                  selectedInterests.remove(interest); // Remove the interest from the list
+                                },
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                      ],
+                    )
+                  : Container();
+            }),
+
+            // Optionally, add a "Continue" button based on the selected interests count
+            Obx(() {
+              return isSelectionValid()
+                  ? Align(
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Proceed with the next action (e.g., navigate to the next screen)
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.acceptColor, // Consistent button color for continue
+                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        ),
+                        child: Text(
+                          'Continue',
+                          style: AppTextStyles.buttonText.copyWith(
+                            fontSize: buttonFontSize, // Responsive button font size
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Container();
+            }),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+
+// step 8
+Widget buildUserDescriptionStep(Size screenSize) {
+  // Reactive variable for storing the description text
+  RxString userDescription = ''.obs;
+
+  // Function to handle description change
+  void onDescriptionChanged(String value) {
+    userDescription.value = value;
+  }
+
+  double screenWidth = screenSize.width;
+
+  // Calculate responsive font sizes based on screen width
+  double titleFontSize = screenWidth * 0.05; // 8% of screen width for title
+  double bodyFontSize = screenWidth * 0.03;  // 5% of screen width for body text
+  double inputFontSize = screenWidth * 0.025; // 4.5% for input text
+  double buttonFontSize = screenWidth * 0.045; // 4.5% for button text (if enabled)
+
+  return Card(
+    elevation: 8,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Title
+            Text(
+              "Tell Us About You",
+              style: AppTextStyles.titleText.copyWith(
+                fontSize: titleFontSize, // Responsive title font size
+                fontWeight: FontWeight.bold,
+                color: AppColors.textColor, // Consistent text color
+              ),
+            ),
+            SizedBox(height: 20),
+            Text(
+              "Describe yourself in 250 words or less.",
+              style: AppTextStyles.bodyText.copyWith(
+                fontSize: bodyFontSize, // Responsive body font size
+                color: AppColors.textColor,
+              ),
+            ),
+            SizedBox(height: 20),
+
+            // Description input field
+            TextField(
+              onChanged: onDescriptionChanged,
+              maxLength: 250,
+              maxLines: 6, // Allow the user to input a multiline description
+              decoration: InputDecoration(
+                labelText: "Your Description",
+                labelStyle: TextStyle(color: AppColors.textColor),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: AppColors.textColor),
+                ),
+                filled: true,
+                fillColor: AppColors.formFieldColor, // Consistent form field color
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: AppColors.textColor),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: AppColors.textColor),
+                ),
+              ),
+              style: TextStyle(color: AppColors.textColor, fontSize: inputFontSize), // Responsive input font size
               cursorColor: AppColors.cursorColor, // Consistent cursor color
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Step 3: Gender Selection
-  Widget buildGenderStep() {
-    List<String> genderOptions = ['Male', 'Female', 'Non-Binary'];
-    Rx<int> selectedGenderIndex =
-        Rx<int>(-1); // -1 means no option is selected initially
-
-    return Card(
-      elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Heading text using AppTextStyles
-            Text(
-              "Select your gender",
-              style: AppTextStyles.titleText.copyWith(
-                fontSize: AppTextStyles
-                    .titleSize, // Use consistent font size from AppTextStyles
-                fontWeight: FontWeight.bold,
-                color: AppColors.textColor, // Use AppColors for text color
-              ),
+              textInputAction: TextInputAction.done,
             ),
             SizedBox(height: 20),
 
-            // Gender options using RadioListTile
+            // Character count display
             Obx(() {
-              return Column(
-                children: List.generate(genderOptions.length, (index) {
-                  return RadioListTile<int>(
-                    title: Text(
-                      genderOptions[index],
-                      style: AppTextStyles.bodyText.copyWith(
-                        color: AppColors.textColor, // Use consistent text color
-                      ),
-                    ),
-                    value: index,
-                    groupValue: selectedGenderIndex.value,
-                    onChanged: (int? value) {
-                      selectedGenderIndex.value = value ?? -1;
-                    },
-                    activeColor: AppColors
-                        .buttonColor, // Use AppColors for active radio button color
-                  );
-                }),
+              return Text(
+                '${userDescription.value.length} / 250 characters',
+                style: AppTextStyles.bodyText.copyWith(
+                  fontSize: bodyFontSize, // Responsive body font size for character count
+                  color: userDescription.value.length > 250
+                      ? Colors.red
+                      : AppColors.textColor,
+                ),
               );
             }),
+            SizedBox(height: 20),
+
+            // Submit button (if enabled, or you can uncomment the code to enable it)
+            // Obx(() {
+            //   return ElevatedButton(
+            //     onPressed: userDescription.value.isNotEmpty && userDescription.value.length <= 250
+            //         ? () {
+            //             // Handle the submission of the description
+            //             print("User Description: ${userDescription.value}");
+            //           }
+            //         : null, // Disable button if description is empty or too long
+            //     style: ElevatedButton.styleFrom(
+            //       backgroundColor: userDescription.value.isNotEmpty && userDescription.value.length <= 250
+            //           ? AppColors.buttonColor
+            //           : Colors.grey, // Button color based on validation
+            //       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            //     ),
+            //     child: Text(
+            //       'Submit',
+            //       style: AppTextStyles.buttonText.copyWith(
+            //         fontSize: buttonFontSize, // Responsive button font size
+            //       ),
+            //     ),
+            //   );
+            // }),
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
-  // Step 4: Describe Yourself (New Step)
-  Widget buildBestDescribeYouStep() {
-    // RxString to store the selected option
-    RxString selectedOption = ''.obs;
+// photos
+ Widget buildPhotosOfUser(Size screenSize) {
+  RxList<File?> images = RxList<File?>();
 
-    List<String> options = [
-      'Pansexual',
-      'Polysexual',
-      'Bisexual',
-      'Asexual',
-      'Other'
-    ];
+  // Function to pick an image from camera or gallery
+  Future<void> pickImage(int index, ImageSource source) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: source);
 
-    return Card(
-      elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Heading Text using AppTextStyles
-            Text(
-              "Which Best Describe You",
-              style: AppTextStyles.titleText.copyWith(
-                fontSize: AppTextStyles
-                    .titleSize, // Use AppTextStyles for consistent size
-                fontWeight: FontWeight.bold,
-                color: AppColors.textColor, // Use AppColors for text color
-              ),
-            ),
-            SizedBox(height: 20),
-
-            // Description Text using AppTextStyles
-            Text(
-              "Select the option that best describes your identity.",
-              style: AppTextStyles.bodyText.copyWith(
-                fontSize: AppTextStyles
-                    .bodySize, // Use AppTextStyles for consistent size
-                color:
-                    AppColors.textColor, // Ensure the color is from AppColors
-              ),
-            ),
-            SizedBox(height: 20),
-
-            // Options using RadioListTile
-            Obx(() {
-              return Column(
-                children: List.generate(options.length, (index) {
-                  return RadioListTile<String>(
-                    title: Text(
-                      options[index],
-                      style: AppTextStyles.bodyText.copyWith(
-                        color:
-                            AppColors.textColor, // Use AppColors for text color
-                      ),
-                    ),
-                    value: options[index],
-                    groupValue: selectedOption.value,
-                    onChanged: (String? value) {
-                      selectedOption.value = value ?? '';
-                    },
-                    activeColor: AppColors
-                        .buttonColor, // Use AppColors for active radio button color
-                    contentPadding:
-                        EdgeInsets.zero, // Remove padding for a cleaner look
-                  );
-                }),
-              );
-            }),
-          ],
-        ),
-      ),
-    );
-  }
-
-// step 5 who are you looking for
-  Widget buildLookingForStep() {
-    // RxList for selected options
-    RxList<bool> selectedOptions = [false, false, false, false, false].obs;
-    List<String> options = ['Men', 'Women', 'Men+MenCouple', 'Agender', 'Both'];
-
-    return Card(
-      elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Heading Text using AppTextStyles
-            Text(
-              "Who are you looking for?",
-              style: AppTextStyles.titleText.copyWith(
-                fontSize: AppTextStyles
-                    .titleSize, // Use AppTextStyles for size consistency
-                fontWeight: FontWeight.bold,
-                color: AppColors
-                    .textColor, // Use AppColors for text color consistency
-              ),
-            ),
-            SizedBox(height: 20),
-
-            // Description Text using AppTextStyles
-            Text(
-              "Select the gender(s) you're interested in.",
-              style: AppTextStyles.bodyText.copyWith(
-                fontSize: AppTextStyles
-                    .bodySize, // Use AppTextStyles for size consistency
-                color: AppColors
-                    .textColor, // Ensure text color matches the app's color scheme
-              ),
-            ),
-            SizedBox(height: 20),
-
-            // Checkbox options using Obx and reactive list
-            Obx(() {
-              return Column(
-                children: List.generate(options.length, (index) {
-                  return CheckboxListTile(
-                    title: Text(
-                      options[index],
-                      style: AppTextStyles.bodyText.copyWith(
-                        color: AppColors
-                            .textColor, // Use AppColors for text color consistency
-                      ),
-                    ),
-                    value: selectedOptions[index],
-                    onChanged: (bool? value) {
-                      selectedOptions[index] = value ?? false;
-                    },
-                    activeColor: AppColors
-                        .buttonColor, // Use AppColors for active checkbox color
-                    checkColor: Colors.white, // Use white for check mark color
-                    contentPadding:
-                        EdgeInsets.zero, // Remove padding for a cleaner look
-                  );
-                }),
-              );
-            }),
-          ],
-        ),
-      ),
-    );
-  }
-
-// Step 6: Gender Identity Selection
-  Widget buildRelationshipStatusInterestStep(BuildContext context) {
-    List<String> options = [
-      'Casual',
-      'In a Friendship',
-      "For Fun",
-      'Enjoyment',
-      'Swings',
-      'Serious',
-      'Looking for Fun',
-      'Not Interested',
-      'Open to Ideas',
-      'Looking for Commitment',
-      'Love',
-      'Casual Chat'
-    ];
-
-    RxList<bool> selectedOptions = List.filled(options.length, false).obs;
-    RxList<String> selectedStatus = <String>[].obs;
-
-    void updateSelectedStatus() {
-      selectedStatus.clear();
-      for (int i = 0; i < selectedOptions.length; i++) {
-        if (selectedOptions[i]) {
-          selectedStatus.add(options[i]);
-        }
-      }
+    if (pickedFile != null) {
+      images[index] = File(pickedFile.path); // Update the image at the specified index
     }
+  }
 
-    double screenWidth = MediaQuery.of(context).size.width;
-    double fontSize = screenWidth * 0.05;
+  // Request camera permission
+  Future<void> requestCameraPermission() async {
+    var status = await Permission.camera.request();
+    if (status.isDenied) {
+      Get.snackbar('', "Camera permission denied");
+    }
+  }
 
-    return Card(
-      elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Relationship Heading
-              Text(
-                "Relationship",
-                style: AppTextStyles.titleText.copyWith(
-                  fontSize: AppTextStyles
-                      .titleSize, // Use AppTextStyles for size consistency
-                  fontWeight: FontWeight.bold,
-                  color: AppColors
-                      .textColor, // Ensure text color matches the app's color scheme
+  // Request gallery permission
+  Future<void> requestGalleryPermission() async {
+    var status = await Permission.photos.request();
+    if (status.isDenied) {
+      Get.snackbar("", "Gallery permission denied");
+    }
+  }
+
+  double screenWidth = screenSize.width;
+  
+  // Calculate responsive font sizes based on screen width
+  double iconSize = screenWidth * 0.12; // 12% of screen width for icon size in the button
+  double dialogButtonFontSize = screenWidth * 0.04; // 4% of screen width for button text in the dialog
+  double imageContainerSize = screenWidth * 0.4; // 40% of the screen width for image container size
+
+  return Scaffold(
+    body: Obx(() {
+      return GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2, // 2 images per row
+          crossAxisSpacing: 20.0,
+          mainAxisSpacing: 40.0,
+        ),
+        itemCount: images.length + 1,
+        itemBuilder: (context, index) {
+          if (index == images.length) {
+            return Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  images.add(null); // Add a new null image slot
+                },
+                child: Icon(
+                  Icons.add_a_photo,
+                  size: iconSize, // Responsive icon size
+                  color: Colors.grey.shade600,
+                ),
+                style: ElevatedButton.styleFrom(
+                  shape: CircleBorder(),
+                  padding: EdgeInsets.all(16),
                 ),
               ),
-              SizedBox(height: 20),
-
-              // Description Text
-              Text(
-                "Let People Know What You are into. You can add or edit Desires as often as you want.",
-                style: AppTextStyles.bodyText.copyWith(
-                  fontSize: AppTextStyles.bodySize, // Consistent font size
-                  color: AppColors.textColor, // Consistent color
-                ),
-              ),
-              SizedBox(height: 20),
-
-              // Selected Status Chips
-              Obx(() {
-                return selectedStatus.isNotEmpty
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "You selected:",
-                            style: AppTextStyles.bodyText.copyWith(
-                              fontSize: AppTextStyles.bodySize,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textColor,
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: selectedStatus.map((status) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: Chip(
-                                    label: Text(status),
-                                    backgroundColor: AppColors
-                                        .buttonColor, // Use AppColors for chip background
-                                    labelStyle: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: AppTextStyles.bodySize - 6,
+            );
+          } else {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: imageContainerSize,
+                    height: imageContainerSize,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: images[index] != null
+                        ? GestureDetector(
+                            onTap: () {
+                              // Show dialog when the image is tapped
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('Pick an image'),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            pickImage(index, ImageSource.camera);
+                                          },
+                                          child: const Icon(Icons.camera_alt),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            pickImage(index, ImageSource.gallery);
+                                          },
+                                          child: const Icon(Icons.photo),
+                                        ),
+                                      ],
                                     ),
-                                    onDeleted: () {
-                                      int index = options.indexOf(status);
-                                      selectedOptions[index] = false;
-                                      updateSelectedStatus();
-                                    },
-                                  ),
-                                );
-                              }).toList(),
+                                  );
+                                },
+                              );
+                            },
+                            child: Image.file(
+                              images[index]!,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : GestureDetector(
+                            onTap: () {
+                              // Show dialog when the placeholder icon is tapped
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('Pick an image'),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            pickImage(index, ImageSource.camera);
+                                          },
+                                          child: const Icon(Icons.camera_alt),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            pickImage(index, ImageSource.gallery);
+                                          },
+                                          child: const Icon(Icons.photo),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            child: Icon(
+                              Icons.image,
+                              size: iconSize, // Responsive icon size
+                              color: Colors.grey.shade600,
                             ),
                           ),
-                          SizedBox(height: 20),
-                        ],
-                      )
-                    : Container();
-              }),
+                  ),
+                ],
+              ),
+            );
+          }
+        },
+      );
+    }),
+  );
+}
 
-              // Select Interests Heading
-              Text(
-                "Select your interests:",
+
+  // step 10
+  Widget buildPermissionRequestStep(Size screenSize) {
+  // Observable to track the user's responses to permissions
+  RxBool notificationGranted = false.obs;
+  RxBool locationGranted = false.obs;
+
+  // Function to show dialog
+  Future<void> showPermissionDialog(
+      BuildContext context, String permissionType) async {
+    // Show the dialog to confirm permission action (Accept / Deny)
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // Prevent closing dialog by tapping outside
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            permissionType == 'notification'
+                ? "Notification Permission"
+                : "Location Permission",
+            style: AppTextStyles.titleText.copyWith(
+              fontSize: screenSize.width * 0.05, // Responsive font size
+              color: AppColors.textColor, // Consistent text color
+            ),
+          ),
+          content: Text(
+            permissionType == 'notification'
+                ? "Do you allow the app to send notifications?"
+                : "Do you allow the app to access your location?",
+            style: AppTextStyles.bodyText.copyWith(
+              fontSize: screenSize.width * 0.04, // Responsive font size
+              color: AppColors.textColor, // Consistent text color
+            ),
+          ),
+          actions: <Widget>[
+            // Deny button
+            TextButton(
+              onPressed: () {
+                // Update the corresponding permission as denied
+                if (permissionType == 'notification') {
+                  notificationGranted.value = false;
+                } else if (permissionType == 'location') {
+                  locationGranted.value = false;
+                }
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text(
+                'Deny',
                 style: AppTextStyles.bodyText.copyWith(
-                  fontSize: AppTextStyles.bodySize, // Consistent font size
+                  color: Colors.red,
+                  fontSize: screenSize.width * 0.04, // Responsive font size
+                ),
+              ),
+            ),
+            // Accept button
+            TextButton(
+              onPressed: () {
+                // Update the corresponding permission as granted
+                if (permissionType == 'notification') {
+                  notificationGranted.value = true;
+                } else if (permissionType == 'location') {
+                  locationGranted.value = true;
+                }
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text(
+                'Accept',
+                style: AppTextStyles.bodyText.copyWith(
+                  color: Colors.green,
+                  fontSize: screenSize.width * 0.04, // Responsive font size
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Calculate responsive font size for various text elements
+  double fontSize = screenSize.width * 0.03; // Base font size (5% of screen width)
+
+  return Column(
+    children: [
+      // Heading Card
+      Card(
+        elevation: 8,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Text(
+                "Permissions",
+                style: AppTextStyles.titleText.copyWith(
+                  fontSize: fontSize,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textColor,
                 ),
               ),
               SizedBox(height: 10),
 
-              // Interest Chips (Selectable)
-              SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: List.generate(options.length, (index) {
-                    return GestureDetector(
-                      onTap: () {
-                        selectedOptions[index] = !selectedOptions[index];
-                        updateSelectedStatus();
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Chip(
-                          label: Text(options[index]),
-                          backgroundColor: selectedOptions[index]
-                              ? AppColors.buttonColor
-                              : AppColors
-                                  .formFieldColor, // Use AppColors for selected/unselected state
-                          labelStyle: TextStyle(
-                            color: selectedOptions[index]
-                                ? Colors.white
-                                : AppColors.textColor, // Consistent text color
-                            fontSize: AppTextStyles.bodySize - 6,
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-              ),
-
-              // Cancel Button
-              Obx(() {
-                return selectedStatus.isNotEmpty
-                    ? Align(
-                        alignment: Alignment.centerRight,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            selectedOptions.value =
-                                List.filled(options.length, false);
-                            updateSelectedStatus();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors
-                                .deniedColor, // Consistent button color
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                          ),
-                          child: Text(
-                            'Cancel',
-                            style: AppTextStyles.buttonText.copyWith(
-                              fontSize: AppTextStyles.buttonSize,
-                              color: AppColors.textColor,
-                            ),
-                          ),
-                        ),
-                      )
-                    : Container();
-              }),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-// step 7
-
-  Widget buildInterestStep(BuildContext context) {
-    RxList<String> selectedInterests = <String>[].obs;
-    TextEditingController interestController = TextEditingController();
-    FocusNode interestFocusNode = FocusNode();
-
-    // Check if the user has selected at least 10 interests
-    bool isSelectionValid() {
-      return selectedInterests.length >= 10;
-    }
-
-    // Function to handle adding a new interest
-    void addInterest() {
-      String newInterest = interestController.text.trim();
-      if (newInterest.isNotEmpty && !selectedInterests.contains(newInterest)) {
-        selectedInterests.add(newInterest); // Add the new interest to the list
-        interestController.clear(); // Clear the input field after adding
-        interestFocusNode
-            .unfocus(); // Unfocus the text field to close the keyboard
-      }
-    }
-
-    double screenWidth = MediaQuery.of(context).size.width;
-    double fontSize = screenWidth * 0.05;
-
-    return Card(
-      elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Title
+              // Additional text after heading
               Text(
-                "What are your interests?",
-                style: AppTextStyles.titleText.copyWith(
-                  fontSize: AppTextStyles.titleSize,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors
-                      .textColor, // Consistent text color from AppColors
-                ),
-              ),
-              SizedBox(height: 20),
-              Text(
-                "Enter your interests one by one. Select at least 10.",
+                "Do we have permission to access the following?",
                 style: AppTextStyles.bodyText.copyWith(
-                  fontSize: AppTextStyles.bodySize - 2,
-                  color: AppColors.textColor
-                      .withOpacity(0.7), // Consistent text color
-                ),
-              ),
-              SizedBox(height: 20),
-
-              // Input field to add a new interest
-              TextField(
-                controller: interestController,
-                focusNode: interestFocusNode,
-                decoration: InputDecoration(
-                  labelText: "Enter interest",
-                  labelStyle: TextStyle(color: AppColors.textColor),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: AppColors.textColor),
-                  ),
-                  filled: true,
-                  fillColor: AppColors
-                      .formFieldColor, // Background color for the input
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: AppColors.textColor),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: AppColors.textColor),
-                  ),
-                ),
-                style: TextStyle(color: AppColors.textColor), // Text color
-                cursorColor: AppColors.textColor, // Cursor color
-                onSubmitted: (_) {
-                  addInterest(); // Add interest when the "Enter" key is pressed
-                },
-              ),
-              SizedBox(height: 20),
-
-              // Button to add the interest to the list
-              ElevatedButton(
-                onPressed: addInterest,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      AppColors.buttonColor, // Consistent button color
-                  foregroundColor: AppColors.textColor,
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                ),
-                child: Text(
-                  'Add Interest',
-                  style: AppTextStyles.buttonText.copyWith(
-                    fontSize: AppTextStyles.buttonSize,
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-
-              // Reactive display of selected interests
-              Obx(() {
-                return selectedInterests.isNotEmpty
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Your Interest:",
-                            style: AppTextStyles.bodyText.copyWith(
-                              fontSize: AppTextStyles.bodySize,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textColor,
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: Wrap(
-                              spacing: 10,
-                              runSpacing: 10,
-                              children: selectedInterests.map((interest) {
-                                return Chip(
-                                  label: Text(interest),
-                                  backgroundColor: AppColors
-                                      .buttonColor, // Consistent chip background color
-                                  labelStyle: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: AppTextStyles.bodySize - 6,
-                                  ),
-                                  onDeleted: () {
-                                    selectedInterests.remove(
-                                        interest); // Remove the interest from the list
-                                  },
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                          SizedBox(height: 20),
-                        ],
-                      )
-                    : Container();
-              }),
-
-              // Optionally, add a "Continue" button based on the selected interests count
-              Obx(() {
-                return isSelectionValid()
-                    ? Align(
-                        alignment: Alignment.centerRight,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // Proceed with the next action (e.g., navigate to the next screen)
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors
-                                .acceptColor, // Consistent button color for continue
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                          ),
-                          child: Text(
-                            'Continue',
-                            style: AppTextStyles.buttonText.copyWith(
-                              fontSize: AppTextStyles.buttonSize,
-                              color: AppColors.textColor,
-                            ),
-                          ),
-                        ),
-                      )
-                    : Container();
-              }),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-// step 8
-
-  Widget buildUserDescriptionStep(double fontSize) {
-    // Reactive variable for storing the description text
-    RxString userDescription = ''.obs;
-
-    // Function to handle description change
-    void onDescriptionChanged(String value) {
-      userDescription.value = value;
-    }
-
-    double screenWidth = MediaQuery.of(context).size.width;
-    double fontSizeResponsive = screenWidth * 0.05;
-
-    return Card(
-      elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Tell Us About You",
-                style: AppTextStyles.titleText.copyWith(
-                  fontSize: AppTextStyles.titleSize,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textColor, // Consistent text color
-                ),
-              ),
-              SizedBox(height: 20),
-              Text(
-                "Describe yourself in 250 words or less.",
-                style: AppTextStyles.bodyText.copyWith(
-                  fontSize: AppTextStyles.bodySize - 2,
+                  fontSize: fontSize - 2, // Slightly smaller font size
                   color: AppColors.textColor,
                 ),
               ),
-              SizedBox(height: 20),
-
-              // Description input field
-              TextField(
-                onChanged: onDescriptionChanged,
-                maxLength: 250,
-                maxLines: 6, // Allow the user to input a multiline description
-                decoration: InputDecoration(
-                  labelText: "Your Description",
-                  labelStyle: TextStyle(color: AppColors.textColor),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: AppColors.textColor),
-                  ),
-                  filled: true,
-                  fillColor:
-                      AppColors.formFieldColor, // Consistent form field color
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: AppColors.textColor),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: AppColors.textColor),
-                  ),
-                ),
-                style: TextStyle(color: AppColors.textColor),
-                cursorColor: AppColors.cursorColor, // Consistent cursor color
-                textInputAction: TextInputAction.done,
-              ),
-              SizedBox(height: 20),
-
-              // Character count display
-              Obx(() {
-                return Text(
-                  '${userDescription.value.length} / 250 characters',
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: AppTextStyles.bodySize - 2,
-                    color: userDescription.value.length > 250
-                        ? Colors.red
-                        : AppColors.textColor,
-                  ),
-                );
-              }),
-              SizedBox(height: 20),
-
-              // Submit button (Commented out for now, can be re-enabled as needed)
-              // Obx(() {
-              //   return ElevatedButton(
-              //     onPressed: userDescription.value.isNotEmpty && userDescription.value.length <= 250
-              //         ? () {
-              //             // Handle the submission of the description
-              //             print("User Description: ${userDescription.value}");
-              //           }
-              //         : null, // Disable button if description is empty or too long
-              //     style: ElevatedButton.styleFrom(
-              //       backgroundColor: userDescription.value.isNotEmpty && userDescription.value.length <= 250
-              //           ? AppColors.buttonColor
-              //           : Colors.grey, // Button color based on validation
-              //       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              //     ),
-              //     child: Text(
-              //       'Submit',
-              //       style: AppTextStyles.buttonText.copyWith(
-              //         fontSize: AppTextStyles.buttonSize,
-              //       ),
-              //     ),
-              //   );
-              // }),
             ],
           ),
         ),
       ),
-    );
-  }
+      SizedBox(height: 20),
 
-// photos
-  Widget buildPhotosOfUser(double fontSize) {
-    RxList<File?> images = RxList<File?>();
-
-    Future<void> pickImage(int index, ImageSource source) async {
-      final picker = ImagePicker();
-      final pickedFile = await picker.pickImage(source: source);
-
-      if (pickedFile != null) {
-        images[index] =
-            File(pickedFile.path); // Update the image at the specified index
-      }
-    }
-
-    // Request camera permission
-    Future<void> requestCameraPermission() async {
-      var status = await Permission.camera.request();
-      if (status.isDenied) {
-        Get.snackbar('', "Camera permission denied");
-      }
-    }
-
-    // Request gallery permission
-    Future<void> requestGalleryPermission() async {
-      var status = await Permission.photos.request();
-      if (status.isDenied) {
-        Get.snackbar("", "Gallery permission denied");
-      }
-    }
-
-    return Scaffold(
-      body: Obx(() {
-        return GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // 2 images per row
-            crossAxisSpacing: 20.0,
-            mainAxisSpacing: 40.0,
-          ),
-          itemCount: images.length + 1,
-          itemBuilder: (context, index) {
-            if (index == images.length) {
-              return Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    images.add(null);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    shape: CircleBorder(),
-                    padding: EdgeInsets.all(16),
-                  ),
-                  child: Icon(
-                    Icons.add_a_photo,
-                    size: 60,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              );
-            } else {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 150,
-                      height: 150,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: images[index] != null
-                          ? GestureDetector(
-                              onTap: () {
-                                // Show dialog when the image is tapped
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Text('Pick an image'),
-                                      content: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                              pickImage(
-                                                  index, ImageSource.camera);
-                                            },
-                                            child: const Icon(Icons.camera_alt),
-                                          ),
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                              pickImage(
-                                                  index, ImageSource.gallery);
-                                            },
-                                            child: const Icon(Icons.photo),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                              child: Image.file(
-                                images[index]!,
-                                fit: BoxFit.cover,
-                              ),
-                            )
-                          : GestureDetector(
-                              onTap: () {
-                                // Show dialog when the placeholder icon is tapped
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Text('Pick an image'),
-                                      content: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                              pickImage(
-                                                  index, ImageSource.camera);
-                                            },
-                                            child: const Icon(Icons.camera_alt),
-                                          ),
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                              pickImage(
-                                                  index, ImageSource.gallery);
-                                            },
-                                            child: const Icon(Icons.photo),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                              child: Icon(
-                                Icons.image,
-                                size: 40,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                    ),
-                  ],
-                ),
-              );
-            }
-          },
-        );
-      }),
-    );
-  }
-
-  // step 10
-  Widget buildPermissionRequestStep(double fontSize) {
-    // Observable to track the user's responses to permissions
-    RxBool notificationGranted = false.obs;
-    RxBool locationGranted = false.obs;
-
-    // Function to show dialog
-    Future<void> showPermissionDialog(
-        BuildContext context, String permissionType) async {
-      // Show the dialog to confirm permission action (Accept / Deny)
-      return showDialog<void>(
-        context: context,
-        barrierDismissible: false, // Prevent closing dialog by tapping outside
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(
-              permissionType == 'notification'
-                  ? "Notification Permission"
-                  : "Location Permission",
-              style: AppTextStyles.titleText.copyWith(
-                fontSize: fontSize,
-                color: AppColors.textColor, // Consistent text color
-              ),
-            ),
-            content: Text(
-              permissionType == 'notification'
-                  ? "Do you allow the app to send notifications?"
-                  : "Do you allow the app to access your location?",
-              style: AppTextStyles.bodyText.copyWith(
-                fontSize: fontSize - 2,
-                color: AppColors.textColor, // Consistent text color
-              ),
-            ),
-            actions: <Widget>[
-              // Deny button
-              TextButton(
-                onPressed: () {
-                  // Update the corresponding permission as denied
-                  if (permissionType == 'notification') {
-                    notificationGranted.value = false;
-                  } else if (permissionType == 'location') {
-                    locationGranted.value = false;
-                  }
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-                child: Text(
-                  'Deny',
-                  style: AppTextStyles.bodyText.copyWith(
-                    color: Colors.red,
-                    fontSize: fontSize,
-                  ),
-                ),
-              ),
-              // Accept button
-              TextButton(
-                onPressed: () {
-                  // Update the corresponding permission as granted
-                  if (permissionType == 'notification') {
-                    notificationGranted.value = true;
-                  } else if (permissionType == 'location') {
-                    locationGranted.value = true;
-                  }
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-                child: Text(
-                  'Accept',
-                  style: AppTextStyles.bodyText.copyWith(
-                    color: Colors.green,
-                    fontSize: fontSize,
-                  ),
-                ),
-              ),
-            ],
-          );
+      // Notification Permission Section
+      GestureDetector(
+        onTap: () {
+          // Show dialog when the card is tapped
+          showPermissionDialog(context, 'notification');
         },
-      );
-    }
-
-    return Column(
-      children: [
-        // Heading Card
-        Card(
+        child: Card(
           elevation: 8,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
+            child: Row(
               children: [
-                Text(
-                  "Permissions",
-                  style: AppTextStyles.titleText.copyWith(
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textColor,
+                // Notification Icon
+                Icon(
+                  Icons.notifications,
+                  color: AppColors.iconColor, // Consistent icon color
+                  size: fontSize, // Responsive icon size
+                ),
+                SizedBox(width: 10),
+                // Notification Text
+                Expanded(
+                  child: Text(
+                    "We need permission to send you notifications.",
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: fontSize - 2, // Slightly smaller font size
+                      color: AppColors.textColor,
+                    ),
                   ),
                 ),
-                SizedBox(height: 10),
-
-                // Additional text after heading
-                Text(
-                  "Do we have permission to access the following?",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: fontSize - 2,
-                    color: AppColors.textColor,
-                  ),
-                ),
+                // Grant/Deny Status (text)
+                Obx(() {
+                  return Text(
+                    notificationGranted.value ? 'Granted' : 'Tap to Grant',
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: fontSize - 2, // Slightly smaller font size
+                      color: notificationGranted.value
+                          ? AppColors.buttonColor
+                          : AppColors.formFieldColor,
+                    ),
+                  );
+                }),
               ],
             ),
           ),
         ),
-        SizedBox(height: 20),
+      ),
+      SizedBox(height: 20),
 
-        // Notification Permission Section
-        GestureDetector(
-          onTap: () {
-            // Show dialog when the card is tapped
-            showPermissionDialog(context, 'notification');
-          },
-          child: Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  // Notification Icon
-                  Icon(
-                    Icons.notifications,
-                    color: AppColors.iconColor, // Consistent icon color
-                    size: fontSize,
-                  ),
-                  SizedBox(width: 10),
-                  // Notification Text
-                  Expanded(
-                    child: Text(
-                      "We need permission to send you notifications.",
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize - 2,
-                        color: AppColors.textColor,
-                      ),
+      // Location Permission Section
+      GestureDetector(
+        onTap: () {
+          // Show dialog when the card is tapped
+          showPermissionDialog(context, 'location');
+        },
+        child: Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                // Location Icon
+                Icon(
+                  Icons.location_on,
+                  color: AppColors.iconColor, // Consistent icon color
+                  size: fontSize, // Responsive icon size
+                ),
+                SizedBox(width: 10),
+                // Location Text
+                Expanded(
+                  child: Text(
+                    "We need permission to access your location.",
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: fontSize - 2, // Slightly smaller font size
+                      color: AppColors.textColor,
                     ),
                   ),
-                  // Grant/Deny Status (text)
-                  Obx(() {
-                    return Text(
-                      notificationGranted.value ? 'Granted' : 'Tap to Grant',
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize - 2,
-                        color: notificationGranted.value
-                            ? AppColors.buttonColor
-                            : AppColors.formFieldColor,
-                      ),
-                    );
-                  }),
-                ],
-              ),
+                ),
+                // Grant/Deny Status (text)
+                Obx(() {
+                  return Text(
+                    locationGranted.value ? 'Granted' : 'Tap to Grant',
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: fontSize - 2, // Slightly smaller font size
+                      color: locationGranted.value
+                          ? AppColors.buttonColor
+                          : AppColors.formFieldColor,
+                    ),
+                  );
+                }),
+              ],
             ),
           ),
         ),
-        SizedBox(height: 20),
+      ),
+      SizedBox(height: 20),
 
-        // Location Permission Section
-        GestureDetector(
-          onTap: () {
-            // Show dialog when the card is tapped
-            showPermissionDialog(context, 'location');
-          },
-          child: Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  // Location Icon
-                  Icon(
-                    Icons.location_on,
-                    color: AppColors.iconColor, // Consistent icon color
-                    size: fontSize,
-                  ),
-                  SizedBox(width: 10),
-                  // Location Text
-                  Expanded(
-                    child: Text(
-                      "We need permission to access your location.",
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize - 2,
-                        color: AppColors.textColor,
-                      ),
-                    ),
-                  ),
-                  // Grant/Deny Status (text)
-                  Obx(() {
-                    return Text(
-                      locationGranted.value ? 'Granted' : 'Tap to Grant',
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize - 2,
-                        color: locationGranted.value
-                            ? AppColors.buttonColor
-                            : AppColors.formFieldColor,
-                      ),
-                    );
-                  }),
-                ],
-              ),
+      // Optional Next Button (Enabled only if both permissions are granted)
+      // Obx(() {
+      //   return ElevatedButton(
+      //     onPressed: notificationGranted.value && locationGranted.value
+      //         ? () {
+      //             // Handle the next step or permission submission
+      //             print("Permissions Granted: Notification and Location");
+      //           }
+      //         : null, // Disable button if permissions are not granted
+      //     style: ElevatedButton.styleFrom(
+      //       backgroundColor: notificationGranted.value && locationGranted.value
+      //           ? AppColors.buttonColor
+      //           : Colors.grey, // Button color based on permissions
+      //       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      //     ),
+      //     child: Text(
+      //       'Next',
+      //       style: AppTextStyles.buttonText.copyWith(
+      //         fontSize: fontSize,
+      //       ),
+      //     ),
+      //   );
+      // }),
+    ],
+  );
+}
+
+
+// step: 11
+  Widget buildPaymentWidget(Size screenSize) {
+  // Observable to track the selected plan
+  RxString selectedPlan = 'None'.obs;
+  RxString selectedService = 'None'.obs; // Default to 'None' for placeholder text
+
+  // Calculate responsive font size based on screen width
+  double fontSize = screenSize.width * 0.03; // Base font size (can adjust 0.05 for different scaling)
+
+  // Function to show confirmation dialog
+  Future<void> showPaymentConfirmationDialog(
+      BuildContext context, String planType, String amount) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // Prevent closing dialog by tapping outside
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            "Confirm Subscription",
+            style: AppTextStyles.titleText.copyWith(
+              fontSize: fontSize,
+              color: AppColors.textColor, // Consistent text color
             ),
           ),
-        ),
-        SizedBox(height: 20),
-
-        // Optional Next Button (Enabled only if both permissions are granted)
-        // Obx(() {
-        //   return ElevatedButton(
-        //     onPressed: notificationGranted.value && locationGranted.value
-        //         ? () {
-        //             // Handle the next step or permission submission
-        //             print("Permissions Granted: Notification and Location");
-        //           }
-        //         : null, // Disable button if permissions are not granted
-        //     style: ElevatedButton.styleFrom(
-        //       backgroundColor: notificationGranted.value && locationGranted.value
-        //           ? AppColors.buttonColor
-        //           : Colors.grey, // Button color based on permissions
-        //       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        //     ),
-        //     child: Text(
-        //       'Next',
-        //       style: AppTextStyles.buttonText.copyWith(
-        //         fontSize: fontSize,
-        //       ),
-        //     ),
-        //   );
-        // }),
-      ],
+          content: Text(
+            "Do you want to subscribe to the $planType plan for $amount?",
+            style: AppTextStyles.bodyText.copyWith(
+              fontSize: fontSize - 2, // Slightly smaller for content text
+              color: AppColors.textColor, // Consistent text color
+            ),
+          ),
+          actions: <Widget>[
+            // Deny button
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text(
+                'Cancel',
+                style: AppTextStyles.bodyText.copyWith(
+                  color: AppColors.deniedColor,
+                  fontSize: fontSize,
+                ),
+              ),
+            ),
+            // Accept button
+            TextButton(
+              onPressed: () {
+                // Update the selected plan and close the dialog
+                selectedPlan.value = planType;
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text(
+                'Subscribe',
+                style: AppTextStyles.bodyText.copyWith(
+                  color: AppColors.acceptColor,
+                  fontSize: fontSize,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
-// step: 11
-  Widget buildPaymentWidget(double fontSize) {
-    // Observable to track the selected plan
-    RxString selectedPlan = 'None'.obs;
-
-    // Function to show confirmation dialog
-    Future<void> showPaymentConfirmationDialog(
-        BuildContext context, String planType, String amount) async {
-      return showDialog<void>(
-        context: context,
-        barrierDismissible: false, // Prevent closing dialog by tapping outside
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(
-              "Confirm Subscription",
-              style: AppTextStyles.titleText.copyWith(
-                fontSize: fontSize,
-                color: AppColors.textColor, // Consistent text color
-              ),
-            ),
-            content: Text(
-              "Do you want to subscribe to the $planType plan for $amount?",
-              style: AppTextStyles.bodyText.copyWith(
-                fontSize: fontSize - 2,
-                color: AppColors.textColor, // Consistent text color
-              ),
-            ),
-            actions: <Widget>[
-              // Deny button
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-                child: Text(
-                  'Cancel',
-                  style: AppTextStyles.bodyText.copyWith(
-                    color: AppColors.deniedColor,
-                    fontSize: fontSize,
-                  ),
-                ),
-              ),
-              // Accept button
-              TextButton(
-                onPressed: () {
-                  // Update the selected plan and close the dialog
-                  selectedPlan.value = planType;
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-                child: Text(
-                  'Subscribe',
-                  style: AppTextStyles.bodyText.copyWith(
-                    color: AppColors.acceptColor,
-                    fontSize: fontSize,
-                  ),
+  return SingleChildScrollView(
+    child: Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            children: [
+              Text(
+                "What We Offer",
+                style: AppTextStyles.titleText.copyWith(
+                  fontSize: fontSize,
+                  color: AppColors.textColor,
                 ),
               ),
             ],
-          );
-        },
-      );
-    }
-
-    return Column(
-      children: [
-        // Heading Card
+          ),
+        ),
+        SizedBox(height: 20),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Obx(() {
+                return Container(
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.formFieldColor),
+                  ),
+                  child: DropdownButton<String>(
+                    value: selectedService.value == 'None' ? null : selectedService.value,
+                    hint: Text(
+                      "Click to know what we offer",
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: fontSize - 6, // Slightly smaller font for the hint
+                        color: AppColors.textColor.withOpacity(0.6),
+                      ),
+                    ),
+                    icon: Icon(Icons.arrow_drop_down, color: AppColors.iconColor),
+                    isExpanded: true,
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        // Do nothing on selection
+                        // Effectively disables the change in selection
+                      }
+                    },
+                    items: <String>[
+                      'Send Ping',
+                      'Chatting',
+                      'Filter by Desire',
+                      'Other Services'
+                    ].map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(
+                          value,
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: fontSize - 6, // Slightly smaller font for dropdown items
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+        SizedBox(height: 20),
         Card(
           elevation: 8,
           shape: RoundedRectangleBorder(
@@ -1494,15 +1596,15 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   style: AppTextStyles.titleText.copyWith(
                     fontSize: fontSize,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textColor, // Consistent text color
+                    color: AppColors.textColor,
                   ),
                 ),
                 SizedBox(height: 10),
                 Text(
                   "Choose a plan that suits you!",
                   style: AppTextStyles.bodyText.copyWith(
-                    fontSize: fontSize - 2,
-                    color: AppColors.textColor, // Consistent text color
+                    fontSize: fontSize - 2, // Slightly smaller font for description
+                    color: AppColors.textColor,
                   ),
                 ),
               ],
@@ -1510,49 +1612,41 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           ),
         ),
         SizedBox(height: 20),
-
-        // Monthly Plan Section
         GestureDetector(
           onTap: () {
-            // Show confirmation dialog when the card is tapped
             showPaymentConfirmationDialog(context, 'Monthly', '₹99/month');
           },
           child: Stack(
-            clipBehavior: Clip.none, // Allow widget to overflow (banner above)
+            clipBehavior: Clip.none,
             children: [
               Card(
                 elevation: 8,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                color: Colors.orange, // Set card background color to orange
+                color: Colors.orange,
                 child: Padding(
-                  padding: const EdgeInsets.all(24.0), // Increased padding
+                  padding: const EdgeInsets.all(24.0),
                   child: Row(
                     children: [
-                      // Monthly Icon
                       Icon(
                         Icons.calendar_today,
-                        color: AppColors.iconColor, // Consistent icon color
+                        color: AppColors.iconColor,
                         size: fontSize,
                       ),
                       SizedBox(width: 10),
-                      // Monthly Plan Text
                       Expanded(
                         child: Text(
                           "Monthly Plan - ₹99/month",
                           style: AppTextStyles.bodyText.copyWith(
                             fontSize: fontSize - 2,
-                            color: AppColors.textColor, // Consistent text color
+                            color: AppColors.textColor,
                           ),
                         ),
                       ),
-                      // Plan Status (text)
                       Obx(() {
                         return Text(
-                          selectedPlan.value == 'Monthly'
-                              ? 'Selected'
-                              : 'Select',
+                          selectedPlan.value == 'Monthly' ? 'Selected' : 'Select',
                           style: AppTextStyles.bodyText.copyWith(
                             fontSize: fontSize - 2,
                             color: selectedPlan.value == 'Monthly'
@@ -1565,22 +1659,21 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   ),
                 ),
               ),
-              // Discount Percentage Banner (positioned at top-right corner)
               Positioned(
-                top: 4, // Slightly higher position
-                right: 2, // Position at the top-right corner
+                top: 4,
+                right: 2,
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
                   decoration: BoxDecoration(
-                    color: Colors.red, // Set the background color to red
-                    borderRadius: BorderRadius.circular(12), // Curved corners
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    '20% OFF', // Display the discount percentage
+                    '20% OFF',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: fontSize - 6, // Smaller font size
+                      fontSize: fontSize - 6,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -1590,50 +1683,41 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           ),
         ),
         SizedBox(height: 20),
-
-        // Quarterly Plan Section
         GestureDetector(
           onTap: () {
-            // Show confirmation dialog when the card is tapped
-            showPaymentConfirmationDialog(
-                context, 'Quarterly', '₹599/3 months');
+            showPaymentConfirmationDialog(context, 'Quarterly', '₹599/3 months');
           },
           child: Stack(
-            clipBehavior: Clip.none, // Allow widget to overflow (banner above)
+            clipBehavior: Clip.none,
             children: [
               Card(
                 elevation: 8,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                color: Colors.orange, // Set card background color to orange
+                color: Colors.orange,
                 child: Padding(
-                  padding: const EdgeInsets.all(24.0), // Increased padding
+                  padding: const EdgeInsets.all(24.0),
                   child: Row(
                     children: [
-                      // Quarterly Icon
                       Icon(
                         Icons.calendar_view_day,
-                        color: AppColors.iconColor, // Consistent icon color
+                        color: AppColors.iconColor,
                         size: fontSize,
                       ),
                       SizedBox(width: 10),
-                      // Quarterly Plan Text
                       Expanded(
                         child: Text(
                           "Quarterly Plan - ₹599/3 months",
                           style: AppTextStyles.bodyText.copyWith(
                             fontSize: fontSize - 2,
-                            color: AppColors.textColor, // Consistent text color
+                            color: AppColors.textColor,
                           ),
                         ),
                       ),
-                      // Plan Status (text)
                       Obx(() {
                         return Text(
-                          selectedPlan.value == 'Quarterly'
-                              ? 'Selected'
-                              : 'Select',
+                          selectedPlan.value == 'Quarterly' ? 'Selected' : 'Select',
                           style: AppTextStyles.bodyText.copyWith(
                             fontSize: fontSize - 2,
                             color: selectedPlan.value == 'Quarterly'
@@ -1646,22 +1730,21 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   ),
                 ),
               ),
-              // Discount Percentage Banner (positioned at top-right corner)
               Positioned(
-                top: 4, // Slightly higher position
-                right: 2, // Position at the top-right corner
+                top: 4,
+                right: 2,
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
                   decoration: BoxDecoration(
-                    color: Colors.red, // Set the background color to red
-                    borderRadius: BorderRadius.circular(12), // Curved corners
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    '15% OFF', // Display the discount percentage
+                    '15% OFF',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: fontSize - 6, // Smaller font size
+                      fontSize: fontSize - 6,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -1675,45 +1758,39 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
         // Yearly Plan Section
         GestureDetector(
           onTap: () {
-            // Show confirmation dialog when the card is tapped
             showPaymentConfirmationDialog(context, 'Yearly', '₹999/year');
           },
           child: Stack(
-            clipBehavior: Clip.none, // Allow widget to overflow (banner above)
+            clipBehavior: Clip.none,
             children: [
               Card(
                 elevation: 8,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                color: Colors.orange, // Set card background color to orange
+                color: Colors.orange,
                 child: Padding(
-                  padding: const EdgeInsets.all(24.0), // Increased padding
+                  padding: const EdgeInsets.all(24.0),
                   child: Row(
                     children: [
-                      // Yearly Icon
                       Icon(
                         Icons.calendar_today,
-                        color: AppColors.iconColor, // Consistent icon color
+                        color: AppColors.iconColor,
                         size: fontSize,
                       ),
                       SizedBox(width: 10),
-                      // Yearly Plan Text
                       Expanded(
                         child: Text(
                           "Yearly Plan - ₹999/year",
                           style: AppTextStyles.bodyText.copyWith(
                             fontSize: fontSize - 2,
-                            color: AppColors.textColor, // Consistent text color
+                            color: AppColors.textColor,
                           ),
                         ),
                       ),
-                      // Plan Status (text)
                       Obx(() {
                         return Text(
-                          selectedPlan.value == 'Yearly'
-                              ? 'Selected'
-                              : 'Select',
+                          selectedPlan.value == 'Yearly' ? 'Selected' : 'Select',
                           style: AppTextStyles.bodyText.copyWith(
                             fontSize: fontSize - 2,
                             color: selectedPlan.value == 'Yearly'
@@ -1726,22 +1803,21 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   ),
                 ),
               ),
-              // Discount Percentage Banner (positioned at top-right corner)
-             Positioned(
-                top: 4, // Slightly higher position
-                right: 2, // Position at the top-right corner
+              Positioned(
+                top: 4,
+                right: 2,
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
                   decoration: BoxDecoration(
-                    color: Colors.red, // Set the background color to red
-                    borderRadius: BorderRadius.circular(12), // Curved corners
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    '35% OFF', // Display the discount percentage
+                    '35% OFF',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: fontSize - 6, // Smaller font size
+                      fontSize: fontSize - 6,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -1764,7 +1840,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: selectedPlan.value != 'None'
                   ? AppColors.buttonColor
-                  : Colors.grey, // Button color based on selection
+                  : Colors.grey,
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             ),
             child: Text(
@@ -1776,445 +1852,464 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           );
         }),
       ],
-    );
-  }
+    ),
+  );
+}
+
 
 // step 12
-  Widget buildSafetyGuidelinesWidget(double fontSize) {
-    return SingleChildScrollView(
-      // Wrap the whole Column with SingleChildScrollView
-      child: Column(
-        children: [
-          // Heading Card
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Text(
-                    "Safety Guidelines",
-                    style: AppTextStyles.titleText.copyWith(
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textColor, // Consistent color
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    "Please follow these rules to ensure a safe experience.",
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2,
-                      color: AppColors.textColor, // Consistent color
-                    ),
-                  ),
-                ],
-              ),
-            ),
+  Widget buildSafetyGuidelinesWidget(Size screenSize) {
+  // Calculate responsive font size based on screen width
+  double fontSize = screenSize.width * 0.03; // You can adjust 0.05 to make it larger/smaller
+  
+  return SingleChildScrollView(
+    // Wrap the whole Column with SingleChildScrollView
+    child: Column(
+      children: [
+        // Heading Card
+        Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-          SizedBox(height: 20),
-
-          // Safety Guidelines List
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Safety Guideline Item 1
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.warning,
-                        color: AppColors.iconColor, // Consistent icon color
-                        size: fontSize,
-                      ),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          "Never share personal information like your address or bank details.",
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: fontSize - 2,
-                            color: AppColors.textColor, // Consistent color
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 15),
-
-                  // Safety Guideline Item 2
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.warning,
-                        color: AppColors.iconColor, // Consistent icon color
-                        size: fontSize,
-                      ),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          "Always meet in public places for your first date.",
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: fontSize - 2,
-                            color: AppColors.textColor, // Consistent color
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 15),
-
-                  // Safety Guideline Item 3
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.warning,
-                        color: AppColors.iconColor, // Consistent icon color
-                        size: fontSize,
-                      ),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          "Respect boundaries and report any inappropriate behavior.",
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: fontSize - 2,
-                            color: AppColors.textColor, // Consistent color
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 15),
-
-                  // Safety Guideline Item 4
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.warning,
-                        color: AppColors.iconColor, // Consistent icon color
-                        size: fontSize,
-                      ),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          "Do not send money or gifts to people you meet online.",
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: fontSize - 2,
-                            color: AppColors.textColor, // Consistent color
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 15),
-
-                  // Safety Guideline Item 5
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.warning,
-                        color: AppColors.iconColor, // Consistent icon color
-                        size: fontSize,
-                      ),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          "If you feel unsafe, immediately contact local authorities.",
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: fontSize - 2,
-                            color: AppColors.textColor, // Consistent color
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-
-          // Acknowledge Button
-          ElevatedButton(
-            onPressed: () {
-              print("User acknowledged safety guidelines.");
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.buttonColor, // Consistent button color
-              foregroundColor:
-                  AppColors.textColor, // Consistent button text color
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            ),
-            child: Text(
-              'Acknowledge',
-              style: AppTextStyles.buttonText.copyWith(
-                fontSize: fontSize,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-// step 13
-  Widget buildProfileSummaryPage(double fontSize) {
-    return SingleChildScrollView(
-      // Wrap everything in a scrollable view
-      child: Column(
-        children: [
-          // Heading Card
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Text(
-                    "Profile Summary",
-                    style: AppTextStyles.titleText.copyWith(
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textColor, // Consistent color
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    "Review your profile and preferences before starting your journey.",
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2,
-                      color: AppColors.textColor, // Consistent color
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-
-          // Profile Picture Section
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: fontSize * 1.5,
-                    backgroundImage: AssetImage(
-                        'assets/profile_picture.jpg'), // Example image
-                  ),
-                  SizedBox(width: 15),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Name: Jane Doe",
-                          style: AppTextStyles.titleText.copyWith(
-                            fontSize: fontSize,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textColor, // Consistent color
-                          ),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          "Age: 25",
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: fontSize - 2,
-                            color: AppColors.textColor, // Consistent color
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-
-          // Preferences Section
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Your Preferences:",
-                    style: AppTextStyles.titleText.copyWith(
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textColor, // Consistent color
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    "Interested in: Men & Women",
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2,
-                      color: AppColors.textColor, // Consistent color
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    "Looking for: Long-Term Relationship",
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2,
-                      color: AppColors.textColor, // Consistent color
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    "Location: New York",
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2,
-                      color: AppColors.textColor, // Consistent color
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    "Hobbies: Traveling, Reading, Photography",
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2,
-                      color: AppColors.textColor, // Consistent color
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-
-          // Subscription Status Section
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.star,
-                    color: AppColors.accentColor, // Consistent accent color
-                    size: fontSize,
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      "You are subscribed to the Quarterly Plan (599 INR).",
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize - 2,
-                        color: AppColors.textColor, // Consistent color
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-
-          // Safety Guidelines Acknowledgement Section
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.check_circle,
-                    color: Colors.green, // Safety check icon color
-                    size: fontSize,
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      "You have acknowledged the safety guidelines.",
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize - 2,
-                        color: AppColors.textColor, // Consistent color
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 30),
-
-          ElevatedButton(
-            onPressed: () {
-              print("User is ready to start browsing matches.");
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.buttonColor, // Consistent button color
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
               children: [
-                Icon(
-                  Icons.edit,
-                  color: AppColors.iconColor, // Use constant icon color
-                ),
-                SizedBox(width: 8),
                 Text(
-                  'Edit',
-                  style: AppTextStyles.buttonText, // Use constant text style
+                  "Safety Guidelines",
+                  style: AppTextStyles.titleText.copyWith(
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textColor, // Consistent color
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  "Please follow these rules to ensure a safe experience.",
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: fontSize - 2,
+                    color: AppColors.textColor, // Consistent color
+                  ),
                 ),
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+        SizedBox(height: 20),
 
-  Widget buildConfirmationRow(String label, String value, IconData icon) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Icon(icon, color: Colors.blueAccent, size: 24),
-        SizedBox(width: 12),
-        Expanded(
+        // Safety Guidelines List
+        Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Safety Guideline Item 1
+                Row(
+                  children: [
+                    Icon(
+                      Icons.warning,
+                      color: AppColors.iconColor, // Consistent icon color
+                      size: fontSize,
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        "Never share personal information like your address or bank details.",
+                        style: AppTextStyles.bodyText.copyWith(
+                          fontSize: fontSize - 2,
+                          color: AppColors.textColor, // Consistent color
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 15),
+
+                // Safety Guideline Item 2
+                Row(
+                  children: [
+                    Icon(
+                      Icons.warning,
+                      color: AppColors.iconColor, // Consistent icon color
+                      size: fontSize,
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        "Always meet in public places for your first date.",
+                        style: AppTextStyles.bodyText.copyWith(
+                          fontSize: fontSize - 2,
+                          color: AppColors.textColor, // Consistent color
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 15),
+
+                // Safety Guideline Item 3
+                Row(
+                  children: [
+                    Icon(
+                      Icons.warning,
+                      color: AppColors.iconColor, // Consistent icon color
+                      size: fontSize,
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        "Respect boundaries and report any inappropriate behavior.",
+                        style: AppTextStyles.bodyText.copyWith(
+                          fontSize: fontSize - 2,
+                          color: AppColors.textColor, // Consistent color
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 15),
+
+                // Safety Guideline Item 4
+                Row(
+                  children: [
+                    Icon(
+                      Icons.warning,
+                      color: AppColors.iconColor, // Consistent icon color
+                      size: fontSize,
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        "Do not send money or gifts to people you meet online.",
+                        style: AppTextStyles.bodyText.copyWith(
+                          fontSize: fontSize - 2,
+                          color: AppColors.textColor, // Consistent color
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 15),
+
+                // Safety Guideline Item 5
+                Row(
+                  children: [
+                    Icon(
+                      Icons.warning,
+                      color: AppColors.iconColor, // Consistent icon color
+                      size: fontSize,
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        "If you feel unsafe, immediately contact local authorities.",
+                        style: AppTextStyles.bodyText.copyWith(
+                          fontSize: fontSize - 2,
+                          color: AppColors.textColor, // Consistent color
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(height: 20),
+
+        // Acknowledge Button
+        ElevatedButton(
+          onPressed: () {
+            print("User acknowledged safety guidelines.");
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.buttonColor, // Consistent button color
+            foregroundColor: AppColors.textColor, // Consistent button text color
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          ),
           child: Text(
-            "$label: $value",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey,
+            'Acknowledge',
+            style: AppTextStyles.buttonText.copyWith(
+              fontSize: fontSize,
             ),
           ),
         ),
       ],
-    );
-  }
+    ),
+  );
+}
+
+// step 13
+  Widget buildProfileSummaryPage(Size screenSize) {
+  // Calculate responsive font size based on screen width
+  double fontSize = screenSize.width * 0.03; // You can adjust 0.05 to fit the design needs
+  
+  return SingleChildScrollView(
+    // Wrap everything in a scrollable view
+    child: Column(
+      children: [
+        // Heading Card
+        Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Text(
+                  "Profile Summary",
+                  style: AppTextStyles.titleText.copyWith(
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textColor, // Consistent color
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  "Review your profile and preferences before starting your journey.",
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: fontSize - 2,
+                    color: AppColors.textColor, // Consistent color
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(height: 20),
+
+        // Profile Picture Section
+        Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: fontSize * 1.5, // Scaled radius based on font size
+                  backgroundImage: AssetImage('assets/profile_picture.jpg'), // Example image
+                ),
+                SizedBox(width: 15),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Name: Jane Doe",
+                        style: AppTextStyles.titleText.copyWith(
+                          fontSize: fontSize,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textColor, // Consistent color
+                        ),
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        "Age: 25",
+                        style: AppTextStyles.bodyText.copyWith(
+                          fontSize: fontSize - 2,
+                          color: AppColors.textColor, // Consistent color
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(height: 20),
+
+        // Preferences Section
+        Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Your Preferences:",
+                  style: AppTextStyles.titleText.copyWith(
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textColor, // Consistent color
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  "Interested in: Men & Women",
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: fontSize - 2,
+                    color: AppColors.textColor, // Consistent color
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  "Looking for: Long-Term Relationship",
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: fontSize - 2,
+                    color: AppColors.textColor, // Consistent color
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  "Location: New York",
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: fontSize - 2,
+                    color: AppColors.textColor, // Consistent color
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  "Hobbies: Traveling, Reading, Photography",
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: fontSize - 2,
+                    color: AppColors.textColor, // Consistent color
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(height: 20),
+
+        // Subscription Status Section
+        Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.star,
+                  color: AppColors.accentColor, // Consistent accent color
+                  size: fontSize,
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    "You are subscribed to the Quarterly Plan (599 INR).",
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: fontSize - 2,
+                      color: AppColors.textColor, // Consistent color
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(height: 20),
+
+        // Safety Guidelines Acknowledgement Section
+        Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  color: Colors.green, // Safety check icon color
+                  size: fontSize,
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    "You have acknowledged the safety guidelines.",
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: fontSize - 2,
+                      color: AppColors.textColor, // Consistent color
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(height: 30),
+
+        ElevatedButton(
+          onPressed: () {
+            print("User is ready to start browsing matches.");
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.buttonColor, // Consistent button color
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.edit,
+                color: AppColors.iconColor, // Use constant icon color
+              ),
+              SizedBox(width: 8),
+              Text(
+                'Edit',
+                style: AppTextStyles.buttonText.copyWith(
+                  fontSize: fontSize, // Apply the responsive font size to the button text
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
+  Widget buildConfirmationRow(
+    String label, String value, IconData icon, Size screenSize) {
+  // Calculate responsive font size based on screen width
+  double fontSize = screenSize.width * 0.03; // Adjust multiplier as needed
+  
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.start,
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      // Icon with fixed size
+      Icon(
+        icon,
+        color: Colors.blueAccent,
+        size: fontSize, // Make the icon size responsive as well
+      ),
+      SizedBox(width: 12),
+      Expanded(
+        child: Text(
+          "$label: $value",
+          style: TextStyle(
+            fontSize: fontSize, // Apply the responsive font size
+            fontWeight: FontWeight.w500,
+            color: Colors.grey,
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
 
   void nextStep() {
     if (currentPage == 1) {
@@ -2266,11 +2361,14 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-               
               },
               child: Text('OK'),
             ),
-            TextButton(onPressed: (){Get.to(NavigationBottomBar());}, child: Text('Next'))
+            TextButton(
+                onPressed: () {
+                  Get.to(NavigationBottomBar());
+                },
+                child: Text('Next'))
           ],
         ),
       );

@@ -70,7 +70,10 @@ class LikesPageState extends State<LikesPage> {
   int pingCount = 0;
   int likeCount = 10;
   final PageController imagePageController = PageController();
-
+  double getResponsiveFontSize(double scale) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth * scale; // Adjust this scale for different text elements
+  }
   // Filter logic for user profiles
   List<Map<String, dynamic>> getFilteredUsers() {
     return users.where((user) {
@@ -125,7 +128,7 @@ class LikesPageState extends State<LikesPage> {
                 child: Text(
                   'Found Uplift',
                   style: AppTextStyles.titleText.copyWith(
-                    fontSize: 24,
+                    fontSize: getResponsiveFontSize(0.03),
                     color: Colors.white, // Set text color to white for contrast
                   ),
                   textAlign: TextAlign.center,
@@ -139,7 +142,7 @@ class LikesPageState extends State<LikesPage> {
                   'You can use 24 hours and enjoy the features, '
                   'and you can access earlier with premium benefits.',
                   style: AppTextStyles.bodyText.copyWith(
-                    fontSize: 16,
+                    fontSize: getResponsiveFontSize(0.03),
                     color: Colors.white, // Set text color to white for contrast
                   ),
                   textAlign: TextAlign.center,
@@ -174,7 +177,7 @@ class LikesPageState extends State<LikesPage> {
                             child: Text(
                               "24-hour Premium Plan - ₹299", // Plan description
                               style: AppTextStyles.bodyText.copyWith(
-                                fontSize: 16,
+                                fontSize: getResponsiveFontSize(0.03),
                                 color:
                                     Colors.white, // White text for readability
                               ),
@@ -184,7 +187,7 @@ class LikesPageState extends State<LikesPage> {
                           Text(
                             'Selected', // Status of the plan
                             style: AppTextStyles.bodyText.copyWith(
-                              fontSize: 16,
+                              fontSize: getResponsiveFontSize(0.03),
                               color: AppColors
                                   .buttonColor, // Color for the status text
                             ),
@@ -210,7 +213,7 @@ class LikesPageState extends State<LikesPage> {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 12, // Smaller font size
+                          fontSize: getResponsiveFontSize(0.03), // Smaller font size
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -365,23 +368,23 @@ class LikesPageState extends State<LikesPage> {
                           ),
                           // User Information
                           SizedBox(height: 8),
-                          Text(user['name'], style: AppTextStyles.titleText),
+                          Text(user['name'], style: AppTextStyles.titleText.copyWith(fontSize: getResponsiveFontSize(0.04))),
                           Row(
                             children: [
                               Text('${user['age']} years old | ',
-                                  style: AppTextStyles.bodyText),
+                                  style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03))),
                               Text('${user['location']} | ',
-                                  style: AppTextStyles.bodyText),
+                                  style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03))),
                               Text('${user['km']} km away',
-                                  style: AppTextStyles.bodyText),
+                                  style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03))),
                             ],
                           ),
                           SizedBox(height: 4),
                           Text('Last Seen: ${user['lastSeen']}',
-                              style: AppTextStyles.bodyText),
+                              style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03))),
                           SizedBox(height: 12),
-                          Text('Desires:', style: AppTextStyles.bodyText),
-                          Text(user['desires'], style: AppTextStyles.bodyText),
+                          Text('Desires:', style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03))),
+                          Text(user['desires'], style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03))),
 
                           Row(
                             children: [

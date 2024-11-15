@@ -99,6 +99,9 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
 
+    // Calculate the responsive font size
+    double fontSize = screenSize.width * 0.03; // You can adjust this multiplier as needed
+
     return Scaffold(
       body: Container(
         color: AppColors.primaryColor, // Set primary background color
@@ -126,43 +129,41 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                     child: Column(
                       children: [
                         // Name Field
-                        buildTextField("Name", nameController),
+                        buildTextField("Name", nameController, fontSize),
 
                         // Email Field
-                        buildTextField("Email", emailController),
+                        buildTextField("Email", emailController, fontSize),
 
                         // Mobile Field
-                        buildTextField("Mobile", mobileController),
+                        buildTextField("Mobile", mobileController, fontSize),
 
                         // Address Field
-                        buildTextField("Address", addressController),
+                        buildTextField("Address", addressController, fontSize),
 
                         // Password Field
-                        buildTextField("Password", passwordController,
+                        buildTextField("Password", passwordController, fontSize,
                             obscureText: true),
 
                         // Confirm Password Field
-                        buildTextField(
-                            "Confirm Password", confirmPasswordController,
-                            obscureText: true),
+                        buildTextField("Confirm Password", confirmPasswordController,
+                            fontSize, obscureText: true),
 
                         // Country Dropdown
-                        buildDropdown("Country", countries, selectedCountry,
-                            (value) {
+                        buildDropdown("Country", countries, selectedCountry, fontSize, (value) {
                           setState(() {
                             selectedCountry = value;
                           });
                         }),
 
                         // State Dropdown
-                        buildDropdown("State", states, selectedState, (value) {
+                        buildDropdown("State", states, selectedState, fontSize, (value) {
                           setState(() {
                             selectedState = value;
                           });
                         }),
 
                         // City Field
-                        buildTextField("City", cityController),
+                        buildTextField("City", cityController, fontSize),
 
                         // Fetch Lat/Long Button
                         Padding(
@@ -170,23 +171,18 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           child: ElevatedButton(
                             onPressed: fetchLatLong,
                             style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 14, horizontal: 30),
-                              backgroundColor: AppColors
-                                  .buttonColor, // Use AppColors.buttonColor
+                              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                              backgroundColor: AppColors.buttonColor,
                               foregroundColor: Colors.white,
                             ),
-                            child: Text("Fetch Latitude & Longitude",
-                                style: AppTextStyles.buttonText),
+                            child: Text("Fetch Latitude & Longitude", style: AppTextStyles.buttonText.copyWith(fontSize: fontSize)),
                           ),
                         ),
 
                         // Show Latitude and Longitude only if fetched
                         if (isLatLongFetched) ...[
-                          buildTextField("Latitude", latitudeController,
-                              enabled: false),
-                          buildTextField("Longitude", longitudeController,
-                             enabled: false),
+                          buildTextField("Latitude", latitudeController, fontSize, enabled: false),
+                          buildTextField("Longitude", longitudeController, fontSize, enabled: false),
                         ],
 
                         // Submit Button
@@ -195,43 +191,35 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           onPressed: () {
                             if (formKey.currentState!.validate()) {
                               // Check if password and confirm password match
-                              if (passwordController.text !=
-                                  confirmPasswordController.text) {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
+                              if (passwordController.text != confirmPasswordController.text) {
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                   content: Text("Passwords do not match!"),
                                 ));
                                 return;
                               }
 
                               // Process form submission
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                 content: Text("Form submitted successfully!"),
                               ));
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 14, horizontal: 30),
-                            backgroundColor: AppColors
-                                .buttonColor, // Use AppColors.buttonColor
+                            padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                            backgroundColor: AppColors.buttonColor,
                             foregroundColor: Colors.white,
                           ),
-                          child:
-                              Text("Submit", style: AppTextStyles.buttonText),
+                          child: Text("Submit", style: AppTextStyles.buttonText.copyWith(fontSize: fontSize)),
                         ),
                         ElevatedButton(
                           onPressed: () {
                             Get.to(OTPVerificationPage());
                           },
                           style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 14, horizontal: 30),
-                            backgroundColor: AppColors
-                                .buttonColor, // Use AppColors.buttonColor
+                            padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                            backgroundColor: AppColors.buttonColor,
                           ),
-                          child: Text('Next', style: AppTextStyles.buttonText),
+                          child: Text('Next', style: AppTextStyles.buttonText.copyWith(fontSize: fontSize)),
                         ),
                       ],
                     ),
@@ -247,7 +235,8 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
 
   Widget buildTextField(
     String label,
-    TextEditingController controller, {
+    TextEditingController controller,
+    double fontSize, {
     bool obscureText = false,
     bool enabled = true,
   }) {
@@ -263,32 +252,25 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           }
           return null;
         },
-        style: AppTextStyles
-            .inputFieldText, // Use AppTextStyles for text color and font
-        cursorColor: AppColors.textColor, // Set cursor color to white
+        style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize), // Responsive font size
+        cursorColor: AppColors.textColor,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle:
-              AppTextStyles.labelText, // Use AppTextStyles for label styling
+          labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(
-                color: AppColors.textColor), // Set border color to white
+            borderSide: BorderSide(color: AppColors.textColor),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(
-                color:
-                    AppColors.textColor), // Set focused border color to white
+            borderSide: BorderSide(color: AppColors.textColor),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(
-                color:
-                    AppColors.textColor), // Set enabled border color to white
+            borderSide: BorderSide(color: AppColors.textColor),
           ),
-          fillColor: AppColors.formFieldColor, // Set background color
-          filled: true, // Ensure the background is filled
+          fillColor: AppColors.formFieldColor,
+          filled: true,
         ),
       ),
     );
@@ -298,6 +280,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     String label,
     List<String> items,
     String? selectedValue,
+    double fontSize,
     Function(String?) onChanged,
   ) {
     return Padding(
@@ -309,32 +292,29 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
             value: value,
             child: Text(
               value,
-              style: AppTextStyles.textStyle,
+              style: AppTextStyles.textStyle.copyWith(fontSize: fontSize),
             ),
           );
         }).toList(),
         onChanged: onChanged,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle:
-              AppTextStyles.labelText, // Use AppTextStyles for label styling
-
+          labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
           border: OutlineInputBorder(
             borderSide: BorderSide(color: AppColors.formFieldColor),
             borderRadius: BorderRadius.circular(8),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white), // Focused border color
+            borderSide: BorderSide(color: Colors.white),
           ),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white), // Enabled border color
+            borderSide: BorderSide(color: Colors.white),
           ),
         ),
-        style: AppTextStyles
-            .inputFieldText, // Use AppTextStyles for dropdown text styling
-        dropdownColor:
-            AppColors.secondaryColor, // Set dropdown background color
+        style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
+        dropdownColor: AppColors.secondaryColor,
       ),
     );
   }
 }
+

@@ -54,26 +54,26 @@ class _HomePageState extends State<HomePage> {
     },
   ];
 
-  bool _isLiked = false;
-  bool _isDisliked = false;
-  bool _isLoading = true;
+  bool isLiked = false;
+  bool isDisliked = false;
+  bool isLoading = true;
   int messageCount = 0;
   final TextEditingController messageController = TextEditingController();
   final FocusNode messageFocusNode = FocusNode();
   final PageController _pageController = PageController();
   final PageController _imagePageController = PageController();
 
-  Future<void> _loadImage() async {
+  Future<void> loadImage() async {
     await Future.delayed(Duration(seconds: 2));
     setState(() {
-      _isLoading = false;
+      isLoading = false;
     });
   }
 
   @override
   void initState() {
     super.initState();
-    _loadImage();
+    loadImage();
   }
 
   @override
@@ -82,7 +82,7 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  void _incrementPing() {
+  void incrementPing() {
     setState(() {
       messageCount++;
     });
@@ -174,6 +174,14 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
+    // Responsive font size calculation
+    double fontSize = size.width * 0.045; // Base font size
+    double subheadingFontSize = size.width * 0.04;
+    double buttonFontSize = size.width * 0.045;
+    double bodyFontSize = size.width * 0.035;
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Stack(
@@ -198,7 +206,7 @@ class _HomePageState extends State<HomePage> {
                               height: MediaQuery.of(context).size.height * 0.4,
                               child: Stack(
                                 children: [
-                                  if (_isLoading)
+                                  if (isLoading)
                                     Center(
                                       child: SpinKitCircle(
                                         size: 150.0,
@@ -276,24 +284,48 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                             SizedBox(height: 16),
-                            Text(users[index]['name'],
-                                style: AppTextStyles.headingText),
+                            Text(
+                              users[index]['name'],
+                              style: AppTextStyles.headingText.copyWith(
+                                fontSize: fontSize,
+                              ),
+                            ),
                             Row(
                               children: [
-                                Text('${users[index]['age']} years old | ',
-                                    style: AppTextStyles.bodyText),
-                                Text('${users[index]['location']} | ',
-                                    style: AppTextStyles.bodyText),
-                                Text('${users[index]['km']} km away',
-                                    style: AppTextStyles.bodyText),
+                                Text(
+                                  '${users[index]['age']} years old | ',
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    fontSize: bodyFontSize,
+                                  ),
+                                ),
+                                Text(
+                                  '${users[index]['location']} | ',
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    fontSize: bodyFontSize,
+                                  ),
+                                ),
+                                Text(
+                                  '${users[index]['km']} km away',
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    fontSize: bodyFontSize,
+                                  ),
+                                ),
                               ],
                             ),
                             SizedBox(height: 4),
-                            Text('Last Seen: ${users[index]['lastSeen']}',
-                                style: AppTextStyles.bodyText),
+                            Text(
+                              'Last Seen: ${users[index]['lastSeen']}',
+                              style: AppTextStyles.bodyText.copyWith(
+                                fontSize: bodyFontSize,
+                              ),
+                            ),
                             SizedBox(height: 12),
-                            Text('Desires:',
-                                style: AppTextStyles.subheadingText),
+                            Text(
+                              'Desires:',
+                              style: AppTextStyles.subheadingText.copyWith(
+                                fontSize: subheadingFontSize,
+                              ),
+                            ),
                             Flexible(
                               child: GridView.builder(
                                 gridDelegate:
@@ -335,7 +367,7 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          // These are the floating action buttons that stay fixed at the bottom
+          // Floating buttons remain fixed at the bottom
           Positioned(
             bottom: 16,
             left: 16,
@@ -344,12 +376,12 @@ class _HomePageState extends State<HomePage> {
                 FloatingActionButton(
                   onPressed: () {
                     setState(() {
-                      _isLiked = !_isLiked;
-                      if (_isLiked) _isDisliked = false;
+                      isLiked = !isLiked;
+                      if (isLiked) isDisliked = false;
                     });
                   },
                   backgroundColor:
-                      _isLiked ? AppColors.acceptColor : Colors.grey,
+                      isLiked ? AppColors.acceptColor : Colors.grey,
                   child: Icon(
                     Icons.favorite,
                     size: 30,
@@ -360,12 +392,12 @@ class _HomePageState extends State<HomePage> {
                 FloatingActionButton(
                   onPressed: () {
                     setState(() {
-                      _isDisliked = !_isDisliked;
-                      if (_isDisliked) _isLiked = false;
+                      isDisliked = !isDisliked;
+                      if (isDisliked) isLiked = false;
                     });
                   },
                   backgroundColor:
-                      _isDisliked ? AppColors.deniedColor : Colors.grey,
+                      isDisliked ? AppColors.deniedColor : Colors.grey,
                   child: Icon(
                     Icons.thumb_down,
                     size: 30,
@@ -415,3 +447,4 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+

@@ -6,14 +6,14 @@ import 'package:get/get.dart';
 import '../homepage/homepage.dart';
 import '../login.dart';
 import '../navigationbar/navigationpage.dart';
-import '../register.dart';
+import '../register_subpag/registerdetails.dart';
 import '../splash.dart';
 
 final routes=[
   
         GetPage(name: '/', page: () => Splash()),
         GetPage(name: '/login', page: () => Login()),
-        GetPage(name: '/register', page: ()=>Register()),
+        GetPage(name: '/register', page: ()=>RegisterProfilePage()),
         GetPage(name: '/homepage', page: ()=>HomePage()),
         GetPage(name:'/navigationbar', page: ()=>NavigationBottomBar()),
         GetPage(name: '/settings', page: ()=>SettingsPage()),

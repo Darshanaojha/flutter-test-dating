@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 
-import '../../constants.dart'; 
+import '../../constants.dart';
+import 'changepassword/changepasswordnewpassword.dart';
+import 'updateemailid/updateemailidpage.dart'; 
 
 
 class SettingsPage extends StatefulWidget {
@@ -13,17 +16,20 @@ class SettingsPage extends StatefulWidget {
 
 class SettingsPageState extends State<SettingsPage> {
   double maxDistance = 50.0;
-  RangeValues ageRange = RangeValues(18, 35); 
+  RangeValues ageRange = RangeValues(18, 35);
   final List<String> lookingFor = [];
+   double getResponsiveFontSize(double scale) {
+      double screenWidth = MediaQuery.of(context).size.width;
+      return screenWidth *
+          scale; // Adjust this scale for different text elements
+    }
   final TextEditingController desireController = TextEditingController();
   bool showOnlineUsers = false;
-  String currentLocation = "Fetching..."; // To be updated with Geolocator
-  String locationSelection = "Current Location"; // For Location Selection
-
-  // Gender options for "Looking For"
+  String currentLocation = "Fetching...";
+  String locationSelection = "Current Location";
+  
   final List<String> genderOptions = ['Male', 'Female', 'Non-Binary'];
-
-  // Predefined locations
+  
   final List<String> predefinedLocations = [
     "New York",
     "Los Angeles",
@@ -35,42 +41,37 @@ class SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
-    getCurrentLocation();  // Initial call to fetch location if possible
+    getCurrentLocation();
   }
 
-  // Method to check and get the current location using Geolocator
   Future<void> getCurrentLocation() async {
-    // Check location permission
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
-      // Request permission if not granted
       permission = await Geolocator.requestPermission();
     }
 
     if (permission == LocationPermission.deniedForever) {
-      // If permission is denied forever, show a message
       setState(() {
         currentLocation = "Location permissions are permanently denied";
       });
     } else if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
-  
       Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       setState(() {
         currentLocation = "Lat: ${position.latitude}, Long: ${position.longitude}";
       });
     } else {
-      // Handle other cases
       setState(() {
         currentLocation = "Unable to fetch location";
       });
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Settings", style: AppTextStyles.headingText),
+        title: Text("Settings", style: AppTextStyles.headingText.copyWith(fontSize: getResponsiveFontSize(0.03))),
         backgroundColor: AppColors.primaryColor,
       ),
       body: Padding(
@@ -78,7 +79,7 @@ class SettingsPageState extends State<SettingsPage> {
         child: ListView(
           children: [
             // Maximum Distance
-            Text("Maximum Distance (km)", style: AppTextStyles.subheadingText),
+            Text("Maximum Distance (km)", style: AppTextStyles.subheadingText.copyWith(fontSize: getResponsiveFontSize(0.03))),
             Slider(
               value: maxDistance,
               min: 0,
@@ -96,7 +97,7 @@ class SettingsPageState extends State<SettingsPage> {
             SizedBox(height: 20),
 
             // Age Range
-            Text("Age Range", style: AppTextStyles.subheadingText),
+            Text("Age Range", style: AppTextStyles.subheadingText.copyWith(fontSize: getResponsiveFontSize(0.03))),
             RangeSlider(
               values: ageRange,
               min: 18,
@@ -117,10 +118,10 @@ class SettingsPageState extends State<SettingsPage> {
             SizedBox(height: 20),
 
             // Looking For (Checkboxes)
-            Text("Looking For", style: AppTextStyles.subheadingText),
+            Text("Looking For", style: AppTextStyles.subheadingText.copyWith(fontSize: getResponsiveFontSize(0.03))),
             ...genderOptions.map((gender) {
               return CheckboxListTile(
-                title: Text(gender, style: AppTextStyles.textStyle),
+                title: Text(gender, style: AppTextStyles.textStyle.copyWith(fontSize: getResponsiveFontSize(0.03))),
                 value: lookingFor.contains(gender),
                 onChanged: (bool? selected) {
                   setState(() {
@@ -135,52 +136,43 @@ class SettingsPageState extends State<SettingsPage> {
               );
             }),
             SizedBox(height: 20),
-
-            // Display selected "Looking For" options
-            Text("Selected: ${lookingFor.join(", ")}", style: AppTextStyles.textStyle),
+            Text("Selected: ${lookingFor.join(", ")}", style: AppTextStyles.textStyle.copyWith(fontSize: getResponsiveFontSize(0.03))),
             SizedBox(height: 20),
 
-            // My Location
-            Text("My Location", style: AppTextStyles.subheadingText),
+            Text("My Location", style: AppTextStyles.subheadingText.copyWith(fontSize: getResponsiveFontSize(0.04))),
             ListTile(
               tileColor: AppColors.secondaryColor,
-              title: Text(locationSelection, style: AppTextStyles.textStyle),
+              title: Text(locationSelection, style: AppTextStyles.textStyle.copyWith(fontSize: getResponsiveFontSize(0.03))),
               trailing: Icon(Icons.arrow_drop_down, color: AppColors.accentColor),
               onTap: () async {
-                // Show a dialog to select location type (current location or predefined list)
                 await showLocationSelectionDialog();
               },
             ),
             SizedBox(height: 20),
-
-            // Search By
-            Text("Search By", style: AppTextStyles.subheadingText),
+            Text("Search By", style: AppTextStyles.subheadingText.copyWith(fontSize: getResponsiveFontSize(0.03))),
             TextField(
               controller: desireController,
               cursorColor: AppColors.cursorColor,
               decoration: InputDecoration(
                 hintText: 'Enter your desires...',
-                hintStyle: AppTextStyles.inputFieldText,
-                
-                 border: OutlineInputBorder(
+                hintStyle: AppTextStyles.inputFieldText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                border: OutlineInputBorder(
                   borderSide: BorderSide(color: AppColors.formFieldColor),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white), // Focused border color
+                  borderSide: BorderSide(color: Colors.white),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white), // Enabled border color
+                  borderSide: BorderSide(color: Colors.white),
                 ),
-                fillColor: AppColors.formFieldColor, // Set background color
+                fillColor: AppColors.formFieldColor,
                 filled: true,
               ),
               style: AppTextStyles.inputFieldText,
             ),
             SizedBox(height: 20),
-
-            // Recent Online Users Toggle
-            Text("Show Recent Online Users", style: AppTextStyles.subheadingText),
+            Text("Show Recent Online Users", style: AppTextStyles.subheadingText.copyWith(fontSize: getResponsiveFontSize(0.03))),
             SwitchListTile(
               value: showOnlineUsers,
               onChanged: (bool value) {
@@ -191,28 +183,64 @@ class SettingsPageState extends State<SettingsPage> {
               activeColor: AppColors.acceptColor,
               title: Text(
                 showOnlineUsers ? "Online Users Visible" : "Hide Online Users",
-                style: AppTextStyles.textStyle,
+                style: AppTextStyles.textStyle.copyWith(fontSize: getResponsiveFontSize(0.03)),
               ),
             ),
+            SizedBox(height: 20),
+
+            // Change Password Button
+            ElevatedButton(
+              onPressed: (){
+                Get.to(ChangePasswordPage());
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.buttonColor,
+                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Text(
+                "Change Password",
+                style: AppTextStyles.buttonText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+              ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: (){
+               Get.to(UpdateEmailPage());
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.buttonColor,
+                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Text(
+                "Update Email",
+                style: AppTextStyles.buttonText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+              ),
+            ),
+           
           ],
         ),
       ),
     );
   }
 
-  // Method to show location selection dialog
   Future<void> showLocationSelectionDialog() async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Select Location Type", style: AppTextStyles.headingText),
+          title: Text("Select Location Type", style: AppTextStyles.headingText.copyWith(fontSize: getResponsiveFontSize(0.03))),
           backgroundColor: AppColors.secondaryColor,
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               RadioListTile<String>(
-                title: Text("Use Current Location", style: AppTextStyles.textStyle),
+                title: Text("Use Current Location", style: AppTextStyles.textStyle.copyWith(fontSize: getResponsiveFontSize(0.03))),
                 value: "Current Location",
                 groupValue: locationSelection,
                 onChanged: (value) {
@@ -220,11 +248,11 @@ class SettingsPageState extends State<SettingsPage> {
                     locationSelection = value!;
                   });
                   Navigator.pop(context);
-                  getCurrentLocation(); // Fetch current location
+                  getCurrentLocation();
                 },
               ),
               RadioListTile<String>(
-                title: Text("Select from List", style: AppTextStyles.textStyle),
+                title: Text("Select from List", style: AppTextStyles.textStyle.copyWith(fontSize: getResponsiveFontSize(0.03))),
                 value: "Select from List",
                 groupValue: locationSelection,
                 onChanged: (value) {
@@ -242,19 +270,18 @@ class SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  // Show a dialog for selecting from predefined locations
   Future<void> showLocationListDialog() async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Select Location", style: AppTextStyles.headingText),
+          title: Text("Select Location", style: AppTextStyles.headingText.copyWith(fontSize: getResponsiveFontSize(0.03))),
           backgroundColor: AppColors.secondaryColor,
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: predefinedLocations.map((location) {
               return ListTile(
-                title: Text(location, style: AppTextStyles.textStyle),
+                title: Text(location, style: AppTextStyles.textStyle.copyWith(fontSize: getResponsiveFontSize(0.03))),
                 onTap: () {
                   setState(() {
                     currentLocation = location;
@@ -270,4 +297,3 @@ class SettingsPageState extends State<SettingsPage> {
     );
   }
 }
-

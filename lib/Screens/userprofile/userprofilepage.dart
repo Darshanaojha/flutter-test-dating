@@ -14,6 +14,7 @@ class UserProfilePage extends StatefulWidget {
 
   @override
   UserProfilePageState createState() => UserProfilePageState();
+  
 }
 
 class UserProfilePageState extends State<UserProfilePage> {
@@ -39,7 +40,10 @@ class UserProfilePageState extends State<UserProfilePage> {
       isLoading = false;
     });
   }
-
+  double getResponsiveFontSize(double scale) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth * scale; // Adjust this scale for different text elements
+  }
   @override
   void initState() {
     super.initState();
@@ -88,7 +92,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(userName, style: AppTextStyles.titleText),
+                      Text(userName, style: AppTextStyles.titleText.copyWith(fontSize: getResponsiveFontSize(0.03))),
                       IconButton(
                         icon: Icon(Icons.edit, size: 30, color: Colors.blue),
                         onPressed: () {
@@ -105,7 +109,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                   child: Row(
                     children: [
                       Text('$userAge years old | $userGender',
-                          style: AppTextStyles.labelText),
+                          style: AppTextStyles.labelText.copyWith(fontSize: getResponsiveFontSize(0.03))),
                     ],
                   ),
                 ),
@@ -121,10 +125,10 @@ class UserProfilePageState extends State<UserProfilePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Profile Completion: $userProfileCompletion',
-                              style: AppTextStyles.labelText),
+                              style: AppTextStyles.labelText.copyWith(fontSize: getResponsiveFontSize(0.03))),
                           SizedBox(height: 10),
                           Text('Complete your profile to unlock more features!',
-                              style: AppTextStyles.labelText),
+                              style: AppTextStyles.labelText.copyWith(fontSize: getResponsiveFontSize(0.03))),
                         ],
                       ),
                     ),
@@ -154,7 +158,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                             SizedBox(width: 56),
                             Text(
                               'Membership',
-                              style: AppTextStyles.titleText,
+                              style: AppTextStyles.titleText.copyWith(fontSize: getResponsiveFontSize(0.03)),
                             ),
                           ],
                         ),
@@ -184,7 +188,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                             SizedBox(width: 76),
                             Text(
                               'Messages',
-                              style: AppTextStyles.titleText,
+                              style: AppTextStyles.titleText.copyWith(fontSize: getResponsiveFontSize(0.03)),
                             ),
                           ],
                         ),
@@ -200,7 +204,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                     elevation: 5,
                     child: InkWell(
                       onTap:
-                          showUpgradeBottomSheet, // Call the showUpgradeBottomSheet function
+                          (){showUpgradeBottomSheet(context);}, // Call the showUpgradeBottomSheet function
                       child: Container(
                         padding: EdgeInsets.all(16),
                         width: double.infinity,
@@ -218,7 +222,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                                     66), // Add spacing between the icon and the text
                             Text(
                               'Uplift Profile',
-                              style: AppTextStyles.titleText,
+                              style: AppTextStyles.titleText.copyWith(fontSize: getResponsiveFontSize(0.03)),
                             ),
                           ],
                         ),
@@ -403,7 +407,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                   Text(
                     "Share your profile",
                     style: AppTextStyles.titleText.copyWith(
-                      fontSize: 18,
+                      fontSize: getResponsiveFontSize(0.03),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -429,7 +433,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                       child: Text(
                         "Share",
                         style: AppTextStyles.buttonText.copyWith(
-                          fontSize: AppTextStyles.buttonSize,
+                          fontSize: getResponsiveFontSize(0.03),
                           fontWeight: FontWeight.w500,
                           color: AppColors.textColor, // Button text color
                         ),
@@ -455,7 +459,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                       child: Text(
                         "Cancel",
                         style: AppTextStyles.buttonText.copyWith(
-                          fontSize: AppTextStyles.buttonSize,
+                          fontSize: getResponsiveFontSize(0.03),
                           fontWeight: FontWeight.w500,
                           color: AppColors.textColor, // Button text color
                         ),
@@ -546,7 +550,10 @@ Future<void> showMessageBottomSheet() async {
   );
 }
 
-Future<void> showUpgradeBottomSheet() async {
+
+Future<void> showUpgradeBottomSheet(BuildContext context) async {
+   double screenWidth = MediaQuery.of(context).size.width;
+    double cardWidth = screenWidth * 0.85;
   Get.bottomSheet(
     Padding(
       padding: const EdgeInsets.all(0.0),
@@ -561,7 +568,7 @@ Future<void> showUpgradeBottomSheet() async {
               child: Text(
                 'Found Uplift',
                 style: AppTextStyles.titleText.copyWith(
-                  fontSize: 24,
+                  fontSize: screenWidth*0.04,
                   color: Colors.white, // Set text color to white for contrast
                 ),
                 textAlign: TextAlign.center,
@@ -575,7 +582,7 @@ Future<void> showUpgradeBottomSheet() async {
                 'You can use 24 hours and enjoy the features, '
                 'and you can access earlier with premium benefits.',
                 style: AppTextStyles.bodyText.copyWith(
-                  fontSize: 16,
+                  fontSize: screenWidth*0.04,
                   color: Colors.white, // Set text color to white for contrast
                 ),
                 textAlign: TextAlign.center,
@@ -610,7 +617,7 @@ Future<void> showUpgradeBottomSheet() async {
                           child: Text(
                             "24-hour Premium Plan - ₹299", // Plan description
                             style: AppTextStyles.bodyText.copyWith(
-                              fontSize: 16,
+                              fontSize: screenWidth*0.04,
                               color: Colors.white, // White text for readability
                             ),
                           ),
@@ -619,7 +626,7 @@ Future<void> showUpgradeBottomSheet() async {
                         Text(
                           'Selected', // Status of the plan
                           style: AppTextStyles.bodyText.copyWith(
-                            fontSize: 16,
+                            fontSize: screenWidth*0.04,
                             color: AppColors
                                 .buttonColor, // Color for the status text
                           ),
@@ -644,7 +651,7 @@ Future<void> showUpgradeBottomSheet() async {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 12, // Smaller font size
+                        fontSize: screenWidth*0.04, // Smaller font size
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -715,9 +722,9 @@ class SettingCard extends StatelessWidget {
           child: ListTile(
             title: Text(
               title,
-              style: AppTextStyles.titleText,
+              style: AppTextStyles.titleText.copyWith(fontSize: screenWidth* 0.04),
             ),
-            subtitle: Text(subtitle, style: TextStyle(fontSize: 14)),
+            subtitle: Text(subtitle, style: TextStyle(fontSize: screenWidth * 0.03)),
             trailing: Icon(icon),
             onTap: onTap, // Call the onTap function when the card is tapped
           ),

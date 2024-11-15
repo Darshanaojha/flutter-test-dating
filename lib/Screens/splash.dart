@@ -62,7 +62,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
                   scale: scaleAnimation,
                   child: Text(
                     "FlamR",
-                    style: GoogleFonts.lato(
+                    style: GoogleFonts.raleway(
                       fontSize: mQuery.width * 0.08,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -79,7 +79,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
                   scale: scaleAnimation,
                   child: Text(
                     "Application",
-                    style: GoogleFonts.lato(
+                    style: GoogleFonts.raleway(
                       fontSize: mQuery.width * 0.04,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-const $baseUrl = "http://localhost/datingApplication/admin/";
+const $baseUrl = "http://192.168.1.22/dating_backend_springboot/admin/";
 const $registerUrl = "Authentication/register";
 const $loginUrl = "Authentication/login";
 const $profileUrl = "Authentication/profile";
@@ -29,15 +29,15 @@ class AppColors {
       Color.fromARGB(255, 85, 84, 84);
   static const Color inactiveColor = Colors.red;
   static const Color activeColor = Colors.green;
-  final Color successColor = Colors.green.withOpacity(0.3);
-  final Color successBorderColor = Colors.green;
-  final Color errorColor = Colors.red.withOpacity(0.3);
-  final Color errorBorderColor = Colors.red;
+  static Color successColor = Colors.green.withOpacity(0.3);
+  static Color successBorderColor = Colors.green;
+  static Color errorColor = Colors.red.withOpacity(0.3);
+  static Color errorBorderColor = Colors.red;
 }
 
 
 class AppTextStyles {
-  static const String baseFontFamily = 'Lato';
+  static const String baseFontFamily = 'raleway';
   static const double headingSize = 32.0;       
   static const double subheadingSize = 24.0;  
   static const double titleSize = 20.0;       
@@ -48,59 +48,59 @@ class AppTextStyles {
   static const double textSize = 12.0; 
 
 
-  static TextStyle headingText = GoogleFonts.lato(
+  static TextStyle headingText = GoogleFonts.raleway(
     fontSize: headingSize,
     fontWeight: FontWeight.bold,
     color: Colors.white,
   );
-   static TextStyle textStyle = GoogleFonts.lato(
+   static TextStyle textStyle = GoogleFonts.raleway(
     fontSize: textSize,
     fontWeight: FontWeight.bold,
     color: Colors.white,
   );
 
-  static TextStyle subheadingText = GoogleFonts.lato(
+  static TextStyle subheadingText = GoogleFonts.raleway(
     fontSize: subheadingSize,
     fontWeight: FontWeight.w600,
     color: Colors.white,
   );
 
-  static TextStyle titleText = GoogleFonts.lato(
+  static TextStyle titleText = GoogleFonts.raleway(
     fontSize: titleSize,
     fontWeight: FontWeight.bold,
     color: Colors.white,
   );
 
-  static TextStyle bodyText = GoogleFonts.lato(
+  static TextStyle bodyText = GoogleFonts.raleway(
     fontSize: bodySize,
     fontWeight: FontWeight.normal,
     color: Colors.white,
   );
 
-  static TextStyle buttonText = GoogleFonts.lato(
+  static TextStyle buttonText = GoogleFonts.raleway(
     fontSize: buttonSize,
     fontWeight: FontWeight.w500,
     color: Colors.white,
   );
 
-  static TextStyle labelText = GoogleFonts.lato(
+  static TextStyle labelText = GoogleFonts.raleway(
     fontSize: labelSize,
     fontWeight: FontWeight.w400,
     color: Colors.white,
   );
 
-  static TextStyle inputFieldText = GoogleFonts.lato(
+  static TextStyle inputFieldText = GoogleFonts.raleway(
     fontSize: inputFieldSize,
     fontWeight: FontWeight.w400,
     color: Colors.white,
   );
-  static TextStyle errorText = GoogleFonts.lato(
+  static TextStyle errorText = GoogleFonts.raleway(
     fontSize: bodySize,
     fontWeight: FontWeight.bold,
     color: Colors.red,
   );
   static TextStyle customTextStyle({double fontSize = 16.0, FontWeight fontWeight = FontWeight.normal, Color color = Colors.black}) {
-    return GoogleFonts.lato(
+    return GoogleFonts.raleway(
       fontSize: fontSize,
       fontWeight: fontWeight,
       color: color,
@@ -108,13 +108,13 @@ class AppTextStyles {
   }
 }
 
-final TextStyle ConstantTitleStyle = GoogleFonts.lato(
+final TextStyle ConstantTitleStyle = GoogleFonts.raleway(
   color: Colors.black,
   fontSize: 16,
   fontWeight: FontWeight.bold,
 );
 
-final TextStyle ConstantMessageStyle = GoogleFonts.lato(
+final TextStyle ConstantMessageStyle = GoogleFonts.raleway(
   color: Colors.black,
   fontSize: 14,
 );
@@ -124,26 +124,8 @@ final Color successBorderColor = Colors.green;
 final Color errorColor = Colors.red.withOpacity(0.3);
 final Color errorBorderColor = Colors.red;
 final Color textColor = Colors.white;
-void showCustomSnackBar(String title, String message, bool isSuccess) {
-  Get.snackbar(
-    '',
-    '',
-    titleText: Text(
-      title,
-      style: ConstantTitleStyle,
-    ),
-    messageText: Text(
-      message,
-      style: ConstantMessageStyle,
-    ),
-    colorText: textColor,
-    backgroundColor: isSuccess ? successColor : errorColor,
-    borderColor: isSuccess ? successBorderColor : errorBorderColor,
-    borderWidth: 2,
-  );
-}
 
-void showSuccessSnackBar(title, message) {
+void success(title, message) {
   Get.snackbar(
     '',
     '',
@@ -169,7 +151,7 @@ void showSuccessSnackBar(title, message) {
   );
 }
 
-void showFailedSnackBar(title, message) {
+void failure(title, message) {
   Get.snackbar(
     '',
     '',

@@ -1,0 +1,143 @@
+class UserUploadImagesResponse {
+  final bool success;
+  final UserUploadImagesPayload payload;
+  final ApiError error;
+
+  UserUploadImagesResponse({
+    required this.success,
+    required this.payload,
+    required this.error,
+  });
+
+  // Factory constructor to create UserUploadImagesResponse from JSON
+  factory UserUploadImagesResponse.fromJson(Map<String, dynamic> json) {
+    return UserUploadImagesResponse(
+      success: json['success'],
+      payload: UserUploadImagesPayload.fromJson(json['payload']),
+      error: ApiError.fromJson(json['error']),
+    );
+  }
+
+  // Method to convert UserUploadImagesResponse object to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'success': success,
+      'payload': payload.toJson(),
+      'error': error.toJson(),
+    };
+  }
+}
+
+class UserUploadImagesPayload {
+  final String message;
+  final UserImageData data;
+
+  UserUploadImagesPayload({
+    required this.message,
+    required this.data,
+  });
+
+  // Factory constructor to create UserUploadImagesPayload from JSON
+  factory UserUploadImagesPayload.fromJson(Map<String, dynamic> json) {
+    return UserUploadImagesPayload(
+      message: json['message'],
+      data: UserImageData.fromJson(json['data']),
+    );
+  }
+
+  // Method to convert UserUploadImagesPayload object to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'message': message,
+      'data': data.toJson(),
+    };
+  }
+}
+
+class UserImageData {
+  final String id;
+  final String userId;
+  final String img1;
+  final String img2;
+  final String img3;
+  final String img4;
+  final String img5;
+  final String img6;
+  final String status;
+  final String created;
+  final String updated;
+
+  UserImageData({
+    required this.id,
+    required this.userId,
+    required this.img1,
+    required this.img2,
+    required this.img3,
+    required this.img4,
+    required this.img5,
+    required this.img6,
+    required this.status,
+    required this.created,
+    required this.updated,
+  });
+
+  // Factory constructor to create UserImageData from JSON
+  factory UserImageData.fromJson(Map<String, dynamic> json) {
+    return UserImageData(
+      id: json['id'],
+      userId: json['user_id'],
+      img1: json['img1'],
+      img2: json['img2'],
+      img3: json['img3'],
+      img4: json['img4'] ?? '', // Default to an empty string if no image
+      img5: json['img5'] ?? '', // Default to an empty string if no image
+      img6: json['img6'] ?? '', // Default to an empty string if no image
+      status: json['status'],
+      created: json['created'],
+      updated: json['updated'],
+    );
+  }
+
+  // Method to convert UserImageData object to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'user_id': userId,
+      'img1': img1,
+      'img2': img2,
+      'img3': img3,
+      'img4': img4,
+      'img5': img5,
+      'img6': img6,
+      'status': status,
+      'created': created,
+      'updated': updated,
+    };
+  }
+}
+
+class ApiError {
+  final int code;
+  final String message;
+
+  ApiError({
+    required this.code,
+    required this.message,
+  });
+
+  // Factory constructor to create ApiError from JSON
+  factory ApiError.fromJson(Map<String, dynamic> json) {
+    return ApiError(
+      code: json['code'],
+      message: json['message'] ?? '', // Default to an empty string if message is null
+    );
+  }
+
+  // Method to convert ApiError object to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'code': code,
+      'message': message,
+    };
+  }
+}

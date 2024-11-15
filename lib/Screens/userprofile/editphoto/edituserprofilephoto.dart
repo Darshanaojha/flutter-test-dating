@@ -17,7 +17,11 @@ class EditPhotosPageState extends State<EditPhotosPage> {
     'assets/images/image1.jpg',
     'assets/images/image1.jpg',
   ];
-
+  double getResponsiveFontSize(double scale) {
+      double screenWidth = MediaQuery.of(context).size.width;
+      return screenWidth *
+          scale; // Adjust this scale for different text elements
+    }
   final picker = ImagePicker();
   bool isLoading = false; // Track loading state
   Future<void> fetchData() async {
@@ -70,7 +74,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
           children: [
             Text(
               "Are you sure you want to delete this photo?",
-              style: AppTextStyles.bodyText,
+              style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03)),
             ),
             SizedBox(height: 16),
             Row(
@@ -79,7 +83,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: Text("Cancel", style: AppTextStyles.buttonText),
+                  child: Text("Cancel", style: AppTextStyles.buttonText.copyWith(fontSize: getResponsiveFontSize(0.03))),
                 ),
                 SizedBox(width: 16),
                 ElevatedButton(
@@ -87,7 +91,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                     Navigator.pop(context);
                     deletePhoto(index); // Delete the photo
                   },
-                  child: Text("Delete", style: AppTextStyles.buttonText),
+                  child: Text("Delete", style: AppTextStyles.buttonText.copyWith(fontSize: getResponsiveFontSize(0.03)),),
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 ),
               ],
@@ -121,13 +125,13 @@ class EditPhotosPageState extends State<EditPhotosPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Choose Image Source", style: AppTextStyles.titleText),
+        title: Text("Choose Image Source", style: AppTextStyles.titleText.copyWith(fontSize: getResponsiveFontSize(0.03)),),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: Icon(Icons.camera, color: AppColors.iconColor),
-              title: Text("Camera", style: AppTextStyles.bodyText),
+              title: Text("Camera", style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03)),),
               onTap: () {
                 Navigator.pop(context);
                 pickImage(ImageSource.camera); // Pick image from camera
@@ -135,7 +139,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
             ),
             ListTile(
               leading: Icon(Icons.photo_album, color: AppColors.iconColor),
-              title: Text("Gallery", style: AppTextStyles.bodyText),
+              title: Text("Gallery", style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03)),),
               onTap: () {
                 Navigator.pop(context);
                 pickImage(ImageSource.gallery); // Pick image from gallery
@@ -152,7 +156,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Edit Photos", style: AppTextStyles.titleText),
+        title: Text("Edit Photos", style: AppTextStyles.titleText.copyWith(fontSize: getResponsiveFontSize(0.03)),),
         backgroundColor: AppColors.primaryColor, // Your primary color
       ),
       body: Padding(
@@ -227,7 +231,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
             Text(
               "Impress the people around you with your best photo!",
               style:
-                  AppTextStyles.bodyText.copyWith(color: AppColors.textColor),
+                  AppTextStyles.bodyText.copyWith(color: AppColors.textColor,fontSize: getResponsiveFontSize(0.03)),
             ),
 
             SizedBox(height: 20),
@@ -243,7 +247,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
               "2. Avoid offensive or inappropriate images.\n"
               "3. Maintain good quality photos for better impression.\n"
               "4. Be respectful to others in your photos.\n",
-              style: AppTextStyles.bodyText.copyWith(color: Colors.grey),
+              style: AppTextStyles.bodyText.copyWith(color: Colors.grey,fontSize: getResponsiveFontSize(0.03)),
             ),
           ],
         ),

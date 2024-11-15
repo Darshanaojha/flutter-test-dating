@@ -52,12 +52,17 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
+    // Calculate responsive font size based on screen width
+   double fontSize = size.width * 0.03; // Adjust multiplier as needed
+    double subheadingFontSize = size.width * 0.045;
+    double buttonFontSize = size.width * 0.045;
+
     final defaultPinTheme = PinTheme(
       width: size.width * 0.15,
       height: size.height * 0.15,
-      textStyle: AppTextStyles.inputFieldText, // Use AppTextStyles
+      textStyle: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize), // Use dynamic font size
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.textColor), // Use AppColors for border color
+        border: Border.all(color: AppColors.textColor),
         borderRadius: BorderRadius.circular(20),
       ),
     );
@@ -74,16 +79,16 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
             children: [
               CircleAvatar(
                 radius: size.width * 0.2,
-                backgroundImage: const NetworkImage(
-                  "",
-                ),
-                backgroundColor: AppColors.textColor
-                ,
+                backgroundImage: const NetworkImage(""),
+                backgroundColor: AppColors.textColor,
               ),
               SizedBox(height: size.height * 0.02),
               Text(
                 "Enter OTP To Confirm the Password",
-                style:  AppTextStyles.subheadingText.copyWith(color: Colors.white), // Use AppTextStyles for subheading
+                style: AppTextStyles.subheadingText.copyWith(
+                  color: Colors.white,
+                  fontSize: subheadingFontSize, // Dynamic font size for subheading
+                ),
               ),
               SizedBox(height: size.height * 0.03),
               Pinput(
@@ -102,7 +107,7 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                    backgroundColor: AppColors.buttonColor, // Use AppColors for button color
+                    backgroundColor: AppColors.buttonColor,
                     foregroundColor: AppColors.textColor,
                   ),
                   onPressed: () {
@@ -117,7 +122,10 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                       failure("Wrong OTP", "Please try again.");
                     }
                   },
-                  child: Text("Verify OTP", style: AppTextStyles.buttonText), // Use AppTextStyles for button text
+                  child: Text(
+                    "Verify OTP",
+                    style: AppTextStyles.buttonText.copyWith(fontSize: buttonFontSize),
+                  ),
                 ),
               ),
               SizedBox(height: size.height * 0.04),
@@ -125,7 +133,9 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                 children: [
                   Text(
                     "The OTP you entered is incorrect. Please click on 'Regenerate OTP' to generate a new OTP.",
-                    style: AppTextStyles.errorText, // Use AppTextStyles for error text
+                    style: AppTextStyles.errorText.copyWith(
+                      fontSize: fontSize, // Dynamic font size for error text
+                    ),
                   ),
                   SizedBox(height: size.height * 0.04),
                   SizedBox(
@@ -134,7 +144,7 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                        backgroundColor: AppColors.buttonColor, // Use AppColors for button color
+                        backgroundColor: AppColors.buttonColor,
                         foregroundColor: Colors.white,
                       ),
                       onPressed: () {
@@ -146,7 +156,10 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                           failure("Input Error", "Please enter a valid mobile number.");
                         }
                       },
-                      child: Text("Regenerate OTP", style: AppTextStyles.buttonText), // Use AppTextStyles for button text
+                      child: Text(
+                        "Regenerate OTP",
+                        style: AppTextStyles.buttonText.copyWith(fontSize: buttonFontSize),
+                      ),
                     ),
                   ),
                 ],
@@ -164,7 +177,6 @@ class DashboardController {
 
   void requestOtp(String mobileNumber) {}
 }
-
 
 
 

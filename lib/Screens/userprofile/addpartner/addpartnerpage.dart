@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart'; // Add the share_plus package
+import 'package:share_plus/share_plus.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import '../../../constants.dart'; // Your constants for color and text styles
+import '../../../constants.dart';
 
 class AddPartnerPage extends StatefulWidget {
   const AddPartnerPage({super.key});
@@ -15,17 +15,20 @@ class AddPartnerPageState extends State<AddPartnerPage> {
   String selectedPurpose = '';
   bool isLoading = false;
   final List<String> purposes = ['Dating', 'Friendship', 'Relationship'];
-
+   double getResponsiveFontSize(double scale) {
+      double screenWidth = MediaQuery.of(context).size.width;
+      return screenWidth *
+          scale; // Adjust this scale for different text elements
+    }
   String generateInviteLink(String purpose) {
     return 'https://www.yourapp.com/invite?purpose=$purpose'; 
   }
 
   void shareInviteLink(String link) {
-    // Share the generated invite link using the Share.share method
+
     Share.share(link, subject: 'Join us on this amazing platform!');
   }
 
-  // Function to show social media sharing options
   void showSocialMediaOptions(BuildContext context, String link) {
     showModalBottomSheet(
       context: context,
@@ -41,33 +44,29 @@ class AddPartnerPageState extends State<AddPartnerPage> {
           child: ListView(
             children: [
               ListTile(
-                title: Text('Share to WhatsApp', style: AppTextStyles.bodyText),
+                title: Text('Share to WhatsApp', style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03))),
                 onTap: () {
-                  // Directly share to WhatsApp (opens native WhatsApp sharing)
                   Share.share(link, subject: 'Invite for WhatsApp');
                   Navigator.of(context).pop();
                 },
               ),
               ListTile(
-                title: Text('Share to Instagram', style: AppTextStyles.bodyText),
+                title: Text('Share to Instagram', style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03))),
                 onTap: () {
-                  // Directly share to Instagram (opens native Instagram sharing)
                   Share.share(link, subject: 'Invite for Instagram');
                   Navigator.of(context).pop();
                 },
               ),
               ListTile(
-                title: Text('Share to Facebook', style: AppTextStyles.bodyText),
+                title: Text('Share to Facebook', style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03))),
                 onTap: () {
-                  // Directly share to Facebook (opens native Facebook sharing)
                   Share.share(link, subject: 'Invite for Facebook');
                   Navigator.of(context).pop();
                 },
               ),
               ListTile(
-                title: Text('Copy Link', style: AppTextStyles.bodyText),
+                title: Text('Copy Link', style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03))),
                 onTap: () {
-                  // Copy the invite link to clipboard
                   Clipboard.setData(ClipboardData(text: link));
                   Navigator.of(context).pop();
                 },
@@ -79,7 +78,7 @@ class AddPartnerPageState extends State<AddPartnerPage> {
     );
   }
 
-  // Function to show purpose selection bottom sheet
+
   void showPurposeSelection(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -115,11 +114,11 @@ class AddPartnerPageState extends State<AddPartnerPage> {
                         setState(() {
                           selectedPurpose = purpose;
                         });
-                        Navigator.of(context).pop(); // Close the bottom sheet
+                        Navigator.of(context).pop();
                       },
                       child: Text(
                         purpose,
-                        style: AppTextStyles.bodyText,
+                        style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03)),
                       ),
                     ),
                   );
@@ -137,7 +136,7 @@ class AddPartnerPageState extends State<AddPartnerPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.primaryColor,
-        title: Text("Add Partner", style: AppTextStyles.titleText),
+        title: Text("Add Partner", style: AppTextStyles.titleText.copyWith(fontSize: getResponsiveFontSize(0.03))),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -168,7 +167,7 @@ class AddPartnerPageState extends State<AddPartnerPage> {
                           children: [
                             Text(
                               'What is your purpose for inviting?',
-                              style: AppTextStyles.subheadingText,
+                              style: AppTextStyles.subheadingText.copyWith(fontSize: getResponsiveFontSize(0.03)),
                             ),
                             SizedBox(height: 20),
                             // Purpose selection button
@@ -188,7 +187,7 @@ class AddPartnerPageState extends State<AddPartnerPage> {
                                 selectedPurpose.isEmpty
                                     ? "Click to Select"
                                     : selectedPurpose,
-                                style: AppTextStyles.bodyText,
+                                style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03)),
                               ),
                             ),
                           ],
@@ -223,7 +222,7 @@ class AddPartnerPageState extends State<AddPartnerPage> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: Text("Generate & Share Link", style: AppTextStyles.bodyText),
+                child: Text("Generate & Share Link", style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03))),
               ),
           ],
         ),

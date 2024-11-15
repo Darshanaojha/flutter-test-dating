@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart'; 
 import '../Controllers/controller.dart';
-import '../RequestModels/login.dart';
+import '../Models/RequestModels/user_login_request_model.dart';
 import '../constants.dart';
+import 'homepage/homepage.dart';
+import 'loginforgotpassword/forgotpasswordemail.dart';
 import 'register_subpag/registerdetails.dart'; 
 
 class Login extends StatefulWidget {
@@ -14,29 +16,29 @@ class Login extends StatefulWidget {
 
 class LoginState extends State<Login> with TickerProviderStateMixin {
   Controller controller = Get.put(Controller());
-  final _formKey = GlobalKey<FormState>();
-  late LoginRequest _loginRequest;
-  late AnimationController _animationController;
-  late Animation<double> _fadeInAnimation;
+  final formKey = GlobalKey<FormState>();
+  late UserLoginRequest loginRequest;
+  late AnimationController animationController;
+  late Animation<double> fadeInAnimation;
 
   @override
   void initState() {
     super.initState();
-    _loginRequest = LoginRequest(email: '', password: '');
+    loginRequest = UserLoginRequest(email: '', password: '');
 
-    _animationController = AnimationController(
+    animationController = AnimationController(
       duration: Duration(seconds: 1),
       vsync: this,
     )..forward();
 
-    _fadeInAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    fadeInAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: animationController, curve: Curves.easeIn),
     );
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    animationController.dispose();
     super.dispose();
   }
 
@@ -44,12 +46,15 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
 
+
+    double fontSize = size.width * 0.03;
+
     return Scaffold(
       body: Container(
         color: AppColors.primaryColor,
         child: Center(
           child: FadeTransition(
-            opacity: _fadeInAnimation,
+            opacity: fadeInAnimation,
             child: Container(
               width: size.width * 0.9,
               height: size.height * 0.7,
@@ -67,18 +72,18 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Form(
-                  key: _formKey,
+                  key: formKey,
                   child: ListView(
                     children: [
-                      _buildTextField('Email', (value) {
-                        _loginRequest.email = value;
-                      }, TextInputType.emailAddress, size),
-                      _buildPasswordField('Password', (value) {
-                        _loginRequest.password = value;
-                      }, size),
+                      buildTextField('Email', (value) {
+                        loginRequest.email = value;
+                      }, TextInputType.emailAddress, size, fontSize),
+                      buildPasswordField('Password', (value) {
+                        loginRequest.password = value;
+                      }, size, fontSize),
                       SizedBox(height: size.height * 0.05),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: (){},
                         style: ElevatedButton.styleFrom(
                           foregroundColor: AppColors.textColor,
                           backgroundColor: AppColors.buttonColor, 
@@ -88,11 +93,11 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        child: Text('Login', style: AppTextStyles.buttonText),
+                        child: Text('Login', style: AppTextStyles.buttonText.copyWith(fontSize: fontSize)),
                       ),
                       SizedBox(height: size.height * 0.02),
-                      _buildForgotPasswordButton(),
-                      _buildRegisterButton(size),
+                      buildForgotPasswordButton(fontSize),
+                      buildRegisterButton(size, fontSize),
                     ],
                   ),
                 ),
@@ -104,8 +109,8 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildTextField(
-    String label, Function(String) onSaved, TextInputType type, Size size) {
+  Widget buildTextField(
+    String label, Function(String) onSaved, TextInputType type, Size size, double fontSize) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
@@ -113,7 +118,7 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
         cursorColor: AppColors.cursorColor,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: AppTextStyles.labelText,
+          labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(color: AppColors.textColor),
@@ -140,8 +145,8 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildPasswordField(
-    String label, Function(String) onSaved, Size size) {
+  Widget buildPasswordField(
+    String label, Function(String) onSaved, Size size, double fontSize) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
@@ -149,7 +154,7 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
         cursorColor: AppColors.cursorColor,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: AppTextStyles.labelText,
+          labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(color: AppColors.textColor),
@@ -176,20 +181,19 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildForgotPasswordButton() {
+  Widget buildForgotPasswordButton(double fontSize) {
     return TextButton(
       onPressed: () {
-        Get.to(() => ForgotPasswordScreen());
+        Get.to(() => EmailInputPage());
       },
       child: Text(
         'Forgot Password?',
-        style: AppTextStyles.buttonText,
+        style: AppTextStyles.buttonText.copyWith(fontSize: fontSize),
       ),
     );
   }
 
-  // Register Button
-  Widget _buildRegisterButton(Size size) {
+  Widget buildRegisterButton(Size size, double fontSize) {
     return Column(
       children: [
         SizedBox(height: size.height * 0.02),
@@ -199,27 +203,10 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
           },
           child: Text(
             'Don\'t have an account? Register here',
-            style: AppTextStyles.buttonText,
+            style: AppTextStyles.buttonText.copyWith(fontSize: fontSize),
           ),
         ),
       ],
-    );
-  }
-}
-
-// Forgot Password Screen
-class ForgotPasswordScreen extends StatelessWidget {
-  const ForgotPasswordScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Forgot Password'),
-      ),
-      body: Center(
-        child: Text('Forgot Password screen content here'),
-      ),
     );
   }
 }

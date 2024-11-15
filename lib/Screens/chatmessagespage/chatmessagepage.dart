@@ -4,6 +4,7 @@ import '../../constants.dart';
 import '../chatpage/userchatpage.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
+
 class ChatHistoryPage extends StatefulWidget {
   const ChatHistoryPage({super.key});
 
@@ -59,11 +60,14 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
       });
     });
   }
- 
+   double getResponsiveFontSize(double scale) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth * scale; // Adjust this scale for different text elements
+  }
 
   @override
   Widget build(BuildContext context) {
-    final mQuery = MediaQuery.of(context).size; // For responsive design
+    final mQuery = MediaQuery.of(context).size; 
 
     return Scaffold(
       backgroundColor: AppColors.secondaryColor,
@@ -100,7 +104,7 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Chatting Members', style: AppTextStyles.bodyText),
+                    Text('Chatting Members', style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03))),
                     Row(
                       children: [
                         Icon(
@@ -160,10 +164,21 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                                 },
                                 child: Hero(
                                   tag: user['imageUrl'],
-                                  child: CircleAvatar(
-                                    radius: mQuery.width * 0.1,
-                                    backgroundImage:
-                                        NetworkImage(user['imageUrl']),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: user['isOnline']
+                                          ? Border.all(
+                                              color: Colors.green,
+                                              width: 3.0,
+                                            )
+                                          : null,
+                                    ),
+                                    child: CircleAvatar(
+                                      radius: mQuery.width * 0.08, // Reduced size
+                                      backgroundImage:
+                                          NetworkImage(user['imageUrl']),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -177,21 +192,8 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                                     children: [
                                       Text(
                                         user['name'],
-                                        style: AppTextStyles.bodyText,
+                                        style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.04)),
                                       ),
-                                      SizedBox(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.20),
-                                      if (user['isOnline'])
-                                        Text(
-                                          'Online',
-                                          style: TextStyle(
-                                            color: AppColors.activeColor,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
                                     ],
                                   ),
                                   SizedBox(height: 4),

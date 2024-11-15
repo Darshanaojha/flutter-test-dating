@@ -38,6 +38,10 @@ class EditProfilePageState extends State<EditProfilePage> {
   bool hideMeOnFlame = true;
   bool incognitoMode = false;
   bool optOutOfPingNote = true;
+  double getResponsiveFontSize(double scale) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth * scale; // Adjust this scale for different text elements
+  }
 
   final TextEditingController desireController = TextEditingController();
 
@@ -106,7 +110,9 @@ class EditProfilePageState extends State<EditProfilePage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Photos", style: AppTextStyles.textStyle),
+                          Text("Photos",
+                              style: AppTextStyles.textStyle.copyWith(
+                                  fontSize: getResponsiveFontSize(0.03))),
                           SizedBox(height: 5),
                           Container(
                             height: 350,
@@ -166,8 +172,9 @@ class EditProfilePageState extends State<EditProfilePage> {
                             },
                             icon: Icon(Icons.edit, color: AppColors.iconColor),
                             label: Text('Edit Photos',
-                                style: AppTextStyles.buttonText
-                                    .copyWith(color: AppColors.iconColor)),
+                                style: AppTextStyles.buttonText.copyWith(
+                                    color: AppColors.iconColor,
+                                    fontSize: getResponsiveFontSize(0.04))),
                           ),
                         ],
                       ),
@@ -192,8 +199,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                             label: Text(
                               'Preview',
                               style: AppTextStyles.textStyle.copyWith(
-                                  fontSize:
-                                      12), // Adjust font size for the label
+                                  fontSize: getResponsiveFontSize(
+                                      0.03)), // Adjust font size for the label
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(
@@ -232,8 +239,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                             label: Text(
                               'Save',
                               style: AppTextStyles.textStyle.copyWith(
-                                  fontSize:
-                                      12), // Adjust font size for the label
+                                  fontSize: getResponsiveFontSize(
+                                      0.03)), // Adjust font size for the label
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(
@@ -297,14 +304,21 @@ class EditProfilePageState extends State<EditProfilePage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text("Desires",
-                                    style: AppTextStyles.subheadingText),
+                                    style: AppTextStyles.subheadingText
+                                      ..copyWith(
+                                          fontSize:
+                                              getResponsiveFontSize(0.03))),
                                 SizedBox(height: 10),
                                 Wrap(
                                   spacing: 8.0,
                                   children: desires
                                       .map((desire) => Chip(
                                             label: Text(desire,
-                                                style: AppTextStyles.bodyText),
+                                                style: AppTextStyles.bodyText
+                                                    .copyWith(
+                                                        fontSize:
+                                                            getResponsiveFontSize(
+                                                                0.03))),
                                             backgroundColor:
                                                 AppColors.chipColor,
                                           ))
@@ -320,7 +334,11 @@ class EditProfilePageState extends State<EditProfilePage> {
                                             .cursorColor, // White cursor color
                                         decoration: InputDecoration(
                                           labelText: 'Add Desire',
-                                          labelStyle: AppTextStyles.buttonText,
+                                          labelStyle: AppTextStyles.buttonText
+                                              .copyWith(
+                                                  fontSize:
+                                                      getResponsiveFontSize(
+                                                          0.03)),
                                           filled: true,
                                           fillColor: AppColors.formFieldColor,
                                           border: OutlineInputBorder(
@@ -364,7 +382,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text("Privacy Settings",
-                          style: AppTextStyles.subheadingText),
+                          style: AppTextStyles.subheadingText
+                              .copyWith(fontSize: getResponsiveFontSize(0.03))),
                       SizedBox(height: 10),
                       PrivacyToggle(
                         label: "Hide me on Flame",
@@ -427,6 +446,12 @@ class InfoField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double getResponsiveFontSize(double scale) {
+      double screenWidth = MediaQuery.of(context).size.width;
+      return screenWidth *
+          scale; // Adjust this scale for different text elements
+    }
+
     return Card(
       color: AppColors.secondaryColor,
       elevation: 5,
@@ -435,12 +460,15 @@ class InfoField extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: AppTextStyles.buttonText),
+            Text(label,
+                style: AppTextStyles.buttonText
+                    .copyWith(fontSize: getResponsiveFontSize(0.03))),
             SizedBox(height: 10),
             TextField(
               controller: controller,
               cursorColor: AppColors.cursorColor, // White cursor color
-              style: AppTextStyles.bodyText,
+              style: AppTextStyles.bodyText
+                  .copyWith(fontSize: getResponsiveFontSize(0.03)),
               decoration: InputDecoration(
                 filled: true,
                 fillColor: AppColors.formFieldColor,
@@ -469,10 +497,18 @@ class PrivacyToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double getResponsiveFontSize(double scale) {
+      double screenWidth = MediaQuery.of(context).size.width;
+      return screenWidth *
+          scale; // Adjust this scale for different text elements
+    }
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: AppTextStyles.bodyText),
+        Text(label,
+            style: AppTextStyles.bodyText
+                .copyWith(fontSize: getResponsiveFontSize(0.03))),
         Switch(
           value: value,
           onChanged: onChanged,
