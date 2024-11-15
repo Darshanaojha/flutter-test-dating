@@ -21,7 +21,7 @@ class EstablishConnectionProvider extends GetConnect {
 
 
       Response response = await post(
-        '$baseurl/Profile/establish_connection', 
+        '$baseurl/Chats/establish_connection', 
         request.toJson(), 
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
