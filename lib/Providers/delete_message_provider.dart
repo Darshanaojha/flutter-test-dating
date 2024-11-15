@@ -23,7 +23,7 @@ class DeleteMessageProvider extends GetConnect {
       }
 
       final response = await post(
-        '$baseUrl/Chats/delete_message',
+        '$baseurl/Chats/delete_message',
         jsonEncode(request.toJson()), 
         headers: {
           'Content-Type': 'application/json',

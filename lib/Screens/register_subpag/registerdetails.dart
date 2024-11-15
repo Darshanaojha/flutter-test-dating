@@ -317,4 +317,3 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     );
   }
 }
-

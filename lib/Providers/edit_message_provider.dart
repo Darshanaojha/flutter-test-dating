@@ -24,7 +24,7 @@ class EditMessageProvider extends GetConnect {
 
       // Make the API request
       final response = await post(
-        '$baseUrl/Chats/edit_message',
+        '$baseurl/Chats/edit_message',
         jsonEncode(request.toJson()), 
         headers: {
           'Content-Type': 'application/json',
