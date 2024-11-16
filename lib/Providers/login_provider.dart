@@ -1,11 +1,7 @@
-
-import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-import '../Models/RequestModels/change_password_request.dart';
 import '../Models/RequestModels/forget_password_request_model.dart';
 import '../Models/RequestModels/forget_password_verification_request_model.dart';
 import '../Models/RequestModels/user_login_request_model.dart';
-import '../Models/ResponseModels/change_password_response_model.dart';
 import '../Models/ResponseModels/forget_password_response_model.dart';
 import '../Models/ResponseModels/forget_password_verification_response_model.dart';
 import '../Models/ResponseModels/user_login_response_model.dart';
@@ -46,7 +42,7 @@ class LoginProvider extends GetConnect {
   }
 
   // OTP Verification to reset password
-  Future<ForgetPasswordVerificationResponse?> otpVerification(
+  Future<ForgetPasswordVerificationResponse?> otpVerificationForgetPassword(
       ForgetPasswordVerificationRequest
           forgetPasswordVerificationRequest) async {
     try {
@@ -75,43 +71,7 @@ class LoginProvider extends GetConnect {
     }
   }
 
-// Change Password
-  Future<ChangePasswordResponse?> changePassword(
-      ChangePasswordRequest changePasswordRequest) async {
-    try {
-      EncryptedSharedPreferences preferences =
-          EncryptedSharedPreferences.getInstance();
-      String? token = preferences.getString('token');
-      if (token != null && token.isNotEmpty) {
-        Response response = await post(
-          '$baseurl/Profile/change_password',
-          changePasswordRequest,
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          },
-        );
 
-        if (response.statusCode == 200) {
-          if (response.body['error']['code'] == 0) {
-            return ChangePasswordResponse.fromJson(response.body);
-          } else {
-            failure('Error', response.body['error']['message']);
-            return null;
-          }
-        } else {
-          failure('Error', response.body.toString());
-          return null;
-        }
-      } else {
-        failure('Error', 'Token not found');
-      }
-    } catch (e) {
-      failure('Error', e.toString());
-      return null;
-    }
-    return null;
-  }
 
 // User Login
   Future<UserLoginResponse?> userLogin(
