@@ -1,19 +1,31 @@
 import 'package:dating_application/Providers/login_provider.dart';
+import 'package:dating_application/Providers/user_profile_provider.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 
+import '../Models/RequestModels/change_password_request.dart';
 import '../Models/RequestModels/registration_otp_request_model.dart';
 import '../Models/RequestModels/registration_otp_verification_request_model.dart';
+import '../Models/RequestModels/subgender_request_model.dart';
 import '../Models/RequestModels/user_registration_request_model.dart';
 import '../Models/ResponseModels/ProfileResponse.dart';
 import '../Models/ResponseModels/all_active_user_resposne_model.dart';
+import '../Models/ResponseModels/change_password_response_model.dart';
 import '../Models/ResponseModels/chat_history_response_model.dart';
+import '../Models/ResponseModels/get_all_benifites_response_model.dart';
 import '../Models/ResponseModels/get_all_country_response_model.dart';
 import '../Models/ResponseModels/get_all_desires_model_response.dart';
+import '../Models/ResponseModels/get_all_gender_from_response_model.dart';
+import '../Models/ResponseModels/get_all_headlines_response_model.dart';
+import '../Models/ResponseModels/get_all_saftey_guidelines_response_model.dart';
+import '../Models/ResponseModels/get_all_whoareyoulookingfor_response_model.dart';
 import '../Models/ResponseModels/registration_otp_response_model.dart';
 import '../Models/ResponseModels/registration_otp_verification_response_model.dart';
+import '../Models/ResponseModels/subgender_response_model.dart';
 import '../Models/ResponseModels/user_login_response_model.dart';
 import '../Models/ResponseModels/user_registration_response_model.dart';
+import '../Models/ResponseModels/user_upload_images_response_model.dart';
+import '../Providers/change_password_provider.dart';
 import '../Providers/chat_message_page_provider.dart';
 import '../Providers/home_page_provider.dart';
 import '../Providers/registration_provider.dart';
@@ -193,6 +205,163 @@ class Controller extends GetxController {
         return true;
       } else {
         failure('Error', 'Error fetching all active users');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<Gender> genders = <Gender>[].obs;
+
+  Future<bool> fetchGenders() async {
+    try {
+      genders.clear();
+      GenderResponse? response = await UserProfileProvider().fetchGenders();
+      if (response != null) {
+        genders.addAll(response.payload.data);
+        success('success', 'Genders fetched successfully');
+        return true;
+      } else {
+        failure('Error', 'Error fetching the genders');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<UserPreference> preferences = <UserPreference>[].obs;
+  Future<bool> fetchPreferences() async {
+    try {
+      preferences.clear();
+      UserPreferencesResponse? response =
+          await UserProfileProvider().fetchPreferences();
+      if (response != null) {
+        preferences.addAll(response.payload.data);
+        success('success', 'User preferences fetched successfully');
+        return true;
+      } else {
+        failure('Error', 'Error fetching the preferences');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<Benefit> benefits = <Benefit>[].obs;
+
+  Future<bool> fetchBenefits() async {
+    try {
+      benefits.clear();
+      BenefitsResponse? response = await UserProfileProvider().fetchBenefits();
+      if (response != null) {
+        benefits.addAll(response.payload.data);
+        success('success', 'Successfully fetched the benefits');
+        return true;
+      } else {
+        failure('Error', 'Failed to fetch the benefits');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<SafetyGuideline> safetyGuidelines = <SafetyGuideline>[].obs;
+
+  Future<bool> fetchSafetyGuidelines() async {
+    try {
+      safetyGuidelines.clear();
+      SafetyGuidelinesResponse? response =
+          await UserProfileProvider().fetchSafetyGuidelines();
+      if (response != null) {
+        safetyGuidelines.addAll(response.payload.data);
+        success('success', 'successfully fetched the safety guidelines');
+        return true;
+      } else {
+        failure('Error', 'Failed to fetch the safety guidelines');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<Headline> headlines = <Headline>[].obs;
+  Future<bool> fetchHeadlines() async {
+    try {
+      headlines.clear();
+      HeadlinesResponse? response =
+          await UserProfileProvider().fetchHeadlines();
+      if (response != null) {
+        headlines.addAll(response.payload.data);
+        success('success', 'successfully fetched the headlines');
+        return true;
+      } else {
+        failure('Error', 'Failed to fetch the headlines');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<SubGenderData> subGenders = <SubGenderData>[].obs;
+  Future<bool> fetchSubGender(SubGenderRequest subGenderRequest) async {
+    try {
+      subGenders.clear();
+      SubGenderResponse? response =
+          await UserProfileProvider().fetchSubGender(subGenderRequest);
+      if (response != null) {
+        subGenders.addAll(response.payload.data);
+        success('success', 'successfully fetched the sub genders');
+        return true;
+      } else {
+        failure('Error', 'Failed to fetch the sub genders');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  late UserImageData userPhotos;
+  Future<bool> fetchProfileUserPhotos() async {
+    try {
+      UserUploadImagesResponse? response =
+          await UserProfileProvider().fetchProfileUserPhotos();
+      if (response != null) {
+        userPhotos = response.payload.data;
+        success('success', 'successfully fetched the user profile photos');
+        return true;
+      } else {
+        failure('Error', 'Failed to fetch the  user profile photos');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> changePassword(ChangePasswordRequest request) async {
+    try {
+      ChangePasswordResponse? response =
+          await ChangePasswordProvider().changePassword(request);
+      if (response != null) {
+        success('success', response.payload.message);
+        return true;
+      } else {
+        failure('Error', 'Failed to change the password');
         return false;
       }
     } catch (e) {

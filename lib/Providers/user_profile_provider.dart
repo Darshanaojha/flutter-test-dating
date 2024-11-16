@@ -181,7 +181,4 @@ class UserProfileProvider extends GetConnect {
       return null;
     }
   }
-
-  // Update Email
- 
 }
