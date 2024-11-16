@@ -11,8 +11,8 @@ import '../constants.dart';
 class RegistrationProvider extends GetConnect {
   Future<CountryResponse?> fetchCountries() async {
     try {
-      Response response = await get('$baseUrl/Common/country');
-
+      Response response = await get('$baseurl/Common/country');
+      Get.snackbar('country', response.body.toString());
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return CountryResponse.fromJson(response.body);

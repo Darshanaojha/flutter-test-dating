@@ -1,5 +1,4 @@
 import 'package:dating_application/Screens/homepage/homepage.dart';
-import 'package:dating_application/Screens/register_subpag/register_subpage.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

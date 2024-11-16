@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:get/get.dart';
 
+import '../../../Models/RequestModels/update_emailid_otp_verification_request_model.dart';
+import '../../../Providers/update_email_verification_provider.dart';
 import '../../../constants.dart';
+import '../../homepage/homepage.dart';
 
 class EmailOtpVerificationPage extends StatefulWidget {
   const EmailOtpVerificationPage({super.key});
@@ -9,18 +12,17 @@ class EmailOtpVerificationPage extends StatefulWidget {
   @override
   EmailOtpVerificationPageState createState() => EmailOtpVerificationPageState();
 }
-
 class EmailOtpVerificationPageState extends State<EmailOtpVerificationPage> {
   final otpController = TextEditingController();
-    double getResponsiveFontSize(double scale) {
-      double screenWidth = MediaQuery.of(context).size.width;
-      return screenWidth *
-          scale; // Adjust this scale for different text elements
-    }
-  // GlobalKey for form validation
   final formKey = GlobalKey<FormState>();
-
   String? otpError;
+
+  final updateEmailVerificationProvider = UpdateEmailVerificationProvider();
+
+  double getResponsiveFontSize(double scale) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth * scale;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +67,7 @@ class EmailOtpVerificationPageState extends State<EmailOtpVerificationPage> {
                         errorText: otpError,
                       ),
                       keyboardType: TextInputType.number,
-                      maxLength: 6,  // Common OTP length
+                      maxLength: 6,  
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "OTP is required";
@@ -78,7 +80,6 @@ class EmailOtpVerificationPageState extends State<EmailOtpVerificationPage> {
                     ),
                     SizedBox(height: 32),
 
-                    // Verify Button
                     SizedBox(
                       width: 200,
                       child: ElevatedButton(
@@ -106,24 +107,33 @@ class EmailOtpVerificationPageState extends State<EmailOtpVerificationPage> {
     );
   }
 
-  void verifyOTP() {
-    // Clear previous error messages
+  void verifyOTP() async {
     setState(() {
-      otpError = null;
+      otpError = null;  
     });
 
-    // Validate form
     if (formKey.currentState!.validate()) {
-      // Proceed with the OTP verification logic
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "OTP verified successfully",
-            style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03)),
-          ),
-          backgroundColor: AppColors.acceptColor,
-        ),
+
+      final String email = Get.arguments['email'];
+
+      final otpVerificationRequest = UpdateEmailVerificationRequest(
+        newEmail: email,
+        otp: otpController.text,
       );
+
+      try {
+
+        final response = await updateEmailVerificationProvider.verifyEmailOtp(otpVerificationRequest);
+
+        if (response != null) {
+          success("Success", 'OTP verified successfully!');
+          Get.to(HomePage());
+        } else {
+          failure("Error", "Failed to verify OTP. Please try again.");
+        }
+      } catch (e) {
+        failure("Error", "An error occurred: $e");
+      }
     }
   }
 }

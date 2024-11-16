@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../Models/RequestModels/update_emailid_request_model.dart';
+import '../../../Models/ResponseModels/update_emailid_response_model.dart';
+import '../../../Providers/update_emailid_provider.dart';
 import '../../../constants.dart';
 import 'updateemailotpverification.dart';
 
@@ -10,20 +13,23 @@ class UpdateEmailPage extends StatefulWidget {
   @override
   UpdateEmailPageState createState() => UpdateEmailPageState();
 }
-
 class UpdateEmailPageState extends State<UpdateEmailPage> {
   final passwordController = TextEditingController();
   final newEmailController = TextEditingController();
-   double getResponsiveFontSize(double scale) {
-      double screenWidth = MediaQuery.of(context).size.width;
-      return screenWidth *
-          scale; // Adjust this scale for different text elements
-    }
-  // GlobalKey for form validation
+
+  double getResponsiveFontSize(double scale) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth * scale; 
+  }
+
+
   final formKey = GlobalKey<FormState>();
 
   String? passwordError;
   String? emailError;
+
+
+  final updateEmailProvider = UpdateEmailidProvider();
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +132,7 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
                         onPressed: () {
                           Get.to(EmailOtpVerificationPage());
                         },
-                        child: Text('next'))
+                        child: Text('Next'))
                   ],
                 ),
               ),
@@ -137,21 +143,36 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
     );
   }
 
-  void updateEmail() {
+  void updateEmail() async {
     setState(() {
       passwordError = null;
       emailError = null;
     });
+
+
     if (formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Email updated successfully",
-            style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03)),
-          ),
-          backgroundColor: AppColors.acceptColor,
-        ),
+     
+      final updateEmailIdRequest = UpdateEmailIdRequest(
+        password: passwordController.text,
+        newEmail: newEmailController.text,
       );
+
+      try {
+
+        UpdateEmailIdResponse? response = await updateEmailProvider.updateEmailId(updateEmailIdRequest);
+
+        if (response != null) {
+
+          success("Success", 'Email updated successfully!');
+          Get.to(EmailOtpVerificationPage());
+        } else {
+     
+         failure("Error",  "Failed to update email. Please try again.");
+        }
+      } catch (e) {
+        failure("Error", "Error: $e");
+
+      }
     }
   }
 }

@@ -5,7 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:get/get.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-
 class ChatPage extends StatefulWidget {
   final Map<String, dynamic> user;
 
@@ -14,7 +13,6 @@ class ChatPage extends StatefulWidget {
   @override
   ChatPageState createState() => ChatPageState();
 }
-
 class ChatPageState extends State<ChatPage> {
   final TextEditingController messageController = TextEditingController();
   final ImagePicker picker = ImagePicker();
@@ -22,24 +20,22 @@ class ChatPageState extends State<ChatPage> {
   bool isTyping = false;
   bool isLoading = false;
 
-  // To simulate online status for the user
   bool get isUserOnline => widget.user['isOnline'] ?? false;
+
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
-    return screenWidth * scale; // Adjust this scale for different text elements
+    return screenWidth * scale;
   }
+
+  // Permissions request
   Future<void> requestPermissions() async {
     var cameraStatus = await Permission.camera.request();
     var galleryStatus = await Permission.photos.request();
     var microphoneStatus = await Permission.microphone.request();
 
-    if (cameraStatus.isDenied ||
-        galleryStatus.isDenied ||
-        microphoneStatus.isDenied) {
-      Get.snackbar(
-          'Permission Denied', 'Please allow all necessary permissions.',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: AppColors.deniedColor);
+    if (cameraStatus.isDenied || galleryStatus.isDenied || microphoneStatus.isDenied) {
+      Get.snackbar('Permission Denied', 'Please allow all necessary permissions.',
+          snackPosition: SnackPosition.BOTTOM, backgroundColor: AppColors.deniedColor);
     }
   }
 
@@ -60,13 +56,10 @@ class ChatPageState extends State<ChatPage> {
                   foregroundColor: AppColors.textColor,
                   backgroundColor: AppColors.buttonColor, // text color
                   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 onPressed: () async {
-                  Navigator.of(context)
-                      .pop(await picker.pickImage(source: ImageSource.camera));
+                  Navigator.of(context).pop(await picker.pickImage(source: ImageSource.camera));
                 },
                 child: Text("Take Photo", style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.04))),
               ),
@@ -76,13 +69,10 @@ class ChatPageState extends State<ChatPage> {
                   foregroundColor: AppColors.textColor,
                   backgroundColor: AppColors.buttonColor, // text color
                   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 onPressed: () async {
-                  Navigator.of(context)
-                      .pop(await picker.pickVideo(source: ImageSource.camera));
+                  Navigator.of(context).pop(await picker.pickVideo(source: ImageSource.camera));
                 },
                 child: Text("Record Video", style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.04))),
               ),
@@ -97,7 +87,6 @@ class ChatPageState extends State<ChatPage> {
     }
   }
 
-  // Handle picking image or video from the gallery
   Future<void> pickFromGallery() async {
     await requestPermissions();
 
@@ -105,8 +94,7 @@ class ChatPageState extends State<ChatPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title:
-              Text("Choose Gallery Option", style: AppTextStyles.headingText.copyWith(fontSize: getResponsiveFontSize(0.04))),
+          title: Text("Choose Gallery Option", style: AppTextStyles.headingText.copyWith(fontSize: getResponsiveFontSize(0.04))),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -115,13 +103,10 @@ class ChatPageState extends State<ChatPage> {
                   foregroundColor: AppColors.textColor,
                   backgroundColor: AppColors.buttonColor, // text color
                   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 onPressed: () async {
-                  Navigator.of(context)
-                      .pop(await picker.pickImage(source: ImageSource.gallery));
+                  Navigator.of(context).pop(await picker.pickImage(source: ImageSource.gallery));
                 },
                 child: Text("Pick Image", style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.04))),
               ),
@@ -131,13 +116,10 @@ class ChatPageState extends State<ChatPage> {
                   foregroundColor: AppColors.textColor,
                   backgroundColor: AppColors.buttonColor, // text color
                   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 onPressed: () async {
-                  Navigator.of(context)
-                      .pop(await picker.pickVideo(source: ImageSource.gallery));
+                  Navigator.of(context).pop(await picker.pickVideo(source: ImageSource.gallery));
                 },
                 child: Text("Pick Video", style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.04))),
               ),
@@ -152,10 +134,9 @@ class ChatPageState extends State<ChatPage> {
     }
   }
 
-  // Add media (image/video) message to the list
   void addMediaMessage(XFile pickedFile) {
     setState(() {
-      isLoading = true; // Start loading
+      isLoading = true;
     });
 
     if (pickedFile.path.endsWith('.mp4')) {
@@ -170,19 +151,17 @@ class ChatPageState extends State<ChatPage> {
       });
     }
 
-    // Simulate a delay for loading (for demo purposes, you can remove this later)
     Future.delayed(Duration(seconds: 2), () {
       setState(() {
-        isLoading = false; // Stop loading after the delay
+        isLoading = false;
       });
     });
   }
 
-  // Send text message
   void sendMessage() {
     if (messageController.text.isNotEmpty) {
       setState(() {
-        isLoading = true; // Start loading spinner when message is sent
+        isLoading = true;
         messages.add({
           'type': 'text',
           'content': messageController.text,
@@ -190,30 +169,71 @@ class ChatPageState extends State<ChatPage> {
       });
       messageController.clear();
 
-      // Simulate a delay for sending message (for demo purposes, remove in production)
       Future.delayed(Duration(seconds: 2), () {
         setState(() {
-          isLoading = false; // Stop loading after sending the message
+          isLoading = false;
         });
       });
     }
   }
 
-  // Placeholder method for initiating a video call
+  void deleteMessage(int index) {
+    setState(() {
+      messages.removeAt(index);
+    });
+  }
+
+void editMessage(int index) {
+  messageController.text = messages[index]['content'];
+
+  // Show the bottom sheet to edit the message
+  showModalBottomSheet(
+    context: context,
+    builder: (context) {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: messageController,
+              decoration: InputDecoration(
+                hintText: "Edit your message",
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                if (messageController.text.isNotEmpty) {
+                  setState(() {
+                    messages.removeAt(index);
+                    messages.insert(index, {
+                      'type': 'text', 
+                      'content': messageController.text,
+                    });
+                    Navigator.pop(context);
+                  });
+                }
+              },
+              child: Text("Save Changes"),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+
   void initiateVideoCall() {
-    // Replace this with your actual video call integration code
-    Get.snackbar("Video Call", "Initiating video call...",
-        snackPosition: SnackPosition.BOTTOM);
+    Get.snackbar("Video Call", "Initiating video call...", snackPosition: SnackPosition.BOTTOM);
   }
 
-  // Placeholder method for initiating a voice call
   void initiateVoiceCall() {
-    // Replace this with your actual voice call integration code
-    Get.snackbar("Voice Call", "Initiating voice call...",
-        snackPosition: SnackPosition.BOTTOM);
+    Get.snackbar("Voice Call", "Initiating voice call...", snackPosition: SnackPosition.BOTTOM);
   }
 
-  // Function to show profile picture in a dialog
   void showProfilePhoto() {
     showDialog(
       context: context,
@@ -249,39 +269,36 @@ class ChatPageState extends State<ChatPage> {
           ],
         ),
         leading: GestureDetector(
-  onTap: showProfilePhoto, // Show the photo in a dialog
-  child: Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: Container(
-      // Apply a green border if the user is online
-      decoration: isUserOnline
-          ? BoxDecoration(
-              border: Border.all(
-                color: Colors.green, // Green border for online users
-                width: 2,
+          onTap: showProfilePhoto,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              decoration: isUserOnline
+                  ? BoxDecoration(
+                      border: Border.all(
+                        color: Colors.green,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(40),
+                    )
+                  : null,
+              child: CircleAvatar(
+                radius: 32,
+                backgroundImage: NetworkImage(widget.user['imageUrl']),
+                backgroundColor: AppColors.chipColor,
+                child: isUserOnline
+                    ? Align(
+                        alignment: Alignment.bottomRight,
+                        child: CircleAvatar(
+                          radius: 8,
+                          backgroundColor: Colors.green,
+                        ),
+                      )
+                    : null,
               ),
-              borderRadius: BorderRadius.circular(40), // Ensure it's circular
-            )
-          : null, // No border if the user is not online
-      child: CircleAvatar(
-        radius: 32,
-        backgroundImage: NetworkImage(widget.user['imageUrl']),
-        backgroundColor: AppColors.chipColor,
-        // If the user is online, add a small green circle at the bottom-right
-        child: isUserOnline
-            ? Align(
-                alignment: Alignment.bottomRight,
-                child: CircleAvatar(
-                  radius: 8, // Small circle indicating online status
-                  backgroundColor: Colors.green,
-                ),
-              )
-            : null, // No indicator if the user is offline
-      ),
-    ),
-  ),
-),
-
+            ),
+          ),
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.call, color: AppColors.iconColor),
@@ -307,31 +324,52 @@ class ChatPageState extends State<ChatPage> {
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 final message = messages[index];
-                if (message['type'] == 'text') {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: GestureDetector(
+                    onLongPress: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text("Options"),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ListTile(
+                                  title: Text("Edit Message"),
+                                  onTap: () {
+                                    editMessage(index);
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                ListTile(
+                                  title: Text("Delete Message"),
+                                  onTap: () {
+                                    deleteMessage(index);
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
                     child: ListTile(
-                      title: Text(message['content'],
-                          style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.04))),
+                      title: message['type'] == 'text'
+                          ? Text(
+                              message['content'],
+                              style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.04)),
+                            )
+                          : message['type'] == 'image'
+                              ? Image.file(File(message['content']))
+                              : message['type'] == 'video'
+                                  ? Text("Video message", style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.04)))
+                                  : Container(),
                     ),
-                  );
-                } else if (message['type'] == 'image') {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: ListTile(
-                      title: Image.file(File(message['content'])),
-                    ),
-                  );
-                } else if (message['type'] == 'video') {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: ListTile(
-                      title:
-                          Text("Video message", style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.04))),
-                    ),
-                  );
-                }
-                return Container();
+                  ),
+                );
               },
             ),
           ),
