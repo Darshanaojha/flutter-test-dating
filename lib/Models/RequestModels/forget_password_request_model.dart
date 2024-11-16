@@ -1,6 +1,6 @@
 class ForgetPasswordRequest {
-  final String email;
-  final String newPassword;
+   String email;
+   String newPassword;
 
   ForgetPasswordRequest({
     required this.email,

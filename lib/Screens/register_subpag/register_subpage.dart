@@ -1,10 +1,13 @@
 import 'dart:io';
+import 'package:dating_application/Screens/homepage/homepage.dart';
 import 'package:dating_application/Screens/register_subpag/registrationotp.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import '../navigationbar/navigationpage.dart';
 
 class MultiStepFormPage extends StatefulWidget {
   const MultiStepFormPage({super.key});
@@ -2268,7 +2271,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
             ),
             TextButton(
                 onPressed: () {
-                  Get.to(OTPVerificationPage());
+                  Get.to(NavigationBottomBar());
                 },
                 child: Text('Next'))
           ],

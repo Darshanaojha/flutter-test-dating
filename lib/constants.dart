@@ -32,6 +32,8 @@ class AppColors {
   static Color successBorderColor = Colors.green;
   static Color errorColor = Colors.red.withOpacity(0.3);
   static Color errorBorderColor = Colors.red;
+
+  static var primaryTextColor;
 }
 
 class AppTextStyles {

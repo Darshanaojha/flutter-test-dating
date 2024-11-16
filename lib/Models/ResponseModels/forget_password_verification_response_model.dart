@@ -9,7 +9,6 @@ class ForgetPasswordVerificationResponse {
     required this.error,
   });
 
-  // Factory constructor to create ForgetPasswordVerificationResponse from JSON
   factory ForgetPasswordVerificationResponse.fromJson(Map<String, dynamic> json) {
     return ForgetPasswordVerificationResponse(
       success: json['success'],
@@ -18,7 +17,6 @@ class ForgetPasswordVerificationResponse {
     );
   }
 
-  // Method to convert ForgetPasswordVerificationResponse object to JSON
   Map<String, dynamic> toJson() {
     return {
       'success': success,
@@ -33,14 +31,12 @@ class Payload {
 
   Payload({required this.message});
 
-  // Factory constructor to create Payload from JSON
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
       message: json['message'],
     );
   }
 
-  // Method to convert Payload object to JSON
   Map<String, dynamic> toJson() {
     return {
       'message': message,
@@ -54,7 +50,6 @@ class ErrorDetails {
 
   ErrorDetails({required this.code, required this.message});
 
-  // Factory constructor to create ErrorDetails from JSON
   factory ErrorDetails.fromJson(Map<String, dynamic> json) {
     return ErrorDetails(
       code: json['code'],
@@ -62,7 +57,6 @@ class ErrorDetails {
     );
   }
 
-  // Method to convert ErrorDetails object to JSON
   Map<String, dynamic> toJson() {
     return {
       'code': code,

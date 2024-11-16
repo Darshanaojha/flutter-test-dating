@@ -1,9 +1,11 @@
 
+import 'package:dating_application/Models/RequestModels/registration_otp_request_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../Controllers/controller.dart';
 import '../../constants.dart';
-import 'forgotpasswordotp.dart';
+import 'forgotpaswordenter.dart';
 
 class EmailInputPage extends StatefulWidget {
   const EmailInputPage({super.key});
@@ -14,10 +16,9 @@ class EmailInputPage extends StatefulWidget {
 
 class EmailInputPageState extends State<EmailInputPage> {
   final formKey = GlobalKey<FormState>();
-  TextEditingController emailController = TextEditingController();
-  String email = '';
+Controller controller = Get.put(Controller());
 
-  // Function to validate email format
+   TextEditingController emailController = TextEditingController();
   String? validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter an email address';
@@ -33,7 +34,7 @@ class EmailInputPageState extends State<EmailInputPage> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double fontSize = screenWidth * 0.03; // Adjust font size based on screen width
+    double fontSize = screenWidth * 0.03; 
 
     return Scaffold(
       appBar: AppBar(
@@ -57,7 +58,7 @@ class EmailInputPageState extends State<EmailInputPage> {
                 child: Column(
                   children: [
                     TextFormField(
-                      controller: emailController,
+                      controller:emailController ,
                       style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
                       decoration: InputDecoration(
                         labelText: 'Email',
@@ -78,21 +79,24 @@ class EmailInputPageState extends State<EmailInputPage> {
                         ),
                       ),
                       validator: validateEmail,
+                       onChanged: (value) {
+                        setState(() {
+                         controller.forgetPasswordRequest.email= value;  
+                        });
+                      },
+                      onSaved: (value) {
+                        controller.forgetPasswordRequest.email= value.toString(); 
+                      },
                       keyboardType: TextInputType.emailAddress,
                     ),
                     SizedBox(height: 20),
 
-                    // Submit Button
                     ElevatedButton(
                       onPressed: () {
                         if (formKey.currentState!.validate()) {
-                          setState(() {
-                            email = emailController.text;
-                          });
-                          // Handle the email submission here, e.g., navigate to another page or display success
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Email Submitted: $email')),
-                          );
+                        //  controller.getOtp(controller.forgetPasswordRequest);
+                          success('Success', 'Email Submitted: ${controller.registrationOTPRequest.email}');
+                          Get.to(PasswordInputPage());
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -108,7 +112,7 @@ class EmailInputPageState extends State<EmailInputPage> {
                       ),
                     ),
                     ElevatedButton(onPressed:(){
-                      Get.to(OTPInputPage());
+                      Get.to(PasswordInputPage());
                     } , child: Text('Next'))
                   ],
                 ),

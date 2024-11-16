@@ -1,8 +1,13 @@
 
-import 'package:dating_application/Screens/loginforgotpassword/forgotpasswordconformotp.dart';
+import 'package:dating_application/Models/RequestModels/forget_password_request_model.dart';
+import 'package:dating_application/Models/ResponseModels/forget_password_response_model.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../Controllers/controller.dart';
+import '../../Providers/login_provider.dart';
+import 'forgotpasswordotp.dart';
+
 
 class PasswordInputPage extends StatefulWidget {
   const PasswordInputPage({super.key});
@@ -13,21 +18,24 @@ class PasswordInputPage extends StatefulWidget {
 
 class PasswordInputPageState extends State<PasswordInputPage> {
   final formKey = GlobalKey<FormState>();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  Controller controller= Get.put(Controller());
 
-  // Function to validate password strength
+
+  String? password;
+  String? confirmPassword;
+  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   String? validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter a password';
     }
-    if (value.length < 6) {
-      return 'Password must be at least 6 characters';
+    if (value.length < 8) {
+      return 'Password must be at least 8 characters';
     }
     return null;
   }
 
-  // Function to validate confirm password
+
   String? validateConfirmPassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please confirm your password';
@@ -41,7 +49,7 @@ class PasswordInputPageState extends State<PasswordInputPage> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double fontSize = screenWidth * 0.03;
+    double fontSize = screenWidth * 0.03; // Adjust font size based on screen width
 
     return Scaffold(
       appBar: AppBar(
@@ -66,7 +74,8 @@ class PasswordInputPageState extends State<PasswordInputPage> {
                   children: [
                     // Password Input Field
                     TextFormField(
-                      controller: passwordController,
+                        cursorColor: AppColors.cursorColor,
+                      controller: confirmPasswordController,
                       style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
                       obscureText: true,
                       decoration: InputDecoration(
@@ -88,11 +97,18 @@ class PasswordInputPageState extends State<PasswordInputPage> {
                         ),
                       ),
                       validator: validatePassword,
+                        onChanged: (value) {
+                        setState(() {
+                         controller.forgetPasswordRequest.newPassword= value;  
+                        });
+                      },
+                      onSaved: (value) {
+                        controller.forgetPasswordRequest.newPassword = value.toString(); 
+                      },
                     ),
                     SizedBox(height: 20),
-
-                    // Confirm Password Input Field
                     TextFormField(
+                      cursorColor: AppColors.cursorColor,
                       controller: confirmPasswordController,
                       style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
                       obscureText: true,
@@ -115,18 +131,20 @@ class PasswordInputPageState extends State<PasswordInputPage> {
                         ),
                       ),
                       validator: validateConfirmPassword,
+                    
+                        onChanged: (value) {
+                        setState(() {
+                        confirmPassword=value;
+                        });
+                      },
+                      onSaved: (value) {
+               
+                      },
                     ),
                     SizedBox(height: 20),
-
-                    // Submit Button
                     ElevatedButton(
-                      onPressed: () {
-                        if (formKey.currentState!.validate()) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Password successfully set')),
-                          );
-                          // Handle password submission logic here, such as navigating to the next screen or saving the password.
-                        }
+                      onPressed: (){
+                        controller.getOtp(controller.forgetPasswordRequest);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.buttonColor,
@@ -139,11 +157,8 @@ class PasswordInputPageState extends State<PasswordInputPage> {
                         'Submit',
                         style: AppTextStyles.buttonText.copyWith(fontSize: fontSize),
                       ),
-                    
                     ),
-                     ElevatedButton(onPressed:(){
-                      Get.to(OTPConfirmationPage());
-                    } , child: Text('Next'))
+                    ElevatedButton(onPressed: (){Get.to(OTPInputPage());}, child: Text("Next"))
                   ],
                 ),
               ),
@@ -154,3 +169,4 @@ class PasswordInputPageState extends State<PasswordInputPage> {
     );
   }
 }
+

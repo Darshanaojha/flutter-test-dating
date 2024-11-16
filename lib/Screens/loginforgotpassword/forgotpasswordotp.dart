@@ -2,8 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../Models/RequestModels/forget_password_verification_request_model.dart';
+import '../../Models/ResponseModels/forget_password_verification_response_model.dart';
+import '../../Providers/login_provider.dart';
 import '../../constants.dart';
-import 'forgotpaswordenter.dart';
+import '../login.dart';
 
 class OTPInputPage extends StatefulWidget {
   const OTPInputPage({super.key});
@@ -15,8 +18,9 @@ class OTPInputPage extends StatefulWidget {
 class OTPInputPageState extends State<OTPInputPage> {
   final formKey = GlobalKey<FormState>();
   List<TextEditingController> otpControllers = List.generate(6, (index) => TextEditingController());
+  final TextEditingController passwordController = TextEditingController();  
+  final TextEditingController confirmPasswordController = TextEditingController(); 
 
-  // Function to handle OTP input
   String? validateOTP(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter a digit';
@@ -27,10 +31,63 @@ class OTPInputPageState extends State<OTPInputPage> {
     return null;
   }
 
+  // Function to handle password validation
+  String? validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a new password';
+    }
+    if (value.length < 8) {
+      return 'Password must be at least 8 characters';
+    }
+    return null;
+  }
+
+  // Function to handle confirm password validation
+  String? validateConfirmPassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please confirm your password';
+    }
+    if (value != passwordController.text) {
+      return 'Passwords do not match';
+    }
+    return null;
+  }
+
+
+  Future<void> verifyOTPAndResetPassword() async {
+    if (formKey.currentState!.validate()) {
+      String otp = otpControllers.map((controller) => controller.text).join('');
+
+      String email = "user@example.com"; 
+      
+      String password = passwordController.text;
+
+      ForgetPasswordVerificationRequest request = ForgetPasswordVerificationRequest(
+        email: email,
+        otp: otp,
+        password: password,
+      );
+
+      try {
+        LoginProvider provider = LoginProvider();
+        ForgetPasswordVerificationResponse? response = await provider.otpVerificationForgetPassword(request);
+
+        if (response != null && response.success) {
+         success('Success', 'Password successfully reset!');
+          Get.to(Login());
+        } else {
+          failure('Failed', 'Failed to reset password. Please try again.');
+        }
+      } catch (e) {
+        failure('Failed', 'Failed to reset password. Please try again.');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double fontSize = screenWidth * 0.03; // Adjust font size based on screen width
+    double fontSize = screenWidth * 0.03;
 
     return Scaffold(
       appBar: AppBar(
@@ -43,7 +100,7 @@ class OTPInputPageState extends State<OTPInputPage> {
           child: Column(
             children: [
               Text(
-                'Enter the 6-digit OTP sent to your email or phone.',
+                'Enter the 6-digit OTP sent to your email.',
                 style: AppTextStyles.bodyText.copyWith(fontSize: fontSize),
                 textAlign: TextAlign.center,
               ),
@@ -53,12 +110,14 @@ class OTPInputPageState extends State<OTPInputPage> {
                 key: formKey,
                 child: Column(
                   children: [
+                    // OTP Fields (6 digits)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: List.generate(6, (index) {
                         return Container(
                           width: screenWidth * 0.12,
                           child: TextFormField(
+                            cursorColor: AppColors.cursorColor,
                             controller: otpControllers[index],
                             style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
                             decoration: InputDecoration(
@@ -81,6 +140,16 @@ class OTPInputPageState extends State<OTPInputPage> {
                             maxLength: 1, // Limit to 1 digit per input
                             textAlign: TextAlign.center,
                             validator: validateOTP,
+                            onChanged: (value) {
+                       
+                          if (value.isNotEmpty && index < otpControllers.length - 1) {
+                            FocusScope.of(context).nextFocus();
+                          }
+                        },
+                        onSaved: (value) {
+                    
+                          otpControllers[index].text = value ?? '';
+                        },
                           ),
                         );
                       }),
@@ -89,15 +158,7 @@ class OTPInputPageState extends State<OTPInputPage> {
 
                     // Submit Button
                     ElevatedButton(
-                      onPressed: () {
-                        String otp = otpControllers.map((controller) => controller.text).join('');
-                        if (formKey.currentState!.validate()) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('OTP Submitted: $otp')),
-                          );
-                          // Handle OTP submission logic here, such as validating with a backend or proceeding to the next screen.
-                        }
-                      },
+                      onPressed: verifyOTPAndResetPassword,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.buttonColor,
                         padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
@@ -110,9 +171,7 @@ class OTPInputPageState extends State<OTPInputPage> {
                         style: AppTextStyles.buttonText.copyWith(fontSize: fontSize),
                       ),
                     ),
-                    ElevatedButton(onPressed:(){
-                      Get.to(PasswordInputPage());
-                    } , child: Text('Next'))
+                    ElevatedButton(onPressed: (){Get.to(Login());}, child: Text("Next"))
                   ],
                 ),
               ),

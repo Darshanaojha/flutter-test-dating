@@ -110,7 +110,7 @@ class Controller extends GetxController {
       return false;
     }
   }
-
+  late RegistrationOTPRequest registrationOTPRequest;
   Future<bool> sendOtp(RegistrationOTPRequest registrationOTPRequest) async {
     try {
       final RegistrationOtpResponse? response =
@@ -474,7 +474,7 @@ class Controller extends GetxController {
       return false;
     }
   }
-
+  late ForgetPasswordRequest forgetPasswordRequest;
   Future<bool> getOtp(ForgetPasswordRequest forgetPasswordRequest) async {
     try {
       ForgetPasswordResponse? response =

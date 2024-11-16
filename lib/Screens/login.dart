@@ -6,6 +6,8 @@ import '../constants.dart';
 import 'homepage/homepage.dart';
 import 'loginforgotpassword/forgotpasswordemail.dart';
 import 'register_subpag/registerdetails.dart';
+import 'register_subpag/registrationotp.dart';
+import 'register_subpag/useremailnameinput.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -215,7 +217,10 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
         SizedBox(height: size.height * 0.02),
         TextButton(
           onPressed: () {
-            Get.to(RegisterProfilePage());
+        
+            Get.to(UserInputPage());
+            // Get.to(OTPVerificationPage());
+            // Get.to(RegisterProfilePage());
           },
           child: Text(
             'Don\'t have an account? Register here',
