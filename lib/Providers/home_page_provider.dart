@@ -39,7 +39,7 @@ class HomePageProvider extends GetConnect {
       }
 
       Response response = await get(
-        '$baseUrl/Profile/profile',
+        '$baseurl/Profile/profile',
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -73,7 +73,7 @@ class HomePageProvider extends GetConnect {
       }
 
       Response response = await post(
-        '$baseUrl/Profile/fetch_all_active_user',
+        '$baseurl/Profile/fetch_all_active_user',
         null,
         headers: {
           'Authorization': 'Bearer $token',

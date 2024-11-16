@@ -61,33 +61,11 @@ class UserProfileProvider extends GetConnect {
 // Benifits
   Future<BenefitsResponse?> fetchBenefits() async {
     try {
-      Response response = await get('$baseUrl/Common/all_benefits');
+      Response response = await get('$baseurl/Common/all_benefits');
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return BenefitsResponse.fromJson(response.body);
-        } else {
-          failure('Error', response.body['error']['message']);
-          return null;
-        }
-      } else {
-        failure('Error', response.body.toString());
-        return null;
-      }
-    } catch (e) {
-      failure('Error', e.toString());
-      return null;
-    }
-  }
-
-// Safety Guidelines
-  Future<SafetyGuidelinesResponse?> fetchSafetyGuidelines() async {
-    try {
-      Response response = await get('$baseUrl/Common/all_safety_guidelines');
-
-      if (response.statusCode == 200) {
-        if (response.body['error']['code'] == 0) {
-          return SafetyGuidelinesResponse.fromJson(response.body);
         } else {
           failure('Error', response.body['error']['message']);
           return null;
@@ -129,7 +107,7 @@ class UserProfileProvider extends GetConnect {
       SubGenderRequest subGenderRequest) async {
     try {
       Response response =
-          await post('$baseUrl/Common/sub_gender', subGenderRequest);
+          await post('$baseurl/Common/sub_gender', subGenderRequest);
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
@@ -158,7 +136,7 @@ class UserProfileProvider extends GetConnect {
         return null;
       }
       Response response = await post(
-        '$baseUrl/Profile/userphotos',
+        '$baseurl/Profile/userphotos',
         null,
         headers: {
           'Authorization': 'Bearer $token',

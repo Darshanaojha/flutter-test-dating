@@ -5,12 +5,12 @@ import 'package:get/get.dart';
 class FetchAllSafetyGuildlinesProvider extends GetConnect{
 
   // All Safety Guidelines
-  Future<SafetyGuideline?> fetchAllSafetyGuidelines() async {
+  Future<SafetyGuidelinesResponse?> fetchAllSafetyGuidelines() async {
     try {
-      final response = await get('$baseUrl/Common/all_safety_guidelines');
+      final response = await get('$baseurl/Common/all_safety_guidelines');
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
-          return SafetyGuideline.fromJson(response.body);
+          return SafetyGuidelinesResponse.fromJson(response.body);
         } else {
           failure('Error', response.body['error']['message']);
           return null;

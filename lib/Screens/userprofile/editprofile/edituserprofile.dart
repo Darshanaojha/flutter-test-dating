@@ -1,3 +1,7 @@
+import 'dart:math';
+
+import 'package:dating_application/Controllers/controller.dart';
+import 'package:dating_application/Models/ResponseModels/get_all_desires_model_response.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../constants.dart';
@@ -53,11 +57,31 @@ class EditProfilePageState extends State<EditProfilePage> {
     });
   }
 
+  final Controller controller = Get.put(Controller());
+
+  List<Category> categories = [];
+  RxList<Desire> desiresList = <Desire>[].obs;
+
+  Future<void> fetchDesires() async {
+    final success = await controller.fetchDesires();
+    if (success) {
+      categories = controller.categories;
+      for (var category in categories) {
+        desiresList.addAll(
+            category.desires); // Assuming `category.desire` is a List<Desire>
+      }
+      // for (var element in desiresList) {
+      //   print(element);
+      // }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     fetchData();
     loadImages();
+    fetchDesires();
   }
 
   // Custom method to load images and stop the loading spinner
@@ -311,16 +335,17 @@ class EditProfilePageState extends State<EditProfilePage> {
                                 SizedBox(height: 10),
                                 Wrap(
                                   spacing: 8.0,
-                                  children: desires
+                                  children: desiresList
                                       .map((desire) => Chip(
-                                            label: Text(desire,
+                                            label: Text(desiresList.toString(),
                                                 style: AppTextStyles.bodyText
                                                     .copyWith(
                                                         fontSize:
                                                             getResponsiveFontSize(
                                                                 0.03))),
                                             backgroundColor:
-                                                AppColors.chipColor,
+                                                const Color.fromARGB(
+                                                    255, 95, 38, 38),
                                           ))
                                       .toList(),
                                 ),

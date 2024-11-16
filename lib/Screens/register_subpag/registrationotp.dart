@@ -1,3 +1,4 @@
+import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
 import 'package:dating_application/Screens/register_subpag/register_subpage.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
@@ -148,7 +149,7 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                         foregroundColor: Colors.white,
                       ),
                       onPressed: () {
-                        Get.to(MultiStepFormPage());
+                        Get.to(NavigationBottomBar());
                         String mobileNumber = phoneNumberController.text.trim();
                         if (mobileNumber.isNotEmpty) {
                           controller.requestOtp(mobileNumber);

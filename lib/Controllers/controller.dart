@@ -1,4 +1,22 @@
+import 'package:dating_application/Models/RequestModels/change_password_request.dart';
+import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
+import 'package:dating_application/Models/ResponseModels/change_password_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/get_all_benifites_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/get_all_gender_from_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/get_all_headlines_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/get_all_saftey_guidelines_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/get_all_whoareyoulookingfor_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/subgender_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/user_upload_images_response_model.dart';
+import 'package:dating_application/Providers/change_password_provider.dart';
+import 'package:dating_application/Providers/fetch_all_desires_provider.dart';
+import 'package:dating_application/Providers/fetch_all_headlines_provider.dart';
+import 'package:dating_application/Providers/fetch_all_preferences_provider.dart';
+import 'package:dating_application/Providers/fetch_all_safety_guildlines_provider.dart';
 import 'package:dating_application/Providers/login_provider.dart';
+import 'package:dating_application/Providers/login_provider.dart';
+import 'package:dating_application/Providers/user_profile_provider.dart';
+import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 
@@ -148,7 +166,7 @@ class Controller extends GetxController {
   Future<bool> fetchDesires() async {
     try {
       categories.clear();
-      final DesiresResponse? response = await HomePageProvider().fetchDesires();
+      final DesiresResponse? response = await FetchAllDesiresProvider().fetchDesires();
       if (response != null) {
         categories.addAll(response.payload.data);
         success('success', 'successfully fetched all the desires');
@@ -193,6 +211,163 @@ class Controller extends GetxController {
         return true;
       } else {
         failure('Error', 'Error fetching all active users');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<Gender> genders = <Gender>[].obs;
+
+  Future<bool> fetchGenders() async {
+    try {
+      genders.clear();
+      GenderResponse? response = await UserProfileProvider().fetchGenders();
+      if (response != null) {
+        genders.addAll(response.payload.data);
+        success('success', 'Genders fetched successfully');
+        return true;
+      } else {
+        failure('Error', 'Error fetching the genders');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<UserPreference> preferences = <UserPreference>[].obs;
+  Future<bool> fetchPreferences() async {
+    try {
+      preferences.clear();
+      UserPreferencesResponse? response =
+          await FetchAllPreferencesProvider().fetchPreferences();
+      if (response != null) {
+        preferences.addAll(response.payload.data);
+        success('success', 'User preferences fetched successfully');
+        return true;
+      } else {
+        failure('Error', 'Error fetching the preferences');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<Benefit> benefits = <Benefit>[].obs;
+
+  Future<bool> fetchBenefits() async {
+    try {
+      benefits.clear();
+      BenefitsResponse? response = await UserProfileProvider().fetchBenefits();
+      if (response != null) {
+        benefits.addAll(response.payload.data);
+        success('success', 'Successfully fetched the benefits');
+        return true;
+      } else {
+        failure('Error', 'Failed to fetch the benefits');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<SafetyGuideline> safetyGuidelines = <SafetyGuideline>[].obs;
+
+  Future<bool> fetchSafetyGuidelines() async {
+    try {
+      safetyGuidelines.clear();
+      SafetyGuidelinesResponse? response =
+          await FetchAllSafetyGuildlinesProvider().fetchAllSafetyGuidelines();
+      if (response != null) {
+        safetyGuidelines.addAll(response.payload.data);
+        success('success', 'successfully fetched the safety guidelines');
+        return true;
+      } else {
+        failure('Error', 'Failed to fetch the safety guidelines');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<Headline> headlines = <Headline>[].obs;
+  Future<bool> fetchHeadlines() async {
+    try {
+      headlines.clear();
+      HeadlinesResponse? response =
+          await FetchAllHeadlinesProvider().fetchAllHeadlines();
+      if (response != null) {
+        headlines.addAll(response.payload.data);
+        success('success', 'successfully fetched the headlines');
+        return true;
+      } else {
+        failure('Error', 'Failed to fetch the headlines');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<SubGenderData> subGenders = <SubGenderData>[].obs;
+  Future<bool> fetchSubGender(SubGenderRequest subGenderRequest) async {
+    try {
+      subGenders.clear();
+      SubGenderResponse? response =
+          await UserProfileProvider().fetchSubGender(subGenderRequest);
+      if (response != null) {
+        subGenders.addAll(response.payload.data);
+        success('success', 'successfully fetched the sub genders');
+        return true;
+      } else {
+        failure('Error', 'Failed to fetch the sub genders');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  late UserImageData userPhotos;
+  Future<bool> fetchProfileUserPhotos() async {
+    try {
+      UserUploadImagesResponse? response =
+          await UserProfileProvider().fetchProfileUserPhotos();
+      if (response != null) {
+        userPhotos = response.payload.data;
+        success('success', 'successfully fetched the user profile photos');
+        return true;
+      } else {
+        failure('Error', 'Failed to fetch the  user profile photos');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> changePassword(ChangePasswordRequest request) async {
+    try {
+      ChangePasswordResponse? response =
+          await ChangePasswordProvider().changePassword(request);
+      if (response != null) {
+        success('success', response.payload.message);
+        return true;
+      } else {
+        failure('Error', 'Failed to change the password');
         return false;
       }
     } catch (e) {

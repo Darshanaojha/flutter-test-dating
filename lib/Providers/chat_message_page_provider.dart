@@ -13,7 +13,7 @@ class ChatMessagePageProvider extends GetConnect {
 
       if (token != null && token.isNotEmpty) {
         Response response = await post(
-          '$baseUrl/Chats/chat_history',
+          '$baseurl/Chats/chat_history',
           null,
           headers: {
             'Authorization': 'Bearer $token',

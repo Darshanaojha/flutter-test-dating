@@ -11,8 +11,8 @@ import '../constants.dart';
 class RegistrationProvider extends GetConnect {
   Future<CountryResponse?> fetchCountries() async {
     try {
-      Response response = await get('$baseUrl/Common/country');
-
+      Response response = await get('$baseurl/Common/country');
+      print(response);
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return CountryResponse.fromJson(response.body);
@@ -35,7 +35,7 @@ class RegistrationProvider extends GetConnect {
       RegistrationOTPRequest registrationOTPRequest) async {
     try {
       Response response =
-          await post('$baseUrl/Authentication/sendotp', registrationOTPRequest);
+          await post('$baseurl/Authentication/sendotp', registrationOTPRequest);
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
@@ -85,7 +85,7 @@ class RegistrationProvider extends GetConnect {
       UserRegistrationRequest userRegistrationRequest) async {
     try {
       Response response = await post(
-          '$baseUrl/Authentication/register', userRegistrationRequest);
+          '$baseurl/Authentication/register', userRegistrationRequest);
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {

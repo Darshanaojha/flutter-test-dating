@@ -1,3 +1,6 @@
+import 'package:dating_application/Controllers/controller.dart';
+import 'package:dating_application/Models/ResponseModels/get_all_country_response_model.dart';
+import 'package:dating_application/Screens/register_subpag/register_subpage.dart';
 import 'package:dating_application/Screens/register_subpag/registrationotp.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
@@ -25,20 +28,32 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
   TextEditingController confirmPasswordController = TextEditingController();
   TextEditingController cityController = TextEditingController();
 
-  List<String> countries = ["India", "USA", "UK"];
   List<String> states = ["Maharashtra", "California", "London"];
-  String? selectedCountry;
   String? selectedState;
   bool isLatLongFetched = false;
 
   late AnimationController animationController;
   late Animation<double> fadeInAnimation;
 
+  List<Country> countries = [];
+  Country? selectedCountry;
+
+  Future<void> fetchCountries() async {
+    final controller = Get.find<Controller>();
+    final success = await controller.fetchCountries();
+    if (success) {
+      setState(() {
+        countries = controller.countries;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    selectedCountry = countries[0];
     selectedState = states[0];
+
+    fetchCountries(); // local function call
 
     animationController = AnimationController(
       duration: Duration(seconds: 1),
@@ -100,7 +115,8 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
         MediaQuery.of(context).orientation == Orientation.portrait;
 
     // Calculate the responsive font size
-    double fontSize = screenSize.width * 0.03; // You can adjust this multiplier as needed
+    double fontSize =
+        screenSize.width * 0.03; // You can adjust this multiplier as needed
 
     return Scaffold(
       body: Container(
@@ -145,18 +161,28 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                             obscureText: true),
 
                         // Confirm Password Field
-                        buildTextField("Confirm Password", confirmPasswordController,
-                            fontSize, obscureText: true),
+                        buildTextField("Confirm Password",
+                            confirmPasswordController, fontSize,
+                            obscureText: true),
 
                         // Country Dropdown
-                        buildDropdown("Country", countries, selectedCountry, fontSize, (value) {
-                          setState(() {
-                            selectedCountry = value;
-                          });
-                        }),
+                        buildDropdown<Country>(
+                          "Country",
+                          countries,
+                          selectedCountry,
+                          16.0,
+                          (Country? value) {
+                            setState(() {
+                              selectedCountry = value;
+                            });
+                          },
+                          displayValue: (Country country) =>
+                              country.name, // Display country name
+                        ),
 
                         // State Dropdown
-                        buildDropdown("State", states, selectedState, fontSize, (value) {
+                        buildDropdown("State", states, selectedState, fontSize,
+                            (value) {
                           setState(() {
                             selectedState = value;
                           });
@@ -171,18 +197,25 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           child: ElevatedButton(
                             onPressed: fetchLatLong,
                             style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 14, horizontal: 30),
                               backgroundColor: AppColors.buttonColor,
                               foregroundColor: Colors.white,
                             ),
-                            child: Text("Fetch Latitude & Longitude", style: AppTextStyles.buttonText.copyWith(fontSize: fontSize)),
+                            child: Text("Fetch Latitude & Longitude",
+                                style: AppTextStyles.buttonText
+                                    .copyWith(fontSize: fontSize)),
                           ),
                         ),
 
                         // Show Latitude and Longitude only if fetched
                         if (isLatLongFetched) ...[
-                          buildTextField("Latitude", latitudeController, fontSize, enabled: false),
-                          buildTextField("Longitude", longitudeController, fontSize, enabled: false),
+                          buildTextField(
+                              "Latitude", latitudeController, fontSize,
+                              enabled: false),
+                          buildTextField(
+                              "Longitude", longitudeController, fontSize,
+                              enabled: false),
                         ],
 
                         // Submit Button
@@ -191,35 +224,44 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           onPressed: () {
                             if (formKey.currentState!.validate()) {
                               // Check if password and confirm password match
-                              if (passwordController.text != confirmPasswordController.text) {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              if (passwordController.text !=
+                                  confirmPasswordController.text) {
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(
                                   content: Text("Passwords do not match!"),
                                 ));
                                 return;
                               }
 
                               // Process form submission
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
                                 content: Text("Form submitted successfully!"),
                               ));
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 14, horizontal: 30),
                             backgroundColor: AppColors.buttonColor,
                             foregroundColor: Colors.white,
                           ),
-                          child: Text("Submit", style: AppTextStyles.buttonText.copyWith(fontSize: fontSize)),
+                          child: Text("Submit",
+                              style: AppTextStyles.buttonText
+                                  .copyWith(fontSize: fontSize)),
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            Get.to(OTPVerificationPage());
+                            Get.to(MultiStepFormPage());
                           },
                           style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 14, horizontal: 30),
                             backgroundColor: AppColors.buttonColor,
                           ),
-                          child: Text('Next', style: AppTextStyles.buttonText.copyWith(fontSize: fontSize)),
+                          child: Text('Next',
+                              style: AppTextStyles.buttonText
+                                  .copyWith(fontSize: fontSize)),
                         ),
                       ],
                     ),
@@ -252,7 +294,8 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           }
           return null;
         },
-        style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize), // Responsive font size
+        style: AppTextStyles.inputFieldText
+            .copyWith(fontSize: fontSize), // Responsive font size
         cursorColor: AppColors.textColor,
         decoration: InputDecoration(
           labelText: label,
@@ -276,22 +319,24 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     );
   }
 
-  Widget buildDropdown(
+  Widget buildDropdown<T>(
     String label,
-    List<String> items,
-    String? selectedValue,
+    List<T> items,
+    T? selectedValue,
     double fontSize,
-    Function(String?) onChanged,
-  ) {
+    Function(T?) onChanged, {
+    String Function(T)?
+    displayValue, // Helper to extract display value from items
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: DropdownButtonFormField<String>(
+      child: DropdownButtonFormField<T>(
         value: selectedValue,
-        items: items.map((String value) {
-          return DropdownMenuItem<String>(
+        items: items.map((T value) {
+          return DropdownMenuItem<T>(
             value: value,
             child: Text(
-              value,
+              displayValue != null ? displayValue(value) : value.toString(),
               style: AppTextStyles.textStyle.copyWith(fontSize: fontSize),
             ),
           );
