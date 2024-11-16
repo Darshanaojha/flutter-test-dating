@@ -1,10 +1,13 @@
+import 'package:dating_application/Screens/homepage/homepage.dart';
 import 'package:dating_application/Screens/register_subpag/register_subpage.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:fluttertoast/fluttertoast.dart'; 
+import 'package:fluttertoast/fluttertoast.dart';
+
+import '../navigationbar/navigationpage.dart'; 
 class OTPVerificationPage extends StatefulWidget {
   const OTPVerificationPage({super.key});
 
@@ -117,7 +120,7 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                     }
                     if (backEndOtp == otpController.text) {
                       success("Success", "Your OTP is verified!");
-                      Get.to(MultiStepFormPage());
+                      Get.to(HomePage());
                     } else {
                       failure("Wrong OTP", "Please try again.");
                     }
@@ -148,7 +151,7 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                         foregroundColor: Colors.white,
                       ),
                       onPressed: () {
-                        Get.to(MultiStepFormPage());
+                        Get.to(NavigationBottomBar());
                         String mobileNumber = phoneNumberController.text.trim();
                         if (mobileNumber.isNotEmpty) {
                           controller.requestOtp(mobileNumber);

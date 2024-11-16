@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dating_application/Screens/register_subpag/registrationotp.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -33,10 +34,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     final screenWidth = screenSize.width;
     final screenHeight = screenSize.height;
 
-    // Adjust text sizes, padding, and spacing dynamically based on screen size
+
     double padding = isPortrait ? 16.0 : 24.0;
     double fontSize = screenWidth < 400 ? 18 : 20;
-    //double buttonFontSize = screenWidth < 400 ? 16 : 18;
+
     double buttonHeight = screenHeight < 600 ? 48 : 56;
 
     return Scaffold(
@@ -63,15 +64,15 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             padding: EdgeInsets.all(padding),
             child: Column(
               children: [
-                // PageView to hold different steps
+
                 SizedBox(
-                  height: screenHeight * 0.75, // Adjust height dynamically
+                  height: screenHeight * 0.75, 
                   child: PageView(
                     controller:
-                        pageController, // Use the PageController instance
+                        pageController, 
                     onPageChanged: (pageIndex) {
                       setState(() {
-                        currentPage = pageIndex + 1; // Update page number
+                        currentPage = pageIndex + 1; 
                       });
                     },
                     children: [
@@ -91,18 +92,18 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     ],
                   ),
                 ),
-                // Next Button
+
                 SizedBox(height: 10),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(double.infinity, buttonHeight),
                     foregroundColor: AppColors.textColor,
-                    backgroundColor: AppColors.buttonColor, // Full width button
+                    backgroundColor: AppColors.buttonColor, 
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(40.0),
                     ),
                   ),
-                  onPressed: nextStep, // Navigate to the next step
+                  onPressed: nextStep, 
 
                   child: Text(
                     'Next',
@@ -155,15 +156,15 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
   Widget buildBirthdayStep(Size screenSize) {
-    final screenSize = MediaQuery.of(context).size; // Get screen size
+    final screenSize = MediaQuery.of(context).size; 
 
-    // Use a base font size and scale it based on the screen width
+
     double titleFontSize =
-        screenSize.width * 0.05; // 7% of screen width for title
+        screenSize.width * 0.05; 
     double subHeadingFontSize =
-        screenSize.width * 0.045; // 4.5% of screen width for subheading
+        screenSize.width * 0.045;
     double datePickerFontSize =
-        screenSize.width * 0.05; // 5% of screen width for date picker labels
+        screenSize.width * 0.05;
 
     return Card(
       elevation: 12,
@@ -175,27 +176,24 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Heading with AppTextStyles
+
             Text(
               "What is your date of birth?",
               style: AppTextStyles.titleText.copyWith(
-                fontSize: titleFontSize, // Adjust font size dynamically
+                fontSize: titleFontSize, 
               ),
             ),
             SizedBox(height: 40),
 
-            // Subheading with AppTextStyles
             Text(
               "You must be 18+ to use this app.",
               style: AppTextStyles.bodyText.copyWith(
                 color:
-                    Colors.redAccent, // This text is red, using color directly
-                fontSize: subHeadingFontSize, // Adjust font size dynamically
+                    Colors.redAccent, 
+                fontSize: subHeadingFontSize, 
               ),
             ),
             SizedBox(height: 43),
-
-            // Date Pickers Row
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -207,7 +205,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 SizedBox(width: 20),
                 Text("",
                     style: AppTextStyles
-                        .bodyText), // Empty text (with consistent styling)
+                        .bodyText), 
                 SizedBox(width: 8),
                 buildDatePicker("Month", 1, 12, selectedMonth, (value) {
                   setState(() {
@@ -217,7 +215,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 SizedBox(width: 20),
                 Text('',
                     style: AppTextStyles
-                        .bodyText), // Empty text (with consistent styling)
+                        .bodyText), 
                 SizedBox(width: 20),
                 buildDatePicker("Year", 1900, DateTime.now().year, selectedYear,
                     (value) {
@@ -238,21 +236,20 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             // ),
             SizedBox(height: 20),
 
-            // Next button with AppTextStyles.buttonText for consistent button text style
             ElevatedButton(
               onPressed: () {
                 DateTime selectedDate =
                     DateTime(selectedYear, selectedMonth, selectedDay);
                 DateTime now = DateTime.now();
                 if (now.difference(selectedDate).inDays >= 18 * 365) {
-                  // Proceed with further steps
+     
                 } else {
-                  // Show an error if the age is under 18
+          
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text(
                       'You must be at least 18 years old to proceed.',
                       style: AppTextStyles
-                          .bodyText, // Ensure the error message style is consistent
+                          .bodyText,
                     ),
                     backgroundColor: Colors.red,
                   ));
@@ -261,12 +258,12 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                 backgroundColor:
-                    AppColors.buttonColor, // Consistent button color
-                foregroundColor: AppColors.textColor, // Button text color
+                    AppColors.buttonColor,
+                foregroundColor: AppColors.textColor, 
               ),
               child: Text('Next',
                   style:
-                      AppTextStyles.buttonText), // Consistent button text style
+                      AppTextStyles.buttonText), 
             ),
           ],
         ),
@@ -276,10 +273,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
   // Step 2: Name Input
   Widget buildNameStep(Size screenSize) {
-  // Define font sizes based on screen width
-  double titleFontSize = screenSize.width * 0.05; // 8% of screen width for title
-  double labelfontSize = screenSize.width * 0.03; // 5% for label text
-  double inputTextFontSize = screenSize.width * 0.045; // 4.5% for input text font
+
+  double titleFontSize = screenSize.width * 0.05; 
+  double labelfontSize = screenSize.width * 0.03; 
+  double inputTextFontSize = screenSize.width * 0.045;
 
   return Card(
     elevation: 8,
@@ -291,17 +288,17 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Heading text with responsive font size
+       
           Text(
             "What do we call you?",
             style: AppTextStyles.titleText.copyWith(
               fontWeight: FontWeight.bold,
-              fontSize: titleFontSize, // Dynamic font size for title
+              fontSize: titleFontSize, 
             ),
           ),
           SizedBox(height: 20),
           
-          // Name input field with dynamic font size for label and text
+    
           TextField(
             onChanged: (value) {
               name = value;
@@ -309,8 +306,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             decoration: InputDecoration(
               labelText: "Your Name",
               labelStyle: AppTextStyles.labelText.copyWith(
-                fontSize: labelfontSize, // Responsive label font size
-                color: AppColors.textColor, // Consistent label color
+                fontSize: labelfontSize, 
+                color: AppColors.textColor, 
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -328,10 +325,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               ),
             ),
             style: AppTextStyles.inputFieldText.copyWith(
-              fontSize: inputTextFontSize, // Responsive text font size
+              fontSize: inputTextFontSize, 
               color: AppColors.textColor,
             ),
-            cursorColor: AppColors.cursorColor, // Consistent cursor color
+            cursorColor: AppColors.cursorColor,
           ),
         ],
       ),
@@ -343,11 +340,11 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   Widget buildGenderStep(Size screenSize) {
   List<String> genderOptions = ['Male', 'Female', 'Non-Binary'];
   Rx<int> selectedGenderIndex =
-      Rx<int>(-1); // -1 means no option is selected initially
+      Rx<int>(-1);
 
-  // Define font sizes based on screen width for responsiveness
-  double titleFontSize = screenSize.width * 0.05; // 8% of screen width for title
-  double optionfontSize = screenSize.width * 0.03; // 5% for options text
+ 
+  double titleFontSize = screenSize.width * 0.05; 
+  double optionfontSize = screenSize.width * 0.03; 
 
   return Card(
     elevation: 8,
@@ -359,18 +356,18 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Heading text with responsive font size
+      
           Text(
             "Select your gender",
             style: AppTextStyles.titleText.copyWith(
-              fontSize: titleFontSize, // Responsive font size for the heading
+              fontSize: titleFontSize,
               fontWeight: FontWeight.bold,
-              color: AppColors.textColor, // Consistent text color
+              color: AppColors.textColor, 
             ),
           ),
           SizedBox(height: 20),
 
-          // Gender options using RadioListTile
+
           Obx(() {
             return Column(
               children: List.generate(genderOptions.length, (index) {
@@ -378,8 +375,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   title: Text(
                     genderOptions[index],
                     style: AppTextStyles.bodyText.copyWith(
-                      fontSize: optionfontSize, // Responsive font size for options
-                      color: AppColors.textColor, // Consistent text color
+                      fontSize: optionfontSize, 
+                      color: AppColors.textColor, 
                     ),
                   ),
                   value: index,
@@ -387,7 +384,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   onChanged: (int? value) {
                     selectedGenderIndex.value = value ?? -1;
                   },
-                  activeColor: AppColors.buttonColor, // Consistent active color
+                  activeColor: AppColors.buttonColor,
                 );
               }),
             );
@@ -401,7 +398,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
   // Step 4: Describe Yourself (New Step)
  Widget buildBestDescribeYouStep(Size screenSize) {
-  // RxString to store the selected option
+
   RxString selectedOption = ''.obs;
 
   List<String> options = [
@@ -412,10 +409,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     'Other'
   ];
 
-  // Calculate font sizes based on screen width
-  double titleFontSize = screenSize.width * 0.05; // 8% of screen width for title
-  double descriptionfontSize = screenSize.width * 0.03; // 5% for description
-  double optionfontSize = screenSize.width * 0.03; // 5% for options text
+  double titleFontSize = screenSize.width * 0.05; 
+  double descriptionfontSize = screenSize.width * 0.03; 
+  double optionfontSize = screenSize.width * 0.03;
 
   return Card(
     elevation: 8,
@@ -427,28 +423,26 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Heading Text using responsive font size
+
           Text(
             "Which Best Describe You",
             style: AppTextStyles.titleText.copyWith(
-              fontSize: titleFontSize, // Responsive font size for title
+              fontSize: titleFontSize,
               fontWeight: FontWeight.bold,
-              color: AppColors.textColor, // Consistent text color
+              color: AppColors.textColor,
             ),
           ),
           SizedBox(height: 20),
 
-          // Description Text using responsive font size
           Text(
             "Select the option that best describes your identity.",
             style: AppTextStyles.bodyText.copyWith(
-              fontSize: descriptionfontSize, // Responsive font size for description
-              color: AppColors.textColor, // Consistent text color
+              fontSize: descriptionfontSize,
+              color: AppColors.textColor, 
             ),
           ),
           SizedBox(height: 20),
 
-          // Options using RadioListTile with responsive font size
           Obx(() {
             return Column(
               children: List.generate(options.length, (index) {
@@ -456,8 +450,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   title: Text(
                     options[index],
                     style: AppTextStyles.bodyText.copyWith(
-                      fontSize: optionfontSize, // Responsive font size for options
-                      color: AppColors.textColor, // Consistent text color
+                      fontSize: optionfontSize, 
+                      color: AppColors.textColor, 
                     ),
                   ),
                   value: options[index],
@@ -465,8 +459,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   onChanged: (String? value) {
                     selectedOption.value = value ?? '';
                   },
-                  activeColor: AppColors.buttonColor, // Consistent active color
-                  contentPadding: EdgeInsets.zero, // Clean up extra padding
+                  activeColor: AppColors.buttonColor, 
+                  contentPadding: EdgeInsets.zero,
                 );
               }),
             );
@@ -479,15 +473,12 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
 // step 5 who are you looking for
   Widget buildLookingForStep(Size screenSize) {
-  // RxList for selected options
+
   RxList<bool> selectedOptions = [false, false, false, false, false].obs;
   List<String> options = ['Men', 'Women', 'Men+MenCouple', 'Agender', 'Both'];
-
-  // Calculate font sizes based on screen width
-  double titleFontSize = screenSize.width * 0.05; // 8% of screen width for title
-  double descriptionfontSize = screenSize.width * 0.03; // 5% for description
-  double optionfontSize = screenSize.width * 0.03; // 5% for options text
-
+  double titleFontSize = screenSize.width * 0.05; 
+  double descriptionfontSize = screenSize.width * 0.03; 
+  double optionfontSize = screenSize.width * 0.03; 
   return Card(
     elevation: 8,
     shape: RoundedRectangleBorder(
@@ -498,28 +489,23 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Heading Text using responsive font size
           Text(
             "Who are you looking for?",
             style: AppTextStyles.titleText.copyWith(
-              fontSize: titleFontSize, // Responsive font size for title
+              fontSize: titleFontSize,
               fontWeight: FontWeight.bold,
-              color: AppColors.textColor, // Consistent text color
+              color: AppColors.textColor, 
             ),
           ),
           SizedBox(height: 20),
-
-          // Description Text using responsive font size
           Text(
             "Select the gender(s) you're interested in.",
             style: AppTextStyles.bodyText.copyWith(
-              fontSize: descriptionfontSize, // Responsive font size for description
-              color: AppColors.textColor, // Consistent text color
+              fontSize: descriptionfontSize, 
+              color: AppColors.textColor,
             ),
           ),
           SizedBox(height: 20),
-
-          // Checkbox options using Obx and reactive list
           Obx(() {
             return Column(
               children: List.generate(options.length, (index) {
@@ -527,17 +513,17 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   title: Text(
                     options[index],
                     style: AppTextStyles.bodyText.copyWith(
-                      fontSize: optionfontSize, // Responsive font size for options
-                      color: AppColors.textColor, // Consistent text color
+                      fontSize: optionfontSize, 
+                      color: AppColors.textColor,
                     ),
                   ),
                   value: selectedOptions[index],
                   onChanged: (bool? value) {
                     selectedOptions[index] = value ?? false;
                   },
-                  activeColor: AppColors.buttonColor, // Consistent active color
-                  checkColor: Colors.white, // Use white for check mark color
-                  contentPadding: EdgeInsets.zero, // Remove padding for a cleaner look
+                  activeColor: AppColors.buttonColor, 
+                  checkColor: Colors.white,
+                  contentPadding: EdgeInsets.zero, 
                 );
               }),
             );
@@ -576,13 +562,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       }
     }
   }
-
-  // Calculate responsive font sizes based on screen width
   double screenWidth = screenSize.width;
-  double titleFontSize = screenWidth * 0.05; // 8% of screen width for title
-  double bodyFontSize = screenWidth * 0.03;  // 3% of screen width for body text
-  double chipFontSize = screenWidth * 0.03; // 4.5% for chip text
-
+  double titleFontSize = screenWidth * 0.05; 
+  double bodyFontSize = screenWidth * 0.03;
+  double chipFontSize = screenWidth * 0.03;
   return Card(
     elevation: 8,
     shape: RoundedRectangleBorder(
@@ -594,28 +577,23 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Relationship Heading
             Text(
               "Relationship",
               style: AppTextStyles.titleText.copyWith(
-                fontSize: titleFontSize, // Responsive title font size
+                fontSize: titleFontSize,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textColor,
               ),
             ),
             SizedBox(height: 20),
-
-            // Description Text
             Text(
               "Let people know what you are into. You can add or edit desires as often as you want.",
               style: AppTextStyles.bodyText.copyWith(
-                fontSize: bodyFontSize, // Responsive body font size
+                fontSize: bodyFontSize,
                 color: AppColors.textColor,
               ),
             ),
             SizedBox(height: 20),
-
-            // Selected Status Chips
             Obx(() {
               return selectedStatus.isNotEmpty
                   ? Column(
@@ -641,7 +619,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                   backgroundColor: AppColors.buttonColor,
                                   labelStyle: TextStyle(
                                     color: Colors.white,
-                                    fontSize: chipFontSize, // Responsive font size for chips
+                                    fontSize: chipFontSize,
                                   ),
                                   onDeleted: () {
                                     int index = options.indexOf(status);
@@ -658,19 +636,15 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     )
                   : Container();
             }),
-
-            // Select Interests Heading
             Text(
               "Select your interests:",
               style: AppTextStyles.bodyText.copyWith(
-                fontSize: bodyFontSize, // Responsive font size for interest heading
+                fontSize: bodyFontSize,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textColor,
               ),
             ),
             SizedBox(height: 10),
-
-            // Interest Chips (Selectable)
             SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: Wrap(
@@ -693,7 +667,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           color: selectedOptions[index]
                               ? Colors.white
                               : AppColors.textColor,
-                          fontSize: chipFontSize, // Responsive font size for chips
+                          fontSize: chipFontSize,
                         ),
                       ),
                     ),
@@ -701,8 +675,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 }),
               ),
             ),
-
-            // Cancel Button
             Obx(() {
               return selectedStatus.isNotEmpty
                   ? Align(
@@ -740,29 +712,23 @@ Widget buildInterestStep(BuildContext context, Size screenSize) {
   RxList<String> selectedInterests = <String>[].obs;
   TextEditingController interestController = TextEditingController();
   FocusNode interestFocusNode = FocusNode();
-
-  // Check if the user has selected at least 10 interests
   bool isSelectionValid() {
     return selectedInterests.length >= 10;
   }
-
-  // Function to handle adding a new interest
   void addInterest() {
     String newInterest = interestController.text.trim();
     if (newInterest.isNotEmpty && !selectedInterests.contains(newInterest)) {
-      selectedInterests.add(newInterest); // Add the new interest to the list
-      interestController.clear(); // Clear the input field after adding
-      interestFocusNode.unfocus(); // Unfocus the text field to close the keyboard
+      selectedInterests.add(newInterest);
+      interestController.clear();
+      interestFocusNode.unfocus();
     }
   }
-
-  // Calculate responsive font sizes based on screen width
   double screenWidth = screenSize.width;
-  double titleFontSize = screenWidth * 0.05; // 8% of screen width for title
-  double bodyFontSize = screenWidth * 0.03;  // 5% of screen width for body text
-  double chipFontSize = screenWidth * 0.045; // 4.5% for chip text
-  double inputFontSize = screenWidth * 0.045; // 4.5% for input text
-  double buttonFontSize = screenWidth * 0.045; // 4.5% for button text
+  double titleFontSize = screenWidth * 0.05;
+  double bodyFontSize = screenWidth * 0.03;  
+  double chipFontSize = screenWidth * 0.045; 
+  double inputFontSize = screenWidth * 0.045; 
+  double buttonFontSize = screenWidth * 0.045; 
 
   return Card(
     elevation: 8,
@@ -780,22 +746,20 @@ Widget buildInterestStep(BuildContext context, Size screenSize) {
             Text(
               "What are your interests?",
               style: AppTextStyles.titleText.copyWith(
-                fontSize: titleFontSize, // Responsive title font size
+                fontSize: titleFontSize, 
                 fontWeight: FontWeight.bold,
-                color: AppColors.textColor, // Consistent text color from AppColors
+                color: AppColors.textColor,
               ),
             ),
             SizedBox(height: 20),
             Text(
               "Enter your interests one by one. Select at least 10.",
               style: AppTextStyles.bodyText.copyWith(
-                fontSize: bodyFontSize, // Responsive body font size
-                color: AppColors.textColor.withOpacity(0.7), // Consistent text color
+                fontSize: bodyFontSize,
+                color: AppColors.textColor.withOpacity(0.7),
               ),
             ),
             SizedBox(height: 20),
-
-            // Input field to add a new interest
             TextField(
               controller: interestController,
               focusNode: interestFocusNode,
@@ -807,7 +771,7 @@ Widget buildInterestStep(BuildContext context, Size screenSize) {
                   borderSide: BorderSide(color: AppColors.textColor),
                 ),
                 filled: true,
-                fillColor: AppColors.formFieldColor, // Background color for the input
+                fillColor: AppColors.formFieldColor,
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide(color: AppColors.textColor),
@@ -817,32 +781,28 @@ Widget buildInterestStep(BuildContext context, Size screenSize) {
                   borderSide: BorderSide(color: AppColors.textColor),
                 ),
               ),
-              style: TextStyle(color: AppColors.textColor, fontSize: inputFontSize), // Responsive input text
-              cursorColor: AppColors.textColor, // Cursor color
+              style: TextStyle(color: AppColors.textColor, fontSize: inputFontSize),
+              cursorColor: AppColors.textColor,
               onSubmitted: (_) {
-                addInterest(); // Add interest when the "Enter" key is pressed
+                addInterest();
               },
             ),
             SizedBox(height: 20),
-
-            // Button to add the interest to the list
             ElevatedButton(
               onPressed: addInterest,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.buttonColor, // Consistent button color
+                backgroundColor: AppColors.buttonColor,
                 foregroundColor: AppColors.textColor,
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
               child: Text(
                 'Add Interest',
                 style: AppTextStyles.buttonText.copyWith(
-                  fontSize: buttonFontSize, // Responsive button font size
+                  fontSize: buttonFontSize,
                 ),
               ),
             ),
             SizedBox(height: 20),
-
-            // Reactive display of selected interests
             Obx(() {
               return selectedInterests.isNotEmpty
                   ? Column(
@@ -851,7 +811,7 @@ Widget buildInterestStep(BuildContext context, Size screenSize) {
                         Text(
                           "Your Interest:",
                           style: AppTextStyles.bodyText.copyWith(
-                            fontSize: bodyFontSize, // Responsive font size for selected interests heading
+                            fontSize: bodyFontSize,
                             fontWeight: FontWeight.bold,
                             color: AppColors.textColor,
                           ),
@@ -865,13 +825,13 @@ Widget buildInterestStep(BuildContext context, Size screenSize) {
                             children: selectedInterests.map((interest) {
                               return Chip(
                                 label: Text(interest),
-                                backgroundColor: AppColors.buttonColor, // Consistent chip background color
+                                backgroundColor: AppColors.buttonColor,
                                 labelStyle: TextStyle(
                                   color: Colors.white,
-                                  fontSize: chipFontSize, // Responsive font size for chips
+                                  fontSize: chipFontSize,
                                 ),
                                 onDeleted: () {
-                                  selectedInterests.remove(interest); // Remove the interest from the list
+                                  selectedInterests.remove(interest);  
                                 },
                               );
                             }).toList(),
@@ -880,26 +840,23 @@ Widget buildInterestStep(BuildContext context, Size screenSize) {
                         SizedBox(height: 20),
                       ],
                     )
-                  : Container();
+                  : Container();            
             }),
-
-            // Optionally, add a "Continue" button based on the selected interests count
             Obx(() {
               return isSelectionValid()
                   ? Align(
                       alignment: Alignment.centerRight,
                       child: ElevatedButton(
                         onPressed: () {
-                          // Proceed with the next action (e.g., navigate to the next screen)
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.acceptColor, // Consistent button color for continue
+                          backgroundColor: AppColors.acceptColor, 
                           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                         ),
                         child: Text(
                           'Continue',
                           style: AppTextStyles.buttonText.copyWith(
-                            fontSize: buttonFontSize, // Responsive button font size
+                            fontSize: buttonFontSize,
                             color: AppColors.textColor,
                           ),
                         ),
@@ -917,21 +874,16 @@ Widget buildInterestStep(BuildContext context, Size screenSize) {
 
 // step 8
 Widget buildUserDescriptionStep(Size screenSize) {
-  // Reactive variable for storing the description text
   RxString userDescription = ''.obs;
-
-  // Function to handle description change
   void onDescriptionChanged(String value) {
     userDescription.value = value;
   }
 
   double screenWidth = screenSize.width;
-
-  // Calculate responsive font sizes based on screen width
-  double titleFontSize = screenWidth * 0.05; // 8% of screen width for title
-  double bodyFontSize = screenWidth * 0.03;  // 5% of screen width for body text
-  double inputFontSize = screenWidth * 0.025; // 4.5% for input text
-  double buttonFontSize = screenWidth * 0.045; // 4.5% for button text (if enabled)
+  double titleFontSize = screenWidth * 0.05;
+  double bodyFontSize = screenWidth * 0.03;
+  double inputFontSize = screenWidth * 0.025;
+  double buttonFontSize = screenWidth * 0.045; 
 
   return Card(
     elevation: 8,
@@ -944,30 +896,27 @@ Widget buildUserDescriptionStep(Size screenSize) {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Title
             Text(
               "Tell Us About You",
               style: AppTextStyles.titleText.copyWith(
-                fontSize: titleFontSize, // Responsive title font size
+                fontSize: titleFontSize,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textColor, // Consistent text color
+                color: AppColors.textColor,
               ),
             ),
             SizedBox(height: 20),
             Text(
               "Describe yourself in 250 words or less.",
               style: AppTextStyles.bodyText.copyWith(
-                fontSize: bodyFontSize, // Responsive body font size
+                fontSize: bodyFontSize, 
                 color: AppColors.textColor,
               ),
             ),
             SizedBox(height: 20),
-
-            // Description input field
             TextField(
               onChanged: onDescriptionChanged,
               maxLength: 250,
-              maxLines: 6, // Allow the user to input a multiline description
+              maxLines: 6,
               decoration: InputDecoration(
                 labelText: "Your Description",
                 labelStyle: TextStyle(color: AppColors.textColor),
@@ -976,7 +925,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
                   borderSide: BorderSide(color: AppColors.textColor),
                 ),
                 filled: true,
-                fillColor: AppColors.formFieldColor, // Consistent form field color
+                fillColor: AppColors.formFieldColor,
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide(color: AppColors.textColor),
@@ -986,18 +935,16 @@ Widget buildUserDescriptionStep(Size screenSize) {
                   borderSide: BorderSide(color: AppColors.textColor),
                 ),
               ),
-              style: TextStyle(color: AppColors.textColor, fontSize: inputFontSize), // Responsive input font size
-              cursorColor: AppColors.cursorColor, // Consistent cursor color
+              style: TextStyle(color: AppColors.textColor, fontSize: inputFontSize), 
+              cursorColor: AppColors.cursorColor, 
               textInputAction: TextInputAction.done,
             ),
             SizedBox(height: 20),
-
-            // Character count display
             Obx(() {
               return Text(
                 '${userDescription.value.length} / 250 characters',
                 style: AppTextStyles.bodyText.copyWith(
-                  fontSize: bodyFontSize, // Responsive body font size for character count
+                  fontSize: bodyFontSize,
                   color: userDescription.value.length > 250
                       ? Colors.red
                       : AppColors.textColor,
@@ -1040,17 +987,15 @@ Widget buildUserDescriptionStep(Size screenSize) {
  Widget buildPhotosOfUser(Size screenSize) {
   RxList<File?> images = RxList<File?>();
 
-  // Function to pick an image from camera or gallery
   Future<void> pickImage(int index, ImageSource source) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: source);
 
     if (pickedFile != null) {
-      images[index] = File(pickedFile.path); // Update the image at the specified index
+      images[index] = File(pickedFile.path);
     }
   }
 
-  // Request camera permission
   Future<void> requestCameraPermission() async {
     var status = await Permission.camera.request();
     if (status.isDenied) {
@@ -1058,7 +1003,6 @@ Widget buildUserDescriptionStep(Size screenSize) {
     }
   }
 
-  // Request gallery permission
   Future<void> requestGalleryPermission() async {
     var status = await Permission.photos.request();
     if (status.isDenied) {
@@ -1067,17 +1011,16 @@ Widget buildUserDescriptionStep(Size screenSize) {
   }
 
   double screenWidth = screenSize.width;
-  
-  // Calculate responsive font sizes based on screen width
-  double iconSize = screenWidth * 0.12; // 12% of screen width for icon size in the button
-  double dialogButtonFontSize = screenWidth * 0.04; // 4% of screen width for button text in the dialog
-  double imageContainerSize = screenWidth * 0.4; // 40% of the screen width for image container size
+
+  double iconSize = screenWidth * 0.12;
+  double dialogButtonFontSize = screenWidth * 0.04;
+  double imageContainerSize = screenWidth * 0.4;
 
   return Scaffold(
     body: Obx(() {
       return GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, // 2 images per row
+          crossAxisCount: 2, 
           crossAxisSpacing: 20.0,
           mainAxisSpacing: 40.0,
         ),
@@ -1087,7 +1030,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
             return Center(
               child: ElevatedButton(
                 onPressed: () {
-                  images.add(null); // Add a new null image slot
+                  images.add(null); 
                 },
                 child: Icon(
                   Icons.add_a_photo,
@@ -1115,7 +1058,6 @@ Widget buildUserDescriptionStep(Size screenSize) {
                     child: images[index] != null
                         ? GestureDetector(
                             onTap: () {
-                              // Show dialog when the image is tapped
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
@@ -1151,7 +1093,6 @@ Widget buildUserDescriptionStep(Size screenSize) {
                           )
                         : GestureDetector(
                             onTap: () {
-                              // Show dialog when the placeholder icon is tapped
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
@@ -1200,17 +1141,13 @@ Widget buildUserDescriptionStep(Size screenSize) {
 
   // step 10
   Widget buildPermissionRequestStep(Size screenSize) {
-  // Observable to track the user's responses to permissions
   RxBool notificationGranted = false.obs;
   RxBool locationGranted = false.obs;
-
-  // Function to show dialog
   Future<void> showPermissionDialog(
       BuildContext context, String permissionType) async {
-    // Show the dialog to confirm permission action (Accept / Deny)
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // Prevent closing dialog by tapping outside
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
@@ -1239,32 +1176,30 @@ Widget buildUserDescriptionStep(Size screenSize) {
                 } else if (permissionType == 'location') {
                   locationGranted.value = false;
                 }
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop(); 
               },
               child: Text(
                 'Deny',
                 style: AppTextStyles.bodyText.copyWith(
                   color: Colors.red,
-                  fontSize: screenSize.width * 0.04, // Responsive font size
+                  fontSize: screenSize.width * 0.04,
                 ),
               ),
             ),
-            // Accept button
             TextButton(
               onPressed: () {
-                // Update the corresponding permission as granted
                 if (permissionType == 'notification') {
                   notificationGranted.value = true;
                 } else if (permissionType == 'location') {
                   locationGranted.value = true;
                 }
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
               child: Text(
                 'Accept',
                 style: AppTextStyles.bodyText.copyWith(
                   color: Colors.green,
-                  fontSize: screenSize.width * 0.04, // Responsive font size
+                  fontSize: screenSize.width * 0.04, 
                 ),
               ),
             ),
@@ -1274,12 +1209,10 @@ Widget buildUserDescriptionStep(Size screenSize) {
     );
   }
 
-  // Calculate responsive font size for various text elements
-  double fontSize = screenSize.width * 0.03; // Base font size (5% of screen width)
+  double fontSize = screenSize.width * 0.03; 
 
   return Column(
     children: [
-      // Heading Card
       Card(
         elevation: 8,
         shape: RoundedRectangleBorder(
@@ -1298,12 +1231,10 @@ Widget buildUserDescriptionStep(Size screenSize) {
                 ),
               ),
               SizedBox(height: 10),
-
-              // Additional text after heading
               Text(
                 "Do we have permission to access the following?",
                 style: AppTextStyles.bodyText.copyWith(
-                  fontSize: fontSize - 2, // Slightly smaller font size
+                  fontSize: fontSize - 2,
                   color: AppColors.textColor,
                 ),
               ),
@@ -1312,11 +1243,8 @@ Widget buildUserDescriptionStep(Size screenSize) {
         ),
       ),
       SizedBox(height: 20),
-
-      // Notification Permission Section
       GestureDetector(
         onTap: () {
-          // Show dialog when the card is tapped
           showPermissionDialog(context, 'notification');
         },
         child: Card(
@@ -1328,29 +1256,26 @@ Widget buildUserDescriptionStep(Size screenSize) {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                // Notification Icon
                 Icon(
                   Icons.notifications,
-                  color: AppColors.iconColor, // Consistent icon color
-                  size: fontSize, // Responsive icon size
+                  color: AppColors.iconColor,
+                  size: fontSize,
                 ),
                 SizedBox(width: 10),
-                // Notification Text
                 Expanded(
                   child: Text(
                     "We need permission to send you notifications.",
                     style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2, // Slightly smaller font size
+                      fontSize: fontSize - 2,
                       color: AppColors.textColor,
                     ),
                   ),
                 ),
-                // Grant/Deny Status (text)
                 Obx(() {
                   return Text(
                     notificationGranted.value ? 'Granted' : 'Tap to Grant',
                     style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2, // Slightly smaller font size
+                      fontSize: fontSize - 2,
                       color: notificationGranted.value
                           ? AppColors.buttonColor
                           : AppColors.formFieldColor,
@@ -1363,11 +1288,8 @@ Widget buildUserDescriptionStep(Size screenSize) {
         ),
       ),
       SizedBox(height: 20),
-
-      // Location Permission Section
       GestureDetector(
         onTap: () {
-          // Show dialog when the card is tapped
           showPermissionDialog(context, 'location');
         },
         child: Card(
@@ -1379,29 +1301,26 @@ Widget buildUserDescriptionStep(Size screenSize) {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                // Location Icon
                 Icon(
                   Icons.location_on,
-                  color: AppColors.iconColor, // Consistent icon color
-                  size: fontSize, // Responsive icon size
+                  color: AppColors.iconColor,
+                  size: fontSize, 
                 ),
                 SizedBox(width: 10),
-                // Location Text
                 Expanded(
                   child: Text(
                     "We need permission to access your location.",
                     style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2, // Slightly smaller font size
+                      fontSize: fontSize - 2,
                       color: AppColors.textColor,
                     ),
                   ),
                 ),
-                // Grant/Deny Status (text)
                 Obx(() {
                   return Text(
                     locationGranted.value ? 'Granted' : 'Tap to Grant',
                     style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2, // Slightly smaller font size
+                      fontSize: fontSize - 2,
                       color: locationGranted.value
                           ? AppColors.buttonColor
                           : AppColors.formFieldColor,
@@ -1445,40 +1364,35 @@ Widget buildUserDescriptionStep(Size screenSize) {
 
 // step: 11
   Widget buildPaymentWidget(Size screenSize) {
-  // Observable to track the selected plan
   RxString selectedPlan = 'None'.obs;
-  RxString selectedService = 'None'.obs; // Default to 'None' for placeholder text
+  RxString selectedService = 'None'.obs;
+  double fontSize = screenSize.width * 0.03; 
 
-  // Calculate responsive font size based on screen width
-  double fontSize = screenSize.width * 0.03; // Base font size (can adjust 0.05 for different scaling)
-
-  // Function to show confirmation dialog
   Future<void> showPaymentConfirmationDialog(
       BuildContext context, String planType, String amount) async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // Prevent closing dialog by tapping outside
+      barrierDismissible: false, 
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
             "Confirm Subscription",
             style: AppTextStyles.titleText.copyWith(
               fontSize: fontSize,
-              color: AppColors.textColor, // Consistent text color
+              color: AppColors.textColor,
             ),
           ),
           content: Text(
             "Do you want to subscribe to the $planType plan for $amount?",
             style: AppTextStyles.bodyText.copyWith(
-              fontSize: fontSize - 2, // Slightly smaller for content text
-              color: AppColors.textColor, // Consistent text color
+              fontSize: fontSize - 2,
+              color: AppColors.textColor, 
             ),
           ),
           actions: <Widget>[
-            // Deny button
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
               child: Text(
                 'Cancel',
@@ -1488,12 +1402,10 @@ Widget buildUserDescriptionStep(Size screenSize) {
                 ),
               ),
             ),
-            // Accept button
             TextButton(
               onPressed: () {
-                // Update the selected plan and close the dialog
                 selectedPlan.value = planType;
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
               child: Text(
                 'Subscribe',
@@ -1544,7 +1456,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
                     hint: Text(
                       "Click to know what we offer",
                       style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize - 6, // Slightly smaller font for the hint
+                        fontSize: fontSize - 6,
                         color: AppColors.textColor.withOpacity(0.6),
                       ),
                     ),
@@ -1552,8 +1464,6 @@ Widget buildUserDescriptionStep(Size screenSize) {
                     isExpanded: true,
                     onChanged: (String? newValue) {
                       if (newValue != null) {
-                        // Do nothing on selection
-                        // Effectively disables the change in selection
                       }
                     },
                     items: <String>[
@@ -1567,7 +1477,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
                         child: Text(
                           value,
                           style: AppTextStyles.bodyText.copyWith(
-                            fontSize: fontSize - 6, // Slightly smaller font for dropdown items
+                            fontSize: fontSize - 6,
                             color: AppColors.textColor,
                           ),
                         ),
@@ -1601,7 +1511,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
                 Text(
                   "Choose a plan that suits you!",
                   style: AppTextStyles.bodyText.copyWith(
-                    fontSize: fontSize - 2, // Slightly smaller font for description
+                    fontSize: fontSize - 2,
                     color: AppColors.textColor,
                   ),
                 ),
@@ -1752,8 +1662,6 @@ Widget buildUserDescriptionStep(Size screenSize) {
           ),
         ),
         SizedBox(height: 20),
-
-        // Yearly Plan Section
         GestureDetector(
           onTap: () {
             showPaymentConfirmationDialog(context, 'Yearly', '₹999/year');
@@ -1825,13 +1733,10 @@ Widget buildUserDescriptionStep(Size screenSize) {
           ),
         ),
         SizedBox(height: 20),
-
-        // Proceed Button (only enabled if a plan is selected)
         Obx(() {
           return ElevatedButton(
             onPressed: selectedPlan.value != 'None'
                 ? () {
-                    // Proceed with payment logic here
                     print("Selected Plan: ${selectedPlan.value}");
                   }
                 : null, // Disable button if no plan is selected
@@ -2364,7 +2269,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
             ),
             TextButton(
                 onPressed: () {
-                  Get.to(NavigationBottomBar());
+                  Get.to(OTPVerificationPage());
                 },
                 child: Text('Next'))
           ],
