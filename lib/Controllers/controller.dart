@@ -34,6 +34,7 @@ import '../Models/ResponseModels/user_login_response_model.dart';
 import '../Models/ResponseModels/user_registration_response_model.dart';
 import '../Providers/chat_message_page_provider.dart';
 import '../Providers/fetch_all_countries_provider.dart';
+import '../Providers/fetch_sub_genders_provider.dart';
 import '../Providers/home_page_provider.dart';
 import '../Providers/registration_provider.dart';
 import '../constants.dart';
@@ -167,7 +168,8 @@ class Controller extends GetxController {
   Future<bool> fetchDesires() async {
     try {
       categories.clear();
-      final DesiresResponse? response = await FetchAllDesiresProvider().fetchDesires();
+      final DesiresResponse? response =
+          await FetchAllDesiresProvider().fetchDesires();
       if (response != null) {
         categories.addAll(response.payload.data);
         success('success', 'successfully fetched all the desires');
@@ -326,9 +328,10 @@ class Controller extends GetxController {
     try {
       subGenders.clear();
       SubGenderResponse? response =
-          await UserProfileProvider().fetchSubGender(subGenderRequest);
+          await FetchSubGendersProvider().getSubGenders(subGenderRequest);
       if (response != null) {
         subGenders.addAll(response.payload.data);
+
         success('success', 'successfully fetched the sub genders');
         return true;
       } else {

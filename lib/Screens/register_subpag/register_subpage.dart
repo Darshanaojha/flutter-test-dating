@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../Controllers/controller.dart';
+import '../../Models/RequestModels/subgender_request_model.dart';
 import '../../Models/ResponseModels/get_all_gender_from_response_model.dart';
 import '../navigationbar/navigationpage.dart';
 
@@ -34,6 +35,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
   RxList<bool> desireSelectedOptions = <bool>[].obs;
   RxList<String> selectedStatus = <String>[].obs;
+  RxList<String> genderIds = <String>[].obs;
 
   @override
   void initState() {
@@ -48,6 +50,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     await controller.fetchGenders();
     await controller.fetchHeadlines();
     await controller.fetchDesires();
+    genderIds.addAll(controller.genders.map((gender) => gender.id));
+    for (String genderId in genderIds) {
+      await controller.fetchSubGender(SubGenderRequest(genderId: genderId));
+    }
 
     preferencesSelectedOptions.value =
         List<bool>.filled(controller.preferences.length, false);
@@ -415,20 +421,26 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
   // Step 4: Describe Yourself (New Step)
-  Widget buildBestDescribeYouStep(Size screenSize) {
-    RxString selectedOption = ''.obs;
+ Widget buildBestDescribeYouStep(Size screenSize) {
+  genderIds.addAll(controller.genders.map((gender) => gender.id));
 
-    List<String> options = [
-      'Pansexual',
-      'Polysexual',
-      'Bisexual',
-      'Asexual',
-      'Other'
-    ];
+  RxList<String> options = <String>[].obs; 
 
-    double titleFontSize = screenSize.width * 0.05;
-    double descriptionfontSize = screenSize.width * 0.03;
-    double optionfontSize = screenSize.width * 0.03;
+  options.assignAll(controller.subGenders.map((subGender) => subGender.title));
+
+
+  double titleFontSize = screenSize.width * 0.05;
+  double descriptionFontSize = screenSize.width * 0.03;
+  double optionFontSize = screenSize.width * 0.03;
+
+  RxString selectedOption = ''.obs;
+
+  return Obx(() {
+    if (controller.subGenders.isEmpty) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    }
 
     return Card(
       elevation: 8,
@@ -456,38 +468,38 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   ? controller.headlines[3].description
                   : "",
               style: AppTextStyles.bodyText.copyWith(
-                fontSize: descriptionfontSize,
+                fontSize: descriptionFontSize,
                 color: AppColors.textColor,
               ),
             ),
             SizedBox(height: 20),
-            Obx(() {
-              return Column(
-                children: List.generate(options.length, (index) {
-                  return RadioListTile<String>(
-                    title: Text(
-                      options[index],
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: optionfontSize,
-                        color: AppColors.textColor,
-                      ),
+            Column(
+              children: List.generate(options.length, (index) {
+                return RadioListTile<String>(
+                  title: Text(
+                    options[index],
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: optionFontSize,
+                      color: AppColors.textColor,
                     ),
-                    value: options[index],
-                    groupValue: selectedOption.value,
-                    onChanged: (String? value) {
-                      selectedOption.value = value ?? '';
-                    },
-                    activeColor: AppColors.buttonColor,
-                    contentPadding: EdgeInsets.zero,
-                  );
-                }),
-              );
-            }),
+                  ),
+                  value: options[index],
+                  groupValue: selectedOption.value,
+                  onChanged: (String? value) {
+                    selectedOption.value = value ?? '';
+                  },
+                  activeColor: AppColors.buttonColor,
+                  contentPadding: EdgeInsets.zero,
+                );
+              }),
+            ),
           ],
         ),
       ),
     );
-  }
+  });
+}
+
 
 // step 5 who are you looking for
   Widget buildLookingForStep(Size screenSize) {
@@ -574,180 +586,185 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
 // Step 6: Gender Identity Selection
-Widget buildRelationshipStatusInterestStep(BuildContext context, Size screenSize) {
-  final relationshipCategory = controller.categories
-      .firstWhere(
-        (category) => category.category == 'Relationship',
-        orElse: () => Category(category: 'Relationship', desires: []), 
-      );
+  Widget buildRelationshipStatusInterestStep(
+      BuildContext context, Size screenSize) {
+    final relationshipCategory = controller.categories.firstWhere(
+      (category) => category.category == 'Relationship',
+      orElse: () => Category(category: 'Relationship', desires: []),
+    );
 
-  final kinksCategory = controller.categories
-      .firstWhere(
-        (category) => category.category == 'Kinks',
-        orElse: () => Category(category: 'Kinks', desires: []), 
-      );
+    final kinksCategory = controller.categories.firstWhere(
+      (category) => category.category == 'Kinks',
+      orElse: () => Category(category: 'Kinks', desires: []),
+    );
 
-  List<String> options = [
-    ...relationshipCategory.desires.map((desire) => desire.title), 
-    ...kinksCategory.desires.map((desire) => desire.title)
-  ];
+    List<String> options = [
+      ...relationshipCategory.desires.map((desire) => desire.title),
+      ...kinksCategory.desires.map((desire) => desire.title)
+    ];
 
-  RxList<bool> selectedOptions = List.filled(options.length, false).obs;
-  RxList<String> selectedStatus = <String>[].obs;
+    RxList<bool> selectedOptions = List.filled(options.length, false).obs;
+    RxList<String> selectedStatus = <String>[].obs;
 
-  void updateSelectedStatus() {
-    selectedStatus.clear();
-    for (int i = 0; i < selectedOptions.length; i++) {
-      if (selectedOptions[i]) {
-        selectedStatus.add(options[i]);
+    void updateSelectedStatus() {
+      selectedStatus.clear();
+      for (int i = 0; i < selectedOptions.length; i++) {
+        if (selectedOptions[i]) {
+          selectedStatus.add(options[i]);
+        }
       }
     }
-  }
 
-  double screenWidth = screenSize.width;
-  double titleFontSize = screenWidth * 0.05; 
-  double bodyFontSize = screenWidth * 0.03;
-  double chipFontSize = screenWidth * 0.03;
+    double screenWidth = screenSize.width;
+    double titleFontSize = screenWidth * 0.05;
+    double bodyFontSize = screenWidth * 0.03;
+    double chipFontSize = screenWidth * 0.03;
 
-  return Card(
-    elevation: 8,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              controller.headlines.isNotEmpty ? controller.headlines[5].title : "Loading Title...",
-              style: AppTextStyles.titleText.copyWith(
-                fontSize: titleFontSize,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textColor,
+    return Card(
+      elevation: 8,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                controller.headlines.isNotEmpty
+                    ? controller.headlines[5].title
+                    : "Loading Title...",
+                style: AppTextStyles.titleText.copyWith(
+                  fontSize: titleFontSize,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textColor,
+                ),
               ),
-            ),
-            SizedBox(height: 20),
-            Text(
-              controller.headlines.isNotEmpty ? controller.headlines[5].description : "",
-              style: AppTextStyles.bodyText.copyWith(
-                fontSize: bodyFontSize,
-                color: AppColors.textColor,
+              SizedBox(height: 20),
+              Text(
+                controller.headlines.isNotEmpty
+                    ? controller.headlines[5].description
+                    : "",
+                style: AppTextStyles.bodyText.copyWith(
+                  fontSize: bodyFontSize,
+                  color: AppColors.textColor,
+                ),
               ),
-            ),
-            SizedBox(height: 20),
-            Obx(() {
-              return selectedStatus.isNotEmpty
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "You selected:",
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: bodyFontSize,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textColor,
+              SizedBox(height: 20),
+              Obx(() {
+                return selectedStatus.isNotEmpty
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "You selected:",
+                            style: AppTextStyles.bodyText.copyWith(
+                              fontSize: bodyFontSize,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textColor,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 10),
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: selectedStatus.map((status) {
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
-                                child: Chip(
-                                  label: Text(status),
-                                  backgroundColor: AppColors.buttonColor,
-                                  labelStyle: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: chipFontSize,
+                          SizedBox(height: 10),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: selectedStatus.map((status) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 8.0),
+                                  child: Chip(
+                                    label: Text(status),
+                                    backgroundColor: AppColors.buttonColor,
+                                    labelStyle: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: chipFontSize,
+                                    ),
+                                    onDeleted: () {
+                                      int index = options.indexOf(status);
+                                      selectedOptions[index] = false;
+                                      updateSelectedStatus();
+                                    },
                                   ),
-                                  onDeleted: () {
-                                    int index = options.indexOf(status);
-                                    selectedOptions[index] = false;
-                                    updateSelectedStatus();
-                                  },
-                                ),
-                              );
-                            }).toList(),
+                                );
+                              }).toList(),
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 20),
-                      ],
-                    )
-                  : Container();
-            }),
-            Text(
-              "Select your interests:",
-              style: AppTextStyles.bodyText.copyWith(
-                fontSize: bodyFontSize,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textColor,
+                          SizedBox(height: 20),
+                        ],
+                      )
+                    : Container();
+              }),
+              Text(
+                "Select your interests:",
+                style: AppTextStyles.bodyText.copyWith(
+                  fontSize: bodyFontSize,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textColor,
+                ),
               ),
-            ),
-            SizedBox(height: 10),
-            SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: List.generate(options.length, (index) {
-                  return GestureDetector(
-                    onTap: () {
-                      selectedOptions[index] = !selectedOptions[index];
-                      updateSelectedStatus();
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Chip(
-                        label: Text(options[index]),
-                        backgroundColor: selectedOptions[index]
-                            ? AppColors.buttonColor
-                            : AppColors.formFieldColor,
-                        labelStyle: TextStyle(
-                          color: selectedOptions[index]
-                              ? Colors.white
-                              : AppColors.textColor,
-                          fontSize: chipFontSize,
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            ),
-            Obx(() {
-              return selectedStatus.isNotEmpty
-                  ? Align(
-                      alignment: Alignment.centerRight,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          selectedOptions.value = List.filled(options.length, false);
-                          updateSelectedStatus();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.deniedColor,
-                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        ),
-                        child: Text(
-                          'Cancel',
-                          style: AppTextStyles.buttonText.copyWith(
-                            fontSize: AppTextStyles.buttonSize,
-                            color: AppColors.textColor,
+              SizedBox(height: 10),
+              SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: List.generate(options.length, (index) {
+                    return GestureDetector(
+                      onTap: () {
+                        selectedOptions[index] = !selectedOptions[index];
+                        updateSelectedStatus();
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Chip(
+                          label: Text(options[index]),
+                          backgroundColor: selectedOptions[index]
+                              ? AppColors.buttonColor
+                              : AppColors.formFieldColor,
+                          labelStyle: TextStyle(
+                            color: selectedOptions[index]
+                                ? Colors.white
+                                : AppColors.textColor,
+                            fontSize: chipFontSize,
                           ),
                         ),
                       ),
-                    )
-                  : Container();
-            }),
-          ],
+                    );
+                  }),
+                ),
+              ),
+              Obx(() {
+                return selectedStatus.isNotEmpty
+                    ? Align(
+                        alignment: Alignment.centerRight,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            selectedOptions.value =
+                                List.filled(options.length, false);
+                            updateSelectedStatus();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.deniedColor,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 10),
+                          ),
+                          child: Text(
+                            'Cancel',
+                            style: AppTextStyles.buttonText.copyWith(
+                              fontSize: AppTextStyles.buttonSize,
+                              color: AppColors.textColor,
+                            ),
+                          ),
+                        ),
+                      )
+                    : Container();
+              }),
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
 // step 7
   Widget buildInterestStep(BuildContext context, Size screenSize) {

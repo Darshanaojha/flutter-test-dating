@@ -11,7 +11,7 @@ class SubGenderRequest {
   // Factory constructor to create SubGenderRequest from JSON
   factory SubGenderRequest.fromJson(Map<String, dynamic> json) {
     String genderId =
-        json['gender_id'] ?? '0'; // Default to 0 if 'gender_id' is not present
+        json["gender_id"] ?? '0'; // Default to 0 if 'gender_id' is not present
 
     // Validate genderId
     validateGenderId(genderId);
@@ -24,7 +24,7 @@ class SubGenderRequest {
   // Method to convert SubGenderRequest object to JSON
   Map<String, dynamic> toJson() {
     return {
-      'gender_id': genderId,
+      "gender_id": genderId,
     };
   }
 
