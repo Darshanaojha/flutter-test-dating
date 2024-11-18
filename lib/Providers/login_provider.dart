@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../Controllers/controller.dart';
 import '../Models/RequestModels/forget_password_request_model.dart';
 import '../Models/RequestModels/forget_password_verification_request_model.dart';
 import '../Models/RequestModels/user_login_request_model.dart';
@@ -9,9 +10,10 @@ import '../constants.dart';
 import 'package:get/get_connect/connect.dart';
 
 class LoginProvider extends GetConnect {
-  // Reset Password for Forget Password using OTP
-  Future<ForgetPasswordResponse?> getOtp(
+ Controller controller= Get.find();
+  Future<ForgetPasswordResponse?> getOtpForgetPassword(
       ForgetPasswordRequest forgetPasswordRequest) async {
+        Get.snackbar('', controller.forgetPasswordRequest.email);
     try {
       Response response = await post(
         "$baseurl/Profile/forget_password",

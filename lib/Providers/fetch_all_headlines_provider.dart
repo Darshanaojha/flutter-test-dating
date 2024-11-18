@@ -4,10 +4,9 @@ import 'package:get/get.dart';
 
 class FetchAllHeadlinesProvider extends GetConnect{
 
-  // All Headlines
   Future<HeadlinesResponse?> fetchAllHeadlines() async {
     try {
-      final response = await get('$baseUrl/Common/all_headlines');
+      final response = await get('$baseurl/Common/all_headlines');
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return HeadlinesResponse.fromJson(response.body);

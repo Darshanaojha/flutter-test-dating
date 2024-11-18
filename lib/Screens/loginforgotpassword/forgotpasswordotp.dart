@@ -1,10 +1,10 @@
 
+import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import '../../Controllers/controller.dart';
+import '../../Models/RequestModels/forget_password_request_model.dart';
 import '../../Models/RequestModels/forget_password_verification_request_model.dart';
-import '../../Models/ResponseModels/forget_password_verification_response_model.dart';
-import '../../Providers/login_provider.dart';
 import '../../constants.dart';
 import '../login.dart';
 
@@ -18,8 +18,31 @@ class OTPInputPage extends StatefulWidget {
 class OTPInputPageState extends State<OTPInputPage> {
   final formKey = GlobalKey<FormState>();
   List<TextEditingController> otpControllers = List.generate(6, (index) => TextEditingController());
-  final TextEditingController passwordController = TextEditingController();  
-  final TextEditingController confirmPasswordController = TextEditingController(); 
+  Controller controller = Get.find();
+  String? forgetpasswordemail;
+  String? forgetpassword;
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
+
+  initialize() async {
+    EncryptedSharedPreferences prefs =
+        await EncryptedSharedPreferences.getInstance();
+    setState(() {
+      forgetpasswordemail = prefs.getString('forgetpasswordemail');
+      forgetpassword = prefs.getString('forgetpassword');
+    });
+    if (forgetpasswordemail != null) {
+      controller.forgetPasswordVerificationRequest = ForgetPasswordVerificationRequest(
+        email: forgetpasswordemail!,
+        password: forgetpassword!,
+        otp: ''
+      );
+    }
+  }
+
 
   String? validateOTP(String? value) {
     if (value == null || value.isEmpty) {
@@ -31,7 +54,6 @@ class OTPInputPageState extends State<OTPInputPage> {
     return null;
   }
 
-  // Function to handle password validation
   String? validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter a new password';
@@ -42,47 +64,16 @@ class OTPInputPageState extends State<OTPInputPage> {
     return null;
   }
 
-  // Function to handle confirm password validation
   String? validateConfirmPassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please confirm your password';
     }
-    if (value != passwordController.text) {
+    if (value != controller.forgetPasswordVerificationRequest.password) {
       return 'Passwords do not match';
     }
     return null;
   }
 
-
-  Future<void> verifyOTPAndResetPassword() async {
-    if (formKey.currentState!.validate()) {
-      String otp = otpControllers.map((controller) => controller.text).join('');
-
-      String email = "user@example.com"; 
-      
-      String password = passwordController.text;
-
-      ForgetPasswordVerificationRequest request = ForgetPasswordVerificationRequest(
-        email: email,
-        otp: otp,
-        password: password,
-      );
-
-      try {
-        LoginProvider provider = LoginProvider();
-        ForgetPasswordVerificationResponse? response = await provider.otpVerificationForgetPassword(request);
-
-        if (response != null && response.success) {
-         success('Success', 'Password successfully reset!');
-          Get.to(Login());
-        } else {
-          failure('Failed', 'Failed to reset password. Please try again.');
-        }
-      } catch (e) {
-        failure('Failed', 'Failed to reset password. Please try again.');
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -108,9 +99,9 @@ class OTPInputPageState extends State<OTPInputPage> {
               
               Form(
                 key: formKey,
+                
                 child: Column(
                   children: [
-                    // OTP Fields (6 digits)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: List.generate(6, (index) {
@@ -137,8 +128,9 @@ class OTPInputPageState extends State<OTPInputPage> {
                               ),
                             ),
                             keyboardType: TextInputType.number,
-                            maxLength: 1, // Limit to 1 digit per input
+                            maxLength: 1, 
                             textAlign: TextAlign.center,
+                            
                             validator: validateOTP,
                             onChanged: (value) {
                        
@@ -155,10 +147,17 @@ class OTPInputPageState extends State<OTPInputPage> {
                       }),
                     ),
                     SizedBox(height: 20),
-
-                    // Submit Button
                     ElevatedButton(
-                      onPressed: verifyOTPAndResetPassword,
+                      onPressed: (){
+                         if (formKey.currentState?.validate() ?? false) {
+                          formKey.currentState?.save();
+                          controller.otpVerificationForgetPassword(
+                              controller.forgetPasswordVerificationRequest);
+                        } else {
+                          failure('otp', 'not entered');
+                          return;
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.buttonColor,
                         padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),

@@ -1,26 +1,31 @@
-
 import 'package:dating_application/constants.dart';
+import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/registration_otp_verification_request_model.dart';
-import 'registerdetails.dart'; 
+import 'registerdetails.dart';
+
 class OTPVerificationPage extends StatefulWidget {
   const OTPVerificationPage({super.key});
 
   @override
   OTPVerificationPageState createState() => OTPVerificationPageState();
 }
+
 class OTPVerificationPageState extends State<OTPVerificationPage> {
   Controller controller = Get.put(Controller());
-  TextEditingController emailcontroller = TextEditingController();
-  TextEditingController otpController = TextEditingController();
 
-  String? backEndOtp = '';  
+  String? backEndOtp = '';
+  String? email = '';
+  RegistrationOtpVerificationRequest registrationOtpVerificationRequest =
+      RegistrationOtpVerificationRequest(
+    email: '',
+    otp: '',
+  );
 
   @override
   void initState() {
@@ -29,10 +34,19 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
   }
 
   initialize() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    backEndOtp = prefs.getString('passwordResetOtp');
+    EncryptedSharedPreferences prefs =
+        await EncryptedSharedPreferences.getInstance();
+    setState(() {
+      backEndOtp = prefs.getString('registrationotp');
+      email = prefs.getString('registrationemail');
+    });
+    if (email != null) {
+      registrationOtpVerificationRequest = RegistrationOtpVerificationRequest(
+        email: email!,
+        otp: '',
+      );
+    }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -77,9 +91,8 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
               SizedBox(height: size.height * 0.03),
               Pinput(
                 length: 6,
-                controller: otpController,
                 onChanged: (value) {
-                  otpController.text = value.toString();
+                  registrationOtpVerificationRequest.otp = value;
                 },
                 showCursor: true,
                 defaultPinTheme: defaultPinTheme,
@@ -95,33 +108,31 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                     foregroundColor: AppColors.textColor,
                   ),
                   onPressed: () async {
-                    if (otpController.text.length != 6) {
-                      failure("Invalid OTP", "Please enter a valid 6-digit OTP.");
+                    if (registrationOtpVerificationRequest.otp.length != 6) {
+                      failure(
+                          "Invalid OTP", "Please enter a valid 6-digit OTP.");
                       return;
                     }
-
-                    // If backend OTP is used for testing or as fallback
-                    if (backEndOtp == otpController.text) {
+                    if (backEndOtp == registrationOtpVerificationRequest.otp) {
                       success("Success", "Your OTP is verified!");
                       Get.to(RegisterProfilePage());
                     } else {
-
-                      String email = 'user@example.com';
-                      RegistrationOtpVerificationRequest request = RegistrationOtpVerificationRequest(
-                        email: email,
-                        otp: otpController.text,
-                      );
-                      bool successdone = await controller.otpVerification(request);
+                      bool successdone =
+                          await controller.otpVerificationForRegistration(
+                              registrationOtpVerificationRequest);
                       if (successdone) {
                         success("Success", "OTP verified!");
+                        Get.to(RegisterProfilePage());
                       } else {
-                        failure("Error", "OTP verification failed. Please try again.");
+                        failure("Error",
+                            "OTP verification failed. Please try again.");
                       }
                     }
                   },
                   child: Text(
                     "Verify OTP",
-                    style: AppTextStyles.buttonText.copyWith(fontSize: buttonFontSize),
+                    style: AppTextStyles.buttonText
+                        .copyWith(fontSize: buttonFontSize),
                   ),
                 ),
               ),
@@ -140,22 +151,19 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                     height: size.height * 0.055,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                        padding:
+                            EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                         backgroundColor: AppColors.buttonColor,
                         foregroundColor: Colors.white,
                       ),
                       onPressed: () {
+                        // Add logic for regenerating OTP here
                         Get.to(RegisterProfilePage());
-                        String mobileNumber = emailcontroller.text.trim();
-                        if (mobileNumber.isNotEmpty) {
-                         
-                        } else {
-                          failure("Input Error", "Please enter a valid mobile number.");
-                        }
                       },
                       child: Text(
                         "Regenerate OTP",
-                        style: AppTextStyles.buttonText.copyWith(fontSize: buttonFontSize),
+                        style: AppTextStyles.buttonText
+                            .copyWith(fontSize: buttonFontSize),
                       ),
                     ),
                   ),

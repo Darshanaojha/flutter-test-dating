@@ -1,19 +1,15 @@
+
+
+import '../../constants.dart';
+
 class ForgetPasswordRequest {
-   String email;
-   String newPassword;
+  String email;
+  String newPassword;
 
   ForgetPasswordRequest({
     required this.email,
     required this.newPassword,
-  }) {
-
-    if (!_isValidEmail(email)) {
-      throw ArgumentError("Invalid email format.");
-    }
-    if (!_isValidPassword(newPassword)) {
-      throw ArgumentError("Password does not meet required criteria.");
-    }
-  }
+  });
 
   factory ForgetPasswordRequest.fromJson(Map<String, dynamic> json) {
     return ForgetPasswordRequest(
@@ -22,7 +18,6 @@ class ForgetPasswordRequest {
     );
   }
 
-
   Map<String, dynamic> toJson() {
     return {
       'email': email,
@@ -30,14 +25,34 @@ class ForgetPasswordRequest {
     };
   }
 
-
-  bool _isValidEmail(String email) {
+  bool isValidEmail(String email) {
     final emailPattern = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
     return emailPattern.hasMatch(email);
   }
 
-  bool _isValidPassword(String password) {
+  // Password validation method
+  bool isValidPassword(String password) {
     final passwordPattern = RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$');
     return passwordPattern.hasMatch(password);
   }
+
+  // Validate email and password
+  bool validate() {
+    // Validate email
+    if (!isValidEmail(email)) {
+      failure("Invalid Email", "Please enter a valid email address.");
+      return false;
+    }
+
+    // Validate password
+    if (!isValidPassword(newPassword)) {
+      failure("Invalid Password", "Password must contain at least one uppercase letter, one number, and one special character.");
+      return false;
+    }
+
+    return true; // All validations passed
+  }
 }
+
+
+

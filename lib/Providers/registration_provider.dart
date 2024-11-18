@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../Controllers/controller.dart';
 import '../Models/RequestModels/registration_otp_request_model.dart';
 import '../Models/RequestModels/registration_otp_verification_request_model.dart';
 import '../Models/ResponseModels/get_all_country_response_model.dart';
@@ -7,9 +8,10 @@ import '../Models/ResponseModels/registration_otp_verification_response_model.da
 import '../constants.dart';
 
 class RegistrationProvider extends GetConnect {
+  Controller controller = Get.find();
   Future<CountryResponse?> fetchCountries() async {
     try {
-      Response response = await get('$baseUrl/Common/country');
+      Response response = await get('$baseurl/Common/country');
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
@@ -29,54 +31,73 @@ class RegistrationProvider extends GetConnect {
   }
 
   // Verify Email using OTP
-  Future<RegistrationOtpResponse?> sendOtp(
+  Future<RegistrationOtpResponse?> getOtpForRegistration(
       RegistrationOTPRequest registrationOTPRequest) async {
     try {
+      final requestBody = registrationOTPRequest.toJson();
+      if (baseurl == null || baseurl.isEmpty) {
+        throw Exception("Base URL is not defined.");
+      }
+
       Response response =
-          await post('$baseUrl/Authentication/sendotp', registrationOTPRequest);
+          await post('$baseurl/Authentication/sendotp', requestBody, headers: {
+        'Content-Type': 'application/json',
+      });
+      // print('Response status code: ${response.statusCode}');
+      // print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
-          RegistrationOtpResponse.fromJson(response.body);
+          return RegistrationOtpResponse.fromJson(response.body);
         } else {
           failure('Error', response.body['error']['message']);
           return null;
         }
       } else {
-        failure('Error', response.body['error']['message']);
+        failure(
+            'Error', 'Received invalid status code: ${response.statusCode}');
         return null;
       }
     } catch (e) {
+      print('Error occurred: ${e.toString()}');
       failure('Error', e.toString());
       return null;
     }
-    return null;
   }
 
   // Verify password while registration
-  Future<RegistrationOtpVerificationResponse?> otpVerification(
-      RegistrationOtpVerificationRequest
-          registrationOtpVerificationRequest) async {
-    try {
-      Response response = await post('$baseUrl/Authentication/verifyotp',
-          registrationOtpVerificationRequest);
-
-      if (response.statusCode == 200) {
-        if (response.body['error']['code'] == 0) {
-          return RegistrationOtpVerificationResponse.fromJson(response.body);
-        } else {
-          failure('Error', response.body['error']['message']);
-          return null;
-        }
+  Future<RegistrationOtpVerificationResponse?> otpVerificationForRegistration(
+    RegistrationOtpVerificationRequest registrationOtpVerificationRequest) async {
+  try {
+    final requestBody = registrationOtpVerificationRequest.toJson();
+    if (baseurl == null || baseurl.isEmpty) {
+      throw Exception("Base URL is not defined.");
+    }
+    Response response = await post(
+      '$baseurl/Authentication/verifyotp', 
+      requestBody,
+      headers: {
+        'Content-Type': 'application/json', 
+      },
+    );
+    print('Response status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
+    if (response.statusCode == 200) {
+      if (response.body['error']['code'] == 0) {
+        return RegistrationOtpVerificationResponse.fromJson(response.body);
       } else {
         failure('Error', response.body['error']['message']);
         return null;
       }
-    } catch (e) {
-      failure('Error', e.toString());
+    } else {
+      failure('Error', 'Received invalid status code: ${response.statusCode}');
       return null;
     }
+  } catch (e) {
+    print('Error occurred: ${e.toString()}');
+    failure('Error', e.toString());
+    return null;
   }
-
+}
 
 }

@@ -16,7 +16,7 @@ class UserProfileProvider extends GetConnect {
         return null;
       }
       Response response = await post(
-        '$baseUrl/Profile/userphotos',
+        '$baseurl/Profile/userphotos',
         null,
         headers: {
           'Authorization': 'Bearer $token',

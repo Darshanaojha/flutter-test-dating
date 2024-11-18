@@ -5,8 +5,6 @@ import '../Models/RequestModels/user_login_request_model.dart';
 import '../constants.dart';
 import 'homepage/homepage.dart';
 import 'loginforgotpassword/forgotpasswordemail.dart';
-import 'register_subpag/registerdetails.dart';
-import 'register_subpag/registrationotp.dart';
 import 'register_subpag/useremailnameinput.dart';
 
 class Login extends StatefulWidget {

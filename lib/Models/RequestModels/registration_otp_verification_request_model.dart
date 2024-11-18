@@ -1,25 +1,21 @@
 import 'dart:core';
 
+import '../../constants.dart';
+
 class RegistrationOtpVerificationRequest {
-  final String email;
-  final String otp;
+  String email;
+  String otp;
 
   RegistrationOtpVerificationRequest({
     required this.email,
     required this.otp,
-  }) {
- 
-    validateEmail(email);
-    validateOtp(otp);
-  }
+  });
 
-  factory RegistrationOtpVerificationRequest.fromJson(Map<String, dynamic> json) {
+  factory RegistrationOtpVerificationRequest.fromJson(
+      Map<String, dynamic> json) {
     String email = json['email'] ?? '';
     String otp = json['otp'] ?? '';
 
-    validateEmail(email);
-    validateOtp(otp);
-    
     return RegistrationOtpVerificationRequest(
       email: email,
       otp: otp,
@@ -33,26 +29,35 @@ class RegistrationOtpVerificationRequest {
     };
   }
 
-  static void validateEmail(String email) {
+  bool validate() {
+
     if (email.isEmpty) {
-      throw FormatException('Email cannot be empty');
+
+      failure("Invalid Email", "Email cannot be empty.");
+      return false;
     }
 
-    final emailRegExp = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$');
+    final emailRegExp =
+        RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$');
     if (!emailRegExp.hasMatch(email)) {
-      throw FormatException('Invalid email format');
+      failure("Invalid Email", "Invalid email format.");
+      return false;
     }
-  }
 
-
-  static void validateOtp(String otp) {
+    // Validate OTP
     if (otp.isEmpty) {
-      throw FormatException('OTP cannot be empty');
+      // Show custom error using snackbar
+      failure("Invalid OTP", "OTP cannot be empty.");
+      return false;
     }
 
     final otpRegExp = RegExp(r'^\d{6}$');
     if (!otpRegExp.hasMatch(otp)) {
-      throw FormatException('OTP must be a 6-digit number');
+      failure("Invalid OTP", "OTP must be a 6-digit number.");
+      return false;
     }
+
+    // If both validations pass, return true
+    return true;
   }
 }

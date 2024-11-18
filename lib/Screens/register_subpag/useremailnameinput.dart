@@ -1,9 +1,7 @@
-import 'package:dating_application/Models/RequestModels/registration_otp_request_model.dart';
 import 'package:dating_application/Screens/register_subpag/registrationotp.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../../Providers/registration_provider.dart';
+import '../../Controllers/controller.dart';
 import '../../constants.dart';
 
 class UserInputPage extends StatefulWidget {
@@ -15,11 +13,15 @@ class UserInputPage extends StatefulWidget {
 
 class UserInputPageState extends State<UserInputPage> {
   final formKey = GlobalKey<FormState>();
-  final nameController = TextEditingController();
-  final emailController = TextEditingController();
+  Controller controller = Get.find();
 
-  String name = '';
-  String email = '';
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
+
+  initialize() {}
 
   String? validateName(String? value) {
     if (value == null || value.isEmpty) {
@@ -38,30 +40,6 @@ class UserInputPageState extends State<UserInputPage> {
       return 'Enter a valid email address';
     }
     return null;
-  }
-
-  void submitForm() async {
-    if (formKey.currentState!.validate()) {
-      formKey.currentState!.save();
-
-      RegistrationOTPRequest registrationRequest = RegistrationOTPRequest(
-        email: email,
-        name: name,
-      );
-
-      try {
-        RegistrationProvider registrationProvider = Get.find();
-        var response = await registrationProvider.sendOtp(registrationRequest);
-
-        if (response != null) {
-          Get.to(OTPVerificationPage());
-        } else {
-          print('Error sending OTP');
-        }
-      } catch (e) {
-        print('Error: $e');
-      }
-    }
   }
 
   @override
@@ -90,18 +68,19 @@ class UserInputPageState extends State<UserInputPage> {
                   'Please provide your name and email.',
                   style: TextStyle(
                     fontSize: fontSize,
-                    color: AppColors.primaryColor,
+                    color: AppColors.textColor,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 40),
                 TextFormField(
-                  controller: nameController,
                   cursorColor: AppColors.cursorColor,
                   decoration: InputDecoration(
                     labelText: 'Name',
                     labelStyle: TextStyle(
-                        fontSize: fontSize, color: AppColors.secondaryColor),
+                      fontSize: fontSize,
+                      color: AppColors.textColor,
+                    ),
                     filled: true,
                     fillColor: AppColors.formFieldColor,
                     border: OutlineInputBorder(
@@ -117,22 +96,21 @@ class UserInputPageState extends State<UserInputPage> {
                       fontSize: fontSize, color: AppColors.primaryColor),
                   validator: validateName,
                   onChanged: (value) {
-                    setState(() {
-                      name = value;
-                    });
+                    controller.registrationOTPRequest.name = value;
                   },
                   onSaved: (value) {
-                    name = value ?? '';
+                    controller.registrationOTPRequest.name = value ?? '';
                   },
                 ),
                 SizedBox(height: 20),
                 TextFormField(
-                  controller: emailController,
                   cursorColor: AppColors.cursorColor,
                   decoration: InputDecoration(
                     labelText: 'Email',
                     labelStyle: TextStyle(
-                        fontSize: fontSize, color: AppColors.secondaryColor),
+                      fontSize: fontSize,
+                      color: AppColors.textColor,
+                    ),
                     filled: true,
                     fillColor: AppColors.formFieldColor,
                     border: OutlineInputBorder(
@@ -148,19 +126,28 @@ class UserInputPageState extends State<UserInputPage> {
                       fontSize: fontSize, color: AppColors.primaryColor),
                   validator: validateEmail,
                   onChanged: (value) {
-                    setState(() {
-                      email = value;
-                    });
+                    controller.registrationOTPRequest.email = value;
                   },
                   onSaved: (value) {
-                    email = value ?? '';
+                    controller.registrationOTPRequest.email = value ?? '';
                   },
                 ),
                 SizedBox(height: 40),
 
                 // Submit Button
                 ElevatedButton(
-                  onPressed: submitForm,
+                  onPressed: () {
+                    if (formKey.currentState?.validate() ?? false) {
+                      Get.to(OTPVerificationPage());
+                      controller.getOtpForRegistration(
+                          controller.registrationOTPRequest);
+                    } else {
+                      failure(
+                        'Validation Failed',
+                        'Please check your inputs and try again.',
+                      );
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.buttonColor,
                     padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),

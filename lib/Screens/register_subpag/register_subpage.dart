@@ -1,12 +1,11 @@
 import 'dart:io';
-import 'package:dating_application/Screens/homepage/homepage.dart';
-import 'package:dating_application/Screens/register_subpag/registrationotp.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-
+import '../../Controllers/controller.dart';
 import '../navigationbar/navigationpage.dart';
 
 class MultiStepFormPage extends StatefulWidget {
@@ -17,6 +16,7 @@ class MultiStepFormPage extends StatefulWidget {
 }
 
 class MultiStepFormPageState extends State<MultiStepFormPage> {
+  Controller controller = Get.put(Controller());
   int selectedDay = DateTime.now().day;
   int selectedMonth = DateTime.now().month;
   int selectedYear = DateTime.now().year;
@@ -27,7 +27,14 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
   int currentPage = 1;
   final PageController pageController = PageController();
-
+  
+  @override
+  void initState() {
+    super.initState();
+    controller.fetchAllHeadlines();  
+    controller.fetchSafetyGuidelines();
+  }
+  
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
@@ -39,7 +46,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
     double padding = isPortrait ? 16.0 : 24.0;
     double fontSize = screenWidth < 400 ? 18 : 20;
-
     double buttonHeight = screenHeight < 600 ? 48 : 56;
 
     return Scaffold(
@@ -159,6 +165,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
   Widget buildBirthdayStep(Size screenSize) {
     final screenSize = MediaQuery.of(context).size; 
+     final controller = Get.find<Controller>(); 
 
 
     double titleFontSize =
@@ -179,22 +186,29 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
 
-            Text(
-              "What is your date of birth?",
+            Obx(() {
+            return Text(
+              controller.headlines.isNotEmpty
+                  ? controller.headlines[0].title
+                  : 'Loading headlines...',
               style: AppTextStyles.titleText.copyWith(
                 fontSize: titleFontSize, 
               ),
-            ),
+            );
+          }),
             SizedBox(height: 40),
 
-            Text(
-              "You must be 18+ to use this app.",
+               Obx(() {
+            return Text(
+              controller.headlines.isNotEmpty
+                  ? controller.headlines[0].description
+                  : 'Loading description...',
               style: AppTextStyles.bodyText.copyWith(
-                color:
-                    Colors.redAccent, 
+                color: Colors.redAccent, 
                 fontSize: subHeadingFontSize, 
               ),
-            ),
+            );
+          }),
             SizedBox(height: 43),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -292,7 +306,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
         children: [
        
           Text(
-            "What do we call you?",
+            controller.headlines.isNotEmpty? controller.headlines[1].title:"Loading Title",
             style: AppTextStyles.titleText.copyWith(
               fontWeight: FontWeight.bold,
               fontSize: titleFontSize, 
@@ -360,7 +374,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
         children: [
       
           Text(
-            "Select your gender",
+            controller.headlines.isNotEmpty? controller.headlines[2].title:"Loading Title...",
             style: AppTextStyles.titleText.copyWith(
               fontSize: titleFontSize,
               fontWeight: FontWeight.bold,
@@ -427,7 +441,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
         children: [
 
           Text(
-            "Which Best Describe You",
+            controller.headlines.isNotEmpty?controller.headlines[3].title:"Loading Title...",
             style: AppTextStyles.titleText.copyWith(
               fontSize: titleFontSize,
               fontWeight: FontWeight.bold,
@@ -437,7 +451,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           SizedBox(height: 20),
 
           Text(
-            "Select the option that best describes your identity.",
+            controller.headlines.isNotEmpty?controller.headlines[3].description:"",
             style: AppTextStyles.bodyText.copyWith(
               fontSize: descriptionfontSize,
               color: AppColors.textColor, 
@@ -492,7 +506,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "Who are you looking for?",
+            controller.headlines.isNotEmpty?controller.headlines[4].title:"Loading Title...",
             style: AppTextStyles.titleText.copyWith(
               fontSize: titleFontSize,
               fontWeight: FontWeight.bold,
@@ -501,7 +515,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           ),
           SizedBox(height: 20),
           Text(
-            "Select the gender(s) you're interested in.",
+            controller.headlines.isNotEmpty?controller.headlines[4].description:"",
             style: AppTextStyles.bodyText.copyWith(
               fontSize: descriptionfontSize, 
               color: AppColors.textColor,
@@ -580,7 +594,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Relationship",
+             controller.headlines.isNotEmpty?controller.headlines[5].title:"Loading Title...",
               style: AppTextStyles.titleText.copyWith(
                 fontSize: titleFontSize,
                 fontWeight: FontWeight.bold,
@@ -589,7 +603,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             ),
             SizedBox(height: 20),
             Text(
-              "Let people know what you are into. You can add or edit desires as often as you want.",
+              controller.headlines.isNotEmpty?controller.headlines[5].description:"",
               style: AppTextStyles.bodyText.copyWith(
                 fontSize: bodyFontSize,
                 color: AppColors.textColor,
@@ -746,7 +760,7 @@ Widget buildInterestStep(BuildContext context, Size screenSize) {
           children: [
             // Title
             Text(
-              "What are your interests?",
+             controller.headlines.isNotEmpty?controller.headlines[6].title:"Loading Title...",
               style: AppTextStyles.titleText.copyWith(
                 fontSize: titleFontSize, 
                 fontWeight: FontWeight.bold,
@@ -755,7 +769,7 @@ Widget buildInterestStep(BuildContext context, Size screenSize) {
             ),
             SizedBox(height: 20),
             Text(
-              "Enter your interests one by one. Select at least 10.",
+              controller.headlines.isNotEmpty?controller.headlines[6].description:"Loading Title...",
               style: AppTextStyles.bodyText.copyWith(
                 fontSize: bodyFontSize,
                 color: AppColors.textColor.withOpacity(0.7),
@@ -899,7 +913,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "Tell Us About You",
+             controller.headlines.isNotEmpty?controller.headlines[7].title:"Loading Title...",
               style: AppTextStyles.titleText.copyWith(
                 fontSize: titleFontSize,
                 fontWeight: FontWeight.bold,
@@ -908,7 +922,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
             ),
             SizedBox(height: 20),
             Text(
-              "Describe yourself in 250 words or less.",
+              controller.headlines.isNotEmpty?controller.headlines[7].title:"",
               style: AppTextStyles.bodyText.copyWith(
                 fontSize: bodyFontSize, 
                 color: AppColors.textColor,
@@ -1015,130 +1029,159 @@ Widget buildUserDescriptionStep(Size screenSize) {
   double screenWidth = screenSize.width;
 
   double iconSize = screenWidth * 0.12;
-  double dialogButtonFontSize = screenWidth * 0.04;
-  double imageContainerSize = screenWidth * 0.4;
-
-  return Scaffold(
-    body: Obx(() {
-      return GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, 
-          crossAxisSpacing: 20.0,
-          mainAxisSpacing: 40.0,
+  double dialogButtonFontSize = screenWidth * 0.03;
+  double imageContainerSize = screenWidth * 0.39;
+return Scaffold(
+  body: Padding(
+    padding: EdgeInsets.all(16.0),  // Add some padding around the content
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Title and description
+        Text(
+          controller.headlines.isNotEmpty?controller.headlines[8].title:"Loading Title...", 
+          style: TextStyle(
+            fontSize: 24, 
+            fontWeight: FontWeight.bold, 
+          ),
         ),
-        itemCount: images.length + 1,
-        itemBuilder: (context, index) {
-          if (index == images.length) {
-            return Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  images.add(null); 
-                },
-                child: Icon(
-                  Icons.add_a_photo,
-                  size: iconSize, // Responsive icon size
-                  color: Colors.grey.shade600,
-                ),
-                style: ElevatedButton.styleFrom(
-                  shape: CircleBorder(),
-                  padding: EdgeInsets.all(16),
-                ),
+        SizedBox(height: 8),
+        Text(
+           controller.headlines.isNotEmpty?controller.headlines[8].description:"",
+          style: TextStyle(
+            fontSize: 16, 
+            color: Colors.grey.shade600,
+          ),
+        ),
+        SizedBox(height: 20),
+        
+        Expanded( 
+          child: Obx(() {
+            return GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2, 
+                crossAxisSpacing: 20.0,
+                mainAxisSpacing: 40.0,
               ),
-            );
-          } else {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: imageContainerSize,
-                    height: imageContainerSize,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8),
+              itemCount: images.length + 1,
+              itemBuilder: (context, index) {
+                if (index == images.length) {
+                  return Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        images.add(null); 
+                      },
+                      style: ElevatedButton.styleFrom(
+                        shape: CircleBorder(),
+                        padding: EdgeInsets.all(12),
+                      ),
+                      child: Icon(
+                        Icons.add_a_photo,
+                        size: iconSize, // Responsive icon size
+                        color: Colors.grey.shade600,
+                      ),
                     ),
-                    child: images[index] != null
-                        ? GestureDetector(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text('Pick an image'),
-                                    content: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                            pickImage(index, ImageSource.camera);
-                                          },
-                                          child: const Icon(Icons.camera_alt),
-                                        ),
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                            pickImage(index, ImageSource.gallery);
-                                          },
-                                          child: const Icon(Icons.photo),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                            child: Image.file(
-                              images[index]!,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : GestureDetector(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text('Pick an image'),
-                                    content: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                            pickImage(index, ImageSource.camera);
-                                          },
-                                          child: const Icon(Icons.camera_alt),
-                                        ),
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                            pickImage(index, ImageSource.gallery);
-                                          },
-                                          child: const Icon(Icons.photo),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                            child: Icon(
-                              Icons.image,
-                              size: iconSize, // Responsive icon size
-                              color: Colors.grey.shade600,
-                            ),
+                  );
+                } else {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: imageContainerSize,
+                          height: imageContainerSize,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                  ),
-                ],
-              ),
+                          child: images[index] != null
+                              ? GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: const Text('Pick an image'),
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                  pickImage(index, ImageSource.camera);
+                                                },
+                                                child: const Icon(Icons.camera_alt),
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                  pickImage(index, ImageSource.gallery);
+                                                },
+                                                child: const Icon(Icons.photo),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: Image.file(
+                                    images[index]!,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: const Text('Pick an image'),
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                  pickImage(index, ImageSource.camera);
+                                                },
+                                                child: const Icon(Icons.camera_alt),
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                  pickImage(index, ImageSource.gallery);
+                                                },
+                                                child: const Icon(Icons.photo),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: Icon(
+                                    Icons.image,
+                                    size: iconSize, // Responsive icon size
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              },
             );
-          }
-        },
-      );
-    }),
-  );
+          }),
+        ),
+      ],
+    ),
+  )
+);
+
 }
+
 
 
   // step 10
@@ -1225,7 +1268,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
           child: Column(
             children: [
               Text(
-                "Permissions",
+                 controller.headlines.isNotEmpty?controller.headlines[9].title:"Loading Title...",
                 style: AppTextStyles.titleText.copyWith(
                   fontSize: fontSize,
                   fontWeight: FontWeight.bold,
@@ -1234,7 +1277,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
               ),
               SizedBox(height: 10),
               Text(
-                "Do we have permission to access the following?",
+                 controller.headlines.isNotEmpty?controller.headlines[9].description:"",
                 style: AppTextStyles.bodyText.copyWith(
                   fontSize: fontSize - 2,
                   color: AppColors.textColor,
@@ -1502,7 +1545,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
             child: Column(
               children: [
                 Text(
-                  "Subscription Plans",
+                   controller.headlines.isNotEmpty?controller.headlines[10].title:"Loading Title...",
                   style: AppTextStyles.titleText.copyWith(
                     fontSize: fontSize,
                     fontWeight: FontWeight.bold,
@@ -1511,7 +1554,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
                 ),
                 SizedBox(height: 10),
                 Text(
-                  "Choose a plan that suits you!",
+                   controller.headlines.isNotEmpty?controller.headlines[10].description:"Loading Title...",
                   style: AppTextStyles.bodyText.copyWith(
                     fontSize: fontSize - 2,
                     color: AppColors.textColor,
@@ -1741,7 +1784,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
                 ? () {
                     print("Selected Plan: ${selectedPlan.value}");
                   }
-                : null, // Disable button if no plan is selected
+                : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: selectedPlan.value != 'None'
                   ? AppColors.buttonColor
@@ -1763,15 +1806,14 @@ Widget buildUserDescriptionStep(Size screenSize) {
 
 
 // step 12
-  Widget buildSafetyGuidelinesWidget(Size screenSize) {
-  // Calculate responsive font size based on screen width
-  double fontSize = screenSize.width * 0.03; // You can adjust 0.05 to make it larger/smaller
+ Widget buildSafetyGuidelinesWidget(Size screenSize) {
+  double fontSize = screenSize.width * 0.03; 
+  final controller = Get.find<Controller>(); 
   
   return SingleChildScrollView(
-    // Wrap the whole Column with SingleChildScrollView
     child: Column(
       children: [
-        // Heading Card
+        // First Card: Safety Guidelines Header
         Card(
           elevation: 8,
           shape: RoundedRectangleBorder(
@@ -1782,19 +1824,23 @@ Widget buildUserDescriptionStep(Size screenSize) {
             child: Column(
               children: [
                 Text(
-                  "Safety Guidelines",
+                  controller.headlines.isNotEmpty
+                      ? controller.headlines[11].title
+                      : "Loading Title...",
                   style: AppTextStyles.titleText.copyWith(
                     fontSize: fontSize,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textColor, // Consistent color
+                    color: AppColors.textColor,
                   ),
                 ),
                 SizedBox(height: 10),
                 Text(
-                  "Please follow these rules to ensure a safe experience.",
+                  controller.headlines.isNotEmpty
+                      ? controller.headlines[11].description
+                      : "Loading Description...",
                   style: AppTextStyles.bodyText.copyWith(
                     fontSize: fontSize - 2,
-                    color: AppColors.textColor, // Consistent color
+                    color: AppColors.textColor,
                   ),
                 ),
               ],
@@ -1802,8 +1848,8 @@ Widget buildUserDescriptionStep(Size screenSize) {
           ),
         ),
         SizedBox(height: 20),
-
-        // Safety Guidelines List
+        
+        // Second Card: Safety Guidelines List
         Card(
           elevation: 8,
           shape: RoundedRectangleBorder(
@@ -1814,114 +1860,58 @@ Widget buildUserDescriptionStep(Size screenSize) {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Safety Guideline Item 1
-                Row(
-                  children: [
-                    Icon(
-                      Icons.warning,
-                      color: AppColors.iconColor, // Consistent icon color
-                      size: fontSize,
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        "Never share personal information like your address or bank details.",
-                        style: AppTextStyles.bodyText.copyWith(
-                          fontSize: fontSize - 2,
-                          color: AppColors.textColor, // Consistent color
+                controller.safetyGuidelines.isNotEmpty
+                    ? ListView.builder(
+                        shrinkWrap: true, // Allows ListView to take only as much space as needed
+                        physics: NeverScrollableScrollPhysics(), // Prevents nested scrolls
+                        itemCount: controller.safetyGuidelines.length,
+                        itemBuilder: (context, index) {
+                          var guideline = controller.safetyGuidelines[index];
+                          return Column(
+                            children: [
+                              SizedBox(height: 15),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.warning,
+                                    color: AppColors.iconColor,
+                                    size: fontSize,
+                                  ),
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          guideline.title,
+                                          style: AppTextStyles.bodyText.copyWith(
+                                            fontSize: fontSize - 2,
+                                            color: AppColors.textColor,
+                                          ),
+                                        ),
+                                        Text(
+                                          guideline.description,
+                                          style: AppTextStyles.bodyText.copyWith(
+                                            fontSize: fontSize - 2,
+                                            color: AppColors.textColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        },
+                      )
+                    : Center(
+                        child: SpinKitCircle(
+                          size: 35.0, // Adjust the size as needed
+                          color: AppColors.acceptColor,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 15),
-
-                // Safety Guideline Item 2
-                Row(
-                  children: [
-                    Icon(
-                      Icons.warning,
-                      color: AppColors.iconColor, // Consistent icon color
-                      size: fontSize,
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        "Always meet in public places for your first date.",
-                        style: AppTextStyles.bodyText.copyWith(
-                          fontSize: fontSize - 2,
-                          color: AppColors.textColor, // Consistent color
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 15),
-
-                // Safety Guideline Item 3
-                Row(
-                  children: [
-                    Icon(
-                      Icons.warning,
-                      color: AppColors.iconColor, // Consistent icon color
-                      size: fontSize,
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        "Respect boundaries and report any inappropriate behavior.",
-                        style: AppTextStyles.bodyText.copyWith(
-                          fontSize: fontSize - 2,
-                          color: AppColors.textColor, // Consistent color
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 15),
-
-                // Safety Guideline Item 4
-                Row(
-                  children: [
-                    Icon(
-                      Icons.warning,
-                      color: AppColors.iconColor, // Consistent icon color
-                      size: fontSize,
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        "Do not send money or gifts to people you meet online.",
-                        style: AppTextStyles.bodyText.copyWith(
-                          fontSize: fontSize - 2,
-                          color: AppColors.textColor, // Consistent color
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 15),
-
-                // Safety Guideline Item 5
-                Row(
-                  children: [
-                    Icon(
-                      Icons.warning,
-                      color: AppColors.iconColor, // Consistent icon color
-                      size: fontSize,
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        "If you feel unsafe, immediately contact local authorities.",
-                        style: AppTextStyles.bodyText.copyWith(
-                          fontSize: fontSize - 2,
-                          color: AppColors.textColor, // Consistent color
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                SizedBox(height: 20),
               ],
             ),
           ),
@@ -1934,8 +1924,8 @@ Widget buildUserDescriptionStep(Size screenSize) {
             print("User acknowledged safety guidelines.");
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.buttonColor, // Consistent button color
-            foregroundColor: AppColors.textColor, // Consistent button text color
+            backgroundColor: AppColors.buttonColor,
+            foregroundColor: AppColors.textColor,
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           ),
           child: Text(
@@ -1950,16 +1940,14 @@ Widget buildUserDescriptionStep(Size screenSize) {
   );
 }
 
+
 // step 13
   Widget buildProfileSummaryPage(Size screenSize) {
-  // Calculate responsive font size based on screen width
-  double fontSize = screenSize.width * 0.03; // You can adjust 0.05 to fit the design needs
+  double fontSize = screenSize.width * 0.03;
   
   return SingleChildScrollView(
-    // Wrap everything in a scrollable view
     child: Column(
       children: [
-        // Heading Card
         Card(
           elevation: 8,
           shape: RoundedRectangleBorder(
@@ -1974,7 +1962,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
                   style: AppTextStyles.titleText.copyWith(
                     fontSize: fontSize,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textColor, // Consistent color
+                    color: AppColors.textColor, 
                   ),
                 ),
                 SizedBox(height: 10),
@@ -1982,7 +1970,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
                   "Review your profile and preferences before starting your journey.",
                   style: AppTextStyles.bodyText.copyWith(
                     fontSize: fontSize - 2,
-                    color: AppColors.textColor, // Consistent color
+                    color: AppColors.textColor,
                   ),
                 ),
               ],
@@ -1990,8 +1978,6 @@ Widget buildUserDescriptionStep(Size screenSize) {
           ),
         ),
         SizedBox(height: 20),
-
-        // Profile Picture Section
         Card(
           elevation: 8,
           shape: RoundedRectangleBorder(
@@ -2002,8 +1988,8 @@ Widget buildUserDescriptionStep(Size screenSize) {
             child: Row(
               children: [
                 CircleAvatar(
-                  radius: fontSize * 1.5, // Scaled radius based on font size
-                  backgroundImage: AssetImage('assets/profile_picture.jpg'), // Example image
+                  radius: fontSize * 1.5, 
+                  backgroundImage: AssetImage('assets/profile_picture.jpg'), 
                 ),
                 SizedBox(width: 15),
                 Expanded(
@@ -2015,7 +2001,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
                         style: AppTextStyles.titleText.copyWith(
                           fontSize: fontSize,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.textColor, // Consistent color
+                          color: AppColors.textColor,
                         ),
                       ),
                       SizedBox(height: 5),
@@ -2023,7 +2009,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
                         "Age: 25",
                         style: AppTextStyles.bodyText.copyWith(
                           fontSize: fontSize - 2,
-                          color: AppColors.textColor, // Consistent color
+                          color: AppColors.textColor,
                         ),
                       ),
                     ],
@@ -2034,8 +2020,6 @@ Widget buildUserDescriptionStep(Size screenSize) {
           ),
         ),
         SizedBox(height: 20),
-
-        // Preferences Section
         Card(
           elevation: 8,
           shape: RoundedRectangleBorder(
@@ -2051,7 +2035,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
                   style: AppTextStyles.titleText.copyWith(
                     fontSize: fontSize,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textColor, // Consistent color
+                    color: AppColors.textColor,
                   ),
                 ),
                 SizedBox(height: 10),
@@ -2059,7 +2043,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
                   "Interested in: Men & Women",
                   style: AppTextStyles.bodyText.copyWith(
                     fontSize: fontSize - 2,
-                    color: AppColors.textColor, // Consistent color
+                    color: AppColors.textColor,
                   ),
                 ),
                 SizedBox(height: 5),
@@ -2067,7 +2051,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
                   "Looking for: Long-Term Relationship",
                   style: AppTextStyles.bodyText.copyWith(
                     fontSize: fontSize - 2,
-                    color: AppColors.textColor, // Consistent color
+                    color: AppColors.textColor,
                   ),
                 ),
                 SizedBox(height: 5),
@@ -2075,7 +2059,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
                   "Location: New York",
                   style: AppTextStyles.bodyText.copyWith(
                     fontSize: fontSize - 2,
-                    color: AppColors.textColor, // Consistent color
+                    color: AppColors.textColor,
                   ),
                 ),
                 SizedBox(height: 5),
@@ -2083,7 +2067,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
                   "Hobbies: Traveling, Reading, Photography",
                   style: AppTextStyles.bodyText.copyWith(
                     fontSize: fontSize - 2,
-                    color: AppColors.textColor, // Consistent color
+                    color: AppColors.textColor,
                   ),
                 ),
               ],
@@ -2091,8 +2075,6 @@ Widget buildUserDescriptionStep(Size screenSize) {
           ),
         ),
         SizedBox(height: 20),
-
-        // Subscription Status Section
         Card(
           elevation: 8,
           shape: RoundedRectangleBorder(
@@ -2104,7 +2086,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
               children: [
                 Icon(
                   Icons.star,
-                  color: AppColors.accentColor, // Consistent accent color
+                  color: AppColors.accentColor,
                   size: fontSize,
                 ),
                 SizedBox(width: 10),
@@ -2113,7 +2095,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
                     "You are subscribed to the Quarterly Plan (599 INR).",
                     style: AppTextStyles.bodyText.copyWith(
                       fontSize: fontSize - 2,
-                      color: AppColors.textColor, // Consistent color
+                      color: AppColors.textColor,
                     ),
                   ),
                 ),
@@ -2122,8 +2104,6 @@ Widget buildUserDescriptionStep(Size screenSize) {
           ),
         ),
         SizedBox(height: 20),
-
-        // Safety Guidelines Acknowledgement Section
         Card(
           elevation: 8,
           shape: RoundedRectangleBorder(
@@ -2135,7 +2115,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
               children: [
                 Icon(
                   Icons.check_circle,
-                  color: Colors.green, // Safety check icon color
+                  color: Colors.green,
                   size: fontSize,
                 ),
                 SizedBox(width: 10),
@@ -2144,7 +2124,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
                     "You have acknowledged the safety guidelines.",
                     style: AppTextStyles.bodyText.copyWith(
                       fontSize: fontSize - 2,
-                      color: AppColors.textColor, // Consistent color
+                      color: AppColors.textColor, 
                     ),
                   ),
                 ),
@@ -2159,7 +2139,7 @@ Widget buildUserDescriptionStep(Size screenSize) {
             print("User is ready to start browsing matches.");
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.buttonColor, // Consistent button color
+            backgroundColor: AppColors.buttonColor,
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           ),
           child: Row(
@@ -2167,13 +2147,13 @@ Widget buildUserDescriptionStep(Size screenSize) {
             children: [
               Icon(
                 Icons.edit,
-                color: AppColors.iconColor, // Use constant icon color
+                color: AppColors.iconColor,
               ),
               SizedBox(width: 8),
               Text(
                 'Edit',
                 style: AppTextStyles.buttonText.copyWith(
-                  fontSize: fontSize, // Apply the responsive font size to the button text
+                  fontSize: fontSize,
                 ),
               ),
             ],
@@ -2187,25 +2167,23 @@ Widget buildUserDescriptionStep(Size screenSize) {
 
   Widget buildConfirmationRow(
     String label, String value, IconData icon, Size screenSize) {
-  // Calculate responsive font size based on screen width
-  double fontSize = screenSize.width * 0.03; // Adjust multiplier as needed
+  double fontSize = screenSize.width * 0.03;
   
   return Row(
     mainAxisAlignment: MainAxisAlignment.start,
     crossAxisAlignment: CrossAxisAlignment.center,
     children: [
-      // Icon with fixed size
       Icon(
         icon,
         color: Colors.blueAccent,
-        size: fontSize, // Make the icon size responsive as well
+        size: fontSize, 
       ),
       SizedBox(width: 12),
       Expanded(
         child: Text(
           "$label: $value",
           style: TextStyle(
-            fontSize: fontSize, // Apply the responsive font size
+            fontSize: fontSize,
             fontWeight: FontWeight.w500,
             color: Colors.grey,
           ),
@@ -2221,15 +2199,12 @@ Widget buildUserDescriptionStep(Size screenSize) {
       pageController.nextPage(
           duration: Duration(milliseconds: 300), curve: Curves.ease);
     } else if (currentPage == 2) {
-      // If on page 2 (name), go to page 3 (gender)
       pageController.nextPage(
           duration: Duration(milliseconds: 300), curve: Curves.ease);
     } else if (currentPage == 3) {
-      // If on page 3 (gender), go to page 4 (describe yourself)
       pageController.nextPage(
           duration: Duration(milliseconds: 300), curve: Curves.ease);
     } else if (currentPage == 4) {
-      // If on page 4 (describe yourself), go to page 5 (confirmation)
       pageController.nextPage(
           duration: Duration(milliseconds: 300), curve: Curves.ease);
     } else if (currentPage == 5) {

@@ -1,32 +1,18 @@
-
-import 'dart:core';
+import '../../constants.dart';
 
 class RegistrationOTPRequest {
-  final String email;
-  final String name;
+  String email;
+  String name;
 
   RegistrationOTPRequest({
     required this.email,
     required this.name,
-  }) {
- 
-    validateEmail(email);
-    validateName(name);
-  }
-
+  });
 
   factory RegistrationOTPRequest.fromJson(Map<String, dynamic> json) {
     String email = json['email'] ?? '';
     String name = json['name'] ?? '';
-    
-
-    validateEmail(email);
-    validateName(name);
-    
-    return RegistrationOTPRequest(
-      email: email,
-      name: name,
-    );
+    return RegistrationOTPRequest(email: email, name: name);
   }
 
   Map<String, dynamic> toJson() {
@@ -36,27 +22,50 @@ class RegistrationOTPRequest {
     };
   }
 
-  static void validateEmail(String email) {
-    if (email.isEmpty) {
-      throw FormatException('Email cannot be empty');
+  bool validate() {
+    // Validate email
+    String? emailError = validateEmail(email);
+    if (emailError != null) {
+      failure("Invalid Email", emailError);
+      return false;
     }
 
-    final emailRegExp = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$');
-    if (!emailRegExp.hasMatch(email)) {
-      throw FormatException('Invalid email format');
+    // Validate name
+    String? nameError = validateName(name);
+    if (nameError != null) {
+      failure("Invalid Name", nameError);
+      return false;
     }
+
+    return true; // All validations passed
   }
 
+  // Email validation method
+  static String? validateEmail(String email) {
+    if (email.isEmpty) {
+      return 'Email cannot be empty';
+    }
 
-  static void validateName(String name) {
+    final emailRegExp =
+        RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$');
+    if (!emailRegExp.hasMatch(email)) {
+      return 'Invalid email format';
+    }
+
+    return null; // Valid email
+  }
+
+  // Name validation method
+  static String? validateName(String name) {
     if (name.isEmpty) {
-      throw FormatException('Name cannot be empty');
+      return 'Name cannot be empty';
     }
 
     final nameRegExp = RegExp(r'^[a-zA-Z\s]+$');
     if (!nameRegExp.hasMatch(name)) {
-      throw FormatException('Name can only contain alphabetic characters and spaces');
+      return 'Name can only contain alphabetic characters and spaces';
     }
+
+    return null;
   }
 }
-

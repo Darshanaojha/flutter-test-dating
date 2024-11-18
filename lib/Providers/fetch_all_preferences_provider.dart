@@ -7,7 +7,7 @@ class FetchAllPreferencesProvider extends GetConnect{
   //Preferences
   Future<UserPreferencesResponse?> fetchPreferences() async {
     try {
-      final response = await get('$baseUrl/Common/all_preferences');
+      final response = await get('$baseurl/Common/all_preferences');
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return UserPreferencesResponse.fromJson(response.body);

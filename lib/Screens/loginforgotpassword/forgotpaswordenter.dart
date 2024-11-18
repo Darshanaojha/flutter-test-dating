@@ -1,13 +1,10 @@
-
-import 'package:dating_application/Models/RequestModels/forget_password_request_model.dart';
-import 'package:dating_application/Models/ResponseModels/forget_password_response_model.dart';
 import 'package:dating_application/constants.dart';
+import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Controllers/controller.dart';
-import '../../Providers/login_provider.dart';
+import '../../Models/RequestModels/forget_password_request_model.dart';
 import 'forgotpasswordotp.dart';
-
 
 class PasswordInputPage extends StatefulWidget {
   const PasswordInputPage({super.key});
@@ -18,13 +15,31 @@ class PasswordInputPage extends StatefulWidget {
 
 class PasswordInputPageState extends State<PasswordInputPage> {
   final formKey = GlobalKey<FormState>();
-  Controller controller= Get.put(Controller());
+  Controller controller = Get.find();
+  String? forgetpasswordemail;
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
 
+  initialize() async {
+    EncryptedSharedPreferences prefs =
+        await EncryptedSharedPreferences.getInstance();
+    setState(() {
+      forgetpasswordemail = prefs.getString('forgetpasswordemail');
+    });
+    if (forgetpasswordemail != null) {
+      controller.forgetPasswordRequest = ForgetPasswordRequest(
+        email: forgetpasswordemail!,
+        newPassword: '',
+      );
+    }
+  }
 
   String? password;
   String? confirmPassword;
-  final TextEditingController confirmPasswordController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+
   String? validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter a password';
@@ -35,12 +50,11 @@ class PasswordInputPageState extends State<PasswordInputPage> {
     return null;
   }
 
-
   String? validateConfirmPassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please confirm your password';
     }
-    if (value != passwordController.text) {
+    if (value != controller.forgetPasswordRequest.newPassword) {
       return 'Passwords do not match';
     }
     return null;
@@ -49,7 +63,7 @@ class PasswordInputPageState extends State<PasswordInputPage> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double fontSize = screenWidth * 0.03; // Adjust font size based on screen width
+    double fontSize = screenWidth * 0.03;
 
     return Scaffold(
       appBar: AppBar(
@@ -57,7 +71,8 @@ class PasswordInputPageState extends State<PasswordInputPage> {
         backgroundColor: AppColors.primaryColor,
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1, vertical: 30),
+        padding:
+            EdgeInsets.symmetric(horizontal: screenWidth * 0.1, vertical: 30),
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -67,20 +82,19 @@ class PasswordInputPageState extends State<PasswordInputPage> {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 30),
-
               Form(
                 key: formKey,
                 child: Column(
                   children: [
-                    // Password Input Field
                     TextFormField(
-                        cursorColor: AppColors.cursorColor,
-                      controller: confirmPasswordController,
-                      style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
+                      cursorColor: AppColors.cursorColor,
+                      style: AppTextStyles.inputFieldText
+                          .copyWith(fontSize: fontSize),
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        labelStyle: AppTextStyles.bodyText.copyWith(fontSize: fontSize),
+                        labelStyle:
+                            AppTextStyles.bodyText.copyWith(fontSize: fontSize),
                         filled: true,
                         fillColor: AppColors.formFieldColor,
                         border: OutlineInputBorder(
@@ -93,28 +107,31 @@ class PasswordInputPageState extends State<PasswordInputPage> {
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: AppColors.errorBorderColor),
+                          borderSide:
+                              BorderSide(color: AppColors.errorBorderColor),
                         ),
                       ),
                       validator: validatePassword,
-                        onChanged: (value) {
+                      onChanged: (value) {
                         setState(() {
-                         controller.forgetPasswordRequest.newPassword= value;  
+                          controller.forgetPasswordRequest.newPassword = value;
                         });
                       },
                       onSaved: (value) {
-                        controller.forgetPasswordRequest.newPassword = value.toString(); 
+                        controller.forgetPasswordRequest.newPassword =
+                            value.toString();
                       },
                     ),
                     SizedBox(height: 20),
                     TextFormField(
                       cursorColor: AppColors.cursorColor,
-                      controller: confirmPasswordController,
-                      style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
+                      style: AppTextStyles.inputFieldText
+                          .copyWith(fontSize: fontSize),
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: 'Confirm Password',
-                        labelStyle: AppTextStyles.bodyText.copyWith(fontSize: fontSize),
+                        labelStyle:
+                            AppTextStyles.bodyText.copyWith(fontSize: fontSize),
                         filled: true,
                         fillColor: AppColors.formFieldColor,
                         border: OutlineInputBorder(
@@ -127,38 +144,50 @@ class PasswordInputPageState extends State<PasswordInputPage> {
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: AppColors.errorBorderColor),
+                          borderSide:
+                              BorderSide(color: AppColors.errorBorderColor),
                         ),
                       ),
                       validator: validateConfirmPassword,
-                    
-                        onChanged: (value) {
+                      onChanged: (value) {
                         setState(() {
-                        confirmPassword=value;
+                          confirmPassword = value;
                         });
                       },
-                      onSaved: (value) {
-               
-                      },
+                      onSaved: (value) {},
                     ),
                     SizedBox(height: 20),
                     ElevatedButton(
-                      onPressed: (){
-                        controller.getOtp(controller.forgetPasswordRequest);
+                      onPressed: () {
+                        if (formKey.currentState?.validate() ?? false) {
+                          formKey.currentState?.save();
+                          controller.getOtpForgetPassword(
+                              controller.forgetPasswordRequest);
+                              Get.to(OTPInputPage());
+                        } else {
+                          failure('password', '');
+                          return;
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.buttonColor,
-                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                        padding:
+                            EdgeInsets.symmetric(vertical: 15, horizontal: 50),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                       child: Text(
                         'Submit',
-                        style: AppTextStyles.buttonText.copyWith(fontSize: fontSize),
+                        style: AppTextStyles.buttonText
+                            .copyWith(fontSize: fontSize),
                       ),
                     ),
-                    ElevatedButton(onPressed: (){Get.to(OTPInputPage());}, child: Text("Next"))
+                    ElevatedButton(
+                        onPressed: () {
+                          Get.to(OTPInputPage());
+                        },
+                        child: Text("Next"))
                   ],
                 ),
               ),
@@ -169,4 +198,3 @@ class PasswordInputPageState extends State<PasswordInputPage> {
     );
   }
 }
-

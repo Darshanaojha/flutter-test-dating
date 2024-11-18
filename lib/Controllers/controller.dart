@@ -2,6 +2,7 @@ import 'package:dating_application/Providers/login_provider.dart';
 import 'package:dating_application/Providers/user_profile_provider.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Models/RequestModels/change_password_request.dart';
 import '../Models/RequestModels/delete_message_request_model.dart';
@@ -110,14 +111,38 @@ class Controller extends GetxController {
       return false;
     }
   }
-  late RegistrationOTPRequest registrationOTPRequest;
-  Future<bool> sendOtp(RegistrationOTPRequest registrationOTPRequest) async {
+
+  RegistrationOTPRequest registrationOTPRequest =
+      RegistrationOTPRequest(email: '', name: '');
+
+  Future<bool> getOtpForRegistration(
+      RegistrationOTPRequest registrationOTPRequest) async {
     try {
-      final RegistrationOtpResponse? response =
-          await RegistrationProvider().sendOtp(registrationOTPRequest);
+      Get.snackbar('body',
+          'Email: ${registrationOTPRequest.email}, Name: ${registrationOTPRequest.name}');
+      final RegistrationOtpResponse? response = await RegistrationProvider()
+          .getOtpForRegistration(registrationOTPRequest);
       if (response != null) {
-        success('success', response.payload.message);
-        return true;
+        String message = response.payload.message;
+        RegExp otpRegExp = RegExp(r'(\d{6})');
+        Match? otpMatch = otpRegExp.firstMatch(message);
+        EncryptedSharedPreferences prefs =
+            await EncryptedSharedPreferences.getInstance();
+        await prefs.setString(
+            'registrationemail', registrationOTPRequest.email);
+        if (otpMatch != null) {
+          String otp = otpMatch.group(0) ?? 'OTP not found';
+
+          EncryptedSharedPreferences prefs =
+              await EncryptedSharedPreferences.getInstance();
+          await prefs.setString('registrationotp', otp);
+          success('OTP Received', 'Your OTP is: $otp');
+          success('success', response.payload.message);
+          return true;
+        } else {
+          failure('Error', 'OTP not found in the response');
+          return false;
+        }
       }
       return false;
     } catch (e) {
@@ -126,13 +151,15 @@ class Controller extends GetxController {
     }
   }
 
-  Future<bool> otpVerification(
+  Future<bool> otpVerificationForRegistration(
       RegistrationOtpVerificationRequest
           registrationOtpVerificationRequest) async {
     try {
+      Get.snackbar('body',
+          'Email: ${registrationOtpVerificationRequest.email}, Name: ${registrationOtpVerificationRequest.otp}');
       final RegistrationOtpVerificationResponse? response =
-          await RegistrationProvider()
-              .otpVerification(registrationOtpVerificationRequest);
+          await RegistrationProvider().otpVerificationForRegistration(
+              registrationOtpVerificationRequest);
       if (response != null) {
         success('success', response.payload.message);
         return true;
@@ -365,6 +392,8 @@ class Controller extends GetxController {
     }
   }
 
+  ChangePasswordRequest changePasswordRequest =
+      ChangePasswordRequest(oldPassword: '', newPassword: '');
   Future<bool> changePassword(ChangePasswordRequest request) async {
     try {
       ChangePasswordResponse? response =
@@ -474,16 +503,33 @@ class Controller extends GetxController {
       return false;
     }
   }
-  late ForgetPasswordRequest forgetPasswordRequest;
-  Future<bool> getOtp(ForgetPasswordRequest forgetPasswordRequest) async {
+
+  ForgetPasswordRequest forgetPasswordRequest =
+      ForgetPasswordRequest(email: '', newPassword: '');
+  Future<bool> getOtpForgetPassword(
+      ForgetPasswordRequest forgetPasswordRequest) async {
+    EncryptedSharedPreferences prefs =
+        await EncryptedSharedPreferences.getInstance();
+    await prefs.setString('forgetpasswordemail', forgetPasswordRequest.email);
+    await prefs.setString('forgetpassword', forgetPasswordRequest.newPassword);
     try {
       ForgetPasswordResponse? response =
-          await LoginProvider().getOtp(forgetPasswordRequest);
+          await LoginProvider().getOtpForgetPassword(forgetPasswordRequest);
       if (response != null) {
-        success('success', response.payload.message);
-        return true;
+        //  String otp = response.payload.extractOtp();
+         String message = response.payload.message;
+         print(message);
+        RegExp otpRegExp = RegExp(r'(\d{6})');
+        Match? otpforget = otpRegExp.firstMatch(message);
+        if (otpforget!=null) {
+          success('Success', 'OTP sent successfully: $otpforget');
+          return true;
+        } else {
+          failure('Error', 'OTP not found in the message');
+          return false;
+        }
       } else {
-        failure('Error', 'Failed to get the Otp');
+        failure('Error', 'Failed to get the OTP');
         return false;
       }
     } catch (e) {
@@ -492,6 +538,8 @@ class Controller extends GetxController {
     }
   }
 
+  ForgetPasswordVerificationRequest forgetPasswordVerificationRequest =
+      ForgetPasswordVerificationRequest(email: '', otp: '', password: '');
   Future<bool> otpVerificationForgetPassword(
       ForgetPasswordVerificationRequest
           forgetPasswordVerificationRequest) async {
@@ -511,10 +559,15 @@ class Controller extends GetxController {
     }
   }
 
+  UpdateEmailIdRequest updateEmailIdRequest =
+      UpdateEmailIdRequest(password: '', newEmail: '');
   Future<bool> updateEmailId(UpdateEmailIdRequest updateEmailIdRequest) async {
     try {
       UpdateEmailIdResponse? response =
           await UpdateEmailidProvider().updateEmailId(updateEmailIdRequest);
+      EncryptedSharedPreferences prefs =
+          await EncryptedSharedPreferences.getInstance();
+      await prefs.setString('update_email', updateEmailIdRequest.newEmail);
       if (response != null) {
         success('success', response.payload.message);
         return true;
@@ -528,6 +581,8 @@ class Controller extends GetxController {
     }
   }
 
+  UpdateEmailVerificationRequest updateEmailVerificationRequest =
+      UpdateEmailVerificationRequest(newEmail: '', otp: '');
   Future<bool> verifyEmailOtp(UpdateEmailVerificationRequest request) async {
     try {
       UpdateEmailVerificationResponse? response =

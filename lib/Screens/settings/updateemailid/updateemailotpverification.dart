@@ -1,10 +1,10 @@
+import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../../../Models/RequestModels/update_emailid_otp_verification_request_model.dart';
-import '../../../Providers/update_email_verification_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../Controllers/controller.dart';
 import '../../../constants.dart';
-import '../../homepage/homepage.dart';
+
 
 class EmailOtpVerificationPage extends StatefulWidget {
   const EmailOtpVerificationPage({super.key});
@@ -13,12 +13,21 @@ class EmailOtpVerificationPage extends StatefulWidget {
   EmailOtpVerificationPageState createState() => EmailOtpVerificationPageState();
 }
 class EmailOtpVerificationPageState extends State<EmailOtpVerificationPage> {
-  final otpController = TextEditingController();
+    Controller controller = Get.find();
   final formKey = GlobalKey<FormState>();
   String? otpError;
 
-  final updateEmailVerificationProvider = UpdateEmailVerificationProvider();
+   
+    @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
 
+  initialize() async {
+    EncryptedSharedPreferences prefs = await EncryptedSharedPreferences.getInstance();
+     controller.updateEmailVerificationRequest.newEmail =prefs.getString('update_email').toString();
+  }
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
@@ -51,7 +60,6 @@ class EmailOtpVerificationPageState extends State<EmailOtpVerificationPage> {
                   children: [
                     // OTP field
                     TextFormField(
-                      controller: otpController,
                       style: AppTextStyles.inputFieldText.copyWith(fontSize: getResponsiveFontSize(0.03)),
                       decoration: InputDecoration(
                         labelText: 'OTP',
@@ -77,13 +85,18 @@ class EmailOtpVerificationPageState extends State<EmailOtpVerificationPage> {
                         }
                         return null;
                       },
+                      onChanged: (value){
+                        controller.updateEmailVerificationRequest.otp=value;
+                      },
                     ),
                     SizedBox(height: 32),
 
                     SizedBox(
                       width: 200,
                       child: ElevatedButton(
-                        onPressed: verifyOTP,
+                        onPressed: (){
+                          controller.verifyEmailOtp(controller.updateEmailVerificationRequest);
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.buttonColor,
                           padding: EdgeInsets.symmetric(vertical: 16),
@@ -105,35 +118,5 @@ class EmailOtpVerificationPageState extends State<EmailOtpVerificationPage> {
         ),
       ),
     );
-  }
-
-  void verifyOTP() async {
-    setState(() {
-      otpError = null;  
-    });
-
-    if (formKey.currentState!.validate()) {
-
-      final String email = Get.arguments['email'];
-
-      final otpVerificationRequest = UpdateEmailVerificationRequest(
-        newEmail: email,
-        otp: otpController.text,
-      );
-
-      try {
-
-        final response = await updateEmailVerificationProvider.verifyEmailOtp(otpVerificationRequest);
-
-        if (response != null) {
-          success("Success", 'OTP verified successfully!');
-          Get.to(HomePage());
-        } else {
-          failure("Error", "Failed to verify OTP. Please try again.");
-        }
-      } catch (e) {
-        failure("Error", "An error occurred: $e");
-      }
-    }
   }
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../Models/RequestModels/update_emailid_request_model.dart';
-import '../../../Models/ResponseModels/update_emailid_response_model.dart';
+import '../../../Controllers/controller.dart';
 import '../../../Providers/update_emailid_provider.dart';
 import '../../../constants.dart';
 import 'updateemailotpverification.dart';
@@ -14,22 +14,29 @@ class UpdateEmailPage extends StatefulWidget {
   UpdateEmailPageState createState() => UpdateEmailPageState();
 }
 class UpdateEmailPageState extends State<UpdateEmailPage> {
-  final passwordController = TextEditingController();
-  final newEmailController = TextEditingController();
+    Controller controller = Get.find();
+
 
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale; 
   }
 
+    @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
 
+  initialize() async {
+
+  }
   final formKey = GlobalKey<FormState>();
 
   String? passwordError;
   String? emailError;
 
 
-  final updateEmailProvider = UpdateEmailidProvider();
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +64,6 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
                 child: Column(
                   children: [
                     TextFormField(
-                      controller: passwordController,
                       obscureText: true,
                       style: AppTextStyles.inputFieldText.copyWith(fontSize: getResponsiveFontSize(0.03)),
                       decoration: InputDecoration(
@@ -79,10 +85,12 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
                         }
                         return null;
                       },
+                      onChanged: (value){
+                        controller.updateEmailIdRequest.password=value;
+                      },
                     ),
                     SizedBox(height: 16),
                     TextFormField(
-                      controller: newEmailController,
                       style: AppTextStyles.inputFieldText.copyWith(fontSize: getResponsiveFontSize(0.03)),
                       decoration: InputDecoration(
                         labelText: 'New Email ID',
@@ -109,12 +117,17 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
                         }
                         return null;
                       },
+                      onChanged: (value){
+                         controller.updateEmailIdRequest.password=value;
+                      },
                     ),
                     SizedBox(height: 32),
                     SizedBox(
                       width: 200, // Set the width as needed
                       child: ElevatedButton(
-                        onPressed: updateEmail,
+                        onPressed: (){
+                         controller.updateEmailId(controller.updateEmailIdRequest);
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.buttonColor,
                           padding: EdgeInsets.symmetric(vertical: 16),
@@ -141,38 +154,5 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
         ),
       ),
     );
-  }
-
-  void updateEmail() async {
-    setState(() {
-      passwordError = null;
-      emailError = null;
-    });
-
-
-    if (formKey.currentState!.validate()) {
-     
-      final updateEmailIdRequest = UpdateEmailIdRequest(
-        password: passwordController.text,
-        newEmail: newEmailController.text,
-      );
-
-      try {
-
-        UpdateEmailIdResponse? response = await updateEmailProvider.updateEmailId(updateEmailIdRequest);
-
-        if (response != null) {
-
-          success("Success", 'Email updated successfully!');
-          Get.to(EmailOtpVerificationPage());
-        } else {
-     
-         failure("Error",  "Failed to update email. Please try again.");
-        }
-      } catch (e) {
-        failure("Error", "Error: $e");
-
-      }
-    }
   }
 }

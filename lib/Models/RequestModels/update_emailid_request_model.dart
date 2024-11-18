@@ -1,21 +1,16 @@
 import 'dart:core';
+import '../../constants.dart'; 
 
 class UpdateEmailIdRequest {
-  final String password;
-  final String newEmail;
+ String password;
+  String newEmail;
 
   UpdateEmailIdRequest({
     required this.password,
     required this.newEmail,
-  }) {
+  });
 
-    validateNotEmpty(password, "Password");
-    validatePassword(password);
-   validateNotEmpty(newEmail, "New Email");
-    validateEmail(newEmail);
-  }
-
-
+  // Factory constructor to create UpdateEmailIdRequest from JSON
   factory UpdateEmailIdRequest.fromJson(Map<String, dynamic> json) {
     return UpdateEmailIdRequest(
       password: json['password'],
@@ -23,7 +18,7 @@ class UpdateEmailIdRequest {
     );
   }
 
-
+  // Method to convert UpdateEmailIdRequest object to JSON
   Map<String, dynamic> toJson() {
     return {
       'password': password,
@@ -31,13 +26,35 @@ class UpdateEmailIdRequest {
     };
   }
 
+  // Centralized validate method that checks all fields
+  bool validate() {
+    try {
+      // Validate password
+      validatePassword(password);
+
+      // Validate email
+      validateEmail(newEmail);
+
+      // Validate non-empty fields
+      validateNotEmpty(password, "Password");
+      validateNotEmpty(newEmail, "New Email");
+
+      return true; // All validations passed
+    } catch (e) {
+      // Show snackbar on validation failure
+      failure("Validation Error", e.toString());
+      return false;  // Validation failed
+    }
+  }
+
+  // Validation for non-empty fields
   void validateNotEmpty(String value, String fieldName) {
     if (value.isEmpty) {
       throw ArgumentError("$fieldName is required and cannot be empty.");
     }
   }
 
-
+  // Password validation
   void validatePassword(String password) {
     final passwordPattern = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$%^&*\(\)_\+\-=\[\]\{\};:,.<>\/?]).{8,}$');
     if (!passwordPattern.hasMatch(password)) {
@@ -45,11 +62,13 @@ class UpdateEmailIdRequest {
     }
   }
 
-
+  // Email validation
   void validateEmail(String email) {
     final emailPattern = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
     if (!emailPattern.hasMatch(email)) {
       throw ArgumentError("Invalid email format for field: New Email.");
     }
   }
+
+
 }

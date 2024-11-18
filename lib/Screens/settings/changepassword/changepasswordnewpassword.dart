@@ -1,11 +1,13 @@
 
-import 'package:dating_application/Screens/login.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../Controllers/controller.dart';
 import '../../../Models/RequestModels/change_password_request.dart';
-import '../../../Providers/change_password_provider.dart';
+
 import '../../../constants.dart';
+import '../../login.dart';
 
 
 class ChangePasswordPage extends StatefulWidget {
@@ -16,11 +18,15 @@ class ChangePasswordPage extends StatefulWidget {
 }
 class ChangePasswordPageState extends State<ChangePasswordPage> {
   final formKey = GlobalKey<FormState>();
-  final TextEditingController currentPasswordController = TextEditingController();
-  final TextEditingController newPasswordController = TextEditingController();
-  final TextEditingController confirmNewPasswordController = TextEditingController();
-  
-  final changePasswordProvider = ChangePasswordProvider();
+  Controller controller = Get.find();
+
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
+
+  initialize() {}
 
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -43,7 +49,7 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
     if (value == null || value.isEmpty) {
       return 'Please confirm your new password';
     }
-    if (value != newPasswordController.text) {
+    if (value != controller.changePasswordRequest.newPassword) {
       return 'Passwords do not match';
     }
     return null;
@@ -76,7 +82,6 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
                 child: Column(
                   children: [
                     TextFormField(
-                      controller: currentPasswordController,
                       style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
                       obscureText: true,
                       decoration: InputDecoration(
@@ -98,10 +103,12 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
                         ),
                       ),
                       validator: validatePassword,
+                      onChanged: (value){
+                        controller.changePasswordRequest.oldPassword=value;
+                      },
                     ),
                     SizedBox(height: 20),
                     TextFormField(
-                      controller: newPasswordController,
                       style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
                       obscureText: true,
                       decoration: InputDecoration(
@@ -123,10 +130,12 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
                         ),
                       ),
                       validator: validatePassword,
+                      onChanged: (value){
+                        controller.changePasswordRequest.newPassword=value;
+                      },
                     ),
                     SizedBox(height: 20),
                     TextFormField(
-                      controller: confirmNewPasswordController,
                       style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
                       obscureText: true,
                       decoration: InputDecoration(
@@ -151,28 +160,18 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
                     ),
                     SizedBox(height: 20),
                     ElevatedButton(
-                      onPressed: () async {
+                      onPressed: (){
                         if (formKey.currentState!.validate()) {
-                          String oldPassword = currentPasswordController.text;
-                          String newPassword = newPasswordController.text;
+                          String oldPassword = controller.changePasswordRequest.oldPassword;
+                          String newPassword = controller.changePasswordRequest.newPassword;
 
                           final changePasswordRequest = ChangePasswordRequest(
                             oldPassword: oldPassword,
                             newPassword: newPassword,
                           );
 
-                          try {
-                            final response = await changePasswordProvider.changePassword(changePasswordRequest);
-
-                            if (response != null) {
-                             success('Success','Password successfully changed');
-                            Get.offAll(Login());
-                            } else {
-                              failure('Failed', 'Failed to change password');
-                            }
-                          } catch (e) {
-                          failure('Failed', 'An error occurred: ${e.toString()}');
-                          }
+                        controller.changePassword(changePasswordRequest);
+                        Get.to(Login());
                         }
                       },
                       style: ElevatedButton.styleFrom(

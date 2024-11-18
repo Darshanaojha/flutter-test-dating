@@ -9,7 +9,7 @@ import '../constants.dart';
 class HomePageProvider extends GetConnect {
   Future<DesiresResponse?> fetchDesires() async {
     try {
-      Response response = await get('$baseUrl/Common/all_desires');
+      Response response = await get('$baseurl/Common/all_desires');
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {

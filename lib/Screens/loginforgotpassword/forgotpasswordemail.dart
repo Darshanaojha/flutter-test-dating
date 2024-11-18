@@ -1,5 +1,4 @@
 
-import 'package:dating_application/Models/RequestModels/registration_otp_request_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -16,9 +15,18 @@ class EmailInputPage extends StatefulWidget {
 
 class EmailInputPageState extends State<EmailInputPage> {
   final formKey = GlobalKey<FormState>();
-Controller controller = Get.put(Controller());
+  Controller controller = Get.find();
 
-   TextEditingController emailController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+@override
+  void initState() {
+    super.initState();
+    initialize();
+  }
+
+  initialize(){
+    
+  }
   String? validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter an email address';
@@ -34,7 +42,7 @@ Controller controller = Get.put(Controller());
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double fontSize = screenWidth * 0.03; 
+    double fontSize = screenWidth * 0.03;
 
     return Scaffold(
       appBar: AppBar(
@@ -42,7 +50,8 @@ Controller controller = Get.put(Controller());
         backgroundColor: AppColors.primaryColor,
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1, vertical: 30),
+        padding:
+            EdgeInsets.symmetric(horizontal: screenWidth * 0.1, vertical: 30),
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -52,17 +61,19 @@ Controller controller = Get.put(Controller());
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 30),
-              
               Form(
                 key: formKey,
                 child: Column(
                   children: [
                     TextFormField(
-                      controller:emailController ,
-                      style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
+                      controller: emailController,
+                      cursorColor: AppColors.cursorColor,
+                      style: AppTextStyles.inputFieldText
+                          .copyWith(fontSize: fontSize),
                       decoration: InputDecoration(
                         labelText: 'Email',
-                        labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
+                        labelStyle: AppTextStyles.labelText
+                            .copyWith(fontSize: fontSize),
                         filled: true,
                         fillColor: AppColors.formFieldColor,
                         border: OutlineInputBorder(
@@ -75,45 +86,51 @@ Controller controller = Get.put(Controller());
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: AppColors.errorBorderColor),
+                          borderSide:
+                              BorderSide(color: AppColors.errorBorderColor),
                         ),
                       ),
                       validator: validateEmail,
-                       onChanged: (value) {
+                      onChanged: (value) {
                         setState(() {
-                         controller.forgetPasswordRequest.email= value;  
+                          controller.forgetPasswordRequest.email = value;
                         });
                       },
                       onSaved: (value) {
-                        controller.forgetPasswordRequest.email= value.toString(); 
+                        controller.forgetPasswordRequest.email =
+                            value.toString();
                       },
                       keyboardType: TextInputType.emailAddress,
                     ),
                     SizedBox(height: 20),
-
                     ElevatedButton(
                       onPressed: () {
                         if (formKey.currentState!.validate()) {
-                        //  controller.getOtp(controller.forgetPasswordRequest);
-                          success('Success', 'Email Submitted: ${controller.registrationOTPRequest.email}');
+                          success('Success',
+                              'Email Submitted: ${controller.forgetPasswordRequest.email}');
+                              controller.getOtpForgetPassword(controller.forgetPasswordRequest);
                           Get.to(PasswordInputPage());
                         }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.buttonColor,
-                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                        padding:
+                            EdgeInsets.symmetric(vertical: 15, horizontal: 50),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                       child: Text(
                         'Submit',
-                        style: AppTextStyles.buttonText.copyWith(fontSize: fontSize),
+                        style: AppTextStyles.buttonText
+                            .copyWith(fontSize: fontSize),
                       ),
                     ),
-                    ElevatedButton(onPressed:(){
-                      Get.to(PasswordInputPage());
-                    } , child: Text('Next'))
+                    ElevatedButton(
+                        onPressed: () {
+                          Get.to(PasswordInputPage());
+                        },
+                        child: Text('Next'))
                   ],
                 ),
               ),
