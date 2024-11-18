@@ -29,54 +29,23 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   int currentPage = 1;
   final PageController pageController = PageController();
 
-  final controller = Get.find<Controller>();
-  List<Gender> genderOptions = [];
+  final controller = Get.put(Controller());
   RxList<bool> selectedOptions = <bool>[].obs;
-
-  Future<void> fetchBenefits() async {
-    await controller.fetchBenefits();
-  }
-
-  Future<void> fetchGuidelines() async {
-    await controller.fetchSafetyGuidelines();
-  }
-
-  Future<void> fetchPreferences() async {
-    final success = await controller.fetchPreferences();
-    if (success) {
-      selectedOptions.value =
-          List<bool>.filled(controller.preferences.length, false);
-    }
-  }
-
-  Future<void> fetchGenders() async {
-    final success = await controller.fetchGenders();
-    if (success) {
-      setState(() {
-        genderOptions = controller.genders;
-      });
-    }
-  }
-
-  List<Headline> headlines = [];
-
-  Future<void> fetchHeadlines() async {
-    final success = await controller.fetchHeadlines();
-    if (success) {
-      setState(() {
-        headlines = controller.headlines;
-      });
-    }
-  }
 
   @override
   void initState() {
     super.initState();
-    fetchGenders();
-    fetchPreferences();
-    fetchGuidelines();
-    fetchBenefits();
-    fetchHeadlines();
+    intialize();
+  }
+
+  intialize() async {
+    await controller.fetchBenefits();
+    await controller.fetchSafetyGuidelines();
+    await controller.fetchPreferences();
+    await controller.fetchGenders();
+    await controller.fetchHeadlines();
+    print("Headline: ${controller.headlines.length}");
+    print("Lenght: ${controller.preferences.length}");
   }
 
   @override
@@ -231,6 +200,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           children: [
             // Heading with AppTextStyles
             Text(
+              // controller.headlines[0].title,
               "What is your date of birth?",
               style: AppTextStyles.titleText.copyWith(
                 fontSize: titleFontSize, // Adjust font size dynamically
@@ -414,7 +384,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
         padding: const EdgeInsets.all(16.0),
         child: Center(
           // Ensure everything is centered
-          child: Column( // Center contents horizontally
+          child: Column(
+            // Center contents horizontally
             children: [
               // Heading text with responsive font size
               Text(
@@ -430,12 +401,18 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
               // Gender options using RadioListTile
               Obx(() {
+                if (controller.preferences.isEmpty) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+
                 return Expanded(
                   // Allow the gender options to take the remaining space
                   child: SingleChildScrollView(
                     // In case the options overflow
                     child: Column(
-                      children: genderOptions.map((gender) {
+                      children: controller.genders.map((gender) {
                         return RadioListTile<Gender?>(
                           title: Text(
                             gender
@@ -605,8 +582,11 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               const SizedBox(height: 20),
 
               // Checkbox options for preferences
-              Column(
-                children: List.generate(controller.preferences.length, (index) {
+              Expanded(
+                  // Use Expanded to let ListView take available space
+                  child: ListView.builder(
+                itemCount: controller.preferences.length,
+                itemBuilder: (context, index) {
                   final preference = controller.preferences[index];
                   return Obx(() {
                     return CheckboxListTile(
@@ -626,8 +606,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       contentPadding: EdgeInsets.zero,
                     );
                   });
-                }),
-              ),
+                },
+              )),
             ],
           ),
         ),
@@ -1654,53 +1634,53 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Obx(() {
-                  RxString selectedBenefit = 'None'.obs;
+               Obx(() {
+  return Container(
+    width: MediaQuery.of(context).size.width * 0.8,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: AppColors.formFieldColor),
+    ),
+    child: DropdownButton<String>(
+      value: controller.benefits.isEmpty
+          ? null
+          : controller.benefits
+              .map((benefit) => benefit.title)
+              .toList()
+              .contains(controller.selectedBenefit.value)
+          ? controller.selectedBenefit.value
+          : null,
+      hint: Text(
+        "Click to know what we offer",
+        style: AppTextStyles.bodyText.copyWith(
+          fontSize: fontSize - 6, // Slightly smaller font for the hint
+          color: AppColors.textColor.withOpacity(0.6),
+        ),
+      ),
+      icon: Icon(Icons.arrow_drop_down, color: AppColors.iconColor),
+      isExpanded: true,
+      onChanged: (String? newValue) {
+        if (newValue != null) {
+          controller.selectedBenefit.value = newValue;
+        }
+      },
+      items: controller.benefits
+          .map<DropdownMenuItem<String>>((Benefit benefit) {
+        return DropdownMenuItem<String>(
+          value: benefit.title,
+          child: Text(
+            benefit.title,
+            style: AppTextStyles.bodyText.copyWith(
+              fontSize: fontSize - 6, // Slightly smaller font for dropdown items
+              color: AppColors.textColor,
+            ),
+          ),
+        );
+      }).toList(),
+    ),
+  );
+})
 
-                  // Dropdown widget
-                  return Container(
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.formFieldColor),
-                    ),
-                    child: DropdownButton<String>(
-                      value: selectedBenefit.value == 'None'
-                          ? null
-                          : selectedBenefit.value,
-                      hint: Text(
-                        "Click to know what we offer",
-                        style: AppTextStyles.bodyText.copyWith(
-                          fontSize: fontSize -
-                              6, // Slightly smaller font for the hint
-                          color: AppColors.textColor.withOpacity(0.6),
-                        ),
-                      ),
-                      icon: Icon(Icons.arrow_drop_down,
-                          color: AppColors.iconColor),
-                      isExpanded: true,
-                      onChanged: (String? newValue) {
-                        if (newValue != null) {
-                          selectedBenefit.value = newValue;
-                        }
-                      },
-                      items: controller.benefits
-                          .map<DropdownMenuItem<String>>((Benefit benefit) {
-                        return DropdownMenuItem<String>(
-                          value: benefit.title,
-                          child: Text(
-                            benefit.title,
-                            style: AppTextStyles.bodyText.copyWith(
-                              fontSize: fontSize -
-                                  6, // Slightly smaller font for dropdown items
-                              color: AppColors.textColor,
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  );
-                })
               ],
             ),
           ),
@@ -1998,79 +1978,82 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
       double fontSize = screenSize.width * 0.03;
 
-      return Column(
-        children: [
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Text(
-                    "Safety Guidelines",
-                    style: AppTextStyles.titleText.copyWith(
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textColor, // Consistent color
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    "Please follow these rules to ensure a safe experience.",
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2,
-                      color: AppColors.textColor, // Consistent color
-                    ),
-                  ),
-                ],
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-            ),
-          ),
-          SizedBox(height: 20),
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Heading
-                  Center(
-                    child: Text(
+              child: Padding(
+                padding: const EdgeInsets.all(26.0),
+                child: Column(
+                  children: [
+                    Text(
                       "Safety Guidelines",
                       style: AppTextStyles.titleText.copyWith(
-                        fontSize: fontSize - 2,
+                        fontSize: fontSize,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textColor,
+                        color: AppColors.textColor, // Consistent color
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Display each safety guideline
-                  ...controller.safetyGuidelines.map((guideline) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: buildConfirmationRow(
-                        guideline.title,
-                        guideline.description,
-                        Icons.shield,
-                        screenSize,
+                    SizedBox(height: 10),
+                    Text(
+                      "Please follow these rules to ensure a safe experience.",
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: fontSize - 2,
+                        color: AppColors.textColor, // Consistent color
                       ),
-                    );
-                  }).toList(),
-                ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+            SizedBox(height: 20),
+            Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Heading
+                    Center(
+                      child: Text(
+                        "Safety Guidelines",
+                        style: AppTextStyles.titleText.copyWith(
+                          fontSize: fontSize - 2,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textColor,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Display each safety guideline
+                    ...controller.safetyGuidelines.map((guideline) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child: buildConfirmationRow(
+                          guideline.title,
+                          guideline.description,
+                          Icons.shield,
+                          screenSize,
+                        ),
+                      );
+                    }).toList(),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       );
     });
   }

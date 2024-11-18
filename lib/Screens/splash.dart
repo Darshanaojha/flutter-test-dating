@@ -1,3 +1,4 @@
+import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Screens/login.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
@@ -12,36 +13,39 @@ class Splash extends StatefulWidget {
 }
 
 class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
-  late AnimationController controller;
+  late AnimationController animationController;
   late Animation<double> opacityAnimation;
   late Animation<double> scaleAnimation;
+
+  final controller = Get.put(Controller());
 
   @override
   void initState() {
     super.initState();
+    controller.fetchHeadlines();
+    controller.fetchPreferences();
 
- 
-    controller = AnimationController(
+    animationController = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 3), 
+      duration: Duration(seconds: 3),
     )..forward();
 
     opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: controller, curve: Curves.easeIn),
+      CurvedAnimation(parent: animationController, curve: Curves.easeIn),
     );
 
     scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
-      CurvedAnimation(parent: controller, curve: Curves.easeInOut),
+      CurvedAnimation(parent: animationController, curve: Curves.easeInOut),
     );
 
     Future.delayed(Duration(seconds: 3), () {
-      Get.offAll(() => Login()); 
+      Get.offAll(() => Login());
     });
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    animationController.dispose();
     super.dispose();
   }
 
@@ -70,8 +74,8 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
                   ),
                 ),
               ),
-              SizedBox(height: 10), 
-              
+              SizedBox(height: 10),
+
               // Second Text (Application)
               FadeTransition(
                 opacity: opacityAnimation,

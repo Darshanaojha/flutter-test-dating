@@ -38,14 +38,10 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
   List<Country> countries = [];
   Country? selectedCountry;
 
+  final controller = Get.find<Controller>();
+  
   Future<void> fetchCountries() async {
-    final controller = Get.find<Controller>();
-    final success = await controller.fetchCountries();
-    if (success) {
-      setState(() {
-        countries = controller.countries;
-      });
-    }
+    await controller.fetchCountries();
   }
 
   @override

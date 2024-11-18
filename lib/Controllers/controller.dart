@@ -260,7 +260,7 @@ class Controller extends GetxController {
   }
 
   RxList<Benefit> benefits = <Benefit>[].obs;
-
+  RxString selectedBenefit = 'None'.obs;
   Future<bool> fetchBenefits() async {
     try {
       benefits.clear();
