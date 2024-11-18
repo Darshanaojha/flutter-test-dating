@@ -22,8 +22,6 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    controller.fetchHeadlines();
-    controller.fetchPreferences();
 
     animationController = AnimationController(
       vsync: this,

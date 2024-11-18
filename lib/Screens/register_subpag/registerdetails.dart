@@ -35,11 +35,10 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
   late AnimationController animationController;
   late Animation<double> fadeInAnimation;
 
-  List<Country> countries = [];
   Country? selectedCountry;
 
   final controller = Get.find<Controller>();
-  
+
   Future<void> fetchCountries() async {
     await controller.fetchCountries();
   }
@@ -47,9 +46,8 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
   @override
   void initState() {
     super.initState();
-    selectedState = states[0];
 
-    fetchCountries(); // local function call
+    fetchCountries();
 
     animationController = AnimationController(
       duration: Duration(seconds: 1),
@@ -162,19 +160,29 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                             obscureText: true),
 
                         // Country Dropdown
-                        buildDropdown<Country>(
-                          "Country",
-                          countries,
-                          selectedCountry,
-                          16.0,
-                          (Country? value) {
-                            setState(() {
-                              selectedCountry = value;
-                            });
-                          },
-                          displayValue: (Country country) =>
-                              country.name, // Display country name
-                        ),
+                        Obx(() {
+                          // Check if countries are available before building the dropdown
+                          if (controller.countries.isEmpty) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                          return buildDropdown<Country>(
+                            "Country",
+                            controller.countries,
+                            selectedCountry,
+                            16.0,
+                            (Country? value) {
+                              setState(() {
+                                selectedCountry =
+                                    value; // Update the selected country on change
+                              });
+                            },
+                            displayValue: (Country country) =>
+                                country.name, // Display country name
+                          );
+                        }),
 
                         // State Dropdown
                         buildDropdown("State", states, selectedState, fontSize,
@@ -322,12 +330,12 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     double fontSize,
     Function(T?) onChanged, {
     String Function(T)?
-    displayValue, // Helper to extract display value from items
+        displayValue, // Helper to extract display value from items
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: DropdownButtonFormField<T>(
-        value: selectedValue,
+        value: selectedValue, // Bind to the selected value
         items: items.map((T value) {
           return DropdownMenuItem<T>(
             value: value,
@@ -337,7 +345,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
             ),
           );
         }).toList(),
-        onChanged: onChanged,
+        onChanged: onChanged, // Use the provided onChanged callback
         decoration: InputDecoration(
           labelText: label,
           labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),

@@ -33,6 +33,7 @@ import '../Models/ResponseModels/registration_otp_verification_response_model.da
 import '../Models/ResponseModels/user_login_response_model.dart';
 import '../Models/ResponseModels/user_registration_response_model.dart';
 import '../Providers/chat_message_page_provider.dart';
+import '../Providers/fetch_all_countries_provider.dart';
 import '../Providers/home_page_provider.dart';
 import '../Providers/registration_provider.dart';
 import '../constants.dart';
@@ -126,7 +127,7 @@ class Controller extends GetxController {
       countries.clear();
 
       final CountryResponse? response =
-          await RegistrationProvider().fetchCountries();
+          await FetchAllCountriesProvider().fetchCountries();
 
       if (response != null && response.payload.data.isNotEmpty) {
         countries.addAll(response.payload.data);
