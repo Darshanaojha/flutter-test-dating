@@ -3,7 +3,6 @@ import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Controllers/controller.dart';
-import '../../Models/RequestModels/forget_password_request_model.dart';
 import '../../Models/RequestModels/forget_password_verification_request_model.dart';
 import '../../constants.dart';
 import '../login.dart';
@@ -21,6 +20,7 @@ class OTPInputPageState extends State<OTPInputPage> {
   Controller controller = Get.find();
   String? forgetpasswordemail;
   String? forgetpassword;
+
   @override
   void initState() {
     super.initState();
@@ -28,22 +28,22 @@ class OTPInputPageState extends State<OTPInputPage> {
   }
 
   initialize() async {
-    EncryptedSharedPreferences prefs =
-        await EncryptedSharedPreferences.getInstance();
+    EncryptedSharedPreferences prefs = await EncryptedSharedPreferences.getInstance();
     setState(() {
       forgetpasswordemail = prefs.getString('forgetpasswordemail');
       forgetpassword = prefs.getString('forgetpassword');
     });
+
     if (forgetpasswordemail != null) {
       controller.forgetPasswordVerificationRequest = ForgetPasswordVerificationRequest(
         email: forgetpasswordemail!,
         password: forgetpassword!,
-        otp: ''
+        otp: '' 
       );
     }
   }
 
-
+ 
   String? validateOTP(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter a digit';
@@ -54,26 +54,33 @@ class OTPInputPageState extends State<OTPInputPage> {
     return null;
   }
 
-  String? validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter a new password';
-    }
-    if (value.length < 8) {
-      return 'Password must be at least 8 characters';
-    }
-    return null;
-  }
 
-  String? validateConfirmPassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please confirm your password';
-    }
-    if (value != controller.forgetPasswordVerificationRequest.password) {
-      return 'Passwords do not match';
-    }
-    return null;
+  String getOtp() {
+    return otpControllers.map((controller) => controller.text).join('');
   }
+  void submitOtp() async {
+    String enteredOtp = getOtp();
 
+  
+    if (enteredOtp.length != 6) {
+      failure('Error', 'Please enter a 6-digit OTP');
+      return;
+    }
+
+
+    if (formKey.currentState?.validate() ?? false) {
+
+      controller.forgetPasswordVerificationRequest.otp = enteredOtp;
+      bool success = await controller.otpVerificationForgetPassword(controller.forgetPasswordVerificationRequest);
+      if (success) {
+        Get.to(Login());
+      } else {
+        failure('Error', 'Failed to verify OTP');
+      }
+    } else {
+      failure('Error', 'Please fill all OTP fields correctly');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +103,6 @@ class OTPInputPageState extends State<OTPInputPage> {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 30),
-              
               Form(
                 key: formKey,
                 
@@ -128,36 +134,23 @@ class OTPInputPageState extends State<OTPInputPage> {
                               ),
                             ),
                             keyboardType: TextInputType.number,
-                            maxLength: 1, 
+                            maxLength: 1,
                             textAlign: TextAlign.center,
                             
                             validator: validateOTP,
                             onChanged: (value) {
-                       
-                          if (value.isNotEmpty && index < otpControllers.length - 1) {
-                            FocusScope.of(context).nextFocus();
-                          }
-                        },
-                        onSaved: (value) {
-                    
-                          otpControllers[index].text = value ?? '';
-                        },
+                              // Move focus to the next field if the current field is filled
+                              if (value.isNotEmpty && index < otpControllers.length - 1) {
+                                FocusScope.of(context).nextFocus();
+                              }
+                            },
                           ),
                         );
                       }),
                     ),
                     SizedBox(height: 20),
                     ElevatedButton(
-                      onPressed: (){
-                         if (formKey.currentState?.validate() ?? false) {
-                          formKey.currentState?.save();
-                          controller.otpVerificationForgetPassword(
-                              controller.forgetPasswordVerificationRequest);
-                        } else {
-                          failure('otp', 'not entered');
-                          return;
-                        }
-                      },
+                      onPressed: submitOtp,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.buttonColor,
                         padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
@@ -170,7 +163,6 @@ class OTPInputPageState extends State<OTPInputPage> {
                         style: AppTextStyles.buttonText.copyWith(fontSize: fontSize),
                       ),
                     ),
-                    ElevatedButton(onPressed: (){Get.to(Login());}, child: Text("Next"))
                   ],
                 ),
               ),

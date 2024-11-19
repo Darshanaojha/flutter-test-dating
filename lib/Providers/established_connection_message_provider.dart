@@ -8,8 +8,8 @@ class EstablishConnectionProvider extends GetConnect {
   Future<EstablishConnectionResponse?> sendConnectionMessage(
       EstablishConnectionMessageRequest request) async {
     try {
-
-      EncryptedSharedPreferences preferences = EncryptedSharedPreferences.getInstance();
+      EncryptedSharedPreferences preferences =
+          EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {

@@ -17,9 +17,6 @@ import 'package:dating_application/Providers/login_provider.dart';
 import 'package:dating_application/Providers/user_profile_provider.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import '../Models/RequestModels/change_password_request.dart';
 import '../Models/RequestModels/delete_message_request_model.dart';
 import '../Models/RequestModels/edit_message_request_model.dart';
 import '../Models/RequestModels/estabish_connection_request_model.dart';
@@ -27,37 +24,27 @@ import '../Models/RequestModels/forget_password_request_model.dart';
 import '../Models/RequestModels/forget_password_verification_request_model.dart';
 import '../Models/RequestModels/registration_otp_request_model.dart';
 import '../Models/RequestModels/registration_otp_verification_request_model.dart';
-import '../Models/RequestModels/subgender_request_model.dart';
 import '../Models/RequestModels/update_emailid_otp_verification_request_model.dart';
 import '../Models/RequestModels/update_emailid_request_model.dart';
 import '../Models/RequestModels/user_profile_update_request_model.dart';
 import '../Models/RequestModels/user_registration_request_model.dart';
 import '../Models/ResponseModels/ProfileResponse.dart';
 import '../Models/ResponseModels/all_active_user_resposne_model.dart';
-import '../Models/ResponseModels/change_password_response_model.dart';
 import '../Models/ResponseModels/chat_history_response_model.dart';
 import '../Models/ResponseModels/delete_message_response_model.dart';
 import '../Models/ResponseModels/edit_message_response_model.dart';
 import '../Models/ResponseModels/establish_connection_response_model.dart';
 import '../Models/ResponseModels/forget_password_response_model.dart';
 import '../Models/ResponseModels/forget_password_verification_response_model.dart';
-import '../Models/ResponseModels/get_all_benifites_response_model.dart';
 import '../Models/ResponseModels/get_all_country_response_model.dart';
 import '../Models/ResponseModels/get_all_desires_model_response.dart';
-import '../Models/ResponseModels/get_all_gender_from_response_model.dart';
-import '../Models/ResponseModels/get_all_headlines_response_model.dart';
-import '../Models/ResponseModels/get_all_saftey_guidelines_response_model.dart';
-import '../Models/ResponseModels/get_all_whoareyoulookingfor_response_model.dart';
 import '../Models/ResponseModels/registration_otp_response_model.dart';
 import '../Models/ResponseModels/registration_otp_verification_response_model.dart';
-import '../Models/ResponseModels/subgender_response_model.dart';
 import '../Models/ResponseModels/update_emailid_otp_verification_response_model.dart';
 import '../Models/ResponseModels/update_emailid_response_model.dart';
 import '../Models/ResponseModels/user_login_response_model.dart';
 import '../Models/ResponseModels/user_profile_update_response_model.dart';
 import '../Models/ResponseModels/user_registration_response_model.dart';
-import '../Models/ResponseModels/user_upload_images_response_model.dart';
-import '../Providers/change_password_provider.dart';
 import '../Providers/chat_message_page_provider.dart';
 import '../Providers/delete_message_provider.dart';
 import '../Providers/edit_message_provider.dart';
@@ -65,9 +52,6 @@ import '../Providers/established_connection_message_provider.dart';
 import '../Providers/fetch_all_active_user_provider.dart';
 import '../Providers/fetch_all_countries_provider.dart';
 import '../Providers/fetch_all_genders_provider.dart';
-import '../Providers/fetch_all_headlines_provider.dart';
-import '../Providers/fetch_all_preferences_provider.dart';
-import '../Providers/fetch_all_safety_guildlines_provider.dart';
 import '../Providers/fetch_benefits_provider.dart';
 import '../Providers/fetch_sub_genders_provider.dart';
 import '../Providers/home_page_provider.dart';
@@ -98,6 +82,8 @@ class Controller extends GetxController {
       final UserRegistrationResponse? response =
           await UserRegistrationProvider()
               .userRegistration(userRegistrationRequest);
+      await UserRegistrationProvider()
+          .userRegistration(userRegistrationRequest);
       if (response != null) {
         success('success', response.payload.message);
         return true;
@@ -307,7 +293,7 @@ class Controller extends GetxController {
       return false;
     }
   }
-   RxString selectedBenefit = 'None'.obs;
+
   RxList<UserPreference> preferences = <UserPreference>[].obs;
   Future<bool> fetchPreferences() async {
     try {
@@ -329,7 +315,7 @@ class Controller extends GetxController {
   }
 
   RxList<Benefit> benefits = <Benefit>[].obs;
-
+  RxString selectedBenefit = 'None'.obs;
   Future<bool> fetchBenefits() async {
     try {
       benefits.clear();
@@ -523,35 +509,56 @@ class Controller extends GetxController {
 
   ForgetPasswordRequest forgetPasswordRequest =
       ForgetPasswordRequest(email: '', newPassword: '');
+  Future<void> storeOtp(String otp) async {
+    EncryptedSharedPreferences prefs =
+        await EncryptedSharedPreferences.getInstance();
+    await prefs.setString('otp', otp);
+  }
+
   Future<bool> getOtpForgetPassword(
       ForgetPasswordRequest forgetPasswordRequest) async {
     EncryptedSharedPreferences prefs =
         await EncryptedSharedPreferences.getInstance();
     await prefs.setString('forgetpasswordemail', forgetPasswordRequest.email);
     await prefs.setString('forgetpassword', forgetPasswordRequest.newPassword);
+
     try {
+      Get.snackbar('Request',
+          'Email: ${forgetPasswordRequest.email} \nPassword: ${forgetPasswordRequest.newPassword}');
+
+      // Call the API to get OTP
       ForgetPasswordResponse? response =
           await LoginProvider().getOtpForgetPassword(forgetPasswordRequest);
+
       if (response != null) {
-        //  String otp = response.payload.extractOtp();
-         String message = response.payload.message;
-         print(message);
-        RegExp otpRegExp = RegExp(r'(\d{6})');
-        Match? otpforget = otpRegExp.firstMatch(message);
-        if (otpforget!=null) {
-          success('Success', 'OTP sent successfully: $otpforget');
-          return true;
+        // Extract OTP from the message
+        String message = response.payload.message;
+        print(message);
+
+        // Regex to match the OTP in the message
+        RegExp otpRegExp = RegExp(r'(\d{6})'); // 6-digit OTP
+        Match? otpMatch = otpRegExp.firstMatch(message);
+
+        if (otpMatch != null) {
+          // Extract OTP
+          String otp = otpMatch.group(0)!;
+          success('Success', 'OTP sent successfully: $otp');
+
+          // Optionally, store the OTP for future use (if needed)
+          await storeOtp(otp);
+
+          return true; // OTP extraction succeeded
         } else {
           failure('Error', 'OTP not found in the message');
-          return false;
+          return false; // OTP extraction failed
         }
       } else {
         failure('Error', 'Failed to get the OTP');
-        return false;
+        return false; // API response was null
       }
     } catch (e) {
       failure('Error', e.toString());
-      return false;
+      return false; // Handle exception
     }
   }
 
@@ -616,6 +623,25 @@ class Controller extends GetxController {
       return false;
     }
   }
+
+  UserProfileUpdateRequest userProfileUpdateRequest = UserProfileUpdateRequest(
+    name: "",
+    latitude: "",
+    longitude: "",
+    address: "",
+    countryId: "",
+    state: "",
+    city: "",
+    dob: "",
+    nickname: "",
+    gender: "",
+    subGender: "",
+    interest: [],
+    bio: '',
+    emailAlerts: '',
+    preferences: [],
+    desires: [],
+  );
 
   Future<bool> updateProfile(
       UserProfileUpdateRequest updateProfileRequest) async {

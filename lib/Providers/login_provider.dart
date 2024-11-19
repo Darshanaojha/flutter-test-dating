@@ -13,11 +13,13 @@ class LoginProvider extends GetConnect {
  Controller controller= Get.find();
   Future<ForgetPasswordResponse?> getOtpForgetPassword(
       ForgetPasswordRequest forgetPasswordRequest) async {
-        Get.snackbar('', controller.forgetPasswordRequest.email);
+        
     try {
+       Get.snackbar('request', controller.forgetPasswordRequest.email.toString()+controller.forgetPasswordRequest.newPassword.toString());
+        final requestBody = forgetPasswordRequest.toJson();
       Response response = await post(
         "$baseurl/Profile/forget_password",
-        forgetPasswordRequest,
+        requestBody,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8'
         },
@@ -48,9 +50,10 @@ class LoginProvider extends GetConnect {
       ForgetPasswordVerificationRequest
           forgetPasswordVerificationRequest) async {
     try {
+      final requestBody = forgetPasswordVerificationRequest.toJson();
       Response response = await post(
         '$baseurl/Profile/forget_password_otp_verification',
-        forgetPasswordVerificationRequest,
+        requestBody,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -79,9 +82,10 @@ class LoginProvider extends GetConnect {
   Future<UserLoginResponse?> userLogin(
       UserLoginRequest userLoginRequest) async {
     try {
+       final requestBody = userLoginRequest.toJson();
       Response response = await post(
         '$baseurl/Authentication/login',
-        userLoginRequest,
+        requestBody,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

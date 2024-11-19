@@ -5,13 +5,16 @@ import 'package:get/get.dart';
 import '../Models/RequestModels/change_password_request.dart';
 import '../Models/ResponseModels/change_password_response_model.dart';
 
+
 class ChangePasswordProvider extends GetConnect {
+
   Future<ChangePasswordResponse?> changePassword(
       ChangePasswordRequest request) async {
     try {
-
-      EncryptedSharedPreferences preferences = EncryptedSharedPreferences.getInstance();
+      EncryptedSharedPreferences preferences =
+          EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
+
 
       if (token != null && token.isNotEmpty) {
         Response response = await post(

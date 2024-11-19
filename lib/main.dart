@@ -1,9 +1,25 @@
 import 'package:dating_application/Screens/routings/routes.dart';
+import 'package:dating_application/constants.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 
-void main() {
+import 'Providers/fcmService.dart';
+
+void main() async {
+  // Initialize Firebase
+  await Firebase.initializeApp(
+    options: FirebaseConstants.firebaseOptions,
+  );
+
+  // Initialize notification services
+  final fcmService = FCMService();
+  await fcmService.setupNotifications();
+
+  // Setup background message handler
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   runApp(const MainApp());
 }
 
@@ -15,9 +31,9 @@ class MainApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'FlamR',
-       theme: ThemeData(
-         brightness: Brightness.dark,
-          appBarTheme: AppBarTheme(
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        appBarTheme: AppBarTheme(
           systemOverlayStyle: SystemUiOverlayStyle.light,
           toolbarHeight: MediaQuery.of(context).size.height * 0.1,
         ),
@@ -28,29 +44,8 @@ class MainApp extends StatelessWidget {
   }
 }
 
-// late UserRegistrationRequest userRegistrationRequest;
-      // UserRegistrationRequest userRegistrationRequest = UserRegistrationRequest(
-      //   name: '',
-      //   email: '',
-      //   mobile: '',
-      //   latitude: '',
-      //   longitude: '',
-      //   address: '',
-      //   password:'',
-      //   countryId: '',
-      //   state: '',
-      //   city: '',
-      //   dob: '',
-      //   nickname: '',
-      //   gender: '',
-      //   subGender: '',
-      //   preferences: [],
-      //   desires: [],
-      //   interest: '',
-      //   bio: '',
-      //   photos: [],
-      //   packageId: '',
-      //   emailAlerts: '',
-      //   username: '',
-      //   lookingFor: '',
-      // );
+// Background message handler (if not already in the service)
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print('Handling a background message: ${message.messageId}');
+  // You can customize how to handle background messages here
+}

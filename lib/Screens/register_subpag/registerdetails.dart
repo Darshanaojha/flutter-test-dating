@@ -8,6 +8,8 @@ import 'package:get/get.dart';
 
 import 'register_subpage.dart';
 
+import 'register_subpage.dart';
+
 class RegisterProfilePage extends StatefulWidget {
   const RegisterProfilePage({super.key});
 

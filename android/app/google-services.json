@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "837611833070",
+    "project_id": "datingapplication-f7813",
+    "storage_bucket": "datingapplication-f7813.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:837611833070:android:3cd2c487816f9828f215ff",
+        "android_client_info": {
+          "package_name": "com.pisyst.dating_application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC3ROuYfPMzBPPtA4f_5HsxfVilIUuxgbc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
