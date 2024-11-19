@@ -4,6 +4,7 @@ import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
 import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -82,7 +83,10 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
         color: AppColors.primaryColor,
         child: Center(
           child: _isLoading
-              ? CircularProgressIndicator() // Show loading indicator while data is being fetched
+              ? SpinKitCircle(
+                size: 150,
+                color: AppColors.acceptColor,
+              ) 
               : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
