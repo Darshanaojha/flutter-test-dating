@@ -2,22 +2,22 @@
 import '../../constants.dart'; // For basic UI error handling
 
 class UserProfileUpdateRequest {
-  final String name;
-  final String latitude;
-  final String longitude;
-  final String address;
-  final String countryId;
-  final String state;
-  final String city;
-  final String dob;
-  final String nickname;
-  final String gender;
-  final String subGender;
-  final String interest;
-  final String bio;
-  final String emailAlerts;
-  final String preferences;
-  final String desires;
+   String name;
+   String latitude;
+   String longitude;
+   String address;
+   String countryId;
+   String state;
+   String city;
+   String dob;
+   String nickname;
+   String gender;
+   String subGender;
+   List<dynamic> interest;
+   String bio;
+   String emailAlerts;
+   List<dynamic> preferences;
+   List<dynamic> desires;
 
   UserProfileUpdateRequest({
     required this.name,
@@ -122,7 +122,7 @@ class UserProfileUpdateRequest {
     return doubleValue != null && doubleValue >= -180 && doubleValue <= 180;
   }
   bool isValidDate(String date) {
-    final datePattern = RegExp(r'^\d{4}/\d{2}/\d{2}$'); 
+    final  datePattern = RegExp(r'^\d{4}/\d{2}/\d{2}$'); 
     return datePattern.hasMatch(date);
   }
 }

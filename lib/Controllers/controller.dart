@@ -2,8 +2,6 @@ import 'package:dating_application/Providers/login_provider.dart';
 import 'package:dating_application/Providers/user_profile_provider.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../Models/RequestModels/change_password_request.dart';
 import '../Models/RequestModels/delete_message_request_model.dart';
 import '../Models/RequestModels/edit_message_request_model.dart';
@@ -506,35 +504,56 @@ class Controller extends GetxController {
 
   ForgetPasswordRequest forgetPasswordRequest =
       ForgetPasswordRequest(email: '', newPassword: '');
+      Future<void> storeOtp(String otp) async {
+            EncryptedSharedPreferences prefs =
+                await EncryptedSharedPreferences.getInstance();
+            await prefs.setString('otp', otp); 
+          }
   Future<bool> getOtpForgetPassword(
       ForgetPasswordRequest forgetPasswordRequest) async {
     EncryptedSharedPreferences prefs =
         await EncryptedSharedPreferences.getInstance();
     await prefs.setString('forgetpasswordemail', forgetPasswordRequest.email);
     await prefs.setString('forgetpassword', forgetPasswordRequest.newPassword);
+
     try {
+      Get.snackbar('Request',
+          'Email: ${forgetPasswordRequest.email} \nPassword: ${forgetPasswordRequest.newPassword}');
+
+      // Call the API to get OTP
       ForgetPasswordResponse? response =
           await LoginProvider().getOtpForgetPassword(forgetPasswordRequest);
+
       if (response != null) {
-        //  String otp = response.payload.extractOtp();
-         String message = response.payload.message;
-         print(message);
-        RegExp otpRegExp = RegExp(r'(\d{6})');
-        Match? otpforget = otpRegExp.firstMatch(message);
-        if (otpforget!=null) {
-          success('Success', 'OTP sent successfully: $otpforget');
-          return true;
+        // Extract OTP from the message
+        String message = response.payload.message;
+        print(message);
+
+        // Regex to match the OTP in the message
+        RegExp otpRegExp = RegExp(r'(\d{6})'); // 6-digit OTP
+        Match? otpMatch = otpRegExp.firstMatch(message);
+
+        if (otpMatch != null) {
+          // Extract OTP
+          String otp = otpMatch.group(0)!;
+          success('Success', 'OTP sent successfully: $otp');
+          
+
+          // Optionally, store the OTP for future use (if needed)
+          await storeOtp(otp);
+
+          return true; // OTP extraction succeeded
         } else {
           failure('Error', 'OTP not found in the message');
-          return false;
+          return false; // OTP extraction failed
         }
       } else {
         failure('Error', 'Failed to get the OTP');
-        return false;
+        return false; // API response was null
       }
     } catch (e) {
       failure('Error', e.toString());
-      return false;
+      return false; // Handle exception
     }
   }
 
@@ -599,6 +618,26 @@ class Controller extends GetxController {
       return false;
     }
   }
+
+
+UserProfileUpdateRequest userProfileUpdateRequest = UserProfileUpdateRequest(
+  name: "",
+  latitude: "",
+  longitude: "",
+  address: "",
+  countryId: "",
+  state: "",
+  city: "",
+  dob: "",
+  nickname: "",
+  gender: "",
+  subGender: "",
+  interest: [], 
+  bio: '',
+  emailAlerts: '',
+  preferences: [],  
+  desires: [], 
+);
 
   Future<bool> updateProfile(
       UserProfileUpdateRequest updateProfileRequest) async {
