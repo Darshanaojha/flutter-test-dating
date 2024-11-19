@@ -50,21 +50,21 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
       await controller.fetchSafetyGuidelines();
 
       // Check if user is authenticated
-      EncryptedSharedPreferences preferences =
-          EncryptedSharedPreferences.getInstance();
-      String? token = preferences.getString('token');
+      // EncryptedSharedPreferences preferences =
+      //     EncryptedSharedPreferences.getInstance();
+      // String? token = preferences.getString('token');
 
       // Redirect based on token availability
-      if (token == null || token.isEmpty) {
+     // if (token == null || token.isEmpty) {
         Get.offAll(() => Login()); // No token, go to login
-      } else {
-        Get.offAll(() =>
-            NavigationBottomBar()); // Token found, go to the main navigation
-      }
+     // } else {
+        // Get.offAll(() =>
+        //     NavigationBottomBar()); // Token found, go to the main navigation
+     // }
     } catch (e) {
-      // If an error occurs during initialization, navigate to login
+      failure("Error", e.toString());
       Get.offAll(() => Login());
-      Get.snackbar("Error", "An error occurred. Please try again.");
+     
     } finally {
       // Ensure that loading state is set to false after initialization completes
       setState(() {

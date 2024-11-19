@@ -18,8 +18,6 @@ class OTPInputPageState extends State<OTPInputPage> {
   final formKey = GlobalKey<FormState>();
   List<TextEditingController> otpControllers = List.generate(6, (index) => TextEditingController());
   Controller controller = Get.find();
-  String? forgetpasswordemail;
-  String? forgetpassword;
 
   @override
   void initState() {
