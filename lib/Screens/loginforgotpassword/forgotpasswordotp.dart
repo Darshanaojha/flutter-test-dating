@@ -1,5 +1,5 @@
 
-import 'package:encrypt_shared_preferences/provider.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Controllers/controller.dart';
@@ -28,16 +28,10 @@ class OTPInputPageState extends State<OTPInputPage> {
   }
 
   initialize() async {
-    EncryptedSharedPreferences prefs = await EncryptedSharedPreferences.getInstance();
-    setState(() {
-      forgetpasswordemail = prefs.getString('forgetpasswordemail');
-      forgetpassword = prefs.getString('forgetpassword');
-    });
-
-    if (forgetpasswordemail != null) {
+    if (controller.forgetPasswordRequest.email.isNotEmpty) {
       controller.forgetPasswordVerificationRequest = ForgetPasswordVerificationRequest(
-        email: forgetpasswordemail!,
-        password: forgetpassword!,
+        email: controller.forgetPasswordRequest.email,
+        password: controller.forgetPasswordRequest.newPassword,
         otp: '' 
       );
     }
@@ -105,17 +99,16 @@ class OTPInputPageState extends State<OTPInputPage> {
               SizedBox(height: 30),
               Form(
                 key: formKey,
-                
                 child: Column(
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: List.generate(6, (index) {
-                        return SizedBox(
+                        return Container(
                           width: screenWidth * 0.12,
                           child: TextFormField(
-                            cursorColor: AppColors.cursorColor,
                             controller: otpControllers[index],
+                            cursorColor: AppColors.cursorColor,
                             style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
                             decoration: InputDecoration(
                               filled: true,
@@ -136,10 +129,8 @@ class OTPInputPageState extends State<OTPInputPage> {
                             keyboardType: TextInputType.number,
                             maxLength: 1,
                             textAlign: TextAlign.center,
-                            
                             validator: validateOTP,
                             onChanged: (value) {
-                              // Move focus to the next field if the current field is filled
                               if (value.isNotEmpty && index < otpControllers.length - 1) {
                                 FocusScope.of(context).nextFocus();
                               }
