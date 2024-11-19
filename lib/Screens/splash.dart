@@ -4,6 +4,7 @@ import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
 import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -45,28 +46,24 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
 
   intialize() async {
     try {
-      // Fetch all headlines and safety guidelines
       await controller.fetchAllHeadlines();
       await controller.fetchSafetyGuidelines();
 
-      // Check if user is authenticated
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
+
       String? token = preferences.getString('token');
 
-      // Redirect based on token availability
       if (token == null || token.isEmpty) {
-        Get.offAll(() => Login()); // No token, go to login
+        Get.offAll(() => Login());
       } else {
-        Get.offAll(() =>
-            NavigationBottomBar()); // Token found, go to the main navigation
+        Get.offAll(() => NavigationBottomBar());
       }
     } catch (e) {
-      // If an error occurs during initialization, navigate to login
+      failure("Error", e.toString());
+
       Get.offAll(() => Login());
-      Get.snackbar("Error", "An error occurred. Please try again.");
     } finally {
-      // Ensure that loading state is set to false after initialization completes
       setState(() {
         _isLoading = false;
       });
@@ -82,7 +79,10 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
         color: AppColors.primaryColor,
         child: Center(
           child: _isLoading
-              ? CircularProgressIndicator() // Show loading indicator while data is being fetched
+              ? SpinKitCircle(
+                  size: 150,
+                  color: AppColors.acceptColor,
+                )
               : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

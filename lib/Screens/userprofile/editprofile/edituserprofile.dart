@@ -25,33 +25,17 @@ class EditProfilePageState extends State<EditProfilePage> {
 
   List<bool> isImageLoading = [true, true, true, true];
 
-  TextEditingController userNameController =
-      TextEditingController(text: "John Doe");
-  TextEditingController dobController =
-      TextEditingController(text: "1990-01-01");
-  TextEditingController genderController = TextEditingController(text: "Male");
-  TextEditingController emailController = TextEditingController(text: "email");
-  TextEditingController sexualityController =
-      TextEditingController(text: "Straight");
-  TextEditingController aboutController =
-      TextEditingController(text: "Love outdoor adventures, books, and music.");
-  List<String> desires = ["Travel", "Fitness"];
-  TextEditingController interestsController =
-      TextEditingController(text: "Hiking, Cooking, Reading");
-
   bool hideMeOnFlame = true;
   bool incognitoMode = false;
   bool optOutOfPingNote = true;
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
-    return screenWidth * scale; // Adjust this scale for different text elements
+    return screenWidth * scale;
   }
 
-  final TextEditingController desireController = TextEditingController();
-
-  bool isLoading = false; // Track loading state
+  bool isLoading = false;
   Future<void> fetchData() async {
-    await Future.delayed(Duration(seconds: 2)); // Simulate network delay
+    await Future.delayed(Duration(seconds: 2));
     setState(() {
       isLoading = false;
     });
@@ -60,20 +44,62 @@ class EditProfilePageState extends State<EditProfilePage> {
   final Controller controller = Get.put(Controller());
 
   List<Category> categories = [];
-  RxList<Desire> desiresList = <Desire>[].obs;
+  // RxList<Desire> desiresList = <Desire>[].obs;
 
-  Future<void> fetchDesires() async {
-    final success = await controller.fetchDesires();
-    if (success) {
-      categories = controller.categories;
-      for (var category in categories) {
-        desiresList.addAll(
-            category.desires); // Assuming `category.desire` is a List<Desire>
-      }
-      // for (var element in desiresList) {
-      //   print(element);
-      // }
+  List<String> interestsList = [];
+
+  // Future<void> fetchDesires() async {
+  //   final success = await controller.fetchDesires();
+  //   if (success) {
+  //     categories = controller.categories;
+  //     for (var category in categories) {
+  //       desiresList.addAll(
+  //           category.desires); // Assuming `category.desire` is a List<Desire>
+  //     }
+  //     // for (var element in desiresList) {
+  //     //   print(element);
+  //     // }
+  //   }
+  // }
+
+  TextEditingController interestController = TextEditingController();
+
+  // Method to handle adding interest to the list
+  void addInterest() {
+    Get.snackbar('intrest', interestsList.toString());
+    String newInterest = interestController.text.trim();
+    if (newInterest.isNotEmpty) {
+      setState(() {
+        interestsList.add(newInterest);
+      });
+      interestController.clear();
     }
+  }
+
+  void deleteInterest(int index) {
+    setState(() {
+      interestsList.removeAt(index);
+    });
+  }
+
+  List<String> desiresList = [];
+
+  TextEditingController desireController = TextEditingController();
+
+  void addDesire() {
+    String newDesire = desireController.text.trim();
+    if (newDesire.isNotEmpty) {
+      setState(() {
+        desiresList.add(newDesire);
+      });
+      desireController.clear();
+    }
+  }
+
+  void deleteDesire(int index) {
+    setState(() {
+      desiresList.removeAt(index);
+    });
   }
 
   @override
@@ -81,34 +107,63 @@ class EditProfilePageState extends State<EditProfilePage> {
     super.initState();
     fetchData();
     loadImages();
-    fetchDesires();
+    // fetchDesires();
   }
 
-  // Custom method to load images and stop the loading spinner
   void loadImages() {
     for (int i = 0; i < photos.length; i++) {
-      // Create an ImageStream for each image
       final image = AssetImage(photos[i]);
       final imageStream = image.resolve(ImageConfiguration());
 
-      // Listen for when the image has finished loading
       imageStream.addListener(
         ImageStreamListener(
           (ImageInfo info, bool synchronousCall) {
-            // Update the loading state to false when image is loaded
             setState(() {
               isImageLoading[i] = false;
             });
           },
           onError: (exception, stackTrace) {
-            // Handle errors (e.g., if image is not found)
             setState(() {
-              isImageLoading[i] = false; // Stop the loading indicator on error
+              isImageLoading[i] = false;
             });
           },
         ),
       );
     }
+  }
+
+  void onUserNameChanged(String value) {
+    controller.userProfileUpdateRequest.name = value;
+  }
+
+  void onDobChanged(String value) {
+    controller.userProfileUpdateRequest.dob = value;
+    print("Date of Birth: $value");
+  }
+
+  void onGenderChanged(String value) {
+    controller.userProfileUpdateRequest.gender = value;
+    print("Gender: $value");
+  }
+
+  void onEmailChanged(String value) {
+    controller.userProfileUpdateRequest.emailAlerts = value;
+    print("Email: $value");
+  }
+
+  void onSexualityChanged(String value) {
+    controller.userProfileUpdateRequest.subGender = value;
+    print("Sexuality: $value");
+  }
+
+  void onAboutChanged(String value) {
+    controller.userProfileUpdateRequest.bio = value;
+    print("About: $value");
+  }
+
+  void onInterestsChanged(String value) {
+    // controller.userProfileUpdateRequest.interest=value;
+    print("Interests: $value");
   }
 
   @override
@@ -291,36 +346,102 @@ class EditProfilePageState extends State<EditProfilePage> {
                       children: [
                         InfoField(
                           label: 'Name',
-                          controller: userNameController,
+                          onChanged: onUserNameChanged,
                         ),
                         InfoField(
                           label: 'Date of Birth',
-                          controller: dobController,
+                          onChanged: onUserNameChanged,
                         ),
                         InfoField(
                           label: 'Gender',
-                          controller: genderController,
+                          onChanged: onUserNameChanged,
                         ),
                         InfoField(
                           label: 'Email',
-                          controller: emailController,
+                          onChanged: onUserNameChanged,
                         ),
                         InfoField(
                           label: 'Sexuality',
-                          controller: sexualityController,
+                          onChanged: onUserNameChanged,
                         ),
                         InfoField(
                           label: 'About',
-                          controller: aboutController,
+                          onChanged: onUserNameChanged,
                         ),
-                        InfoField(
-                          label: 'Interests',
-                          controller: interestsController,
-                        ),
+                        Card(
+                          color: AppColors.primaryColor,
+                          elevation: 5,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Interests",
+                                    style: AppTextStyles.subheadingText
+                                      ..copyWith(
+                                          fontSize:
+                                              getResponsiveFontSize(0.03))),
 
+                                SizedBox(height: 10),
+                                // Wrap the list of interests with Chips
+                                Wrap(
+                                  spacing: 8.0,
+                                  children: List.generate(interestsList.length,
+                                      (index) {
+                                    return Chip(
+                                      label: Text(
+                                        interestsList[index],
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                      backgroundColor: AppColors.chipColor,
+                                      // Add a delete icon inside the Chip
+                                      deleteIcon: Icon(Icons.delete,
+                                          color: AppColors.inactiveColor),
+                                      onDeleted: () => deleteInterest(
+                                          index), // Delete on press
+                                    );
+                                  }),
+                                ),
+                                SizedBox(height: 10),
+                                // Row with TextField and Add button
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                        controller: interestController,
+                                        cursorColor: AppColors.cursorColor,
+                                        decoration: InputDecoration(
+                                          labelText: 'Add Interest',
+                                          labelStyle: AppTextStyles.buttonText
+                                              .copyWith(
+                                                  fontSize:
+                                                      getResponsiveFontSize(
+                                                          0.03)),
+                                          filled: true,
+                                          fillColor: AppColors.formFieldColor,
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.add,
+                                          color: AppColors.activeColor),
+                                      onPressed:
+                                          addInterest, // Add interest when pressed
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                         // Desires Section with Chips
                         Card(
-                          color: AppColors.secondaryColor,
+                          color: AppColors.primaryColor,
                           elevation: 5,
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
@@ -329,34 +450,42 @@ class EditProfilePageState extends State<EditProfilePage> {
                               children: [
                                 Text("Desires",
                                     style: AppTextStyles.subheadingText
-                                      ..copyWith(
-                                          fontSize:
-                                              getResponsiveFontSize(0.03))),
+                                        .copyWith(
+                                            fontSize:
+                                                getResponsiveFontSize(0.03))),
+
                                 SizedBox(height: 10),
+
+                                // Wrap widget to display the list of desires as Chips
                                 Wrap(
                                   spacing: 8.0,
-                                  children: desiresList
-                                      .map((desire) => Chip(
-                                            label: Text(desiresList.toString(),
-                                                style: AppTextStyles.bodyText
-                                                    .copyWith(
-                                                        fontSize:
-                                                            getResponsiveFontSize(
-                                                                0.03))),
-                                            backgroundColor:
-                                                const Color.fromARGB(
-                                                    255, 95, 38, 38),
-                                          ))
-                                      .toList(),
+                                  children: List.generate(desiresList.length,
+                                      (index) {
+                                    return Chip(
+                                      label: Text(
+                                        desiresList[
+                                            index], // Display desire text
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                      backgroundColor: AppColors.chipColor,
+                                      deleteIcon: Icon(Icons.delete,
+                                          color: AppColors.inactiveColor),
+                                      onDeleted: () =>
+                                          deleteDesire(index), // Delete desire
+                                    );
+                                  }),
                                 ),
+
                                 SizedBox(height: 10),
+
+                                // Row with TextField and Add button
                                 Row(
                                   children: [
                                     Expanded(
                                       child: TextField(
-                                        controller: desireController,
-                                        cursorColor: AppColors
-                                            .cursorColor, // White cursor color
+                                        controller:
+                                            desireController, // Connect TextField to controller
+                                        cursorColor: AppColors.cursorColor,
                                         decoration: InputDecoration(
                                           labelText: 'Add Desire',
                                           labelStyle: AppTextStyles.buttonText
@@ -376,15 +505,9 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     ),
                                     IconButton(
                                       icon: Icon(Icons.add,
-                                          color: AppColors.iconColor),
-                                      onPressed: () {
-                                        if (desireController.text.isNotEmpty) {
-                                          setState(() {
-                                            desires.add(desireController.text);
-                                            desireController.clear();
-                                          });
-                                        }
-                                      },
+                                          color: AppColors.activeColor),
+                                      onPressed:
+                                          addDesire, // Call addDesire method on button press
                                     ),
                                   ],
                                 ),
@@ -465,9 +588,8 @@ void showFullImageDialog(BuildContext context, String imagePath) {
 // Custom Widget for User Info
 class InfoField extends StatelessWidget {
   final String label;
-  final TextEditingController controller;
-
-  const InfoField({super.key, required this.label, required this.controller});
+  final dynamic onChanged;
+  const InfoField({super.key, required this.label, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -490,7 +612,6 @@ class InfoField extends StatelessWidget {
                     .copyWith(fontSize: getResponsiveFontSize(0.03))),
             SizedBox(height: 10),
             TextField(
-              controller: controller,
               cursorColor: AppColors.cursorColor, // White cursor color
               style: AppTextStyles.bodyText
                   .copyWith(fontSize: getResponsiveFontSize(0.03)),
@@ -502,6 +623,7 @@ class InfoField extends StatelessWidget {
                   borderSide: BorderSide.none,
                 ),
               ),
+              onChanged: onChanged,
             ),
             Divider(color: AppColors.textColor),
           ],
@@ -518,7 +640,10 @@ class PrivacyToggle extends StatelessWidget {
   final ValueChanged<bool> onChanged;
 
   const PrivacyToggle(
-      {super.key, required this.label, required this.value, required this.onChanged});
+      {super.key,
+      required this.label,
+      required this.value,
+      required this.onChanged});
 
   @override
   Widget build(BuildContext context) {

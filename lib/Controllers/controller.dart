@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:dating_application/Models/RequestModels/change_password_request.dart';
 import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
 import 'package:dating_application/Models/ResponseModels/change_password_response_model.dart';
@@ -16,7 +19,10 @@ import 'package:dating_application/Providers/fetch_all_safety_guildlines_provide
 import 'package:dating_application/Providers/login_provider.dart';
 import 'package:dating_application/Providers/user_profile_provider.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../Models/RequestModels/delete_message_request_model.dart';
 import '../Models/RequestModels/edit_message_request_model.dart';
 import '../Models/RequestModels/estabish_connection_request_model.dart';
@@ -120,8 +126,6 @@ class Controller extends GetxController {
   Future<bool> getOtpForRegistration(
       RegistrationOTPRequest registrationOTPRequest) async {
     try {
-      Get.snackbar('body',
-          'Email: ${registrationOTPRequest.email}, Name: ${registrationOTPRequest.name}');
       final RegistrationOtpResponse? response = await RegistrationProvider()
           .getOtpForRegistration(registrationOTPRequest);
       if (response != null) {
@@ -157,8 +161,6 @@ class Controller extends GetxController {
       RegistrationOtpVerificationRequest
           registrationOtpVerificationRequest) async {
     try {
-      Get.snackbar('body',
-          'Email: ${registrationOtpVerificationRequest.email}, Name: ${registrationOtpVerificationRequest.otp}');
       final RegistrationOtpVerificationResponse? response =
           await RegistrationProvider().otpVerificationForRegistration(
               registrationOtpVerificationRequest);
@@ -523,9 +525,6 @@ class Controller extends GetxController {
     await prefs.setString('forgetpassword', forgetPasswordRequest.newPassword);
 
     try {
-      Get.snackbar('Request',
-          'Email: ${forgetPasswordRequest.email} \nPassword: ${forgetPasswordRequest.newPassword}');
-
       // Call the API to get OTP
       ForgetPasswordResponse? response =
           await LoginProvider().getOtpForgetPassword(forgetPasswordRequest);
@@ -659,5 +658,154 @@ class Controller extends GetxController {
       failure('Error', e.toString());
       return false;
     }
+  }
+
+  
+Future<String?> addOrUpdateImage(int photos) async {
+  try {
+    // Request necessary permissions
+    if (!await requestCameraPermission()) {
+      return 'Camera permission denied';
+    }
+    if (!await requestLocationPermission()) {
+      return 'Location permission denied';
+    }
+
+    // Pick image from the camera
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.camera);
+
+    if (image != null) {
+      // Compress the image
+      final compressedImage = await FlutterImageCompress.compressWithFile(
+        image.path,  // Correctly pass the image path here
+        quality: 50,  // Compression quality (adjust as needed)
+      );
+
+      if (compressedImage != null) {
+        // Convert the compressed image to base64
+        String? base64LandDetails = base64Encode(compressedImage);
+
+        // Save the image path and base64 data based on the page
+        if (photos == 1) {
+          // Handle page 1 logic, e.g., imagePathForAddLandDetailsPage1.value = base64LandDetails;
+        } else if (photos == 2) {
+          // Handle page 2 logic
+        } else if (photos == 3) {
+          // Handle page 3 logic
+        } else if (photos == 4) {
+          // Handle page 4 logic
+        } else {
+          return 'Invalid page number';
+        }
+
+        return base64LandDetails; 
+      } else {
+        failure('Error', 'Image compression failed');
+        return null;
+      }
+    } else {
+      return 'No image selected';
+    }
+  } catch (e) {
+    failure('Error', e.toString()); 
+    return null;
+  }
+}
+
+  Future<String?> addOrUpdateGalleryImage(int page) async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+      if (image != null) {
+        final File galleryImage = File(image.path);
+
+        final compressedImage = await FlutterImageCompress.compressWithFile(
+          galleryImage.path,
+          quality: 50,
+        );
+
+        if (compressedImage != null) {
+          final String base64Image = base64Encode(compressedImage);
+
+          switch (page) {
+            case 1:
+              // imagePathForAddPage1.value = galleryImage.path;
+              break;
+            case 2:
+              // imagePathForAddPage2.value = galleryImage.path;
+              break;
+            case 3:
+              // imagePathForDocument.value = galleryImage.path;
+              break;
+            case 4:
+              // report.value = galleryImage.path;
+              break;
+            default:
+              return 'Invalid page number';
+          }
+
+          return base64Image;
+        } else {
+          failure('Error', 'Failed to compress the image');
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return null;
+    }
+  }
+
+  Future<String?> chooseSourceToPickImage(String ch, int page) async {
+    String? base64Encode;
+
+    if (ch == "C") {
+      await addOrUpdateImage(page).then((value) {
+        base64Encode = value.toString();
+      });
+    } else if (ch == "G") {
+      await addOrUpdateGalleryImage(page).then((value) {
+        base64Encode = value.toString();
+      });
+    }
+    return base64Encode;
+  }
+
+  Future<bool> requestLocationPermission() async {
+    final status = await Permission.location.request();
+    return status.isGranted;
+  }
+
+  // Future<bool> requestStoragePermission() async {
+  //   final status = await Permission.storage.request();
+  //   return status.isGranted;
+  // }
+
+  Future<bool> requestStoragePermission() async {
+    final status = await Permission.storage.request();
+
+    // Check if the permission is granted
+    if (status.isGranted) {
+      return true;
+    } else if (status.isDenied) {
+      // You can show a dialog or snackbar to inform the user why the permission is needed
+      // and prompt them to allow it.
+      return false;
+    } else if (status.isPermanentlyDenied) {
+      openAppSettings();
+
+      return false;
+    }
+    failure("Manually Open Setting ", "Allow all to open camera");
+    return false; // Handle other cases as needed
+  }
+
+  Future<bool> requestCameraPermission() async {
+    final status = await Permission.camera.request();
+    return status.isGranted;
   }
 }

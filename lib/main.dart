@@ -1,5 +1,6 @@
 import 'package:dating_application/Screens/routings/routes.dart';
 import 'package:dating_application/constants.dart';
+import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -9,19 +10,25 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'Providers/fcmService.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  // Initialize Firebase
-  await Firebase.initializeApp(
-    options: FirebaseConstants.firebaseOptions,
-  );
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize notification services
-  final fcmService = FCMService();
-  await fcmService.setupNotifications();
+    await EncryptedSharedPreferences.initialize(encryptionkey);
+    // Initialize Firebase
+    await Firebase.initializeApp(
+      options: FirebaseConstants.firebaseOptions,
+    );
 
-  // Setup background message handler
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  runApp(const MainApp());
+    // Initialize notification services
+    final fcmService = FCMService();
+    await fcmService.setupNotifications();
+
+    // Setup background message handler
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    runApp(const MainApp());
+  } catch (e) {
+    failure('Error', 'Error in the main method');
+  }
 }
 
 class MainApp extends StatelessWidget {
