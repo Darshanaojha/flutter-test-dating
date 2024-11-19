@@ -1,16 +1,15 @@
-
 import 'package:dating_application/Models/ResponseModels/get_all_gender_from_response_model.dart';
 import 'package:dating_application/constants.dart';
 import 'package:get/get.dart';
 
-class FetchAllGendersProvider extends GetConnect{
+class FetchAllGendersProvider extends GetConnect {
   // Gender
-  Future<Gender?> fetchGenders() async {
+  Future<GenderResponse?> fetchGenders() async {
     try {
-      final response = await get('$baseUrl/Common/gender');
+      final response = await get('$baseurl/Common/gender');
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
-          return Gender.fromJson(response.body);
+          return GenderResponse.fromJson(response.body);
         } else {
           failure("Error", response.body['error']['message']);
           return null;

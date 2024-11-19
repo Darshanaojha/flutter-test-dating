@@ -83,7 +83,7 @@ class Error {
   }
 }
 
-// Top-level HeadlinesResponse Model
+
 class HeadlinesResponse {
   final bool success;
   final Payload payload;

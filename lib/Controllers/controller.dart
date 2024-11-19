@@ -17,24 +17,65 @@ import 'package:dating_application/Providers/login_provider.dart';
 import 'package:dating_application/Providers/user_profile_provider.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../Models/RequestModels/change_password_request.dart';
+import '../Models/RequestModels/delete_message_request_model.dart';
+import '../Models/RequestModels/edit_message_request_model.dart';
+import '../Models/RequestModels/estabish_connection_request_model.dart';
+import '../Models/RequestModels/forget_password_request_model.dart';
+import '../Models/RequestModels/forget_password_verification_request_model.dart';
 import '../Models/RequestModels/registration_otp_request_model.dart';
 import '../Models/RequestModels/registration_otp_verification_request_model.dart';
+import '../Models/RequestModels/subgender_request_model.dart';
+import '../Models/RequestModels/update_emailid_otp_verification_request_model.dart';
+import '../Models/RequestModels/update_emailid_request_model.dart';
+import '../Models/RequestModels/user_profile_update_request_model.dart';
 import '../Models/RequestModels/user_registration_request_model.dart';
 import '../Models/ResponseModels/ProfileResponse.dart';
 import '../Models/ResponseModels/all_active_user_resposne_model.dart';
+import '../Models/ResponseModels/change_password_response_model.dart';
 import '../Models/ResponseModels/chat_history_response_model.dart';
+import '../Models/ResponseModels/delete_message_response_model.dart';
+import '../Models/ResponseModels/edit_message_response_model.dart';
+import '../Models/ResponseModels/establish_connection_response_model.dart';
+import '../Models/ResponseModels/forget_password_response_model.dart';
+import '../Models/ResponseModels/forget_password_verification_response_model.dart';
+import '../Models/ResponseModels/get_all_benifites_response_model.dart';
 import '../Models/ResponseModels/get_all_country_response_model.dart';
 import '../Models/ResponseModels/get_all_desires_model_response.dart';
+import '../Models/ResponseModels/get_all_gender_from_response_model.dart';
+import '../Models/ResponseModels/get_all_headlines_response_model.dart';
+import '../Models/ResponseModels/get_all_saftey_guidelines_response_model.dart';
+import '../Models/ResponseModels/get_all_whoareyoulookingfor_response_model.dart';
 import '../Models/ResponseModels/registration_otp_response_model.dart';
 import '../Models/ResponseModels/registration_otp_verification_response_model.dart';
+import '../Models/ResponseModels/subgender_response_model.dart';
+import '../Models/ResponseModels/update_emailid_otp_verification_response_model.dart';
+import '../Models/ResponseModels/update_emailid_response_model.dart';
 import '../Models/ResponseModels/user_login_response_model.dart';
+import '../Models/ResponseModels/user_profile_update_response_model.dart';
 import '../Models/ResponseModels/user_registration_response_model.dart';
+import '../Models/ResponseModels/user_upload_images_response_model.dart';
+import '../Providers/change_password_provider.dart';
 import '../Providers/chat_message_page_provider.dart';
+import '../Providers/delete_message_provider.dart';
+import '../Providers/edit_message_provider.dart';
+import '../Providers/established_connection_message_provider.dart';
+import '../Providers/fetch_all_active_user_provider.dart';
 import '../Providers/fetch_all_countries_provider.dart';
+import '../Providers/fetch_all_genders_provider.dart';
+import '../Providers/fetch_all_headlines_provider.dart';
+import '../Providers/fetch_all_preferences_provider.dart';
+import '../Providers/fetch_all_safety_guildlines_provider.dart';
+import '../Providers/fetch_benefits_provider.dart';
 import '../Providers/fetch_sub_genders_provider.dart';
 import '../Providers/home_page_provider.dart';
 import '../Providers/registration_provider.dart';
+import '../Providers/update_email_verification_provider.dart';
+import '../Providers/update_emailid_provider.dart';
+import '../Providers/update_profile_provider.dart';
+import '../Providers/user_registration_provider.dart';
 import '../constants.dart';
 
 class Controller extends GetxController {
@@ -55,7 +96,8 @@ class Controller extends GetxController {
   Future<bool> register(UserRegistrationRequest userRegistrationRequest) async {
     try {
       final UserRegistrationResponse? response =
-          await RegistrationProvider().register(userRegistrationRequest);
+          await UserRegistrationProvider()
+              .userRegistration(userRegistrationRequest);
       if (response != null) {
         success('success', response.payload.message);
         return true;
@@ -86,13 +128,37 @@ class Controller extends GetxController {
     }
   }
 
-  Future<bool> sendOtp(RegistrationOTPRequest registrationOTPRequest) async {
+  RegistrationOTPRequest registrationOTPRequest =
+      RegistrationOTPRequest(email: '', name: '');
+
+  Future<bool> getOtpForRegistration(
+      RegistrationOTPRequest registrationOTPRequest) async {
     try {
-      final RegistrationOtpResponse? response =
-          await RegistrationProvider().sendOtp(registrationOTPRequest);
+      Get.snackbar('body',
+          'Email: ${registrationOTPRequest.email}, Name: ${registrationOTPRequest.name}');
+      final RegistrationOtpResponse? response = await RegistrationProvider()
+          .getOtpForRegistration(registrationOTPRequest);
       if (response != null) {
-        success('success', response.payload.message);
-        return true;
+        String message = response.payload.message;
+        RegExp otpRegExp = RegExp(r'(\d{6})');
+        Match? otpMatch = otpRegExp.firstMatch(message);
+        EncryptedSharedPreferences prefs =
+            await EncryptedSharedPreferences.getInstance();
+        await prefs.setString(
+            'registrationemail', registrationOTPRequest.email);
+        if (otpMatch != null) {
+          String otp = otpMatch.group(0) ?? 'OTP not found';
+
+          EncryptedSharedPreferences prefs =
+              await EncryptedSharedPreferences.getInstance();
+          await prefs.setString('registrationotp', otp);
+          success('OTP Received', 'Your OTP is: $otp');
+          success('success', response.payload.message);
+          return true;
+        } else {
+          failure('Error', 'OTP not found in the response');
+          return false;
+        }
       }
       return false;
     } catch (e) {
@@ -101,13 +167,15 @@ class Controller extends GetxController {
     }
   }
 
-  Future<bool> otpVerification(
+  Future<bool> otpVerificationForRegistration(
       RegistrationOtpVerificationRequest
           registrationOtpVerificationRequest) async {
     try {
+      Get.snackbar('body',
+          'Email: ${registrationOtpVerificationRequest.email}, Name: ${registrationOtpVerificationRequest.otp}');
       final RegistrationOtpVerificationResponse? response =
-          await RegistrationProvider()
-              .otpVerification(registrationOtpVerificationRequest);
+          await RegistrationProvider().otpVerificationForRegistration(
+              registrationOtpVerificationRequest);
       if (response != null) {
         success('success', response.payload.message);
         return true;
@@ -225,7 +293,7 @@ class Controller extends GetxController {
   Future<bool> fetchGenders() async {
     try {
       genders.clear();
-      GenderResponse? response = await UserProfileProvider().fetchGenders();
+      GenderResponse? response = await FetchAllGendersProvider().fetchGenders();
       if (response != null) {
         genders.addAll(response.payload.data);
         success('success', 'Genders fetched successfully');
@@ -239,7 +307,7 @@ class Controller extends GetxController {
       return false;
     }
   }
-
+   RxString selectedBenefit = 'None'.obs;
   RxList<UserPreference> preferences = <UserPreference>[].obs;
   Future<bool> fetchPreferences() async {
     try {
@@ -261,11 +329,12 @@ class Controller extends GetxController {
   }
 
   RxList<Benefit> benefits = <Benefit>[].obs;
-  RxString selectedBenefit = 'None'.obs;
+
   Future<bool> fetchBenefits() async {
     try {
       benefits.clear();
-      BenefitsResponse? response = await UserProfileProvider().fetchBenefits();
+      BenefitsResponse? response =
+          await FetchBenefitsProvider().fetchBenefits();
       if (response != null) {
         benefits.addAll(response.payload.data);
         success('success', 'Successfully fetched the benefits');
@@ -301,26 +370,6 @@ class Controller extends GetxController {
     }
   }
 
-  RxList<Headline> headlines = <Headline>[].obs;
-  Future<bool> fetchHeadlines() async {
-    try {
-      headlines.clear();
-      HeadlinesResponse? response =
-          await FetchAllHeadlinesProvider().fetchAllHeadlines();
-      if (response != null) {
-        headlines.addAll(response.payload.data);
-        success('success', 'successfully fetched the headlines');
-        return true;
-      } else {
-        failure('Error', 'Failed to fetch the headlines');
-        return false;
-      }
-    } catch (e) {
-      failure('Error', e.toString());
-      return false;
-    }
-  }
-
   RxList<SubGenderData> subGenders = <SubGenderData>[].obs;
   Future<bool> fetchSubGender(SubGenderRequest subGenderRequest) async {
     try {
@@ -329,7 +378,6 @@ class Controller extends GetxController {
           await FetchSubGendersProvider().getSubGenders(subGenderRequest);
       if (response != null) {
         subGenders.addAll(response.payload.data);
-
         success('success', 'successfully fetched the sub genders');
         return true;
       } else {
@@ -361,6 +409,8 @@ class Controller extends GetxController {
     }
   }
 
+  ChangePasswordRequest changePasswordRequest =
+      ChangePasswordRequest(oldPassword: '', newPassword: '');
   Future<bool> changePassword(ChangePasswordRequest request) async {
     try {
       ChangePasswordResponse? response =
@@ -370,6 +420,213 @@ class Controller extends GetxController {
         return true;
       } else {
         failure('Error', 'Failed to change the password');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> deleteMessage(DeleteMessageRequest request) async {
+    try {
+      DeleteMessageResponse? response =
+          await DeleteMessageProvider().deleteMessage(request);
+      if (response != null) {
+        success('success', response.payload.message);
+        return true;
+      } else {
+        failure('Error', 'Failed to delete the message');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> editMessage(EditMessageRequest request) async {
+    try {
+      EditMessageResponse? response =
+          await EditMessageProvider().editMessage(request);
+      if (response != null) {
+        success('success', response.payload.message);
+        return true;
+      } else {
+        failure('Error', 'Failed to edit the message');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> sendConnectionMessage(
+      EstablishConnectionMessageRequest request) async {
+    try {
+      EstablishConnectionResponse? response =
+          await EstablishConnectionProvider().sendConnectionMessage(request);
+      if (response != null) {
+        success('success', response.payload.message);
+        return true;
+      } else {
+        failure('Error', 'Failed to send the connection message');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<UserDetails> activeUsers = <UserDetails>[].obs;
+  Future<bool> getAllActiveUser() async {
+    try {
+      activeUsers.clear();
+      AllActiveUsersResponse? response =
+          await FetchAllActiveUserProvider().getAllActiveUser();
+      if (response != null) {
+        activeUsers.addAll(response.payload.data);
+        success('success', 'Successfully fetched all the active users');
+        return true;
+      } else {
+        failure('Error', 'Failed to get all the active users');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<Headline> headlines = <Headline>[].obs;
+
+  Future<bool> fetchAllHeadlines() async {
+    try {
+      headlines.clear();
+      HeadlinesResponse? response =
+          await FetchAllHeadlinesProvider().fetchAllHeadlines();
+      if (response != null) {
+        headlines.addAll(response.payload.data);
+        success('success', 'successfully fetched all the headlines');
+        return true;
+      } else {
+        failure('Error', 'Failed to fetch the headlines');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  ForgetPasswordRequest forgetPasswordRequest =
+      ForgetPasswordRequest(email: '', newPassword: '');
+  Future<bool> getOtpForgetPassword(
+      ForgetPasswordRequest forgetPasswordRequest) async {
+    EncryptedSharedPreferences prefs =
+        await EncryptedSharedPreferences.getInstance();
+    await prefs.setString('forgetpasswordemail', forgetPasswordRequest.email);
+    await prefs.setString('forgetpassword', forgetPasswordRequest.newPassword);
+    try {
+      ForgetPasswordResponse? response =
+          await LoginProvider().getOtpForgetPassword(forgetPasswordRequest);
+      if (response != null) {
+        //  String otp = response.payload.extractOtp();
+         String message = response.payload.message;
+         print(message);
+        RegExp otpRegExp = RegExp(r'(\d{6})');
+        Match? otpforget = otpRegExp.firstMatch(message);
+        if (otpforget!=null) {
+          success('Success', 'OTP sent successfully: $otpforget');
+          return true;
+        } else {
+          failure('Error', 'OTP not found in the message');
+          return false;
+        }
+      } else {
+        failure('Error', 'Failed to get the OTP');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  ForgetPasswordVerificationRequest forgetPasswordVerificationRequest =
+      ForgetPasswordVerificationRequest(email: '', otp: '', password: '');
+  Future<bool> otpVerificationForgetPassword(
+      ForgetPasswordVerificationRequest
+          forgetPasswordVerificationRequest) async {
+    try {
+      ForgetPasswordVerificationResponse? response = await LoginProvider()
+          .otpVerificationForgetPassword(forgetPasswordVerificationRequest);
+      if (response != null) {
+        success('success', response.payload.message);
+        return true;
+      } else {
+        failure('Error', 'Failed to verify otp for forget password');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  UpdateEmailIdRequest updateEmailIdRequest =
+      UpdateEmailIdRequest(password: '', newEmail: '');
+  Future<bool> updateEmailId(UpdateEmailIdRequest updateEmailIdRequest) async {
+    try {
+      UpdateEmailIdResponse? response =
+          await UpdateEmailidProvider().updateEmailId(updateEmailIdRequest);
+      EncryptedSharedPreferences prefs =
+          await EncryptedSharedPreferences.getInstance();
+      await prefs.setString('update_email', updateEmailIdRequest.newEmail);
+      if (response != null) {
+        success('success', response.payload.message);
+        return true;
+      } else {
+        failure('Error', 'Failed to update email');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  UpdateEmailVerificationRequest updateEmailVerificationRequest =
+      UpdateEmailVerificationRequest(newEmail: '', otp: '');
+  Future<bool> verifyEmailOtp(UpdateEmailVerificationRequest request) async {
+    try {
+      UpdateEmailVerificationResponse? response =
+          await UpdateEmailVerificationProvider().verifyEmailOtp(request);
+      if (response != null) {
+        success('success', response.payload.message);
+        return true;
+      } else {
+        failure('Error', 'Failed to verify otp for email');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> updateProfile(
+      UserProfileUpdateRequest updateProfileRequest) async {
+    try {
+      UserProfileUpdateResponse? response =
+          await UpdateProfileProvider().updateProfile(updateProfileRequest);
+      if (response != null) {
+        success('success', response.payload.message);
+        return true;
+      } else {
+        failure('Error', 'Failed to update the profile');
         return false;
       }
     } catch (e) {

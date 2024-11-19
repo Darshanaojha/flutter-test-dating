@@ -1,4 +1,5 @@
-import 'dart:convert';
+
+import '../../constants.dart';  
 
 class UserRegistrationRequest {
   final String name;
@@ -49,35 +50,7 @@ class UserRegistrationRequest {
     required this.emailAlerts,
     required this.username,
     required this.lookingFor,
-  }) {
-    // Perform validations
-    validateNotEmpty(name, "Name");
-    validateNotEmpty(email, "Email");
-    validateEmail(email);
-    validateNotEmpty(mobile, "Mobile");
-    validateNotEmpty(latitude, "Latitude");
-    validateCoordinate(latitude);
-    validateNotEmpty(longitude, "Longitude");
-    validateCoordinate(longitude);
-    validateNotEmpty(address, "Address");
-    validateNotEmpty(password, "Password");
-    validateNotEmpty(countryId, "Country ID");
-    validateNotEmpty(city, "City");
-    validateNotEmpty(dob, "Date of Birth");
-    validateDateFormat(dob);
-    validateNotEmpty(nickname, "Nickname");
-    validateNotEmpty(gender, "Gender");
-    validateNotEmpty(subGender, "Sub Gender");
-    validateNotEmpty(interest, "Interest");
-    validateNotEmpty(bio, "Bio");
-    validateList(preferences, "Preferences");
-    validateList(desires, "Desires");
-    validatePhotos(photos);
-    validateNotEmpty(packageId, "Package ID");
-    validateNotEmpty(emailAlerts, "Email Alerts");
-    validateNotEmpty(username, "Username");
-    validateNotEmpty(lookingFor, "Looking For");
-  }
+  });
 
   // Factory constructor to create UserRegistrationRequest from JSON
   factory UserRegistrationRequest.fromJson(Map<String, dynamic> json) {
@@ -96,11 +69,11 @@ class UserRegistrationRequest {
       nickname: json['nickname'],
       gender: json['gender'],
       subGender: json['sub_gender'],
-      preferences: List<int>.from(jsonDecode(json['preferences'])),
-      desires: List<int>.from(jsonDecode(json['desires'])),
+      preferences: List<int>.from(json['preferences'] ?? []),  // Assuming preferences are sent as an array of integers
+      desires: List<int>.from(json['desires'] ?? []),  // Assuming desires are sent as an array of integers
       interest: json['interest'],
       bio: json['bio'],
-      photos: List<String>.from(jsonDecode(json['photos'])),
+      photos: List<String>.from(json['photos'] ?? []),  // Assuming photos are sent as an array of strings (URLs)
       packageId: json['package_id'],
       emailAlerts: json['email_alerts'],
       username: json['username'],
@@ -125,11 +98,11 @@ class UserRegistrationRequest {
       'nickname': nickname,
       'gender': gender,
       'sub_gender': subGender,
-      'preferences': jsonEncode(preferences),
-      'desires': jsonEncode(desires),
+      'preferences': preferences,  // No need to use jsonEncode here
+      'desires': desires,  // No need to use jsonEncode here
       'interest': interest,
       'bio': bio,
-      'photos': jsonEncode(photos),
+      'photos': photos,  // No need to use jsonEncode here
       'package_id': packageId,
       'email_alerts': emailAlerts,
       'username': username,
@@ -137,13 +110,14 @@ class UserRegistrationRequest {
     };
   }
 
+  // Validation Methods
   void validateNotEmpty(String value, String fieldName) {
     if (value.isEmpty) {
       throw ArgumentError("$fieldName is required and cannot be empty.");
     }
   }
 
-
+  // Validate Email
   void validateEmail(String email) {
     final emailPattern = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
     if (!emailPattern.hasMatch(email)) {
@@ -151,14 +125,15 @@ class UserRegistrationRequest {
     }
   }
 
-  void validateCoordinate(String coordinate) {
+  // Validate Latitude and Longitude
+  void validateCoordinate(String coordinate, String fieldName) {
     final doubleValue = double.tryParse(coordinate);
     if (doubleValue == null || doubleValue < -180 || doubleValue > 180) {
-      throw ArgumentError("Invalid coordinate value for field: $coordinate.");
+      throw ArgumentError("Invalid coordinate value for field: $fieldName.");
     }
   }
 
-
+  // Validate Date Format
   void validateDateFormat(String date) {
     final datePattern = RegExp(r'^\d{4}/\d{2}/\d{2}$');
     if (!datePattern.hasMatch(date)) {
@@ -166,7 +141,7 @@ class UserRegistrationRequest {
     }
   }
 
-
+  // Validate Lists (Preferences, Desires)
   void validateList(List<int> list, String fieldName) {
     if (list.isEmpty) {
       throw ArgumentError("$fieldName cannot be empty.");
@@ -177,7 +152,7 @@ class UserRegistrationRequest {
     }
   }
 
-
+  // Validate Photos (URLs)
   void validatePhotos(List<String> photos) {
     if (photos.isEmpty) {
       throw ArgumentError("Photos list cannot be empty for field: Photos.");
@@ -187,6 +162,32 @@ class UserRegistrationRequest {
       if (!urlPattern.hasMatch(photo)) {
         throw ArgumentError("Invalid photo URL for field: $photo.");
       }
+    }
+  }
+
+
+  void validate() {
+    try {
+      validateNotEmpty(name, "Name");
+      validateNotEmpty(email, "Email");
+      validateNotEmpty(mobile, "Mobile");
+      validateNotEmpty(password, "Password");
+      validateNotEmpty(address, "Address");
+      validateNotEmpty(countryId, "Country ID");
+      validateNotEmpty(state, "State");
+      validateNotEmpty(city, "City");
+      validateNotEmpty(dob, "Date of Birth");
+      validateNotEmpty(gender, "Gender");
+      validateNotEmpty(subGender, "Sub-Gender");
+      validateEmail(email);
+      validateCoordinate(latitude, "Latitude");
+      validateCoordinate(longitude, "Longitude");
+      validateDateFormat(dob);
+      validateList(preferences, "Preferences");
+      validateList(desires, "Desires");
+      validatePhotos(photos);
+    } catch (e) {
+      failure("Validation Error", e.toString());
     }
   }
 }

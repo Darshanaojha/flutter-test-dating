@@ -4,6 +4,7 @@ import 'package:dating_application/Models/ResponseModels/get_all_desires_model_r
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -48,7 +49,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     await controller.fetchSafetyGuidelines();
     await controller.fetchPreferences();
     await controller.fetchGenders();
-    await controller.fetchHeadlines();
+    await controller.fetchAllHeadlines();
     await controller.fetchDesires();
     genderIds.addAll(controller.genders.map((gender) => gender.id));
     for (String genderId in genderIds) {

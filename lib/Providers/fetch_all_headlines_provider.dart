@@ -11,6 +11,7 @@ class FetchAllHeadlinesProvider extends GetConnect{
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return HeadlinesResponse.fromJson(response.body);
+          return HeadlinesResponse.fromJson(response.body);
         } else {
           failure('Error', response.body['error']['message']);
           return null;

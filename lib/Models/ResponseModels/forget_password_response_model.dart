@@ -38,6 +38,10 @@ class ForgetPasswordPayload {
       message: json['message'],
     );
   }
+   String extractOtp() {
+    RegExp otpRegex = RegExp(r'\d{6}'); 
+    return otpRegex.firstMatch(message)?.group(0) ?? ''; 
+  }
 
   Map<String, dynamic> toJson() {
     return {

@@ -27,3 +27,30 @@ class MainApp extends StatelessWidget {
     );
   }
 }
+
+// late UserRegistrationRequest userRegistrationRequest;
+      // UserRegistrationRequest userRegistrationRequest = UserRegistrationRequest(
+      //   name: '',
+      //   email: '',
+      //   mobile: '',
+      //   latitude: '',
+      //   longitude: '',
+      //   address: '',
+      //   password:'',
+      //   countryId: '',
+      //   state: '',
+      //   city: '',
+      //   dob: '',
+      //   nickname: '',
+      //   gender: '',
+      //   subGender: '',
+      //   preferences: [],
+      //   desires: [],
+      //   interest: '',
+      //   bio: '',
+      //   photos: [],
+      //   packageId: '',
+      //   emailAlerts: '',
+      //   username: '',
+      //   lookingFor: '',
+      // );

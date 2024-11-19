@@ -1,27 +1,14 @@
-import 'dart:core';
+
+import '../../constants.dart';  // For snackbar error handling
 
 class UpdateEmailVerificationRequest {
-  final String newEmail;
-  final String otp;
+  String newEmail;
+   String otp;
 
   UpdateEmailVerificationRequest({
     required this.newEmail,
     required this.otp,
-  }) {
-    // Perform validations inside the constructor
-    if (newEmail.isEmpty) {
-      throw ArgumentError("new_email cannot be empty.");
-    }
-    if (!isValidEmail(newEmail)) {
-      throw ArgumentError("new_email is not in a valid email format.");
-    }
-    if (otp.isEmpty) {
-      throw ArgumentError("otp cannot be empty.");
-    }
-    if (!isValidOtp(otp)) {
-      throw ArgumentError("otp must be a 6-digit number.");
-    }
-  }
+  });
 
   // Factory constructor to create UpdateEmailVerificationRequest from JSON
   factory UpdateEmailVerificationRequest.fromJson(Map<String, dynamic> json) {
@@ -39,15 +26,35 @@ class UpdateEmailVerificationRequest {
     };
   }
 
-  // Helper function to validate email format
+  // Validate email format
   bool isValidEmail(String email) {
     final emailPattern = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
     return emailPattern.hasMatch(email);
   }
 
-  // Helper function to validate OTP (should be a 6-digit number)
+  // Validate OTP (must be exactly 6 digits)
   bool isValidOtp(String otp) {
     final otpPattern = RegExp(r'^\d{6}$');
     return otpPattern.hasMatch(otp);
   }
+
+  // Validate the entire request (email and OTP)
+  bool validate() {
+    // Validate email
+    if (!isValidEmail(newEmail)) {
+      failure("Invalid Email", "Please enter a valid email address.");
+      return false;
+    }
+
+    // Validate OTP
+    if (!isValidOtp(otp)) {
+      failure("Invalid OTP", "OTP must be a 6-digit number.");
+      return false;
+    }
+
+    return true;  // All validations passed
+  }
+
+
 }
+

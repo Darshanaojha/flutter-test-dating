@@ -2,8 +2,7 @@ import 'package:dating_application/Models/ResponseModels/get_all_saftey_guidelin
 import 'package:dating_application/constants.dart';
 import 'package:get/get.dart';
 
-class FetchAllSafetyGuildlinesProvider extends GetConnect{
-
+class FetchAllSafetyGuildlinesProvider extends GetConnect {
   // All Safety Guidelines
   Future<SafetyGuidelinesResponse?> fetchAllSafetyGuidelines() async {
     try {
@@ -27,5 +26,4 @@ class FetchAllSafetyGuildlinesProvider extends GetConnect{
       return null;
     }
   }
-
 }

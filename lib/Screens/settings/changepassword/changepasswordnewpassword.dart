@@ -1,7 +1,13 @@
 
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../../Controllers/controller.dart';
+import '../../../Models/RequestModels/change_password_request.dart';
 
 import '../../../constants.dart';
+import '../../login.dart';
 
 
 class ChangePasswordPage extends StatefulWidget {
@@ -10,18 +16,24 @@ class ChangePasswordPage extends StatefulWidget {
   @override
   ChangePasswordPageState createState() => ChangePasswordPageState();
 }
-
 class ChangePasswordPageState extends State<ChangePasswordPage> {
   final formKey = GlobalKey<FormState>();
-  final TextEditingController currentPasswordController = TextEditingController();
-  final TextEditingController newPasswordController = TextEditingController();
-  final TextEditingController confirmNewPasswordController = TextEditingController();
+  Controller controller = Get.find();
+
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
+
+  initialize() {}
+
   double getResponsiveFontSize(double scale) {
-      double screenWidth = MediaQuery.of(context).size.width;
-      return screenWidth *
-          scale; // Adjust this scale for different text elements
-    }
-  // Function to validate password (must be at least 6 characters)
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth * scale; 
+  }
+
+
   String? validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter a password';
@@ -32,12 +44,12 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
     return null;
   }
 
-  // Function to validate confirm new password
+
   String? validateConfirmPassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please confirm your new password';
     }
-    if (value != newPasswordController.text) {
+    if (value != controller.changePasswordRequest.newPassword) {
       return 'Passwords do not match';
     }
     return null;
@@ -46,7 +58,7 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double fontSize = screenWidth * 0.03; // Adjust font size based on screen width
+    double fontSize = screenWidth * 0.03; 
 
     return Scaffold(
       appBar: AppBar(
@@ -69,9 +81,7 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
                 key: formKey,
                 child: Column(
                   children: [
-                    // Current Password Field
                     TextFormField(
-                      controller: currentPasswordController,
                       style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
                       obscureText: true,
                       decoration: InputDecoration(
@@ -93,12 +103,12 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
                         ),
                       ),
                       validator: validatePassword,
+                      onChanged: (value){
+                        controller.changePasswordRequest.oldPassword=value;
+                      },
                     ),
                     SizedBox(height: 20),
-
-                    // New Password Field
                     TextFormField(
-                      controller: newPasswordController,
                       style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
                       obscureText: true,
                       decoration: InputDecoration(
@@ -120,12 +130,12 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
                         ),
                       ),
                       validator: validatePassword,
+                      onChanged: (value){
+                        controller.changePasswordRequest.newPassword=value;
+                      },
                     ),
                     SizedBox(height: 20),
-
-                    // Confirm New Password Field
                     TextFormField(
-                      controller: confirmNewPasswordController,
                       style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
                       obscureText: true,
                       decoration: InputDecoration(
@@ -149,15 +159,19 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
                       validator: validateConfirmPassword,
                     ),
                     SizedBox(height: 20),
-
-                    // Submit Button
                     ElevatedButton(
-                      onPressed: () {
+                      onPressed: (){
                         if (formKey.currentState!.validate()) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Password successfully changed')),
+                          String oldPassword = controller.changePasswordRequest.oldPassword;
+                          String newPassword = controller.changePasswordRequest.newPassword;
+
+                          final changePasswordRequest = ChangePasswordRequest(
+                            oldPassword: oldPassword,
+                            newPassword: newPassword,
                           );
-                          // Handle password change logic here, such as sending the new password to the server.
+
+                        controller.changePassword(changePasswordRequest);
+                        Get.to(Login());
                         }
                       },
                       style: ElevatedButton.styleFrom(

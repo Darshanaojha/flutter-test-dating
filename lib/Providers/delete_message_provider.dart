@@ -7,50 +7,41 @@ import '../Models/RequestModels/delete_message_request_model.dart';
 import '../constants.dart';
 
 class DeleteMessageProvider extends GetConnect {
-
-  Future<DeleteMessageResponse?> deleteMessage(DeleteMessageRequest request) async {
+  Future<DeleteMessageResponse?> deleteMessage(
+      DeleteMessageRequest request) async {
     try {
- 
-      String? validationError = request.validate();
-      if (validationError != null) {
-        throw Exception(validationError);
-      }
+      
 
       final preferences = EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
       if (token == null || token.isEmpty) {
-        throw ArgumentError('Authorization token is missing');
+        failure('Error', 'Token is not found');
+        return null;
       }
 
       final response = await post(
         '$baseurl/Chats/delete_message',
-        jsonEncode(request.toJson()), 
+        jsonEncode(request.toJson()),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',  
+          'Authorization': 'Bearer $token',
         },
       );
 
       if (response.statusCode == 200) {
-
         if (response.body['error']['code'] == 0) {
-   
           return DeleteMessageResponse.fromJson(response.body);
         } else {
-
           failure('Error', response.body['error']['message']);
           return null;
         }
       } else {
-
         failure('Error', response.body.toString());
         return null;
       }
     } catch (e) {
-   
       failure('Error', e.toString());
       return null;
     }
   }
-
 }

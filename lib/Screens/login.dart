@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart'; 
+import 'package:get/get.dart';
 import '../Controllers/controller.dart';
 import '../Models/RequestModels/user_login_request_model.dart';
 import '../constants.dart';
 import 'homepage/homepage.dart';
 import 'loginforgotpassword/forgotpasswordemail.dart';
-import 'register_subpag/registerdetails.dart'; 
+import 'register_subpag/useremailnameinput.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -45,8 +45,6 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-
-
     double fontSize = size.width * 0.03;
 
     return Scaffold(
@@ -83,17 +81,35 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                       }, size, fontSize),
                       SizedBox(height: size.height * 0.05),
                       ElevatedButton(
-                        onPressed: (){},
+                        onPressed: () async {
+              
+                          if (formKey.currentState!.validate()) {
+                            formKey.currentState!.save(); 
+
+                  
+                            bool isSuccess =
+                                await controller.login(loginRequest);
+
+                            if (isSuccess) {
+                            
+                              Get.to(
+                                  HomePage());
+                             
+                            }
+                          }
+                        },
                         style: ElevatedButton.styleFrom(
                           foregroundColor: AppColors.textColor,
-                          backgroundColor: AppColors.buttonColor, 
+                          backgroundColor: AppColors.buttonColor,
                           padding: EdgeInsets.symmetric(
                               vertical: 16.0, horizontal: 32.0),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        child: Text('Login', style: AppTextStyles.buttonText.copyWith(fontSize: fontSize)),
+                        child: Text('Login',
+                            style: AppTextStyles.buttonText
+                                .copyWith(fontSize: fontSize)),
                       ),
                       SizedBox(height: size.height * 0.02),
                       buildForgotPasswordButton(fontSize),
@@ -109,8 +125,8 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
     );
   }
 
-  Widget buildTextField(
-    String label, Function(String) onSaved, TextInputType type, Size size, double fontSize) {
+  Widget buildTextField(String label, Function(String) onSaved,
+      TextInputType type, Size size, double fontSize) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
@@ -146,7 +162,7 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
   }
 
   Widget buildPasswordField(
-    String label, Function(String) onSaved, Size size, double fontSize) {
+      String label, Function(String) onSaved, Size size, double fontSize) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
@@ -199,7 +215,10 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
         SizedBox(height: size.height * 0.02),
         TextButton(
           onPressed: () {
-            Get.to(RegisterProfilePage());
+        
+            Get.to(UserInputPage());
+            // Get.to(OTPVerificationPage());
+            // Get.to(RegisterProfilePage());
           },
           child: Text(
             'Don\'t have an account? Register here',
@@ -210,21 +229,3 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
     );
   }
 }
-
-// Forgot Password Screen
-class ForgotPasswordScreen extends StatelessWidget {
-  const ForgotPasswordScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Forgot Password'),
-      ),
-      body: Center(
-        child: Text('Forgot Password screen content here'),
-      ),
-    );
-  }
-}
-

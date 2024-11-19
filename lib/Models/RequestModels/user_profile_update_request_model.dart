@@ -1,3 +1,6 @@
+
+import '../../constants.dart'; // For basic UI error handling
+
 class UserProfileUpdateRequest {
   final String name;
   final String latitude;
@@ -33,71 +36,24 @@ class UserProfileUpdateRequest {
     required this.emailAlerts,
     required this.preferences,
     required this.desires,
-  }) {
-    if (name.isEmpty) {
-      throw ArgumentError("Name is required.");
-    }
-    if (latitude.isEmpty || !isValidCoordinate(latitude)) {
-      throw ArgumentError("Latitude is invalid.");
-    }
-    if (longitude.isEmpty || !isValidCoordinate(longitude)) {
-      throw ArgumentError("Longitude is invalid.");
-    }
-    if (address.isEmpty) {
-      throw ArgumentError("Address is required.");
-    }
-    if (countryId.isEmpty) {
-      throw ArgumentError("Country ID is required.");
-    }
-    if (city.isEmpty) {
-      throw ArgumentError("City is required.");
-    }
-    if (dob.isEmpty || !isValidDate(dob)) {
-      throw ArgumentError("Date of birth is invalid or empty.");
-    }
-    if (nickname.isEmpty) {
-      throw ArgumentError("Nickname is required.");
-    }
-    if (gender.isEmpty) {
-      throw ArgumentError("Gender is required.");
-    }
-    if (subGender.isEmpty) {
-      throw ArgumentError("Sub Gender is required.");
-    }
-    if (interest.isEmpty) {
-      throw ArgumentError("Interest is required.");
-    }
-    if (bio.isEmpty) {
-      throw ArgumentError("Bio is required.");
-    }
-    if (emailAlerts.isEmpty) {
-      throw ArgumentError("Email Alerts preference is required.");
-    }
-    if (preferences.isEmpty) {
-      throw ArgumentError("Preferences are required.");
-    }
-    if (desires.isEmpty) {
-      throw ArgumentError("Desires are required.");
-    }
-  }
+  });
 
-  // Factory constructor to create UserProfileUpdateRequest from JSON
   factory UserProfileUpdateRequest.fromJson(Map<String, dynamic> json) {
     return UserProfileUpdateRequest(
       name: json['name'],
-      latitude: json['latitute'],
+      latitude: json['latitude'],
       longitude: json['longitude'],
       address: json['address'],
-      countryId: json['country_id'],
+      countryId: json['countryid'],
       state: json['state'] ?? '', // Default to an empty string if 'state' is null
       city: json['city'],
       dob: json['dob'],
       nickname: json['nickname'],
       gender: json['gender'],
-      subGender: json['sub_gender'],
+      subGender: json['subgender'],
       interest: json['interest'],
       bio: json['bio'],
-      emailAlerts: json['email_alerts'],
+      emailAlerts: json['emailalerts'],
       preferences: json['preferences'],
       desires: json['desires'],
     );
@@ -107,33 +63,66 @@ class UserProfileUpdateRequest {
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      'latitute': latitude,
+      'latitude': latitude,
       'longitude': longitude,
       'address': address,
-      'country_id': countryId,
+      'countryid': countryId,
       'state': state,
       'city': city,
       'dob': dob,
       'nickname': nickname,
       'gender': gender,
-      'sub_gender': subGender,
+      'subgender': subGender,
       'interest': interest,
       'bio': bio,
-      'email_alerts': emailAlerts,
+      'emailalerts': emailAlerts,
       'preferences': preferences,
       'desires': desires,
     };
   }
 
-  // Helper function to validate latitude and longitude
+  // Validation method
+  bool validate() {
+    try {
+      // Validate required fields
+      validateNotEmpty(name, 'Name');
+      validateNotEmpty(address, 'Address');
+      validateNotEmpty(countryId, 'Country ID');
+      validateNotEmpty(city, 'City');
+      validateNotEmpty(gender, 'Gender');
+      validateNotEmpty(subGender, 'Sub-Gender');
+
+      if (!isValidCoordinate(latitude)) {
+        failure('Invalid Latitude', 'Latitude must be between -180 and 180.');
+        return false;
+      }
+      if (!isValidCoordinate(longitude)) {
+        failure('Invalid Longitude', 'Longitude must be between -180 and 180.');
+        return false;
+      }
+      if (!isValidDate(dob)) {
+        failure('Invalid Date of Birth', 'Date of Birth should be in YYYY/MM/DD format.');
+        return false;
+      }
+      return true; // All validations passed
+    } catch (e) {
+      failure("Validation Error", e.toString());
+      return false;
+    }
+  }
+
+  void validateNotEmpty(String value, String fieldName) {
+    if (value.isEmpty) {
+      throw ArgumentError("$fieldName is required and cannot be empty.");
+    }
+  }
+
   bool isValidCoordinate(String coordinate) {
     final doubleValue = double.tryParse(coordinate);
     return doubleValue != null && doubleValue >= -180 && doubleValue <= 180;
   }
-
-  // Helper function to validate date of birth (YYYY/MM/DD format)
   bool isValidDate(String date) {
-    final datePattern = RegExp(r'^\d{4}/\d{2}/\d{2}$'); // Regex for YYYY/MM/DD
+    final datePattern = RegExp(r'^\d{4}/\d{2}/\d{2}$'); 
     return datePattern.hasMatch(date);
   }
 }

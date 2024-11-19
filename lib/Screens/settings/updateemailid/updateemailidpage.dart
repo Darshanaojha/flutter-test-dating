@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../Controllers/controller.dart';
+import '../../../Providers/update_emailid_provider.dart';
 import '../../../constants.dart';
 import 'updateemailotpverification.dart';
 
@@ -10,20 +13,30 @@ class UpdateEmailPage extends StatefulWidget {
   @override
   UpdateEmailPageState createState() => UpdateEmailPageState();
 }
-
 class UpdateEmailPageState extends State<UpdateEmailPage> {
-  final passwordController = TextEditingController();
-  final newEmailController = TextEditingController();
-   double getResponsiveFontSize(double scale) {
-      double screenWidth = MediaQuery.of(context).size.width;
-      return screenWidth *
-          scale; // Adjust this scale for different text elements
-    }
-  // GlobalKey for form validation
+    Controller controller = Get.find();
+
+
+  double getResponsiveFontSize(double scale) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth * scale; 
+  }
+
+    @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
+
+  initialize() async {
+
+  }
   final formKey = GlobalKey<FormState>();
 
   String? passwordError;
   String? emailError;
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +64,6 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
                 child: Column(
                   children: [
                     TextFormField(
-                      controller: passwordController,
                       obscureText: true,
                       style: AppTextStyles.inputFieldText.copyWith(fontSize: getResponsiveFontSize(0.03)),
                       decoration: InputDecoration(
@@ -73,10 +85,12 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
                         }
                         return null;
                       },
+                      onChanged: (value){
+                        controller.updateEmailIdRequest.password=value;
+                      },
                     ),
                     SizedBox(height: 16),
                     TextFormField(
-                      controller: newEmailController,
                       style: AppTextStyles.inputFieldText.copyWith(fontSize: getResponsiveFontSize(0.03)),
                       decoration: InputDecoration(
                         labelText: 'New Email ID',
@@ -103,12 +117,17 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
                         }
                         return null;
                       },
+                      onChanged: (value){
+                         controller.updateEmailIdRequest.password=value;
+                      },
                     ),
                     SizedBox(height: 32),
                     SizedBox(
                       width: 200, // Set the width as needed
                       child: ElevatedButton(
-                        onPressed: updateEmail,
+                        onPressed: (){
+                         controller.updateEmailId(controller.updateEmailIdRequest);
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.buttonColor,
                           padding: EdgeInsets.symmetric(vertical: 16),
@@ -126,7 +145,7 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
                         onPressed: () {
                           Get.to(EmailOtpVerificationPage());
                         },
-                        child: Text('next'))
+                        child: Text('Next'))
                   ],
                 ),
               ),
@@ -135,23 +154,5 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
         ),
       ),
     );
-  }
-
-  void updateEmail() {
-    setState(() {
-      passwordError = null;
-      emailError = null;
-    });
-    if (formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Email updated successfully",
-            style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03)),
-          ),
-          backgroundColor: AppColors.acceptColor,
-        ),
-      );
-    }
   }
 }

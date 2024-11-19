@@ -1,11 +1,14 @@
-import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
-import 'package:dating_application/Screens/register_subpag/register_subpage.dart';
 import 'package:dating_application/constants.dart';
+import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:fluttertoast/fluttertoast.dart'; 
+
+import '../../Controllers/controller.dart';
+import '../../Models/RequestModels/registration_otp_verification_request_model.dart';
+import 'registerdetails.dart';
+
 class OTPVerificationPage extends StatefulWidget {
   const OTPVerificationPage({super.key});
 
@@ -14,11 +17,15 @@ class OTPVerificationPage extends StatefulWidget {
 }
 
 class OTPVerificationPageState extends State<OTPVerificationPage> {
-  DashboardController controller = Get.put(DashboardController());
-  TextEditingController phoneNumberController = TextEditingController();
-  TextEditingController otpController = TextEditingController();
+  Controller controller = Get.put(Controller());
 
   String? backEndOtp = '';
+  String? email = '';
+  RegistrationOtpVerificationRequest registrationOtpVerificationRequest =
+      RegistrationOtpVerificationRequest(
+    email: '',
+    otp: '',
+  );
 
   @override
   void initState() {
@@ -27,41 +34,32 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
   }
 
   initialize() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    backEndOtp = prefs.getString('passwordResetOtp');
-  }
-
-  // Success message function
-  void success(String title, String message) {
-    Fluttertoast.showToast(
-      msg: "$title: $message",
-      backgroundColor: Colors.green,
-      textColor: Colors.white,
-    );
-  }
-
-  // Failure message function
-  void failure(String title, String message) {
-    Fluttertoast.showToast(
-      msg: "$title: $message",
-      backgroundColor: Colors.red,
-      textColor: Colors.white,
-    );
+    EncryptedSharedPreferences prefs =
+        await EncryptedSharedPreferences.getInstance();
+    setState(() {
+      backEndOtp = prefs.getString('registrationotp');
+      email = prefs.getString('registrationemail');
+    });
+    if (email != null) {
+      registrationOtpVerificationRequest = RegistrationOtpVerificationRequest(
+        email: email!,
+        otp: '',
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    // Calculate responsive font size based on screen width
-   double fontSize = size.width * 0.03; // Adjust multiplier as needed
+    double fontSize = size.width * 0.03;
     double subheadingFontSize = size.width * 0.045;
     double buttonFontSize = size.width * 0.035;
 
     final defaultPinTheme = PinTheme(
       width: size.width * 0.15,
       height: size.height * 0.15,
-      textStyle: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize), // Use dynamic font size
+      textStyle: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.textColor),
         borderRadius: BorderRadius.circular(20),
@@ -70,7 +68,6 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-
       body: Container(
         margin: EdgeInsets.symmetric(horizontal: size.width * 0.08),
         alignment: Alignment.center,
@@ -88,15 +85,14 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                 "Enter OTP To Confirm the Password",
                 style: AppTextStyles.subheadingText.copyWith(
                   color: Colors.white,
-                  fontSize: subheadingFontSize, // Dynamic font size for subheading
+                  fontSize: subheadingFontSize,
                 ),
               ),
               SizedBox(height: size.height * 0.03),
               Pinput(
                 length: 6,
-                controller: otpController,
                 onChanged: (value) {
-                  otpController.text = value.toString();
+                  registrationOtpVerificationRequest.otp = value;
                 },
                 showCursor: true,
                 defaultPinTheme: defaultPinTheme,
@@ -111,21 +107,32 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                     backgroundColor: AppColors.buttonColor,
                     foregroundColor: AppColors.textColor,
                   ),
-                  onPressed: () {
-                    if (otpController.text.length != 6) {
-                      failure("Invalid OTP", "Please enter a valid 6-digit OTP.");
+                  onPressed: () async {
+                    if (registrationOtpVerificationRequest.otp.length != 6) {
+                      failure(
+                          "Invalid OTP", "Please enter a valid 6-digit OTP.");
                       return;
                     }
-                    if (backEndOtp == otpController.text) {
+                    if (backEndOtp == registrationOtpVerificationRequest.otp) {
                       success("Success", "Your OTP is verified!");
-                      Get.to(MultiStepFormPage());
+                      Get.to(RegisterProfilePage());
                     } else {
-                      failure("Wrong OTP", "Please try again.");
+                      bool successdone =
+                          await controller.otpVerificationForRegistration(
+                              registrationOtpVerificationRequest);
+                      if (successdone) {
+                        success("Success", "OTP verified!");
+                        Get.to(RegisterProfilePage());
+                      } else {
+                        failure("Error",
+                            "OTP verification failed. Please try again.");
+                      }
                     }
                   },
                   child: Text(
                     "Verify OTP",
-                    style: AppTextStyles.buttonText.copyWith(fontSize: buttonFontSize),
+                    style: AppTextStyles.buttonText
+                        .copyWith(fontSize: buttonFontSize),
                   ),
                 ),
               ),
@@ -135,7 +142,7 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                   Text(
                     "The OTP you entered is incorrect. Please click on 'Regenerate OTP' to generate a new OTP.",
                     style: AppTextStyles.errorText.copyWith(
-                      fontSize: fontSize, // Dynamic font size for error text
+                      fontSize: fontSize,
                     ),
                   ),
                   SizedBox(height: size.height * 0.04),
@@ -144,22 +151,19 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                     height: size.height * 0.055,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                        padding:
+                            EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                         backgroundColor: AppColors.buttonColor,
                         foregroundColor: Colors.white,
                       ),
                       onPressed: () {
-                        Get.to(NavigationBottomBar());
-                        String mobileNumber = phoneNumberController.text.trim();
-                        if (mobileNumber.isNotEmpty) {
-                          controller.requestOtp(mobileNumber);
-                        } else {
-                          failure("Input Error", "Please enter a valid mobile number.");
-                        }
+                        // Add logic for regenerating OTP here
+                        Get.to(RegisterProfilePage());
                       },
                       child: Text(
                         "Regenerate OTP",
-                        style: AppTextStyles.buttonText.copyWith(fontSize: buttonFontSize),
+                        style: AppTextStyles.buttonText
+                            .copyWith(fontSize: buttonFontSize),
                       ),
                     ),
                   ),
@@ -172,15 +176,3 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
     );
   }
 }
-
-class DashboardController {
-  var verifiyPassword;
-
-  void requestOtp(String mobileNumber) {}
-}
-
-
-
-
-
-

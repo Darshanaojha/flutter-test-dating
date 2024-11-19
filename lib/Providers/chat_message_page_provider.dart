@@ -40,6 +40,4 @@ class ChatMessagePageProvider extends GetConnect {
       return null;
     }
   }
-
-  
 }
