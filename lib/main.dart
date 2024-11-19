@@ -9,6 +9,7 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'Providers/fcmService.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   // Initialize Firebase
   await Firebase.initializeApp(
     options: FirebaseConstants.firebaseOptions,
