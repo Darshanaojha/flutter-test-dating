@@ -14,9 +14,7 @@ import 'package:dating_application/Providers/fetch_all_headlines_provider.dart';
 import 'package:dating_application/Providers/fetch_all_preferences_provider.dart';
 import 'package:dating_application/Providers/fetch_all_safety_guildlines_provider.dart';
 import 'package:dating_application/Providers/login_provider.dart';
-import 'package:dating_application/Providers/login_provider.dart';
 import 'package:dating_application/Providers/user_profile_provider.dart';
-import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 

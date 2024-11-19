@@ -91,8 +91,8 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                     Navigator.pop(context);
                     deletePhoto(index); // Delete the photo
                   },
-                  child: Text("Delete", style: AppTextStyles.buttonText.copyWith(fontSize: getResponsiveFontSize(0.03)),),
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  child: Text("Delete", style: AppTextStyles.buttonText.copyWith(fontSize: getResponsiveFontSize(0.03)),),
                 ),
               ],
             ),

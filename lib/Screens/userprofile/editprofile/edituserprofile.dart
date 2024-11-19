@@ -138,7 +138,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                               style: AppTextStyles.textStyle.copyWith(
                                   fontSize: getResponsiveFontSize(0.03))),
                           SizedBox(height: 5),
-                          Container(
+                          SizedBox(
                             height: 350,
                             child: ListView.builder(
                               scrollDirection: Axis.vertical,
@@ -210,7 +210,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                     child: Row(
                       children: [
                         // Preview button
-                        Container(
+                        SizedBox(
                           height: 40, // Decrease height of the button
                           child: FloatingActionButton.extended(
                             onPressed: () {
@@ -234,7 +234,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                         ),
                         SizedBox(width: 16),
                         // Save button
-                        Container(
+                        SizedBox(
                           height: 40, // Decrease height of the button
                           child: FloatingActionButton.extended(
                             onPressed: () async {
@@ -517,8 +517,8 @@ class PrivacyToggle extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
 
-  PrivacyToggle(
-      {required this.label, required this.value, required this.onChanged});
+  const PrivacyToggle(
+      {super.key, required this.label, required this.value, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {

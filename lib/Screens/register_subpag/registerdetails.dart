@@ -1,7 +1,6 @@
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_country_response_model.dart';
 import 'package:dating_application/Screens/register_subpag/register_subpage.dart';
-import 'package:dating_application/Screens/register_subpag/registrationotp.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';

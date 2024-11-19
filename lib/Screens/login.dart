@@ -213,6 +213,8 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
 
 // Forgot Password Screen
 class ForgotPasswordScreen extends StatelessWidget {
+  const ForgotPasswordScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -88,7 +88,7 @@ class MembershipPageState extends State<MembershipPage> {
    
       floatingActionButton: Padding(
         padding: EdgeInsets.all(16.0),
-        child: Container(
+        child: SizedBox(
           width: MediaQuery.of(context).size.width * 0.9,
           child: FloatingActionButton.extended(
             onPressed: () {

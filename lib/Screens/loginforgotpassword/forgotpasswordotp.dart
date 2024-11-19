@@ -56,7 +56,7 @@ class OTPInputPageState extends State<OTPInputPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: List.generate(6, (index) {
-                        return Container(
+                        return SizedBox(
                           width: screenWidth * 0.12,
                           child: TextFormField(
                             controller: otpControllers[index],

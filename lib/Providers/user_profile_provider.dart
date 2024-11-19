@@ -1,17 +1,12 @@
-import 'dart:convert';
 import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../Models/RequestModels/update_emailid_request_model.dart';
 import '../Models/ResponseModels/get_all_benifites_response_model.dart';
 import '../Models/ResponseModels/get_all_gender_from_response_model.dart';
 import '../Models/ResponseModels/get_all_headlines_response_model.dart';
-import '../Models/ResponseModels/get_all_saftey_guidelines_response_model.dart';
 import '../Models/ResponseModels/get_all_whoareyoulookingfor_response_model.dart';
 import '../Models/ResponseModels/subgender_response_model.dart';
-import '../Models/ResponseModels/update_emailid_response_model.dart';
 import '../Models/ResponseModels/user_upload_images_response_model.dart';
 import '../constants.dart';
 

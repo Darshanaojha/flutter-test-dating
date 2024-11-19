@@ -9,7 +9,7 @@ class ChangePasswordProvider extends GetConnect {
   Future<ChangePasswordResponse?> changePassword(ChangePasswordRequest request) async {
     try {
 
-      EncryptedSharedPreferences preferences = await EncryptedSharedPreferences.getInstance();
+      EncryptedSharedPreferences preferences = EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
       
       if (token != null && token.isNotEmpty) {

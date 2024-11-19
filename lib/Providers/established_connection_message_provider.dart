@@ -11,7 +11,7 @@ class EstablishConnectionProvider extends GetConnect {
       EstablishConnectionMessageRequest request) async {
     try {
 
-      EncryptedSharedPreferences preferences = await EncryptedSharedPreferences.getInstance();
+      EncryptedSharedPreferences preferences = EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
 
 

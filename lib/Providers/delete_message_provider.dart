@@ -16,7 +16,7 @@ class DeleteMessageProvider extends GetConnect {
         throw Exception(validationError);
       }
 
-      final preferences = await EncryptedSharedPreferences.getInstance();
+      final preferences = EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
       if (token == null || token.isEmpty) {
         throw ArgumentError('Authorization token is missing');
