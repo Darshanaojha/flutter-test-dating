@@ -2,29 +2,29 @@
 import '../../constants.dart';  
 
 class UserRegistrationRequest {
-  final String name;
-  final String email;
-  final String mobile;
-  final String latitude;
-  final String longitude;
-  final String address;
-  final String password;
-  final String countryId;
-  final String state;
-  final String city;
-  final String dob;
-  final String nickname;
-  final String gender;
-  final String subGender;
-  final List<int> preferences;
-  final List<int> desires;
-  final String interest;
-  final String bio;
-  final List<String> photos;
-  final String packageId;
-  final String emailAlerts;
-  final String username;
-  final String lookingFor;
+   String name;
+   String email;
+   String mobile;
+   String latitude;
+   String longitude;
+   String address;
+   String password;
+   String countryId;
+   String state;
+   String city;
+   String dob;
+   String nickname;
+   String gender;
+   String subGender;
+   List<int> preferences;
+   List<int> desires;
+   String interest;
+   String bio;
+   List<String> photos;
+   String packageId;
+   String emailAlerts;
+   String username;
+   String lookingFor;
 
   UserRegistrationRequest({
     required this.name,

@@ -1,3 +1,4 @@
+import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../Controllers/controller.dart';
@@ -93,7 +94,7 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                             if (isSuccess) {
                             
                               Get.to(
-                                  HomePage());
+                                  NavigationBottomBar());
                              
                             }
                           }

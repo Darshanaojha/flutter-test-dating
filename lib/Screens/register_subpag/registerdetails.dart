@@ -3,12 +3,9 @@ import 'package:dating_application/Models/ResponseModels/get_all_country_respons
 import 'package:dating_application/Screens/register_subpag/register_subpage.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
-
-import 'register_subpage.dart';
-
-import 'register_subpage.dart';
 
 class RegisterProfilePage extends StatefulWidget {
   const RegisterProfilePage({super.key});
@@ -21,16 +18,6 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     with TickerProviderStateMixin {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  TextEditingController nameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController mobileController = TextEditingController();
-  TextEditingController latitudeController = TextEditingController();
-  TextEditingController longitudeController = TextEditingController();
-  TextEditingController addressController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController confirmPasswordController = TextEditingController();
-  TextEditingController cityController = TextEditingController();
-
   List<String> states = ["Maharashtra", "California", "London"];
   String? selectedState;
   bool isLatLongFetched = false;
@@ -41,16 +28,13 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
   Country? selectedCountry;
 
   final controller = Get.find<Controller>();
-
-  Future<void> fetchCountries() async {
-    await controller.fetchCountries();
-  }
+  TextEditingController confirmPassword = TextEditingController();
 
   @override
   void initState() {
     super.initState();
 
-    fetchCountries();
+    controller.fetchCountries();
 
     animationController = AnimationController(
       duration: Duration(seconds: 1),
@@ -71,13 +55,13 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
   Future<void> fetchLatLong() async {
     try {
       List<Location> locations =
-          await locationFromAddress(addressController.text);
+          await locationFromAddress(controller.userRegistrationRequest.address);
       if (locations.isNotEmpty) {
-        setState(() {
-          latitudeController.text = locations.first.latitude.toString();
-          longitudeController.text = locations.first.longitude.toString();
-          isLatLongFetched = true; // Mark Lat/Long as fetched
-        });
+        controller.userRegistrationRequest.latitude =
+            locations.first.latitude.toString();
+        controller.userRegistrationRequest.longitude =
+            locations.first.longitude.toString();
+        isLatLongFetched = true;
       } else {
         showErrorDialog('No location found for the provided address');
       }
@@ -142,32 +126,56 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                     child: Column(
                       children: [
                         // Name Field
-                        buildTextField("Name", nameController, fontSize),
+                        buildTextField("Name",
+                            (value) {
+                          controller.userRegistrationRequest.name = value;
+                        }, fontSize),
 
                         // Email Field
-                        buildTextField("Email", emailController, fontSize),
+                        buildTextField("Email", (value) {
+                          controller.userRegistrationRequest.email = value;
+                        }, fontSize),
 
                         // Mobile Field
-                        buildTextField("Mobile", mobileController, fontSize),
+                        buildTextField(
+                            "Mobile",
+                            (value) {
+                          controller.userRegistrationRequest.mobile = value;
+                        },
+                            fontSize),
 
                         // Address Field
-                        buildTextField("Address", addressController, fontSize),
+                        buildTextField(
+                            "Address",
+                            (value) {
+                          controller.userRegistrationRequest.address = value;
+                        },
+                            fontSize),
 
                         // Password Field
-                        buildTextField("Password", passwordController, fontSize,
+                        buildTextField(
+                            "Password",
+                            (value) {
+                          controller.userRegistrationRequest.password = value;
+                        },
+                            fontSize,
                             obscureText: true),
 
                         // Confirm Password Field
-                        buildTextField("Confirm Password",
-                            confirmPasswordController, fontSize,
+                        buildTextField(
+                            "Confirm Password", (value) {
+                          confirmPassword.text = value;
+                        }, fontSize,
                             obscureText: true),
 
                         // Country Dropdown
                         Obx(() {
-                          // Check if countries are available before building the dropdown
                           if (controller.countries.isEmpty) {
                             return Center(
-                              child: CircularProgressIndicator(),
+                              child: SpinKitCircle(
+                                size: 50,
+                                color: AppColors.activeColor,
+                              ),
                             );
                           }
 
@@ -177,10 +185,8 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                             selectedCountry,
                             16.0,
                             (Country? value) {
-                              setState(() {
-                                selectedCountry =
-                                    value; // Update the selected country on change
-                              });
+                              controller.userRegistrationRequest.countryId =
+                                  value?.id ?? '';
                             },
                             displayValue: (Country country) =>
                                 country.name, // Display country name
@@ -196,7 +202,10 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                         }),
 
                         // City Field
-                        buildTextField("City", cityController, fontSize),
+                        buildTextField("City",
+                           (value) {
+                          controller.userRegistrationRequest.city = value;
+                        },fontSize),
 
                         // Fetch Lat/Long Button
                         Padding(
@@ -218,10 +227,18 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                         // Show Latitude and Longitude only if fetched
                         if (isLatLongFetched) ...[
                           buildTextField(
-                              "Latitude", latitudeController, fontSize,
+                              "Latitude",
+                              (value) {
+                          controller.userRegistrationRequest.latitude = value;
+                        },
+                              fontSize,
                               enabled: false),
                           buildTextField(
-                              "Longitude", longitudeController, fontSize,
+                              "Longitude",
+                             (value) {
+                          controller.userRegistrationRequest.longitude = value;
+                        },
+                              fontSize,
                               enabled: false),
                         ],
 
@@ -231,8 +248,8 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           onPressed: () {
                             if (formKey.currentState!.validate()) {
                               // Check if password and confirm password match
-                              if (passwordController.text !=
-                                  confirmPasswordController.text) {
+                              if (controller.userRegistrationRequest.password !=
+                                  confirmPassword.text) {
                                 ScaffoldMessenger.of(context)
                                     .showSnackBar(SnackBar(
                                   content: Text("Passwords do not match!"),
@@ -285,7 +302,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
 
   Widget buildTextField(
     String label,
-    TextEditingController controller,
+    onChanged,
     double fontSize, {
     bool obscureText = false,
     bool enabled = true,
@@ -293,7 +310,6 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
-        controller: controller,
         obscureText: obscureText,
         enabled: enabled,
         validator: (value) {
@@ -323,6 +339,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           fillColor: AppColors.formFieldColor,
           filled: true,
         ),
+        onChanged: onChanged,
       ),
     );
   }

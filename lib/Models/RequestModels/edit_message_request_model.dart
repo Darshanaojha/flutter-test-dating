@@ -1,7 +1,7 @@
 class EditMessageRequest {
-  final String message;
-  final String messageId;
-  final String messageType;
+   String message;
+   String messageId;
+   String messageType;
 
   EditMessageRequest({
     required this.message,

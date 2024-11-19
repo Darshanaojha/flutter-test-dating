@@ -83,6 +83,32 @@ class Controller extends GetxController {
     }
   }
 
+  UserRegistrationRequest userRegistrationRequest = UserRegistrationRequest(
+    name: '',
+    email: '',
+    mobile: '',
+    latitude: '',
+    longitude: '',
+    address:'',
+    password: '',
+    countryId: '',
+    state: '',
+    city: '',
+    dob: '',
+    nickname: '',
+    gender: '',
+    subGender: '',
+    preferences: [], 
+    desires: [], 
+    interest:'',
+    bio: '',
+    photos: [],
+    packageId: '',
+    emailAlerts: '',
+    username: '',
+    lookingFor: '',
+  );
+
   Future<bool> register(UserRegistrationRequest userRegistrationRequest) async {
     try {
       final UserRegistrationResponse? response =
@@ -660,8 +686,7 @@ class Controller extends GetxController {
     }
   }
 
-  
-Future<String?> addOrUpdateImage(int photos) async {
+  Future<String?> addOrUpdateImage(int photos) async {
   try {
     // Request necessary permissions
     if (!await requestCameraPermission()) {
@@ -684,22 +709,22 @@ Future<String?> addOrUpdateImage(int photos) async {
 
       if (compressedImage != null) {
         // Convert the compressed image to base64
-        String? base64LandDetails = base64Encode(compressedImage);
+        String base64Image = base64Encode(compressedImage);
 
         // Save the image path and base64 data based on the page
         if (photos == 1) {
-          // Handle page 1 logic, e.g., imagePathForAddLandDetailsPage1.value = base64LandDetails;
+          userRegistrationRequest.photos.add(base64Image);
         } else if (photos == 2) {
-          // Handle page 2 logic
+         userRegistrationRequest.photos.add(base64Image);
         } else if (photos == 3) {
-          // Handle page 3 logic
+          userRegistrationRequest.photos.add(base64Image);
         } else if (photos == 4) {
-          // Handle page 4 logic
+          userRegistrationRequest.photos.add(base64Image);
         } else {
           return 'Invalid page number';
         }
 
-        return base64LandDetails; 
+        return base64Image; 
       } else {
         failure('Error', 'Image compression failed');
         return null;
@@ -713,67 +738,70 @@ Future<String?> addOrUpdateImage(int photos) async {
   }
 }
 
-  Future<String?> addOrUpdateGalleryImage(int page) async {
-    try {
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+Future<String?> addOrUpdateGalleryImage(int page) async {
+  try {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
-      if (image != null) {
-        final File galleryImage = File(image.path);
+    if (image != null) {
+      final File galleryImage = File(image.path);
 
-        final compressedImage = await FlutterImageCompress.compressWithFile(
-          galleryImage.path,
-          quality: 50,
-        );
+      // Compress the image
+      final compressedImage = await FlutterImageCompress.compressWithFile(
+        galleryImage.path,
+        quality: 50,
+      );
 
-        if (compressedImage != null) {
-          final String base64Image = base64Encode(compressedImage);
+      if (compressedImage != null) {
+        final String base64Image = base64Encode(compressedImage);
 
-          switch (page) {
-            case 1:
-              // imagePathForAddPage1.value = galleryImage.path;
-              break;
-            case 2:
-              // imagePathForAddPage2.value = galleryImage.path;
-              break;
-            case 3:
-              // imagePathForDocument.value = galleryImage.path;
-              break;
-            case 4:
-              // report.value = galleryImage.path;
-              break;
-            default:
-              return 'Invalid page number';
-          }
-
-          return base64Image;
-        } else {
-          failure('Error', 'Failed to compress the image');
-          return null;
+        // Add the image to the photos list for the respective page
+        switch (page) {
+          case 1:
+            userRegistrationRequest.photos.add(base64Image);
+            break;
+          case 2:
+            userRegistrationRequest.photos.add(base64Image);
+            break;
+          case 3:
+            userRegistrationRequest.photos.add(base64Image);
+            break;
+          case 4:
+            userRegistrationRequest.photos.add(base64Image);
+            break;
+          default:
+            return 'Invalid page number';
         }
+
+        return base64Image;
       } else {
+        failure('Error', 'Failed to compress the image');
         return null;
       }
-    } catch (e) {
-      failure('Error', e.toString());
+    } else {
       return null;
     }
+  } catch (e) {
+    failure('Error', e.toString());
+    return null;
   }
+}
 
   Future<String?> chooseSourceToPickImage(String ch, int page) async {
-    String? base64Encode;
+  String? base64EncodedImage;
 
-    if (ch == "C") {
-      await addOrUpdateImage(page).then((value) {
-        base64Encode = value.toString();
-      });
-    } else if (ch == "G") {
-      await addOrUpdateGalleryImage(page).then((value) {
-        base64Encode = value.toString();
-      });
-    }
-    return base64Encode;
+  if (ch == "C") {
+    await addOrUpdateImage(page).then((value) {
+      base64EncodedImage = value; // Get base64 image data from camera
+    });
+  } else if (ch == "G") {
+    await addOrUpdateGalleryImage(page).then((value) {
+      base64EncodedImage = value; // Get base64 image data from gallery
+    });
   }
+  return base64EncodedImage;
+}
+
 
   Future<bool> requestLocationPermission() async {
     final status = await Permission.location.request();
