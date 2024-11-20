@@ -1,9 +1,11 @@
+import 'package:dating_application/Controllers/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:get/get.dart';
+import '../../Models/ResponseModels/chat_history_response_model.dart';
 import '../../constants.dart';
 import '../chatpage/userchatpage.dart';
 import 'package:timeago/timeago.dart' as timeago;
-
 
 class ChatHistoryPage extends StatefulWidget {
   const ChatHistoryPage({super.key});
@@ -13,41 +15,44 @@ class ChatHistoryPage extends StatefulWidget {
 }
 
 class ChatHistoryPageState extends State<ChatHistoryPage> {
-  final List<Map<String, dynamic>> chatUsers = [
-    {
-      'name': 'John Doe',
-      'age': 25,
-      'gender': 'Male',
-      'imageUrl': 'https://www.example.com/profile1.jpg',
-      'isOnline': true,
-      'lastMessageTime': DateTime.now().subtract(Duration(minutes: 10)),
-    },
-    {
-      'name': 'Jane Smith',
-      'age': 28,
-      'gender': 'Female',
-      'imageUrl': 'https://www.example.com/profile2.jpg',
-      'isOnline': false,
-      'lastMessageTime': null, // This is the problematic null value
-    },
-    {
-      'name': 'Alex Johnson',
-      'age': 22,
-      'gender': 'Non-binary',
-      'imageUrl': 'https://www.example.com/profile3.jpg',
-      'isOnline': true,
-      'lastMessageTime': DateTime.now().subtract(Duration(days: 1)),
-    },
-  ];
+  // final List<Map<String, dynamic>> chatUsers = [
+  //   {
+  //     'name': 'John Doe',
+  //     'age': 25,
+  //     'gender': 'Male',
+  //     'imageUrl': 'https://www.example.com/profile1.jpg',
+  //     'isOnline': true,
+  //     'lastMessageTime': DateTime.now().subtract(Duration(minutes: 10)),
+  //   },
+  //   {
+  //     'name': 'Jane Smith',
+  //     'age': 28,
+  //     'gender': 'Female',
+  //     'imageUrl': 'https://www.example.com/profile2.jpg',
+  //     'isOnline': false,
+  //     'lastMessageTime': null, // This is the problematic null value
+  //   },
+  //   {
+  //     'name': 'Alex Johnson',
+  //     'age': 22,
+  //     'gender': 'Non-binary',
+  //     'imageUrl': 'https://www.example.com/profile3.jpg',
+  //     'isOnline': true,
+  //     'lastMessageTime': DateTime.now().subtract(Duration(days: 1)),
+  //   },
+  // ];
+
+  final List<Message> chatUser = [];
+  Controller controller = Get.put(Controller());
 
   String searchQuery = '';
   bool isLoading = true;
 
   // Function to filter the chat users based on the search query
-  List<Map<String, dynamic>> getFilteredChatUsers() {
-    return chatUsers
+  List<Message> getFilteredChatUsers() {
+    return controller.messages
         .where((user) =>
-            user['name'].toLowerCase().contains(searchQuery.toLowerCase()))
+            user.userName.toLowerCase().contains(searchQuery.toLowerCase()))
         .toList();
   }
 
@@ -59,15 +64,22 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
         isLoading = false;
       });
     });
+
+    fetchChatUser();
   }
-   double getResponsiveFontSize(double scale) {
+
+  fetchChatUser() async {
+    await controller.chatHistory();
+  }
+
+  double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale; // Adjust this scale for different text elements
   }
 
   @override
   Widget build(BuildContext context) {
-    final mQuery = MediaQuery.of(context).size; 
+    final mQuery = MediaQuery.of(context).size;
 
     return Scaffold(
       backgroundColor: AppColors.secondaryColor,
@@ -104,7 +116,9 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Chatting Members', style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03))),
+                    Text('Chatting Members',
+                        style: AppTextStyles.bodyText
+                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
                     Row(
                       children: [
                         Icon(
@@ -125,93 +139,119 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                 SizedBox(height: 20),
                 // List of chat users
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: getFilteredChatUsers().length,
-                    itemBuilder: (context, index) {
-                      final user = getFilteredChatUsers()[index];
+                  child: Obx(() {
+                    final chatMessages =
+                        controller.messages; // Accessing RxList<Message>
 
-                      // Handle null lastMessageTime
-                      final lastMessageTime = user['lastMessageTime'];
-                      String timeAgoText = lastMessageTime != null
-                          ? timeago.format(lastMessageTime)
-                          : 'No messages yet';
+                    if (chatMessages.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'No chats available.',
+                          style: AppTextStyles.bodyText,
+                        ),
+                      );
+                    }
 
-                      return GestureDetector(
-                        onTap: () {
-                          // Navigate to ChatPage when tapping anywhere in the row
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChatPage(user: user),
-                            ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  // Block navigation to ChatPage when tapping on image
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => FullScreenImagePage(
-                                        imageUrl: user['imageUrl'],
+                    return ListView.builder(
+                      itemCount: chatMessages.length,
+                      itemBuilder: (context, index) {
+                        final message = chatMessages[index];
+
+                        // Handle null lastMessageTime
+                        final lastMessageTime = message.created;
+                        String timeAgoText = lastMessageTime.isNotEmpty
+                            ? timeago.format(DateTime.parse(lastMessageTime))
+                            : 'No messages yet';
+
+                        return GestureDetector(
+                          onTap: () {
+                            // Navigate to ChatPage when tapping anywhere in the row
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ChatPage(
+                                  user: {
+                                    'id': message.id,
+                                    'userName': message.userName,
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    // Block navigation to ChatPage when tapping on image
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            FullScreenImagePage(
+                                          imageUrl: 'assets/images/image.png',
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
-                                child: Hero(
-                                  tag: user['imageUrl'],
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: user['isOnline']
-                                          ? Border.all(
-                                              color: Colors.green,
-                                              width: 3.0,
-                                            )
-                                          : null,
-                                    ),
-                                    child: CircleAvatar(
-                                      radius: mQuery.width * 0.08, // Reduced size
-                                      backgroundImage:
-                                          NetworkImage(user['imageUrl']),
+                                    );
+                                  },
+                                  child: Hero(
+                                    tag: 'assets/images/image.png',
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: true
+                                            ? Border.all(
+                                                color: Colors.green,
+                                                width: 3.0,
+                                              )
+                                            : null,
+                                      ),
+                                      child: CircleAvatar(
+                                        radius:
+                                            MediaQuery.of(context).size.width *
+                                                0.08,
+                                        backgroundImage: AssetImage(
+                                            'assets/images/image.png'),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(width: 16),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        user['name'],
-                                        style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.04)),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 4),
-                                  // Display time since last message
-                                  Text(
-                                    timeAgoText,
-                                    style: AppTextStyles.bodyText.copyWith(
-                                      color: Colors.grey,
+                                SizedBox(width: 16),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          message.userName,
+                                          style:
+                                              AppTextStyles.bodyText.copyWith(
+                                            fontSize:
+                                                getResponsiveFontSize(0.04),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                                    SizedBox(height: 4),
+                                    // Display time since last message
+                                    Text(
+                                      timeAgoText,
+                                      style: AppTextStyles.bodyText.copyWith(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
+                        );
+                      },
+                    );
+                  }),
                 ),
               ],
             ),

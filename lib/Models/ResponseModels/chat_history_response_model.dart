@@ -1,7 +1,7 @@
 class ChatHistoryResponse {
-  final bool success;
-  final Payload payload;
-  final Error error;
+   bool success;
+   Payload payload;
+   Error error;
 
   ChatHistoryResponse({
     required this.success,

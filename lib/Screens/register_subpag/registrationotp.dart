@@ -3,7 +3,6 @@ import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/registration_otp_verification_request_model.dart';
@@ -35,7 +34,7 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
 
   initialize() async {
     EncryptedSharedPreferences prefs =
-        await EncryptedSharedPreferences.getInstance();
+        EncryptedSharedPreferences.getInstance();
     setState(() {
       backEndOtp = prefs.getString('registrationotp');
       email = prefs.getString('registrationemail');

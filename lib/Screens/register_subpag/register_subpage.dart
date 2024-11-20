@@ -421,85 +421,84 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
   // Step 4: Describe Yourself (New Step)
- Widget buildBestDescribeYouStep(Size screenSize) {
-  genderIds.addAll(controller.genders.map((gender) => gender.id));
+  Widget buildBestDescribeYouStep(Size screenSize) {
+    genderIds.addAll(controller.genders.map((gender) => gender.id));
 
-  RxList<String> options = <String>[].obs; 
+    RxList<String> options = <String>[].obs;
 
-  options.assignAll(controller.subGenders.map((subGender) => subGender.title));
+    options
+        .assignAll(controller.subGenders.map((subGender) => subGender.title));
 
+    double titleFontSize = screenSize.width * 0.05;
+    double descriptionFontSize = screenSize.width * 0.03;
+    double optionFontSize = screenSize.width * 0.03;
 
-  double titleFontSize = screenSize.width * 0.05;
-  double descriptionFontSize = screenSize.width * 0.03;
-  double optionFontSize = screenSize.width * 0.03;
+    RxString selectedOption = ''.obs;
 
-  RxString selectedOption = ''.obs;
+    return Obx(() {
+      if (controller.subGenders.isEmpty) {
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      }
 
-  return Obx(() {
-    if (controller.subGenders.isEmpty) {
-      return Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-
-    return Card(
-      elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              controller.headlines.isNotEmpty
-                  ? controller.headlines[3].title
-                  : "Loading Title...",
-              style: AppTextStyles.titleText.copyWith(
-                fontSize: titleFontSize,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textColor,
-              ),
-            ),
-            SizedBox(height: 20),
-            Text(
-              controller.headlines.isNotEmpty
-                  ? controller.headlines[3].description
-                  : "",
-              style: AppTextStyles.bodyText.copyWith(
-                fontSize: descriptionFontSize,
-                color: AppColors.textColor,
-              ),
-            ),
-            SizedBox(height: 20),
-            Column(
-              children: List.generate(options.length, (index) {
-                return RadioListTile<String>(
-                  title: Text(
-                    options[index],
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: optionFontSize,
-                      color: AppColors.textColor,
-                    ),
-                  ),
-                  value: options[index],
-                  groupValue: selectedOption.value,
-                  onChanged: (String? value) {
-                    selectedOption.value = value ?? '';
-                  },
-                  activeColor: AppColors.buttonColor,
-                  contentPadding: EdgeInsets.zero,
-                );
-              }),
-            ),
-          ],
+      return Card(
+        elevation: 8,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
-      ),
-    );
-  });
-}
-
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                controller.headlines.isNotEmpty
+                    ? controller.headlines[3].title
+                    : "Loading Title...",
+                style: AppTextStyles.titleText.copyWith(
+                  fontSize: titleFontSize,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textColor,
+                ),
+              ),
+              SizedBox(height: 20),
+              Text(
+                controller.headlines.isNotEmpty
+                    ? controller.headlines[3].description
+                    : "",
+                style: AppTextStyles.bodyText.copyWith(
+                  fontSize: descriptionFontSize,
+                  color: AppColors.textColor,
+                ),
+              ),
+              SizedBox(height: 20),
+              Column(
+                children: List.generate(options.length, (index) {
+                  return RadioListTile<String>(
+                    title: Text(
+                      options[index],
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: optionFontSize,
+                        color: AppColors.textColor,
+                      ),
+                    ),
+                    value: options[index],
+                    groupValue: selectedOption.value,
+                    onChanged: (String? value) {
+                      selectedOption.value = value ?? '';
+                    },
+                    activeColor: AppColors.buttonColor,
+                    contentPadding: EdgeInsets.zero,
+                  );
+                }),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
 
 // step 5 who are you looking for
   Widget buildLookingForStep(Size screenSize) {

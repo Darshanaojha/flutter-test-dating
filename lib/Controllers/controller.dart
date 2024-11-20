@@ -18,6 +18,7 @@ import 'package:dating_application/Providers/fetch_all_preferences_provider.dart
 import 'package:dating_application/Providers/fetch_all_safety_guildlines_provider.dart';
 import 'package:dating_application/Providers/login_provider.dart';
 import 'package:dating_application/Providers/user_profile_provider.dart';
+import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
@@ -133,14 +134,14 @@ class Controller extends GetxController {
         RegExp otpRegExp = RegExp(r'(\d{6})');
         Match? otpMatch = otpRegExp.firstMatch(message);
         EncryptedSharedPreferences prefs =
-            await EncryptedSharedPreferences.getInstance();
+            EncryptedSharedPreferences.getInstance();
         await prefs.setString(
             'registrationemail', registrationOTPRequest.email);
         if (otpMatch != null) {
           String otp = otpMatch.group(0) ?? 'OTP not found';
 
           EncryptedSharedPreferences prefs =
-              await EncryptedSharedPreferences.getInstance();
+              EncryptedSharedPreferences.getInstance();
           await prefs.setString('registrationotp', otp);
           success('OTP Received', 'Your OTP is: $otp');
           success('success', response.payload.message);
@@ -206,6 +207,10 @@ class Controller extends GetxController {
           await ChatMessagePageProvider().chatHistory();
       if (response != null) {
         messages.addAll(response.payload.data);
+        for (var m in messages) {
+          print(m.toJson().toString());
+        }
+
         success('success', 'chat history fetched successfully');
         return true;
       } else {
@@ -512,15 +517,13 @@ class Controller extends GetxController {
   ForgetPasswordRequest forgetPasswordRequest =
       ForgetPasswordRequest(email: '', newPassword: '');
   Future<void> storeOtp(String otp) async {
-    EncryptedSharedPreferences prefs =
-        await EncryptedSharedPreferences.getInstance();
+    EncryptedSharedPreferences prefs = EncryptedSharedPreferences.getInstance();
     await prefs.setString('otp', otp);
   }
 
   Future<bool> getOtpForgetPassword(
       ForgetPasswordRequest forgetPasswordRequest) async {
-    EncryptedSharedPreferences prefs =
-        await EncryptedSharedPreferences.getInstance();
+    EncryptedSharedPreferences prefs = EncryptedSharedPreferences.getInstance();
     await prefs.setString('forgetpasswordemail', forgetPasswordRequest.email);
     await prefs.setString('forgetpassword', forgetPasswordRequest.newPassword);
 
@@ -589,7 +592,7 @@ class Controller extends GetxController {
       UpdateEmailIdResponse? response =
           await UpdateEmailidProvider().updateEmailId(updateEmailIdRequest);
       EncryptedSharedPreferences prefs =
-          await EncryptedSharedPreferences.getInstance();
+          EncryptedSharedPreferences.getInstance();
       await prefs.setString('update_email', updateEmailIdRequest.newEmail);
       if (response != null) {
         success('success', response.payload.message);
@@ -660,58 +663,57 @@ class Controller extends GetxController {
     }
   }
 
-  
-Future<String?> addOrUpdateImage(int photos) async {
-  try {
-    // Request necessary permissions
-    if (!await requestCameraPermission()) {
-      return 'Camera permission denied';
-    }
-    if (!await requestLocationPermission()) {
-      return 'Location permission denied';
-    }
-
-    // Pick image from the camera
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.camera);
-
-    if (image != null) {
-      // Compress the image
-      final compressedImage = await FlutterImageCompress.compressWithFile(
-        image.path,  // Correctly pass the image path here
-        quality: 50,  // Compression quality (adjust as needed)
-      );
-
-      if (compressedImage != null) {
-        // Convert the compressed image to base64
-        String? base64LandDetails = base64Encode(compressedImage);
-
-        // Save the image path and base64 data based on the page
-        if (photos == 1) {
-          // Handle page 1 logic, e.g., imagePathForAddLandDetailsPage1.value = base64LandDetails;
-        } else if (photos == 2) {
-          // Handle page 2 logic
-        } else if (photos == 3) {
-          // Handle page 3 logic
-        } else if (photos == 4) {
-          // Handle page 4 logic
-        } else {
-          return 'Invalid page number';
-        }
-
-        return base64LandDetails; 
-      } else {
-        failure('Error', 'Image compression failed');
-        return null;
+  Future<String?> addOrUpdateImage(int photos) async {
+    try {
+      // Request necessary permissions
+      if (!await requestCameraPermission()) {
+        return 'Camera permission denied';
       }
-    } else {
-      return 'No image selected';
+      if (!await requestLocationPermission()) {
+        return 'Location permission denied';
+      }
+
+      // Pick image from the camera
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.camera);
+
+      if (image != null) {
+        // Compress the image
+        final compressedImage = await FlutterImageCompress.compressWithFile(
+          image.path, // Correctly pass the image path here
+          quality: 50, // Compression quality (adjust as needed)
+        );
+
+        if (compressedImage != null) {
+          // Convert the compressed image to base64
+          String? base64LandDetails = base64Encode(compressedImage);
+
+          // Save the image path and base64 data based on the page
+          if (photos == 1) {
+            // Handle page 1 logic, e.g., imagePathForAddLandDetailsPage1.value = base64LandDetails;
+          } else if (photos == 2) {
+            // Handle page 2 logic
+          } else if (photos == 3) {
+            // Handle page 3 logic
+          } else if (photos == 4) {
+            // Handle page 4 logic
+          } else {
+            return 'Invalid page number';
+          }
+
+          return base64LandDetails;
+        } else {
+          failure('Error', 'Image compression failed');
+          return null;
+        }
+      } else {
+        return 'No image selected';
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return null;
     }
-  } catch (e) {
-    failure('Error', e.toString()); 
-    return null;
   }
-}
 
   Future<String?> addOrUpdateGalleryImage(int page) async {
     try {

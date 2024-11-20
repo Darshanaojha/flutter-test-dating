@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../Controllers/controller.dart';
-import '../../../Providers/update_emailid_provider.dart';
 import '../../../constants.dart';
 import 'updateemailotpverification.dart';
 

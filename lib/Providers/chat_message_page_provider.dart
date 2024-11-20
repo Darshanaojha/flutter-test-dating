@@ -10,16 +10,19 @@ class ChatMessagePageProvider extends GetConnect {
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
-
       if (token != null && token.isNotEmpty) {
+        print(token);
+        // token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUaGVfY2xhaW0iLCJhdWQiOiJUaGVfQXVkIiwiaWF0IjoxNzMyMDg4MzAwLCJuYmYiOjE3MzIwODgzMDAsImV4cCI6MTczNDY4MDMwMCwiZGF0YSI6WyIyOSIsInVzZXIiLCIzIl19.SDU9Ky7LgHHyWiA6kCUUCNYybzsbxRPXO8_gpZaMVYU";
         Response response = await post(
           '$baseurl/Chats/chat_history',
-          null,
+          {},
           headers: {
+            'content-Type': 'application/json',
             'Authorization': 'Bearer $token',
           },
         );
 
+        print('${response.statusCode} --- ${response.body.toString()}');
         if (response.statusCode == 200) {
           if (response.body['error']['code'] == 0) {
             return ChatHistoryResponse.fromJson(response.body);
@@ -37,6 +40,7 @@ class ChatMessagePageProvider extends GetConnect {
       }
     } catch (e) {
       failure('Error', e.toString());
+      print(e.toString());
       return null;
     }
   }

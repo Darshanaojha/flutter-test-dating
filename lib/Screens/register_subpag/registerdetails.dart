@@ -6,9 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 
-import 'register_subpage.dart';
 
-import 'register_subpage.dart';
 
 class RegisterProfilePage extends StatefulWidget {
   const RegisterProfilePage({super.key});
