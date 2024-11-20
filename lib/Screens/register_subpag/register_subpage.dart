@@ -38,7 +38,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   RxList<bool> desireSelectedOptions = <bool>[].obs;
   RxList<String> selectedStatus = <String>[].obs;
   RxList<String> genderIds = <String>[].obs;
-
+  RxList<String> selectedInterests = <String>[].obs;
   @override
   void initState() {
     super.initState();
@@ -52,6 +52,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     await controller.fetchGenders();
     await controller.fetchAllHeadlines();
     await controller.fetchDesires();
+    await controller.fetchAllPackages();
     genderIds.addAll(controller.genders.map((gender) => gender.id));
     for (String genderId in genderIds) {
       await controller.fetchSubGender(SubGenderRequest(genderId: genderId));
@@ -61,17 +62,85 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
         List<bool>.filled(controller.preferences.length, false);
   }
 
+  List<bool> stepCompletion = List.generate(14, (index) => false);
+
+  void markStepAsCompleted(int step) {
+    setState(() {
+      stepCompletion[step - 1] = true;
+    });
+  }
+
+  void onPageChanged(int index) {
+    if (stepCompletion[currentPage - 1]) {
+      setState(() {
+        currentPage = index + 1; // Page index is 0-based, so add 1
+      });
+    } else {
+      pageController.jumpToPage(currentPage - 1); // Stay on current page
+    }
+  }
+
+  // Widget to build the step widgets based on the current page number
+  Widget buildStepWidget(int step, Size screenSize) {
+    switch (step) {
+      case 1:
+        return buildBirthdayStep(screenSize);
+      case 2:
+        return buildNameStep(screenSize);
+      case 3:
+        return buildGenderStep(screenSize);
+      case 4:
+        return buildBestDescribeYouStep(screenSize);
+      case 5:
+        return buildLookingForStep(screenSize);
+      case 6:
+        return buildRelationshipStatusInterestStep(context, screenSize);
+      case 7:
+        return buildInterestStep(context, screenSize);
+      case 8:
+        return buildUserDescriptionStep(screenSize);
+      case 9:
+        return buildPermissionRequestStep(screenSize);
+      case 10:
+        return buildPhotosOfUser(screenSize);
+      case 11:
+        return buildPaymentWidget(screenSize);
+      case 12:
+        return buildSafetyGuidelinesWidget(screenSize);
+      case 13:
+        return buildProfileSummaryPage(screenSize);
+      case 14:
+        return buildFinalStep(screenSize);
+      default:
+        return buildFinalStep(screenSize);
+    }
+  }
+
+  Widget buildFinalStep(Size screenSize) {
+    return Column(
+      children: [
+        Text("Final Step: Submit Form"),
+        ElevatedButton(
+          onPressed: nextStep,
+          style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+            backgroundColor: AppColors.buttonColor,
+            foregroundColor: AppColors.textColor,
+          ), // This triggers form submission or navigates to next screen
+          child: Text('Submit', style: AppTextStyles.buttonText),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     final screenWidth = screenSize.width;
-    final screenHeight = screenSize.height;
 
-    double padding = isPortrait ? 16.0 : 24.0;
     double fontSize = screenWidth < 400 ? 18 : 20;
-    double buttonHeight = screenHeight < 600 ? 48 : 56;
 
     return Scaffold(
       appBar: AppBar(
@@ -90,59 +159,18 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           ),
         ],
       ),
-      body: Container(
-        color: AppColors.primaryColor,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(padding),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: screenHeight * 0.75,
-                  child: PageView(
-                    controller: pageController,
-                    onPageChanged: (pageIndex) {
-                      setState(() {
-                        currentPage = pageIndex + 1;
-                      });
-                    },
-                    children: [
-                      buildBirthdayStep(screenSize),
-                      buildNameStep(screenSize),
-                      buildGenderStep(screenSize),
-                      buildBestDescribeYouStep(screenSize),
-                      buildLookingForStep(screenSize),
-                      buildRelationshipStatusInterestStep(context, screenSize),
-                      buildInterestStep(context, screenSize),
-                      buildUserDescriptionStep(screenSize),
-                      buildPhotosOfUser(screenSize),
-                      buildPermissionRequestStep(screenSize),
-                      buildPaymentWidget(screenSize),
-                      buildSafetyGuidelinesWidget(screenSize),
-                      buildProfileSummaryPage(screenSize),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 10),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(double.infinity, buttonHeight),
-                    foregroundColor: AppColors.textColor,
-                    backgroundColor: AppColors.buttonColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(40.0),
-                    ),
-                  ),
-                  onPressed: nextStep,
-                  child: Text(
-                    'Next',
-                    style: AppTextStyles.buttonText,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+      body: PageView.builder(
+        controller: pageController,
+        onPageChanged: onPageChanged,
+        // onPageChanged: (index) {
+        //   setState(() {
+        //     currentPage = index + 1;
+        //   });
+        // },
+        itemCount: 14,
+        itemBuilder: (context, index) {
+          return buildStepWidget(index + 1, screenSize);
+        },
       ),
     );
   }
@@ -179,13 +207,13 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           if (intValue >= min && intValue <= max) {
             onChanged(intValue);
           }
+          controller.userRegistrationRequest.dob = value;
         },
       ),
     );
   }
 
   Widget buildBirthdayStep(Size screenSize) {
-    final screenSize = MediaQuery.of(context).size;
     final controller = Get.find<Controller>();
 
     double titleFontSize = screenSize.width * 0.05;
@@ -249,7 +277,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               ],
             ),
             SizedBox(height: 70),
-            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 String formattedDate =
@@ -258,18 +285,23 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     '$selectedYear';
 
                 controller.userRegistrationRequest.dob = formattedDate;
+
                 DateTime selectedDate =
                     DateTime(selectedYear, selectedMonth, selectedDay);
                 DateTime now = DateTime.now();
+
+                // Check if the user is 18 or older
                 if (now.difference(selectedDate).inDays < 18 * 365) {
+                  // If user is under 18, show failure message
                   failure('Failed',
                       'You must be at least 18 years old to proceed.');
                   return;
                 } else {
-                  // Proceed to the next step if the user is 18 or older
-                  // You can navigate or perform other actions here
-                  Get.to(buildNameStep);
-                  controller.register(controller.userRegistrationRequest);
+                  markStepAsCompleted(1);
+                  pageController.nextPage(
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.ease,
+                  );
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -346,13 +378,24 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 height: 40), // Adds space between the text field and button
 
             ElevatedButton(
-              onPressed: () {
-                Get.to(buildGenderStep);
-                controller.register(controller.userRegistrationRequest);
-              },
+              onPressed: controller.userRegistrationRequest.nickname.isNotEmpty
+                  ? () {
+                      // Mark the step as completed
+                      markStepAsCompleted(2);
+
+                      // Move to the next page in the PageView
+                      pageController.nextPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.ease,
+                      );
+                    }
+                  : null, // Disable button if the name is empty
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                backgroundColor: AppColors.buttonColor,
+                backgroundColor:
+                    controller.userRegistrationRequest.nickname.isNotEmpty
+                        ? AppColors.buttonColor
+                        : AppColors.activeColor,
                 foregroundColor: AppColors.textColor,
               ),
               child: Text(
@@ -370,7 +413,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
   // Step 3: Gender Selection
   Widget buildGenderStep(Size screenSize) {
-    final Rx<Gender?> selectedGender = Rx<Gender?>(null);
+    final selectedGender = Rx<Gender?>(null);
 
     double titleFontSize = screenSize.width * 0.05;
     double optionFontSize = screenSize.width * 0.03;
@@ -421,9 +464,19 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           value: gender,
                           groupValue: selectedGender.value,
                           onChanged: (Gender? value) {
+                            // Update selected gender using reactive Rx
                             selectedGender.value = value;
-                            controller.userRegistrationRequest.gender =
-                                value?.id ?? '';
+
+                            // Safe parsing using tryParse
+                            final parsedGenderId =
+                                int.tryParse(value?.id ?? '');
+
+                            if (parsedGenderId != null) {
+                              controller.userRegistrationRequest.gender =
+                                  parsedGenderId.toString();
+                            } else {
+                              controller.userRegistrationRequest.gender = '';
+                            }
                           },
                           activeColor: AppColors.buttonColor,
                         );
@@ -433,27 +486,35 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 );
               }),
               SizedBox(height: 40), // Adds space for the button
-              ElevatedButton(
-                onPressed: () {
-                  if (selectedGender.value == null) {
-                    failure('Failed', "Please select a gender.");
-                    return;
-                  }
-                  controller.register(controller.userRegistrationRequest);
-                  Get.to(buildBestDescribeYouStep);
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                  backgroundColor: AppColors.buttonColor,
-                  foregroundColor: AppColors.textColor,
-                ),
-                child: Text(
-                  'Next',
-                  style: AppTextStyles.buttonText.copyWith(
-                    fontSize: screenSize.width * 0.045,
+              // Obx() to make the button reactive
+              Obx(() {
+                return ElevatedButton(
+                  onPressed: selectedGender.value == null
+                      ? null // Disable if no gender selected
+                      : () {
+                          markStepAsCompleted(3); // Mark step completion
+                          // Move to the next page in the PageView
+                          pageController.nextPage(
+                            duration: Duration(milliseconds: 300),
+                            curve: Curves.ease,
+                          );
+                        },
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                    backgroundColor: selectedGender.value != null
+                        ? AppColors.buttonColor
+                        : AppColors
+                            .activeColor, // Change button color based on selection
+                    foregroundColor: AppColors.textColor,
                   ),
-                ),
-              ),
+                  child: Text(
+                    'Next',
+                    style: AppTextStyles.buttonText.copyWith(
+                      fontSize: screenSize.width * 0.045,
+                    ),
+                  ),
+                );
+              }),
             ],
           ),
         ),
@@ -463,11 +524,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
   // Step 4: Describe Yourself (New Step)
   Widget buildBestDescribeYouStep(Size screenSize) {
-    RxList<String> options = <String>[].obs;
-
-    options
-        .assignAll(controller.subGenders.map((subGender) => subGender.title));
-
     double titleFontSize = screenSize.width * 0.05;
     double descriptionFontSize = screenSize.width * 0.03;
     double optionFontSize = screenSize.width * 0.03;
@@ -515,17 +571,54 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 ),
               ),
               SizedBox(height: 20),
+                DropdownButtonFormField<String>(
+              value: controller.userRegistrationRequest.lookingFor.isEmpty
+                  ? null
+                  : controller.userRegistrationRequest.lookingFor,  // Default value
+              decoration: InputDecoration(
+                labelText: 'Relationship Type',  // Label for the dropdown
+                labelStyle: AppTextStyles.labelText.copyWith(fontSize: optionFontSize),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: AppColors.textColor),
+                ),
+              ),
+              items: [
+                DropdownMenuItem(
+                  value: 'Serious Relationship',
+                  child: Text(
+                    'Serious Relationship',
+                    style: AppTextStyles.bodyText.copyWith(fontSize: optionFontSize),
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'Hookup',
+                  child: Text(
+                    'Hookup',
+                    style: AppTextStyles.bodyText.copyWith(fontSize: optionFontSize),
+                  ),
+                ),
+              ],
+              onChanged: (value) {
+                controller.userRegistrationRequest.lookingFor = value ?? '';  
+                controller.userRegistrationRequest.interest = value ?? '';  
+              },
+              iconEnabledColor: AppColors.textColor,  // Color of the dropdown icon
+              iconDisabledColor: AppColors.inactiveColor,
+            ),
+             SizedBox(height: 20),
               Column(
-                children: List.generate(options.length, (index) {
+                children: List.generate(controller.subGenders.length, (index) {
                   return RadioListTile<String>(
                     title: Text(
-                      options[index],
+                      controller.subGenders[index].title,
                       style: AppTextStyles.bodyText.copyWith(
                         fontSize: optionFontSize,
                         color: AppColors.textColor,
                       ),
                     ),
-                    value: options[index], // This is the option string
+                    value: controller
+                        .subGenders[index].id, // This is the option string
                     groupValue: selectedOption.value, // Current selected value
                     onChanged: (String? value) {
                       selectedOption.value = value ?? '';
@@ -539,21 +632,35 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               ),
               SizedBox(height: 30),
               ElevatedButton(
-                onPressed: () {
-                  // Ensure that a value has been selected before proceeding
-                  if (selectedOption.value.isEmpty) {
-                    failure('Failed', 'Please select an option to proceed.');
-                  } else {
-                    controller.register(controller.userRegistrationRequest);
-                    Get.to(buildLookingForStep);
-                  }
-                },
+                onPressed: selectedOption.value.isEmpty
+                    ? null // Disable if no option selected
+                    : () {
+                        // Ensure that a value has been selected before proceeding
+                        if (selectedOption.value.isEmpty) {
+                          failure(
+                              'Failed', 'Please select an option to proceed.');
+                        } else {
+                          markStepAsCompleted(4); // Mark step completion
+                          // Move to the next page in the PageView
+                          pageController.nextPage(
+                            duration: Duration(milliseconds: 300),
+                            curve: Curves.ease,
+                          ); // Proceed to next step
+                        }
+                      },
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                  backgroundColor: AppColors.buttonColor,
+                  backgroundColor: selectedOption.isEmpty
+                      ? AppColors.inactiveColor // If no preference is selected
+                      : AppColors.buttonColor, // If preference is selected
                   foregroundColor: AppColors.textColor,
                 ),
-                child: Text('Next', style: AppTextStyles.buttonText),
+                child: Text(
+                  'Next',
+                  style: AppTextStyles.buttonText.copyWith(
+                    fontSize: screenSize.width * 0.045,
+                  ),
+                ),
               ),
             ],
           ),
@@ -636,7 +743,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                         value: preferencesSelectedOptions[index],
                         onChanged: (bool? value) {
                           preferencesSelectedOptions[index] = value ?? false;
-                          // Optionally update the preferencesSelectedOptions list here
                         },
                         activeColor: AppColors.buttonColor,
                         checkColor: Colors.white,
@@ -657,18 +763,28 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           .add(int.parse(controller.preferences[i].id));
                     }
                   }
+
                   controller.userRegistrationRequest.preferences =
                       selectedPreferences;
+
                   if (selectedPreferences.isEmpty) {
                     failure('Failed', 'Please select at least one preference.');
                   } else {
-                    controller.register(controller.userRegistrationRequest);
-                    Get.to(buildRelationshipStatusInterestStep);
+                    markStepAsCompleted(
+                        5); // Mark the current step as completed
+
+                    // Move to the next page in the PageView
+                    pageController.nextPage(
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.ease,
+                    );
                   }
                 },
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                  backgroundColor: AppColors.buttonColor,
+                  backgroundColor: preferencesSelectedOptions.isNotEmpty
+                      ? AppColors.inactiveColor // If no preference is selected
+                      : AppColors.buttonColor, // If preference is selected
                   foregroundColor: AppColors.textColor,
                 ),
                 child: Text(
@@ -878,8 +994,14 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                         alignment: Alignment.centerRight,
                         child: ElevatedButton(
                           onPressed: () {
-                            controller
-                                .register(controller.userRegistrationRequest);
+                            // Mark the current step as completed
+                            markStepAsCompleted(6);
+
+                            // Move to the next page in the PageView
+                            pageController.nextPage(
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.ease,
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.buttonColor,
@@ -906,12 +1028,11 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
 // step 7
   Widget buildInterestStep(BuildContext context, Size screenSize) {
-    RxList<String> selectedInterests = <String>[].obs;
-    TextEditingController interestController = TextEditingController();
     FocusNode interestFocusNode = FocusNode();
+    TextEditingController interestController = TextEditingController();
 
     bool isSelectionValid() {
-      return selectedInterests.length <= 6;
+      return selectedInterests.length > 0 && selectedInterests.length <= 6;
     }
 
     void addInterest() {
@@ -1008,6 +1129,19 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               ),
               SizedBox(height: 20),
 
+              // Show the entered interest immediately (Text below TextField)
+              Text(
+                interestController.text.isNotEmpty
+                    ? "You are adding: ${interestController.text}"
+                    : "",
+                style: AppTextStyles.bodyText.copyWith(
+                  fontSize: bodyFontSize,
+                  fontStyle: FontStyle.italic,
+                  color: AppColors.textColor.withOpacity(0.7),
+                ),
+              ),
+              SizedBox(height: 20),
+
               // Add Interest button
               ElevatedButton(
                 onPressed: addInterest,
@@ -1072,12 +1206,19 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                         alignment: Alignment.centerRight,
                         child: ElevatedButton(
                           onPressed: () {
-                            updateUserInterests();
-                            controller
-                                .register(controller.userRegistrationRequest);
+                            // Mark the current step as completed
+                            markStepAsCompleted(7);
+
+                            // Move to the next page in the PageView
+                            pageController.nextPage(
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.ease,
+                            );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.acceptColor,
+                            backgroundColor: selectedInterests.isNotEmpty
+                                ? AppColors.activeColor
+                                : AppColors.inactiveColor,
                             padding: EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 10),
                           ),
@@ -1106,7 +1247,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
     // Function to track text changes
     void onDescriptionChanged(String value) {
-      controller.userProfileUpdateRequest.bio = value;
+      userDescription.value = value; // Bind the RxString to the TextField
+      controller.userRegistrationRequest.bio = value;
     }
 
     double screenWidth = screenSize.width;
@@ -1175,7 +1317,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   ),
                 ),
                 style: TextStyle(
-                    color: AppColors.textColor, fontSize: inputFontSize),
+                  color: AppColors.textColor,
+                  fontSize: inputFontSize,
+                ),
                 cursorColor: AppColors.cursorColor,
                 textInputAction: TextInputAction.done,
               ),
@@ -1201,9 +1345,17 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   onPressed: userDescription.value.isNotEmpty &&
                           userDescription.value.length <= 250
                       ? () {
+                          // Mark the current step as completed
+                          markStepAsCompleted(8);
+
+                          // Move to the next page in the PageView
+                          pageController.nextPage(
+                            duration: Duration(milliseconds: 300),
+                            curve: Curves.ease,
+                          );
+
                           // Handle the description submission here
-                          controller
-                              .register(controller.userRegistrationRequest);
+                          // controller.register(controller.userRegistrationRequest);
                           print("User Description: ${userDescription.value}");
                         }
                       : null, // Disable button if description is empty or too long
@@ -1215,7 +1367,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   ),
                   child: Text(
-                    'Submit',
+                    'Next',
                     style: AppTextStyles.buttonText.copyWith(
                       fontSize: buttonFontSize, // Responsive button font size
                     ),
@@ -1229,272 +1381,17 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
-// photos
-  Widget buildPhotosOfUser(Size screenSize) {
-    RxList<File?> images = RxList<File?>();
-
-    // Request Camera Permission
-    Future<void> requestCameraPermission() async {
-      var status = await Permission.camera.request();
-      if (status.isDenied) {
-        Get.snackbar('', "Camera permission denied");
-      }
-    }
-
-    // Request Gallery Permission
-    Future<void> requestGalleryPermission() async {
-      var status = await Permission.photos.request();
-      if (status.isDenied) {
-        Get.snackbar("", "Gallery permission denied");
-      }
-    }
-
-    // Pick Image
-    Future<void> pickImage(int index, ImageSource source) async {
-      if (source == ImageSource.camera) {
-        await requestCameraPermission();
-      } else if (source == ImageSource.gallery) {
-        await requestGalleryPermission();
-      }
-
-      final picker = ImagePicker();
-      final pickedFile = await picker.pickImage(source: source);
-
-      if (pickedFile != null) {
-        File imageFile = File(pickedFile.path);
-
-        // Compress the image and convert it to base64
-        final compressedImage = await FlutterImageCompress.compressWithFile(
-          imageFile.path,
-          quality: 50,
-        );
-
-        if (compressedImage != null) {
-          String base64Image = base64Encode(compressedImage);
-
-          // Add or update the image in the photos list
-          if (index < controller.userRegistrationRequest.photos.length) {
-            controller.userRegistrationRequest.photos[index] = base64Image;
-          } else {
-            controller.userRegistrationRequest.photos.add(base64Image);
-          }
-        } else {
-          Get.snackbar("Error", "Image compression failed");
-        }
-
-        // Update the UI with the image
-        images[index] = imageFile;
-      }
-    }
-
-    // Handle 'Next' Button Press
-    void onNextButtonPressed() {
-      if (controller.userRegistrationRequest.photos.isNotEmpty) {
-        controller.register(
-            controller.userRegistrationRequest); // Send data to the controller
-      } else {
-        Get.snackbar("Error", "Please add at least one photo.");
-      }
-    }
-
-    double screenWidth = screenSize.width;
-    double iconSize = screenWidth * 0.12;
-    double dialogButtonFontSize = screenWidth * 0.03;
-    double imageContainerSize = screenWidth * 0.39;
-
-    return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              controller.headlines.isNotEmpty
-                  ? controller.headlines[8].title
-                  : "Loading Title...",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              controller.headlines.isNotEmpty
-                  ? controller.headlines[8].description
-                  : "",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey.shade600,
-              ),
-            ),
-            SizedBox(height: 20),
-            Expanded(
-              child: Obx(() {
-                return GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 20.0,
-                    mainAxisSpacing: 40.0,
-                  ),
-                  itemCount: images.length + 1, // Allow 6 images maximum
-                  itemBuilder: (context, index) {
-                    if (index == images.length) {
-                      // Only allow adding a new image if we have less than 6 images
-                      if (images.length < 6) {
-                        return Center(
-                          child: ElevatedButton(
-                            onPressed: () {
-                              images.add(null); // Add a new empty image slot
-                            },
-                            style: ElevatedButton.styleFrom(
-                              shape: CircleBorder(),
-                              padding: EdgeInsets.all(12),
-                            ),
-                            child: Icon(
-                              Icons.add_a_photo,
-                              size: iconSize, // Responsive icon size
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        );
-                      } else {
-                        // Disable the "Add Image" button if 6 images are already added
-                        return Container();
-                      }
-                    } else {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: imageContainerSize,
-                              height: imageContainerSize,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: images[index] != null
-                                  ? GestureDetector(
-                                      onTap: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return AlertDialog(
-                                              title:
-                                                  const Text('Pick an image'),
-                                              content: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  ElevatedButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                      pickImage(index,
-                                                          ImageSource.camera);
-                                                    },
-                                                    child: const Icon(
-                                                        Icons.camera_alt),
-                                                  ),
-                                                  ElevatedButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                      pickImage(index,
-                                                          ImageSource.gallery);
-                                                    },
-                                                    child:
-                                                        const Icon(Icons.photo),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          },
-                                        );
-                                      },
-                                      child: Image.file(
-                                        images[index]!,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )
-                                  : GestureDetector(
-                                      onTap: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return AlertDialog(
-                                              title:
-                                                  const Text('Pick an image'),
-                                              content: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  ElevatedButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                      pickImage(index,
-                                                          ImageSource.camera);
-                                                    },
-                                                    child: const Icon(
-                                                        Icons.camera_alt),
-                                                  ),
-                                                  ElevatedButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                      pickImage(index,
-                                                          ImageSource.gallery);
-                                                    },
-                                                    child:
-                                                        const Icon(Icons.photo),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          },
-                                        );
-                                      },
-                                      child: Icon(
-                                        Icons.image,
-                                        size: iconSize, // Responsive icon size
-                                        color: Colors.grey.shade600,
-                                      ),
-                                    ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                  },
-                );
-              }),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: onNextButtonPressed,
-              style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 24),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  backgroundColor: AppColors.activeColor),
-              child: Text("Next",
-                  style: AppTextStyles.buttonText.copyWith(
-                    color: controller.userRegistrationRequest.photos.isNotEmpty
-                        ? const Color.fromARGB(255, 44, 43, 43)
-                        : AppColors.activeColor,
-                  )),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // step 10
+  // step 9
   Widget buildPermissionRequestStep(Size screenSize) {
     RxBool notificationGranted = false.obs;
     RxBool locationGranted = false.obs;
+
+    // Function to show the permission request dialog
     Future<void> showPermissionDialog(
         BuildContext context, String permissionType) async {
       return showDialog<void>(
         context: context,
-        barrierDismissible: false,
+        barrierDismissible: false, // Prevent dismissing the dialog
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text(
@@ -1686,43 +1583,318 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
         SizedBox(height: 20),
 
         // Optional Next Button (Enabled only if both permissions are granted)
-        // Obx(() {
-        //   return ElevatedButton(
-        //     onPressed: notificationGranted.value && locationGranted.value
-        //         ? () {
-        //             // Handle the next step or permission submission
-        //             print("Permissions Granted: Notification and Location");
-        //           }
-        //         : null, // Disable button if permissions are not granted
-        //     style: ElevatedButton.styleFrom(
-        //       backgroundColor: notificationGranted.value && locationGranted.value
-        //           ? AppColors.buttonColor
-        //           : Colors.grey, // Button color based on permissions
-        //       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        //     ),
-        //     child: Text(
-        //       'Next',
-        //       style: AppTextStyles.buttonText.copyWith(
-        //         fontSize: fontSize,
-        //       ),
-        //     ),
-        //   );
-        // }),
+        Obx(() {
+          return ElevatedButton(
+            onPressed: notificationGranted.value && locationGranted.value
+                ? () {
+                    // Mark the current step as completed
+                    markStepAsCompleted(9);
+
+                    // Move to the next page in the PageView
+                    pageController.nextPage(
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.ease,
+                    );
+                  }
+                : null, // Disable button if permissions are not granted
+            style: ElevatedButton.styleFrom(
+              backgroundColor:
+                  notificationGranted.value && locationGranted.value
+                      ? AppColors.buttonColor
+                      : Colors.grey, // Button color based on permissions
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            ),
+            child: Text(
+              'Next',
+              style: AppTextStyles.buttonText.copyWith(
+                fontSize: fontSize,
+              ),
+            ),
+          );
+        }),
       ],
+    );
+  }
+
+// photos 10
+  Widget buildPhotosOfUser(Size screenSize) {
+    RxList<File?> images =
+        RxList<File?>(List.filled(6, null)); // Initialize with 6 empty slots
+
+    // Request Camera Permission
+    Future<void> requestCameraPermission() async {
+      var status = await Permission.camera.request();
+      if (status.isDenied) {
+        Get.snackbar('Permission Denied', "Camera permission denied");
+      }
+    }
+
+    // Request Gallery Permission
+    Future<void> requestGalleryPermission() async {
+      var status = await Permission.photos.request();
+      if (status.isDenied) {
+        Get.snackbar('Permission Denied', "Gallery permission denied");
+      }
+    }
+
+    // Pick Image
+    Future<void> pickImage(int index, ImageSource source) async {
+      // Request permissions based on the source
+      if (source == ImageSource.camera) {
+        await requestCameraPermission();
+      } else if (source == ImageSource.gallery) {
+        await requestGalleryPermission();
+      }
+
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: source);
+
+      if (pickedFile != null) {
+        File imageFile = File(pickedFile.path);
+
+        // Compress the image and convert it to base64
+        final compressedImage = await FlutterImageCompress.compressWithFile(
+          imageFile.path,
+          quality: 50,
+        );
+
+        if (compressedImage != null) {
+          String base64Image = base64Encode(compressedImage);
+
+          // Add or update the image in the photos list
+          if (index < controller.userRegistrationRequest.photos.length) {
+            controller.userRegistrationRequest.photos[index] = base64Image;
+          } else {
+            controller.userRegistrationRequest.photos.add(base64Image);
+          }
+
+          // Update the UI with the image
+          images[index] = imageFile;
+        } else {
+          Get.snackbar("Error", "Image compression failed");
+        }
+      }
+    }
+
+    // Handle 'Next' Button Press
+    void onNextButtonPressed() {
+      if (controller.userRegistrationRequest.photos.isNotEmpty) {
+        markStepAsCompleted(10); // Mark the current step as completed
+
+        // Move to the next page in the PageView
+        pageController.nextPage(
+          duration: Duration(milliseconds: 300),
+          curve: Curves.ease,
+        );
+      } else {
+        Get.snackbar("Error", "Please add at least one photo.");
+      }
+    }
+
+    double screenWidth = screenSize.width;
+    double iconSize = screenWidth * 0.12;
+    double dialogButtonFontSize = screenWidth * 0.03;
+    double imageContainerSize = screenWidth * 0.39;
+
+    return Scaffold(
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              controller.headlines.isNotEmpty
+                  ? controller.headlines[8].title
+                  : "Loading Title...",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              controller.headlines.isNotEmpty
+                  ? controller.headlines[8].description
+                  : "",
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            SizedBox(height: 20),
+            Expanded(
+              child: Obx(() {
+                return GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 20.0,
+                    mainAxisSpacing: 40.0,
+                  ),
+                  itemCount: images.length, // Fixed number of slots (6)
+                  itemBuilder: (context, index) {
+                    if (images[index] == null) {
+                      // Allow adding a new image if the slot is empty
+                      return Center(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Open the dialog when the "add photo" button is pressed
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('Pick an image'),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          pickImage(index, ImageSource.camera);
+                                        },
+                                        child: const Row(
+                                          children: [
+                                            Icon(Icons.camera_alt),
+                                            SizedBox(width: 8),
+                                            Text("Camera"),
+                                          ],
+                                        ),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          pickImage(index, ImageSource.gallery);
+                                        },
+                                        child: const Row(
+                                          children: [
+                                            Icon(Icons.photo),
+                                            SizedBox(width: 8),
+                                            Text("Gallery"),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            shape: CircleBorder(),
+                            padding: EdgeInsets.all(12),
+                          ),
+                          child: Icon(
+                            Icons.add_a_photo,
+                            size: iconSize, // Responsive icon size
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      );
+                    } else {
+                      // Display the image if available
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: imageContainerSize,
+                              height: imageContainerSize,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: GestureDetector(
+                                onTap: () {
+                                  // Show options to change the image
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text('Pick an image'),
+                                        content: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                                pickImage(
+                                                    index, ImageSource.camera);
+                                              },
+                                              child: const Row(
+                                                children: [
+                                                  Icon(Icons.camera_alt),
+                                                  SizedBox(width: 8),
+                                                  Text("Camera"),
+                                                ],
+                                              ),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                                pickImage(
+                                                    index, ImageSource.gallery);
+                                              },
+                                              child: const Row(
+                                                children: [
+                                                  Icon(Icons.photo),
+                                                  SizedBox(width: 8),
+                                                  Text("Gallery"),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                                child: Image.file(
+                                  images[index]!,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  },
+                );
+              }),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: onNextButtonPressed,
+              style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  backgroundColor:
+                      controller.userRegistrationRequest.photos.isNotEmpty
+                          ? AppColors.activeColor
+                          : AppColors.inactiveColor),
+              child: Text("Next",
+                  style: AppTextStyles.buttonText.copyWith(
+                    color: AppColors.primaryColor,
+                  )),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
 // step: 11
   Widget buildPaymentWidget(Size screenSize) {
-    RxString selectedPlan = 'None'.obs;
-    RxString selectedService = 'None'.obs;
+    RxString selectedPlan = 'None'.obs; // Track selected plan
     double fontSize = screenSize.width * 0.03;
 
+    // Function to show the payment confirmation dialog
     Future<void> showPaymentConfirmationDialog(
         BuildContext context, String planType, String amount) async {
       return showDialog<void>(
         context: context,
-        barrierDismissible: false,
+        barrierDismissible: false, // Prevent dismissal by tapping outside
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text(
@@ -1754,8 +1926,26 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               ),
               TextButton(
                 onPressed: () {
+                  // Mark the selected plan
                   selectedPlan.value = planType;
-                  Navigator.of(context).pop();
+
+                  try {
+                    int parsedPackageId = int.parse(planType);
+                    controller.userRegistrationRequest.packageId =
+                        parsedPackageId.toString();
+                  } catch (e) {
+                    print("Invalid package ID: $planType");
+                  }
+
+                  markStepAsCompleted(11); // Mark the current step as completed
+
+                  // Navigate to the next page in the PageView
+                  pageController.nextPage(
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.ease,
+                  );
+
+                  Navigator.of(context).pop(); // Close the dialog
                 },
                 child: Text(
                   'Subscribe',
@@ -1813,8 +2003,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       hint: Text(
                         "Click to know what we offer",
                         style: AppTextStyles.bodyText.copyWith(
-                          fontSize: fontSize -
-                              6, // Slightly smaller font for the hint
+                          fontSize: fontSize - 6,
                           color: AppColors.textColor.withOpacity(0.6),
                         ),
                       ),
@@ -1833,8 +2022,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           child: Text(
                             benefit.title,
                             style: AppTextStyles.bodyText.copyWith(
-                              fontSize: fontSize -
-                                  6, // Slightly smaller font for dropdown items
+                              fontSize: fontSize - 6,
                               color: AppColors.textColor,
                             ),
                           ),
@@ -1881,243 +2069,113 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             ),
           ),
           SizedBox(height: 20),
-          GestureDetector(
-            onTap: () {
-              showPaymentConfirmationDialog(context, 'Monthly', '₹99/month');
-            },
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Card(
-                  elevation: 8,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  color: Colors.orange,
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.calendar_today,
-                          color: AppColors.iconColor,
-                          size: fontSize,
+          Obx(() {
+            return ListView.builder(
+              shrinkWrap: true,
+              itemCount: controller.packages.length,
+              itemBuilder: (context, index) {
+                final package = controller.packages[index];
+
+                return GestureDetector(
+                  onTap: () {
+                    // Show payment confirmation dialog when package is selected
+                    showPaymentConfirmationDialog(
+                      context,
+                      package.unit,
+                      '₹${package.offerAmount}',
+                    );
+                  },
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Card(
+                        elevation: 8,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        SizedBox(width: 10),
-                        Expanded(
+                        color: Colors.orange,
+                        child: Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today,
+                                color: AppColors.iconColor,
+                                size: fontSize,
+                              ),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  "${package.unit} Plan - ₹${package.offerAmount}",
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    fontSize: fontSize - 2,
+                                    color: AppColors.textColor,
+                                  ),
+                                ),
+                              ),
+                              Obx(() {
+                                return Text(
+                                  selectedPlan.value == package.unit
+                                      ? 'Selected'
+                                      : 'Select',
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    fontSize: fontSize - 2,
+                                    color: selectedPlan.value == package.unit
+                                        ? AppColors.buttonColor
+                                        : AppColors.formFieldColor,
+                                  ),
+                                );
+                              }),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 4,
+                        right: 2,
+                        child: Container(
+                          padding:
+                              EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           child: Text(
-                            "Monthly Plan - ₹99/month",
-                            style: AppTextStyles.bodyText.copyWith(
-                              fontSize: fontSize - 2,
-                              color: AppColors.textColor,
+                            '20% OFF',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: fontSize - 6,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
-                        Obx(() {
-                          return Text(
-                            selectedPlan.value == 'Monthly'
-                                ? 'Selected'
-                                : 'Select',
-                            style: AppTextStyles.bodyText.copyWith(
-                              fontSize: fontSize - 2,
-                              color: selectedPlan.value == 'Monthly'
-                                  ? AppColors.buttonColor
-                                  : AppColors.formFieldColor,
-                            ),
-                          );
-                        }),
-                      ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 4,
-                  right: 2,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '20% OFF',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: fontSize - 6,
-                        fontWeight: FontWeight.bold,
                       ),
-                    ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 20),
-          GestureDetector(
-            onTap: () {
-              showPaymentConfirmationDialog(
-                  context, 'Quarterly', '₹599/3 months');
-            },
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Card(
-                  elevation: 8,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  color: Colors.orange,
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.calendar_view_day,
-                          color: AppColors.iconColor,
-                          size: fontSize,
-                        ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            "Quarterly Plan - ₹599/3 months",
-                            style: AppTextStyles.bodyText.copyWith(
-                              fontSize: fontSize - 2,
-                              color: AppColors.textColor,
-                            ),
-                          ),
-                        ),
-                        Obx(() {
-                          return Text(
-                            selectedPlan.value == 'Quarterly'
-                                ? 'Selected'
-                                : 'Select',
-                            style: AppTextStyles.bodyText.copyWith(
-                              fontSize: fontSize - 2,
-                              color: selectedPlan.value == 'Quarterly'
-                                  ? AppColors.buttonColor
-                                  : AppColors.formFieldColor,
-                            ),
-                          );
-                        }),
-                      ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 4,
-                  right: 2,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '15% OFF',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: fontSize - 6,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 20),
-          GestureDetector(
-            onTap: () {
-              showPaymentConfirmationDialog(context, 'Yearly', '₹999/year');
-            },
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Card(
-                  elevation: 8,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  color: Colors.orange,
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.calendar_today,
-                          color: AppColors.iconColor,
-                          size: fontSize,
-                        ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            "Yearly Plan - ₹999/year",
-                            style: AppTextStyles.bodyText.copyWith(
-                              fontSize: fontSize - 2,
-                              color: AppColors.textColor,
-                            ),
-                          ),
-                        ),
-                        Obx(() {
-                          return Text(
-                            selectedPlan.value == 'Yearly'
-                                ? 'Selected'
-                                : 'Select',
-                            style: AppTextStyles.bodyText.copyWith(
-                              fontSize: fontSize - 2,
-                              color: selectedPlan.value == 'Yearly'
-                                  ? AppColors.buttonColor
-                                  : AppColors.formFieldColor,
-                            ),
-                          );
-                        }),
-                      ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 4,
-                  right: 2,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '35% OFF',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: fontSize - 6,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+                );
+              },
+            );
+          }),
           SizedBox(height: 20),
           Obx(() {
-            return ElevatedButton(
-              onPressed: selectedPlan.value != 'None'
-                  ? () {
-                      print("Selected Plan: ${selectedPlan.value}");
-                    }
-                  : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: selectedPlan.value != 'None'
-                    ? AppColors.buttonColor
-                    : Colors.grey,
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              ),
-              child: Text(
-                'Proceed to Payment',
-                style: AppTextStyles.buttonText.copyWith(
-                  fontSize: fontSize,
+            return Visibility(
+              visible: selectedPlan.value != 'None',
+              child: ElevatedButton(
+                onPressed: () {
+                  // Perform action for next step
+                  markStepAsCompleted(11); // Mark the current step as completed
+                  pageController.nextPage(
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.ease,
+                  );
+                },
+                child: Text(
+                  "Next",
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: fontSize,
+                    color: AppColors.textColor,
+                  ),
                 ),
               ),
             );
@@ -2248,7 +2306,13 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           // Acknowledge Button
           ElevatedButton(
             onPressed: () {
-              print("User acknowledged safety guidelines.");
+              markStepAsCompleted(12);
+
+              // Move to the next page in the PageView
+              pageController.nextPage(
+                duration: Duration(milliseconds: 300),
+                curve: Curves.ease,
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.buttonColor,
@@ -2270,10 +2334,48 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 // step 13
   Widget buildProfileSummaryPage(Size screenSize) {
     double fontSize = screenSize.width * 0.03;
+    final controller =
+        Get.find<Controller>(); // Assuming Controller holds user data
+    var profile = controller.userRegistrationRequest;
+
+    // Show Profile Picture in Dialog
+    void showProfileImageDialog(BuildContext context) {
+      showDialog(
+        context: context,
+        builder: (context) => Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset(profile.photos[
+                    0]), // Displaying the user's first photo in a dialog
+                SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.buttonColor,
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  ),
+                  child: Text(
+                    'Close',
+                    style: AppTextStyles.buttonText,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return SingleChildScrollView(
       child: Column(
         children: [
+          // First Card: Profile Summary Header
           Card(
             elevation: 8,
             shape: RoundedRectangleBorder(
@@ -2304,6 +2406,29 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             ),
           ),
           SizedBox(height: 20),
+
+          // Second Card: Profile Picture
+          Card(
+            elevation: 8,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: GestureDetector(
+                onTap: () =>
+                    showProfileImageDialog(context), // Show image on tap
+                child: CircleAvatar(
+                  radius: fontSize * 1.5,
+                  backgroundImage: AssetImage(
+                      profile.photos[0]), // Use dynamic profile picture
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 20),
+
+          // Third Card: Name and Age
           Card(
             elevation: 8,
             shape: RoundedRectangleBorder(
@@ -2313,17 +2438,12 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
-                  CircleAvatar(
-                    radius: fontSize * 1.5,
-                    backgroundImage: AssetImage('assets/profile_picture.jpg'),
-                  ),
-                  SizedBox(width: 15),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Name: Jane Doe",
+                          "Name: ${profile.name}", // Dynamically showing name
                           style: AppTextStyles.titleText.copyWith(
                             fontSize: fontSize,
                             fontWeight: FontWeight.bold,
@@ -2332,7 +2452,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                         ),
                         SizedBox(height: 5),
                         Text(
-                          "Age: 25",
+                          "Age: ${profile.dob}", // Dynamically showing age
                           style: AppTextStyles.bodyText.copyWith(
                             fontSize: fontSize - 2,
                             color: AppColors.textColor,
@@ -2346,6 +2466,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             ),
           ),
           SizedBox(height: 20),
+
+          // Fourth Card: Preferences
           Card(
             elevation: 8,
             shape: RoundedRectangleBorder(
@@ -2366,7 +2488,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    "Interested in: Men & Women",
+                    "Interested in: ${profile.interest}", // Dynamically showing preference
                     style: AppTextStyles.bodyText.copyWith(
                       fontSize: fontSize - 2,
                       color: AppColors.textColor,
@@ -2374,7 +2496,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   ),
                   SizedBox(height: 5),
                   Text(
-                    "Looking for: Long-Term Relationship",
+                    "Looking for: ${profile.lookingFor}", // Dynamically showing looking for
                     style: AppTextStyles.bodyText.copyWith(
                       fontSize: fontSize - 2,
                       color: AppColors.textColor,
@@ -2382,7 +2504,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   ),
                   SizedBox(height: 5),
                   Text(
-                    "Location: New York",
+                    "Location: ${profile.longitude}", // Dynamically showing location
                     style: AppTextStyles.bodyText.copyWith(
                       fontSize: fontSize - 2,
                       color: AppColors.textColor,
@@ -2390,7 +2512,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   ),
                   SizedBox(height: 5),
                   Text(
-                    "Hobbies: Traveling, Reading, Photography",
+                    "Hobbies: ${profile.desires.join(", ")}", // Dynamically showing hobbies
                     style: AppTextStyles.bodyText.copyWith(
                       fontSize: fontSize - 2,
                       color: AppColors.textColor,
@@ -2401,6 +2523,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             ),
           ),
           SizedBox(height: 20),
+
+          // Fifth Card: Subscription Plan
           Card(
             elevation: 8,
             shape: RoundedRectangleBorder(
@@ -2418,7 +2542,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      "You are subscribed to the Quarterly Plan (599 INR).",
+                      "You are subscribed to the ${profile.packageId} Plan (${profile.packageId} INR).", // Dynamically showing subscription plan
                       style: AppTextStyles.bodyText.copyWith(
                         fontSize: fontSize - 2,
                         color: AppColors.textColor,
@@ -2430,6 +2554,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             ),
           ),
           SizedBox(height: 20),
+
+          // Sixth Card: Safety Acknowledgment
           Card(
             elevation: 8,
             shape: RoundedRectangleBorder(
@@ -2447,7 +2573,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      "You have acknowledged the safety guidelines.",
+                      "You have acknowledged the safety guidelines.", // Static, as user has already acknowledged
                       style: AppTextStyles.bodyText.copyWith(
                         fontSize: fontSize - 2,
                         color: AppColors.textColor,
@@ -2459,29 +2585,61 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             ),
           ),
           SizedBox(height: 30),
-          ElevatedButton(
-            onPressed: () {
-              print("User is ready to start browsing matches.");
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.buttonColor,
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+
+          // Edit Button
+          Card(
+            elevation: 8,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.edit,
-                  color: AppColors.iconColor,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  print("User is ready to start browsing matches.");
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.buttonColor,
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 ),
-                SizedBox(width: 8),
-                Text(
-                  'Edit',
-                  style: AppTextStyles.buttonText.copyWith(
-                    fontSize: fontSize,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.edit,
+                      color: AppColors.iconColor,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Edit',
+                      style: AppTextStyles.buttonText.copyWith(
+                        fontSize: fontSize,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
+            ),
+          ),
+          SizedBox(height: 30),
+
+          // Submit Button
+          Card(
+            elevation: 8,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton(
+                onPressed: nextStep,
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 80),
+                  backgroundColor: AppColors.buttonColor,
+                  foregroundColor: AppColors.textColor,
+                ),
+                child: Text('Submit', style: AppTextStyles.buttonText),
+              ),
             ),
           ),
         ],
@@ -2518,42 +2676,17 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
   void nextStep() {
-    if (currentPage == 1) {
-      pageController.nextPage(
-          duration: Duration(milliseconds: 300), curve: Curves.ease);
-    } else if (currentPage == 2) {
-      pageController.nextPage(
-          duration: Duration(milliseconds: 300), curve: Curves.ease);
-    } else if (currentPage == 3) {
-      pageController.nextPage(
-          duration: Duration(milliseconds: 300), curve: Curves.ease);
-    } else if (currentPage == 4) {
-      pageController.nextPage(
-          duration: Duration(milliseconds: 300), curve: Curves.ease);
-    } else if (currentPage == 5) {
-      pageController.nextPage(
-          duration: Duration(milliseconds: 300), curve: Curves.ease);
-    } else if (currentPage == 6) {
-      pageController.nextPage(
-          duration: Duration(milliseconds: 300), curve: Curves.ease);
-    } else if (currentPage == 7) {
-      pageController.nextPage(
-          duration: Duration(milliseconds: 300), curve: Curves.ease);
-    } else if (currentPage == 8) {
-      pageController.nextPage(
-          duration: Duration(milliseconds: 300), curve: Curves.ease);
-    } else if (currentPage == 9) {
-      pageController.nextPage(
-          duration: Duration(milliseconds: 300), curve: Curves.ease);
-    } else if (currentPage == 10) {
-      pageController.nextPage(
-          duration: Duration(milliseconds: 300), curve: Curves.ease);
-    } else if (currentPage == 11) {
-      pageController.nextPage(
-          duration: Duration(milliseconds: 300), curve: Curves.ease);
-    } else if (currentPage == 12) {
-      pageController.nextPage(
-          duration: Duration(milliseconds: 300), curve: Curves.ease);
+    if (currentPage < 13) {
+      // Mark the current step as completed
+      markStepAsCompleted(currentPage);
+
+      // Only navigate to the next step if the current step is completed
+      if (stepCompletion[currentPage - 1]) {
+        pageController.nextPage(
+          duration: Duration(milliseconds: 300),
+          curve: Curves.ease,
+        );
+      }
     } else {
       showDialog(
         context: context,
@@ -2568,10 +2701,14 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               child: Text('OK'),
             ),
             TextButton(
-                onPressed: () {
-                  Get.to(NavigationBottomBar());
-                },
-                child: Text('Next'))
+              onPressed: () {
+                
+                controller.register(controller.userRegistrationRequest);
+                Get.to(NavigationBottomBar());
+               
+              },
+              child: Text('Next'),
+            ),
           ],
         ),
       );

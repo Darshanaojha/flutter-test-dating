@@ -52,13 +52,13 @@ class UserRegistrationRequest {
     required this.lookingFor,
   });
 
-  // Factory constructor to create UserRegistrationRequest from JSON
+
   factory UserRegistrationRequest.fromJson(Map<String, dynamic> json) {
     return UserRegistrationRequest(
       name: json['name'],
       email: json['email'],
       mobile: json['mobile'],
-      latitude: json['latitude'],
+      latitude: json['latitute'],
       longitude: json['longitude'],
       address: json['address'],
       password: json['password'],
@@ -87,7 +87,7 @@ class UserRegistrationRequest {
       'name': name,
       'email': email,
       'mobile': mobile,
-      'latitude': latitude,
+      'latitute': latitude,
       'longitude': longitude,
       'address': address,
       'password': password,

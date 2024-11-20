@@ -20,7 +20,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
 
   List<String> states = ["Maharashtra", "California", "London"];
   String? selectedState;
-  bool isLatLongFetched = false;
+  RxBool isLatLongFetched = false.obs;
 
   late AnimationController animationController;
   late Animation<double> fadeInAnimation;
@@ -54,18 +54,22 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
 
   Future<void> fetchLatLong() async {
     try {
+
       List<Location> locations =
           await locationFromAddress(controller.userRegistrationRequest.address);
       if (locations.isNotEmpty) {
+      
         controller.userRegistrationRequest.latitude =
             locations.first.latitude.toString();
         controller.userRegistrationRequest.longitude =
             locations.first.longitude.toString();
-        isLatLongFetched = true;
+        isLatLongFetched.value = true;
+       
       } else {
-        showErrorDialog('No location found for the provided address');
+        showErrorDialog('No location found for the provided address..');
       }
     } catch (e) {
+      print('location error -> ${e.toString()}');
       showErrorDialog('Error fetching location: $e');
     }
   }
@@ -126,8 +130,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                     child: Column(
                       children: [
                         // Name Field
-                        buildTextField("Name",
-                            (value) {
+                        buildTextField("Name", (value) {
                           controller.userRegistrationRequest.name = value;
                         }, fontSize),
 
@@ -137,36 +140,24 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                         }, fontSize),
 
                         // Mobile Field
-                        buildTextField(
-                            "Mobile",
-                            (value) {
+                        buildTextField("Mobile", (value) {
                           controller.userRegistrationRequest.mobile = value;
-                        },
-                            fontSize),
+                        }, fontSize),
 
                         // Address Field
-                        buildTextField(
-                            "Address",
-                            (value) {
+                        buildTextField("Address", (value) {
                           controller.userRegistrationRequest.address = value;
-                        },
-                            fontSize),
+                        }, fontSize),
 
                         // Password Field
-                        buildTextField(
-                            "Password",
-                            (value) {
+                        buildTextField("Password", (value) {
                           controller.userRegistrationRequest.password = value;
-                        },
-                            fontSize,
-                            obscureText: true),
+                        }, fontSize, obscureText: true),
 
                         // Confirm Password Field
-                        buildTextField(
-                            "Confirm Password", (value) {
+                        buildTextField("Confirm Password", (value) {
                           confirmPassword.text = value;
-                        }, fontSize,
-                            obscureText: true),
+                        }, fontSize, obscureText: true),
 
                         // Country Dropdown
                         Obx(() {
@@ -202,10 +193,9 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                         }),
 
                         // City Field
-                        buildTextField("City",
-                           (value) {
+                        buildTextField("City", (value) {
                           controller.userRegistrationRequest.city = value;
-                        },fontSize),
+                        }, fontSize),
 
                         // Fetch Lat/Long Button
                         Padding(
@@ -225,22 +215,28 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                         ),
 
                         // Show Latitude and Longitude only if fetched
-                        if (isLatLongFetched) ...[
-                          buildTextField(
-                              "Latitude",
-                              (value) {
-                          controller.userRegistrationRequest.latitude = value;
-                        },
-                              fontSize,
-                              enabled: false),
-                          buildTextField(
-                              "Longitude",
-                             (value) {
-                          controller.userRegistrationRequest.longitude = value;
-                        },
-                              fontSize,
-                              enabled: false),
-                        ],
+                        Obx(() {
+                          if (isLatLongFetched.value) {
+                            return Column(
+                              children: [
+                                buildTextFieldForLatLong(
+                                  "Latitude",
+                                  controller.userRegistrationRequest.latitude,
+                                  fontSize,
+                                  enabled: false,
+                                ),
+                                buildTextFieldForLatLong(
+                                  "Longitude",
+                                  controller.userRegistrationRequest.longitude,
+                                  fontSize,
+                                  enabled: false,
+                                ),
+                              ],
+                            );
+                          } else {
+                            return Container(); // If isLatLongFetched is false, return an empty container (or nothing)
+                          }
+                        }),
 
                         // Submit Button
                         SizedBox(height: 20),
@@ -256,8 +252,9 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                                 ));
                                 return;
                               }
-
-                              // Process form submission
+                              Get.to(MultiStepFormPage());
+                               print(controller.userRegistrationRequest.toJson().toString());
+                
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(SnackBar(
                                 content: Text("Form submitted successfully!"),
@@ -277,7 +274,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                         ElevatedButton(
                           onPressed: () {
                             Get.to(MultiStepFormPage());
-                            Get.to(MultiStepFormPage());
+                         
                           },
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.symmetric(
@@ -340,6 +337,53 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           filled: true,
         ),
         onChanged: onChanged,
+      ),
+    );
+  }
+
+  Widget buildTextFieldForLatLong(
+    String label,
+    String value,
+    double fontSize, {
+    bool obscureText = false,
+    bool enabled = true,
+  }) {
+    // Create a TextEditingController with the passed value
+    TextEditingController controller = TextEditingController(text: value);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        controller: controller, // Use the controller to manage the value
+        obscureText: obscureText,
+        enabled: enabled,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return '$label is required';
+          }
+          return null;
+        },
+        style: AppTextStyles.inputFieldText
+            .copyWith(fontSize: fontSize), // Responsive font size
+        cursorColor: AppColors.textColor,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor),
+          ),
+          fillColor: AppColors.formFieldColor,
+          filled: true,
+        ),
       ),
     );
   }

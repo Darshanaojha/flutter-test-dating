@@ -3,7 +3,6 @@ import 'package:dating_application/constants.dart';
 import 'package:get/get.dart';
 
 class FetchAllSafetyGuildlinesProvider extends GetConnect {
-  // All Safety Guidelines
   Future<SafetyGuidelinesResponse?> fetchAllSafetyGuidelines() async {
     try {
       final response = await get('$baseurl/Common/all_safety_guidelines');

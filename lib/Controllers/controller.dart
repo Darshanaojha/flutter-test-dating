@@ -7,6 +7,7 @@ import 'package:dating_application/Models/ResponseModels/change_password_respons
 import 'package:dating_application/Models/ResponseModels/get_all_benifites_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_gender_from_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_headlines_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/get_all_packages_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_saftey_guidelines_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_whoareyoulookingfor_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/subgender_response_model.dart';
@@ -58,6 +59,7 @@ import '../Providers/established_connection_message_provider.dart';
 import '../Providers/fetch_all_active_user_provider.dart';
 import '../Providers/fetch_all_countries_provider.dart';
 import '../Providers/fetch_all_genders_provider.dart';
+import '../Providers/fetch_all_packages_provider.dart';
 import '../Providers/fetch_benefits_provider.dart';
 import '../Providers/fetch_sub_genders_provider.dart';
 import '../Providers/home_page_provider.dart';
@@ -89,7 +91,7 @@ class Controller extends GetxController {
     mobile: '',
     latitude: '',
     longitude: '',
-    address:'',
+    address: '',
     password: '',
     countryId: '',
     state: '',
@@ -98,9 +100,9 @@ class Controller extends GetxController {
     nickname: '',
     gender: '',
     subGender: '',
-    preferences: [], 
-    desires: [], 
-    interest:'',
+    preferences: [],
+    desires: [],
+    interest: '',
     bio: '',
     photos: [],
     packageId: '',
@@ -111,11 +113,11 @@ class Controller extends GetxController {
 
   Future<bool> register(UserRegistrationRequest userRegistrationRequest) async {
     try {
+    
       final UserRegistrationResponse? response =
           await UserRegistrationProvider()
               .userRegistration(userRegistrationRequest);
-      await UserRegistrationProvider()
-          .userRegistration(userRegistrationRequest);
+
       if (response != null) {
         success('success', response.payload.message);
         return true;
@@ -359,6 +361,29 @@ class Controller extends GetxController {
       }
     } catch (e) {
       failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  var packages = <GetAllPackagesResponseModel>[].obs;
+
+  Future<bool> fetchAllPackages() async {
+    try {
+      packages.clear();
+
+      PackagesResponseModel? response =
+          await FetchAllPackagesProvider().fetchAllPackages();
+
+      if (response != null && response.success) {
+        packages.addAll(response.payload.data);
+        success('Success', 'Successfully fetched all the packages');
+        return true;
+      } else {
+        failure('Error', response?.error.message ?? 'Unknown error');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', 'An exception occurred: ${e.toString()}');
       return false;
     }
   }
@@ -687,121 +712,120 @@ class Controller extends GetxController {
   }
 
   Future<String?> addOrUpdateImage(int photos) async {
-  try {
-    // Request necessary permissions
-    if (!await requestCameraPermission()) {
-      return 'Camera permission denied';
-    }
-    if (!await requestLocationPermission()) {
-      return 'Location permission denied';
-    }
-
-    // Pick image from the camera
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.camera);
-
-    if (image != null) {
-      // Compress the image
-      final compressedImage = await FlutterImageCompress.compressWithFile(
-        image.path,  // Correctly pass the image path here
-        quality: 50,  // Compression quality (adjust as needed)
-      );
-
-      if (compressedImage != null) {
-        // Convert the compressed image to base64
-        String base64Image = base64Encode(compressedImage);
-
-        // Save the image path and base64 data based on the page
-        if (photos == 1) {
-          userRegistrationRequest.photos.add(base64Image);
-        } else if (photos == 2) {
-         userRegistrationRequest.photos.add(base64Image);
-        } else if (photos == 3) {
-          userRegistrationRequest.photos.add(base64Image);
-        } else if (photos == 4) {
-          userRegistrationRequest.photos.add(base64Image);
-        } else {
-          return 'Invalid page number';
-        }
-
-        return base64Image; 
-      } else {
-        failure('Error', 'Image compression failed');
-        return null;
+    try {
+      // Request necessary permissions
+      if (!await requestCameraPermission()) {
+        return 'Camera permission denied';
       }
-    } else {
-      return 'No image selected';
-    }
-  } catch (e) {
-    failure('Error', e.toString()); 
-    return null;
-  }
-}
+      if (!await requestLocationPermission()) {
+        return 'Location permission denied';
+      }
 
-Future<String?> addOrUpdateGalleryImage(int page) async {
-  try {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      // Pick image from the camera
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.camera);
 
-    if (image != null) {
-      final File galleryImage = File(image.path);
+      if (image != null) {
+        // Compress the image
+        final compressedImage = await FlutterImageCompress.compressWithFile(
+          image.path, // Correctly pass the image path here
+          quality: 50, // Compression quality (adjust as needed)
+        );
 
-      // Compress the image
-      final compressedImage = await FlutterImageCompress.compressWithFile(
-        galleryImage.path,
-        quality: 50,
-      );
+        if (compressedImage != null) {
+          // Convert the compressed image to base64
+          String base64Image = base64Encode(compressedImage);
 
-      if (compressedImage != null) {
-        final String base64Image = base64Encode(compressedImage);
-
-        // Add the image to the photos list for the respective page
-        switch (page) {
-          case 1:
+          // Save the image path and base64 data based on the page
+          if (photos == 1) {
             userRegistrationRequest.photos.add(base64Image);
-            break;
-          case 2:
+          } else if (photos == 2) {
             userRegistrationRequest.photos.add(base64Image);
-            break;
-          case 3:
+          } else if (photos == 3) {
             userRegistrationRequest.photos.add(base64Image);
-            break;
-          case 4:
+          } else if (photos == 4) {
             userRegistrationRequest.photos.add(base64Image);
-            break;
-          default:
+          } else {
             return 'Invalid page number';
-        }
+          }
 
-        return base64Image;
+          return base64Image;
+        } else {
+          failure('Error', 'Image compression failed');
+          return null;
+        }
       } else {
-        failure('Error', 'Failed to compress the image');
-        return null;
+        return 'No image selected';
       }
-    } else {
+    } catch (e) {
+      failure('Error', e.toString());
       return null;
     }
-  } catch (e) {
-    failure('Error', e.toString());
-    return null;
   }
-}
+
+  Future<String?> addOrUpdateGalleryImage(int page) async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+      if (image != null) {
+        final File galleryImage = File(image.path);
+
+        // Compress the image
+        final compressedImage = await FlutterImageCompress.compressWithFile(
+          galleryImage.path,
+          quality: 50,
+        );
+
+        if (compressedImage != null) {
+          final String base64Image = base64Encode(compressedImage);
+
+          // Add the image to the photos list for the respective page
+          switch (page) {
+            case 1:
+              userRegistrationRequest.photos.add(base64Image);
+              break;
+            case 2:
+              userRegistrationRequest.photos.add(base64Image);
+              break;
+            case 3:
+              userRegistrationRequest.photos.add(base64Image);
+              break;
+            case 4:
+              userRegistrationRequest.photos.add(base64Image);
+              break;
+            default:
+              return 'Invalid page number';
+          }
+
+          return base64Image;
+        } else {
+          failure('Error', 'Failed to compress the image');
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return null;
+    }
+  }
 
   Future<String?> chooseSourceToPickImage(String ch, int page) async {
-  String? base64EncodedImage;
+    String? base64EncodedImage;
 
-  if (ch == "C") {
-    await addOrUpdateImage(page).then((value) {
-      base64EncodedImage = value; // Get base64 image data from camera
-    });
-  } else if (ch == "G") {
-    await addOrUpdateGalleryImage(page).then((value) {
-      base64EncodedImage = value; // Get base64 image data from gallery
-    });
+    if (ch == "C") {
+      await addOrUpdateImage(page).then((value) {
+        base64EncodedImage = value; // Get base64 image data from camera
+      });
+    } else if (ch == "G") {
+      await addOrUpdateGalleryImage(page).then((value) {
+        base64EncodedImage = value; // Get base64 image data from gallery
+      });
+    }
+    return base64EncodedImage;
   }
-  return base64EncodedImage;
-}
-
 
   Future<bool> requestLocationPermission() async {
     final status = await Permission.location.request();

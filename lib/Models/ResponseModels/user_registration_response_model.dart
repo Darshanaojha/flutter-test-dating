@@ -1,31 +1,19 @@
 class UserRegistrationResponse {
-  final bool success;
-  final UserRegistrationPayload payload;
-  final ApiError error;
+   String message;
+   String code;
+   dynamic payload;
 
-  UserRegistrationResponse({
-    required this.success,
-    required this.payload,
-    required this.error,
-  });
-
+  UserRegistrationResponse({required this.message, required this.code, this.payload});
 
   factory UserRegistrationResponse.fromJson(Map<String, dynamic> json) {
     return UserRegistrationResponse(
-      success: json['success'],
-      payload: UserRegistrationPayload.fromJson(json['payload']),
-      error: ApiError.fromJson(json['error']),
+      message: json['message'],
+      code: json['code'],
+      payload: json['payload'],
     );
   }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'success': success,
-      'payload': payload.toJson(),
-      'error': error.toJson(),
-    };
-  }
 }
+
 
 class UserRegistrationPayload {
   final String message;
@@ -34,20 +22,21 @@ class UserRegistrationPayload {
     required this.message,
   });
 
-  // Factory constructor to create UserRegistrationPayload from JSON
+
   factory UserRegistrationPayload.fromJson(Map<String, dynamic> json) {
     return UserRegistrationPayload(
       message: json['message'] ?? '',
     );
   }
 
-  // Method to convert UserRegistrationPayload object to JSON
+
   Map<String, dynamic> toJson() {
     return {
       'message': message,
     };
   }
 }
+
 
 class ApiError {
   final int code;
