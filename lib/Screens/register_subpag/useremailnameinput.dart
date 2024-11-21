@@ -97,6 +97,8 @@ class UserInputPageState extends State<UserInputPage> {
                   validator: validateName,
                   onChanged: (value) {
                     controller.registrationOTPRequest.name = value;
+                    controller.userRegistrationRequest.username=value;
+
                   },
                   onSaved: (value) {
                     controller.registrationOTPRequest.name = value ?? '';

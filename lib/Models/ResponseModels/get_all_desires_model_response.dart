@@ -45,8 +45,8 @@ class Desire {
 
 // Category Model
 class Category {
-  final String category;
-  final List<Desire> desires;
+   String category;
+   List<Desire> desires;
 
   Category({
     required this.category,

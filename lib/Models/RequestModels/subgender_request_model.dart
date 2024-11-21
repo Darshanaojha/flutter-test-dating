@@ -2,7 +2,7 @@
 import '../../constants.dart';  // For Get.snackbar
 
 class SubGenderRequest {
-  final String genderId;
+   String genderId;
 
   SubGenderRequest({
     required this.genderId,

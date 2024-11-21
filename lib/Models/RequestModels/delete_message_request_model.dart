@@ -1,5 +1,5 @@
 class DeleteMessageRequest {
-  final List<String> messageIds;
+   List<String> messageIds;
 
   DeleteMessageRequest({
     required this.messageIds,

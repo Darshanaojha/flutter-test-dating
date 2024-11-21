@@ -1,23 +1,24 @@
-class UserRegistrationResponse {
-  final bool success;
-  final Payload payload;
-  final Error error;
+import 'dart:convert';
 
-  UserRegistrationResponse({
+// BlockUserResponseModel
+class BlockUserResponseModel {
+  bool success;
+  Payload payload;
+  Error error;
+
+  BlockUserResponseModel({
     required this.success,
     required this.payload,
     required this.error,
   });
 
-
-  factory UserRegistrationResponse.fromJson(Map<String, dynamic> json) {
-    return UserRegistrationResponse(
+  factory BlockUserResponseModel.fromJson(Map<String, dynamic> json) {
+    return BlockUserResponseModel(
       success: json['success'] ?? false,
       payload: Payload.fromJson(json['payload']),
       error: Error.fromJson(json['error']),
     );
   }
-
 
   Map<String, dynamic> toJson() {
     return {
@@ -26,20 +27,27 @@ class UserRegistrationResponse {
       'error': error.toJson(),
     };
   }
+
+  static BlockUserResponseModel fromJsonString(String str) {
+    return BlockUserResponseModel.fromJson(json.decode(str));
+  }
+
+  String toJsonString() {
+    return json.encode(toJson());
+  }
 }
 
+// Payload Model
 class Payload {
-  final String message;
+  String message;
 
   Payload({required this.message});
-
 
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
       message: json['message'] ?? '',
     );
   }
-
 
   Map<String, dynamic> toJson() {
     return {
@@ -48,12 +56,12 @@ class Payload {
   }
 }
 
+// Error Model
 class Error {
-  final int code;
-  final String message;
+  int code;
+  String message;
 
   Error({required this.code, required this.message});
-
 
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
@@ -61,7 +69,6 @@ class Error {
       message: json['message'] ?? '',
     );
   }
-
 
   Map<String, dynamic> toJson() {
     return {

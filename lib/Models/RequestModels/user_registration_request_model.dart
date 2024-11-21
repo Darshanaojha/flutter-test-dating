@@ -2,29 +2,28 @@
 import '../../constants.dart';  
 
 class UserRegistrationRequest {
-  final String name;
-  final String email;
-  final String mobile;
-  final String latitude;
-  final String longitude;
-  final String address;
-  final String password;
-  final String countryId;
-  final String state;
-  final String city;
-  final String dob;
-  final String nickname;
-  final String gender;
-  final String subGender;
-  final List<int> preferences;
-  final List<int> desires;
-  final String interest;
-  final String bio;
-  final List<String> photos;
-  final String packageId;
-  final String emailAlerts;
-  final String username;
-  final String lookingFor;
+   String name;
+   String email;
+   String mobile;
+   String latitude;
+   String longitude;
+   String address;
+   String password;
+   String countryId;
+   String city;
+   String dob;
+   String nickname;
+   String gender;
+   String subGender;
+   List<int> preferences;
+   List<int> desires;
+   String interest;
+   String bio;
+   List<String> photos;
+   String packageId;
+   String emailAlerts;
+   String username;
+   String lookingFor;
 
   UserRegistrationRequest({
     required this.name,
@@ -35,7 +34,6 @@ class UserRegistrationRequest {
     required this.address,
     required this.password,
     required this.countryId,
-    required this.state,
     required this.city,
     required this.dob,
     required this.nickname,
@@ -52,7 +50,7 @@ class UserRegistrationRequest {
     required this.lookingFor,
   });
 
-  // Factory constructor to create UserRegistrationRequest from JSON
+
   factory UserRegistrationRequest.fromJson(Map<String, dynamic> json) {
     return UserRegistrationRequest(
       name: json['name'],
@@ -63,17 +61,16 @@ class UserRegistrationRequest {
       address: json['address'],
       password: json['password'],
       countryId: json['country_id'],
-      state: json['state'] ?? '',
       city: json['city'],
       dob: json['dob'],
       nickname: json['nickname'],
       gender: json['gender'],
       subGender: json['sub_gender'],
-      preferences: List<int>.from(json['preferences'] ?? []),  // Assuming preferences are sent as an array of integers
-      desires: List<int>.from(json['desires'] ?? []),  // Assuming desires are sent as an array of integers
+      preferences: List<int>.from(json['preferences'] ?? []), 
+      desires: List<int>.from(json['desires'] ?? []), 
       interest: json['interest'],
       bio: json['bio'],
-      photos: List<String>.from(json['photos'] ?? []),  // Assuming photos are sent as an array of strings (URLs)
+      photos: List<String>.from(json['photos'] ?? []),
       packageId: json['package_id'],
       emailAlerts: json['email_alerts'],
       username: json['username'],
@@ -92,17 +89,16 @@ class UserRegistrationRequest {
       'address': address,
       'password': password,
       'country_id': countryId,
-      'state': state,
       'city': city,
       'dob': dob,
       'nickname': nickname,
       'gender': gender,
       'sub_gender': subGender,
-      'preferences': preferences,  // No need to use jsonEncode here
-      'desires': desires,  // No need to use jsonEncode here
+      'preferences': preferences,  
+      'desires': desires,  
       'interest': interest,
       'bio': bio,
-      'photos': photos,  // No need to use jsonEncode here
+      'photos': photos, 
       'package_id': packageId,
       'email_alerts': emailAlerts,
       'username': username,
@@ -174,7 +170,6 @@ class UserRegistrationRequest {
       validateNotEmpty(password, "Password");
       validateNotEmpty(address, "Address");
       validateNotEmpty(countryId, "Country ID");
-      validateNotEmpty(state, "State");
       validateNotEmpty(city, "City");
       validateNotEmpty(dob, "Date of Birth");
       validateNotEmpty(gender, "Gender");
