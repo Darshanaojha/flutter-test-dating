@@ -57,6 +57,7 @@ import '../Models/ResponseModels/update_emailid_response_model.dart';
 import '../Models/ResponseModels/user_login_response_model.dart';
 import '../Models/ResponseModels/user_profile_update_response_model.dart';
 import '../Models/ResponseModels/user_registration_response_model.dart';
+import '../Models/ResponseModels/user_suggestions_response_model.dart';
 import '../Providers/block_user_provider.dart';
 import '../Providers/chat_message_page_provider.dart';
 import '../Providers/delete_message_provider.dart';
@@ -76,6 +77,7 @@ import '../Providers/update_email_verification_provider.dart';
 import '../Providers/update_emailid_provider.dart';
 import '../Providers/update_profile_provider.dart';
 import '../Providers/user_registration_provider.dart';
+import '../Providers/user_suggestions_provider.dart';
 import '../Screens/login.dart';
 import '../constants.dart';
 
@@ -920,6 +922,48 @@ class Controller extends GetxController {
         return true;
       } else {
         failure('Error', 'Failed to fetch the reasons of report');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxMap<String, RxList<User>> userSuggestionsMap = <String, RxList<User>>{
+    'desireBase': <User>[].obs,
+    'locationBase': <User>[].obs,
+    'preferenceBase': <User>[].obs,
+  }.obs;
+
+  Future<bool> userSuggestions() async {
+    try {
+      UserSuggestionsResponseModel? response =
+          await UserSuggestionsProvider().userSuggestions();
+      if (response != null && response.payload != null) {
+        success('Success', response.payload!.message);
+
+        if (response.payload!.desireBase != null &&
+            response.payload!.desireBase!.isNotEmpty) {
+          userSuggestionsMap['desireBase']!
+              .assignAll(response.payload!.desireBase!);
+        }
+
+        if (response.payload!.locationBase != null &&
+            response.payload!.locationBase!.isNotEmpty) {
+          userSuggestionsMap['locationBase']!
+              .assignAll(response.payload!.locationBase!);
+        }
+
+        if (response.payload!.preferenceBase != null &&
+            response.payload!.preferenceBase!.isNotEmpty) {
+          userSuggestionsMap['preferenceBase']!
+              .assignAll(response.payload!.preferenceBase!);
+        }
+
+        return true;
+      } else {
+        failure('Error', 'Failed to fetch the user suggestions');
         return false;
       }
     } catch (e) {
