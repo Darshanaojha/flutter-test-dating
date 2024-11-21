@@ -1,7 +1,7 @@
 // Gender Model
 class Gender {
-  final String id;
-  final String title;
+   String id;
+   String title;
 
   Gender({
     required this.id,

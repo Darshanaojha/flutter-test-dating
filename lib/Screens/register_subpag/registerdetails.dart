@@ -1,14 +1,13 @@
+import 'dart:async';
+
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_country_response_model.dart';
 import 'package:dating_application/Screens/register_subpag/register_subpage.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
-
-import 'register_subpage.dart';
-
-import 'register_subpage.dart';
 
 class RegisterProfilePage extends StatefulWidget {
   const RegisterProfilePage({super.key});
@@ -21,19 +20,9 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     with TickerProviderStateMixin {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  TextEditingController nameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController mobileController = TextEditingController();
-  TextEditingController latitudeController = TextEditingController();
-  TextEditingController longitudeController = TextEditingController();
-  TextEditingController addressController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController confirmPasswordController = TextEditingController();
-  TextEditingController cityController = TextEditingController();
-
   List<String> states = ["Maharashtra", "California", "London"];
   String? selectedState;
-  bool isLatLongFetched = false;
+  RxBool isLatLongFetched = false.obs;
 
   late AnimationController animationController;
   late Animation<double> fadeInAnimation;
@@ -41,16 +30,13 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
   Country? selectedCountry;
 
   final controller = Get.find<Controller>();
-
-  Future<void> fetchCountries() async {
-    await controller.fetchCountries();
-  }
-
+  TextEditingController confirmPassword = TextEditingController();
+  Timer? debounce;
   @override
   void initState() {
     super.initState();
 
-    fetchCountries();
+    controller.fetchCountries();
 
     animationController = AnimationController(
       duration: Duration(seconds: 1),
@@ -65,23 +51,29 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
   @override
   void dispose() {
     animationController.dispose();
+    debounce?.cancel();
     super.dispose();
   }
 
   Future<void> fetchLatLong() async {
     try {
+      print(controller.userRegistrationRequest.address);
       List<Location> locations =
-          await locationFromAddress(addressController.text);
+          await locationFromAddress(controller.userRegistrationRequest.address);
+      print(locations.first.toString());
       if (locations.isNotEmpty) {
-        setState(() {
-          latitudeController.text = locations.first.latitude.toString();
-          longitudeController.text = locations.first.longitude.toString();
-          isLatLongFetched = true; // Mark Lat/Long as fetched
-        });
+        print('not empty');
+        controller.userRegistrationRequest.latitude =
+            locations.first.latitude.toString();
+        controller.userRegistrationRequest.longitude =
+            locations.first.longitude.toString();
+        isLatLongFetched.value = true;
+        print('set to true');
       } else {
-        showErrorDialog('No location found for the provided address');
+        showErrorDialog('No location found for the provided address..');
       }
     } catch (e) {
+      print('location error -> ${e.toString()}');
       showErrorDialog('Error fetching location: $e');
     }
   }
@@ -110,14 +102,11 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     final screenSize = MediaQuery.of(context).size;
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
-
-    // Calculate the responsive font size
-    double fontSize =
-        screenSize.width * 0.03; // You can adjust this multiplier as needed
+    double fontSize = screenSize.width * 0.03;
 
     return Scaffold(
       body: Container(
-        color: AppColors.primaryColor, // Set primary background color
+        color: AppColors.primaryColor,
         child: Center(
           child: FadeTransition(
             opacity: fadeInAnimation,
@@ -142,32 +131,53 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                     child: Column(
                       children: [
                         // Name Field
-                        buildTextField("Name", nameController, fontSize),
+                        buildTextField("Name", (value) {
+                          controller.userRegistrationRequest.name = value;
+                        }, fontSize),
 
                         // Email Field
-                        buildTextField("Email", emailController, fontSize),
+                        buildTextField("Email", (value) {
+                          controller.userRegistrationRequest.email = value;
+                        }, fontSize),
 
                         // Mobile Field
-                        buildTextField("Mobile", mobileController, fontSize),
+                        buildTextField("Mobile", (value) {
+                          controller.userRegistrationRequest.mobile = value;
+                        }, fontSize),
 
-                        // Address Field
-                        buildTextField("Address", addressController, fontSize),
+                        
+                        buildTextField("Address", (value) {
+                          controller.userRegistrationRequest.address = value;
+                         
+                          if (debounce?.isActive ?? false) {
+                            debounce?.cancel();
+                          }
+
+                     
+                          debounce = Timer(Duration(milliseconds: 1000), () {
+                          
+                            fetchLatLong();
+                          });
+                        }, fontSize),
 
                         // Password Field
-                        buildTextField("Password", passwordController, fontSize,
-                            obscureText: true),
+                        buildTextField("Password", (value) {
+                          controller.userRegistrationRequest.password = value;
+                        }, fontSize, obscureText: true),
 
                         // Confirm Password Field
-                        buildTextField("Confirm Password",
-                            confirmPasswordController, fontSize,
-                            obscureText: true),
+                        buildTextField("Confirm Password", (value) {
+                          confirmPassword.text = value;
+                        }, fontSize, obscureText: true),
 
                         // Country Dropdown
                         Obx(() {
-                          // Check if countries are available before building the dropdown
                           if (controller.countries.isEmpty) {
                             return Center(
-                              child: CircularProgressIndicator(),
+                              child: SpinKitCircle(
+                                size: 50,
+                                color: AppColors.activeColor,
+                              ),
                             );
                           }
 
@@ -177,74 +187,71 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                             selectedCountry,
                             16.0,
                             (Country? value) {
-                              setState(() {
-                                selectedCountry =
-                                    value; // Update the selected country on change
-                              });
+                              controller.userRegistrationRequest.countryId =
+                                  value?.id ?? '';
                             },
                             displayValue: (Country country) =>
                                 country.name, // Display country name
                           );
                         }),
 
-                        // State Dropdown
-                        buildDropdown("State", states, selectedState, fontSize,
-                            (value) {
-                          setState(() {
-                            selectedState = value;
-                          });
-                        }),
-
                         // City Field
-                        buildTextField("City", cityController, fontSize),
+                        buildTextField("City", (value) {
+                          controller.userRegistrationRequest.city = value;
+                        }, fontSize),
 
                         // Fetch Lat/Long Button
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12.0),
-                          child: ElevatedButton(
-                            onPressed: fetchLatLong,
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 14, horizontal: 30),
-                              backgroundColor: AppColors.buttonColor,
-                              foregroundColor: Colors.white,
-                            ),
-                            child: Text("Fetch Latitude & Longitude",
-                                style: AppTextStyles.buttonText
-                                    .copyWith(fontSize: fontSize)),
-                          ),
-                        ),
+                        // Padding(
+                        //   padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        //   child: ElevatedButton(
+                        //     onPressed: fetchLatLong,
+                        //     style: ElevatedButton.styleFrom(
+                        //       padding: EdgeInsets.symmetric(
+                        //           vertical: 14, horizontal: 30),
+                        //       backgroundColor: AppColors.buttonColor,
+                        //       foregroundColor: Colors.white,
+                        //     ),
+                        //     child: Text("Fetch Latitude & Longitude",
+                        //         style: AppTextStyles.buttonText
+                        //             .copyWith(fontSize: fontSize)),
+                        //   ),
+                        // ),
 
                         // Show Latitude and Longitude only if fetched
-                        if (isLatLongFetched) ...[
-                          buildTextField(
-                              "Latitude", latitudeController, fontSize,
-                              enabled: false),
-                          buildTextField(
-                              "Longitude", longitudeController, fontSize,
-                              enabled: false),
-                        ],
-
-                        // Submit Button
+                        Obx(() {
+                          if (isLatLongFetched.value) {
+                            return Column(
+                              children: [
+                                buildTextFieldForLatLong(
+                                  "Latitude",
+                                  controller.userRegistrationRequest.latitude,
+                                  fontSize,
+                                  enabled: false,
+                                ),
+                                buildTextFieldForLatLong(
+                                  "Longitude",
+                                  controller.userRegistrationRequest.longitude,
+                                  fontSize,
+                                  enabled: false,
+                                ),
+                              ],
+                            );
+                          } else {
+                            return Container();
+                          }
+                        }),
                         SizedBox(height: 20),
                         ElevatedButton(
                           onPressed: () {
                             if (formKey.currentState!.validate()) {
-                              // Check if password and confirm password match
-                              if (passwordController.text !=
-                                  confirmPasswordController.text) {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
-                                  content: Text("Passwords do not match!"),
-                                ));
+                              if (controller.userRegistrationRequest.password !=
+                                  confirmPassword.text) {
+                                failure('Failed', 'Passwords do not match!');
                                 return;
                               }
-
-                              // Process form submission
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                content: Text("Form submitted successfully!"),
-                              ));
+                              Get.to(MultiStepFormPage());
+                              success(
+                                  'Success', 'Form submitted successfully!');
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -259,7 +266,6 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            Get.to(MultiStepFormPage());
                             Get.to(MultiStepFormPage());
                           },
                           style: ElevatedButton.styleFrom(
@@ -285,7 +291,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
 
   Widget buildTextField(
     String label,
-    TextEditingController controller,
+    onChanged,
     double fontSize, {
     bool obscureText = false,
     bool enabled = true,
@@ -293,7 +299,54 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
-        controller: controller,
+        obscureText: obscureText,
+        enabled: enabled,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return '$label is required';
+          }
+          return null;
+        },
+        style: AppTextStyles.inputFieldText
+            .copyWith(fontSize: fontSize), // Responsive font size
+        cursorColor: AppColors.textColor,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor),
+          ),
+          fillColor: AppColors.formFieldColor,
+          filled: true,
+        ),
+        onChanged: onChanged,
+      ),
+    );
+  }
+
+  Widget buildTextFieldForLatLong(
+    String label,
+    String value,
+    double fontSize, {
+    bool obscureText = false,
+    bool enabled = true,
+  }) {
+    // Create a TextEditingController with the passed value
+    TextEditingController controller = TextEditingController(text: value);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        controller: controller, // Use the controller to manage the value
         obscureText: obscureText,
         enabled: enabled,
         validator: (value) {

@@ -1,6 +1,6 @@
 class EstablishConnectionMessageRequest {
-  final String receiverId;
-  final String message;
+   String receiverId;
+   String message;
 
   EstablishConnectionMessageRequest({
     required this.receiverId,
