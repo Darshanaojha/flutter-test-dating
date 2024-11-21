@@ -3,7 +3,6 @@ import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
-
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/registration_otp_verification_request_model.dart';
 import 'registerdetails.dart';
@@ -112,21 +111,19 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                           "Invalid OTP", "Please enter a valid 6-digit OTP.");
                       return;
                     }
-                    if (backEndOtp == registrationOtpVerificationRequest.otp) {
-                      success("Success", "Your OTP is verified!");
-                      Get.to(RegisterProfilePage());
-                    } else {
-                      bool successdone =
-                          await controller.otpVerificationForRegistration(
-                              registrationOtpVerificationRequest);
-                      if (successdone) {
+
+                    controller
+                        .otpVerificationForRegistration(
+                            registrationOtpVerificationRequest)
+                        .then((value) {
+                      if (value) {
                         success("Success", "OTP verified!");
                         Get.to(RegisterProfilePage());
                       } else {
                         failure("Error",
                             "OTP verification failed. Please try again.");
                       }
-                    }
+                    });
                   },
                   child: Text(
                     "Verify OTP",
