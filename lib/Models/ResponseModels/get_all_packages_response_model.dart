@@ -1,16 +1,16 @@
-class PackagesResponseModel {
+class GetAllPackagesResponseModel {
   bool success;
   Payload payload;
   Error error;
 
-  PackagesResponseModel({
+  GetAllPackagesResponseModel({
     required this.success,
     required this.payload,
     required this.error,
   });
 
-  factory PackagesResponseModel.fromJson(Map<String, dynamic> json) {
-    return PackagesResponseModel(
+  factory GetAllPackagesResponseModel.fromJson(Map<String, dynamic> json) {
+    return GetAllPackagesResponseModel(
       success: json['success'],
       payload: Payload.fromJson(json['payload']),
       error: Error.fromJson(json['error']),
@@ -28,7 +28,7 @@ class PackagesResponseModel {
 
 class Payload {
   String message;
-  List<GetAllPackagesResponseModel> data;
+  List<Package> data;
 
   Payload({
     required this.message,
@@ -37,9 +37,8 @@ class Payload {
 
   factory Payload.fromJson(Map<String, dynamic> json) {
     var dataList = json['data'] as List;
-    List<GetAllPackagesResponseModel> data = dataList
-        .map((item) => GetAllPackagesResponseModel.fromJson(item))
-        .toList();
+    List<Package> data =
+        dataList.map((item) => Package.fromJson(item)).toList();
 
     return Payload(
       message: json['message'],
@@ -55,7 +54,7 @@ class Payload {
   }
 }
 
-class GetAllPackagesResponseModel {
+class Package {
   String id;
   String days;
   String actualAmount;
@@ -65,7 +64,7 @@ class GetAllPackagesResponseModel {
   String created;
   String updated;
 
-  GetAllPackagesResponseModel({
+  Package({
     required this.id,
     required this.days,
     required this.actualAmount,
@@ -76,8 +75,8 @@ class GetAllPackagesResponseModel {
     required this.updated,
   });
 
-  factory GetAllPackagesResponseModel.fromJson(Map<String, dynamic> json) {
-    return GetAllPackagesResponseModel(
+  factory Package.fromJson(Map<String, dynamic> json) {
+    return Package(
       id: json['id'],
       days: json['days'],
       actualAmount: json['actual_amount'],

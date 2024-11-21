@@ -68,6 +68,7 @@ import '../Providers/update_email_verification_provider.dart';
 import '../Providers/update_emailid_provider.dart';
 import '../Providers/update_profile_provider.dart';
 import '../Providers/user_registration_provider.dart';
+import '../Screens/login.dart';
 import '../constants.dart';
 
 class Controller extends GetxController {
@@ -94,7 +95,6 @@ class Controller extends GetxController {
     address: '',
     password: '',
     countryId: '',
-    state: '',
     city: '',
     dob: '',
     nickname: '',
@@ -113,18 +113,20 @@ class Controller extends GetxController {
 
   Future<bool> register(UserRegistrationRequest userRegistrationRequest) async {
     try {
-    
       final UserRegistrationResponse? response =
           await UserRegistrationProvider()
               .userRegistration(userRegistrationRequest);
 
-      if (response != null) {
-        success('success', response.payload.message);
+      if (response != null && response.success) {
+        success('Success', response.payload.message);
+        Get.offAll(Login());
         return true;
+      } else {
+        failure('Error', 'Registration failed. Please try again.');
+        return false;
       }
-      return false;
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error', 'An unexpected error occurred: ${e.toString()}');
       return false;
     }
   }
@@ -365,13 +367,13 @@ class Controller extends GetxController {
     }
   }
 
-  var packages = <GetAllPackagesResponseModel>[].obs;
+  var packages = <Package>[].obs;
 
   Future<bool> fetchAllPackages() async {
     try {
       packages.clear();
 
-      PackagesResponseModel? response =
+      GetAllPackagesResponseModel? response =
           await FetchAllPackagesProvider().fetchAllPackages();
 
       if (response != null && response.success) {

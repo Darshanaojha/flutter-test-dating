@@ -10,7 +10,6 @@ class UserRegistrationRequest {
    String address;
    String password;
    String countryId;
-   String state;
    String city;
    String dob;
    String nickname;
@@ -35,7 +34,6 @@ class UserRegistrationRequest {
     required this.address,
     required this.password,
     required this.countryId,
-    required this.state,
     required this.city,
     required this.dob,
     required this.nickname,
@@ -58,22 +56,21 @@ class UserRegistrationRequest {
       name: json['name'],
       email: json['email'],
       mobile: json['mobile'],
-      latitude: json['latitute'],
+      latitude: json['latitude'],
       longitude: json['longitude'],
       address: json['address'],
       password: json['password'],
       countryId: json['country_id'],
-      state: json['state'] ?? '',
       city: json['city'],
       dob: json['dob'],
       nickname: json['nickname'],
       gender: json['gender'],
       subGender: json['sub_gender'],
-      preferences: List<int>.from(json['preferences'] ?? []),  // Assuming preferences are sent as an array of integers
-      desires: List<int>.from(json['desires'] ?? []),  // Assuming desires are sent as an array of integers
+      preferences: List<int>.from(json['preferences'] ?? []), 
+      desires: List<int>.from(json['desires'] ?? []), 
       interest: json['interest'],
       bio: json['bio'],
-      photos: List<String>.from(json['photos'] ?? []),  // Assuming photos are sent as an array of strings (URLs)
+      photos: List<String>.from(json['photos'] ?? []),
       packageId: json['package_id'],
       emailAlerts: json['email_alerts'],
       username: json['username'],
@@ -87,22 +84,21 @@ class UserRegistrationRequest {
       'name': name,
       'email': email,
       'mobile': mobile,
-      'latitute': latitude,
+      'latitude': latitude,
       'longitude': longitude,
       'address': address,
       'password': password,
       'country_id': countryId,
-      'state': state,
       'city': city,
       'dob': dob,
       'nickname': nickname,
       'gender': gender,
       'sub_gender': subGender,
-      'preferences': preferences,  // No need to use jsonEncode here
-      'desires': desires,  // No need to use jsonEncode here
+      'preferences': preferences,  
+      'desires': desires,  
       'interest': interest,
       'bio': bio,
-      'photos': photos,  // No need to use jsonEncode here
+      'photos': photos, 
       'package_id': packageId,
       'email_alerts': emailAlerts,
       'username': username,
@@ -174,7 +170,6 @@ class UserRegistrationRequest {
       validateNotEmpty(password, "Password");
       validateNotEmpty(address, "Address");
       validateNotEmpty(countryId, "Country ID");
-      validateNotEmpty(state, "State");
       validateNotEmpty(city, "City");
       validateNotEmpty(dob, "Date of Birth");
       validateNotEmpty(gender, "Gender");

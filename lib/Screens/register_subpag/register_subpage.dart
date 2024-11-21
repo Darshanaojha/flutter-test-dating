@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dating_application/Models/ResponseModels/get_all_benifites_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_desires_model_response.dart';
+import 'package:dating_application/Screens/login.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -39,6 +40,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   RxList<String> selectedStatus = <String>[].obs;
   RxList<String> genderIds = <String>[].obs;
   RxList<String> selectedInterests = <String>[].obs;
+  RxString selectedPlan = 'None'.obs;
+  TextEditingController interestController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -143,6 +146,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     double fontSize = screenWidth < 400 ? 18 : 20;
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         actions: [
           Padding(
@@ -159,18 +163,20 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           ),
         ],
       ),
-      body: PageView.builder(
-        controller: pageController,
-        onPageChanged: onPageChanged,
-        // onPageChanged: (index) {
-        //   setState(() {
-        //     currentPage = index + 1;
-        //   });
-        // },
-        itemCount: 14,
-        itemBuilder: (context, index) {
-          return buildStepWidget(index + 1, screenSize);
-        },
+      body: SafeArea(
+        child: PageView.builder(
+          controller: pageController,
+          onPageChanged: onPageChanged,
+          // onPageChanged: (index) {
+          //   setState(() {
+          //     currentPage = index + 1;
+          //   });
+          // },
+          itemCount: 14,
+          itemBuilder: (context, index) {
+            return buildStepWidget(index + 1, screenSize);
+          },
+        ),
       ),
     );
   }
@@ -252,7 +258,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 ),
               );
             }),
-            SizedBox(height: 43),
+        SizedBox(height: screenSize.height*0.05),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -261,13 +267,13 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     selectedDay = value;
                   });
                 }),
-                SizedBox(width: 20),
+                 SizedBox(width: screenSize.width*0.04),
                 buildDatePicker("Month", 1, 12, selectedMonth, (value) {
                   setState(() {
                     selectedMonth = value;
                   });
                 }),
-                SizedBox(width: 20),
+                SizedBox(width: screenSize.width*0.04),
                 buildDatePicker("Year", 1900, DateTime.now().year, selectedYear,
                     (value) {
                   setState(() {
@@ -276,7 +282,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 }),
               ],
             ),
-            SizedBox(height: 70),
+            SizedBox(height: screenSize.height*0.02),
             ElevatedButton(
               onPressed: () {
                 String formattedDate =
@@ -290,9 +296,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     DateTime(selectedYear, selectedMonth, selectedDay);
                 DateTime now = DateTime.now();
 
-                // Check if the user is 18 or older
                 if (now.difference(selectedDate).inDays < 18 * 365) {
-                  // If user is under 18, show failure message
+               
                   failure('Failed',
                       'You must be at least 18 years old to proceed.');
                   return;
@@ -485,15 +490,14 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   ),
                 );
               }),
-              SizedBox(height: 40), // Adds space for the button
-              // Obx() to make the button reactive
+              SizedBox(height: 40),
               Obx(() {
                 return ElevatedButton(
                   onPressed: selectedGender.value == null
-                      ? null // Disable if no gender selected
+                      ? null
                       : () {
-                          markStepAsCompleted(3); // Mark step completion
-                          // Move to the next page in the PageView
+                          markStepAsCompleted(3);
+
                           pageController.nextPage(
                             duration: Duration(milliseconds: 300),
                             curve: Curves.ease,
@@ -503,8 +507,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                     backgroundColor: selectedGender.value != null
                         ? AppColors.buttonColor
-                        : AppColors
-                            .activeColor, // Change button color based on selection
+                        : AppColors.activeColor,
                     foregroundColor: AppColors.textColor,
                   ),
                   child: Text(
@@ -571,42 +574,52 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 ),
               ),
               SizedBox(height: 20),
-                DropdownButtonFormField<String>(
-              value: controller.userRegistrationRequest.lookingFor.isEmpty
-                  ? null
-                  : controller.userRegistrationRequest.lookingFor,  // Default value
-              decoration: InputDecoration(
-                labelText: 'Relationship Type',  // Label for the dropdown
-                labelStyle: AppTextStyles.labelText.copyWith(fontSize: optionFontSize),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: AppColors.textColor),
+              DropdownButtonFormField<String>(
+                value: controller.userRegistrationRequest.lookingFor.isEmpty
+                    ? null
+                    : controller.userRegistrationRequest.lookingFor,
+                decoration: InputDecoration(
+                  labelText: 'Relationship Type',
+                  labelStyle: AppTextStyles.labelText
+                      .copyWith(fontSize: optionFontSize),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: AppColors.textColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
                 ),
+                items: [
+                  DropdownMenuItem(
+                    value: '1',
+                    child: Text(
+                      'Serious Relationship',
+                      style: AppTextStyles.bodyText
+                          .copyWith(fontSize: optionFontSize),
+                    ),
+                  ),
+                  DropdownMenuItem(
+                    value: '2',
+                    child: Text(
+                      'Hookup',
+                      style: AppTextStyles.bodyText
+                          .copyWith(fontSize: optionFontSize),
+                    ),
+                  ),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    controller.userRegistrationRequest.lookingFor = value;
+                  }
+                },
+                iconEnabledColor: AppColors.textColor,
+                iconDisabledColor: AppColors.inactiveColor,
               ),
-              items: [
-                DropdownMenuItem(
-                  value: 'Serious Relationship',
-                  child: Text(
-                    'Serious Relationship',
-                    style: AppTextStyles.bodyText.copyWith(fontSize: optionFontSize),
-                  ),
-                ),
-                DropdownMenuItem(
-                  value: 'Hookup',
-                  child: Text(
-                    'Hookup',
-                    style: AppTextStyles.bodyText.copyWith(fontSize: optionFontSize),
-                  ),
-                ),
-              ],
-              onChanged: (value) {
-                controller.userRegistrationRequest.lookingFor = value ?? '';  
-                controller.userRegistrationRequest.interest = value ?? '';  
-              },
-              iconEnabledColor: AppColors.textColor,  // Color of the dropdown icon
-              iconDisabledColor: AppColors.inactiveColor,
-            ),
-             SizedBox(height: 20),
+              SizedBox(height: 20),
               Column(
                 children: List.generate(controller.subGenders.length, (index) {
                   return RadioListTile<String>(
@@ -617,9 +630,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                         color: AppColors.textColor,
                       ),
                     ),
-                    value: controller
-                        .subGenders[index].id, // This is the option string
-                    groupValue: selectedOption.value, // Current selected value
+                    value: controller.subGenders[index].id,
+                    groupValue: selectedOption.value,
                     onChanged: (String? value) {
                       selectedOption.value = value ?? '';
                       controller.userRegistrationRequest.subGender =
@@ -633,19 +645,18 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               SizedBox(height: 30),
               ElevatedButton(
                 onPressed: selectedOption.value.isEmpty
-                    ? null // Disable if no option selected
+                    ? null
                     : () {
-                        // Ensure that a value has been selected before proceeding
                         if (selectedOption.value.isEmpty) {
                           failure(
                               'Failed', 'Please select an option to proceed.');
                         } else {
-                          markStepAsCompleted(4); // Mark step completion
-                          // Move to the next page in the PageView
+                          markStepAsCompleted(4);
+
                           pageController.nextPage(
                             duration: Duration(milliseconds: 300),
                             curve: Curves.ease,
-                          ); // Proceed to next step
+                          );
                         }
                       },
                 style: ElevatedButton.styleFrom(
@@ -1029,7 +1040,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 // step 7
   Widget buildInterestStep(BuildContext context, Size screenSize) {
     FocusNode interestFocusNode = FocusNode();
-    TextEditingController interestController = TextEditingController();
 
     bool isSelectionValid() {
       return selectedInterests.length > 0 && selectedInterests.length <= 6;
@@ -1417,6 +1427,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 onPressed: () {
                   if (permissionType == 'notification') {
                     notificationGranted.value = false;
+                    controller.userRegistrationRequest.emailAlerts =
+                        '0'; // Deny
                   } else if (permissionType == 'location') {
                     locationGranted.value = false;
                   }
@@ -1434,6 +1446,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 onPressed: () {
                   if (permissionType == 'notification') {
                     notificationGranted.value = true;
+                    controller.userRegistrationRequest.emailAlerts =
+                        '1'; // Accept
                   } else if (permissionType == 'location') {
                     locationGranted.value = true;
                   }
@@ -1451,6 +1465,21 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           );
         },
       );
+    }
+
+    // onChange callback function
+    void onChange(String permissionType, bool granted) {
+      // Log or perform actions when the permission is granted or denied
+      if (permissionType == 'notification') {
+        // Action after notification permission changes
+        print(
+            "Notification permission changed: ${granted ? 'Granted' : 'Denied'}");
+        // Example: Send data to the server or update UI components
+      } else if (permissionType == 'location') {
+        // Action after location permission changes
+        print("Location permission changed: ${granted ? 'Granted' : 'Denied'}");
+        // Example: Send data to the server or update UI components
+      }
     }
 
     double fontSize = screenSize.width * 0.03;
@@ -1512,7 +1541,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      "We need permission to send you notifications.",
+                      "We need permission to send you notifications through email.",
                       style: AppTextStyles.bodyText.copyWith(
                         fontSize: fontSize - 2,
                         color: AppColors.textColor,
@@ -1886,12 +1915,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
 // step: 11
   Widget buildPaymentWidget(Size screenSize) {
-    RxString selectedPlan = 'None'.obs; // Track selected plan
     double fontSize = screenSize.width * 0.03;
-
-    // Function to show the payment confirmation dialog
-    Future<void> showPaymentConfirmationDialog(
-        BuildContext context, String planType, String amount) async {
+    Future<void> showPaymentConfirmationDialog(BuildContext context,
+        String planType, String planId, String amount) async {
       return showDialog<void>(
         context: context,
         barrierDismissible: false, // Prevent dismissal by tapping outside
@@ -1926,20 +1952,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               ),
               TextButton(
                 onPressed: () {
-                  // Mark the selected plan
-                  selectedPlan.value = planType;
+                  controller.userRegistrationRequest.packageId = planId;
 
-                  try {
-                    int parsedPackageId = int.parse(planType);
-                    controller.userRegistrationRequest.packageId =
-                        parsedPackageId.toString();
-                  } catch (e) {
-                    print("Invalid package ID: $planType");
-                  }
+                  markStepAsCompleted(11);
 
-                  markStepAsCompleted(11); // Mark the current step as completed
-
-                  // Navigate to the next page in the PageView
                   pageController.nextPage(
                     duration: Duration(milliseconds: 300),
                     curve: Curves.ease,
@@ -2082,6 +2098,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     showPaymentConfirmationDialog(
                       context,
                       package.unit,
+                      package.id,
                       '₹${package.offerAmount}',
                     );
                   },
@@ -2163,8 +2180,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               visible: selectedPlan.value != 'None',
               child: ElevatedButton(
                 onPressed: () {
-                  // Perform action for next step
-                  markStepAsCompleted(11); // Mark the current step as completed
+                  markStepAsCompleted(11);
                   pageController.nextPage(
                     duration: Duration(milliseconds: 300),
                     curve: Curves.ease,
@@ -2701,11 +2717,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               child: Text('OK'),
             ),
             TextButton(
-              onPressed: () {
-                
-                controller.register(controller.userRegistrationRequest);
-                Get.to(NavigationBottomBar());
-               
+              onPressed: () async {
+                await controller.register(controller.userRegistrationRequest);
               },
               child: Text('Next'),
             ),

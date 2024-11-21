@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_country_response_model.dart';
 import 'package:dating_application/Screens/register_subpag/register_subpage.dart';
@@ -29,7 +31,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
 
   final controller = Get.find<Controller>();
   TextEditingController confirmPassword = TextEditingController();
-
+  Timer? debounce;
   @override
   void initState() {
     super.initState();
@@ -49,22 +51,24 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
   @override
   void dispose() {
     animationController.dispose();
+    debounce?.cancel();
     super.dispose();
   }
 
   Future<void> fetchLatLong() async {
     try {
-
+      print(controller.userRegistrationRequest.address);
       List<Location> locations =
           await locationFromAddress(controller.userRegistrationRequest.address);
+      print(locations.first.toString());
       if (locations.isNotEmpty) {
-      
+        print('not empty');
         controller.userRegistrationRequest.latitude =
             locations.first.latitude.toString();
         controller.userRegistrationRequest.longitude =
             locations.first.longitude.toString();
         isLatLongFetched.value = true;
-       
+        print('set to true');
       } else {
         showErrorDialog('No location found for the provided address..');
       }
@@ -98,14 +102,11 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     final screenSize = MediaQuery.of(context).size;
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
-
-    // Calculate the responsive font size
-    double fontSize =
-        screenSize.width * 0.03; // You can adjust this multiplier as needed
+    double fontSize = screenSize.width * 0.03;
 
     return Scaffold(
       body: Container(
-        color: AppColors.primaryColor, // Set primary background color
+        color: AppColors.primaryColor,
         child: Center(
           child: FadeTransition(
             opacity: fadeInAnimation,
@@ -144,9 +145,19 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           controller.userRegistrationRequest.mobile = value;
                         }, fontSize),
 
-                        // Address Field
+                        
                         buildTextField("Address", (value) {
                           controller.userRegistrationRequest.address = value;
+                         
+                          if (debounce?.isActive ?? false) {
+                            debounce?.cancel();
+                          }
+
+                     
+                          debounce = Timer(Duration(milliseconds: 1000), () {
+                          
+                            fetchLatLong();
+                          });
                         }, fontSize),
 
                         // Password Field
@@ -184,35 +195,27 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           );
                         }),
 
-                        // State Dropdown
-                        buildDropdown("State", states, selectedState, fontSize,
-                            (value) {
-                          setState(() {
-                            selectedState = value;
-                          });
-                        }),
-
                         // City Field
                         buildTextField("City", (value) {
                           controller.userRegistrationRequest.city = value;
                         }, fontSize),
 
                         // Fetch Lat/Long Button
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12.0),
-                          child: ElevatedButton(
-                            onPressed: fetchLatLong,
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 14, horizontal: 30),
-                              backgroundColor: AppColors.buttonColor,
-                              foregroundColor: Colors.white,
-                            ),
-                            child: Text("Fetch Latitude & Longitude",
-                                style: AppTextStyles.buttonText
-                                    .copyWith(fontSize: fontSize)),
-                          ),
-                        ),
+                        // Padding(
+                        //   padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        //   child: ElevatedButton(
+                        //     onPressed: fetchLatLong,
+                        //     style: ElevatedButton.styleFrom(
+                        //       padding: EdgeInsets.symmetric(
+                        //           vertical: 14, horizontal: 30),
+                        //       backgroundColor: AppColors.buttonColor,
+                        //       foregroundColor: Colors.white,
+                        //     ),
+                        //     child: Text("Fetch Latitude & Longitude",
+                        //         style: AppTextStyles.buttonText
+                        //             .copyWith(fontSize: fontSize)),
+                        //   ),
+                        // ),
 
                         // Show Latitude and Longitude only if fetched
                         Obx(() {
@@ -234,31 +237,21 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                               ],
                             );
                           } else {
-                            return Container(); // If isLatLongFetched is false, return an empty container (or nothing)
+                            return Container();
                           }
                         }),
-
-                        // Submit Button
                         SizedBox(height: 20),
                         ElevatedButton(
                           onPressed: () {
                             if (formKey.currentState!.validate()) {
-                              // Check if password and confirm password match
                               if (controller.userRegistrationRequest.password !=
                                   confirmPassword.text) {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
-                                  content: Text("Passwords do not match!"),
-                                ));
+                                failure('Failed', 'Passwords do not match!');
                                 return;
                               }
                               Get.to(MultiStepFormPage());
-                               print(controller.userRegistrationRequest.toJson().toString());
-                
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                content: Text("Form submitted successfully!"),
-                              ));
+                              success(
+                                  'Success', 'Form submitted successfully!');
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -274,7 +267,6 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                         ElevatedButton(
                           onPressed: () {
                             Get.to(MultiStepFormPage());
-                         
                           },
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.symmetric(
