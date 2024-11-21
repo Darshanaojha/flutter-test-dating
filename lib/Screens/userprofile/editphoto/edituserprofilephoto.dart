@@ -1,7 +1,15 @@
+import 'dart:convert';
+
+import 'package:dating_application/Controllers/controller.dart';
+import 'package:dating_application/Screens/userprofile/userprofilepage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
+import '../../../Models/RequestModels/update_profile_photo_request_model.dart';
 import '../../../constants.dart';
 
 class EditPhotosPage extends StatefulWidget {
@@ -12,58 +20,80 @@ class EditPhotosPage extends StatefulWidget {
 }
 
 class EditPhotosPageState extends State<EditPhotosPage> {
-  List<String> photos = [
-    'assets/images/image1.jpg',
-    'assets/images/image1.jpg',
-    'assets/images/image1.jpg',
-  ];
+  Controller controller = Get.put(Controller());
+  List<String> photos = [];
+  List<File> images = []; 
+  bool isLoading = false;
   double getResponsiveFontSize(double scale) {
-      double screenWidth = MediaQuery.of(context).size.width;
-      return screenWidth *
-          scale; // Adjust this scale for different text elements
-    }
-  final picker = ImagePicker();
-  bool isLoading = false; // Track loading state
-  Future<void> fetchData() async {
-    await Future.delayed(Duration(seconds: 2)); // Simulate network delay
-    setState(() {
-      isLoading = false;
-    });
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth * scale;
   }
 
-  // Function to pick an image from the gallery or camera
-  Future<void> pickImage(ImageSource source) async {
-    setState(() {
-      isLoading = true; // Show loading spinner when picking image
-    });
+  final picker = ImagePicker();
+
+  // Function to request Camera permission
+  Future<void> requestCameraPermission() async {
+    var status = await Permission.camera.request();
+    if (status.isDenied) {
+      Get.snackbar('Permission Denied', "Camera permission denied");
+    }
+  }
+
+
+  Future<void> requestGalleryPermission() async {
+    var status = await Permission.photos.request();
+    if (status.isDenied) {
+      Get.snackbar('Permission Denied', "Gallery permission denied");
+    }
+  }
+
+  Future<void> pickImage(int index, ImageSource source) async {
+
+    if (source == ImageSource.camera) {
+      await requestCameraPermission();
+    } else if (source == ImageSource.gallery) {
+      await requestGalleryPermission();
+    }
 
     final pickedFile = await picker.pickImage(source: source);
 
     if (pickedFile != null) {
-      setState(() {
-        photos.add(pickedFile.path); // Add the new photo to the list
-        isLoading = false; // Hide loading spinner once image is picked
-      });
-    } else {
-      setState(() {
-        isLoading = false; // Hide loading spinner if no image is picked
-      });
+      File imageFile = File(pickedFile.path);
+
+      final compressedImage = await FlutterImageCompress.compressWithFile(
+        imageFile.path,
+        quality: 50,
+      );
+
+      if (compressedImage != null) {
+        String base64Image = base64Encode(compressedImage);
+        if (index < controller.userRegistrationRequest.photos.length) {
+          controller.userRegistrationRequest.photos[index] = base64Image;
+        } else {
+          controller.userRegistrationRequest.photos.add(base64Image);
+        }
+        if (index < images.length) {
+          images[index] = imageFile;
+        } else {
+          images.add(imageFile);
+        }
+
+        setState(() {}); 
+      } else {
+        Get.snackbar("Error", "Image compression failed");
+      }
     }
   }
-
-  // Function to delete a photo
   Future<void> deletePhoto(int index) async {
     setState(() {
-      isLoading = true; // Show loading spinner when deleting
+      isLoading = true; 
     });
 
     setState(() {
-      photos.removeAt(index); // Remove the selected photo
-      isLoading = false; // Hide loading spinner after deletion
+      photos.removeAt(index);
+      isLoading = false; 
     });
   }
-
-  // Show bottom sheet with delete and cancel options
   void showDeleteOptions(int index) {
     showModalBottomSheet(
       context: context,
@@ -74,7 +104,8 @@ class EditPhotosPageState extends State<EditPhotosPage> {
           children: [
             Text(
               "Are you sure you want to delete this photo?",
-              style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+              style: AppTextStyles.bodyText
+                  .copyWith(fontSize: getResponsiveFontSize(0.03)),
             ),
             SizedBox(height: 16),
             Row(
@@ -83,7 +114,10 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: Text("Cancel", style: AppTextStyles.buttonText.copyWith(fontSize: getResponsiveFontSize(0.03))),
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.buttonColor),
+                  child: Text("Cancel",
+                      style: AppTextStyles.buttonText
+                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
                 ),
                 SizedBox(width: 16),
                 ElevatedButton(
@@ -91,14 +125,44 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                     Navigator.pop(context);
                     deletePhoto(index); // Delete the photo
                   },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                  child: Text("Delete", style: AppTextStyles.buttonText.copyWith(fontSize: getResponsiveFontSize(0.03)),),
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.inactiveColor),
+                  child: Text("Delete",
+                      style: AppTextStyles.buttonText
+                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
+                ),
+                SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    pickImage(index, ImageSource.gallery);
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.activeColor),
+                  child: Text("Edit",
+                      style: AppTextStyles.buttonText
+                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
                 ),
               ],
             ),
           ],
         ),
       ),
+    );
+  }
+
+  void updateProfilePhotoRequestFromPhotos() {
+    List<String> updatedPhotos = List.from(photos);
+
+    while (updatedPhotos.length < 6) {
+      updatedPhotos.add('');
+    }
+
+    controller.updateProfilePhotoRequest = UpdateProfilePhotoRequest(
+      img1: updatedPhotos.length > 0 ? updatedPhotos[0] : '',
+      img2: updatedPhotos.length > 1 ? updatedPhotos[1] : '',
+      img3: updatedPhotos.length > 2 ? updatedPhotos[2] : '',
+      img4: updatedPhotos.length > 3 ? updatedPhotos[3] : '',
+      img5: updatedPhotos.length > 4 ? updatedPhotos[4] : '',
+      img6: updatedPhotos.length > 5 ? updatedPhotos[5] : '',
     );
   }
 
@@ -113,36 +177,43 @@ class EditPhotosPageState extends State<EditPhotosPage> {
             fit: BoxFit.contain,
             width: double.infinity,
             height: MediaQuery.of(context).size.height *
-                0.7, // Adjust height as needed
+                0.7, 
           ),
         );
       },
     );
   }
 
-  // Show the photo selection dialog (camera or gallery)
   void showPhotoSelectionDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Choose Image Source", style: AppTextStyles.titleText.copyWith(fontSize: getResponsiveFontSize(0.03)),),
+        title: Text("Choose Image Source",
+            style: AppTextStyles.titleText
+                .copyWith(fontSize: getResponsiveFontSize(0.03))),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: Icon(Icons.camera, color: AppColors.iconColor),
-              title: Text("Camera", style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03)),),
+              title: Text("Camera",
+                  style: AppTextStyles.bodyText
+                      .copyWith(fontSize: getResponsiveFontSize(0.03))),
               onTap: () {
                 Navigator.pop(context);
-                pickImage(ImageSource.camera); // Pick image from camera
+                pickImage(images.length,
+                    ImageSource.camera);
               },
             ),
             ListTile(
               leading: Icon(Icons.photo_album, color: AppColors.iconColor),
-              title: Text("Gallery", style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03)),),
+              title: Text("Gallery",
+                  style: AppTextStyles.bodyText
+                      .copyWith(fontSize: getResponsiveFontSize(0.03))),
               onTap: () {
                 Navigator.pop(context);
-                pickImage(ImageSource.gallery); // Pick image from gallery
+                pickImage(images.length,
+                    ImageSource.gallery); 
               },
             ),
           ],
@@ -151,63 +222,73 @@ class EditPhotosPageState extends State<EditPhotosPage> {
     );
   }
 
-  // Build the UI
+  void onNextButtonPressed() {
+    if (controller.userRegistrationRequest.photos.isNotEmpty) {
+      updateProfilePhotoRequestFromPhotos();
+      controller.updateprofilephoto(controller.updateProfilePhotoRequest);
+
+      Get.to(UserProfilePage());
+    } else {
+      Get.snackbar("Error", "Please add at least one photo.");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Edit Photos", style: AppTextStyles.titleText.copyWith(fontSize: getResponsiveFontSize(0.03)),),
-        backgroundColor: AppColors.primaryColor, // Your primary color
+        title: Text("Edit Photos",
+            style: AppTextStyles.titleText
+                .copyWith(fontSize: getResponsiveFontSize(0.03))),
+        backgroundColor: AppColors.primaryColor,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Photo Grid
             Expanded(
-              child: isLoading // Show spinner if loading
+              child: isLoading
                   ? Center(
                       child: SpinKitCircle(
-                        color: AppColors.activeColor, // Color for spinner
-                        size: 150.0, // Size of spinner
+                        color: AppColors.activeColor,
+                        size: 150.0,
                       ),
                     )
                   : GridView.builder(
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3, // Number of columns in the grid
-                        crossAxisSpacing: 8.0, // Spacing between columns
-                        mainAxisSpacing: 8.0, // Spacing between rows
-                        childAspectRatio:
-                            1.0, // Aspect ratio of each photo cell
+                        crossAxisCount: 3, 
+                        crossAxisSpacing: 8.0, 
+                        mainAxisSpacing: 8.0,
+                        childAspectRatio: 1.0,
                       ),
                       itemCount:
-                          photos.length + 1, // One extra for the "Add" button
+                          images.length + 1,
                       itemBuilder: (context, index) {
-                        if (index == photos.length) {
-                          // Show the "Add" button at the bottom
+                        if (index == images.length) {
+                      
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: IconButton(
                               icon: Icon(Icons.add_circle,
                                   size: 40, color: AppColors.activeColor),
-                              onPressed: showPhotoSelectionDialog,
+                              onPressed: () => showPhotoSelectionDialog(),
                             ),
                           );
                         } else {
-                          // Show each photo with a 3-dot icon
                           return Padding(
                             padding: const EdgeInsets.all(4.0),
                             child: GestureDetector(
-                              onTap: () => showFullPhotoDialog(photos[index]),
+                              onTap: () =>
+                                  showFullPhotoDialog(images[index].path),
                               child: Stack(
                                 alignment: Alignment.bottomRight,
                                 children: [
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(10),
                                     child: Image.file(
-                                      File(photos[
-                                          index]), // Use File widget to load the image
+                                      images[
+                                          index], // Display the selected image
                                       fit: BoxFit.cover,
                                       width: double.infinity,
                                       height: double.infinity,
@@ -226,29 +307,36 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                       },
                     ),
             ),
-
-            // Motivational Line for the photo
             Text(
               "Impress the people around you with your best photo!",
-              style:
-                  AppTextStyles.bodyText.copyWith(color: AppColors.textColor,fontSize: getResponsiveFontSize(0.03)),
+              style: AppTextStyles.bodyText.copyWith(
+                  color: AppColors.textColor,
+                  fontSize: getResponsiveFontSize(0.03)),
             ),
-
             SizedBox(height: 20),
-
-            // Guidelines and Ground Rules
-            Text(
-              "Guidelines and Ground Rules:",
-              style: AppTextStyles.subheadingText,
-            ),
+            Text("Guidelines and Ground Rules:",
+                style: AppTextStyles.subheadingText),
             SizedBox(height: 8),
             Text(
               "1. Upload only your own photos.\n"
               "2. Avoid offensive or inappropriate images.\n"
               "3. Maintain good quality photos for better impression.\n"
               "4. Be respectful to others in your photos.\n",
-              style: AppTextStyles.bodyText.copyWith(color: Colors.grey,fontSize: getResponsiveFontSize(0.03)),
+              style: AppTextStyles.bodyText.copyWith(
+                  color: Colors.grey, fontSize: getResponsiveFontSize(0.03)),
             ),
+            Center(
+              child: ElevatedButton(
+                onPressed:
+                    onNextButtonPressed,
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 18, horizontal: 40),
+                  backgroundColor: AppColors.buttonColor,
+                  foregroundColor: AppColors.textColor,
+                ),
+                child: Text('Submit', style: AppTextStyles.buttonText),
+              ),
+            )
           ],
         ),
       ),

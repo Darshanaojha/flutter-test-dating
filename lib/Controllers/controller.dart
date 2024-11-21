@@ -35,6 +35,8 @@ import '../Models/RequestModels/registration_otp_verification_request_model.dart
 import '../Models/RequestModels/report_user_reason_feedback_request_model.dart';
 import '../Models/RequestModels/update_emailid_otp_verification_request_model.dart';
 import '../Models/RequestModels/update_emailid_request_model.dart';
+import '../Models/RequestModels/update_lat_long_request_model.dart';
+import '../Models/RequestModels/update_profile_photo_request_model.dart';
 import '../Models/RequestModels/user_profile_update_request_model.dart';
 import '../Models/RequestModels/user_registration_request_model.dart';
 import '../Models/ResponseModels/ProfileResponse.dart';
@@ -54,6 +56,8 @@ import '../Models/ResponseModels/registration_otp_verification_response_model.da
 import '../Models/ResponseModels/report_user_reason_feedback_response_model.dart';
 import '../Models/ResponseModels/update_emailid_otp_verification_response_model.dart';
 import '../Models/ResponseModels/update_emailid_response_model.dart';
+import '../Models/ResponseModels/update_lat_long_response_model.dart';
+import '../Models/ResponseModels/update_profile_photo_response_model.dart';
 import '../Models/ResponseModels/user_login_response_model.dart';
 import '../Models/ResponseModels/user_profile_update_response_model.dart';
 import '../Models/ResponseModels/user_registration_response_model.dart';
@@ -74,6 +78,8 @@ import '../Providers/report_against_user_provider.dart';
 import '../Providers/report_reason_provider.dart';
 import '../Providers/update_email_verification_provider.dart';
 import '../Providers/update_emailid_provider.dart';
+import '../Providers/update_latitude_longitude_provider.dart';
+import '../Providers/update_profile_photo_provider.dart';
 import '../Providers/update_profile_provider.dart';
 import '../Providers/user_registration_provider.dart';
 import '../Screens/login.dart';
@@ -871,6 +877,8 @@ class Controller extends GetxController {
     return status.isGranted;
   }
 
+  BlockToRequestModel blockToRequestModel = BlockToRequestModel(blockto: '');
+
   Future<bool> blockUser(BlockToRequestModel blockToRequestModel) async {
     try {
       BlockUserResponseModel? response =
@@ -888,6 +896,9 @@ class Controller extends GetxController {
     }
   }
 
+  ReportUserReasonFeedbackRequestModel reportUserReasonFeedbackRequestModel =
+      ReportUserReasonFeedbackRequestModel(
+          reportAgainst: '', reasonId: '', reason: '');
   Future<bool> reportAgainstUser(
       ReportUserReasonFeedbackRequestModel
           reportUserReasonFeedbackRequestModel) async {
@@ -917,9 +928,55 @@ class Controller extends GetxController {
       if (response != null) {
         success('success', response.payload.message);
         reportReasons.addAll(response.payload.data);
+
         return true;
       } else {
         failure('Error', 'Failed to fetch the reasons of report');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  UpdateProfilePhotoRequest updateProfilePhotoRequest =
+      UpdateProfilePhotoRequest(
+          img1: '', img2: '', img3: '', img4: '', img5: '', img6: '');
+  Future<bool> updateprofilephoto(
+      UpdateProfilePhotoRequest updateProfilePhotoRequest) async {
+    try {
+      UserProfileUpdatePhotoResponse? response =
+          await UpdateProfilePhotoProvider()
+              .updateprofilephoto(updateProfilePhotoRequest);
+      if (response != null) {
+        success('success', response.payload.message);
+        return true;
+      } else {
+        failure('Error', 'Failed to report the user');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  UpdateLatLongRequest updateLatLongRequest = UpdateLatLongRequest(
+    latitude: '',
+    longitude: '',
+    city: '',
+    address: '',
+  );
+  Future<bool> updatelatlong(UpdateLatLongRequest updateLatLongRequest) async {
+    try {
+      UpdateLatLongResponse? response = await UpdateLatitudeLongitudeProvider()
+          .updatelatlong(updateLatLongRequest);
+      if (response != null) {
+        success('success', response.payload.message);
+        return true;
+      } else {
+        failure('Error', 'Failed to report the user');
         return false;
       }
     } catch (e) {
