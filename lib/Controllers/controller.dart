@@ -24,6 +24,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../Models/RequestModels/block_User_request_model.dart';
 import '../Models/RequestModels/delete_message_request_model.dart';
 import '../Models/RequestModels/edit_message_request_model.dart';
 import '../Models/RequestModels/estabish_connection_request_model.dart';
@@ -31,12 +32,14 @@ import '../Models/RequestModels/forget_password_request_model.dart';
 import '../Models/RequestModels/forget_password_verification_request_model.dart';
 import '../Models/RequestModels/registration_otp_request_model.dart';
 import '../Models/RequestModels/registration_otp_verification_request_model.dart';
+import '../Models/RequestModels/report_user_reason_feedback_request_model.dart';
 import '../Models/RequestModels/update_emailid_otp_verification_request_model.dart';
 import '../Models/RequestModels/update_emailid_request_model.dart';
 import '../Models/RequestModels/user_profile_update_request_model.dart';
 import '../Models/RequestModels/user_registration_request_model.dart';
 import '../Models/ResponseModels/ProfileResponse.dart';
 import '../Models/ResponseModels/all_active_user_resposne_model.dart';
+import '../Models/ResponseModels/block_user_response_model.dart';
 import '../Models/ResponseModels/chat_history_response_model.dart';
 import '../Models/ResponseModels/delete_message_response_model.dart';
 import '../Models/ResponseModels/edit_message_response_model.dart';
@@ -45,13 +48,16 @@ import '../Models/ResponseModels/forget_password_response_model.dart';
 import '../Models/ResponseModels/forget_password_verification_response_model.dart';
 import '../Models/ResponseModels/get_all_country_response_model.dart';
 import '../Models/ResponseModels/get_all_desires_model_response.dart';
+import '../Models/ResponseModels/get_report_user_options_response_model.dart';
 import '../Models/ResponseModels/registration_otp_response_model.dart';
 import '../Models/ResponseModels/registration_otp_verification_response_model.dart';
+import '../Models/ResponseModels/report_user_reason_feedback_response_model.dart';
 import '../Models/ResponseModels/update_emailid_otp_verification_response_model.dart';
 import '../Models/ResponseModels/update_emailid_response_model.dart';
 import '../Models/ResponseModels/user_login_response_model.dart';
 import '../Models/ResponseModels/user_profile_update_response_model.dart';
 import '../Models/ResponseModels/user_registration_response_model.dart';
+import '../Providers/block_user_provider.dart';
 import '../Providers/chat_message_page_provider.dart';
 import '../Providers/delete_message_provider.dart';
 import '../Providers/edit_message_provider.dart';
@@ -64,6 +70,8 @@ import '../Providers/fetch_benefits_provider.dart';
 import '../Providers/fetch_sub_genders_provider.dart';
 import '../Providers/home_page_provider.dart';
 import '../Providers/registration_provider.dart';
+import '../Providers/report_against_user_provider.dart';
+import '../Providers/report_reason_provider.dart';
 import '../Providers/update_email_verification_provider.dart';
 import '../Providers/update_emailid_provider.dart';
 import '../Providers/update_profile_provider.dart';
@@ -861,5 +869,62 @@ class Controller extends GetxController {
   Future<bool> requestCameraPermission() async {
     final status = await Permission.camera.request();
     return status.isGranted;
+  }
+
+  Future<bool> blockUser(BlockToRequestModel blockToRequestModel) async {
+    try {
+      BlockUserResponseModel? response =
+          await BlockUserProvider().blockUser(blockToRequestModel);
+      if (response != null) {
+        success('success', response.payload.message);
+        return true;
+      } else {
+        failure('Error', 'Failed to block the user');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> reportAgainstUser(
+      ReportUserReasonFeedbackRequestModel
+          reportUserReasonFeedbackRequestModel) async {
+    try {
+      ReportUserReasonFeedbackResponseModel? response =
+          await ReportUserProvider()
+              .reportAgainstUser(reportUserReasonFeedbackRequestModel);
+      if (response != null) {
+        success('success', response.payload.message);
+        return true;
+      } else {
+        failure('Error', 'Failed to report the user');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<ReportReason> reportReasons = <ReportReason>[].obs;
+  Future<bool> reportReason() async {
+    try {
+      reportReasons.clear();
+      ReportUserForBlockOptionsResponseModel? response =
+          await ReportReasonProvider().reportReason();
+      if (response != null) {
+        success('success', response.payload.message);
+        reportReasons.addAll(response.payload.data);
+        return true;
+      } else {
+        failure('Error', 'Failed to fetch the reasons of report');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
   }
 }
