@@ -145,17 +145,14 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           controller.userRegistrationRequest.mobile = value;
                         }, fontSize),
 
-                        
                         buildTextField("Address", (value) {
                           controller.userRegistrationRequest.address = value;
-                         
+
                           if (debounce?.isActive ?? false) {
                             debounce?.cancel();
                           }
 
-                     
                           debounce = Timer(Duration(milliseconds: 1000), () {
-                          
                             fetchLatLong();
                           });
                         }, fontSize),

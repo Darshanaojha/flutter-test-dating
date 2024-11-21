@@ -247,12 +247,128 @@ void editMessage(int index) {
       },
     );
   }
+  void showUserOptionsDialog() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('User Options'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text('Block User'),
+              onTap: () {
+                // Block the user (You can add your block logic here)
+                Navigator.pop(context);
+                success('User Blocked', 'The user has been blocked.'
+                    );
+              },
+            ),
+            ListTile(
+              title: Text('Report User'),
+              onTap: () {
+                // Show report reason form
+                Navigator.pop(context);
+                showReportUserDialog();
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+void showReportUserDialog() {
+  final TextEditingController descriptionController = TextEditingController();
+  String? selectedReason;
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder( 
+        builder: (BuildContext context, StateSetter setState) {
+          return AlertDialog(
+            title: Text('Report User'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButton<String>(
+                  hint: Text('Select Reason'),
+                  value: selectedReason,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedReason = newValue;
+                    });
+                  },
+                  items: <String>['Harassment', 'Spam', 'Inappropriate Content', 'Other']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+                SizedBox(height: 10),
+                if (selectedReason != null) 
+                  TextField(
+                    controller: descriptionController,
+                    cursorColor: AppColors.cursorColor,
+                    maxLength: 60,
+                    decoration: InputDecoration(
+                      hintText: 'Describe the issue...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: AppColors.textColor),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  // Ensure both a reason and description are provided before submitting
+                  if (selectedReason != null && descriptionController.text.isNotEmpty) {
+                    String reportDescription = descriptionController.text;
+
+                    Navigator.pop(context);
+                    success('Report Submitted', 'The user has been reported.');
+                  } else {
+                    failure('Error', 'Please select a reason and provide a description.');
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                  backgroundColor: AppColors.buttonColor,
+                  foregroundColor: AppColors.textColor,
+                ),
+                child: Text('Submit Report'),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
+
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        
         backgroundColor: AppColors.primaryColor,
+        
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -308,9 +424,11 @@ void editMessage(int index) {
             icon: Icon(Icons.video_call, color: AppColors.iconColor),
             onPressed: initiateVideoCall,
           ),
+          IconButton(onPressed: (){showUserOptionsDialog();}, icon: Icon(Icons.info, color: AppColors.inactiveColor,)),
         ],
       ),
       body: Column(
+        
         children: [
           if (isLoading)
             Center(
