@@ -31,6 +31,8 @@ import '../Models/RequestModels/edit_message_request_model.dart';
 import '../Models/RequestModels/estabish_connection_request_model.dart';
 import '../Models/RequestModels/forget_password_request_model.dart';
 import '../Models/RequestModels/forget_password_verification_request_model.dart';
+import '../Models/RequestModels/liked_by_request_model.dart';
+import '../Models/RequestModels/pin_profile_pic_request_model.dart';
 import '../Models/RequestModels/registration_otp_request_model.dart';
 import '../Models/RequestModels/registration_otp_verification_request_model.dart';
 import '../Models/RequestModels/report_user_reason_feedback_request_model.dart';
@@ -44,6 +46,7 @@ import '../Models/ResponseModels/ProfileResponse.dart';
 import '../Models/ResponseModels/all_active_user_resposne_model.dart';
 import '../Models/ResponseModels/block_user_response_model.dart';
 import '../Models/ResponseModels/chat_history_response_model.dart';
+import '../Models/ResponseModels/connected_user_response_model.dart';
 import '../Models/ResponseModels/delete_message_response_model.dart';
 import '../Models/ResponseModels/edit_message_response_model.dart';
 import '../Models/ResponseModels/establish_connection_response_model.dart';
@@ -52,6 +55,9 @@ import '../Models/ResponseModels/forget_password_verification_response_model.dar
 import '../Models/ResponseModels/get_all_country_response_model.dart';
 import '../Models/ResponseModels/get_all_desires_model_response.dart';
 import '../Models/ResponseModels/get_report_user_options_response_model.dart';
+import '../Models/ResponseModels/like_history_response_model.dart';
+import '../Models/ResponseModels/liked_by_response_model.dart';
+import '../Models/ResponseModels/pin_profile_pic_response_model.dart';
 import '../Models/ResponseModels/registration_otp_response_model.dart';
 import '../Models/ResponseModels/registration_otp_verification_response_model.dart';
 import '../Models/ResponseModels/report_user_reason_feedback_response_model.dart';
@@ -65,6 +71,7 @@ import '../Models/ResponseModels/user_registration_response_model.dart';
 import '../Models/ResponseModels/user_suggestions_response_model.dart';
 import '../Providers/block_user_provider.dart';
 import '../Providers/chat_message_page_provider.dart';
+import '../Providers/connected_user_provider.dart';
 import '../Providers/delete_message_provider.dart';
 import '../Providers/edit_message_provider.dart';
 import '../Providers/established_connection_message_provider.dart';
@@ -75,6 +82,9 @@ import '../Providers/fetch_all_packages_provider.dart';
 import '../Providers/fetch_benefits_provider.dart';
 import '../Providers/fetch_sub_genders_provider.dart';
 import '../Providers/home_page_provider.dart';
+import '../Providers/likes_history_provider.dart';
+import '../Providers/pin_profile_pic_provider.dart';
+import '../Providers/post_like_provider.dart';
 import '../Providers/registration_provider.dart';
 import '../Providers/report_against_user_provider.dart';
 import '../Providers/report_reason_provider.dart';
@@ -1026,6 +1036,91 @@ class Controller extends GetxController {
         failure('Error', 'Failed to fetch the user suggestions');
         return false;
       }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> postLike(LikeModel likeModel) async {
+    try {
+      LikedByResponseModel? response =
+          await PostLikeProvider().postLike(likeModel);
+      if (response != null && response.payload != null) {
+        success('Success', response.payload!.message);
+        return true;
+      }
+
+      failure('Error', 'Failed to process the like request.');
+      return false;
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<Connection> connections = <Connection>[].obs;
+
+  Future<bool> connectedUser() async {
+    try {
+      connections.clear();
+      ConnectedUserResponseModel? response =
+          await ConnectedUserProvider().connectedUser();
+      if (response != null && response.payload != null) {
+        success('Success', response.payload!.message);
+        if (response.payload!.data != null &&
+            response.payload!.data!.isNotEmpty) {
+          connections.addAll(response.payload!.data!);
+          return true;
+        } else {
+          return true;
+        }
+      }
+      failure('Error', 'Failed to fetch the connections.');
+      return false;
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<LikeData> likes = <LikeData>[].obs;
+  Future<bool> likedHistory() async {
+    try {
+      likes.clear();
+      LikeHistoryResponse? response =
+          await LikesHistoryProvider().likedHistory();
+      if (response != null && response.payload != null) {
+        success('Success', response.payload!.message);
+        if (response.payload!.data != null &&
+            response.payload!.data!.isNotEmpty) {
+          likes.addAll(response.payload!.data!);
+          return true;
+        } else {
+          return true;
+        }
+      }
+
+      failure('Error', 'Failed to fetch the connections');
+      return false;
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> pinProfilePic(
+      PinProfilePicRequestModel pinProfilePicRequestModel) async {
+    try {
+      PinProfilePicResponseModel? response = await PinProfilePicProvider()
+          .pinProfilePic(pinProfilePicRequestModel);
+      if (response != null && response.payload != null) {
+        success('Success', response.payload!.message);
+        return true;
+      }
+
+      failure('Error', 'Failed to pin the profile pic.');
+      return false;
     } catch (e) {
       failure('Error', e.toString());
       return false;
