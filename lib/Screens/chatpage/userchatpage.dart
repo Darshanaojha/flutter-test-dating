@@ -324,25 +324,50 @@ void showReportUserDialog() {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Dropdown to select the reason
-              DropdownButton<String>(
-                hint: Text("Select Reason"),
-                value: controller.reportUserReasonFeedbackRequestModel
-                        .reasonId.isNotEmpty
-                    ? controller.reportUserReasonFeedbackRequestModel.reasonId
-                    : null,
-                onChanged: (String? value) {
-                  // When a reason is selected, update 'isselected' to true
-                  controller.reportUserReasonFeedbackRequestModel.reasonId = value ?? '';
-                  isselected.value = value != null && value.isNotEmpty; // Toggle isselected
-                },
-                items: controller.reportReasons
-                    .map<DropdownMenuItem<String>>((ReportReason value) {
-                  return DropdownMenuItem<String>(
-                    value: value.id, // Assuming 'id' is a String
-                    child: Text(value.title), // Display the title in the dropdown
+              // Button to select the reason
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.black,
+                  backgroundColor: Colors.transparent, // Text color
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: BorderSide(color: AppColors.activeColor, width: 2),
+                  ),
+                ),
+                onPressed: () {
+                  // Open bottom sheet when button is pressed
+                  showBottomSheet(
+                    context: context,
+                    label: "Select Reason",
+                    options: controller.reportReasons.map((reason) => reason.title).toList(),
+                    onSelected: (String? value) {
+                      if (value != null && value.isNotEmpty) {
+                        // Update the selected reason in the controller model
+                        controller.reportUserReasonFeedbackRequestModel.reasonId = value;
+                        isselected.value = true; // Mark as selected
+                      } else {
+                        isselected.value = false;
+                      }
+                    },
                   );
-                }).toList(),
+                },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min, // Ensures the row takes up only as much space as needed
+                  children: [
+                    Text(
+                      controller.reportUserReasonFeedbackRequestModel.reasonId.isEmpty
+                          ? 'Select Reason'
+                          : controller.reportUserReasonFeedbackRequestModel.reasonId,
+                      style: AppTextStyles.bodyText,
+                    ),
+                    SizedBox(width: 8), // Space between the text and the icon
+                    Icon(
+                      Icons.arrow_drop_down, // Down arrow icon
+                      color: AppColors.activeColor, // Icon color
+                    ),
+                  ],
+                ),
               ),
               SizedBox(height: 10),
 
@@ -394,13 +419,57 @@ void showReportUserDialog() {
                 foregroundColor: AppColors.textColor,
               ),
               child: Text('Submit Report'),
-            )
+            ),
           ],
         );
       });
     },
   );
 }
+
+// Function to show the bottom sheet with a list of radio buttons
+void showBottomSheet({
+  required BuildContext context,
+  required String label,
+  required List<String> options,
+  required Function(String?) onSelected,
+}) {
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: AppTextStyles.bodyText.copyWith(fontSize: 18),
+            ),
+            SizedBox(height: 10),
+            Expanded(
+              child: ListView(
+                children: List.generate(options.length, (index) {
+                  return RadioListTile<String>(
+                    title: Text(options[index], style: AppTextStyles.bodyText),
+                    value: options[index],
+                    groupValue: controller.reportUserReasonFeedbackRequestModel.reasonId,
+                    onChanged: (String? value) {
+                      onSelected(value);
+                      Navigator.pop(context);
+                    },
+                    activeColor: AppColors.activeColor,
+                  );
+                }),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {

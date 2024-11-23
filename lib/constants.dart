@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 const encryptionkey = "flamrpisyst2024!";
-const baseurl = "http://192.168.1.45/dating_backend_springboot/admin";
+const baseurl = "http://192.168.1.12/dating_backend_springboot/admin";
 const registerUrl = "Authentication/register";
 const loginUrl = "Authentication/login";
 const profileUrl = "Authentication/profile";

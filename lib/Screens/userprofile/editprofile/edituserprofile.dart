@@ -396,14 +396,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                           onChanged: onNickNameChanged,
                         ),
                         InfoField(
-                          initialValue: controller
-                                  .userRegistrationRequest.subGender.isNotEmpty
-                              ? controller.userRegistrationRequest.subGender
-                              : controller.userProfileUpdateRequest.subGender,
-                          label: 'Sexuality',
-                          onChanged: onSexualityChanged,
-                        ),
-                        InfoField(
                           initialValue:
                               controller.userRegistrationRequest.bio.isNotEmpty
                                   ? controller.userRegistrationRequest.bio
