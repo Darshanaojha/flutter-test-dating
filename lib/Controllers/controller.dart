@@ -40,10 +40,12 @@ import '../Models/RequestModels/update_emailid_otp_verification_request_model.da
 import '../Models/RequestModels/update_emailid_request_model.dart';
 import '../Models/RequestModels/update_lat_long_request_model.dart';
 import '../Models/RequestModels/update_profile_photo_request_model.dart';
+import '../Models/RequestModels/update_visibility_status_request_model.dart';
 import '../Models/RequestModels/user_profile_update_request_model.dart';
 import '../Models/RequestModels/user_registration_request_model.dart';
 import '../Models/ResponseModels/ProfileResponse.dart';
 import '../Models/ResponseModels/all_active_user_resposne_model.dart';
+import '../Models/ResponseModels/app_details_response_model.dart';
 import '../Models/ResponseModels/block_user_response_model.dart';
 import '../Models/ResponseModels/chat_history_response_model.dart';
 import '../Models/ResponseModels/connected_user_response_model.dart';
@@ -66,6 +68,7 @@ import '../Models/ResponseModels/update_emailid_otp_verification_response_model.
 import '../Models/ResponseModels/update_emailid_response_model.dart';
 import '../Models/ResponseModels/update_lat_long_response_model.dart';
 import '../Models/ResponseModels/update_profile_photo_response_model.dart';
+import '../Models/ResponseModels/update_visibility_status_response_model.dart';
 import '../Models/ResponseModels/user_login_response_model.dart';
 import '../Models/ResponseModels/user_profile_update_response_model.dart';
 import '../Models/ResponseModels/user_registration_response_model.dart';
@@ -85,6 +88,7 @@ import '../Providers/fetch_benefits_provider.dart';
 import '../Providers/fetch_sub_genders_provider.dart';
 import '../Providers/home_page_provider.dart';
 import '../Providers/likes_history_provider.dart';
+import '../Providers/master_setting_provider.dart';
 import '../Providers/pin_profile_pic_provider.dart';
 import '../Providers/post_like_provider.dart';
 import '../Providers/registration_provider.dart';
@@ -95,6 +99,7 @@ import '../Providers/update_emailid_provider.dart';
 import '../Providers/update_latitude_longitude_provider.dart';
 import '../Providers/update_profile_photo_provider.dart';
 import '../Providers/update_profile_provider.dart';
+import '../Providers/update_visibility_status_provider.dart';
 import '../Providers/user_registration_provider.dart';
 import '../Providers/user_suggestions_provider.dart';
 import '../Screens/login.dart';
@@ -743,7 +748,7 @@ class Controller extends GetxController {
     nickname: "",
     gender: "",
     subGender: "",
-    lang:[],
+    lang: [],
     interest: [],
     bio: '',
     emailAlerts: '',
@@ -1147,6 +1152,44 @@ class Controller extends GetxController {
       }
 
       failure('Error', 'Failed to pin the profile pic.');
+      return false;
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  AppDetailsData? appDetails;
+  Future<bool> masterSetting() async {
+    try {
+      AppDetailsResponse? response =
+          await MasterSettingProvider().masterSetting();
+      if (response != null && response.payload != null) {
+        success('Success', response.payload!.msg);
+        appDetails = response.payload?.data;
+        return true;
+      }
+
+      failure('Error', 'Failed to fetch the application settings');
+      return false;
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> updateVisibilityStatus(
+      UpdateVisibilityStatusRequestModel
+          updateVisibilityStatusRequestModel) async {
+    try {
+      UpdateVisibilityStatusResponseModel? response =
+          await UpdateVisibilityStatusProvider()
+              .updateVisibilityStatus(updateVisibilityStatusRequestModel);
+      if (response != null && response.payload != null) {
+        success('Success', response.payload!.message);
+        return true;
+      }
+      failure('Error', 'Failed to fetch the application settings');
       return false;
     } catch (e) {
       failure('Error', e.toString());
