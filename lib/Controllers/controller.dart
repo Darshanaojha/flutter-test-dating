@@ -258,6 +258,28 @@ class Controller extends GetxController {
     }
   }
 
+  RxList<Language> language = <Language>[].obs;
+
+  Future<bool> fetchlang() async {
+    try {
+      language.clear();
+
+      final GetAllLanguagesResponse? response =
+          await FetchAllLanguageProvider().fetchlang();
+
+      if (response != null && response.payload.data.isNotEmpty) {
+        language.addAll(response.payload.data);
+        success('Success', 'Languages fetched successfully');
+        return true;
+      } else {
+        failure('Error', 'No Languages found in the response');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
 
   RxList<Message> messages = <Message>[].obs;
   Future<bool> chatHistory() async {
