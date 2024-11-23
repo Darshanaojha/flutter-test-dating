@@ -51,6 +51,7 @@ import '../Models/ResponseModels/forget_password_response_model.dart';
 import '../Models/ResponseModels/forget_password_verification_response_model.dart';
 import '../Models/ResponseModels/get_all_country_response_model.dart';
 import '../Models/ResponseModels/get_all_desires_model_response.dart';
+import '../Models/ResponseModels/get_all_language_response_model.dart';
 import '../Models/ResponseModels/get_report_user_options_response_model.dart';
 import '../Models/ResponseModels/registration_otp_response_model.dart';
 import '../Models/ResponseModels/registration_otp_verification_response_model.dart';
@@ -71,6 +72,7 @@ import '../Providers/established_connection_message_provider.dart';
 import '../Providers/fetch_all_active_user_provider.dart';
 import '../Providers/fetch_all_countries_provider.dart';
 import '../Providers/fetch_all_genders_provider.dart';
+import '../Providers/fetch_all_language_provider.dart';
 import '../Providers/fetch_all_packages_provider.dart';
 import '../Providers/fetch_benefits_provider.dart';
 import '../Providers/fetch_sub_genders_provider.dart';
@@ -121,6 +123,7 @@ class Controller extends GetxController {
     desires: [],
     interest: '',
     bio: '',
+    lang: [],
     photos: [],
     packageId: '',
     emailAlerts: '',
@@ -237,6 +240,29 @@ class Controller extends GetxController {
         return true;
       } else {
         failure('Error', 'No countries found in the response');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<Language> language = <Language>[].obs;
+
+  Future<bool> fetchlang() async {
+    try {
+      language.clear();
+
+      final GetAllLanguagesResponse? response =
+          await FetchAllLanguageProvider().fetchlang();
+
+      if (response != null && response.payload.data.isNotEmpty) {
+        language.addAll(response.payload.data);
+        success('Success', 'Languages fetched successfully');
+        return true;
+      } else {
+        failure('Error', 'No Languages found in the response');
         return false;
       }
     } catch (e) {
@@ -707,6 +733,7 @@ class Controller extends GetxController {
     nickname: "",
     gender: "",
     subGender: "",
+    lang:[],
     interest: [],
     bio: '',
     emailAlerts: '',

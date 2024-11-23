@@ -13,6 +13,7 @@ class UserProfileUpdateRequest {
    String nickname;
    String gender;
    String subGender;
+   List<int>lang;
    List<dynamic> interest;
    String bio;
    String emailAlerts;
@@ -33,6 +34,7 @@ class UserProfileUpdateRequest {
     required this.subGender,
     required this.interest,
     required this.bio,
+    required this.lang,
     required this.emailAlerts,
     required this.preferences,
     required this.desires,
@@ -53,6 +55,7 @@ class UserProfileUpdateRequest {
       subGender: json['subgender'],
       interest: json['interest'],
       bio: json['bio'],
+      lang: json['lang'],
       emailAlerts: json['emailalerts'],
       preferences: json['preferences'],
       desires: json['desires'],
@@ -75,6 +78,7 @@ class UserProfileUpdateRequest {
       'subgender': subGender,
       'interest': interest,
       'bio': bio,
+      'lang':lang,
       'emailalerts': emailAlerts,
       'preferences': preferences,
       'desires': desires,
@@ -125,4 +129,5 @@ class UserProfileUpdateRequest {
     final  datePattern = RegExp(r'^\d{4}/\d{2}/\d{2}$'); 
     return datePattern.hasMatch(date);
   }
+  
 }

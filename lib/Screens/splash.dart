@@ -49,6 +49,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
       await controller.fetchSafetyGuidelines();
       await controller.fetchAllPackages();
       await  controller.reportReason();
+      await controller.fetchlang();
 
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();

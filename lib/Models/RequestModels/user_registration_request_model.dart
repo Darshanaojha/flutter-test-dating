@@ -18,6 +18,7 @@ class UserRegistrationRequest {
    List<int> preferences;
    List<int> desires;
    String interest;
+   List<int> lang;
    String bio;
    List<String> photos;
    String packageId;
@@ -36,6 +37,7 @@ class UserRegistrationRequest {
     required this.countryId,
     required this.city,
     required this.dob,
+    required this.lang,
     required this.nickname,
     required this.gender,
     required this.subGender,
@@ -70,6 +72,7 @@ class UserRegistrationRequest {
       desires: List<int>.from(json['desires'] ?? []), 
       interest: json['interest'],
       bio: json['bio'],
+      lang: List<int>.from(json['lang']),
       photos: List<String>.from(json['photos'] ?? []),
       packageId: json['package_id'],
       emailAlerts: json['email_alerts'],
@@ -98,6 +101,7 @@ class UserRegistrationRequest {
       'desires': desires,  
       'interest': interest,
       'bio': bio,
+      'lang':lang,
       'photos': photos, 
       'package_id': packageId,
       'email_alerts': emailAlerts,
@@ -137,7 +141,7 @@ class UserRegistrationRequest {
     }
   }
 
-  // Validate Lists (Preferences, Desires)
+  // Validate Lists (Preferences, Desires, lang)
   void validateList(List<int> list, String fieldName) {
     if (list.isEmpty) {
       throw ArgumentError("$fieldName cannot be empty.");
@@ -178,6 +182,7 @@ class UserRegistrationRequest {
       validateCoordinate(latitude, "Latitude");
       validateCoordinate(longitude, "Longitude");
       validateDateFormat(dob);
+      validateList(lang,"lang");
       validateList(preferences, "Preferences");
       validateList(desires, "Desires");
       validatePhotos(photos);

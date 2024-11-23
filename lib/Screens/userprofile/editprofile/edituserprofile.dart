@@ -30,7 +30,6 @@ class EditProfilePageState extends State<EditProfilePage> {
   bool incognitoMode = false;
   RxBool emailAlerts = true.obs;
   bool optOutOfPingNote = true;
-
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
@@ -50,12 +49,6 @@ class EditProfilePageState extends State<EditProfilePage> {
   RxList<Gender> genders = <Gender>[].obs;
   RxList<SubGenderRequest> subGenders = <SubGenderRequest>[].obs;
   Rx<String> selectedOption = ''.obs;
-
-  // Future<void> fetchSubGender(SubGenderRequest request) async {
-  //   await Future.delayed(Duration(seconds: 2));
-  //   // Add dummy sub-gender data for this example
-  //   subGenders.add(SubGenderRequest(genderId: request.genderId));
-  // }
 
   List<String> interestsList = [];
   RxList<bool> preferencesSelectedOptions = <bool>[].obs;
@@ -93,6 +86,7 @@ class EditProfilePageState extends State<EditProfilePage> {
     controller.fetchDesires();
     controller.fetchPreferences();
     controller.fetchGenders();
+    controller.fetchlang();
     loadImages();
     genderIds.addAll(controller.genders.map((gender) => gender.id));
     for (String genderId in genderIds) {
@@ -338,7 +332,10 @@ class EditProfilePageState extends State<EditProfilePage> {
                               setState(() {
                                 isLoading = false;
                               });
-                              emailAlerts.value==true?controller.userProfileUpdateRequest.emailAlerts="1":"0";
+                              emailAlerts.value == true
+                                  ? controller.userProfileUpdateRequest
+                                      .emailAlerts = "1"
+                                  : "0";
                               controller.updateProfile(
                                   controller.userProfileUpdateRequest);
                               success('Updated', 'Profile Saved!');
@@ -460,6 +457,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                 : Container(); // Empty container if lat-long is not fetched
                           }
                         }),
+                        languages(context),
 
                         Card(
                           elevation: 8,
@@ -513,11 +511,11 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                     .userProfileUpdateRequest
                                                     .gender = '';
                                               }
-                                             
-                                                controller.fetchSubGender(
-                                                    SubGenderRequest(
-                                                        genderId: parsedGenderId.toString()));
-                                          
+
+                                              controller.fetchSubGender(
+                                                  SubGenderRequest(
+                                                      genderId: parsedGenderId
+                                                          .toString()));
                                             },
                                             activeColor: AppColors.buttonColor,
                                           );
@@ -530,6 +528,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                             ),
                           ),
                         ),
+
                         Obx(() {
                           // Handle loading state for both genders and subGenders
                           // if (controller.genders.isEmpty || controller.subGenders.isEmpty) {
@@ -812,10 +811,11 @@ class EditProfilePageState extends State<EditProfilePage> {
                           style: AppTextStyles.subheadingText
                               .copyWith(fontSize: getResponsiveFontSize(0.03))),
                       SizedBox(height: 10),
-                       PrivacyToggle(
+                      PrivacyToggle(
                         label: "Email Alert",
                         value: emailAlerts.value,
-                        onChanged: (val) => setState(() => emailAlerts.value= val),
+                        onChanged: (val) =>
+                            setState(() => emailAlerts.value = val),
                       ),
                       PrivacyToggle(
                         label: "Hide me on Flame",
@@ -890,7 +890,6 @@ Widget buildRelationshipStatusInterestStep(
     controller.userProfileUpdateRequest.desires = selectedDesireIds;
   }
 
-  // Toggle selection for desires
   void handleChipSelection(int index) {
     selectedOptions[index] = !selectedOptions[index];
     updateSelectedStatus();
@@ -1085,6 +1084,225 @@ Widget buildRelationshipStatusInterestStep(
     ),
   );
 }
+
+RxList<String> selectedLanguages = <String>[].obs;
+RxList<int> selectedLanguagesId = <int>[].obs; // For storing selected language IDs
+RxString searchQuery = ''.obs;
+
+Widget languages(BuildContext context) {
+ 
+  return Card(
+    elevation: 8,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Language Selection Row (Button with Down Arrow)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  'Select Languages',
+                  style: TextStyle(fontSize: 16),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: BorderSide(color: Colors.blue, width: 2),
+                  ),
+                ),
+                onPressed: () {
+                  // Open bottom sheet when button is pressed
+                  showLanguageSelectionBottomSheet(context);
+                },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Select Languages',
+                      // selectedLanguages.isEmpty
+                      //     ? 'Select Languages'
+                      //     : selectedLanguages.join(', '),
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    SizedBox(width: 8),
+                    Icon(
+                      Icons.arrow_drop_down,
+                      color: Colors.blue,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          // Display the selected languages as chips
+          SizedBox(height: 10),
+          Obx(() {
+            return Wrap(
+              spacing: 8, // Horizontal space between chips
+              runSpacing: 8, // Vertical space between chips
+              children: selectedLanguages.map((language) {
+                return Chip(
+                  label: Text(language),
+                  deleteIcon: Icon(Icons.cancel, size: 18), // Delete icon
+                  onDeleted: () {
+                    // Remove language from the selected list when deleted
+                    selectedLanguages.remove(language);
+                    updateSelectedLanguageIds();
+                  },
+                  backgroundColor: Colors.blue.withOpacity(0.1),
+                  labelStyle: TextStyle(fontSize: 14),
+                );
+              }).toList(),
+            );
+          }),
+        ],
+      ),
+    ),
+  );
+}
+final  Controller controller = Get.put(Controller());
+// Update the selectedLanguageIds based on selectedLanguages
+void updateSelectedLanguageIds() {
+  selectedLanguagesId.clear();
+  for (int i = 0; i < controller.language.length; i++) {
+    if (selectedLanguages.contains(controller.language[i].title)) {
+      selectedLanguagesId.add(int.parse(controller.language[i].id));
+    }
+  }
+  controller.userProfileUpdateRequest.lang = selectedLanguagesId;
+}
+
+void showLanguageSelectionBottomSheet(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Select Languages',
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 10),
+
+            // Search input field
+            TextField(
+              onChanged: (query) {
+              
+                searchQuery.value = query;
+              },
+              decoration: InputDecoration(
+                hintText: 'Search Languages...',
+                border: OutlineInputBorder(),
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              ),
+            ),
+            SizedBox(height: 10),
+
+          
+            Obx(() {
+              // Filter languages based on the search query
+               var filteredLanguages = controller.language
+                .where((language) => language.title.toLowerCase().contains(searchQuery.value.toLowerCase()))
+                .toList();
+              return Expanded(
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3, // Display 3 languages per row
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: filteredLanguages.length,
+                  itemBuilder: (context, index) {
+                    String language = filteredLanguages[index].title;
+                    bool isSelected = selectedLanguages.contains(language);
+
+                    return ChoiceChip(
+                      label: Text(language),
+                      selected: isSelected,
+                      selectedColor: Colors.blue,
+                      backgroundColor: Colors.grey[200],
+                      labelStyle: TextStyle(
+                        color: isSelected ? Colors.white : Colors.black,
+                        fontSize: 14,
+                      ),
+                      onSelected: (bool selected) {
+                        if (selected) {
+                          // Add language to the selectedLanguages list
+                          selectedLanguages.add(language);
+                        } else {
+                          // Remove language from the selectedLanguages list
+                          selectedLanguages.remove(language);
+                        }
+                        updateSelectedLanguageIds(); // Update IDs
+                      },
+                    );
+                  },
+                ),
+              );
+            }),
+            SizedBox(height: 10),
+            Obx(() {
+              return SingleChildScrollView(
+                scrollDirection:
+                    Axis.horizontal, // Make it horizontal scrollable
+                child: Wrap(
+                  spacing: 8, // Horizontal space between chips
+                  runSpacing: 8, // Vertical space between chips
+                  children: selectedLanguages.map((language) {
+                    return Chip(
+                      label: Text(language),
+                      deleteIcon: Icon(Icons.cancel, size: 18), // Delete icon
+                      onDeleted: () {
+                        selectedLanguages.remove(language);
+                        updateSelectedLanguageIds(); // Update IDs
+                     
+                      },
+                      backgroundColor: Colors.blue.withOpacity(0.1),
+                      labelStyle: TextStyle(fontSize: 14),
+                    );
+                  }).toList(),
+                ),
+              );
+            }),
+
+            // Done Button
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: ElevatedButton(
+                onPressed: () {
+                updateSelectedLanguageIds();
+                  Navigator.pop(context);
+                   print('-------===-----=======-------${selectedLanguagesId}');
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                ),
+                child: Text('Done'),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 
 void showFullImageDialog(BuildContext context, String imagePath) {
   showDialog(
