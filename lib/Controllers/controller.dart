@@ -989,4 +989,46 @@ class Controller extends GetxController {
       return false;
     }
   }
+
+  RxMap<String, RxList<User>> userSuggestionsMap = <String, RxList<User>>{
+    'desireBase': <User>[].obs,
+    'locationBase': <User>[].obs,
+    'preferenceBase': <User>[].obs,
+  }.obs;
+
+  Future<bool> userSuggestions() async {
+    try {
+      UserSuggestionsResponseModel? response =
+          await UserSuggestionsProvider().userSuggestions();
+      if (response != null && response.payload != null) {
+        success('Success', response.payload!.message);
+
+        if (response.payload!.desireBase != null &&
+            response.payload!.desireBase!.isNotEmpty) {
+          userSuggestionsMap['desireBase']!
+              .assignAll(response.payload!.desireBase!);
+        }
+
+        if (response.payload!.locationBase != null &&
+            response.payload!.locationBase!.isNotEmpty) {
+          userSuggestionsMap['locationBase']!
+              .assignAll(response.payload!.locationBase!);
+        }
+
+        if (response.payload!.preferenceBase != null &&
+            response.payload!.preferenceBase!.isNotEmpty) {
+          userSuggestionsMap['preferenceBase']!
+              .assignAll(response.payload!.preferenceBase!);
+        }
+
+        return true;
+      } else {
+        failure('Error', 'Failed to fetch the user suggestions');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
 }
