@@ -1,14 +1,13 @@
 class ChatHistoryResponse {
-   bool success;
-   Payload payload;
-   Error error;
+  bool success;
+  Payload payload;
+  Error error;
 
   ChatHistoryResponse({
     required this.success,
     required this.payload,
     required this.error,
   });
-
 
   factory ChatHistoryResponse.fromJson(Map<String, dynamic> json) {
     return ChatHistoryResponse(
@@ -17,7 +16,6 @@ class ChatHistoryResponse {
       error: Error.fromJson(json['error']),
     );
   }
-
 
   Map<String, dynamic> toJson() {
     return {
@@ -67,7 +65,6 @@ class Message {
   final String deletedBySender;
   final String deletedByReceiver;
   final String isEdited;
-  final String userName;
 
   Message({
     required this.id,
@@ -81,26 +78,22 @@ class Message {
     required this.deletedBySender,
     required this.deletedByReceiver,
     required this.isEdited,
-    required this.userName,
   });
 
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
-      id: json['id'],
-      senderId: json['sender_id'],
-      receiverId: json['receiver_id'],
-      message: json['message'],
-      messageType: json['message_type'],
-      created: json['created'],
-      updated: json['updated'],
-      status: json['status'],
-      deletedBySender: json['deleted_by_sender'],
-      deletedByReceiver: json['deleted_by_receiver'],
-      isEdited: json['is_edited'],
-      userName: json['user_name'],
-    );
+        id: json['id'],
+        senderId: json['sender_id'],
+        receiverId: json['receiver_id'],
+        message: json['message'],
+        messageType: json['message_type'],
+        created: json['created'],
+        updated: json['updated'],
+        status: json['status'],
+        deletedBySender: json['deleted_by_sender'],
+        deletedByReceiver: json['deleted_by_receiver'],
+        isEdited: json['is_edited']);
   }
-
 
   Map<String, dynamic> toJson() {
     return {
@@ -114,8 +107,7 @@ class Message {
       'status': status,
       'deleted_by_sender': deletedBySender,
       'deleted_by_receiver': deletedByReceiver,
-      'is_edited': isEdited,
-      'user_name': userName,
+      'is_edited': isEdited
     };
   }
 }
@@ -128,7 +120,6 @@ class Error {
     required this.code,
     required this.message,
   });
-
 
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
