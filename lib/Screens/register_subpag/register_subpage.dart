@@ -480,6 +480,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                             } else {
                               controller.userRegistrationRequest.gender = '';
                             }
+                            controller.fetchSubGender(
+                                                    SubGenderRequest(
+                                                        genderId: parsedGenderId.toString()));
                           },
                           activeColor: AppColors.buttonColor,
                         );

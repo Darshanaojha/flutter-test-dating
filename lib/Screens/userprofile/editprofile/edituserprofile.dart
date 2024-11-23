@@ -43,7 +43,6 @@ class EditProfilePageState extends State<EditProfilePage> {
     });
   }
 
-  final selectedGender = Rx<Gender?>(null);
   List<Category> categories = [];
   RxList<Desire> desiresList = <Desire>[].obs;
 
@@ -51,12 +50,11 @@ class EditProfilePageState extends State<EditProfilePage> {
   RxList<SubGenderRequest> subGenders = <SubGenderRequest>[].obs;
   Rx<String> selectedOption = ''.obs;
 
-  Future<void> fetchSubGender(SubGenderRequest request) async {
-    // Simulate fetching sub-gender data asynchronously
-    await Future.delayed(Duration(seconds: 2));
-    // Add dummy sub-gender data for this example
-    subGenders.add(SubGenderRequest(genderId: request.genderId));
-  }
+  // Future<void> fetchSubGender(SubGenderRequest request) async {
+  //   await Future.delayed(Duration(seconds: 2));
+  //   // Add dummy sub-gender data for this example
+  //   subGenders.add(SubGenderRequest(genderId: request.genderId));
+  // }
 
   List<String> interestsList = [];
   RxList<bool> preferencesSelectedOptions = <bool>[].obs;
@@ -216,6 +214,7 @@ class EditProfilePageState extends State<EditProfilePage> {
     double titleFontSize = screenWidth * 0.05;
     double bodyFontSize = screenWidth * 0.03;
     double chipFontSize = screenWidth * 0.03;
+    final selectedGender = Rx<Gender?>(null);
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Profile'),
@@ -460,6 +459,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                 : Container(); // Empty container if lat-long is not fetched
                           }
                         }),
+
                         Card(
                           elevation: 8,
                           shape: RoundedRectangleBorder(
@@ -471,7 +471,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                               child: Column(
                                 children: [
                                   Text('Gender'),
-                                  // Reactive loading and list display
                                   Obx(() {
                                     if (controller.genders.isEmpty) {
                                       return Center(
@@ -497,7 +496,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                                             value: gender,
                                             groupValue: selectedGender.value,
                                             onChanged: (Gender? value) {
-                                              // Update selected gender using reactive Rx
                                               selectedGender.value = value;
 
                                               // Safe parsing using tryParse
@@ -514,6 +512,11 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                     .userProfileUpdateRequest
                                                     .gender = '';
                                               }
+                                             
+                                                controller.fetchSubGender(
+                                                    SubGenderRequest(
+                                                        genderId: parsedGenderId.toString()));
+                                          
                                             },
                                             activeColor: AppColors.buttonColor,
                                           );
@@ -609,9 +612,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     iconEnabledColor: AppColors.textColor,
                                     iconDisabledColor: AppColors.inactiveColor,
                                   ),
-                                  SizedBox(height: 20),
-
-                                  // Sub-Gender Selection
+                                  SizedBox(height: 5),
                                   Column(
                                     children: List.generate(
                                         controller.subGenders.length, (index) {
@@ -627,9 +628,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                                         value: controller.subGenders[index].id,
                                         groupValue: selectedOption.value,
                                         onChanged: (String? value) {
-                                          // Update the selected option and the user's subGender
                                           selectedOption.value = value ?? '';
-                                          controller.userRegistrationRequest
+                                          controller.userProfileUpdateRequest
                                               .subGender = value ?? '';
                                         },
                                         activeColor: AppColors.buttonColor,
