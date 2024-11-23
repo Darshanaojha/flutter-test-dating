@@ -1470,16 +1470,11 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
     // onChange callback function
     void onChange(String permissionType, bool granted) {
-      // Log or perform actions when the permission is granted or denied
       if (permissionType == 'notification') {
-        // Action after notification permission changes
         print(
             "Notification permission changed: ${granted ? 'Granted' : 'Denied'}");
-        // Example: Send data to the server or update UI components
       } else if (permissionType == 'location') {
-        // Action after location permission changes
         print("Location permission changed: ${granted ? 'Granted' : 'Denied'}");
-        // Example: Send data to the server or update UI components
       }
     }
 

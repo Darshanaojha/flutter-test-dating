@@ -28,6 +28,7 @@ class EditProfilePageState extends State<EditProfilePage> {
   Timer? debounce;
   bool hideMeOnFlame = true;
   bool incognitoMode = false;
+  RxBool emailAlerts = true.obs;
   bool optOutOfPingNote = true;
 
   double getResponsiveFontSize(double scale) {
@@ -811,6 +812,11 @@ class EditProfilePageState extends State<EditProfilePage> {
                           style: AppTextStyles.subheadingText
                               .copyWith(fontSize: getResponsiveFontSize(0.03))),
                       SizedBox(height: 10),
+                       PrivacyToggle(
+                        label: "Email Alert",
+                        value: emailAlerts.value,
+                        onChanged: (val) => setState(() => controller.userProfileUpdateRequest.emailAlerts = val==true?'1':'0'),
+                      ),
                       PrivacyToggle(
                         label: "Hide me on Flame",
                         value: hideMeOnFlame,
