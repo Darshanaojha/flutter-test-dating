@@ -338,7 +338,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                               setState(() {
                                 isLoading = false;
                               });
-
+                              emailAlerts.value==true?controller.userProfileUpdateRequest.emailAlerts="1":"0";
                               controller.updateProfile(
                                   controller.userProfileUpdateRequest);
                               success('Updated', 'Profile Saved!');
@@ -815,7 +815,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                        PrivacyToggle(
                         label: "Email Alert",
                         value: emailAlerts.value,
-                        onChanged: (val) => setState(() => controller.userProfileUpdateRequest.emailAlerts = val==true?'1':'0'),
+                        onChanged: (val) => setState(() => emailAlerts.value= val),
                       ),
                       PrivacyToggle(
                         label: "Hide me on Flame",
