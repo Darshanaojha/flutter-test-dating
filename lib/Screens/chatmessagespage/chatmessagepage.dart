@@ -52,7 +52,7 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
   List<Message> getFilteredChatUsers() {
     return controller.messages
         .where((user) =>
-            user.userName.toLowerCase().contains(searchQuery.toLowerCase()))
+            user.id.toLowerCase().contains(searchQuery.toLowerCase()))
         .toList();
   }
 
@@ -172,7 +172,7 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                                 builder: (context) => ChatPage(
                                   user: {
                                     'id': message.id,
-                                    'userName': message.userName,
+                                    'userName': message.id,
                                   },
                                 ),
                               ),
@@ -226,7 +226,7 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          message.userName,
+                                          message.id,
                                           style:
                                               AppTextStyles.bodyText.copyWith(
                                             fontSize:

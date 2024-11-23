@@ -1086,11 +1086,11 @@ Widget buildRelationshipStatusInterestStep(
 }
 
 RxList<String> selectedLanguages = <String>[].obs;
-RxList<int> selectedLanguagesId = <int>[].obs; // For storing selected language IDs
+RxList<int> selectedLanguagesId =
+    <int>[].obs; // For storing selected language IDs
 RxString searchQuery = ''.obs;
 
 Widget languages(BuildContext context) {
- 
   return Card(
     elevation: 8,
     shape: RoundedRectangleBorder(
@@ -1127,7 +1127,8 @@ Widget languages(BuildContext context) {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Select Languages',
+                    Text(
+                      'Select Languages',
                       // selectedLanguages.isEmpty
                       //     ? 'Select Languages'
                       //     : selectedLanguages.join(', '),
@@ -1170,7 +1171,8 @@ Widget languages(BuildContext context) {
     ),
   );
 }
-final  Controller controller = Get.put(Controller());
+
+final Controller controller = Get.put(Controller());
 // Update the selectedLanguageIds based on selectedLanguages
 void updateSelectedLanguageIds() {
   selectedLanguagesId.clear();
@@ -1200,7 +1202,6 @@ void showLanguageSelectionBottomSheet(BuildContext context) {
             // Search input field
             TextField(
               onChanged: (query) {
-              
                 searchQuery.value = query;
               },
               decoration: InputDecoration(
@@ -1212,12 +1213,13 @@ void showLanguageSelectionBottomSheet(BuildContext context) {
             ),
             SizedBox(height: 10),
 
-          
             Obx(() {
               // Filter languages based on the search query
-               var filteredLanguages = controller.language
-                .where((language) => language.title.toLowerCase().contains(searchQuery.value.toLowerCase()))
-                .toList();
+              var filteredLanguages = controller.language
+                  .where((language) => language.title
+                      .toLowerCase()
+                      .contains(searchQuery.value.toLowerCase()))
+                  .toList();
               return Expanded(
                 child: GridView.builder(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -1241,10 +1243,10 @@ void showLanguageSelectionBottomSheet(BuildContext context) {
                       ),
                       onSelected: (bool selected) {
                         if (selected) {
-                          // Add language to the selectedLanguages list
-                          selectedLanguages.add(language);
+                          if (!selectedLanguages.contains(language)) {
+                            selectedLanguages.add(language);
+                          }
                         } else {
-                          // Remove language from the selectedLanguages list
                           selectedLanguages.remove(language);
                         }
                         updateSelectedLanguageIds(); // Update IDs
@@ -1269,7 +1271,6 @@ void showLanguageSelectionBottomSheet(BuildContext context) {
                       onDeleted: () {
                         selectedLanguages.remove(language);
                         updateSelectedLanguageIds(); // Update IDs
-                     
                       },
                       backgroundColor: Colors.blue.withOpacity(0.1),
                       labelStyle: TextStyle(fontSize: 14),
@@ -1284,9 +1285,9 @@ void showLanguageSelectionBottomSheet(BuildContext context) {
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: ElevatedButton(
                 onPressed: () {
-                updateSelectedLanguageIds();
+                  updateSelectedLanguageIds();
                   Navigator.pop(context);
-                   print('-------===-----=======-------${selectedLanguagesId}');
+                  print('-------===-----=======-------${selectedLanguagesId}');
                 },
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
@@ -1302,7 +1303,6 @@ void showLanguageSelectionBottomSheet(BuildContext context) {
     },
   );
 }
-
 
 void showFullImageDialog(BuildContext context, String imagePath) {
   showDialog(

@@ -1273,9 +1273,7 @@ Widget buildUserLanguageStep(BuildContext context) {
     controller.userRegistrationRequest.lang = selectedLanguagesId;
   }
 
-  // Handle chip selection and deselection
   void handleChipSelection(String languageTitle) {
-    // If the language is already selected, remove it, else add it
     if (selectedLanguages.contains(languageTitle)) {
       selectedLanguages.remove(languageTitle);
     } else {
