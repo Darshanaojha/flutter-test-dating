@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dating_application/Models/ResponseModels/get_all_benifites_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_desires_model_response.dart';
-import 'package:dating_application/Screens/login.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -13,7 +12,6 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/subgender_request_model.dart';
 import '../../Models/ResponseModels/get_all_gender_from_response_model.dart';
-import '../navigationbar/navigationpage.dart';
 
 class MultiStepFormPage extends StatefulWidget {
   const MultiStepFormPage({super.key});
@@ -482,6 +480,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                             } else {
                               controller.userRegistrationRequest.gender = '';
                             }
+                            controller.fetchSubGender(
+                                                    SubGenderRequest(
+                                                        genderId: parsedGenderId.toString()));
                           },
                           activeColor: AppColors.buttonColor,
                         );
@@ -1469,16 +1470,11 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
     // onChange callback function
     void onChange(String permissionType, bool granted) {
-      // Log or perform actions when the permission is granted or denied
       if (permissionType == 'notification') {
-        // Action after notification permission changes
         print(
             "Notification permission changed: ${granted ? 'Granted' : 'Denied'}");
-        // Example: Send data to the server or update UI components
       } else if (permissionType == 'location') {
-        // Action after location permission changes
         print("Location permission changed: ${granted ? 'Granted' : 'Denied'}");
-        // Example: Send data to the server or update UI components
       }
     }
 

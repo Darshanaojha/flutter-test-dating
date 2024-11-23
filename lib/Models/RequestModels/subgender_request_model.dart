@@ -5,7 +5,7 @@ class SubGenderRequest {
    String genderId;
 
   SubGenderRequest({
-    required this.genderId,
+    required this.genderId, 
   });
 
   // Factory constructor to create SubGenderRequest from JSON

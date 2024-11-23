@@ -11,7 +11,7 @@ class UpdateProfileProvider extends GetConnect {
     try {
       EncryptedSharedPreferences preferences = EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
-      
+       Get.snackbar('data', updateProfileRequest.toJson().toString());
       if (token != null && token.isNotEmpty) {
         Response response = await post(
           '$baseurl/Profile/update_profile',

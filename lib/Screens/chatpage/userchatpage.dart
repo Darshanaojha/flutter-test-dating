@@ -1,10 +1,14 @@
 import 'dart:io';
+import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:get/get.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+import '../../Models/ResponseModels/get_report_user_options_response_model.dart';
+
 class ChatPage extends StatefulWidget {
   final Map<String, dynamic> user;
 
@@ -13,7 +17,9 @@ class ChatPage extends StatefulWidget {
   @override
   ChatPageState createState() => ChatPageState();
 }
+
 class ChatPageState extends State<ChatPage> {
+  Controller controller = Get.put(Controller());
   final TextEditingController messageController = TextEditingController();
   final ImagePicker picker = ImagePicker();
   List<Map<String, dynamic>> messages = [];
@@ -33,9 +39,13 @@ class ChatPageState extends State<ChatPage> {
     var galleryStatus = await Permission.photos.request();
     var microphoneStatus = await Permission.microphone.request();
 
-    if (cameraStatus.isDenied || galleryStatus.isDenied || microphoneStatus.isDenied) {
-      Get.snackbar('Permission Denied', 'Please allow all necessary permissions.',
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: AppColors.deniedColor);
+    if (cameraStatus.isDenied ||
+        galleryStatus.isDenied ||
+        microphoneStatus.isDenied) {
+      Get.snackbar(
+          'Permission Denied', 'Please allow all necessary permissions.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.deniedColor);
     }
   }
 
@@ -47,7 +57,9 @@ class ChatPageState extends State<ChatPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Choose Camera Option", style: AppTextStyles.headingText.copyWith(fontSize: getResponsiveFontSize(0.04))),
+          title: Text("Choose Camera Option",
+              style: AppTextStyles.headingText
+                  .copyWith(fontSize: getResponsiveFontSize(0.04))),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -56,12 +68,16 @@ class ChatPageState extends State<ChatPage> {
                   foregroundColor: AppColors.textColor,
                   backgroundColor: AppColors.buttonColor, // text color
                   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
                 ),
                 onPressed: () async {
-                  Navigator.of(context).pop(await picker.pickImage(source: ImageSource.camera));
+                  Navigator.of(context)
+                      .pop(await picker.pickImage(source: ImageSource.camera));
                 },
-                child: Text("Take Photo", style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.04))),
+                child: Text("Take Photo",
+                    style: AppTextStyles.bodyText
+                        .copyWith(fontSize: getResponsiveFontSize(0.04))),
               ),
               SizedBox(height: 10),
               ElevatedButton(
@@ -69,12 +85,16 @@ class ChatPageState extends State<ChatPage> {
                   foregroundColor: AppColors.textColor,
                   backgroundColor: AppColors.buttonColor, // text color
                   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
                 ),
                 onPressed: () async {
-                  Navigator.of(context).pop(await picker.pickVideo(source: ImageSource.camera));
+                  Navigator.of(context)
+                      .pop(await picker.pickVideo(source: ImageSource.camera));
                 },
-                child: Text("Record Video", style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.04))),
+                child: Text("Record Video",
+                    style: AppTextStyles.bodyText
+                        .copyWith(fontSize: getResponsiveFontSize(0.04))),
               ),
             ],
           ),
@@ -94,7 +114,9 @@ class ChatPageState extends State<ChatPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Choose Gallery Option", style: AppTextStyles.headingText.copyWith(fontSize: getResponsiveFontSize(0.04))),
+          title: Text("Choose Gallery Option",
+              style: AppTextStyles.headingText
+                  .copyWith(fontSize: getResponsiveFontSize(0.04))),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -103,12 +125,16 @@ class ChatPageState extends State<ChatPage> {
                   foregroundColor: AppColors.textColor,
                   backgroundColor: AppColors.buttonColor, // text color
                   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
                 ),
                 onPressed: () async {
-                  Navigator.of(context).pop(await picker.pickImage(source: ImageSource.gallery));
+                  Navigator.of(context)
+                      .pop(await picker.pickImage(source: ImageSource.gallery));
                 },
-                child: Text("Pick Image", style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.04))),
+                child: Text("Pick Image",
+                    style: AppTextStyles.bodyText
+                        .copyWith(fontSize: getResponsiveFontSize(0.04))),
               ),
               SizedBox(height: 10),
               ElevatedButton(
@@ -116,12 +142,16 @@ class ChatPageState extends State<ChatPage> {
                   foregroundColor: AppColors.textColor,
                   backgroundColor: AppColors.buttonColor, // text color
                   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
                 ),
                 onPressed: () async {
-                  Navigator.of(context).pop(await picker.pickVideo(source: ImageSource.gallery));
+                  Navigator.of(context)
+                      .pop(await picker.pickVideo(source: ImageSource.gallery));
                 },
-                child: Text("Pick Video", style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.04))),
+                child: Text("Pick Video",
+                    style: AppTextStyles.bodyText
+                        .copyWith(fontSize: getResponsiveFontSize(0.04))),
               ),
             ],
           ),
@@ -183,55 +213,56 @@ class ChatPageState extends State<ChatPage> {
     });
   }
 
-void editMessage(int index) {
-  messageController.text = messages[index]['content'];
+  void editMessage(int index) {
+    messageController.text = messages[index]['content'];
 
-  // Show the bottom sheet to edit the message
-  showModalBottomSheet(
-    context: context,
-    builder: (context) {
-      return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: messageController,
-              decoration: InputDecoration(
-                hintText: "Edit your message",
-                border: OutlineInputBorder(),
+    // Show the bottom sheet to edit the message
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: messageController,
+                decoration: InputDecoration(
+                  hintText: "Edit your message",
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                if (messageController.text.isNotEmpty) {
-                  setState(() {
-                    messages.removeAt(index);
-                    messages.insert(index, {
-                      'type': 'text', 
-                      'content': messageController.text,
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {
+                  if (messageController.text.isNotEmpty) {
+                    setState(() {
+                      messages.removeAt(index);
+                      messages.insert(index, {
+                        'type': 'text',
+                        'content': messageController.text,
+                      });
+                      Navigator.pop(context);
                     });
-                    Navigator.pop(context);
-                  });
-                }
-              },
-              child: Text("Save Changes"),
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
-
+                  }
+                },
+                child: Text("Save Changes"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   void initiateVideoCall() {
-    Get.snackbar("Video Call", "Initiating video call...", snackPosition: SnackPosition.BOTTOM);
+    Get.snackbar("Video Call", "Initiating video call...",
+        snackPosition: SnackPosition.BOTTOM);
   }
 
   void initiateVoiceCall() {
-    Get.snackbar("Voice Call", "Initiating voice call...", snackPosition: SnackPosition.BOTTOM);
+    Get.snackbar("Voice Call", "Initiating voice call...",
+        snackPosition: SnackPosition.BOTTOM);
   }
 
   void showProfilePhoto() {
@@ -247,31 +278,190 @@ void editMessage(int index) {
       },
     );
   }
+
   void showUserOptionsDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('User Options'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: Text('Block User'),
+                onTap: () {
+                  controller.blockUser(controller.blockToRequestModel);
+                  Navigator.pop(context);
+                  success('User Blocked', 'The user has been blocked.');
+                },
+              ),
+              ListTile(
+                title: Text('Report User'),
+                onTap: () {
+                  // Show report reason form
+                  Navigator.pop(context);
+                  showReportUserDialog();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+RxBool isselected = false.obs;
+RxBool iswriting = false.obs;
+
+void showReportUserDialog() {
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('User Options'),
-        content: Column(
+      return Obx(() {
+        // This makes the whole dialog reactive.
+        return AlertDialog(
+          title: Text('Report User'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Button to select the reason
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.black,
+                  backgroundColor: Colors.transparent, // Text color
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: BorderSide(color: AppColors.activeColor, width: 2),
+                  ),
+                ),
+                onPressed: () {
+                  // Open bottom sheet when button is pressed
+                  showBottomSheet(
+                    context: context,
+                    label: "Select Reason",
+                    options: controller.reportReasons.map((reason) => reason.title).toList(),
+                    onSelected: (String? value) {
+                      if (value != null && value.isNotEmpty) {
+                        // Update the selected reason in the controller model
+                        controller.reportUserReasonFeedbackRequestModel.reasonId = value;
+                        isselected.value = true; // Mark as selected
+                      } else {
+                        isselected.value = false;
+                      }
+                    },
+                  );
+                },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min, // Ensures the row takes up only as much space as needed
+                  children: [
+                    Text(
+                      controller.reportUserReasonFeedbackRequestModel.reasonId.isEmpty
+                          ? 'Select Reason'
+                          : controller.reportUserReasonFeedbackRequestModel.reasonId,
+                      style: AppTextStyles.bodyText,
+                    ),
+                    SizedBox(width: 8), // Space between the text and the icon
+                    Icon(
+                      Icons.arrow_drop_down, // Down arrow icon
+                      color: AppColors.activeColor, // Icon color
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 10),
+
+              // Only show the description TextField if a reason is selected
+              if (isselected.value)
+                TextField(
+                  cursorColor: AppColors.cursorColor,
+                  maxLength: 60,
+                  decoration: InputDecoration(
+                    hintText: 'Describe the issue...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: AppColors.textColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                  ),
+                  onChanged: (value) {
+                    controller.reportUserReasonFeedbackRequestModel.reason = value;
+                    iswriting.value = value.isNotEmpty;
+                  },
+                ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: iswriting.value
+                  ? () {
+                      if (controller.reportUserReasonFeedbackRequestModel
+                              .reasonId.isNotEmpty &&
+                          controller.reportUserReasonFeedbackRequestModel
+                              .reason.isNotEmpty) {
+                        controller.reportAgainstUser(
+                            controller.reportUserReasonFeedbackRequestModel);
+                        Navigator.pop(context);
+                        success('Report Submitted', 'The user has been reported.');
+                      } else {
+                        failure('Error', 'Please select a reason and provide a description.');
+                      }
+                    }
+                  : null, // Button is disabled if iswriting.value is false
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                backgroundColor: AppColors.buttonColor,
+                foregroundColor: AppColors.textColor,
+              ),
+              child: Text('Submit Report'),
+            ),
+          ],
+        );
+      });
+    },
+  );
+}
+
+// Function to show the bottom sheet with a list of radio buttons
+void showBottomSheet({
+  required BuildContext context,
+  required String label,
+  required List<String> options,
+  required Function(String?) onSelected,
+}) {
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              title: Text('Block User'),
-              onTap: () {
-                // Block the user (You can add your block logic here)
-                Navigator.pop(context);
-                success('User Blocked', 'The user has been blocked.'
-                    );
-              },
+            Text(
+              label,
+              style: AppTextStyles.bodyText.copyWith(fontSize: 18),
             ),
-            ListTile(
-              title: Text('Report User'),
-              onTap: () {
-                // Show report reason form
-                Navigator.pop(context);
-                showReportUserDialog();
-              },
+            SizedBox(height: 10),
+            Expanded(
+              child: ListView(
+                children: List.generate(options.length, (index) {
+                  return RadioListTile<String>(
+                    title: Text(options[index], style: AppTextStyles.bodyText),
+                    value: options[index],
+                    groupValue: controller.reportUserReasonFeedbackRequestModel.reasonId,
+                    onChanged: (String? value) {
+                      onSelected(value);
+                      Navigator.pop(context);
+                    },
+                    activeColor: AppColors.activeColor,
+                  );
+                }),
+              ),
             ),
           ],
         ),
@@ -279,101 +469,19 @@ void editMessage(int index) {
     },
   );
 }
-void showReportUserDialog() {
-  final TextEditingController descriptionController = TextEditingController();
-  String? selectedReason;
-
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return StatefulBuilder( 
-        builder: (BuildContext context, StateSetter setState) {
-          return AlertDialog(
-            title: Text('Report User'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DropdownButton<String>(
-                  hint: Text('Select Reason'),
-                  value: selectedReason,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedReason = newValue;
-                    });
-                  },
-                  items: <String>['Harassment', 'Spam', 'Inappropriate Content', 'Other']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-                SizedBox(height: 10),
-                if (selectedReason != null) 
-                  TextField(
-                    controller: descriptionController,
-                    cursorColor: AppColors.cursorColor,
-                    maxLength: 60,
-                    decoration: InputDecoration(
-                      hintText: 'Describe the issue...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: AppColors.textColor),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  // Ensure both a reason and description are provided before submitting
-                  if (selectedReason != null && descriptionController.text.isNotEmpty) {
-                    String reportDescription = descriptionController.text;
-
-                    Navigator.pop(context);
-                    success('Report Submitted', 'The user has been reported.');
-                  } else {
-                    failure('Error', 'Please select a reason and provide a description.');
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                  backgroundColor: AppColors.buttonColor,
-                  foregroundColor: AppColors.textColor,
-                ),
-                child: Text('Submit Report'),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
-
-
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        
         backgroundColor: AppColors.primaryColor,
-        
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("Chat with ${widget.user['name']}",
-                style: AppTextStyles.titleText.copyWith(fontSize: getResponsiveFontSize(0.04))),
+                style: AppTextStyles.titleText
+                    .copyWith(fontSize: getResponsiveFontSize(0.04))),
             if (isUserOnline)
               Text(
                 'Online',
@@ -424,11 +532,21 @@ void showReportUserDialog() {
             icon: Icon(Icons.video_call, color: AppColors.iconColor),
             onPressed: initiateVideoCall,
           ),
-          IconButton(onPressed: (){showUserOptionsDialog();}, icon: Icon(Icons.info, color: AppColors.inactiveColor,)),
+          IconButton(
+              onPressed: () {
+                controller.reportReason().then((value) {
+                  if (value == true) {
+                    showUserOptionsDialog();
+                  }
+                });
+              },
+              icon: Icon(
+                Icons.info,
+                color: AppColors.inactiveColor,
+              )),
         ],
       ),
       body: Column(
-        
         children: [
           if (isLoading)
             Center(
@@ -478,12 +596,16 @@ void showReportUserDialog() {
                       title: message['type'] == 'text'
                           ? Text(
                               message['content'],
-                              style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.04)),
+                              style: AppTextStyles.bodyText.copyWith(
+                                  fontSize: getResponsiveFontSize(0.04)),
                             )
                           : message['type'] == 'image'
                               ? Image.file(File(message['content']))
                               : message['type'] == 'video'
-                                  ? Text("Video message", style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.04)))
+                                  ? Text("Video message",
+                                      style: AppTextStyles.bodyText.copyWith(
+                                          fontSize:
+                                              getResponsiveFontSize(0.04)))
                                   : Container(),
                     ),
                   ),
@@ -529,7 +651,8 @@ void showReportUserDialog() {
                         borderSide: BorderSide(color: AppColors.buttonColor),
                       ),
                     ),
-                    style: AppTextStyles.inputFieldText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                    style: AppTextStyles.inputFieldText
+                        .copyWith(fontSize: getResponsiveFontSize(0.03)),
                   ),
                 ),
                 IconButton(

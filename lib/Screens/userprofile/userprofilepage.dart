@@ -5,6 +5,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../Controllers/controller.dart';
 import '../settings/setting.dart';
 import 'editprofile/edituserprofile.dart';
 import 'membership/membershippage.dart';
@@ -18,6 +19,7 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class UserProfilePageState extends State<UserProfilePage> {
+  Controller controller = Get.put(Controller());
   bool isLoading = true; // Used to simulate loading state for fetching data
 
   // Dummy data for user profile (replace with actual data)
@@ -96,6 +98,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                       IconButton(
                         icon: Icon(Icons.edit, size: 30, color: Colors.blue),
                         onPressed: () {
+                          Get.snackbar('data', controller.userRegistrationRequest.toJson().toString());
                           Get.to(EditProfilePage());
                         }, // Navigate to Edit Profile
                       ),
