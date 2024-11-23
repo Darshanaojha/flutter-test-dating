@@ -1,3 +1,4 @@
+import 'package:dating_application/Screens/settings/appinfopages/appinfopagestart.dart';
 import 'package:dating_application/Screens/userprofile/addpartner/addpartnerpage.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
@@ -295,7 +296,9 @@ class UserProfilePageState extends State<UserProfilePage> {
                           title: 'Help',
                           subtitle: 'helpline',
                           icon: Icons.help,
-                          onTap: () {}),
+                          onTap: () {
+                            Get.to(AppInfoPage());
+                          }),
                     ],
                   ),
                 ),

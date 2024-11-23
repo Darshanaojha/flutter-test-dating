@@ -1,11 +1,11 @@
+import 'package:dating_application/Screens/settings/appinfopages/appinfopagestart.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
 import '../../constants.dart';
 import 'changepassword/changepasswordnewpassword.dart';
-import 'updateemailid/updateemailidpage.dart'; 
-
+import 'updateemailid/updateemailidpage.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -18,18 +18,18 @@ class SettingsPageState extends State<SettingsPage> {
   double maxDistance = 50.0;
   RangeValues ageRange = RangeValues(18, 35);
   final List<String> lookingFor = [];
-   double getResponsiveFontSize(double scale) {
-      double screenWidth = MediaQuery.of(context).size.width;
-      return screenWidth *
-          scale; // Adjust this scale for different text elements
-    }
+  double getResponsiveFontSize(double scale) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth * scale; // Adjust this scale for different text elements
+  }
+
   final TextEditingController desireController = TextEditingController();
   bool showOnlineUsers = false;
   String currentLocation = "Fetching...";
   String locationSelection = "Current Location";
-  
+
   final List<String> genderOptions = ['Male', 'Female', 'Non-Binary'];
-  
+
   final List<String> predefinedLocations = [
     "New York",
     "Los Angeles",
@@ -54,10 +54,13 @@ class SettingsPageState extends State<SettingsPage> {
       setState(() {
         currentLocation = "Location permissions are permanently denied";
       });
-    } else if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
-      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    } else if (permission == LocationPermission.whileInUse ||
+        permission == LocationPermission.always) {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
       setState(() {
-        currentLocation = "Lat: ${position.latitude}, Long: ${position.longitude}";
+        currentLocation =
+            "Lat: ${position.latitude}, Long: ${position.longitude}";
       });
     } else {
       setState(() {
@@ -66,20 +69,34 @@ class SettingsPageState extends State<SettingsPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Settings", style: AppTextStyles.headingText.copyWith(fontSize: getResponsiveFontSize(0.03))),
+        title: Text(
+          "Settings",
+          style: AppTextStyles.headingText.copyWith(
+            fontSize: getResponsiveFontSize(0.03),
+          ),
+        ),
         backgroundColor: AppColors.primaryColor,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.info_outline),
+            onPressed: () {
+              Get.to(AppInfoPage());
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
             // Maximum Distance
-            Text("Maximum Distance (km)", style: AppTextStyles.subheadingText.copyWith(fontSize: getResponsiveFontSize(0.03))),
+            Text("Maximum Distance (km)",
+                style: AppTextStyles.subheadingText
+                    .copyWith(fontSize: getResponsiveFontSize(0.03))),
             Slider(
               value: maxDistance,
               min: 0,
@@ -97,7 +114,9 @@ class SettingsPageState extends State<SettingsPage> {
             SizedBox(height: 20),
 
             // Age Range
-            Text("Age Range", style: AppTextStyles.subheadingText.copyWith(fontSize: getResponsiveFontSize(0.03))),
+            Text("Age Range",
+                style: AppTextStyles.subheadingText
+                    .copyWith(fontSize: getResponsiveFontSize(0.03))),
             RangeSlider(
               values: ageRange,
               min: 18,
@@ -118,17 +137,22 @@ class SettingsPageState extends State<SettingsPage> {
             SizedBox(height: 20),
 
             // Looking For (Checkboxes)
-            Text("Looking For", style: AppTextStyles.subheadingText.copyWith(fontSize: getResponsiveFontSize(0.03))),
+            Text("Looking For",
+                style: AppTextStyles.subheadingText
+                    .copyWith(fontSize: getResponsiveFontSize(0.03))),
             ...genderOptions.map((gender) {
               return CheckboxListTile(
-                title: Text(gender, style: AppTextStyles.textStyle.copyWith(fontSize: getResponsiveFontSize(0.03))),
+                title: Text(gender,
+                    style: AppTextStyles.textStyle
+                        .copyWith(fontSize: getResponsiveFontSize(0.03))),
                 value: lookingFor.contains(gender),
                 onChanged: (bool? selected) {
                   setState(() {
                     if (selected == true) {
-                      lookingFor.add(gender);  // Add to list if selected
+                      lookingFor.add(gender); // Add to list if selected
                     } else {
-                      lookingFor.remove(gender);  // Remove from list if unselected
+                      lookingFor
+                          .remove(gender); // Remove from list if unselected
                     }
                   });
                 },
@@ -136,26 +160,36 @@ class SettingsPageState extends State<SettingsPage> {
               );
             }),
             SizedBox(height: 20),
-            Text("Selected: ${lookingFor.join(", ")}", style: AppTextStyles.textStyle.copyWith(fontSize: getResponsiveFontSize(0.03))),
+            Text("Selected: ${lookingFor.join(", ")}",
+                style: AppTextStyles.textStyle
+                    .copyWith(fontSize: getResponsiveFontSize(0.03))),
             SizedBox(height: 20),
 
-            Text("My Location", style: AppTextStyles.subheadingText.copyWith(fontSize: getResponsiveFontSize(0.04))),
+            Text("My Location",
+                style: AppTextStyles.subheadingText
+                    .copyWith(fontSize: getResponsiveFontSize(0.04))),
             ListTile(
               tileColor: AppColors.secondaryColor,
-              title: Text(locationSelection, style: AppTextStyles.textStyle.copyWith(fontSize: getResponsiveFontSize(0.03))),
-              trailing: Icon(Icons.arrow_drop_down, color: AppColors.accentColor),
+              title: Text(locationSelection,
+                  style: AppTextStyles.textStyle
+                      .copyWith(fontSize: getResponsiveFontSize(0.03))),
+              trailing:
+                  Icon(Icons.arrow_drop_down, color: AppColors.accentColor),
               onTap: () async {
                 await showLocationSelectionDialog();
               },
             ),
             SizedBox(height: 20),
-            Text("Search By", style: AppTextStyles.subheadingText.copyWith(fontSize: getResponsiveFontSize(0.03))),
+            Text("Search By",
+                style: AppTextStyles.subheadingText
+                    .copyWith(fontSize: getResponsiveFontSize(0.03))),
             TextField(
               controller: desireController,
               cursorColor: AppColors.cursorColor,
               decoration: InputDecoration(
                 hintText: 'Enter your desires...',
-                hintStyle: AppTextStyles.inputFieldText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                hintStyle: AppTextStyles.inputFieldText
+                    .copyWith(fontSize: getResponsiveFontSize(0.03)),
                 border: OutlineInputBorder(
                   borderSide: BorderSide(color: AppColors.formFieldColor),
                   borderRadius: BorderRadius.circular(8),
@@ -172,7 +206,9 @@ class SettingsPageState extends State<SettingsPage> {
               style: AppTextStyles.inputFieldText,
             ),
             SizedBox(height: 20),
-            Text("Show Recent Online Users", style: AppTextStyles.subheadingText.copyWith(fontSize: getResponsiveFontSize(0.03))),
+            Text("Show Recent Online Users",
+                style: AppTextStyles.subheadingText
+                    .copyWith(fontSize: getResponsiveFontSize(0.03))),
             SwitchListTile(
               value: showOnlineUsers,
               onChanged: (bool value) {
@@ -183,14 +219,15 @@ class SettingsPageState extends State<SettingsPage> {
               activeColor: AppColors.acceptColor,
               title: Text(
                 showOnlineUsers ? "Online Users Visible" : "Hide Online Users",
-                style: AppTextStyles.textStyle.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                style: AppTextStyles.textStyle
+                    .copyWith(fontSize: getResponsiveFontSize(0.03)),
               ),
             ),
             SizedBox(height: 20),
 
             // Change Password Button
             ElevatedButton(
-              onPressed: (){
+              onPressed: () {
                 Get.to(ChangePasswordPage());
               },
               style: ElevatedButton.styleFrom(
@@ -202,13 +239,14 @@ class SettingsPageState extends State<SettingsPage> {
               ),
               child: Text(
                 "Change Password",
-                style: AppTextStyles.buttonText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                style: AppTextStyles.buttonText
+                    .copyWith(fontSize: getResponsiveFontSize(0.03)),
               ),
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: (){
-               Get.to(UpdateEmailPage());
+              onPressed: () {
+                Get.to(UpdateEmailPage());
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.buttonColor,
@@ -219,10 +257,26 @@ class SettingsPageState extends State<SettingsPage> {
               ),
               child: Text(
                 "Update Email",
-                style: AppTextStyles.buttonText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                style: AppTextStyles.buttonText
+                    .copyWith(fontSize: getResponsiveFontSize(0.03)),
               ),
             ),
-           
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.buttonColor,
+                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Text(
+                "Apply Settings",
+                style: AppTextStyles.buttonText
+                    .copyWith(fontSize: getResponsiveFontSize(0.03)),
+              ),
+            ),
           ],
         ),
       ),
@@ -234,13 +288,17 @@ class SettingsPageState extends State<SettingsPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Select Location Type", style: AppTextStyles.headingText.copyWith(fontSize: getResponsiveFontSize(0.03))),
+          title: Text("Select Location Type",
+              style: AppTextStyles.headingText
+                  .copyWith(fontSize: getResponsiveFontSize(0.03))),
           backgroundColor: AppColors.secondaryColor,
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               RadioListTile<String>(
-                title: Text("Use Current Location", style: AppTextStyles.textStyle.copyWith(fontSize: getResponsiveFontSize(0.03))),
+                title: Text("Use Current Location",
+                    style: AppTextStyles.textStyle
+                        .copyWith(fontSize: getResponsiveFontSize(0.03))),
                 value: "Current Location",
                 groupValue: locationSelection,
                 onChanged: (value) {
@@ -252,7 +310,9 @@ class SettingsPageState extends State<SettingsPage> {
                 },
               ),
               RadioListTile<String>(
-                title: Text("Select from List", style: AppTextStyles.textStyle.copyWith(fontSize: getResponsiveFontSize(0.03))),
+                title: Text("Select from List",
+                    style: AppTextStyles.textStyle
+                        .copyWith(fontSize: getResponsiveFontSize(0.03))),
                 value: "Select from List",
                 groupValue: locationSelection,
                 onChanged: (value) {
@@ -275,13 +335,17 @@ class SettingsPageState extends State<SettingsPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Select Location", style: AppTextStyles.headingText.copyWith(fontSize: getResponsiveFontSize(0.03))),
+          title: Text("Select Location",
+              style: AppTextStyles.headingText
+                  .copyWith(fontSize: getResponsiveFontSize(0.03))),
           backgroundColor: AppColors.secondaryColor,
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: predefinedLocations.map((location) {
               return ListTile(
-                title: Text(location, style: AppTextStyles.textStyle.copyWith(fontSize: getResponsiveFontSize(0.03))),
+                title: Text(location,
+                    style: AppTextStyles.textStyle
+                        .copyWith(fontSize: getResponsiveFontSize(0.03))),
                 onTap: () {
                   setState(() {
                     currentLocation = location;
