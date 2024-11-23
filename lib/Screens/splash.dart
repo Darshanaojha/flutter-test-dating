@@ -8,7 +8,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../Controllers/controller.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
@@ -49,6 +48,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
       await controller.fetchAllHeadlines();
       await controller.fetchSafetyGuidelines();
       await controller.fetchAllPackages();
+      await  controller.reportReason();
 
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();

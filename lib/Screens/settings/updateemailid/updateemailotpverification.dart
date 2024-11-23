@@ -1,7 +1,6 @@
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../Controllers/controller.dart';
 import '../../../constants.dart';
 
@@ -25,7 +24,7 @@ class EmailOtpVerificationPageState extends State<EmailOtpVerificationPage> {
   }
 
   initialize() async {
-    EncryptedSharedPreferences prefs = await EncryptedSharedPreferences.getInstance();
+    EncryptedSharedPreferences prefs = EncryptedSharedPreferences.getInstance();
      controller.updateEmailVerificationRequest.newEmail =prefs.getString('update_email').toString();
   }
   double getResponsiveFontSize(double scale) {

@@ -35,7 +35,7 @@ class RegistrationProvider extends GetConnect {
       RegistrationOTPRequest registrationOTPRequest) async {
     try {
       final requestBody = registrationOTPRequest.toJson();
-      if (baseurl == null || baseurl.isEmpty) {
+      if (baseurl.isEmpty) {
         throw Exception("Base URL is not defined.");
       }
 
@@ -70,7 +70,7 @@ class RegistrationProvider extends GetConnect {
     RegistrationOtpVerificationRequest registrationOtpVerificationRequest) async {
   try {
     final requestBody = registrationOtpVerificationRequest.toJson();
-    if (baseurl == null || baseurl.isEmpty) {
+    if (baseurl.isEmpty) {
       throw Exception("Base URL is not defined.");
     }
     Response response = await post(

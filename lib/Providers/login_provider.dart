@@ -7,7 +7,6 @@ import '../Models/ResponseModels/forget_password_response_model.dart';
 import '../Models/ResponseModels/forget_password_verification_response_model.dart';
 import '../Models/ResponseModels/user_login_response_model.dart';
 import '../constants.dart';
-import 'package:get/get_connect/connect.dart';
 
 class LoginProvider extends GetConnect {
  Controller controller= Get.find();
@@ -81,15 +80,16 @@ class LoginProvider extends GetConnect {
   Future<UserLoginResponse?> userLogin(
       UserLoginRequest userLoginRequest) async {
     try {
-       final requestBody = userLoginRequest.toJson();
+      print(userLoginRequest.toJson().toString());
       Response response = await post(
         '$baseurl/Authentication/login',
-        requestBody,
+        userLoginRequest.toJson(),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
-
+      
+      print(response.body);
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return UserLoginResponse.fromJson(response.body);

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 const encryptionkey = "flamrpisyst2024!";
-const baseurl = "http://192.168.1.4/dating_backend_springboot/admin";
+const baseurl = "http://192.168.1.12/dating_backend_springboot/admin";
 const registerUrl = "Authentication/register";
 const loginUrl = "Authentication/login";
 const profileUrl = "Authentication/profile";
@@ -19,7 +19,7 @@ class AppColors {
   static const Color deniedColor = Colors.red;
   static const Color iconColor = Colors.blue;
   static const Color buttonColor = Colors.blue;
-  static const Color chipColor = Colors.grey;
+  static const Color chipColor = Colors.blue;
   static const Color formFieldColor = Color.fromARGB(255, 85, 84, 84);
   static const Color inactiveColor = Colors.red;
   static const Color activeColor = Colors.green;

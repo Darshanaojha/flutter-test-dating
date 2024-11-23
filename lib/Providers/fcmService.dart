@@ -61,7 +61,7 @@ class FCMService {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String? bearerToken = pref.getString('token');
     if (bearerToken != null) {
-      print("bearer token " + bearerToken!);
+      print("bearer token ${bearerToken}");
     } else {
       print("bearer token is null");
     }

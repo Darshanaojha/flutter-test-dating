@@ -1,8 +1,8 @@
 class UpdateLatLongRequest {
-  final String latitude;
-  final String longitude;
-  final String city;
-  final String address;
+   String latitude;
+   String longitude;
+   String city;
+   String address;
 
   // Constructor
   UpdateLatLongRequest({

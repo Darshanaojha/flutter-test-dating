@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import '../../constants.dart'; 
+import '../../constants.dart';
 
 class LikesPage extends StatefulWidget {
   const LikesPage({super.key});
@@ -74,22 +74,24 @@ class LikesPageState extends State<LikesPage> {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale; // Adjust this scale for different text elements
   }
+
   // Filter logic for user profiles
   List<Map<String, dynamic>> getFilteredUsers() {
-    return users.where((user) {
-      bool matchesGender =
-          selectedGender == 'All' || user['gender'] == selectedGender;
-      bool matchesLocation =
-          selectedLocation == 'All' || user['location'] == selectedLocation;
-      bool matchesDesire =
-          selectedDesire == 'All' || user['desires'].contains(selectedDesire);
-      bool matchesAge = selectedAgeRange == 0 ||
-          (selectedAgeRange == 1 && user['age'] >= 18 && user['age'] <= 25) ||
-          (selectedAgeRange == 2 && user['age'] >= 26 && user['age'] <= 35) ||
-          (selectedAgeRange == 3 && user['age'] >= 36);
-      return matchesGender && matchesLocation && matchesDesire && matchesAge;
-    }).toList();
-  }
+  return users.where((user) {
+    bool matchesGender =
+        selectedGender == 'All' || user['gender'] == selectedGender;
+    bool matchesLocation =
+        selectedLocation == 'All' || user['location'] == selectedLocation;
+    bool matchesDesire =
+        selectedDesire == 'All' || user['desires'].contains(selectedDesire);
+    bool matchesAge = selectedAgeRange == 0 ||
+        (selectedAgeRange == 1 && user['age'] >= 18 && user['age'] <= 25) ||
+        (selectedAgeRange == 2 && user['age'] >= 26 && user['age'] <= 35) ||
+        (selectedAgeRange == 3 && user['age'] >= 36);
+    return matchesGender && matchesLocation && matchesDesire && matchesAge;
+  }).toList();
+}
+
 
   void showFullImageDialog(BuildContext context, String imagePath) {
     showDialog(
@@ -213,7 +215,8 @@ class LikesPageState extends State<LikesPage> {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: getResponsiveFontSize(0.03), // Smaller font size
+                          fontSize:
+                              getResponsiveFontSize(0.03), // Smaller font size
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -328,6 +331,7 @@ class LikesPageState extends State<LikesPage> {
                   ],
                 ),
               ),
+
               // User profiles
               Expanded(
                 child: ListView.builder(
@@ -368,23 +372,33 @@ class LikesPageState extends State<LikesPage> {
                           ),
                           // User Information
                           SizedBox(height: 8),
-                          Text(user['name'], style: AppTextStyles.titleText.copyWith(fontSize: getResponsiveFontSize(0.04))),
+                          Text(user['name'],
+                              style: AppTextStyles.titleText.copyWith(
+                                  fontSize: getResponsiveFontSize(0.04))),
                           Row(
                             children: [
                               Text('${user['age']} years old | ',
-                                  style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03))),
+                                  style: AppTextStyles.bodyText.copyWith(
+                                      fontSize: getResponsiveFontSize(0.03))),
                               Text('${user['location']} | ',
-                                  style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03))),
+                                  style: AppTextStyles.bodyText.copyWith(
+                                      fontSize: getResponsiveFontSize(0.03))),
                               Text('${user['km']} km away',
-                                  style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03))),
+                                  style: AppTextStyles.bodyText.copyWith(
+                                      fontSize: getResponsiveFontSize(0.03))),
                             ],
                           ),
                           SizedBox(height: 4),
                           Text('Last Seen: ${user['lastSeen']}',
-                              style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03))),
+                              style: AppTextStyles.bodyText.copyWith(
+                                  fontSize: getResponsiveFontSize(0.03))),
                           SizedBox(height: 12),
-                          Text('Desires:', style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03))),
-                          Text(user['desires'], style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03))),
+                          Text('Desires:',
+                              style: AppTextStyles.bodyText.copyWith(
+                                  fontSize: getResponsiveFontSize(0.03))),
+                          Text(user['desires'],
+                              style: AppTextStyles.bodyText.copyWith(
+                                  fontSize: getResponsiveFontSize(0.03))),
 
                           Row(
                             children: [
@@ -466,44 +480,97 @@ class LikesPageState extends State<LikesPage> {
       ),
     );
   }
-
-  // Helper method to build filter chips with callback
-  Widget buildFilterChip(
-      String label, List<String> options, Function(String?) onSelected) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.white, width: 2),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: DropdownButton<String>(
-            value: label == 'Gender'
-                ? selectedGender
-                : label == 'Location'
-                    ? selectedLocation
-                    : label == 'Desires'
-                        ? selectedDesire
-                        : selectedAgeRange == 0
-                            ? 'All'
-                            : selectedAgeRange == 1
-                                ? '18-25'
-                                : selectedAgeRange == 2
-                                    ? '26-35'
-                                    : '36+',
-            items: options.map((option) {
-              return DropdownMenuItem<String>(
-                value: option,
-                child: Text(option, style: AppTextStyles.bodyText),
-              );
-            }).toList(),
-            onChanged: onSelected,
-            hint: Text(label, style: AppTextStyles.bodyText),
+ Widget buildFilterChip(
+    String label, List<String> options, Function(String?) onSelected) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+    child: Container(
+      decoration: BoxDecoration(
+        // borderRadius: BorderRadius.circular(14),
+        // border: Border.all(color: AppColors.activeColor, width: 2),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            foregroundColor: AppColors.primaryColor,
+            backgroundColor: AppColors.secondaryColor, // Text color
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: BorderSide(color: AppColors.activeColor, width: 2),
+            ),
+          ),
+          onPressed: () {
+            // Open bottom sheet when button is pressed
+            showBottomSheet(label, options, onSelected);
+          },
+          child: Row(
+            mainAxisSize: MainAxisSize.min, // Ensures the row takes up only as much space as needed
+            children: [
+              Text(
+                label,
+                style: AppTextStyles.bodyText,
+              ),
+              SizedBox(width: 8), // Space between the text and the icon
+              Icon(
+                Icons.arrow_drop_down, // Down arrow icon
+                color: AppColors.activeColor, // Icon color
+              ),
+            ],
           ),
         ),
       ),
+    ),
+  );
+}
+
+
+  void showBottomSheet(
+      String label, List<String> options, Function(String?) onSelected) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '$label Filter',
+                style: AppTextStyles.headingText.copyWith(fontSize: 22),
+              ),
+              SizedBox(height: 16),
+              ...options.map((option) {
+                return RadioListTile<String>(
+                  title: Text(option, style: AppTextStyles.bodyText),
+                  value: option,
+                  groupValue: label == 'Gender'
+                      ? selectedGender
+                      : label == 'Location'
+                          ? selectedLocation
+                          : label == 'Desires'
+                              ? selectedDesire
+                              : selectedAgeRange == 0
+                                  ? 'All'
+                                  : label == 'Age' && option == 'All'
+                                      ? 'All'
+                                      : option,
+                  onChanged: (value) {
+                    setState(() {
+                      onSelected(value); 
+                    });
+                    Navigator.pop(
+                        context); 
+                  },
+                  activeColor: AppColors.buttonColor,
+                );
+              }).toList(),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -33,7 +33,7 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
 
   initialize() async {
     EncryptedSharedPreferences prefs =
-        await EncryptedSharedPreferences.getInstance();
+        EncryptedSharedPreferences.getInstance();
     setState(() {
       backEndOtp = prefs.getString('registrationotp');
       email = prefs.getString('registrationemail');
