@@ -54,6 +54,7 @@ import '../Models/ResponseModels/forget_password_response_model.dart';
 import '../Models/ResponseModels/forget_password_verification_response_model.dart';
 import '../Models/ResponseModels/get_all_country_response_model.dart';
 import '../Models/ResponseModels/get_all_desires_model_response.dart';
+import '../Models/ResponseModels/get_all_language_response_model.dart';
 import '../Models/ResponseModels/get_report_user_options_response_model.dart';
 import '../Models/ResponseModels/like_history_response_model.dart';
 import '../Models/ResponseModels/liked_by_response_model.dart';
@@ -78,6 +79,7 @@ import '../Providers/established_connection_message_provider.dart';
 import '../Providers/fetch_all_active_user_provider.dart';
 import '../Providers/fetch_all_countries_provider.dart';
 import '../Providers/fetch_all_genders_provider.dart';
+import '../Providers/fetch_all_language_provider.dart';
 import '../Providers/fetch_all_packages_provider.dart';
 import '../Providers/fetch_benefits_provider.dart';
 import '../Providers/fetch_sub_genders_provider.dart';
@@ -131,6 +133,7 @@ class Controller extends GetxController {
     desires: [],
     interest: '',
     bio: '',
+    lang: [],
     photos: [],
     packageId: '',
     emailAlerts: '',
@@ -254,6 +257,7 @@ class Controller extends GetxController {
       return false;
     }
   }
+
 
   RxList<Message> messages = <Message>[].obs;
   Future<bool> chatHistory() async {
@@ -717,6 +721,7 @@ class Controller extends GetxController {
     nickname: "",
     gender: "",
     subGender: "",
+    lang:[],
     interest: [],
     bio: '',
     emailAlerts: '',

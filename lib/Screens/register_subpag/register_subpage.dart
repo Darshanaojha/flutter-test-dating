@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dating_application/Models/ResponseModels/get_all_benifites_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_desires_model_response.dart';
+import 'package:dating_application/Models/ResponseModels/get_all_language_response_model.dart';
+import 'package:dating_application/Screens/userprofile/editprofile/edituserprofile.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -40,6 +42,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   RxList<String> selectedInterests = <String>[].obs;
   RxString selectedPlan = 'None'.obs;
   TextEditingController interestController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -54,6 +57,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     await controller.fetchAllHeadlines();
     await controller.fetchDesires();
     await controller.fetchAllPackages();
+    await controller.fetchlang();
     genderIds.addAll(controller.genders.map((gender) => gender.id));
     for (String genderId in genderIds) {
       await controller.fetchSubGender(SubGenderRequest(genderId: genderId));
@@ -99,19 +103,19 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       case 7:
         return buildInterestStep(context, screenSize);
       case 8:
-        return buildUserDescriptionStep(screenSize);
+        return buildUserLanguageStep(context);
       case 9:
-        return buildPermissionRequestStep(screenSize);
+        return buildUserDescriptionStep(screenSize);
       case 10:
-        return buildPhotosOfUser(screenSize);
+        return buildPermissionRequestStep(screenSize);
       case 11:
-        return buildPaymentWidget(screenSize);
+        return buildPhotosOfUser(screenSize);
       case 12:
-        return buildSafetyGuidelinesWidget(screenSize);
+        return buildPaymentWidget(screenSize);
       case 13:
-        return buildProfileSummaryPage(screenSize);
+        return buildSafetyGuidelinesWidget(screenSize);
       case 14:
-        return buildFinalStep(screenSize);
+        return buildProfileSummaryPage(screenSize);
       default:
         return buildFinalStep(screenSize);
     }
@@ -256,7 +260,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 ),
               );
             }),
-        SizedBox(height: screenSize.height*0.05),
+            SizedBox(height: screenSize.height * 0.05),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -265,13 +269,13 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     selectedDay = value;
                   });
                 }),
-                 SizedBox(width: screenSize.width*0.04),
+                SizedBox(width: screenSize.width * 0.04),
                 buildDatePicker("Month", 1, 12, selectedMonth, (value) {
                   setState(() {
                     selectedMonth = value;
                   });
                 }),
-                SizedBox(width: screenSize.width*0.04),
+                SizedBox(width: screenSize.width * 0.04),
                 buildDatePicker("Year", 1900, DateTime.now().year, selectedYear,
                     (value) {
                   setState(() {
@@ -280,7 +284,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 }),
               ],
             ),
-            SizedBox(height: screenSize.height*0.02),
+            SizedBox(height: screenSize.height * 0.02),
             ElevatedButton(
               onPressed: () {
                 String formattedDate =
@@ -295,7 +299,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 DateTime now = DateTime.now();
 
                 if (now.difference(selectedDate).inDays < 18 * 365) {
-               
                   failure('Failed',
                       'You must be at least 18 years old to proceed.');
                   return;
@@ -480,9 +483,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                             } else {
                               controller.userRegistrationRequest.gender = '';
                             }
-                            controller.fetchSubGender(
-                                                    SubGenderRequest(
-                                                        genderId: parsedGenderId.toString()));
+                            controller.fetchSubGender(SubGenderRequest(
+                                genderId: parsedGenderId.toString()));
                           },
                           activeColor: AppColors.buttonColor,
                         );
@@ -1251,9 +1253,174 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
-// step 8
+  // languages 8
+Widget buildUserLanguageStep(BuildContext context) {
+
+  RxList<String> selectedLanguages = <String>[].obs; 
+  RxList<int> selectedLanguagesId = <int>[].obs; 
+  RxString searchQuery = ''.obs;
+
+  // Function to update the selected languages and their IDs
+  void updateSelectedStatus() {
+    // Clear the previous selection and update the IDs based on the selected titles
+    selectedLanguagesId.clear();
+    for (int i = 0; i < controller.language.length; i++) {
+      if (selectedLanguages.contains(controller.language[i].title)) {
+        selectedLanguagesId.add(int.parse(controller.language[i].id));
+      }
+    }
+    // Update the controller with the new language IDs
+    controller.userRegistrationRequest.lang = selectedLanguagesId;
+  }
+
+  // Handle chip selection and deselection
+  void handleChipSelection(String languageTitle) {
+    // If the language is already selected, remove it, else add it
+    if (selectedLanguages.contains(languageTitle)) {
+      selectedLanguages.remove(languageTitle);
+    } else {
+      selectedLanguages.add(languageTitle);
+    }
+    updateSelectedStatus();
+  }
+
+  return Scaffold(
+    body: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Obx(() {
+            return selectedLanguages.isEmpty
+                ? Center(child: SpinKitCircle(
+                  size: 30,
+                  color: AppColors.activeColor,
+                ))
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Selected Languages', style: TextStyle(fontSize: 16)),
+                      SizedBox(height: 10),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: selectedLanguages.map((filteredLanguages) {
+                            return GestureDetector(
+                              onTap: () {
+                                handleChipSelection(filteredLanguages);
+                              },
+                              child: Chip(
+                                label: Text(filteredLanguages),
+                                deleteIcon: Icon(Icons.cancel, size: 18),
+                                onDeleted: () {
+                                  selectedLanguages.remove(filteredLanguages);
+                                  updateSelectedStatus();
+                                },
+                                backgroundColor: Colors.blue.withOpacity(0.1),
+                                labelStyle: TextStyle(fontSize: 14),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
+                  );
+          }),
+
+          SizedBox(height: 20),
+          Text('Languages List', style: TextStyle(fontSize: 16)),
+          SizedBox(height: 10),
+          Obx(() {
+            var filteredLanguages = controller.language
+                .where((language) => language.title.toLowerCase().contains(searchQuery.value.toLowerCase()))
+                .toList();
+
+            return controller.language.isEmpty
+                ? Center(child: SpinKitCircle(
+                  size: 90,
+                  color: AppColors.activeColor,
+                ))
+                : Column(
+                    children: [
+                      TextField(
+                        cursorColor: AppColors.cursorColor,
+                        onChanged: (query) {
+                          searchQuery.value = query;
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'Search Languages...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: AppColors.textColor),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      SizedBox(
+                        height: 450,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: filteredLanguages.map((language) {
+                              bool isSelected = selectedLanguages.contains(language.title);
+
+                              return ChoiceChip(
+                                label: Text(language.title),
+                                selected: isSelected,
+                                selectedColor: Colors.blue,
+                                backgroundColor: Colors.grey[200],
+                                labelStyle: TextStyle(
+                                  color: isSelected ? Colors.white : Colors.black,
+                                  fontSize: 14,
+                                ),
+                                onSelected: (bool selected) {
+                                  handleChipSelection(language.title);
+                                },
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+          }),
+          SizedBox(height: 20),
+
+          Align(
+            alignment: Alignment.centerRight,
+            child: ElevatedButton(
+              onPressed: () {
+                print('Next button pressed');
+                print('Selected Language IDs: ${controller.userRegistrationRequest.lang}');
+                // Proceed to the next page or step
+                markStepAsCompleted(8);
+                pageController.nextPage(
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.ease,
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+              ),
+              child: Text('Next'),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+// step 9
   Widget buildUserDescriptionStep(Size screenSize) {
-    // Observable string to track the user description
+
     RxString userDescription = ''.obs;
 
     // Function to track text changes
@@ -1357,7 +1524,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           userDescription.value.length <= 250
                       ? () {
                           // Mark the current step as completed
-                          markStepAsCompleted(8);
+                          markStepAsCompleted(9);
 
                           // Move to the next page in the PageView
                           pageController.nextPage(
@@ -1392,7 +1559,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
-  // step 9
+  // step 10
   Widget buildPermissionRequestStep(Size screenSize) {
     RxBool notificationGranted = false.obs;
     RxBool locationGranted = false.obs;
@@ -1613,7 +1780,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             onPressed: notificationGranted.value && locationGranted.value
                 ? () {
                     // Mark the current step as completed
-                    markStepAsCompleted(9);
+                    markStepAsCompleted(10);
 
                     // Move to the next page in the PageView
                     pageController.nextPage(
@@ -1641,7 +1808,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
-// photos 10
+// photos 11
   Widget buildPhotosOfUser(Size screenSize) {
     RxList<File?> images =
         RxList<File?>(List.filled(6, null)); // Initialize with 6 empty slots
@@ -1704,7 +1871,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     // Handle 'Next' Button Press
     void onNextButtonPressed() {
       if (controller.userRegistrationRequest.photos.isNotEmpty) {
-        markStepAsCompleted(10); // Mark the current step as completed
+        markStepAsCompleted(11); // Mark the current step as completed
 
         // Move to the next page in the PageView
         pageController.nextPage(
@@ -1909,7 +2076,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
-// step: 11
+// step: 12
   Widget buildPaymentWidget(Size screenSize) {
     double fontSize = screenSize.width * 0.03;
     Future<void> showPaymentConfirmationDialog(BuildContext context,
@@ -1950,12 +2117,12 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 onPressed: () {
                   controller.userRegistrationRequest.packageId = planId;
 
-                  markStepAsCompleted(11);
+                  // markStepAsCompleted(12);
 
-                  pageController.nextPage(
-                    duration: Duration(milliseconds: 300),
-                    curve: Curves.ease,
-                  );
+                  // pageController.nextPage(
+                  //   duration: Duration(milliseconds: 300),
+                  //   curve: Curves.ease,
+                  // );
 
                   Navigator.of(context).pop(); // Close the dialog
                 },
@@ -2176,7 +2343,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               visible: selectedPlan.value != 'None',
               child: ElevatedButton(
                 onPressed: () {
-                  markStepAsCompleted(11);
+                  markStepAsCompleted(12);
                   pageController.nextPage(
                     duration: Duration(milliseconds: 300),
                     curve: Curves.ease,
@@ -2197,7 +2364,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
-// step 12
+// step 13
   Widget buildSafetyGuidelinesWidget(Size screenSize) {
     double fontSize = screenSize.width * 0.03;
     final controller = Get.find<Controller>();
@@ -2318,7 +2485,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           // Acknowledge Button
           ElevatedButton(
             onPressed: () {
-              markStepAsCompleted(12);
+              markStepAsCompleted(13);
 
               // Move to the next page in the PageView
               pageController.nextPage(
@@ -2343,7 +2510,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
-// step 13
+// step 14
   Widget buildProfileSummaryPage(Size screenSize) {
     double fontSize = screenSize.width * 0.03;
     final controller =
@@ -2688,7 +2855,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
   void nextStep() {
-    if (currentPage < 13) {
+    if (currentPage <= 14) {
       // Mark the current step as completed
       markStepAsCompleted(currentPage);
 
