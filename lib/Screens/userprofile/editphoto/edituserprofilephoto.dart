@@ -9,7 +9,6 @@ import 'package:get/get.dart';
 
 import '../../../Controllers/controller.dart';
 import '../../../Models/RequestModels/update_profile_photo_request_model.dart';
-import '../../../Models/ResponseModels/user_upload_images_response_model.dart';
 import '../../../constants.dart';
 import '../userprofilepage.dart';
 
@@ -22,8 +21,8 @@ class EditPhotosPage extends StatefulWidget {
 
 class EditPhotosPageState extends State<EditPhotosPage> {
   Controller controller = Get.put(Controller());
-  RxList<String> images = <String>[].obs;
-  RxList<String> updatedImages = <String>[].obs;
+  RxList<RxString> images = <RxString>[].obs;
+  RxList<RxString> updatedImages = <RxString>[].obs;
   @override
   void initState() {
     super.initState();
@@ -37,13 +36,13 @@ class EditPhotosPageState extends State<EditPhotosPage> {
         final userPhotos = controller.userPhotos!;
         images.clear();
         updatedImages.clear();
-        if (userPhotos.img1.isNotEmpty) images.add(userPhotos.img1);
-        if (userPhotos.img2.isNotEmpty) images.add(userPhotos.img2);
-        if (userPhotos.img3.isNotEmpty) images.add(userPhotos.img3);
-        if (userPhotos.img4.isNotEmpty) images.add(userPhotos.img4);
-        if (userPhotos.img5.isNotEmpty) images.add(userPhotos.img5);
-        if (userPhotos.img6.isNotEmpty) images.add(userPhotos.img6);
-        updatedImages.addAll(images);
+        if (userPhotos.img1.isNotEmpty) images.add(RxString(userPhotos.img1));
+        if (userPhotos.img2.isNotEmpty) images.add(RxString(userPhotos.img2));
+        if (userPhotos.img3.isNotEmpty) images.add(RxString(userPhotos.img3));
+        if (userPhotos.img4.isNotEmpty) images.add(RxString(userPhotos.img4));
+        if (userPhotos.img5.isNotEmpty) images.add(RxString(userPhotos.img5));
+        if (userPhotos.img6.isNotEmpty) images.add(RxString(userPhotos.img6));
+        updatedImages.assignAll(images);
       }
     } catch (e) {
       failure('Error', e.toString());
@@ -91,9 +90,9 @@ class EditPhotosPageState extends State<EditPhotosPage> {
         if (compressedImage != null) {
           String base64Image = base64Encode(compressedImage);
           if (index < updatedImages.length) {
-            updatedImages[index] = base64Image;
+            updatedImages[index] = base64Image.obs;
           } else {
-            updatedImages.add(base64Image);
+            updatedImages.add(RxString(base64Image));
           }
 
           success("Success", "Image updated successfully");
@@ -246,12 +245,12 @@ class EditPhotosPageState extends State<EditPhotosPage> {
 
   void onSubmit() {
     controller.updateProfilePhotoRequest = UpdateProfilePhotoRequest(
-      img1: updatedImages[0],
-      img2: updatedImages[1],
-      img3: updatedImages[2],
-      img4: updatedImages[3],
-      img5: updatedImages[4],
-      img6: updatedImages[5],
+      img1: updatedImages[0].value,
+      img2: updatedImages[1].value,
+      img3: updatedImages[2].value,
+      img4: updatedImages[3].value,
+      img5: updatedImages[4].value,
+      img6: updatedImages[5].value,
     );
     controller.updateprofilephoto(controller.updateProfilePhotoRequest);
     Get.to(UserProfilePage());
@@ -261,6 +260,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: Text("Upload Photos",
             style: AppTextStyles.titleText
@@ -293,15 +293,15 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                           return Padding(
                             padding: const EdgeInsets.all(4.0),
                             child: GestureDetector(
-                              onTap: () =>
-                                  showFullPhotoDialog(updatedImages[index]),
+                              onTap: () => showFullPhotoDialog(
+                                  updatedImages[index].value),
                               child: Stack(
                                 alignment: Alignment.bottomRight,
                                 children: [
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(10),
                                     child: Image.network(
-                                      updatedImages[index],
+                                      updatedImages[index].value,
                                       fit: BoxFit.cover,
                                       width: double.infinity,
                                       height: double.infinity,
