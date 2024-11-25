@@ -132,13 +132,23 @@ class ShareProfilePageState extends State<ShareProfilePage>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    '$name, $age',
+                    controller.sharedUser!.payload!.data.first.name,
                     style: AppTextStyles.headingText,
                   ),
                 ],
               ),
               SizedBox(height: 10),
-
+              Row(
+                children: [
+                  Icon(Icons.person,
+                      color: AppColors.iconColor,
+                      size: isLargeScreen ? 30 : 24),
+                  SizedBox(width: 8),
+                  Text(controller.sharedUser!.payload!.data.first.username,
+                      style: AppTextStyles.bodyText),
+                ],
+              ),
+              SizedBox(height: 10),
               // Gender
               Row(
                 children: [
@@ -146,7 +156,8 @@ class ShareProfilePageState extends State<ShareProfilePage>
                       color: AppColors.iconColor,
                       size: isLargeScreen ? 30 : 24),
                   SizedBox(width: 8),
-                  Text(gender, style: AppTextStyles.bodyText),
+                  Text(controller.sharedUser!.payload!.data.first.genderName,
+                      style: AppTextStyles.bodyText),
                 ],
               ),
               SizedBox(height: 10),
@@ -160,7 +171,7 @@ class ShareProfilePageState extends State<ShareProfilePage>
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      bio,
+                      controller.sharedUser!.payload!.data.first.bio,
                       style: AppTextStyles.bodyText,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
@@ -178,7 +189,8 @@ class ShareProfilePageState extends State<ShareProfilePage>
                       size: isLargeScreen ? 30 : 24),
                   SizedBox(width: 8),
                   Expanded(
-                      child: Text('$address, $city, $state, $country',
+                      child: Text(
+                          '${controller.sharedUser!.payload!.data.first.address},${controller.sharedUser!.payload!.data.first.city},${controller.getCountryById(controller.sharedUser!.payload!.data.first.countryId)}',
                           style: AppTextStyles.bodyText,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 2)),
@@ -206,15 +218,17 @@ class ShareProfilePageState extends State<ShareProfilePage>
                           children: [
                             Text('Preferences:',
                                 style: AppTextStyles.subheadingText),
-                            ...preferences.map((pref) => Row(
-                                  children: [
-                                    Icon(Icons.favorite,
-                                        color: AppColors.iconColor,
-                                        size: isLargeScreen ? 30 : 24),
-                                    SizedBox(width: 8),
-                                    Text(pref, style: AppTextStyles.bodyText),
-                                  ],
-                                )),
+                            ...controller.sharedUser!.payload!.preferences
+                                .map((pref) => Row(
+                                      children: [
+                                        Icon(Icons.favorite,
+                                            color: AppColors.iconColor,
+                                            size: isLargeScreen ? 30 : 24),
+                                        SizedBox(width: 8),
+                                        Text(pref.title,
+                                            style: AppTextStyles.bodyText),
+                                      ],
+                                    )),
                           ],
                         ),
                       ),
@@ -243,15 +257,17 @@ class ShareProfilePageState extends State<ShareProfilePage>
                           children: [
                             Text('Languages:',
                                 style: AppTextStyles.subheadingText),
-                            ...languages.map((lang) => Row(
-                                  children: [
-                                    Icon(Icons.language,
-                                        color: AppColors.iconColor,
-                                        size: isLargeScreen ? 30 : 24),
-                                    SizedBox(width: 8),
-                                    Text(lang, style: AppTextStyles.bodyText),
-                                  ],
-                                )),
+                            ...controller.sharedUser!.payload!.lang
+                                .map((lang) => Row(
+                                      children: [
+                                        Icon(Icons.language,
+                                            color: AppColors.iconColor,
+                                            size: isLargeScreen ? 30 : 24),
+                                        SizedBox(width: 8),
+                                        Text(lang.title,
+                                            style: AppTextStyles.bodyText),
+                                      ],
+                                    )),
                           ],
                         ),
                       ),
@@ -280,15 +296,17 @@ class ShareProfilePageState extends State<ShareProfilePage>
                           children: [
                             Text('Desires:',
                                 style: AppTextStyles.subheadingText),
-                            ...desires.map((desire) => Row(
-                                  children: [
-                                    Icon(Icons.star_border,
-                                        color: AppColors.iconColor,
-                                        size: isLargeScreen ? 30 : 24),
-                                    SizedBox(width: 8),
-                                    Text(desire, style: AppTextStyles.bodyText),
-                                  ],
-                                )),
+                            ...controller.sharedUser!.payload!.desires
+                                .map((desire) => Row(
+                                      children: [
+                                        Icon(Icons.star_border,
+                                            color: AppColors.iconColor,
+                                            size: isLargeScreen ? 30 : 24),
+                                        SizedBox(width: 8),
+                                        Text(desire.title,
+                                            style: AppTextStyles.bodyText),
+                                      ],
+                                    )),
                           ],
                         ),
                       ),
