@@ -266,7 +266,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                         subtitle: 'Customize your search settings',
                         icon: Icons.search,
                         onTap: () {
-                         
+                         Get.to(ShareProfilePage(id: '1',));
                           // Navigate or show settings action
                         },
                       ),
