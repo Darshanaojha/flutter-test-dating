@@ -493,7 +493,7 @@ class Controller extends GetxController {
     }
   }
 
-  late UserImageData userPhotos;
+  UserImageData? userPhotos;
   Future<bool> fetchProfileUserPhotos() async {
     try {
       UserUploadImagesResponse? response =

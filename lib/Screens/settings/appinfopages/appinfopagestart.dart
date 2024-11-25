@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../constants.dart';
 
-
 class AppInfoPage extends StatefulWidget {
   const AppInfoPage({super.key});
 
@@ -16,9 +15,10 @@ class _AppInfoPageState extends State<AppInfoPage> {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale; // Adjust this scale for different text elements
   }
+
   // You can define variables for any dynamic data you'd like to manage, for example:
   String appName = "FlamR";
-  String logoUrl = "http://192.168.1.45/dating_backend_springboot/uploads/applogo/logo.png";
+  String logoUrl = "${ip}uploads/applogo/logo.png";
   String releaseDate = "2024-11-23";
   String version = "1.0";
   String createdDate = "2024-11-23 15:53:48";
@@ -26,7 +26,6 @@ class _AppInfoPageState extends State<AppInfoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -37,9 +36,9 @@ class _AppInfoPageState extends State<AppInfoPage> {
               // App Name
               Text(
                 "App Name: $appName",
-                 style: AppTextStyles.headingText.copyWith(
-            fontSize: getResponsiveFontSize(0.03),
-          ),
+                style: AppTextStyles.headingText.copyWith(
+                  fontSize: getResponsiveFontSize(0.03),
+                ),
               ),
               SizedBox(height: 20),
 
@@ -54,35 +53,37 @@ class _AppInfoPageState extends State<AppInfoPage> {
               // Release Date
               Text(
                 "Release Date: $releaseDate",
-                 style: AppTextStyles.headingText.copyWith(
-            fontSize: getResponsiveFontSize(0.03),
-          ),
+                style: AppTextStyles.headingText.copyWith(
+                  fontSize: getResponsiveFontSize(0.03),
+                ),
               ),
               SizedBox(height: 10),
 
               // Version
               Text(
                 "Version: $version",
-                 style: AppTextStyles.headingText.copyWith(
-            fontSize: getResponsiveFontSize(0.03),
-          ),
+                style: AppTextStyles.headingText.copyWith(
+                  fontSize: getResponsiveFontSize(0.03),
+                ),
               ),
 
-              
               SizedBox(height: 20),
 
               // License Button
               ElevatedButton(
                 onPressed: () {
-                 Get.to(LicenseDetailsPage());
+                  Get.to(LicenseDetailsPage());
                 },
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                   backgroundColor: AppColors.activeColor,
                 ),
-                child: Text('View Licenses', style: AppTextStyles.headingText.copyWith(
-            fontSize: getResponsiveFontSize(0.03),
-          ),),
+                child: Text(
+                  'View Licenses',
+                  style: AppTextStyles.headingText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
+                  ),
+                ),
               ),
             ],
           ),

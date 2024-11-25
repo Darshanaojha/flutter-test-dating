@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 
 import '../../../Controllers/controller.dart';
 import '../../../Models/RequestModels/update_profile_photo_request_model.dart';
+import '../../../Models/ResponseModels/user_upload_images_response_model.dart';
 import '../../../constants.dart';
 import '../userprofilepage.dart';
 
@@ -21,25 +22,41 @@ class EditPhotosPage extends StatefulWidget {
 
 class EditPhotosPageState extends State<EditPhotosPage> {
   Controller controller = Get.put(Controller());
-  
-  List<File> images = []; 
+  RxList<String> images = <String>[].obs;
+  RxList<String> updatedImages = <String>[].obs;
+  @override
+  void initState() {
+    super.initState();
+    intialize();
+  }
+
+  intialize() async {
+    try {
+      await controller.fetchProfileUserPhotos();
+      if (controller.userPhotos != null) {
+        final userPhotos = controller.userPhotos!;
+        images.clear();
+        updatedImages.clear();
+        if (userPhotos.img1.isNotEmpty) images.add(userPhotos.img1);
+        if (userPhotos.img2.isNotEmpty) images.add(userPhotos.img2);
+        if (userPhotos.img3.isNotEmpty) images.add(userPhotos.img3);
+        if (userPhotos.img4.isNotEmpty) images.add(userPhotos.img4);
+        if (userPhotos.img5.isNotEmpty) images.add(userPhotos.img5);
+        if (userPhotos.img6.isNotEmpty) images.add(userPhotos.img6);
+        updatedImages.addAll(images);
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+    }
+  }
+
   bool isLoading = false;
   final picker = ImagePicker();
-  
+
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
   }
-
-  @override
-  void initState() {
-    super.initState();
-    images = controller.userRegistrationRequest.photos
-        .where((photo) => photo.isNotEmpty)
-        .map((photo) => File(photo))
-        .toList();
-  }
-
 
   Future<void> requestCameraPermission() async {
     var status = await Permission.camera.request();
@@ -47,7 +64,6 @@ class EditPhotosPageState extends State<EditPhotosPage> {
       Get.snackbar('Permission Denied', "Camera permission denied");
     }
   }
-
 
   Future<void> requestGalleryPermission() async {
     var status = await Permission.photos.request();
@@ -57,54 +73,52 @@ class EditPhotosPageState extends State<EditPhotosPage> {
   }
 
   Future<void> pickImage(int index, ImageSource source) async {
-    if (source == ImageSource.camera) {
-      await requestCameraPermission();
-    } else if (source == ImageSource.gallery) {
-      await requestGalleryPermission();
-    }
-
-    final pickedFile = await picker.pickImage(source: source);
-
-    if (pickedFile != null) {
-      File imageFile = File(pickedFile.path);
-      final compressedImage = await FlutterImageCompress.compressWithFile(
-        imageFile.path,
-        quality: 50,
-      );
-
-      if (compressedImage != null) {
-        String base64Image = base64Encode(compressedImage);
-        if (index < controller.userRegistrationRequest.photos.length) {
-          controller.userRegistrationRequest.photos[index] = base64Image;
-        } else {
-          controller.userRegistrationRequest.photos.add(base64Image);
-        }
-        if (index < images.length) {
-          images[index] = imageFile;
-        } else {
-          images.add(imageFile);
-        }
-
-        setState(() {}); 
-      } else {
-        Get.snackbar("Error", "Image compression failed");
+    try {
+      if (source == ImageSource.camera) {
+        await requestCameraPermission();
+      } else if (source == ImageSource.gallery) {
+        await requestGalleryPermission();
       }
+      final pickedFile = await picker.pickImage(source: source);
+
+      if (pickedFile != null) {
+        File imageFile = File(pickedFile.path);
+        final compressedImage = await FlutterImageCompress.compressWithFile(
+          imageFile.path,
+          quality: 50,
+        );
+
+        if (compressedImage != null) {
+          String base64Image = base64Encode(compressedImage);
+          if (index < updatedImages.length) {
+            updatedImages[index] = base64Image;
+          } else {
+            updatedImages.add(base64Image);
+          }
+
+          success("Success", "Image updated successfully");
+        } else {
+          failure("Error", "Image compression failed");
+        }
+      } else {
+        failure("Error", "No image selected");
+      }
+    } catch (e) {
+      failure("Error", e.toString());
     }
   }
 
   Future<void> deletePhoto(int index) async {
     setState(() {
-      isLoading = true; 
+      isLoading = true;
     });
 
     setState(() {
-      controller.userRegistrationRequest.photos
-          .removeAt(index); 
-      images.removeAt(index); 
+      updatedImages.removeAt(index);
+      images.removeAt(index);
       isLoading = false;
     });
   }
-
 
   void showDeleteOptions(int index) {
     showModalBottomSheet(
@@ -148,7 +162,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                 ElevatedButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    pickImage(index, ImageSource.gallery); 
+                    pickImage(index, ImageSource.gallery);
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.activeColor),
@@ -164,7 +178,6 @@ class EditPhotosPageState extends State<EditPhotosPage> {
     );
   }
 
-
   void showPhotoSelectionDialog(int index) {
     showModalBottomSheet(
       context: context,
@@ -173,8 +186,11 @@ class EditPhotosPageState extends State<EditPhotosPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Choose a source for your photo:",  style: AppTextStyles.bodyText.copyWith(
-                  color: Colors.grey, fontSize: getResponsiveFontSize(0.03)),),
+            Text(
+              "Choose a source for your photo:",
+              style: AppTextStyles.bodyText.copyWith(
+                  color: Colors.grey, fontSize: getResponsiveFontSize(0.03)),
+            ),
             Row(
               children: [
                 ElevatedButton(
@@ -184,7 +200,8 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.buttonColor),
-                  child: Text("Camera",style: AppTextStyles.buttonText
+                  child: Text("Camera",
+                      style: AppTextStyles.buttonText
                           .copyWith(fontSize: getResponsiveFontSize(0.03))),
                 ),
                 SizedBox(width: 16),
@@ -192,11 +209,14 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                   onPressed: () {
                     Navigator.pop(context);
                     pickImage(
-                        index, ImageSource.gallery,);
+                      index,
+                      ImageSource.gallery,
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.buttonColor),
-                  child: Text("Gallery",style: AppTextStyles.buttonText
+                  child: Text("Gallery",
+                      style: AppTextStyles.buttonText
                           .copyWith(fontSize: getResponsiveFontSize(0.03))),
                 ),
               ],
@@ -226,24 +246,12 @@ class EditPhotosPageState extends State<EditPhotosPage> {
 
   void onSubmit() {
     controller.updateProfilePhotoRequest = UpdateProfilePhotoRequest(
-      img1: controller.userRegistrationRequest.photos.isNotEmpty
-          ? controller.userRegistrationRequest.photos[0]
-          : '',
-      img2: controller.userRegistrationRequest.photos.length > 1
-          ? controller.userRegistrationRequest.photos[1]
-          : '',
-      img3: controller.userRegistrationRequest.photos.length > 2
-          ? controller.userRegistrationRequest.photos[2]
-          : '',
-      img4: controller.userRegistrationRequest.photos.length > 3
-          ? controller.userRegistrationRequest.photos[3]
-          : '',
-      img5: controller.userRegistrationRequest.photos.length > 4
-          ? controller.userRegistrationRequest.photos[4]
-          : '',
-      img6: controller.userRegistrationRequest.photos.length > 5
-          ? controller.userRegistrationRequest.photos[5]
-          : '',
+      img1: updatedImages[0],
+      img2: updatedImages[1],
+      img3: updatedImages[2],
+      img4: updatedImages[3],
+      img5: updatedImages[4],
+      img6: updatedImages[5],
     );
     controller.updateprofilephoto(controller.updateProfilePhotoRequest);
     Get.to(UserProfilePage());
@@ -251,7 +259,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenSize =MediaQuery.of(context).size;
+    final screenSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         title: Text("Upload Photos",
@@ -279,21 +287,21 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                         mainAxisSpacing: 8.0,
                         childAspectRatio: 1.0,
                       ),
-                      itemCount: 6, 
+                      itemCount: 6,
                       itemBuilder: (context, index) {
-                        if (index < images.length) {
+                        if (index < updatedImages.length) {
                           return Padding(
                             padding: const EdgeInsets.all(4.0),
                             child: GestureDetector(
                               onTap: () =>
-                                  showFullPhotoDialog(images[index].path),
+                                  showFullPhotoDialog(updatedImages[index]),
                               child: Stack(
                                 alignment: Alignment.bottomRight,
                                 children: [
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(10),
-                                    child: Image.file(
-                                      images[index],
+                                    child: Image.network(
+                                      updatedImages[index],
                                       fit: BoxFit.cover,
                                       width: double.infinity,
                                       height: double.infinity,
@@ -327,12 +335,12 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                       },
                     ),
             ),
-            SizedBox(height: screenSize.height*0.03),
+            SizedBox(height: screenSize.height * 0.03),
             Text(
               "Guidelines and Ground Rules:",
               style: AppTextStyles.subheadingText,
             ),
-            SizedBox(height: screenSize.height*0.05),
+            SizedBox(height: screenSize.height * 0.05),
             Text(
               "1. Upload only your own photos.\n"
               "2. Avoid offensive or inappropriate images.\n"
@@ -341,7 +349,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
               style: AppTextStyles.bodyText.copyWith(
                   color: Colors.grey, fontSize: getResponsiveFontSize(0.03)),
             ),
-            SizedBox(height: screenSize.height*0.06),
+            SizedBox(height: screenSize.height * 0.06),
             Center(
               child: ElevatedButton(
                 onPressed: onSubmit,
