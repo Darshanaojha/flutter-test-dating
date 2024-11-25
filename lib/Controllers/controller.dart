@@ -18,6 +18,7 @@ import 'package:dating_application/Providers/fetch_all_headlines_provider.dart';
 import 'package:dating_application/Providers/fetch_all_preferences_provider.dart';
 import 'package:dating_application/Providers/fetch_all_safety_guildlines_provider.dart';
 import 'package:dating_application/Providers/login_provider.dart';
+import 'package:dating_application/Providers/share_profile_provider.dart';
 import 'package:dating_application/Providers/user_profile_provider.dart';
 import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
@@ -25,6 +26,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:share_plus/share_plus.dart';
 import '../Models/RequestModels/block_User_request_model.dart';
 import '../Models/RequestModels/delete_message_request_model.dart';
 import '../Models/RequestModels/edit_message_request_model.dart';
@@ -36,6 +38,7 @@ import '../Models/RequestModels/pin_profile_pic_request_model.dart';
 import '../Models/RequestModels/registration_otp_request_model.dart';
 import '../Models/RequestModels/registration_otp_verification_request_model.dart';
 import '../Models/RequestModels/report_user_reason_feedback_request_model.dart';
+import '../Models/RequestModels/share_profile_request_model.dart';
 import '../Models/RequestModels/update_emailid_otp_verification_request_model.dart';
 import '../Models/RequestModels/update_emailid_request_model.dart';
 import '../Models/RequestModels/update_lat_long_request_model.dart';
@@ -64,6 +67,7 @@ import '../Models/ResponseModels/pin_profile_pic_response_model.dart';
 import '../Models/ResponseModels/registration_otp_response_model.dart';
 import '../Models/ResponseModels/registration_otp_verification_response_model.dart';
 import '../Models/ResponseModels/report_user_reason_feedback_response_model.dart';
+import '../Models/ResponseModels/share_profile_response_model.dart';
 import '../Models/ResponseModels/update_emailid_otp_verification_response_model.dart';
 import '../Models/ResponseModels/update_emailid_response_model.dart';
 import '../Models/ResponseModels/update_lat_long_response_model.dart';
@@ -1190,7 +1194,30 @@ class Controller extends GetxController {
         success('Success', response.payload!.message);
         return true;
       }
-      failure('Error', 'Failed to fetch the application settings');
+      failure('Error', 'Failed to update the visibility status');
+      return false;
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  void shareProfile(String userId) {
+    String profileLink = 'myapp://profile?userId=$userId';
+    Share.share('Check out this profile: $profileLink');
+  }
+
+  ShareProfileResponseModel? sharedUser;
+  Future<bool> shareProfileUser(
+      ShareProfileRequestModel shareProfileRequestModel) async {
+    try {
+      ShareProfileResponseModel? response = await ShareProfileProvider()
+          .shareProfileUser(shareProfileRequestModel);
+      if (response != null && response.payload != null) {
+        sharedUser = response;
+        return true;
+      }
+      failure('Error', 'Failed to fetch the shared profile');
       return false;
     } catch (e) {
       failure('Error', e.toString());

@@ -1,11 +1,13 @@
 import 'package:encrypt_shared_preferences/provider.dart';
-import 'package:get/get.dart';
+import 'package:get/get_connect.dart';
 
-import '../Models/ResponseModels/user_upload_images_response_model.dart';
+import '../Models/RequestModels/share_profile_request_model.dart';
+import '../Models/ResponseModels/share_profile_response_model.dart';
 import '../constants.dart';
 
-class UserProfileProvider extends GetConnect {
-  Future<UserUploadImagesResponse?> fetchProfileUserPhotos() async {
+class ShareProfileProvider extends GetConnect {
+  Future<ShareProfileResponseModel?> shareProfileUser(
+      ShareProfileRequestModel shareProfileRequestModel) async {
     try {
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
@@ -15,8 +17,8 @@ class UserProfileProvider extends GetConnect {
         return null;
       }
       Response response = await post(
-        '$baseurl/Profile/userphotos',
-        null,
+        '$baseurl/Profile/shareProfile',
+        shareProfileRequestModel.toString(),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -24,7 +26,7 @@ class UserProfileProvider extends GetConnect {
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
-          return UserUploadImagesResponse.fromJson(response.body);
+          return ShareProfileResponseModel.fromJson(response.body);
         } else {
           failure('Error', response.body['error']['message']);
           return null;

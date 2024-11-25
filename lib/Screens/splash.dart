@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Screens/login.dart';
 import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
@@ -7,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:uni_links/uni_links.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
@@ -22,6 +24,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
   late Animation<double> scaleAnimation;
   Controller controller = Get.put(Controller());
   bool _isLoading = true; // Track loading state
+  StreamSubscription? _linkSubscription;
 
   @override
   void initState() {
@@ -41,6 +44,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
     );
 
     intialize();
+        _handleIncomingLinks();
   }
 
   intialize() async {
@@ -48,7 +52,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
       await controller.fetchAllHeadlines();
       await controller.fetchSafetyGuidelines();
       await controller.fetchAllPackages();
-      await  controller.reportReason();
+      await controller.reportReason();
       await controller.fetchlang();
 
       EncryptedSharedPreferences preferences =
@@ -72,6 +76,30 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
     }
   }
 
+  void _handleIncomingLinks() {
+    _linkSubscription = uriLinkStream.listen((Uri? link) {
+      if (link != null && link.host == "profile") {
+        final userId = link.queryParameters['userId'];
+        if (userId != null) {
+          // Navigate to the profile page
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (context) => ProfilePage(userId: userId),
+          //   ),
+          // );
+        }
+      }
+    }, onError: (err) {
+      print('Failed to handle link: $err');
+    });
+  }
+
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     final mQuery = MediaQuery.of(context).size;
