@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:uni_links/uni_links.dart';
+
 
 import 'shareprofilepage/shareprofilepage.dart';
 
@@ -49,56 +49,42 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
   }
 
   intialize() async {
-    // try {
+     try {
     await controller.fetchAllHeadlines();
     await controller.fetchSafetyGuidelines();
     await controller.fetchAllPackages();
     await controller.reportReason();
     await controller.fetchlang();
     await controller.fetchProfileUserPhotos();
-    Get.to(ShareProfilePage(id: "107"));
+   
 
-    //   EncryptedSharedPreferences preferences =
-    //       EncryptedSharedPreferences.getInstance();
+      EncryptedSharedPreferences preferences =
+          EncryptedSharedPreferences.getInstance();
 
-    //   String? token = preferences.getString('token');
+      String? token = preferences.getString('token');
 
-    //   if (token == null || token.isEmpty) {
-    //     Get.offAll(() => Login())!.then((_) {
-    //       _handleIncomingLinks();
-    //     });
-    //   } else {
-    //     Get.offAll(() => NavigationBottomBar())!.then((_) {
-    //       _handleIncomingLinks();
-    //     });
-    //   }
-    // } catch (e) {
-    //   failure("Error", e.toString());
-    //   Get.offAll(() => Login())!.then((_) {
-    //     _handleIncomingLinks();
-    //   });
-    // } finally {
-    //   setState(() {
-    //     _isLoading = false;
-    //   });
-    // }
+      if (token == null || token.isEmpty) {
+        Get.offAll(() => Login())!.then((_) {
+        //  _handleIncomingLinks();
+        });
+      } else {
+        Get.offAll(() => NavigationBottomBar())!.then((_) {
+        //  _handleIncomingLinks();
+        });
+      }
+    } catch (e) {
+      failure("Error", e.toString());
+      Get.offAll(() => Login())!.then((_) {
+     //   _handleIncomingLinks();
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
-  // void _handleIncomingLinks() {
-  //   _linkSubscription = uriLinkStream.listen((Uri? link) {
-  //     if (link != null && link.host == "profile") {
-  //       final userId = link.queryParameters['userId'];
-  //       if (userId != null) {
-  //         Get.to(ShareProfilePage(
-  //           id: "107",
-  //         ));
-  //       }
-  //     }
-  //   }, onError: (err) {
-  //     print('Failed to handle link: $err');
-  //   });
-  // }
-
+  
   @override
   void dispose() {
     _linkSubscription?.cancel();

@@ -18,7 +18,7 @@ class ShareProfileProvider extends GetConnect {
       }
       Response response = await post(
         '$baseurl/Profile/shareProfile',
-        shareProfileRequestModel.toString(),
+        shareProfileRequestModel.toJson(),
         headers: {
           'Authorization': 'Bearer $token',
         },
