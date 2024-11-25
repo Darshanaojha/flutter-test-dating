@@ -751,6 +751,7 @@ class Controller extends GetxController {
     lang: [],
     interest: [],
     bio: '',
+    visibility: '',
     emailAlerts: '',
     preferences: [],
     desires: [],
