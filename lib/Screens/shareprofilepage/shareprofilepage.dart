@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../Controllers/controller.dart';
+import '../../Models/RequestModels/share_profile_request_model.dart';
 import '../../constants.dart';
 
 class ShareProfilePage extends StatefulWidget {
-  const ShareProfilePage({Key? key,required String id}) : super(key: key);
+  final String id;
+  const ShareProfilePage({super.key, required this.id});
 
   @override
   ShareProfilePageState createState() => ShareProfilePageState();
 }
-class ShareProfilePageState extends State<ShareProfilePage> with TickerProviderStateMixin {
-  final String profileImage = 'assets/images/image1.jpg'; 
+
+class ShareProfilePageState extends State<ShareProfilePage>
+    with TickerProviderStateMixin {
+  Controller controller = Get.put(Controller());
+  final String profileImage = 'assets/images/image1.jpg';
   final String name = 'John Doe';
   final String age = '28';
   final String gender = 'Male';
@@ -25,8 +32,8 @@ class ShareProfilePageState extends State<ShareProfilePage> with TickerProviderS
   late Animation<double> _fadeAnimation;
 
   // Initialize late variables with nullable types and handle them safely
-  AnimationController? _borderController; 
-  Animation<Color?>? _borderAnimation;  
+  AnimationController? _borderController;
+  Animation<Color?>? _borderAnimation;
 
   @override
   void initState() {
@@ -49,10 +56,14 @@ class ShareProfilePageState extends State<ShareProfilePage> with TickerProviderS
       vsync: this,
     );
     _borderAnimation = ColorTween(begin: Colors.red, end: Colors.white).animate(
-      CurvedAnimation(parent: _borderController!, curve: Curves.linear)
-    );
+        CurvedAnimation(parent: _borderController!, curve: Curves.linear));
 
     _borderController?.repeat(reverse: true); // Repeat the border animation
+  }
+
+  initialize() async {
+    await controller
+        .shareProfileUser(ShareProfileRequestModel(userId: widget.id));
   }
 
   void showFullImage() {
@@ -65,7 +76,8 @@ class ShareProfilePageState extends State<ShareProfilePage> with TickerProviderS
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset(profileImage, fit: BoxFit.cover), // Show local image
+                Image.asset(profileImage,
+                    fit: BoxFit.cover), // Show local image
                 SizedBox(height: 40),
                 Text('Full Profile Image', style: AppTextStyles.titleText),
               ],
@@ -79,7 +91,8 @@ class ShareProfilePageState extends State<ShareProfilePage> with TickerProviderS
   @override
   void dispose() {
     _fadeController.dispose();
-    _borderController?.dispose(); // Dispose the border animation controller safely
+    _borderController
+        ?.dispose(); // Dispose the border animation controller safely
     super.dispose();
   }
 
@@ -119,19 +132,32 @@ class ShareProfilePageState extends State<ShareProfilePage> with TickerProviderS
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    '$name, $age',
+                    controller.sharedUser!.payload!.data.first.name,
                     style: AppTextStyles.headingText,
                   ),
                 ],
               ),
               SizedBox(height: 10),
-
+              Row(
+                children: [
+                  Icon(Icons.person,
+                      color: AppColors.iconColor,
+                      size: isLargeScreen ? 30 : 24),
+                  SizedBox(width: 8),
+                  Text(controller.sharedUser!.payload!.data.first.username,
+                      style: AppTextStyles.bodyText),
+                ],
+              ),
+              SizedBox(height: 10),
               // Gender
               Row(
                 children: [
-                  Icon(Icons.person, color: AppColors.iconColor, size: isLargeScreen ? 30 : 24),
+                  Icon(Icons.person,
+                      color: AppColors.iconColor,
+                      size: isLargeScreen ? 30 : 24),
                   SizedBox(width: 8),
-                  Text(gender, style: AppTextStyles.bodyText),
+                  Text(controller.sharedUser!.payload!.data.first.genderName,
+                      style: AppTextStyles.bodyText),
                 ],
               ),
               SizedBox(height: 10),
@@ -139,11 +165,13 @@ class ShareProfilePageState extends State<ShareProfilePage> with TickerProviderS
               // Bio
               Row(
                 children: [
-                  Icon(Icons.info_outline, color: AppColors.iconColor, size: isLargeScreen ? 30 : 24),
+                  Icon(Icons.info_outline,
+                      color: AppColors.iconColor,
+                      size: isLargeScreen ? 30 : 24),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      bio,
+                      controller.sharedUser!.payload!.data.first.bio,
                       style: AppTextStyles.bodyText,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
@@ -156,9 +184,16 @@ class ShareProfilePageState extends State<ShareProfilePage> with TickerProviderS
               // Address Information
               Row(
                 children: [
-                  Icon(Icons.location_on, color: AppColors.iconColor, size: isLargeScreen ? 30 : 24),
+                  Icon(Icons.location_on,
+                      color: AppColors.iconColor,
+                      size: isLargeScreen ? 30 : 24),
                   SizedBox(width: 8),
-                  Expanded(child: Text('$address, $city, $state, $country', style: AppTextStyles.bodyText,overflow: TextOverflow.ellipsis, maxLines: 2)),
+                  Expanded(
+                      child: Text(
+                          '${controller.sharedUser!.payload!.data.first.address},${controller.sharedUser!.payload!.data.first.city},${controller.getCountryById(controller.sharedUser!.payload!.data.first.countryId)}',
+                          style: AppTextStyles.bodyText,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2)),
                 ],
               ),
               SizedBox(height: 20),
@@ -172,21 +207,28 @@ class ShareProfilePageState extends State<ShareProfilePage> with TickerProviderS
                       elevation: 5,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: _borderAnimation?.value ?? Colors.red, width: 2),
+                        side: BorderSide(
+                            color: _borderAnimation?.value ?? Colors.red,
+                            width: 2),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Preferences:', style: AppTextStyles.subheadingText),
-                            ...preferences.map((pref) => Row(
-                              children: [
-                                Icon(Icons.favorite, color: AppColors.iconColor, size: isLargeScreen ? 30 : 24),
-                                SizedBox(width: 8),
-                                Text(pref, style: AppTextStyles.bodyText),
-                              ],
-                            )),
+                            Text('Preferences:',
+                                style: AppTextStyles.subheadingText),
+                            ...controller.sharedUser!.payload!.preferences
+                                .map((pref) => Row(
+                                      children: [
+                                        Icon(Icons.favorite,
+                                            color: AppColors.iconColor,
+                                            size: isLargeScreen ? 30 : 24),
+                                        SizedBox(width: 8),
+                                        Text(pref.title,
+                                            style: AppTextStyles.bodyText),
+                                      ],
+                                    )),
                           ],
                         ),
                       ),
@@ -204,21 +246,28 @@ class ShareProfilePageState extends State<ShareProfilePage> with TickerProviderS
                       elevation: 5,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: _borderAnimation?.value ?? Colors.red, width: 2),
+                        side: BorderSide(
+                            color: _borderAnimation?.value ?? Colors.red,
+                            width: 2),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Languages:', style: AppTextStyles.subheadingText),
-                            ...languages.map((lang) => Row(
-                              children: [
-                                Icon(Icons.language, color: AppColors.iconColor, size: isLargeScreen ? 30 : 24),
-                                SizedBox(width: 8),
-                                Text(lang, style: AppTextStyles.bodyText),
-                              ],
-                            )),
+                            Text('Languages:',
+                                style: AppTextStyles.subheadingText),
+                            ...controller.sharedUser!.payload!.lang
+                                .map((lang) => Row(
+                                      children: [
+                                        Icon(Icons.language,
+                                            color: AppColors.iconColor,
+                                            size: isLargeScreen ? 30 : 24),
+                                        SizedBox(width: 8),
+                                        Text(lang.title,
+                                            style: AppTextStyles.bodyText),
+                                      ],
+                                    )),
                           ],
                         ),
                       ),
@@ -236,21 +285,28 @@ class ShareProfilePageState extends State<ShareProfilePage> with TickerProviderS
                       elevation: 5,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: _borderAnimation?.value ?? Colors.red, width: 2),
+                        side: BorderSide(
+                            color: _borderAnimation?.value ?? Colors.red,
+                            width: 2),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Desires:', style: AppTextStyles.subheadingText),
-                            ...desires.map((desire) => Row(
-                              children: [
-                                Icon(Icons.star_border, color: AppColors.iconColor, size: isLargeScreen ? 30 : 24),
-                                SizedBox(width: 8),
-                                Text(desire, style: AppTextStyles.bodyText),
-                              ],
-                            )),
+                            Text('Desires:',
+                                style: AppTextStyles.subheadingText),
+                            ...controller.sharedUser!.payload!.desires
+                                .map((desire) => Row(
+                                      children: [
+                                        Icon(Icons.star_border,
+                                            color: AppColors.iconColor,
+                                            size: isLargeScreen ? 30 : 24),
+                                        SizedBox(width: 8),
+                                        Text(desire.title,
+                                            style: AppTextStyles.bodyText),
+                                      ],
+                                    )),
                           ],
                         ),
                       ),

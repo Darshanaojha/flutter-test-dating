@@ -267,6 +267,15 @@ class Controller extends GetxController {
     }
   }
 
+  String getCountryById(String id) {
+    try {
+      final country = countries.firstWhere((c) => c.id == id);
+      return country.name;
+    } catch (e) {
+      return "Country not found";
+    }
+  }
+
   RxList<Language> language = <Language>[].obs;
 
   Future<bool> fetchlang() async {

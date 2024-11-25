@@ -1,3 +1,4 @@
+
 class ShareProfileResponseModel {
   final bool success;
   final Payload? payload;
@@ -32,7 +33,7 @@ class Payload {
   final List<SharedUser> data;
   final List<Desire> desires;
   final List<Preference> preferences;
-  final List<Preference> lang;
+  final List<Language> lang;
   final ImageData img;
 
   Payload({
@@ -55,7 +56,7 @@ class Payload {
           .map((item) => Preference.fromJson(item as Map<String, dynamic>))
           .toList(),
       lang: (json['lang'] as List<dynamic>)
-          .map((item) => Preference.fromJson(item as Map<String, dynamic>))
+          .map((item) => Language.fromJson(item as Map<String, dynamic>))
           .toList(),
       img: ImageData.fromJson(json['img'] as Map<String, dynamic>),
     );
@@ -201,6 +202,30 @@ class Preference {
   Map<String, dynamic> toJson() {
     return {
       'preference_id': id,
+      'title': title,
+    };
+  }
+}
+
+class Language {
+  final String id;
+  final String userId;
+  final String title;
+
+  Language({required this.id, required this.userId, required this.title});
+
+  factory Language.fromJson(Map<String, dynamic> json) {
+    return Language(
+      id: json['lang_id'] as String,
+      userId: json['user_id'] as String,
+      title: json['title'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'lang_id': id,
+      'user_id': userId,
       'title': title,
     };
   }
