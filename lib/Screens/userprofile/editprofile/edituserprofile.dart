@@ -29,6 +29,7 @@ class EditProfilePageState extends State<EditProfilePage> {
   bool hideMeOnFlame = true;
   bool incognitoMode = false;
   RxBool emailAlerts = true.obs;
+  RxBool visibility_status = true.obs;
   bool optOutOfPingNote = true;
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -336,6 +337,10 @@ class EditProfilePageState extends State<EditProfilePage> {
                                   ? controller.userProfileUpdateRequest
                                       .emailAlerts = "1"
                                   : "0";
+                              visibility_status.value == true
+                                  ? controller
+                                      .userProfileUpdateRequest.visibility = '1'
+                                  : '0';
                               controller.updateProfile(
                                   controller.userProfileUpdateRequest);
                               success('Updated', 'Profile Saved!');
@@ -816,6 +821,15 @@ class EditProfilePageState extends State<EditProfilePage> {
                         value: emailAlerts.value,
                         onChanged: (val) =>
                             setState(() => emailAlerts.value = val),
+                      ),
+                      PrivacyToggle(
+                        label: visibility_status.value
+                            ? "Online Visible"
+                            : "Hide Online ",
+                        value: visibility_status.value,
+                        onChanged: (val) => setState(() {
+                          visibility_status.value = val;
+                        }),
                       ),
                       PrivacyToggle(
                         label: "Hide me on Flame",
