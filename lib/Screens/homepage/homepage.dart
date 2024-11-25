@@ -1,3 +1,4 @@
+import 'package:dating_application/Controllers/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
@@ -8,10 +9,11 @@ class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  _HomePageState createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
+  Controller controler = Get.put(Controller());
   final List<Map<String, dynamic>> users = [
     {
       'name': 'John Doe',
@@ -60,7 +62,7 @@ class _HomePageState extends State<HomePage> {
   int messageCount = 0;
   final TextEditingController messageController = TextEditingController();
   final FocusNode messageFocusNode = FocusNode();
-  final PageController _pageController = PageController();
+  // final PageController _pageController = PageController();
   final PageController _imagePageController = PageController();
 
   Future<void> loadImage() async {
@@ -192,7 +194,7 @@ class _HomePageState extends State<HomePage> {
                 SizedBox(
                   height: MediaQuery.of(context).size.height,
                   child: PageView.builder(
-                    controller: _pageController,
+                    // controller: _pageController,
                     itemCount: users.length,
                     itemBuilder: (context, index) {
                       return Padding(
@@ -358,6 +360,7 @@ class _HomePageState extends State<HomePage> {
                                 },
                               ),
                             )
+                            
                           ],
                         ),
                       );
@@ -367,41 +370,33 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          // Floating buttons remain fixed at the bottom
-          Positioned(
+            Positioned(
             bottom: 16,
             left: 16,
             child: Row(
               children: [
-                FloatingActionButton(
+                IconButton(
                   onPressed: () {
                     setState(() {
                       isLiked = !isLiked;
-                      if (isLiked) isDisliked = false;
                     });
                   },
-                  backgroundColor:
-                      isLiked ? AppColors.acceptColor : Colors.grey,
-                  child: Icon(
-                    Icons.favorite,
+                  icon: Icon(
+                    isLiked ? Icons.favorite : Icons.favorite_border,
                     size: 30,
-                    color: AppColors.iconColor,
+                    color: isLiked ? Colors.red : Colors.white,
                   ),
                 ),
-                SizedBox(width: 16),
-                FloatingActionButton(
+                IconButton(
                   onPressed: () {
                     setState(() {
                       isDisliked = !isDisliked;
-                      if (isDisliked) isLiked = false;
                     });
                   },
-                  backgroundColor:
-                      isDisliked ? AppColors.deniedColor : Colors.grey,
-                  child: Icon(
-                    Icons.thumb_down,
+                  icon: Icon(
+                    isDisliked ? Icons.thumb_down : Icons.thumb_down_alt_outlined,
                     size: 30,
-                    color: AppColors.iconColor,
+                    color: isDisliked ? Colors.red : Colors.white,
                   ),
                 ),
               ],
@@ -447,4 +442,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
