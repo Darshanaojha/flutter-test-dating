@@ -82,12 +82,12 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
         final userId = link.queryParameters['userId'];
         if (userId != null) {
           // Navigate to the profile page
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProfilePage(userId: userId),
-            ),
-          );
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (context) => ProfilePage(userId: userId),
+          //   ),
+          // );
         }
       }
     }, onError: (err) {
