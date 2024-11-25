@@ -22,9 +22,10 @@ class UserProfileProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
-
+  
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
+        
           return UserUploadImagesResponse.fromJson(response.body);
         } else {
           failure('Error', response.body['error']['message']);

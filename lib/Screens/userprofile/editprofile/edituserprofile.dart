@@ -1,8 +1,7 @@
 import 'dart:async';
-import 'dart:math';
-
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
+import 'package:dating_application/Models/ResponseModels/get_all_country_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_desires_model_response.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -10,7 +9,7 @@ import 'package:get/get.dart';
 import '../../../Models/ResponseModels/get_all_gender_from_response_model.dart';
 import '../../../constants.dart';
 import '../editphoto/edituserprofilephoto.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart'; // Import SpinKit
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -21,10 +20,10 @@ class EditProfilePage extends StatefulWidget {
 
 class EditProfilePageState extends State<EditProfilePage> {
   final Controller controller = Get.put(Controller());
-  late List<String> photos;
+  RxList<RxString> images = <RxString>[].obs;
   RxBool isLatLongFetched = false.obs;
   RxList<String> genderIds = <String>[].obs;
-  List<bool> isImageLoading = [true, true, true, true];
+  List<bool> isImageLoading = [];
   Timer? debounce;
   bool hideMeOnFlame = true;
   bool incognitoMode = false;
@@ -46,7 +45,7 @@ class EditProfilePageState extends State<EditProfilePage> {
 
   List<Category> categories = [];
   RxList<Desire> desiresList = <Desire>[].obs;
-
+  Country? selectedCountry;
   RxList<Gender> genders = <Gender>[].obs;
   RxList<SubGenderRequest> subGenders = <SubGenderRequest>[].obs;
   Rx<String> selectedOption = ''.obs;
@@ -67,7 +66,7 @@ class EditProfilePageState extends State<EditProfilePage> {
   }
 
   void updateUserInterests() {
-    controller.userRegistrationRequest.interest =
+    controller.userProfileUpdateRequest.interest =
         UpdatedselectedInterests.join(', ');
   }
 
@@ -80,28 +79,47 @@ class EditProfilePageState extends State<EditProfilePage> {
   @override
   void initState() {
     super.initState();
-    photos = controller.userRegistrationRequest.photos;
-    debounce?.cancel();
-    isLatLongFetched.value = false;
-    fetchData();
-    controller.fetchDesires();
-    controller.fetchPreferences();
-    controller.fetchGenders();
-    controller.fetchlang();
-    loadImages();
-    genderIds.addAll(controller.genders.map((gender) => gender.id));
-    for (String genderId in genderIds) {
-      controller.fetchSubGender(SubGenderRequest(genderId: genderId));
-    }
+    intialize();
+  }
 
-    preferencesSelectedOptions.value =
-        List<bool>.filled(controller.preferences.length, false);
-    // fetchDesires();
+  intialize() async {
+    try {
+      debounce?.cancel();
+      debounce?.cancel();
+      isLatLongFetched.value = false;
+      await fetchData();
+      await controller.fetchProfileUserPhotos();
+      await controller.fetchDesires();
+      await controller.fetchPreferences();
+      await controller.fetchGenders();
+      await controller.fetchlang();
+      controller.fetchCountries();
+      if (controller.userPhotos != null) {
+        final userPhotos = controller.userPhotos!;
+        images.clear();
+        if (userPhotos.img1.isNotEmpty) images.add(RxString(userPhotos.img1));
+        if (userPhotos.img2.isNotEmpty) images.add(RxString(userPhotos.img2));
+        if (userPhotos.img3.isNotEmpty) images.add(RxString(userPhotos.img3));
+        if (userPhotos.img4.isNotEmpty) images.add(RxString(userPhotos.img4));
+        if (userPhotos.img5.isNotEmpty) images.add(RxString(userPhotos.img5));
+        if (userPhotos.img6.isNotEmpty) images.add(RxString(userPhotos.img6));
+      }
+      loadImages();
+      genderIds.addAll(controller.genders.map((gender) => gender.id));
+      for (String genderId in genderIds) {
+        controller.fetchSubGender(SubGenderRequest(genderId: genderId));
+      }
+
+      preferencesSelectedOptions.value =
+          List<bool>.filled(controller.preferences.length, false);
+    } catch (e) {
+      failure('Error', e.toString());
+    }
   }
 
   void loadImages() {
-    for (int i = 0; i < photos.length; i++) {
-      final image = AssetImage(photos[i]);
+    for (int i = 0; i < images.length; i++) {
+      final image = AssetImage(images[i].value);
       final imageStream = image.resolve(ImageConfiguration());
 
       imageStream.addListener(
@@ -238,52 +256,54 @@ class EditProfilePageState extends State<EditProfilePage> {
                           SizedBox(height: 5),
                           SizedBox(
                             height: 350,
-                            child: ListView.builder(
-                              scrollDirection: Axis.vertical,
-                              itemCount: photos.length,
-                              itemBuilder: (context, index) {
-                                return Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 8.0),
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () => showFullImageDialog(
-                                            context, photos[index]),
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          child: Image.asset(
-                                            photos[index],
-                                            fit: BoxFit.cover,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.9,
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.45,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return Center(
-                                                child: Icon(Icons.error),
-                                              );
-                                            },
-                                          ),
+                            child: images.isEmpty
+                                ? Center(child: Text("No images available"))
+                                : ListView.builder(
+                                    scrollDirection: Axis.vertical,
+                                    itemCount: images.length,
+                                    itemBuilder: (context, index) {
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 8.0),
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            GestureDetector(
+                                              onTap: () => showFullImageDialog(
+                                                  context, images[index].value),
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                child: Image.asset(
+                                                  images[index].value,
+                                                  fit: BoxFit.cover,
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.9,
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height *
+                                                      0.45,
+                                                  errorBuilder: (context, error,
+                                                      stackTrace) {
+                                                    return Center(
+                                                      child: Icon(Icons.error),
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                            if (isImageLoading[index])
+                                              SpinKitCircle(
+                                                color: AppColors.activeColor,
+                                                size: 50.0,
+                                              ),
+                                          ],
                                         ),
-                                      ),
-                                      if (isImageLoading[index])
-                                        SpinKitCircle(
-                                          color: AppColors.activeColor,
-                                          size: 50.0,
-                                        ),
-                                    ],
+                                      );
+                                    },
                                   ),
-                                );
-                              },
-                            ),
                           ),
                           TextButton.icon(
                             onPressed: () {
@@ -333,6 +353,19 @@ class EditProfilePageState extends State<EditProfilePage> {
                               setState(() {
                                 isLoading = false;
                               });
+                              //pref
+                              List<int> selectedPreferences = [];
+                              for (int i = 0;
+                                  i < preferencesSelectedOptions.length;
+                                  i++) {
+                                if (preferencesSelectedOptions[i]) {
+                                  selectedPreferences.add(
+                                      int.parse(controller.preferences[i].id));
+                                }
+                                  }
+                              controller.userProfileUpdateRequest.preferences =
+                                  selectedPreferences;
+                                  // pref end
                               emailAlerts.value == true
                                   ? controller.userProfileUpdateRequest
                                       .emailAlerts = "1"
@@ -343,6 +376,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                   : '0';
                               controller.updateProfile(
                                   controller.userProfileUpdateRequest);
+
                               success('Updated', 'Profile Saved!');
                             },
                             backgroundColor: AppColors.buttonColor,
@@ -405,6 +439,29 @@ class EditProfilePageState extends State<EditProfilePage> {
                           label: 'About',
                           onChanged: onAboutChanged,
                         ),
+                        Obx(() {
+                          if (controller.countries.isEmpty) {
+                            return Center(
+                              child: SpinKitCircle(
+                                size: 50,
+                                color: AppColors.activeColor,
+                              ),
+                            );
+                          }
+
+                          return buildDropdown<Country>(
+                            "Country",
+                            controller.countries,
+                            selectedCountry,
+                            16.0,
+                            (Country? value) {
+                              controller.userProfileUpdateRequest.countryId =
+                                  value?.id ?? '';
+                            },
+                            displayValue: (Country country) =>
+                                country.name, // Display country name
+                          );
+                        }),
                         InfoField(
                           initialValue: controller
                                   .userRegistrationRequest.address.isNotEmpty
@@ -861,6 +918,49 @@ class EditProfilePageState extends State<EditProfilePage> {
   }
 }
 
+Widget buildDropdown<T>(
+  String label,
+  List<T> items,
+  T? selectedValue,
+  double fontSize,
+  Function(T?) onChanged, {
+  String Function(T)?
+      displayValue, // Helper to extract display value from items
+}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8.0),
+    child: DropdownButtonFormField<T>(
+      value: selectedValue, // Bind to the selected value
+      items: items.map((T value) {
+        return DropdownMenuItem<T>(
+          value: value,
+          child: Text(
+            displayValue != null ? displayValue(value) : value.toString(),
+            style: AppTextStyles.textStyle.copyWith(fontSize: fontSize),
+          ),
+        );
+      }).toList(),
+      onChanged: onChanged, // Use the provided onChanged callback
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(color: AppColors.formFieldColor),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.white),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.white),
+        ),
+      ),
+      style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
+      dropdownColor: AppColors.secondaryColor,
+    ),
+  );
+}
+
 Widget buildRelationshipStatusInterestStep(
     BuildContext context, Size screenSize) {
   // Initialize controller inside build method
@@ -1187,7 +1287,6 @@ Widget languages(BuildContext context) {
 }
 
 final Controller controller = Get.put(Controller());
-// Update the selectedLanguageIds based on selectedLanguages
 void updateSelectedLanguageIds() {
   selectedLanguagesId.clear();
   for (int i = 0; i < controller.language.length; i++) {

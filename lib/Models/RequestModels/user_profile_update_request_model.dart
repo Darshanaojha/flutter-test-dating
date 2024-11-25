@@ -1,25 +1,24 @@
 
 import '../../constants.dart'; // For basic UI error handling
-
 class UserProfileUpdateRequest {
-   String name;
-   String latitude;
-   String longitude;
-   String address;
-   String countryId;
-   String state;
-   String city;
-   String dob;
-   String nickname;
-   String gender;
-   String subGender;
-   List<int>lang;
-   List<dynamic> interest;
-   String bio;
-   String visibility;
-   String emailAlerts;
-   List<dynamic> preferences;
-   List<dynamic> desires;
+  String name;
+  String latitude;
+  String longitude;
+  String address;
+  String countryId;
+  String state;
+  String city;
+  String dob;
+  String nickname;
+  String gender;
+  String subGender;
+  List<int> lang;
+  String interest;
+  String bio;
+  String visibility;
+  String emailAlerts;
+  List<dynamic> preferences;
+  List<dynamic> desires;
 
   UserProfileUpdateRequest({
     required this.name,
@@ -58,10 +57,10 @@ class UserProfileUpdateRequest {
       interest: json['interest'],
       bio: json['bio'],
       visibility: json["visibility_status"],
-      lang: json['lang'],
+      lang: json['lang'] != null ? List<int>.from(json['lang']) : [], 
       emailAlerts: json['emailalerts'],
-      preferences: json['preferences'],
-      desires: json['desires'],
+      preferences: json['preferences'] ?? [], 
+      desires: json['desires'] ?? [],
     );
   }
 
@@ -81,8 +80,8 @@ class UserProfileUpdateRequest {
       'subgender': subGender,
       'interest': interest,
       'bio': bio,
-      'visibility_status':visibility,
-      'lang':lang,
+      'visibility_status': visibility,
+      'lang': lang,
       'emailalerts': emailAlerts,
       'preferences': preferences,
       'desires': desires,
@@ -100,18 +99,34 @@ class UserProfileUpdateRequest {
       validateNotEmpty(gender, 'Gender');
       validateNotEmpty(subGender, 'Sub-Gender');
 
+      // Validate lists for null or empty
+      if (preferences.isEmpty) {
+        failure('Preferences List', 'Preferences list cannot be empty.');
+        return false;
+      }
+
+      if (desires.isEmpty) {
+        failure('Desires List', 'Desires list cannot be empty.');
+        return false;
+      }
+
+      // Validate coordinates
       if (!isValidCoordinate(latitude)) {
         failure('Invalid Latitude', 'Latitude must be between -180 and 180.');
         return false;
       }
+
       if (!isValidCoordinate(longitude)) {
         failure('Invalid Longitude', 'Longitude must be between -180 and 180.');
         return false;
       }
+
+      // Validate date of birth format
       if (!isValidDate(dob)) {
         failure('Invalid Date of Birth', 'Date of Birth should be in YYYY/MM/DD format.');
         return false;
       }
+
       return true; // All validations passed
     } catch (e) {
       failure("Validation Error", e.toString());
@@ -129,9 +144,13 @@ class UserProfileUpdateRequest {
     final doubleValue = double.tryParse(coordinate);
     return doubleValue != null && doubleValue >= -180 && doubleValue <= 180;
   }
+
   bool isValidDate(String date) {
-    final  datePattern = RegExp(r'^\d{4}/\d{2}/\d{2}$'); 
+    final datePattern = RegExp(r'^\d{4}/\d{2}/\d{2}$');
     return datePattern.hasMatch(date);
   }
 
+  void failure(String title, String message) {
+    print('$title: $message');
+  }
 }

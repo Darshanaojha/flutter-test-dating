@@ -1,11 +1,11 @@
 class UserUploadImagesResponse {
   final bool success;
-  final UserUploadImagesPayload payload;
+  final UserUploadImagesPayload? payload; // Making payload nullable
   final ApiError error;
 
   UserUploadImagesResponse({
     required this.success,
-    required this.payload,
+    this.payload, // payload can now be null
     required this.error,
   });
 
@@ -13,7 +13,9 @@ class UserUploadImagesResponse {
   factory UserUploadImagesResponse.fromJson(Map<String, dynamic> json) {
     return UserUploadImagesResponse(
       success: json['success'],
-      payload: UserUploadImagesPayload.fromJson(json['payload']),
+      payload: json['payload'] != null
+          ? UserUploadImagesPayload.fromJson(json['payload'])
+          : null, // Check if payload exists before deserializing
       error: ApiError.fromJson(json['error']),
     );
   }
@@ -22,7 +24,7 @@ class UserUploadImagesResponse {
   Map<String, dynamic> toJson() {
     return {
       'success': success,
-      'payload': payload.toJson(),
+      'payload': payload?.toJson(), // Convert payload to JSON only if it's not null
       'error': error.toJson(),
     };
   }
@@ -30,18 +32,18 @@ class UserUploadImagesResponse {
 
 class UserUploadImagesPayload {
   final String message;
-  final UserImageData data;
+  final UserImageData? data; // Making data nullable
 
   UserUploadImagesPayload({
     required this.message,
-    required this.data,
+    this.data, // data can be null
   });
 
   // Factory constructor to create UserUploadImagesPayload from JSON
   factory UserUploadImagesPayload.fromJson(Map<String, dynamic> json) {
     return UserUploadImagesPayload(
       message: json['message'],
-      data: UserImageData.fromJson(json['data']),
+      data: json['data'] != null ? UserImageData.fromJson(json['data']) : null, // Check if data exists before deserializing
     );
   }
 
@@ -49,7 +51,7 @@ class UserUploadImagesPayload {
   Map<String, dynamic> toJson() {
     return {
       'message': message,
-      'data': data.toJson(),
+      'data': data?.toJson(), // Convert data to JSON only if it's not null
     };
   }
 }
@@ -86,12 +88,12 @@ class UserImageData {
     return UserImageData(
       id: json['id'],
       userId: json['user_id'],
-      img1: json['img1'],
-      img2: json['img2'],
-      img3: json['img3'],
-      img4: json['img4'] ?? '', // Default to an empty string if no image
-      img5: json['img5'] ?? '', // Default to an empty string if no image
-      img6: json['img6'] ?? '', // Default to an empty string if no image
+      img1: json['img1'] ?? '', // Default to empty string if no image
+      img2: json['img2'] ?? '', // Default to empty string if no image
+      img3: json['img3'] ?? '', // Default to empty string if no image
+      img4: json['img4'] ?? '', // Default to empty string if no image
+      img5: json['img5'] ?? '', // Default to empty string if no image
+      img6: json['img6'] ?? '', // Default to empty string if no image
       status: json['status'],
       created: json['created'],
       updated: json['updated'],
@@ -129,7 +131,7 @@ class ApiError {
   factory ApiError.fromJson(Map<String, dynamic> json) {
     return ApiError(
       code: json['code'],
-      message: json['message'] ?? '', // Default to an empty string if message is null
+      message: json['message'] ?? '', // Default to empty string if message is null
     );
   }
 

@@ -77,21 +77,20 @@ class LikesPageState extends State<LikesPage> {
 
   // Filter logic for user profiles
   List<Map<String, dynamic>> getFilteredUsers() {
-  return users.where((user) {
-    bool matchesGender =
-        selectedGender == 'All' || user['gender'] == selectedGender;
-    bool matchesLocation =
-        selectedLocation == 'All' || user['location'] == selectedLocation;
-    bool matchesDesire =
-        selectedDesire == 'All' || user['desires'].contains(selectedDesire);
-    bool matchesAge = selectedAgeRange == 0 ||
-        (selectedAgeRange == 1 && user['age'] >= 18 && user['age'] <= 25) ||
-        (selectedAgeRange == 2 && user['age'] >= 26 && user['age'] <= 35) ||
-        (selectedAgeRange == 3 && user['age'] >= 36);
-    return matchesGender && matchesLocation && matchesDesire && matchesAge;
-  }).toList();
-}
-
+    return users.where((user) {
+      bool matchesGender =
+          selectedGender == 'All' || user['gender'] == selectedGender;
+      bool matchesLocation =
+          selectedLocation == 'All' || user['location'] == selectedLocation;
+      bool matchesDesire =
+          selectedDesire == 'All' || user['desires'].contains(selectedDesire);
+      bool matchesAge = selectedAgeRange == 0 ||
+          (selectedAgeRange == 1 && user['age'] >= 18 && user['age'] <= 25) ||
+          (selectedAgeRange == 2 && user['age'] >= 26 && user['age'] <= 35) ||
+          (selectedAgeRange == 3 && user['age'] >= 36);
+      return matchesGender && matchesLocation && matchesDesire && matchesAge;
+    }).toList();
+  }
 
   void showFullImageDialog(BuildContext context, String imagePath) {
     showDialog(
@@ -402,37 +401,32 @@ class LikesPageState extends State<LikesPage> {
 
                           Row(
                             children: [
-                              FloatingActionButton(
+                              IconButton(
                                 onPressed: () {
                                   setState(() {
                                     isLiked = !isLiked;
-                                    isDisliked = false;
                                   });
                                 },
-                                backgroundColor: Colors.grey,
-                                child: Icon(
-                                  Icons.favorite,
-                                  color: isLiked
-                                      ? AppColors.acceptColor
-                                      : AppColors.iconColor,
-                                  size: 40,
+                                icon: Icon(
+                                  isLiked
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  size: 30,
+                                  color: isLiked ? Colors.red : Colors.white,
                                 ),
                               ),
-                              SizedBox(width: 20),
-                              FloatingActionButton(
+                              IconButton(
                                 onPressed: () {
                                   setState(() {
                                     isDisliked = !isDisliked;
-                                    isLiked = false;
                                   });
                                 },
-                                backgroundColor: Colors.grey,
-                                child: Icon(
-                                  Icons.thumb_down,
-                                  color: isDisliked
-                                      ? AppColors.deniedColor
-                                      : AppColors.iconColor,
-                                  size: 40,
+                                icon: Icon(
+                                  isDisliked
+                                      ? Icons.thumb_down
+                                      : Icons.thumb_down_alt_outlined,
+                                  size: 30,
+                                  color: isDisliked ? Colors.red : Colors.white,
                                 ),
                               ),
                             ],
@@ -480,51 +474,52 @@ class LikesPageState extends State<LikesPage> {
       ),
     );
   }
- Widget buildFilterChip(
-    String label, List<String> options, Function(String?) onSelected) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-    child: Container(
-      decoration: BoxDecoration(
-        // borderRadius: BorderRadius.circular(14),
-        // border: Border.all(color: AppColors.activeColor, width: 2),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            foregroundColor: AppColors.primaryColor,
-            backgroundColor: AppColors.secondaryColor, // Text color
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-              side: BorderSide(color: AppColors.activeColor, width: 2),
+
+  Widget buildFilterChip(
+      String label, List<String> options, Function(String?) onSelected) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Container(
+        decoration: BoxDecoration(
+            // borderRadius: BorderRadius.circular(14),
+            // border: Border.all(color: AppColors.activeColor, width: 2),
             ),
-          ),
-          onPressed: () {
-            // Open bottom sheet when button is pressed
-            showBottomSheet(label, options, onSelected);
-          },
-          child: Row(
-            mainAxisSize: MainAxisSize.min, // Ensures the row takes up only as much space as needed
-            children: [
-              Text(
-                label,
-                style: AppTextStyles.bodyText,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              foregroundColor: AppColors.primaryColor,
+              backgroundColor: AppColors.secondaryColor, // Text color
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: BorderSide(color: AppColors.activeColor, width: 2),
               ),
-              SizedBox(width: 8), // Space between the text and the icon
-              Icon(
-                Icons.arrow_drop_down, // Down arrow icon
-                color: AppColors.activeColor, // Icon color
-              ),
-            ],
+            ),
+            onPressed: () {
+              // Open bottom sheet when button is pressed
+              showBottomSheet(label, options, onSelected);
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize
+                  .min, // Ensures the row takes up only as much space as needed
+              children: [
+                Text(
+                  label,
+                  style: AppTextStyles.bodyText,
+                ),
+                SizedBox(width: 8), // Space between the text and the icon
+                Icon(
+                  Icons.arrow_drop_down, // Down arrow icon
+                  color: AppColors.activeColor, // Icon color
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   void showBottomSheet(
       String label, List<String> options, Function(String?) onSelected) {
@@ -559,10 +554,9 @@ class LikesPageState extends State<LikesPage> {
                                       : option,
                   onChanged: (value) {
                     setState(() {
-                      onSelected(value); 
+                      onSelected(value);
                     });
-                    Navigator.pop(
-                        context); 
+                    Navigator.pop(context);
                   },
                   activeColor: AppColors.buttonColor,
                 );

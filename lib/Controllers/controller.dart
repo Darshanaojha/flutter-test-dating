@@ -498,8 +498,8 @@ class Controller extends GetxController {
     try {
       UserUploadImagesResponse? response =
           await UserProfileProvider().fetchProfileUserPhotos();
-      if (response != null) {
-        userPhotos = response.payload.data;
+      if (response != null && response.payload != null) {
+        userPhotos = response.payload!.data;
         success('success', 'successfully fetched the user profile photos');
         return true;
       } else {
@@ -749,7 +749,7 @@ class Controller extends GetxController {
     gender: "",
     subGender: "",
     lang: [],
-    interest: [],
+    interest: '',
     bio: '',
     visibility: '',
     emailAlerts: '',
