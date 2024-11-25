@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/share_profile_request_model.dart';
+import '../../Models/ResponseModels/share_profile_response_model.dart';
 import '../../constants.dart';
 
 class ShareProfilePage extends StatefulWidget {
@@ -16,17 +17,7 @@ class ShareProfilePageState extends State<ShareProfilePage>
     with TickerProviderStateMixin {
   Controller controller = Get.put(Controller());
   final String profileImage = 'assets/images/image1.jpg';
-  final String name = 'John Doe';
-  final String age = '28';
-  final String gender = 'Male';
-  final String bio = 'A passionate traveler and foodie who loves nature.';
-  final String address = '123 Street Name';
-  final String city = 'New York';
-  final String state = 'NY';
-  final String country = 'USA';
-  final List<String> preferences = ['Yoga', 'Cooking', 'Music'];
-  final List<String> languages = ['English', 'Spanish'];
-  final List<String> desires = ['Travel', 'Adventure'];
+ 
 
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
@@ -61,10 +52,6 @@ class ShareProfilePageState extends State<ShareProfilePage>
     _borderController?.repeat(reverse: true); // Repeat the border animation
   }
 
-  initialize() async {
-    await controller
-        .shareProfileUser(ShareProfileRequestModel(userId: widget.id));
-  }
 
   void showFullImage() {
     showDialog(
@@ -107,215 +94,270 @@ class ShareProfilePageState extends State<ShareProfilePage>
         centerTitle: true,
         backgroundColor: AppColors.primaryColor,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: GestureDetector(
-                  onTap: showFullImage,
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: CircleAvatar(
-                      radius: isLargeScreen ? 90 : 60,
-                      backgroundImage: AssetImage(profileImage),
-                    ),
-                  ),
+      body: FutureBuilder<ShareProfileResponseModel?>(
+        future: controller.shareProfileUser(ShareProfileRequestModel(
+            userId: widget.id)), // Fetch the user profile data
+        builder: (context, AsyncSnapshot<ShareProfileResponseModel?> snapshot) {
+          // Handle the different states of the future:
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Show a loading indicator while waiting for the data
+            return Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasError) {
+              // Handle errors by showing an error message
+              return Center(
+                child: Text(
+                  'Error: ${snapshot.error}',
+                  style: TextStyle(color: Colors.red),
                 ),
-              ),
-              SizedBox(height: 20),
+              );
+            }
 
-              // Name and Age
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    controller.sharedUser!.payload!.data.first.name,
-                    style: AppTextStyles.headingText,
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Row(
-                children: [
-                  Icon(Icons.person,
-                      color: AppColors.iconColor,
-                      size: isLargeScreen ? 30 : 24),
-                  SizedBox(width: 8),
-                  Text(controller.sharedUser!.payload!.data.first.username,
-                      style: AppTextStyles.bodyText),
-                ],
-              ),
-              SizedBox(height: 10),
-              // Gender
-              Row(
-                children: [
-                  Icon(Icons.person,
-                      color: AppColors.iconColor,
-                      size: isLargeScreen ? 30 : 24),
-                  SizedBox(width: 8),
-                  Text(controller.sharedUser!.payload!.data.first.genderName,
-                      style: AppTextStyles.bodyText),
-                ],
-              ),
-              SizedBox(height: 10),
+            if (!snapshot.hasData) {
+              // Handle the case when there's no data (null)
+              return Center(child: Text('No data available.'));
+            }
 
-              // Bio
-              Row(
-                children: [
-                  Icon(Icons.info_outline,
-                      color: AppColors.iconColor,
-                      size: isLargeScreen ? 30 : 24),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      controller.sharedUser!.payload!.data.first.bio,
-                      style: AppTextStyles.bodyText,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
+            // If we have data, build the UI with the profile information
+            ShareProfileResponseModel sharedUser = snapshot.data!;
+
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: GestureDetector(
+                        onTap: showFullImage,
+                        child: FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: CircleAvatar(
+                            radius: isLargeScreen ? 90 : 60,
+                            backgroundImage: AssetImage(profileImage),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
+                    SizedBox(height: 20),
 
-              // Address Information
-              Row(
-                children: [
-                  Icon(Icons.location_on,
-                      color: AppColors.iconColor,
-                      size: isLargeScreen ? 30 : 24),
-                  SizedBox(width: 8),
-                  Expanded(
-                      child: Text(
-                          '${controller.sharedUser!.payload!.data.first.address},${controller.sharedUser!.payload!.data.first.city},${controller.getCountryById(controller.sharedUser!.payload!.data.first.countryId)}',
+                    // Name and Age
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          sharedUser.payload?.data?.first?.name ??
+                              'N/A', // Safely access data
+                          style: AppTextStyles.headingText,
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Icon(Icons.person,
+                            color: AppColors.iconColor,
+                            size: isLargeScreen ? 30 : 24),
+                        SizedBox(width: 8),
+                        Text(
+                          sharedUser.payload?.data?.first?.username ?? 'N/A',
                           style: AppTextStyles.bodyText,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2)),
-                ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    // Gender
+                    Row(
+                      children: [
+                        Icon(Icons.person,
+                            color: AppColors.iconColor,
+                            size: isLargeScreen ? 30 : 24),
+                        SizedBox(width: 8),
+                        Text(
+                          sharedUser.payload?.data?.first?.genderName ?? 'N/A',
+                          style: AppTextStyles.bodyText,
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+
+                    // Bio
+                    Row(
+                      children: [
+                        Icon(Icons.info_outline,
+                            color: AppColors.iconColor,
+                            size: isLargeScreen ? 30 : 24),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            sharedUser.payload?.data?.first?.bio ??
+                                'No bio available',
+                            style: AppTextStyles.bodyText,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+
+                    // Address Information
+                    Row(
+                      children: [
+                        Icon(Icons.location_on,
+                            color: AppColors.iconColor,
+                            size: isLargeScreen ? 30 : 24),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            '${sharedUser.payload?.data?.first?.address ?? 'N/A'}, ${sharedUser.payload?.data?.first?.city ?? 'N/A'}, ${controller.getCountryById(sharedUser.payload!.data.first.countryId)}',
+                            style: AppTextStyles.bodyText,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+
+                    // Preferences in Card Style with Animated Border
+                    if (sharedUser.payload?.preferences.isNotEmpty ?? false)
+                      AnimatedBuilder(
+                        animation: _borderController!,
+                        builder: (context, child) {
+                          return Card(
+                            elevation: 5,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(
+                                color: _borderAnimation?.value ?? Colors.red,
+                                width: 2,
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Preferences:',
+                                      style: AppTextStyles.subheadingText),
+                                  ...sharedUser.payload!.preferences
+                                      .map((pref) => Row(
+                                            children: [
+                                              Icon(Icons.favorite,
+                                                  color: AppColors.iconColor,
+                                                  size:
+                                                      isLargeScreen ? 30 : 24),
+                                              SizedBox(width: 8),
+                                              Text(pref.title,
+                                                  style:
+                                                      AppTextStyles.bodyText),
+                                            ],
+                                          ))
+                                      .toList(),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    SizedBox(height: 20),
+
+                    // Languages in Card Style with Animated Border
+                    if (sharedUser.payload?.lang.isNotEmpty ?? false)
+                      AnimatedBuilder(
+                        animation: _borderController!,
+                        builder: (context, child) {
+                          return Card(
+                            elevation: 5,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(
+                                color: _borderAnimation?.value ?? Colors.red,
+                                width: 2,
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Languages:',
+                                      style: AppTextStyles.subheadingText),
+                                  ...sharedUser.payload!.lang
+                                      .map((lang) => Row(
+                                            children: [
+                                              Icon(Icons.language,
+                                                  color: AppColors.iconColor,
+                                                  size:
+                                                      isLargeScreen ? 30 : 24),
+                                              SizedBox(width: 8),
+                                              Text(lang.title,
+                                                  style:
+                                                      AppTextStyles.bodyText),
+                                            ],
+                                          ))
+                                      .toList(),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    SizedBox(height: 20),
+
+                    // Desires in Card Style with Animated Border
+                    if (sharedUser.payload?.desires.isNotEmpty ?? false)
+                      AnimatedBuilder(
+                        animation: _borderController!,
+                        builder: (context, child) {
+                          return Card(
+                            elevation: 5,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(
+                                color: _borderAnimation?.value ?? Colors.red,
+                                width: 2,
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Desires:',
+                                      style: AppTextStyles.subheadingText),
+                                  ...sharedUser.payload!.desires
+                                      .map((desire) => Row(
+                                            children: [
+                                              Icon(Icons.star_border,
+                                                  color: AppColors.iconColor,
+                                                  size:
+                                                      isLargeScreen ? 30 : 24),
+                                              SizedBox(width: 8),
+                                              Text(desire.title,
+                                                  style:
+                                                      AppTextStyles.bodyText),
+                                            ],
+                                          ))
+                                      .toList(),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                  ],
+                ),
               ),
-              SizedBox(height: 20),
+            );
+          }
 
-              // Preferences in Card Style with Animated Border
-              if (preferences.isNotEmpty)
-                AnimatedBuilder(
-                  animation: _borderController!,
-                  builder: (context, child) {
-                    return Card(
-                      elevation: 5,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(
-                            color: _borderAnimation?.value ?? Colors.red,
-                            width: 2),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Preferences:',
-                                style: AppTextStyles.subheadingText),
-                            ...controller.sharedUser!.payload!.preferences
-                                .map((pref) => Row(
-                                      children: [
-                                        Icon(Icons.favorite,
-                                            color: AppColors.iconColor,
-                                            size: isLargeScreen ? 30 : 24),
-                                        SizedBox(width: 8),
-                                        Text(pref.title,
-                                            style: AppTextStyles.bodyText),
-                                      ],
-                                    )),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              SizedBox(height: 20),
-
-              // Languages in Card Style with Animated Border
-              if (languages.isNotEmpty)
-                AnimatedBuilder(
-                  animation: _borderController!,
-                  builder: (context, child) {
-                    return Card(
-                      elevation: 5,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(
-                            color: _borderAnimation?.value ?? Colors.red,
-                            width: 2),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Languages:',
-                                style: AppTextStyles.subheadingText),
-                            ...controller.sharedUser!.payload!.lang
-                                .map((lang) => Row(
-                                      children: [
-                                        Icon(Icons.language,
-                                            color: AppColors.iconColor,
-                                            size: isLargeScreen ? 30 : 24),
-                                        SizedBox(width: 8),
-                                        Text(lang.title,
-                                            style: AppTextStyles.bodyText),
-                                      ],
-                                    )),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              SizedBox(height: 20),
-
-              // Desires in Card Style with Animated Border
-              if (desires.isNotEmpty)
-                AnimatedBuilder(
-                  animation: _borderController!,
-                  builder: (context, child) {
-                    return Card(
-                      elevation: 5,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(
-                            color: _borderAnimation?.value ?? Colors.red,
-                            width: 2),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Desires:',
-                                style: AppTextStyles.subheadingText),
-                            ...controller.sharedUser!.payload!.desires
-                                .map((desire) => Row(
-                                      children: [
-                                        Icon(Icons.star_border,
-                                            color: AppColors.iconColor,
-                                            size: isLargeScreen ? 30 : 24),
-                                        SizedBox(width: 8),
-                                        Text(desire.title,
-                                            style: AppTextStyles.bodyText),
-                                      ],
-                                    )),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-            ],
-          ),
-        ),
+          // If the connection state is anything other than waiting or done
+          return Center(child: Text('Unexpected error'));
+        },
       ),
     );
   }

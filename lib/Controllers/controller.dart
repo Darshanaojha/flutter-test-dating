@@ -1217,20 +1217,20 @@ class Controller extends GetxController {
   }
 
   ShareProfileResponseModel? sharedUser;
-  Future<bool> shareProfileUser(
+  Future<ShareProfileResponseModel?> shareProfileUser(
       ShareProfileRequestModel shareProfileRequestModel) async {
     try {
       ShareProfileResponseModel? response = await ShareProfileProvider()
           .shareProfileUser(shareProfileRequestModel);
       if (response != null && response.payload != null) {
         sharedUser = response;
-        return true;
+        return sharedUser;
       }
       failure('Error', 'Failed to fetch the shared profile');
-      return false;
+      return null;
     } catch (e) {
       failure('Error', e.toString());
-      return false;
+      return null;
     }
   }
 }
