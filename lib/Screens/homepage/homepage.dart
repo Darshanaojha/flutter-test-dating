@@ -323,7 +323,7 @@ class HomePageState extends State<HomePage> {
                                       Center(
                                         child: SpinKitCircle(
                                           size: 150.0,
-                                          color: AppColors.acceptColor,
+                                          color: AppColors.progressColor,
                                         ),
                                       ),
                                     ListView.builder(
@@ -550,7 +550,7 @@ class HomePageState extends State<HomePage> {
                                             fontSize: 12,
                                           ),
                                         ),
-                                        backgroundColor: AppColors.acceptColor,
+                                        backgroundColor: AppColors.chipColor,
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(18),

@@ -551,7 +551,7 @@ void showBottomSheet({
           if (isLoading)
             Center(
               child: SpinKitCircle(
-                color: AppColors.buttonColor,
+                color: AppColors.progressColor,
                 size: 50.0,
               ),
             ),

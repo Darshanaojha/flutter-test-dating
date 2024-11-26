@@ -7,6 +7,8 @@ import '../homepage/homepage.dart';
 import '../likespages/userlikespage.dart';
 import '../settings/setting.dart';
 import '../userprofile/userprofilepage.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart'; 
+
 
 class NavigationController extends GetxController {
   final Rx<int> selectedIndex = 0.obs;
@@ -14,7 +16,7 @@ class NavigationController extends GetxController {
     HomePage(),
     LikesPage(),
     ChatHistoryPage(),
-    UserProfilePage()
+    UserProfilePage(),
   ];
 
   void navigateTo(int index) {
@@ -95,7 +97,7 @@ class NavigationBottomBar extends StatelessWidget {
               ),
             ),
           ),
-          backgroundColor: AppColors.acceptColor,
+          backgroundColor: AppColors.navigationColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(30),
@@ -125,66 +127,45 @@ class NavigationBottomBar extends StatelessWidget {
         return controller.screens[controller.selectedIndex.value];
       }),
       bottomNavigationBar: Obx(() {
-        return AnimatedContainer(
-          duration: Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          decoration: BoxDecoration(
-            color: AppColors.primaryColor,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(30),
-              topRight: Radius.circular(30),
+        return CurvedNavigationBar(
+          index: controller.selectedIndex.value,
+          onTap: (index) {
+            controller.navigateTo(index);
+          },
+          backgroundColor: AppColors.primaryColor,
+          color: AppColors.navigationColor,
+          height: 60,
+          animationDuration: Duration(milliseconds: 300),
+          items: <Widget>[
+            Icon(
+              Icons.home,
+              size: 30,
+              color: controller.selectedIndex.value == 0
+                  ? AppColors.primaryColor
+                  : AppColors.textColor,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                offset: Offset(0, -2),
-                blurRadius: 8,
-              ),
-            ],
-          ),
-          child: NavigationBar(
-            selectedIndex: controller.selectedIndex.value,
-            onDestinationSelected: (index) {
-              controller.navigateTo(index);
-            },
-            backgroundColor: AppColors.primaryColor,
-            height: 80,
-            elevation: 1,
-            destinations: [
-              NavigationDestination(
-                icon: AnimatedScale(
-                  scale: controller.selectedIndex.value == 0 ? 1.2 : 1.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: Icon(Icons.home),
-                ),
-                label: 'Home',
-              ),
-              NavigationDestination(
-                icon: AnimatedScale(
-                  scale: controller.selectedIndex.value == 1 ? 1.2 : 1.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: Icon(Icons.favorite),
-                ),
-                label: 'Likes',
-              ),
-              NavigationDestination(
-                icon: AnimatedScale(
-                  scale: controller.selectedIndex.value == 2 ? 1.2 : 1.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: Icon(Icons.message),
-                ),
-                label: 'Messages',
-              ),
-              NavigationDestination(
-                icon: AnimatedScale(
-                  scale: controller.selectedIndex.value == 3 ? 1.2 : 1.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: Icon(Icons.account_circle),
-                ),
-                label: 'Profile',
-              ),
-            ],
-          ),
+            Icon(
+              Icons.favorite,
+              size: 30,
+              color: controller.selectedIndex.value == 1
+                  ? AppColors.primaryColor
+                  : AppColors.textColor,
+            ),
+            Icon(
+              Icons.message,
+              size: 30,
+              color: controller.selectedIndex.value == 2
+                  ? AppColors.primaryColor
+                  : AppColors.textColor,
+            ),
+            Icon(
+              Icons.account_circle,
+              size: 30,
+              color: controller.selectedIndex.value == 3
+                  ? AppColors.primaryColor
+                  : AppColors.textColor,
+            ),
+          ],
         );
       }),
     );

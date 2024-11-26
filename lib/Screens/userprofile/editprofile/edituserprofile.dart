@@ -296,7 +296,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                             ),
                                             if (isImageLoading[index])
                                               SpinKitCircle(
-                                                color: AppColors.activeColor,
+                                                color: AppColors.progressColor,
                                                 size: 50.0,
                                               ),
                                           ],
@@ -401,7 +401,7 @@ class EditProfilePageState extends State<EditProfilePage> {
               isLoading
                   ? Center(
                       child: SpinKitCircle(
-                        color: AppColors.activeColor,
+                        color: AppColors.progressColor,
                         size: 50.0,
                       ),
                     )
@@ -444,7 +444,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                             return Center(
                               child: SpinKitCircle(
                                 size: 50,
-                                color: AppColors.activeColor,
+                                color: AppColors.progressColor,
                               ),
                             );
                           }
@@ -513,7 +513,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                 ? Center(
                                     child: SpinKitCircle(
                                       size: 90,
-                                      color: AppColors.activeColor,
+                                      color: AppColors.progressColor,
                                     ), // Show loading spinner while fetching
                                   )
                                 : Container(); // Empty container if lat-long is not fetched
@@ -537,7 +537,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                       return Center(
                                         child: SpinKitCircle(
                                           size: 90,
-                                          color: AppColors.acceptColor,
+                                          color: AppColors.progressColor,
                                         ),
                                       );
                                     }
@@ -710,7 +710,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                             return Center(
                               child: SpinKitCircle(
                                 size: 90,
-                                color: AppColors.acceptColor,
+                                color: AppColors.progressColor,
                               ),
                             );
                           }

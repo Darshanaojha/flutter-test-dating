@@ -313,7 +313,7 @@ class UserProfilePageState extends State<UserProfilePage> {
             Center(
               child: SpinKitCircle(
                 size: 150.0, // Adjust the size as needed
-                color: AppColors.acceptColor,
+                color: AppColors.progressColor,
                 // Choose the spinner color that matches your app
               ),
             ),

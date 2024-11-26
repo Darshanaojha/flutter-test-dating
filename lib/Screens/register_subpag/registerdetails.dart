@@ -173,7 +173,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                             return Center(
                               child: SpinKitCircle(
                                 size: 50,
-                                color: AppColors.activeColor,
+                                color: AppColors.progressColor,
                               ),
                             );
                           }

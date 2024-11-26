@@ -467,7 +467,7 @@ class LikesPageState extends State<LikesPage> {
             Center(
               child: SpinKitCircle(
                 size: 150.0, // Adjust the size of the spinner
-                color: AppColors.acceptColor, // Set the spinner color
+                color: AppColors.progressColor, // Set the spinner color
               ),
             ),
         ],

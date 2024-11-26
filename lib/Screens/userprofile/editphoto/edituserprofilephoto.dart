@@ -277,7 +277,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                   ? Center(
                       child: SpinKitCircle(
                         size: 150.0,
-                        color: AppColors.acceptColor,
+                        color: AppColors.progressColor,
                       ),
                     )
                   : GridView.builder(

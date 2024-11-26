@@ -260,7 +260,7 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
             Center(
               child: SpinKitCircle(
                 size: 150.0,
-                color: AppColors.acceptColor,
+                color: AppColors.progressColor,
               ),
             ),
         ],
