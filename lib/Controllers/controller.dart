@@ -5,6 +5,7 @@ import 'package:dating_application/Models/RequestModels/change_password_request.
 import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
 import 'package:dating_application/Models/ResponseModels/change_password_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_benifites_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/get_all_faq_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_gender_from_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_headlines_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_packages_response_model.dart';
@@ -14,6 +15,7 @@ import 'package:dating_application/Models/ResponseModels/subgender_response_mode
 import 'package:dating_application/Models/ResponseModels/user_upload_images_response_model.dart';
 import 'package:dating_application/Providers/change_password_provider.dart';
 import 'package:dating_application/Providers/fetch_all_desires_provider.dart';
+import 'package:dating_application/Providers/fetch_all_faq_provider.dart';
 import 'package:dating_application/Providers/fetch_all_headlines_provider.dart';
 import 'package:dating_application/Providers/fetch_all_preferences_provider.dart';
 import 'package:dating_application/Providers/fetch_all_safety_guildlines_provider.dart';
@@ -141,7 +143,7 @@ class Controller extends GetxController {
     desires: [],
     interest: '',
     bio: '',
-    imgcount:'',
+    imgcount: '',
     lang: [],
     photos: [],
     packageId: '',
@@ -1228,6 +1230,29 @@ class Controller extends GetxController {
       }
       failure('Error', 'Failed to fetch the shared profile');
       return null;
+    } catch (e) {
+      failure('Error', e.toString());
+      return null;
+    }
+  }
+
+  RxList<FAQItem> faq = <FAQItem>[].obs;
+
+  Future<FAQResponseModel?> fetchAllFaq() async {
+    try {
+      faq.clear();
+      final FAQResponseModel? response = await FetchAllFaqProvider().fetchFaq();
+      if (response != null && response.payload.data.isNotEmpty) {
+        faq.addAll(response.payload.data);
+        for(var v in response.payload.data){
+        print(v.toJson().toString());
+        }
+        success('Success', 'FAQs fetched successfully');
+        return response;
+      } else {
+        failure('Error', 'No FAQs found in the response');
+        return null;
+      }
     } catch (e) {
       failure('Error', e.toString());
       return null;

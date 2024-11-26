@@ -1,4 +1,5 @@
-import 'package:dating_application/Screens/settings/appinfopages/appinfopagestart.dart';
+
+import 'package:dating_application/Screens/settings/appinfopages/faqpage.dart';
 import 'package:dating_application/Screens/shareprofilepage/shareprofilepage.dart';
 import 'package:dating_application/Screens/userprofile/addpartner/addpartnerpage.dart';
 import 'package:dating_application/constants.dart';
@@ -8,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../Controllers/controller.dart';
+import '../settings/appinfopages/appinfopagestart.dart';
 import '../settings/setting.dart';
 import 'editprofile/edituserprofile.dart';
 import 'membership/membershippage.dart';
@@ -299,7 +301,8 @@ class UserProfilePageState extends State<UserProfilePage> {
                           subtitle: 'helpline',
                           icon: Icons.help,
                           onTap: () {
-                            Get.to(AppInfoPage());
+                            // Get.to(AppInfoPage());
+                            showHelpBottomSheet(context);
                           }),
                     ],
                   ),
@@ -343,7 +346,42 @@ class UserProfilePageState extends State<UserProfilePage> {
       },
     );
   }
-
+void showHelpBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // App Info
+              ListTile(
+                leading: Icon(Icons.info_outline),
+                title: Text('App Info'),
+                trailing: Icon(Icons.arrow_forward),
+                onTap: () {
+                  // Navigate to AppInfoPage
+                  Get.to(AppInfoPage());
+                },
+              ),
+              Divider(),
+              // FAQ
+              ListTile(
+                leading: Icon(Icons.help_outline),
+                title: Text('FAQs'),
+                trailing: Icon(Icons.arrow_forward),
+                onTap: () {
+                  // Navigate to FAQ Page
+                  Get.to(FaqPage());
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
   // Card widget for feature sections like Membership, Pings, etc.
   Widget buildFeatureCard(String title, IconData icon, VoidCallback onTap) {
     return Card(
@@ -561,14 +599,13 @@ Future<void> showMessageBottomSheet() async {
 
 Future<void> showUpgradeBottomSheet(BuildContext context) async {
    double screenWidth = MediaQuery.of(context).size.width;
-   // double cardWidth = screenWidth * 0.85;
   Get.bottomSheet(
     Padding(
       padding: const EdgeInsets.all(0.0),
       child: Container(
-        color: Colors.black, // Set the background color to black
+        color: Colors.black, 
         child: Column(
-          mainAxisSize: MainAxisSize.min, // Minimize the space to fit content
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Title of the Bottom Sheet
             Padding(
