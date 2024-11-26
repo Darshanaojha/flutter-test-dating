@@ -7,8 +7,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:get/get.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-import '../../Models/ResponseModels/get_report_user_options_response_model.dart';
-
 class ChatPage extends StatefulWidget {
   final Map<String, dynamic> user;
 

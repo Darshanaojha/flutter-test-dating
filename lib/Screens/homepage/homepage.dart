@@ -291,7 +291,7 @@ class HomePageState extends State<HomePage> {
     // Responsive font size calculation
     double fontSize = size.width * 0.045; // Base font size
     double subheadingFontSize = size.width * 0.04;
-    double buttonFontSize = size.width * 0.045;
+   // double buttonFontSize = size.width * 0.045;
     double bodyFontSize = size.width * 0.035;
 
     return Scaffold(

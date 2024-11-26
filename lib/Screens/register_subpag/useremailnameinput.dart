@@ -97,7 +97,7 @@ class UserInputPageState extends State<UserInputPage> {
                   validator: validateName,
                   onChanged: (value) {
                     controller.registrationOTPRequest.name = value;
-                    controller.userRegistrationRequest.username=value;
+                    controller.userRegistrationRequest.name=value;
 
                   },
                   onSaved: (value) {
@@ -129,6 +129,7 @@ class UserInputPageState extends State<UserInputPage> {
                   validator: validateEmail,
                   onChanged: (value) {
                     controller.registrationOTPRequest.email = value;
+                    controller.userRegistrationRequest.email=value;
                   },
                   onSaved: (value) {
                     controller.registrationOTPRequest.email = value ?? '';
@@ -149,6 +150,7 @@ class UserInputPageState extends State<UserInputPage> {
                         'Please check your inputs and try again.',
                       );
                     }
+                    Get.snackbar('', controller.userRegistrationRequest.toJson().toString());
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.buttonColor,

@@ -148,7 +148,7 @@ class ShareProfilePageState extends State<ShareProfilePage>
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          sharedUser.payload?.data?.first?.name ??
+                          sharedUser.payload?.data.first.name ??
                               'N/A', // Safely access data
                           style: AppTextStyles.headingText,
                         ),
@@ -162,7 +162,7 @@ class ShareProfilePageState extends State<ShareProfilePage>
                             size: isLargeScreen ? 30 : 24),
                         SizedBox(width: 8),
                         Text(
-                          sharedUser.payload?.data?.first?.username ?? 'N/A',
+                          sharedUser.payload?.data.first.username ?? 'N/A',
                           style: AppTextStyles.bodyText,
                         ),
                       ],
@@ -176,7 +176,7 @@ class ShareProfilePageState extends State<ShareProfilePage>
                             size: isLargeScreen ? 30 : 24),
                         SizedBox(width: 8),
                         Text(
-                          sharedUser.payload?.data?.first?.genderName ?? 'N/A',
+                          sharedUser.payload?.data.first.genderName ?? 'N/A',
                           style: AppTextStyles.bodyText,
                         ),
                       ],
@@ -192,7 +192,7 @@ class ShareProfilePageState extends State<ShareProfilePage>
                         SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            sharedUser.payload?.data?.first?.bio ??
+                            sharedUser.payload?.data.first.bio ??
                                 'No bio available',
                             style: AppTextStyles.bodyText,
                             overflow: TextOverflow.ellipsis,
@@ -212,7 +212,7 @@ class ShareProfilePageState extends State<ShareProfilePage>
                         SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            '${sharedUser.payload?.data?.first?.address ?? 'N/A'}, ${sharedUser.payload?.data?.first?.city ?? 'N/A'}, ${controller.getCountryById(sharedUser.payload!.data.first.countryId)}',
+                            '${sharedUser.payload?.data.first.address ?? 'N/A'}, ${sharedUser.payload?.data.first.city ?? 'N/A'}, ${controller.getCountryById(sharedUser.payload!.data.first.countryId)}',
                             style: AppTextStyles.bodyText,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 2,

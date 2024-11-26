@@ -20,7 +20,6 @@ import 'package:dating_application/Providers/fetch_all_safety_guildlines_provide
 import 'package:dating_application/Providers/login_provider.dart';
 import 'package:dating_application/Providers/share_profile_provider.dart';
 import 'package:dating_application/Providers/user_profile_provider.dart';
-import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
@@ -142,6 +141,7 @@ class Controller extends GetxController {
     desires: [],
     interest: '',
     bio: '',
+    imgcount:'',
     lang: [],
     photos: [],
     packageId: '',

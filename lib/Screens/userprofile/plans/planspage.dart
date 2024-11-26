@@ -205,7 +205,7 @@ class PricingPageState extends State<PricingPage> {
   }
 
   Widget buildProsAndCons(BuildContext context) {
-    double fontSize = MediaQuery.of(context).size.width * 0.05;
+  //  double fontSize = MediaQuery.of(context).size.width * 0.05;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

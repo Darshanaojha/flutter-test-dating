@@ -1,5 +1,3 @@
-
-import '../../constants.dart'; // For basic UI error handling
 class UserProfileUpdateRequest {
   String name;
   String latitude;

@@ -561,7 +561,7 @@ Future<void> showMessageBottomSheet() async {
 
 Future<void> showUpgradeBottomSheet(BuildContext context) async {
    double screenWidth = MediaQuery.of(context).size.width;
-    double cardWidth = screenWidth * 0.85;
+   // double cardWidth = screenWidth * 0.85;
   Get.bottomSheet(
     Padding(
       padding: const EdgeInsets.all(0.0),

@@ -2,8 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dating_application/Models/ResponseModels/get_all_benifites_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_desires_model_response.dart';
-import 'package:dating_application/Models/ResponseModels/get_all_language_response_model.dart';
-import 'package:dating_application/Screens/userprofile/editprofile/edituserprofile.dart';
+import 'package:dating_application/Screens/login.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -24,13 +23,15 @@ class MultiStepFormPage extends StatefulWidget {
 
 class MultiStepFormPageState extends State<MultiStepFormPage> {
   Controller controller = Get.find<Controller>();
-  int selectedDay = DateTime.now().day;
-  int selectedMonth = DateTime.now().month;
-  int selectedYear = DateTime.now().year;
-
+  RxString date = "".obs;
+  DateTime selectedDate = DateTime.now();
   String name = '';
   String? gender;
   String description = '';
+  RxString selectedOption = ''.obs;
+    RxList<String> selectedLanguages = <String>[].obs;
+    RxList<int> selectedLanguagesId = <int>[].obs;
+    RxString searchQuery = ''.obs;
 
   int currentPage = 1;
   final PageController pageController = PageController();
@@ -78,14 +79,23 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   void onPageChanged(int index) {
     if (stepCompletion[currentPage - 1]) {
       setState(() {
-        currentPage = index + 1; // Page index is 0-based, so add 1
+        currentPage = index + 1;
       });
     } else {
-      pageController.jumpToPage(currentPage - 1); // Stay on current page
+      pageController.jumpToPage(currentPage - 1);
     }
   }
 
-  // Widget to build the step widgets based on the current page number
+  void onBackPressed() {
+    if (currentPage > 1) {
+      setState(() {
+        currentPage--;
+      });
+      pageController.jumpToPage(currentPage - 1);
+    }
+  }
+
+
   Widget buildStepWidget(int step, Size screenSize) {
     switch (step) {
       case 1:
@@ -126,13 +136,24 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       children: [
         Text("Final Step: Submit Form"),
         ElevatedButton(
-          onPressed: nextStep,
+          onPressed:
+              nextStep, 
           style: ElevatedButton.styleFrom(
             padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
             backgroundColor: AppColors.buttonColor,
             foregroundColor: AppColors.textColor,
-          ), // This triggers form submission or navigates to next screen
+          ),
           child: Text('Submit', style: AppTextStyles.buttonText),
+        ),
+        // Back button
+        ElevatedButton(
+          onPressed: onBackPressed, // Call the onBackPressed method
+          style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+            backgroundColor: AppColors.buttonColor,
+            foregroundColor: AppColors.textColor,
+          ),
+          child: Text('Back', style: AppTextStyles.buttonText),
         ),
       ],
     );
@@ -183,50 +204,14 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
-  // Step 1: Birthday Selection
-  Widget buildDatePicker(String label, int min, int max, int currentValue,
-      ValueChanged<int> onChanged) {
-    return SizedBox(
-      width: 80,
-      child: TextFormField(
-        initialValue: currentValue.toString(),
-        cursorColor: AppColors.cursorColor,
-        style: TextStyle(color: AppColors.textColor),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: TextStyle(color: AppColors.textColor),
-          fillColor: AppColors.formFieldColor,
-          contentPadding: EdgeInsets.symmetric(horizontal: 10),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: AppColors.textColor),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: AppColors.textColor),
-          ),
-        ),
-        keyboardType: TextInputType.number,
-        onChanged: (value) {
-          int intValue = int.tryParse(value) ?? currentValue;
-          if (intValue >= min && intValue <= max) {
-            onChanged(intValue);
-          }
-          controller.userRegistrationRequest.dob = value;
-        },
-      ),
-    );
-  }
-
   Widget buildBirthdayStep(Size screenSize) {
     final controller = Get.find<Controller>();
 
     double titleFontSize = screenSize.width * 0.05;
     double subHeadingFontSize = screenSize.width * 0.045;
-    double datePickerFontSize = screenSize.width * 0.05;
+    double datePickerFontSize = screenSize.width * 0.03;
+
+    // Variable to store selected date
 
     return Card(
       elevation: 12,
@@ -261,58 +246,76 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               );
             }),
             SizedBox(height: screenSize.height * 0.05),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                buildDatePicker("Day", 1, 31, selectedDay, (value) {
-                  setState(() {
-                    selectedDay = value;
-                  });
-                }),
-                SizedBox(width: screenSize.width * 0.04),
-                buildDatePicker("Month", 1, 12, selectedMonth, (value) {
-                  setState(() {
-                    selectedMonth = value;
-                  });
-                }),
-                SizedBox(width: screenSize.width * 0.04),
-                buildDatePicker("Year", 1900, DateTime.now().year, selectedYear,
-                    (value) {
-                  setState(() {
-                    selectedYear = value;
-                  });
-                }),
-              ],
-            ),
-            SizedBox(height: screenSize.height * 0.02),
-            ElevatedButton(
-              onPressed: () {
-                String formattedDate =
-                    '${selectedDay.toString().padLeft(2, '0')}/'
-                    '${selectedMonth.toString().padLeft(2, '0')}/'
-                    '$selectedYear';
 
-                controller.userRegistrationRequest.dob = formattedDate;
+            // Date Picker Button
+            GestureDetector(
+              onTap: () async {
+                // Show the date picker and let the user select a date
+                DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: selectedDate,
+                  firstDate: DateTime(1900),
+                  lastDate: DateTime.now(),
+                );
 
-                DateTime selectedDate =
-                    DateTime(selectedYear, selectedMonth, selectedDay);
-                DateTime now = DateTime.now();
+                if (pickedDate != null) {
+                  setState(() {
+                    selectedDate = pickedDate;
+                    date.value = selectedDate.toString();
 
-                if (now.difference(selectedDate).inDays < 18 * 365) {
-                  failure('Failed',
-                      'You must be at least 18 years old to proceed.');
-                  return;
-                } else {
-                  markStepAsCompleted(1);
-                  pageController.nextPage(
-                    duration: Duration(milliseconds: 300),
-                    curve: Curves.ease,
-                  );
+                    // Update the selected date
+                  });
                 }
               },
+              child: Obx(() => Container(
+                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 30),
+                    decoration: BoxDecoration(
+                      color: AppColors.formFieldColor,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.textColor),
+                    ),
+                    child: Text(
+                      'Select Date of Birth: ${date.value.split(' ')[0]}', // Display the selected date
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: datePickerFontSize,
+                        color: AppColors.textColor,
+                      ),
+                    ),
+                  )),
+            ),
+
+            SizedBox(height: screenSize.height * 0.02),
+
+            // Next Button
+            ElevatedButton(
+              onPressed: (){
+                        DateTime now = DateTime.now();
+                        int age = now.year - selectedDate.year;
+                        if (now.month < selectedDate.month ||
+                            (now.month == selectedDate.month &&
+                                now.day < selectedDate.day)) {
+                          age--; 
+                        }
+                        if (age < 18) {
+                          failure('Failed',
+                              'You must be at least 18 years old to proceed.');
+                          return;
+                        }
+                        String formattedDate =
+                            '${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}';
+                        controller.userRegistrationRequest.dob = formattedDate;
+                        markStepAsCompleted(1);
+                        Get.snackbar('dob', controller.userRegistrationRequest.dob.toString());
+                        pageController.nextPage(
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.ease,
+                        );
+                    },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                backgroundColor: AppColors.buttonColor,
+                backgroundColor: controller.userRegistrationRequest.dob.isEmpty
+                    ? AppColors.disabled
+                    : AppColors.buttonColor,
                 foregroundColor: AppColors.textColor,
               ),
               child: Text('Next', style: AppTextStyles.buttonText),
@@ -384,18 +387,23 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 height: 40), // Adds space between the text field and button
 
             ElevatedButton(
-              onPressed: controller.userRegistrationRequest.nickname.isNotEmpty
-                  ? () {
-                      // Mark the step as completed
-                      markStepAsCompleted(2);
-
-                      // Move to the next page in the PageView
-                      pageController.nextPage(
-                        duration: Duration(milliseconds: 300),
-                        curve: Curves.ease,
-                      );
-                    }
-                  : null, // Disable button if the name is empty
+              onPressed: controller.userRegistrationRequest.nickname.isEmpty
+                  ? null
+                  : () {
+                      if (controller.userRegistrationRequest.nickname.isEmpty) {
+                        failure('Nickname', 'Enter Your Nickname');
+                      } else {
+                        // Mark the step as completed
+                        markStepAsCompleted(2);
+                      Get.snackbar('nickname', controller.userRegistrationRequest.nickname.toString());
+                        // Move to the next page in the PageView
+                        pageController.nextPage(
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.ease,
+                        );
+                      }
+                    },
+              // Disable button if the name is empty
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                 backgroundColor:
@@ -410,6 +418,15 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   fontSize: screenSize.width * 0.045,
                 ),
               ),
+            ),
+            ElevatedButton(
+              onPressed: onBackPressed, // Call the onBackPressed method
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                backgroundColor: AppColors.buttonColor,
+                foregroundColor: AppColors.textColor,
+              ),
+              child: Text('Back', style: AppTextStyles.buttonText),
             ),
           ],
         ),
@@ -499,12 +516,17 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   onPressed: selectedGender.value == null
                       ? null
                       : () {
-                          markStepAsCompleted(3);
-
-                          pageController.nextPage(
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.ease,
-                          );
+                          if (selectedGender.value == null) {
+                            failure('Failed',
+                                'Please select an option to proceed.');
+                          } else {
+                            markStepAsCompleted(3);
+                             Get.snackbar('gender', controller.userRegistrationRequest.gender.toString());
+                            pageController.nextPage(
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.ease,
+                            );
+                          }
                         },
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
@@ -521,6 +543,15 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   ),
                 );
               }),
+              ElevatedButton(
+                onPressed: onBackPressed, // Call the onBackPressed method
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                  backgroundColor: AppColors.buttonColor,
+                  foregroundColor: AppColors.textColor,
+                ),
+                child: Text('Back', style: AppTextStyles.buttonText),
+              ),
             ],
           ),
         ),
@@ -533,8 +564,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     double titleFontSize = screenSize.width * 0.05;
     double descriptionFontSize = screenSize.width * 0.03;
     double optionFontSize = screenSize.width * 0.03;
-
-    RxString selectedOption = ''.obs;
 
     return Obx(() {
       if (controller.subGenders.isEmpty) {
@@ -620,7 +649,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   }
                 },
                 iconEnabledColor: AppColors.textColor,
-                iconDisabledColor: AppColors.inactiveColor,
+                iconDisabledColor: AppColors.disabled,
               ),
               SizedBox(height: 20),
               Column(
@@ -655,7 +684,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                               'Failed', 'Please select an option to proceed.');
                         } else {
                           markStepAsCompleted(4);
-
+Get.snackbar('subgender', controller.userRegistrationRequest.subGender.toString());
                           pageController.nextPage(
                             duration: Duration(milliseconds: 300),
                             curve: Curves.ease,
@@ -665,7 +694,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                   backgroundColor: selectedOption.isEmpty
-                      ? AppColors.inactiveColor // If no preference is selected
+                      ? AppColors.disabled // If no preference is selected
                       : AppColors.buttonColor, // If preference is selected
                   foregroundColor: AppColors.textColor,
                 ),
@@ -675,6 +704,15 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     fontSize: screenSize.width * 0.045,
                   ),
                 ),
+              ),
+              ElevatedButton(
+                onPressed: onBackPressed, // Call the onBackPressed method
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                  backgroundColor: AppColors.buttonColor,
+                  foregroundColor: AppColors.textColor,
+                ),
+                child: Text('Back', style: AppTextStyles.buttonText),
               ),
             ],
           ),
@@ -786,7 +824,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   } else {
                     markStepAsCompleted(
                         5); // Mark the current step as completed
-
+Get.snackbar('pref', controller.userRegistrationRequest.preferences.toString());
                     // Move to the next page in the PageView
                     pageController.nextPage(
                       duration: Duration(milliseconds: 300),
@@ -805,6 +843,15 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   'Next',
                   style: AppTextStyles.buttonText,
                 ),
+              ),
+              ElevatedButton(
+                onPressed: onBackPressed, // Call the onBackPressed method
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                  backgroundColor: AppColors.buttonColor,
+                  foregroundColor: AppColors.textColor,
+                ),
+                child: Text('Back', style: AppTextStyles.buttonText),
               ),
             ],
           ),
@@ -1010,7 +1057,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           onPressed: () {
                             // Mark the current step as completed
                             markStepAsCompleted(6);
-
+Get.snackbar('desries', controller.userRegistrationRequest.desires.toString());
                             // Move to the next page in the PageView
                             pageController.nextPage(
                               duration: Duration(milliseconds: 300),
@@ -1033,6 +1080,15 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       )
                     : Container();
               }),
+              ElevatedButton(
+                onPressed: onBackPressed, // Call the onBackPressed method
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                  backgroundColor: AppColors.buttonColor,
+                  foregroundColor: AppColors.textColor,
+                ),
+                child: Text('Back', style: AppTextStyles.buttonText),
+              ),
             ],
           ),
         ),
@@ -1221,7 +1277,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           onPressed: () {
                             // Mark the current step as completed
                             markStepAsCompleted(7);
-
+Get.snackbar('intrest', controller.userRegistrationRequest.interest.toString());
                             // Move to the next page in the PageView
                             pageController.nextPage(
                               duration: Duration(milliseconds: 300),
@@ -1246,6 +1302,15 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       )
                     : Container();
               }),
+              ElevatedButton(
+                onPressed: onBackPressed, // Call the onBackPressed method
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                  backgroundColor: AppColors.buttonColor,
+                  foregroundColor: AppColors.textColor,
+                ),
+                child: Text('Back', style: AppTextStyles.buttonText),
+              ),
             ],
           ),
         ),
@@ -1254,171 +1319,183 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
   // languages 8
-Widget buildUserLanguageStep(BuildContext context) {
-
-  RxList<String> selectedLanguages = <String>[].obs; 
-  RxList<int> selectedLanguagesId = <int>[].obs; 
-  RxString searchQuery = ''.obs;
-
-  // Function to update the selected languages and their IDs
-  void updateSelectedStatus() {
-    // Clear the previous selection and update the IDs based on the selected titles
-    selectedLanguagesId.clear();
-    for (int i = 0; i < controller.language.length; i++) {
-      if (selectedLanguages.contains(controller.language[i].title)) {
-        selectedLanguagesId.add(int.parse(controller.language[i].id));
+  Widget buildUserLanguageStep(BuildContext context) {
+  
+    void updateSelectedStatus() {
+      selectedLanguagesId.clear();
+      for (int i = 0; i < controller.language.length; i++) {
+        if (selectedLanguages.contains(controller.language[i].title)) {
+          selectedLanguagesId.add(int.parse(controller.language[i].id));
+        }
       }
+      // Update the controller with the new language IDs
+      controller.userRegistrationRequest.lang = selectedLanguagesId;
     }
-    // Update the controller with the new language IDs
-    controller.userRegistrationRequest.lang = selectedLanguagesId;
-  }
 
-  void handleChipSelection(String languageTitle) {
-    if (selectedLanguages.contains(languageTitle)) {
-      selectedLanguages.remove(languageTitle);
-    } else {
-      selectedLanguages.add(languageTitle);
+    void handleChipSelection(String languageTitle) {
+      if (selectedLanguages.contains(languageTitle)) {
+        selectedLanguages.remove(languageTitle);
+      } else {
+        selectedLanguages.add(languageTitle);
+      }
+      updateSelectedStatus();
     }
-    updateSelectedStatus();
-  }
 
-  return Scaffold(
-    body: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Obx(() {
-            return selectedLanguages.isEmpty
-                ? Center(child: SpinKitCircle(
-                  size: 30,
-                  color: AppColors.progressColor,
-                ))
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Selected Languages', style: TextStyle(fontSize: 16)),
-                      SizedBox(height: 10),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: selectedLanguages.map((filteredLanguages) {
-                            return GestureDetector(
-                              onTap: () {
-                                handleChipSelection(filteredLanguages);
-                              },
-                              child: Chip(
-                                label: Text(filteredLanguages),
-                                deleteIcon: Icon(Icons.cancel, size: 18),
-                                onDeleted: () {
-                                  selectedLanguages.remove(filteredLanguages);
-                                  updateSelectedStatus();
-                                },
-                                backgroundColor: Colors.blue.withOpacity(0.1),
-                                labelStyle: TextStyle(fontSize: 14),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ],
-                  );
-          }),
-
-          SizedBox(height: 20),
-          Text('Languages List', style: TextStyle(fontSize: 16)),
-          SizedBox(height: 10),
-          Obx(() {
-            var filteredLanguages = controller.language
-                .where((language) => language.title.toLowerCase().contains(searchQuery.value.toLowerCase()))
-                .toList();
-
-            return controller.language.isEmpty
-                ? Center(child: SpinKitCircle(
-                  size: 90,
-                  color: AppColors.progressColor,
-                ))
-                : Column(
-                    children: [
-                      TextField(
-                        cursorColor: AppColors.cursorColor,
-                        onChanged: (query) {
-                          searchQuery.value = query;
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Search Languages...',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: AppColors.textColor),
-                          ),
-                          contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      SizedBox(
-                        height: 450,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Obx(() {
+              return selectedLanguages.isEmpty
+                  ? Center(
+                      child: SpinKitCircle(
+                      size: 30,
+                      color: AppColors.progressColor,
+                    ))
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Selected Languages',
+                            style: TextStyle(fontSize: 16)),
+                        SizedBox(height: 10),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
                           child: Wrap(
                             spacing: 8,
                             runSpacing: 8,
-                            children: filteredLanguages.map((language) {
-                              bool isSelected = selectedLanguages.contains(language.title);
-
-                              return ChoiceChip(
-                                label: Text(language.title),
-                                selected: isSelected,
-                                selectedColor: Colors.blue,
-                                backgroundColor: Colors.grey[200],
-                                labelStyle: TextStyle(
-                                  color: isSelected ? Colors.white : Colors.black,
-                                  fontSize: 14,
-                                ),
-                                onSelected: (bool selected) {
-                                  handleChipSelection(language.title);
+                            children:
+                                selectedLanguages.map((filteredLanguages) {
+                              return GestureDetector(
+                                onTap: () {
+                                  handleChipSelection(filteredLanguages);
                                 },
+                                child: Chip(
+                                  label: Text(filteredLanguages),
+                                  deleteIcon: Icon(Icons.cancel, size: 18),
+                                  onDeleted: () {
+                                    selectedLanguages.remove(filteredLanguages);
+                                    updateSelectedStatus();
+                                  },
+                                  backgroundColor: Colors.blue.withOpacity(0.1),
+                                  labelStyle: TextStyle(fontSize: 14),
+                                ),
                               );
                             }).toList(),
                           ),
                         ),
-                      ),
-                    ],
-                  );
-          }),
-          SizedBox(height: 20),
+                      ],
+                    );
+            }),
+            SizedBox(height: 20),
+            Text('Languages List', style: TextStyle(fontSize: 16)),
+            SizedBox(height: 10),
+            Obx(() {
+              var filteredLanguages = controller.language
+                  .where((language) => language.title
+                      .toLowerCase()
+                      .contains(searchQuery.value.toLowerCase()))
+                  .toList();
 
-          Align(
-            alignment: Alignment.centerRight,
-            child: ElevatedButton(
-              onPressed: () {
-                print('Next button pressed');
-                print('Selected Language IDs: ${controller.userRegistrationRequest.lang}');
-                // Proceed to the next page or step
-                markStepAsCompleted(8);
-                pageController.nextPage(
-                  duration: Duration(milliseconds: 300),
-                  curve: Curves.ease,
-                );
-              },
+              return controller.language.isEmpty
+                  ? Center(
+                      child: SpinKitCircle(
+                      size: 90,
+                      color: AppColors.progressColor,
+                    ))
+                  : Column(
+                      children: [
+                        TextField(
+                          cursorColor: AppColors.cursorColor,
+                          onChanged: (query) {
+                            searchQuery.value = query;
+                          },
+                          decoration: InputDecoration(
+                            hintText: 'Search Languages...',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide:
+                                  BorderSide(color: AppColors.textColor),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 16),
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        SizedBox(
+                          height: 400,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            child: Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: filteredLanguages.map((language) {
+                                bool isSelected =
+                                    selectedLanguages.contains(language.title);
+
+                                return ChoiceChip(
+                                  label: Text(language.title),
+                                  selected: isSelected,
+                                  selectedColor: Colors.blue,
+                                  backgroundColor: Colors.grey[200],
+                                  labelStyle: TextStyle(
+                                    color: isSelected
+                                        ? Colors.white
+                                        : Colors.black,
+                                    fontSize: 14,
+                                  ),
+                                  onSelected: (bool selected) {
+                                    handleChipSelection(language.title);
+                                  },
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+            }),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                onPressed: () {
+                  print('Next button pressed');
+                  print(
+                      'Selected Language IDs: ${controller.userRegistrationRequest.lang}');
+                  // Proceed to the next page or step
+                  markStepAsCompleted(8);
+                  Get.snackbar('lang', controller.userRegistrationRequest.lang.toString());
+                  pageController.nextPage(
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.ease,
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                ),
+                child: Text('Next'),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: onBackPressed, // Call the onBackPressed method
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.buttonColor,
+                foregroundColor: AppColors.textColor,
               ),
-              child: Text('Next'),
+              child: Text('Back', style: AppTextStyles.buttonText),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
 // step 9
   Widget buildUserDescriptionStep(Size screenSize) {
-
     RxString userDescription = ''.obs;
 
     // Function to track text changes
@@ -1523,7 +1600,7 @@ Widget buildUserLanguageStep(BuildContext context) {
                       ? () {
                           // Mark the current step as completed
                           markStepAsCompleted(9);
-
+Get.snackbar('bio', controller.userRegistrationRequest.bio.toString());
                           // Move to the next page in the PageView
                           pageController.nextPage(
                             duration: Duration(milliseconds: 300),
@@ -1550,6 +1627,15 @@ Widget buildUserLanguageStep(BuildContext context) {
                   ),
                 );
               }),
+              ElevatedButton(
+                onPressed: onBackPressed, // Call the onBackPressed method
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                  backgroundColor: AppColors.buttonColor,
+                  foregroundColor: AppColors.textColor,
+                ),
+                child: Text('Back', style: AppTextStyles.buttonText),
+              ),
             ],
           ),
         ),
@@ -1635,6 +1721,7 @@ Widget buildUserLanguageStep(BuildContext context) {
 
     // onChange callback function
     void onChange(String permissionType, bool granted) {
+    
       if (permissionType == 'notification') {
         print(
             "Notification permission changed: ${granted ? 'Granted' : 'Denied'}");
@@ -1779,7 +1866,7 @@ Widget buildUserLanguageStep(BuildContext context) {
                 ? () {
                     // Mark the current step as completed
                     markStepAsCompleted(10);
-
+  Get.snackbar('permission', controller.userRegistrationRequest.emailAlerts.toString());
                     // Move to the next page in the PageView
                     pageController.nextPage(
                       duration: Duration(milliseconds: 300),
@@ -1802,6 +1889,15 @@ Widget buildUserLanguageStep(BuildContext context) {
             ),
           );
         }),
+        ElevatedButton(
+          onPressed: onBackPressed, // Call the onBackPressed method
+          style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+            backgroundColor: AppColors.buttonColor,
+            foregroundColor: AppColors.textColor,
+          ),
+          child: Text('Back', style: AppTextStyles.buttonText),
+        ),
       ],
     );
   }
@@ -1809,9 +1905,9 @@ Widget buildUserLanguageStep(BuildContext context) {
 // photos 11
   Widget buildPhotosOfUser(Size screenSize) {
     RxList<File?> images =
-        RxList<File?>(List.filled(6, null)); // Initialize with 6 empty slots
+        RxList<File?>(List.filled(6, null));
 
-    // Request Camera Permission
+
     Future<void> requestCameraPermission() async {
       var status = await Permission.camera.request();
       if (status.isDenied) {
@@ -1869,8 +1965,10 @@ Widget buildUserLanguageStep(BuildContext context) {
     // Handle 'Next' Button Press
     void onNextButtonPressed() {
       if (controller.userRegistrationRequest.photos.isNotEmpty) {
-        markStepAsCompleted(11); // Mark the current step as completed
-
+         controller.userRegistrationRequest.imgcount= controller.userRegistrationRequest.photos.length.toString();
+        markStepAsCompleted(11); 
+        Get.snackbar('photo', controller.userRegistrationRequest.photos.toString());
+        Get.snackbar('photo', controller.userRegistrationRequest.imgcount.toString());
         // Move to the next page in the PageView
         pageController.nextPage(
           duration: Duration(milliseconds: 300),
@@ -1883,7 +1981,6 @@ Widget buildUserLanguageStep(BuildContext context) {
 
     double screenWidth = screenSize.width;
     double iconSize = screenWidth * 0.12;
-    double dialogButtonFontSize = screenWidth * 0.03;
     double imageContainerSize = screenWidth * 0.39;
 
     return Scaffold(
@@ -1923,7 +2020,6 @@ Widget buildUserLanguageStep(BuildContext context) {
                   itemCount: images.length, // Fixed number of slots (6)
                   itemBuilder: (context, index) {
                     if (images[index] == null) {
-                      // Allow adding a new image if the slot is empty
                       return Center(
                         child: ElevatedButton(
                           onPressed: () {
@@ -2068,6 +2164,15 @@ Widget buildUserLanguageStep(BuildContext context) {
                     color: AppColors.primaryColor,
                   )),
             ),
+            ElevatedButton(
+              onPressed: onBackPressed, 
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                backgroundColor: AppColors.buttonColor,
+                foregroundColor: AppColors.textColor,
+              ),
+              child: Text('Back', style: AppTextStyles.buttonText),
+            ),
           ],
         ),
       ),
@@ -2115,12 +2220,12 @@ Widget buildUserLanguageStep(BuildContext context) {
                 onPressed: () {
                   controller.userRegistrationRequest.packageId = planId;
 
-                  // markStepAsCompleted(12);
-
-                  // pageController.nextPage(
-                  //   duration: Duration(milliseconds: 300),
-                  //   curve: Curves.ease,
-                  // );
+                  markStepAsCompleted(12);
+  Get.snackbar('payment', controller.userRegistrationRequest.packageId.toString());
+                  pageController.nextPage(
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.ease,
+                  );
 
                   Navigator.of(context).pop(); // Close the dialog
                 },
@@ -2357,6 +2462,15 @@ Widget buildUserLanguageStep(BuildContext context) {
               ),
             );
           }),
+          ElevatedButton(
+            onPressed: onBackPressed, // Call the onBackPressed method
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+              backgroundColor: AppColors.buttonColor,
+              foregroundColor: AppColors.textColor,
+            ),
+            child: Text('Back', style: AppTextStyles.buttonText),
+          ),
         ],
       ),
     );
@@ -2502,6 +2616,15 @@ Widget buildUserLanguageStep(BuildContext context) {
                 fontSize: fontSize,
               ),
             ),
+          ),
+          ElevatedButton(
+            onPressed: onBackPressed, // Call the onBackPressed method
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+              backgroundColor: AppColors.buttonColor,
+              foregroundColor: AppColors.textColor,
+            ),
+            child: Text('Back', style: AppTextStyles.buttonText),
           ),
         ],
       ),
@@ -2819,6 +2942,15 @@ Widget buildUserLanguageStep(BuildContext context) {
               ),
             ),
           ),
+          ElevatedButton(
+            onPressed: onBackPressed,
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+              backgroundColor: AppColors.buttonColor,
+              foregroundColor: AppColors.textColor,
+            ),
+            child: Text('Back', style: AppTextStyles.buttonText),
+          ),
         ],
       ),
     );
@@ -2851,20 +2983,16 @@ Widget buildUserLanguageStep(BuildContext context) {
       ],
     );
   }
-
-  void nextStep() {
-    if (currentPage <= 14) {
-      // Mark the current step as completed
+   void nextStep() {
+    if (currentPage < 14) {
+ 
       markStepAsCompleted(currentPage);
-
-      // Only navigate to the next step if the current step is completed
-      if (stepCompletion[currentPage - 1]) {
-        pageController.nextPage(
-          duration: Duration(milliseconds: 300),
-          curve: Curves.ease,
-        );
-      }
+      pageController.nextPage(
+        duration: Duration(milliseconds: 300),
+        curve: Curves.ease,
+      );
     } else {
+
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -2880,6 +3008,10 @@ Widget buildUserLanguageStep(BuildContext context) {
             TextButton(
               onPressed: () async {
                 await controller.register(controller.userRegistrationRequest);
+             
+               
+               
+                Get.to(Login());
               },
               child: Text('Next'),
             ),
