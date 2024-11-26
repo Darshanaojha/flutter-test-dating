@@ -79,7 +79,7 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final mQuery = MediaQuery.of(context).size;
+   // final mQuery = MediaQuery.of(context).size;
 
     return Scaffold(
       backgroundColor: AppColors.secondaryColor,
@@ -205,7 +205,8 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                                                 color: Colors.green,
                                                 width: 3.0,
                                               )
-                                            : null,
+                                           
+                                            : null ,
                                       ),
                                       child: CircleAvatar(
                                         radius:

@@ -227,7 +227,7 @@ class EditProfilePageState extends State<EditProfilePage> {
     double screenWidth = screenSize.width;
     double titleFontSize = screenWidth * 0.05;
     double bodyFontSize = screenWidth * 0.03;
-    double chipFontSize = screenWidth * 0.03;
+   // double chipFontSize = screenWidth * 0.03;
     final selectedGender = Rx<Gender?>(null);
     return Scaffold(
       appBar: AppBar(
@@ -1010,7 +1010,7 @@ Widget buildRelationshipStatusInterestStep(
   }
 
   double screenWidth = screenSize.width;
-  double titleFontSize = screenWidth * 0.05;
+  //double titleFontSize = screenWidth * 0.05;
   double bodyFontSize = screenWidth * 0.03;
   double chipFontSize = screenWidth * 0.03;
 

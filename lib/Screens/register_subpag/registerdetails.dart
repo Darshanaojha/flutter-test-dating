@@ -130,22 +130,37 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                     key: formKey,
                     child: Column(
                       children: [
-                        // Name Field
-                        buildTextField("Name", (value) {
-                          controller.userRegistrationRequest.name = value;
-                        }, fontSize),
+                        buildTextField(
+                          "Name",
+                          controller.userRegistrationRequest.name.isNotEmpty
+                              ? controller.userRegistrationRequest.name
+                              : null, // Pass null if empty
+                          (value) {
+                            controller.userRegistrationRequest.name = value;
+                          },
+                          fontSize,
+                        ),
 
-                        // Email Field
-                        buildTextField("Email", (value) {
-                          controller.userRegistrationRequest.email = value;
+                        buildTextField(
+                          "Email",
+                          controller.userRegistrationRequest.email.isNotEmpty
+                              ? controller.userRegistrationRequest.email
+                              : null, // Pass null if empty
+                          (value) {
+                            controller.userRegistrationRequest.email = value;
+                          },
+                          fontSize,
+                        ),
+                        buildTextField("UserName",null, (value) {
+                          controller.userRegistrationRequest.username = value;
                         }, fontSize),
 
                         // Mobile Field
-                        buildTextField("Mobile", (value) {
+                        buildTextField("Mobile",null, (value) {
                           controller.userRegistrationRequest.mobile = value;
                         }, fontSize),
 
-                        buildTextField("Address", (value) {
+                        buildTextField("Address", null,(value) {
                           controller.userRegistrationRequest.address = value;
 
                           if (debounce?.isActive ?? false) {
@@ -155,15 +170,15 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           debounce = Timer(Duration(milliseconds: 1000), () {
                             fetchLatLong();
                           });
-                        }, fontSize),
+                        },  fontSize),
 
                         // Password Field
-                        buildTextField("Password", (value) {
+                        buildTextField("Password",null, (value) {
                           controller.userRegistrationRequest.password = value;
-                        }, fontSize, obscureText: true),
+                        },fontSize, obscureText: true),
 
                         // Confirm Password Field
-                        buildTextField("Confirm Password", (value) {
+                        buildTextField("Confirm Password", null,(value) {
                           confirmPassword.text = value;
                         }, fontSize, obscureText: true),
 
@@ -188,33 +203,14 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                                   value?.id ?? '';
                             },
                             displayValue: (Country country) =>
-                                country.name, // Display country name
+                                country.name, 
                           );
                         }),
 
                         // City Field
-                        buildTextField("City", (value) {
+                        buildTextField("City",null, (value) {
                           controller.userRegistrationRequest.city = value;
-                        }, fontSize),
-
-                        // Fetch Lat/Long Button
-                        // Padding(
-                        //   padding: const EdgeInsets.symmetric(vertical: 12.0),
-                        //   child: ElevatedButton(
-                        //     onPressed: fetchLatLong,
-                        //     style: ElevatedButton.styleFrom(
-                        //       padding: EdgeInsets.symmetric(
-                        //           vertical: 14, horizontal: 30),
-                        //       backgroundColor: AppColors.buttonColor,
-                        //       foregroundColor: Colors.white,
-                        //     ),
-                        //     child: Text("Fetch Latitude & Longitude",
-                        //         style: AppTextStyles.buttonText
-                        //             .copyWith(fontSize: fontSize)),
-                        //   ),
-                        // ),
-
-                        // Show Latitude and Longitude only if fetched
+                        },  fontSize),
                         Obx(() {
                           if (isLatLongFetched.value) {
                             return Column(
@@ -250,6 +246,17 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                               success(
                                   'Success', 'Form submitted successfully!');
                             }
+                            Get.snackbar('name', controller.userRegistrationRequest.name.toString());
+                            Get.snackbar('email', controller.userRegistrationRequest.email.toString());
+                               Get.snackbar('email', controller.userRegistrationRequest.username.toString());
+                            Get.snackbar('mobile', controller.userRegistrationRequest.mobile.toString());
+                            Get.snackbar('address', controller.userRegistrationRequest.address.toString());
+                            Get.snackbar('password', controller.userRegistrationRequest.password.toString());
+                            Get.snackbar('country', controller.userRegistrationRequest.countryId.toString());
+                            Get.snackbar('city', controller.userRegistrationRequest.city.toString());
+                            Get.snackbar('latitude', controller.userRegistrationRequest.latitude.toString());
+                            Get.snackbar('longitude', controller.userRegistrationRequest.longitude.toString());
+                           
                           },
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.symmetric(
@@ -288,6 +295,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
 
   Widget buildTextField(
     String label,
+    String? initialValue,
     onChanged,
     double fontSize, {
     bool obscureText = false,
@@ -325,6 +333,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           fillColor: AppColors.formFieldColor,
           filled: true,
         ),
+        initialValue: initialValue,
         onChanged: onChanged,
       ),
     );

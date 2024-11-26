@@ -10,9 +10,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-
-import 'shareprofilepage/shareprofilepage.dart';
-
 class Splash extends StatefulWidget {
   const Splash({super.key});
 
