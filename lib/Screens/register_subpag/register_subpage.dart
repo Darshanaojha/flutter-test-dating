@@ -450,7 +450,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   return Center(
                     child: SpinKitCircle(
                       size: 90,
-                      color: AppColors.acceptColor,
+                      color: AppColors.progressColor,
                     ),
                   );
                 }
@@ -541,7 +541,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
         return Center(
           child: SpinKitCircle(
             size: 90,
-            color: AppColors.acceptColor,
+            color: AppColors.progressColor,
           ),
         );
       }
@@ -700,7 +700,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
         return Center(
           child: SpinKitCircle(
             size: 90,
-            color: AppColors.acceptColor,
+            color: AppColors.progressColor,
           ),
         );
       }
@@ -1292,7 +1292,7 @@ Widget buildUserLanguageStep(BuildContext context) {
             return selectedLanguages.isEmpty
                 ? Center(child: SpinKitCircle(
                   size: 30,
-                  color: AppColors.activeColor,
+                  color: AppColors.progressColor,
                 ))
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1338,7 +1338,7 @@ Widget buildUserLanguageStep(BuildContext context) {
             return controller.language.isEmpty
                 ? Center(child: SpinKitCircle(
                   size: 90,
-                  color: AppColors.activeColor,
+                  color: AppColors.progressColor,
                 ))
                 : Column(
                     children: [
@@ -2470,7 +2470,7 @@ Widget buildUserLanguageStep(BuildContext context) {
                       : Center(
                           child: SpinKitCircle(
                             size: 35.0, // Adjust the size as needed
-                            color: AppColors.acceptColor,
+                            color: AppColors.progressColor,
                           ),
                         ),
                   SizedBox(height: 20),

@@ -102,7 +102,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
           child: _isLoading
               ? SpinKitCircle(
                   size: 150,
-                  color: AppColors.acceptColor,
+                  color: AppColors.progressColor,
                 )
               : Column(
                   mainAxisAlignment: MainAxisAlignment.center,

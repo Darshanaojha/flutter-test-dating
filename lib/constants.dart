@@ -20,7 +20,7 @@ class AppColors {
   static const Color deniedColor = Colors.red;
   static const Color iconColor = Colors.blue;
   static const Color buttonColor = Colors.blue;
-  static const Color chipColor = Colors.blue;
+  static const Color chipColor = Colors.orange;
   static const Color formFieldColor = Color.fromARGB(255, 85, 84, 84);
   static const Color inactiveColor = Colors.red;
   static const Color activeColor = Colors.green;
@@ -28,6 +28,8 @@ class AppColors {
   static Color successBorderColor = Colors.green;
   static Color errorColor = Colors.red.withOpacity(0.3);
   static Color errorBorderColor = Colors.red;
+  static Color navigationColor = Colors.orange;
+  static Color progressColor = Colors.orange;
 
   static var primaryTextColor;
 }
