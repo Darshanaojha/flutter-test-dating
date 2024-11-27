@@ -259,6 +259,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                         icon: Icons.edit,
                         onTap: () {
                           Get.to(EditProfilePage());
+                          // Get.snackbar('', controller.userData.id);
                         },
                       ),
 

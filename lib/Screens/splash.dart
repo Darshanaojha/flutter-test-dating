@@ -54,8 +54,6 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
     await controller.fetchlang();
     await controller.fetchProfileUserPhotos();
     await controller.fetchAllFaq();
-   
-
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
 
@@ -68,6 +66,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
       } else {
         Get.offAll(() => NavigationBottomBar())!.then((_) {
         //  _handleIncomingLinks();
+             controller.fetchProfile();
         });
       }
     } catch (e) {

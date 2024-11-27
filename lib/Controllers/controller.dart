@@ -1244,9 +1244,9 @@ class Controller extends GetxController {
       final FAQResponseModel? response = await FetchAllFaqProvider().fetchFaq();
       if (response != null && response.payload.data.isNotEmpty) {
         faq.addAll(response.payload.data);
-        for(var v in response.payload.data){
-        print(v.toJson().toString());
-        }
+        // for (var v in response.payload.data) {
+        //   print(v.toJson().toString());
+        // }
         success('Success', 'FAQs fetched successfully');
         return response;
       } else {

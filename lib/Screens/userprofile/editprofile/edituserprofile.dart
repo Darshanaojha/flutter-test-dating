@@ -141,6 +141,7 @@ class EditProfilePageState extends State<EditProfilePage> {
 
   void onUserNameChanged(String value) {
     controller.userProfileUpdateRequest.name = value;
+    
   }
 
   void onDobChanged(String value) {
