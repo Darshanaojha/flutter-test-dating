@@ -25,11 +25,11 @@ class UserSuggestionsResponseModel {
 }
 
 class Payload {
-  final List<SuggestedUser> locationBase;
-  final List<SuggestedUser> preferenceBase;
-  final List<SuggestedUser> desireBase;
-  final List<SuggestedUser> languageBase;
-  final List<SuggestedUser> highlightedAccount;
+  final List<SuggestedUser>? locationBase;
+  final List<SuggestedUser>? preferenceBase;
+  final List<SuggestedUser>? desireBase;
+  final List<SuggestedUser>? languageBase;
+  final List<SuggestedUser>? highlightedAccount;
 
   Payload({
     required this.locationBase,
@@ -61,11 +61,15 @@ class Payload {
 
   Map<String, dynamic> toJson() {
     return {
-      'location_base': locationBase.map((e) => e.toJson()).toList(),
-      'preference_base': preferenceBase.map((e) => e.toJson()).toList(),
-      'desire_base': desireBase.map((e) => e.toJson()).toList(),
-      'language_base': languageBase.map((e) => e.toJson()).toList(),
-      'highlighted_account': highlightedAccount.map((e) => e.toJson()).toList(),
+      'location_base':
+          locationBase ?? locationBase!.map((e) => e.toJson()).toList(),
+      'preference_base':
+          preferenceBase ?? preferenceBase!.map((e) => e.toJson()).toList(),
+      'desire_base': desireBase ?? desireBase!.map((e) => e.toJson()).toList(),
+      'language_base':
+          languageBase ?? languageBase!.map((e) => e.toJson()).toList(),
+      'highlighted_account': highlightedAccount ??
+          highlightedAccount!.map((e) => e.toJson()).toList(),
     };
   }
 }
