@@ -268,19 +268,6 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                               style: AppTextStyles.buttonText
                                   .copyWith(fontSize: fontSize)),
                         ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Get.to(MultiStepFormPage());
-                          },
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 14, horizontal: 30),
-                            backgroundColor: AppColors.buttonColor,
-                          ),
-                          child: Text('Next',
-                              style: AppTextStyles.buttonText
-                                  .copyWith(fontSize: fontSize)),
-                        ),
                       ],
                     ),
                   ),

@@ -165,11 +165,6 @@ class UserInputPageState extends State<UserInputPage> {
                         fontSize: fontSize, fontWeight: FontWeight.bold),
                   ),
                 ),
-                ElevatedButton(
-                    onPressed: () {
-                      Get.to(OTPVerificationPage());
-                    },
-                    child: Text("Next"))
               ],
             ),
           ),

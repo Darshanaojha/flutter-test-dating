@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:dating_application/Models/RequestModels/change_password_request.dart';
 import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
 import 'package:dating_application/Models/ResponseModels/change_password_response_model.dart';
@@ -301,6 +300,8 @@ class Controller extends GetxController {
     }
   }
 
+  
+
   RxList<Message> messages = <Message>[].obs;
   Future<bool> chatHistory() async {
     try {
@@ -346,12 +347,21 @@ class Controller extends GetxController {
   }
 
   RxList<UserData> userData = <UserData>[].obs;
+  RxList<UserDesire> userDesire = <UserDesire>[].obs;
+  RxList<UserPreferences> userPreferences = <UserPreferences>[].obs;
+  RxList<UserLang> userLang = <UserLang>[].obs;
   Future<bool> fetchProfile() async {
     try {
       userData.clear();
-      ProfileResponse? response = await HomePageProvider().fetchProfile();
+      userDesire.clear();
+      userPreferences.clear();
+      userLang.clear();
+      UserProfileResponse? response = await HomePageProvider().fetchProfile();
       if (response != null) {
         userData.addAll(response.payload.data);
+        userDesire.addAll(response.payload.desires);
+        userPreferences.addAll(response.payload.preferences);
+        userLang.addAll(response.payload.lang);
         success('success', 'successfully fetched the user profile');
         return true;
       } else {

@@ -28,7 +28,7 @@ class HomePageProvider extends GetConnect {
     }
   }
 
-  Future<ProfileResponse?> fetchProfile() async {
+  Future<UserProfileResponse?> fetchProfile() async {
     try {
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
@@ -47,7 +47,7 @@ class HomePageProvider extends GetConnect {
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
-          return ProfileResponse.fromJson(response.body);
+          return UserProfileResponse.fromJson(response.body);
         } else {
           failure('Error', response.body['error']['message']);
           return null;

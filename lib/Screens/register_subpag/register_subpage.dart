@@ -32,7 +32,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     RxList<String> selectedLanguages = <String>[].obs;
     RxList<int> selectedLanguagesId = <int>[].obs;
     RxString searchQuery = ''.obs;
-
+       final selectedGender = Rx<Gender?>(null);
   int currentPage = 1;
   final PageController pageController = PageController();
   RxList<bool> preferencesSelectedOptions = <bool>[].obs;
@@ -436,7 +436,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
   // Step 3: Gender Selection
   Widget buildGenderStep(Size screenSize) {
-    final selectedGender = Rx<Gender?>(null);
+
 
     double titleFontSize = screenSize.width * 0.05;
     double optionFontSize = screenSize.width * 0.03;
@@ -1915,7 +1915,6 @@ Get.snackbar('bio', controller.userRegistrationRequest.bio.toString());
       }
     }
 
-    // Request Gallery Permission
     Future<void> requestGalleryPermission() async {
       var status = await Permission.photos.request();
       if (status.isDenied) {
@@ -1923,9 +1922,7 @@ Get.snackbar('bio', controller.userRegistrationRequest.bio.toString());
       }
     }
 
-    // Pick Image
     Future<void> pickImage(int index, ImageSource source) async {
-      // Request permissions based on the source
       if (source == ImageSource.camera) {
         await requestCameraPermission();
       } else if (source == ImageSource.gallery) {
@@ -1938,7 +1935,6 @@ Get.snackbar('bio', controller.userRegistrationRequest.bio.toString());
       if (pickedFile != null) {
         File imageFile = File(pickedFile.path);
 
-        // Compress the image and convert it to base64
         final compressedImage = await FlutterImageCompress.compressWithFile(
           imageFile.path,
           quality: 50,
@@ -1946,15 +1942,12 @@ Get.snackbar('bio', controller.userRegistrationRequest.bio.toString());
 
         if (compressedImage != null) {
           String base64Image = base64Encode(compressedImage);
-
-          // Add or update the image in the photos list
           if (index < controller.userRegistrationRequest.photos.length) {
             controller.userRegistrationRequest.photos[index] = base64Image;
           } else {
             controller.userRegistrationRequest.photos.add(base64Image);
           }
 
-          // Update the UI with the image
           images[index] = imageFile;
         } else {
           Get.snackbar("Error", "Image compression failed");
