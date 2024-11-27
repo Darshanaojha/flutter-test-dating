@@ -57,33 +57,33 @@ class Payload {
 }
 
 class UserData {
-  final String id;
-  final String name;
-  final String email;
-  final String mobile;
-  final String city;
-  final String state;
-  final String address;
-  final String gender;
-  final String subGender;
-  final String countryId;
-  final String password;
-  final String latitude;
-  final String longitude;
-  final String otp;
-  final String type;
-  final String dob;
-  final String nickname;
-  final String interest;
-  final String bio;
-  final String emailAlerts;
-  final String lookingFor;
-  final String username;
-  final String status;
-  final String created;
-  final String updated;
-  final String genderName;
-  final String subGenderName;
+   String id;
+   String name;
+   String email;
+   String mobile;
+   String city;
+   String state;
+   String address;
+   String gender;
+   String subGender;
+   String countryId;
+   String password;
+   String latitude;
+   String longitude;
+   String otp;
+   String type;
+   String dob;
+   String nickname;
+   String interest;
+   String bio;
+   String emailAlerts;
+   String lookingFor;
+   String username;
+   String status;
+   String created;
+   String updated;
+   String genderName;
+   String subGenderName;
 
   UserData({
     required this.id,
