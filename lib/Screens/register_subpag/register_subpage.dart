@@ -3008,10 +3008,7 @@ Get.snackbar('bio', controller.userRegistrationRequest.bio.toString());
             TextButton(
               onPressed: () async {
                 await controller.register(controller.userRegistrationRequest);
-             
-               
-               
-                Get.to(Login());
+                Get.offAll(Login());
               },
               child: Text('Next'),
             ),
