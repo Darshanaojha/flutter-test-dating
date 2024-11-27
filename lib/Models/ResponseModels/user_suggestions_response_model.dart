@@ -109,6 +109,9 @@ class SuggestedUser {
   final String? subGenderName;
   final String? countryName;
   final List<String> images;
+  final String? preferenceId;
+  final String? desiresId;
+  final String? langId;
 
   SuggestedUser({
     this.id,
@@ -145,52 +148,58 @@ class SuggestedUser {
     this.subGenderName,
     this.countryName,
     this.images = const [],
+    this.preferenceId,
+    this.desiresId,
+    this.langId,
   });
 
   factory SuggestedUser.fromJson(Map<String, dynamic> json) {
     return SuggestedUser(
-      id: json['id'],
-      userId: json['user_id'],
-      name: json['name'],
-      email: json['email'],
-      mobile: json['mobile'],
-      city: json['city'],
-      address: json['address'],
-      gender: json['gender'],
-      subGender: json['sub_gender'],
-      countryId: json['country_id'],
-      password: json['password'],
-      latitude: json['latitude'],
-      longitude: json['longitude'],
-      otp: json['otp'],
-      type: json['type'],
-      dob: json['dob'],
-      nickname: json['nickname'],
-      interest: json['interest'],
-      bio: json['bio'],
-      emailAlerts: json['email_alerts'],
-      lookingFor: json['looking_for'],
-      username: json['username'],
-      profileImage: json['profile_image'],
-      userActiveStatus: json['user_active_status'],
-      statusSetting: json['status_setting'],
-      accountVerificationStatus: json['account_verification_status'],
-      accountHighlightStatus: json['account_highlight_status'],
-      status: json['status'],
-      created: json['created'],
-      updated: json['updated'],
-      genderName: json['gender_name'],
-      subGenderName: json['sub_gender_name'] ?? json['sub_gender_nm'],
-      countryName: json['country_name'],
-      images: [
-        json['img1'] as String? ?? '',
-        json['img2'] as String? ?? '',
-        json['img3'] as String? ?? '',
-        json['img4'] as String? ?? '',
-        json['img5'] as String? ?? '',
-        json['img6'] as String? ?? '',
-      ].where((img) => img.isNotEmpty).toList(),
-    );
+        id: json['id'],
+        userId: json['user_id'],
+        name: json['name'],
+        email: json['email'],
+        mobile: json['mobile'],
+        city: json['city'],
+        address: json['address'],
+        gender: json['gender'],
+        subGender: json['sub_gender'],
+        countryId: json['country_id'],
+        password: json['password'],
+        latitude: json['latitude'],
+        longitude: json['longitude'],
+        otp: json['otp'],
+        type: json['type'],
+        dob: json['dob'],
+        nickname: json['nickname'],
+        interest: json['interest'],
+        bio: json['bio'],
+        emailAlerts: json['email_alerts'],
+        lookingFor: json['looking_for'],
+        username: json['username'],
+        profileImage: json['profile_image'],
+        userActiveStatus: json['user_active_status'],
+        statusSetting: json['status_setting'],
+        accountVerificationStatus: json['account_verification_status'],
+        accountHighlightStatus: json['account_highlight_status'],
+        status: json['status'],
+        created: json['created'],
+        updated: json['updated'],
+        genderName: json['gender_name'],
+        subGenderName: json['sub_gender_name'] ?? json['sub_gender_nm'],
+        countryName: json['country_name'],
+        images: [
+          json['img1'] as String? ?? '',
+          json['img2'] as String? ?? '',
+          json['img3'] as String? ?? '',
+          json['img4'] as String? ?? '',
+          json['img5'] as String? ?? '',
+          json['img6'] as String? ?? '',
+        ].where((img) => img.isNotEmpty).toList(),
+        preferenceId:
+            json.containsKey('preference_id') ? json['preference_id'] : null,
+        desiresId: json.containsKey('desires_id') ? json['desires_id'] : null,
+        langId: json.containsKey('lang_id') ? json['lang_id'] : null);
   }
 
   Map<String, dynamic> toJson() {
@@ -229,6 +238,8 @@ class SuggestedUser {
       'sub_gender_name': subGenderName,
       'country_name': countryName,
       'images': images,
+      'preference_id': preferenceId,
+      'lang_id': langId
     };
   }
 }

@@ -15,47 +15,7 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   Controller controller = Get.put(Controller());
-  final List<Map<String, dynamic>> users = [
-    {
-      'name': 'John Doe',
-      'age': 25,
-      'location': 'New York',
-      'km': 10,
-      'lastSeen': '2 hours ago',
-      'desires': ['adventurous', 'gaming', 'hugging', 'playing', 'dancing'],
-      'images': [
-        'assets/images/image1.jpg',
-        'assets/images/image1.jpg',
-        'assets/images/image1.jpg'
-      ],
-    },
-    {
-      'name': 'Jane Smith',
-      'age': 23,
-      'location': 'Los Angeles',
-      'km': 50,
-      'lastSeen': '1 day ago',
-      'desires': ['enjoys hiking', 'flaming', 'playing', 'beach', 'dancing'],
-      'images': [
-        'assets/images/image2.jpg',
-        'assets/images/image2.jpg',
-        'assets/images/image2.jpg'
-      ],
-    },
-    {
-      'name': 'Sam Wilson',
-      'age': 28,
-      'location': 'Chicago',
-      'km': 100,
-      'lastSeen': '3 hours ago',
-      'desires': ['new places', 'spending', 'employment', 'playing', 'dancing'],
-      'images': [
-        'assets/images/image3.jpg',
-        'assets/images/image3.jpg',
-        'assets/images/image3.jpg'
-      ],
-    },
-  ];
+
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale; // Adjust this scale for different text elements
@@ -119,8 +79,7 @@ class HomePageState extends State<HomePage> {
   }
 
   void shareUserProfile() {
-    final String profileUrl =
-        'https://example.com/user-profile';
+    final String profileUrl = 'https://example.com/user-profile';
     final String profileDetails =
         "Check out this profile:\nJohn Doe\nAge: 25\nGender: Male\n$profileUrl";
     Share.share(profileDetails);
@@ -328,20 +287,26 @@ class HomePageState extends State<HomePage> {
                                     ListView.builder(
                                       controller: _imagePageController,
                                       scrollDirection: Axis.vertical,
-                                      itemCount: 10,
+                                      itemCount: controller
+                                          .userSuggestionsList[index]
+                                          .images
+                                          .length,
                                       itemBuilder: (context, imgIndex) {
                                         return GestureDetector(
                                           onTap: () => _showFullImageDialog(
                                               context,
-                                              users[index]['images'][imgIndex]),
+                                              controller
+                                                  .userSuggestionsList[index]
+                                                  .images[imgIndex]),
                                           child: Container(
                                             margin: EdgeInsets.only(bottom: 12),
                                             child: ClipRRect(
                                               borderRadius:
                                                   BorderRadius.circular(15),
                                               child: Image.asset(
-                                                users[index]['images']
-                                                    [imgIndex],
+                                                controller
+                                                    .userSuggestionsList[index]
+                                                    .images[imgIndex],
                                                 fit: BoxFit.cover,
                                                 width: MediaQuery.of(context)
                                                         .size
@@ -377,7 +342,9 @@ class HomePageState extends State<HomePage> {
                                               SmoothPageIndicator(
                                                 controller:
                                                     _imagePageController,
-                                                count: users[index]['images']
+                                                count: controller
+                                                    .userSuggestionsList[index]
+                                                    .images
                                                     .length,
                                                 effect: ExpandingDotsEffect(
                                                   dotHeight: 10,
@@ -442,9 +409,7 @@ class HomePageState extends State<HomePage> {
                                         });
                                       },
                                       icon: Icon(
-                                        isShare
-                                            ? Icons.share
-                                            : Icons.share,
+                                        isShare ? Icons.share : Icons.share,
                                         size: 40,
                                         color: isShare
                                             ? Colors.green
@@ -487,7 +452,8 @@ class HomePageState extends State<HomePage> {
                               ),
                               SizedBox(height: 16),
                               Text(
-                                users[index]['name'],
+                                controller.userSuggestionsList[index].name ??
+                                    'NA',
                                 style: AppTextStyles.headingText.copyWith(
                                   fontSize: fontSize,
                                 ),
@@ -495,73 +461,19 @@ class HomePageState extends State<HomePage> {
                               Row(
                                 children: [
                                   Text(
-                                    '${users[index]['age']} years old | ',
+                                    '${controller.userSuggestionsList[index].dob != null ? DateTime.now().year - DateTime.parse(controller.userSuggestionsList[index].dob!).year : 'NA'} years old | ',
                                     style: AppTextStyles.bodyText.copyWith(
                                       fontSize: bodyFontSize,
                                     ),
                                   ),
                                   Text(
-                                    '${users[index]['location']} | ',
-                                    style: AppTextStyles.bodyText.copyWith(
-                                      fontSize: bodyFontSize,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${users[index]['km']} km away',
+                                    '${controller.userSuggestionsList[index].city ?? 'NA'} | ',
                                     style: AppTextStyles.bodyText.copyWith(
                                       fontSize: bodyFontSize,
                                     ),
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 4),
-                              Text(
-                                'Last Seen: ${users[index]['lastSeen']}',
-                                style: AppTextStyles.bodyText.copyWith(
-                                  fontSize: bodyFontSize,
-                                ),
-                              ),
-                              SizedBox(height: 12),
-                              Text(
-                                'Desires:',
-                                style: AppTextStyles.subheadingText.copyWith(
-                                  fontSize: subheadingFontSize,
-                                ),
-                              ),
-                              Flexible(
-                                child: GridView.builder(
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 3,
-                                    crossAxisSpacing: 4.0,
-                                    mainAxisSpacing: 0.0,
-                                  ),
-                                  itemCount: users[index]['desires'].length,
-                                  itemBuilder: (context, desireIndex) {
-                                    return Padding(
-                                      padding: const EdgeInsets.all(2.0),
-                                      child: Chip(
-                                        label: Text(
-                                          users[index]['desires'][desireIndex],
-                                          style:
-                                              AppTextStyles.bodyText.copyWith(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                        backgroundColor: AppColors.acceptColor,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(18),
-                                        ),
-                                        elevation: 4,
-                                        labelPadding: EdgeInsets.symmetric(
-                                            horizontal: 8.0, vertical: 6.0),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              )
                             ],
                           ),
                         );
