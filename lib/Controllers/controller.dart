@@ -1048,35 +1048,38 @@ class Controller extends GetxController {
     }
   }
 
-  RxMap<String, RxList<User>> userSuggestionsMap = <String, RxList<User>>{
-    'desireBase': <User>[].obs,
-    'locationBase': <User>[].obs,
-    'preferenceBase': <User>[].obs,
-  }.obs;
+ RxList<SuggestedUser> userSuggestionsList = <SuggestedUser>[].obs;
 
   Future<bool> userSuggestions() async {
     try {
+      userSuggestionsList.clear();
       UserSuggestionsResponseModel? response =
           await UserSuggestionsProvider().userSuggestions();
       if (response != null && response.payload != null) {
-        success('Success', response.payload!.message);
+        success('Success', 'user fetched successfully');
 
         if (response.payload!.desireBase != null &&
             response.payload!.desireBase!.isNotEmpty) {
-          userSuggestionsMap['desireBase']!
-              .assignAll(response.payload!.desireBase!);
+          userSuggestionsList.addAll(response.payload!.desireBase!);
         }
 
         if (response.payload!.locationBase != null &&
             response.payload!.locationBase!.isNotEmpty) {
-          userSuggestionsMap['locationBase']!
-              .assignAll(response.payload!.locationBase!);
+          userSuggestionsList.addAll(response.payload!.locationBase!);
         }
 
         if (response.payload!.preferenceBase != null &&
             response.payload!.preferenceBase!.isNotEmpty) {
-          userSuggestionsMap['preferenceBase']!
-              .assignAll(response.payload!.preferenceBase!);
+          userSuggestionsList.addAll(response.payload!.preferenceBase!);
+        }
+
+        if (response.payload!.languageBase != null &&
+            response.payload!.languageBase!.isNotEmpty) {
+          userSuggestionsList.addAll(response.payload!.languageBase!);
+        }
+        if (response.payload!.highlightedAccount != null &&
+            response.payload!.highlightedAccount!.isNotEmpty) {
+          userSuggestionsList.addAll(response.payload!.highlightedAccount!);
         }
 
         return true;
