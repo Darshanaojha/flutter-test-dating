@@ -14,7 +14,7 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  Controller controler = Get.put(Controller());
+  Controller controller = Get.put(Controller());
   final List<Map<String, dynamic>> users = [
     {
       'name': 'John Doe',
@@ -291,7 +291,6 @@ class HomePageState extends State<HomePage> {
     // Responsive font size calculation
     double fontSize = size.width * 0.045; // Base font size
     double subheadingFontSize = size.width * 0.04;
-   // double buttonFontSize = size.width * 0.045;
     double bodyFontSize = size.width * 0.035;
 
     return Scaffold(
@@ -305,7 +304,7 @@ class HomePageState extends State<HomePage> {
                     height: MediaQuery.of(context).size.height,
                     child: PageView.builder(
                       // controller: _pageController,
-                      itemCount: users.length,
+                      itemCount: controller.userSuggestionsList.length,
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: EdgeInsets.all(
@@ -323,13 +322,13 @@ class HomePageState extends State<HomePage> {
                                       Center(
                                         child: SpinKitCircle(
                                           size: 150.0,
-                                          color: AppColors.progressColor,
+                                          color: AppColors.acceptColor,
                                         ),
                                       ),
                                     ListView.builder(
                                       controller: _imagePageController,
                                       scrollDirection: Axis.vertical,
-                                      itemCount: users[index]['images'].length,
+                                      itemCount: 10,
                                       itemBuilder: (context, imgIndex) {
                                         return GestureDetector(
                                           onTap: () => _showFullImageDialog(
@@ -550,7 +549,7 @@ class HomePageState extends State<HomePage> {
                                             fontSize: 12,
                                           ),
                                         ),
-                                        backgroundColor: AppColors.chipColor,
+                                        backgroundColor: AppColors.acceptColor,
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(18),
