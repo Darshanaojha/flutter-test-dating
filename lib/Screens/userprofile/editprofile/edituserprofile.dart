@@ -763,8 +763,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                                 List<bool>.filled(
                                     controller.preferences.length, false);
                           }
-                        
-
                           return Card(
                             color: AppColors.primaryColor,
                             elevation: 8,
