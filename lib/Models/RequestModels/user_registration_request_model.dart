@@ -82,7 +82,6 @@ class UserRegistrationRequest {
     );
   }
 
-  // Method to convert UserRegistrationRequest object to JSON
   Map<String, dynamic> toJson() {
     return {
       'name': name,
@@ -112,14 +111,13 @@ class UserRegistrationRequest {
     };
   }
 
-  // Validate a field for non-empty values
   void validateNotEmpty(String value, String fieldName) {
     if (value.isEmpty) {
       throw ArgumentError("$fieldName is required and cannot be empty.");
     }
   }
 
-  // Validate email format
+
   void validateEmail(String email) {
     final emailPattern = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
     if (!emailPattern.hasMatch(email)) {
@@ -127,12 +125,12 @@ class UserRegistrationRequest {
     }
   }
 
-  // Validate password (min length and complexity)
+
   void validatePassword(String password) {
     if (password.length < 8) {
       throw ArgumentError("Password must be at least 8 characters long.");
     }
-    // Optionally, you can add more complexity checks, like numbers, special characters, etc.
+  
     final hasDigit = RegExp(r'[0-9]').hasMatch(password);
     final hasSpecialChar = RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password);
     if (!hasDigit || !hasSpecialChar) {
@@ -140,7 +138,7 @@ class UserRegistrationRequest {
     }
   }
 
-  // Validate latitude/longitude coordinates
+
   void validateCoordinate(String coordinate, String fieldName) {
     final doubleValue = double.tryParse(coordinate);
     if (doubleValue == null || doubleValue < -180 || doubleValue > 180) {
@@ -148,7 +146,6 @@ class UserRegistrationRequest {
     }
   }
 
-  // Validate the date format (YYYY-MM-DD)
   void validateDateFormat(String date) {
     final datePattern = RegExp(r'^\d{4}-\d{2}-\d{2}$');
     if (!datePattern.hasMatch(date)) {
@@ -156,7 +153,6 @@ class UserRegistrationRequest {
     }
   }
 
-  // Validate if the user is at least 18 years old
   void validateAge(String dob) {
     final dateOfBirth = DateTime.parse(dob);
     final age = DateTime.now().year - dateOfBirth.year;
@@ -165,15 +161,14 @@ class UserRegistrationRequest {
     }
   }
 
-  // Validate gender
+
   void validateGender(String gender, String fieldName) {
-    final validGenders = ['Male', 'Female', 'Other']; // Extend with valid values
+    final validGenders = ['Male', 'Female', 'Other'];
     if (!validGenders.contains(gender)) {
       throw ArgumentError("Invalid value for $fieldName. Valid options are: Male, Female, Other.");
     }
   }
 
-  // Validate non-empty list
   void validateList(List<int> list, String fieldName) {
     if (list.isEmpty) {
       throw ArgumentError("$fieldName cannot be empty.");
@@ -183,7 +178,6 @@ class UserRegistrationRequest {
     }
   }
 
-  // Validate photo URLs
   void validatePhotos(List<String> photos) {
     if (photos.isEmpty) {
       throw ArgumentError("Photos list cannot be empty for field: Photos.");
@@ -196,7 +190,7 @@ class UserRegistrationRequest {
     }
   }
 
-  // Run all validations
+
   void validate() {
     try {
       validateNotEmpty(name, "Name");
@@ -214,7 +208,7 @@ class UserRegistrationRequest {
       validateCoordinate(latitude, "Latitude");
       validateCoordinate(longitude, "Longitude");
       validateDateFormat(dob);
-      validateAge(dob); // Ensure the user is at least 18 years old
+      validateAge(dob); 
       validateGender(gender, "Gender");
       validateGender(subGender, "Sub-Gender");
       validateList(lang,"Language");

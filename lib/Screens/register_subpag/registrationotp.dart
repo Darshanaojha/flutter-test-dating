@@ -153,8 +153,7 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                         foregroundColor: Colors.white,
                       ),
                       onPressed: () {
-                        // Add logic for regenerating OTP here
-                        Get.to(RegisterProfilePage());
+                       
                       },
                       child: Text(
                         "Regenerate OTP",

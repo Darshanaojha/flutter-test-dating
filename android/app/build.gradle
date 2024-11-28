@@ -58,10 +58,10 @@ flutter {
 
 dependencies {
     implementation platform("com.google.firebase:firebase-bom:33.6.0")  
-    implementation ("com.google.firebase:firebase-analytics"){
-        exclude group: "com.google.android.gms", module: "play-services-ads-identifier"
-    }  
+    implementation "com.google.firebase:firebase-analytics"  
     implementation "com.google.firebase:firebase-messaging" 
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.gms:google-services:4.3.10'
 }
 
 

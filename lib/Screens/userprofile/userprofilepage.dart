@@ -1,4 +1,3 @@
-
 import 'package:dating_application/Screens/settings/appinfopages/faqpage.dart';
 import 'package:dating_application/Screens/shareprofilepage/shareprofilepage.dart';
 import 'package:dating_application/Screens/userprofile/addpartner/addpartnerpage.dart';
@@ -19,7 +18,6 @@ class UserProfilePage extends StatefulWidget {
 
   @override
   UserProfilePageState createState() => UserProfilePageState();
-  
 }
 
 class UserProfilePageState extends State<UserProfilePage> {
@@ -46,10 +44,12 @@ class UserProfilePageState extends State<UserProfilePage> {
       isLoading = false;
     });
   }
+
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale; // Adjust this scale for different text elements
   }
+
   @override
   void initState() {
     super.initState();
@@ -98,11 +98,17 @@ class UserProfilePageState extends State<UserProfilePage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(userName, style: AppTextStyles.titleText.copyWith(fontSize: getResponsiveFontSize(0.03))),
+                      Text(userName,
+                          style: AppTextStyles.titleText
+                              .copyWith(fontSize: getResponsiveFontSize(0.03))),
                       IconButton(
                         icon: Icon(Icons.edit, size: 30, color: Colors.blue),
                         onPressed: () {
-                          Get.snackbar('data', controller.userRegistrationRequest.toJson().toString());
+                          Get.snackbar(
+                              'data',
+                              controller.userRegistrationRequest
+                                  .toJson()
+                                  .toString());
                           Get.to(EditProfilePage());
                         }, // Navigate to Edit Profile
                       ),
@@ -116,7 +122,8 @@ class UserProfilePageState extends State<UserProfilePage> {
                   child: Row(
                     children: [
                       Text('$userAge years old | $userGender',
-                          style: AppTextStyles.labelText.copyWith(fontSize: getResponsiveFontSize(0.03))),
+                          style: AppTextStyles.labelText
+                              .copyWith(fontSize: getResponsiveFontSize(0.03))),
                     ],
                   ),
                 ),
@@ -132,10 +139,12 @@ class UserProfilePageState extends State<UserProfilePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Profile Completion: $userProfileCompletion',
-                              style: AppTextStyles.labelText.copyWith(fontSize: getResponsiveFontSize(0.03))),
+                              style: AppTextStyles.labelText.copyWith(
+                                  fontSize: getResponsiveFontSize(0.03))),
                           SizedBox(height: 10),
                           Text('Complete your profile to unlock more features!',
-                              style: AppTextStyles.labelText.copyWith(fontSize: getResponsiveFontSize(0.03))),
+                              style: AppTextStyles.labelText.copyWith(
+                                  fontSize: getResponsiveFontSize(0.03))),
                         ],
                       ),
                     ),
@@ -165,7 +174,8 @@ class UserProfilePageState extends State<UserProfilePage> {
                             SizedBox(width: 56),
                             Text(
                               'Membership',
-                              style: AppTextStyles.titleText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                              style: AppTextStyles.titleText.copyWith(
+                                  fontSize: getResponsiveFontSize(0.03)),
                             ),
                           ],
                         ),
@@ -195,7 +205,8 @@ class UserProfilePageState extends State<UserProfilePage> {
                             SizedBox(width: 76),
                             Text(
                               'Messages',
-                              style: AppTextStyles.titleText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                              style: AppTextStyles.titleText.copyWith(
+                                  fontSize: getResponsiveFontSize(0.03)),
                             ),
                           ],
                         ),
@@ -210,8 +221,9 @@ class UserProfilePageState extends State<UserProfilePage> {
                     color: Colors.orange, // Set the color to orange
                     elevation: 5,
                     child: InkWell(
-                      onTap:
-                          (){showUpgradeBottomSheet(context);}, // Call the showUpgradeBottomSheet function
+                      onTap: () {
+                        showUpgradeBottomSheet(context);
+                      }, // Call the showUpgradeBottomSheet function
                       child: Container(
                         padding: EdgeInsets.all(16),
                         width: double.infinity,
@@ -229,7 +241,8 @@ class UserProfilePageState extends State<UserProfilePage> {
                                     66), // Add spacing between the icon and the text
                             Text(
                               'Uplift Profile',
-                              style: AppTextStyles.titleText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                              style: AppTextStyles.titleText.copyWith(
+                                  fontSize: getResponsiveFontSize(0.03)),
                             ),
                           ],
                         ),
@@ -259,7 +272,11 @@ class UserProfilePageState extends State<UserProfilePage> {
                         icon: Icons.edit,
                         onTap: () {
                           Get.to(EditProfilePage());
-                          // Get.snackbar('', controller.userData.id);
+                          if (controller.userLang.isNotEmpty) {
+                            Get.snackbar('', controller.userLang.first.title);
+                          } else {
+                            Get.snackbar('', 'No language available');
+                          }
                         },
                       ),
 
@@ -269,7 +286,9 @@ class UserProfilePageState extends State<UserProfilePage> {
                         subtitle: 'Customize your search settings',
                         icon: Icons.search,
                         onTap: () {
-                         Get.to(ShareProfilePage(id: '1',));
+                          Get.to(ShareProfilePage(
+                            id: '1',
+                          ));
                           // Navigate or show settings action
                         },
                       ),
@@ -278,7 +297,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                         subtitle: 'Manage app preferences',
                         icon: Icons.settings,
                         onTap: () {
-                         Get.to(SettingsPage());
+                          Get.to(SettingsPage());
                         },
                       ),
                       SettingCard(
@@ -347,7 +366,8 @@ class UserProfilePageState extends State<UserProfilePage> {
       },
     );
   }
-void showHelpBottomSheet(BuildContext context) {
+
+  void showHelpBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -383,6 +403,7 @@ void showHelpBottomSheet(BuildContext context) {
       },
     );
   }
+
   // Card widget for feature sections like Membership, Pings, etc.
   Widget buildFeatureCard(String title, IconData icon, VoidCallback onTap) {
     return Card(
@@ -434,105 +455,113 @@ void showHelpBottomSheet(BuildContext context) {
     );
   }
 
- void showShareProfileBottomSheet() {
-  showModalBottomSheet(
-    context: context,
-    builder: (context) {
-      // Get screen width for responsive design
-      double screenWidth = MediaQuery.of(context).size.width;
+  void showShareProfileBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        // Get screen width for responsive design
+        double screenWidth = MediaQuery.of(context).size.width;
 
-      return Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Wrap(
-          children: [
-            // Create a container with a width equal to the screen width, but with some margin for responsiveness
-            SizedBox(
-              width: screenWidth - 32, // Margin of 16 on both sides
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "Share your profile",
-                    style: AppTextStyles.titleText.copyWith(
-                      fontSize: getResponsiveFontSize(0.03),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-
-                  // Share Button - Make button expand to full width
-                  SizedBox(
-                    width: double.infinity, // Make the button take the full width
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context); // Dismiss bottom sheet
-                        
-                        // Share the user profile
-                        shareUserProfile();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.activeColor, // Button color from AppColors
-                        padding: EdgeInsets.symmetric(vertical: 16), // Make button tall (height)
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        "Share",
-                        style: AppTextStyles.buttonText.copyWith(
-                          fontSize: getResponsiveFontSize(0.03),
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.textColor, // Button text color
-                        ),
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Wrap(
+            children: [
+              // Create a container with a width equal to the screen width, but with some margin for responsiveness
+              SizedBox(
+                width: screenWidth - 32, // Margin of 16 on both sides
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Share your profile",
+                      style: AppTextStyles.titleText.copyWith(
+                        fontSize: getResponsiveFontSize(0.03),
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                  SizedBox(height: 16),
+                    SizedBox(height: 16),
 
-                  // Cancel Button - Make button expand to full width
-                  SizedBox(
-                    width: double.infinity, // Make the button take the full width
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context); // Dismiss bottom sheet
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.inactiveColor, // Cancel button color
-                        padding: EdgeInsets.symmetric(vertical: 16), // Make button tall (height)
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                    // Share Button - Make button expand to full width
+                    SizedBox(
+                      width: double
+                          .infinity, // Make the button take the full width
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context); // Dismiss bottom sheet
+
+                          // Share the user profile
+                          shareUserProfile();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors
+                              .activeColor, // Button color from AppColors
+                          padding: EdgeInsets.symmetric(
+                              vertical: 16), // Make button tall (height)
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        "Cancel",
-                        style: AppTextStyles.buttonText.copyWith(
-                          fontSize: getResponsiveFontSize(0.03),
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.textColor, // Button text color
+                        child: Text(
+                          "Share",
+                          style: AppTextStyles.buttonText.copyWith(
+                            fontSize: getResponsiveFontSize(0.03),
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textColor, // Button text color
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                    SizedBox(height: 16),
+
+                    // Cancel Button - Make button expand to full width
+                    SizedBox(
+                      width: double
+                          .infinity, // Make the button take the full width
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context); // Dismiss bottom sheet
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              AppColors.inactiveColor, // Cancel button color
+                          padding: EdgeInsets.symmetric(
+                              vertical: 16), // Make button tall (height)
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          "Cancel",
+                          style: AppTextStyles.buttonText.copyWith(
+                            fontSize: getResponsiveFontSize(0.03),
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textColor, // Button text color
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-      );
-    },
-    isScrollControlled: true, // This ensures the bottom sheet can adjust based on content
-  );
-}
+            ],
+          ),
+        );
+      },
+      isScrollControlled:
+          true, // This ensures the bottom sheet can adjust based on content
+    );
+  }
 
 // Function to share the user profile
-void shareUserProfile() {
-  final String profileUrl = 'https://example.com/user-profile'; // Replace with the actual profile URL or content
-  final String profileDetails = "Check out this profile:\nJohn Doe\nAge: 25\nGender: Male\n$profileUrl";
+  void shareUserProfile() {
+    final String profileUrl =
+        'https://example.com/user-profile'; // Replace with the actual profile URL or content
+    final String profileDetails =
+        "Check out this profile:\nJohn Doe\nAge: 25\nGender: Male\n$profileUrl";
 
-  // Use share_plus to share the profile link or details to other apps
-  Share.share(profileDetails);
-}
-
+    // Use share_plus to share the profile link or details to other apps
+    Share.share(profileDetails);
+  }
 }
 
 Future<void> showMessageBottomSheet() async {
@@ -597,14 +626,13 @@ Future<void> showMessageBottomSheet() async {
   );
 }
 
-
 Future<void> showUpgradeBottomSheet(BuildContext context) async {
-   double screenWidth = MediaQuery.of(context).size.width;
+  double screenWidth = MediaQuery.of(context).size.width;
   Get.bottomSheet(
     Padding(
       padding: const EdgeInsets.all(0.0),
       child: Container(
-        color: Colors.black, 
+        color: Colors.black,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -614,7 +642,7 @@ Future<void> showUpgradeBottomSheet(BuildContext context) async {
               child: Text(
                 'Found Uplift',
                 style: AppTextStyles.titleText.copyWith(
-                  fontSize: screenWidth*0.04,
+                  fontSize: screenWidth * 0.04,
                   color: Colors.white, // Set text color to white for contrast
                 ),
                 textAlign: TextAlign.center,
@@ -628,7 +656,7 @@ Future<void> showUpgradeBottomSheet(BuildContext context) async {
                 'You can use 24 hours and enjoy the features, '
                 'and you can access earlier with premium benefits.',
                 style: AppTextStyles.bodyText.copyWith(
-                  fontSize: screenWidth*0.04,
+                  fontSize: screenWidth * 0.04,
                   color: Colors.white, // Set text color to white for contrast
                 ),
                 textAlign: TextAlign.center,
@@ -663,7 +691,7 @@ Future<void> showUpgradeBottomSheet(BuildContext context) async {
                           child: Text(
                             "24-hour Premium Plan - ₹299", // Plan description
                             style: AppTextStyles.bodyText.copyWith(
-                              fontSize: screenWidth*0.04,
+                              fontSize: screenWidth * 0.04,
                               color: Colors.white, // White text for readability
                             ),
                           ),
@@ -672,7 +700,7 @@ Future<void> showUpgradeBottomSheet(BuildContext context) async {
                         Text(
                           'Selected', // Status of the plan
                           style: AppTextStyles.bodyText.copyWith(
-                            fontSize: screenWidth*0.04,
+                            fontSize: screenWidth * 0.04,
                             color: AppColors
                                 .buttonColor, // Color for the status text
                           ),
@@ -697,7 +725,7 @@ Future<void> showUpgradeBottomSheet(BuildContext context) async {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: screenWidth*0.04, // Smaller font size
+                        fontSize: screenWidth * 0.04, // Smaller font size
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -768,9 +796,11 @@ class SettingCard extends StatelessWidget {
           child: ListTile(
             title: Text(
               title,
-              style: AppTextStyles.titleText.copyWith(fontSize: screenWidth* 0.04),
+              style: AppTextStyles.titleText
+                  .copyWith(fontSize: screenWidth * 0.04),
             ),
-            subtitle: Text(subtitle, style: TextStyle(fontSize: screenWidth * 0.03)),
+            subtitle:
+                Text(subtitle, style: TextStyle(fontSize: screenWidth * 0.03)),
             trailing: Icon(icon),
             onTap: onTap, // Call the onTap function when the card is tapped
           ),

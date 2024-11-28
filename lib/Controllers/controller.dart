@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:dating_application/Models/RequestModels/change_password_request.dart';
 import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
 import 'package:dating_application/Models/ResponseModels/change_password_response_model.dart';
@@ -47,6 +46,7 @@ import '../Models/RequestModels/update_profile_photo_request_model.dart';
 import '../Models/RequestModels/update_visibility_status_request_model.dart';
 import '../Models/RequestModels/user_profile_update_request_model.dart';
 import '../Models/RequestModels/user_registration_request_model.dart';
+import '../Models/RequestModels/usernameupdate_request_model.dart';
 import '../Models/ResponseModels/ProfileResponse.dart';
 import '../Models/ResponseModels/all_active_user_resposne_model.dart';
 import '../Models/ResponseModels/app_details_response_model.dart';
@@ -78,6 +78,7 @@ import '../Models/ResponseModels/user_login_response_model.dart';
 import '../Models/ResponseModels/user_profile_update_response_model.dart';
 import '../Models/ResponseModels/user_registration_response_model.dart';
 import '../Models/ResponseModels/user_suggestions_response_model.dart';
+import '../Models/ResponseModels/usernameupdate_response_model.dart';
 import '../Providers/block_user_provider.dart';
 import '../Providers/chat_message_page_provider.dart';
 import '../Providers/connected_user_provider.dart';
@@ -107,6 +108,7 @@ import '../Providers/update_profile_provider.dart';
 import '../Providers/update_visibility_status_provider.dart';
 import '../Providers/user_registration_provider.dart';
 import '../Providers/user_suggestions_provider.dart';
+import '../Providers/usernameupdate_provider.dart';
 import '../Screens/login.dart';
 import '../constants.dart';
 
@@ -301,6 +303,8 @@ class Controller extends GetxController {
     }
   }
 
+  
+
   RxList<Message> messages = <Message>[].obs;
   Future<bool> chatHistory() async {
     try {
@@ -346,12 +350,21 @@ class Controller extends GetxController {
   }
 
   RxList<UserData> userData = <UserData>[].obs;
+  RxList<UserDesire> userDesire = <UserDesire>[].obs;
+  RxList<UserPreferences> userPreferences = <UserPreferences>[].obs;
+  RxList<UserLang> userLang = <UserLang>[].obs;
   Future<bool> fetchProfile() async {
     try {
       userData.clear();
-      ProfileResponse? response = await HomePageProvider().fetchProfile();
+      userDesire.clear();
+      userPreferences.clear();
+      userLang.clear();
+      UserProfileResponse? response = await HomePageProvider().fetchProfile();
       if (response != null) {
         userData.addAll(response.payload.data);
+        userDesire.addAll(response.payload.desires);
+        userPreferences.addAll(response.payload.preferences);
+        userLang.addAll(response.payload.lang);
         success('success', 'successfully fetched the user profile');
         return true;
       } else {
@@ -1247,9 +1260,6 @@ class Controller extends GetxController {
       final FAQResponseModel? response = await FetchAllFaqProvider().fetchFaq();
       if (response != null && response.payload.data.isNotEmpty) {
         faq.addAll(response.payload.data);
-        // for (var v in response.payload.data) {
-        //   print(v.toJson().toString());
-        // }
         success('Success', 'FAQs fetched successfully');
         return response;
       } else {
@@ -1259,6 +1269,25 @@ class Controller extends GetxController {
     } catch (e) {
       failure('Error', e.toString());
       return null;
+    }
+  }
+ 
+ UsernameUpdateRequest usernameUpdateRequest = UsernameUpdateRequest(username: '');
+  Future<bool> updateusername(
+      UsernameUpdateRequest usernameUpdateRequest) async {
+    try {
+      UsernameUpdateResponse? response =
+          await UsernameUpdateProvider().updateUsername(usernameUpdateRequest);
+      if (response != null) {
+        success('success', response.payload.message);
+        return true;
+      } else {
+        failure('Error', 'Failed to update the profile');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
     }
   }
 }

@@ -58,10 +58,15 @@ class EditProfilePageState extends State<EditProfilePage> {
     Get.snackbar('intrest', UpdatedselectedInterests.toString());
     String newInterest = interestController.text.trim();
     if (newInterest.isNotEmpty) {
-      setState(() {
+      if (!UpdatedselectedInterests.contains(newInterest)) {
         UpdatedselectedInterests.add(newInterest);
-      });
-      interestController.clear();
+        interestsList.add(newInterest);
+        Get.snackbar('Interest Added', newInterest);
+        interestController.clear();
+      } else {
+        Get.snackbar(
+            'Duplicate Interest', 'This interest has already been added.');
+      }
     }
   }
 
@@ -85,7 +90,6 @@ class EditProfilePageState extends State<EditProfilePage> {
   intialize() async {
     try {
       debounce?.cancel();
-      debounce?.cancel();
       isLatLongFetched.value = false;
       await fetchData();
       await controller.fetchProfileUserPhotos();
@@ -93,6 +97,7 @@ class EditProfilePageState extends State<EditProfilePage> {
       await controller.fetchPreferences();
       await controller.fetchGenders();
       await controller.fetchlang();
+      await controller.fetchProfile();
       controller.fetchCountries();
       if (controller.userPhotos != null) {
         final userPhotos = controller.userPhotos!;
@@ -126,12 +131,18 @@ class EditProfilePageState extends State<EditProfilePage> {
         ImageStreamListener(
           (ImageInfo info, bool synchronousCall) {
             setState(() {
-              isImageLoading[i] = false;
+              // isImageLoading[i] = false;
+              if (i < isImageLoading.length) {
+                isImageLoading[i] = false;
+              }
             });
           },
           onError: (exception, stackTrace) {
             setState(() {
-              isImageLoading[i] = false;
+              // isImageLoading[i] = false;
+              if (i < isImageLoading.length) {
+                isImageLoading[i] = false;
+              }
             });
           },
         ),
@@ -141,12 +152,16 @@ class EditProfilePageState extends State<EditProfilePage> {
 
   void onUserNameChanged(String value) {
     controller.userProfileUpdateRequest.name = value;
-    
   }
 
   void onDobChanged(String value) {
     controller.userProfileUpdateRequest.dob = value;
     print("Date of Birth: $value");
+  }
+
+  void onusernameChanged(String value) {
+    // controller.userProfileUpdateRequest.username = value;
+    print("user name : $value");
   }
 
   void onNickNameChanged(String value) {
@@ -228,7 +243,7 @@ class EditProfilePageState extends State<EditProfilePage> {
     double screenWidth = screenSize.width;
     double titleFontSize = screenWidth * 0.05;
     double bodyFontSize = screenWidth * 0.03;
-   // double chipFontSize = screenWidth * 0.03;
+    // double chipFontSize = screenWidth * 0.03;
     final selectedGender = Rx<Gender?>(null);
     return Scaffold(
       appBar: AppBar(
@@ -263,6 +278,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     scrollDirection: Axis.vertical,
                                     itemCount: images.length,
                                     itemBuilder: (context, index) {
+                                      if (index >= images.length)
+                                        return Container();
                                       return Padding(
                                         padding: const EdgeInsets.symmetric(
                                             vertical: 8.0),
@@ -363,10 +380,10 @@ class EditProfilePageState extends State<EditProfilePage> {
                                   selectedPreferences.add(
                                       int.parse(controller.preferences[i].id));
                                 }
-                                  }
+                              }
                               controller.userProfileUpdateRequest.preferences =
                                   selectedPreferences;
-                                  // pref end
+                              // pref end
                               emailAlerts.value == true
                                   ? controller.userProfileUpdateRequest
                                       .emailAlerts = "1"
@@ -410,37 +427,49 @@ class EditProfilePageState extends State<EditProfilePage> {
                       children: [
                         InfoField(
                           initialValue:
-                              controller.userRegistrationRequest.name.isNotEmpty
-                                  ? controller.userRegistrationRequest.name
+                              controller.userData.first.name.isNotEmpty
+                                  ? controller.userData.first.name
                                   : controller.userProfileUpdateRequest.name,
                           label: 'Name',
                           onChanged: onUserNameChanged,
                         ),
                         InfoField(
-                          initialValue:
-                              controller.userRegistrationRequest.dob.isNotEmpty
-                                  ? controller.userRegistrationRequest.dob
-                                  : controller.userProfileUpdateRequest.dob,
+                          initialValue: controller.userData.first.dob.isNotEmpty
+                              ? controller.userData.first.name
+                              : controller.userProfileUpdateRequest.dob,
                           label: 'Date of Birth',
                           onChanged: onDobChanged,
                         ),
                         InfoField(
                           initialValue: controller
-                                  .userRegistrationRequest.nickname.isNotEmpty
-                              ? controller.userRegistrationRequest.nickname
+                                  .userData.first.nickname.isNotEmpty
+                              ? controller.userData.first.nickname
                               : controller.userProfileUpdateRequest.nickname,
                           label: 'Nick name',
                           onChanged: onNickNameChanged,
                         ),
                         InfoField(
-                          initialValue:
-                              controller.userRegistrationRequest.bio.isNotEmpty
-                                  ? controller.userRegistrationRequest.bio
-                                  : controller.userProfileUpdateRequest.bio,
+                          initialValue: controller.userData.first.bio.isNotEmpty
+                              ? controller.userData.first.bio
+                              : controller.userProfileUpdateRequest.bio,
                           label: 'About',
                           onChanged: onAboutChanged,
                         ),
+                        InfoField(
+                          initialValue:
+                              controller.userData.first.username.isNotEmpty
+                                  ? controller.userData.first.username
+                                  : '',
+                          label: 'User Name',
+                          onChanged: onusernameChanged,
+                        ),
                         Obx(() {
+                          Country? initialCountry =
+                              controller.countries.firstWhere(
+                            (country) =>
+                                country.id ==
+                                controller.userData.first.countryId,
+                          );
                           if (controller.countries.isEmpty) {
                             return Center(
                               child: SpinKitCircle(
@@ -453,28 +482,28 @@ class EditProfilePageState extends State<EditProfilePage> {
                           return buildDropdown<Country>(
                             "Country",
                             controller.countries,
+                            initialCountry,
                             selectedCountry,
                             16.0,
                             (Country? value) {
                               controller.userProfileUpdateRequest.countryId =
                                   value?.id ?? '';
                             },
-                            displayValue: (Country country) =>
-                                country.name, // Display country name
+                            displayValue: (Country country) => country.name,
                           );
                         }),
                         InfoField(
-                          initialValue: controller
-                                  .userRegistrationRequest.address.isNotEmpty
-                              ? controller.userRegistrationRequest.address
-                              : controller.userProfileUpdateRequest.address,
+                          initialValue:
+                              controller.userData.first.address.isNotEmpty
+                                  ? controller.userData.first.address
+                                  : controller.userProfileUpdateRequest.address,
                           label: 'Address',
                           onChanged: onAddressChnaged,
                         ),
                         InfoField(
                           initialValue:
-                              controller.userRegistrationRequest.city.isNotEmpty
-                                  ? controller.userRegistrationRequest.city
+                              controller.userData.first.city.isNotEmpty
+                                  ? controller.userData.first.city
                                   : controller.userProfileUpdateRequest.city,
                           label: 'City',
                           onChanged: onCityChanged,
@@ -485,11 +514,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                               children: [
                                 InfoField(
                                   initialValue: controller
-                                          .userRegistrationRequest
-                                          .latitude
-                                          .isNotEmpty
-                                      ? controller
-                                          .userRegistrationRequest.latitude
+                                          .userData.first.latitude.isNotEmpty
+                                      ? controller.userData.first.latitude
                                       : controller
                                           .userProfileUpdateRequest.latitude,
                                   label: 'Latitude',
@@ -497,11 +523,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                                 ),
                                 InfoField(
                                   initialValue: controller
-                                          .userRegistrationRequest
-                                          .longitude
-                                          .isNotEmpty
-                                      ? controller
-                                          .userRegistrationRequest.longitude
+                                          .userData.first.longitude.isNotEmpty
+                                      ? controller.userData.first.longitude
                                       : controller
                                           .userProfileUpdateRequest.longitude,
                                   label: 'Longitude',
@@ -521,7 +544,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                           }
                         }),
                         languages(context),
-
                         Card(
                           elevation: 8,
                           shape: RoundedRectangleBorder(
@@ -541,6 +563,21 @@ class EditProfilePageState extends State<EditProfilePage> {
                                           color: AppColors.progressColor,
                                         ),
                                       );
+                                    }
+                                    if (selectedGender.value == null &&
+                                        controller.userData.isNotEmpty) {
+                                      String? genderFromUserData =
+                                          controller.userData.first.gender;
+                                      if (genderFromUserData != null &&
+                                          genderFromUserData.isNotEmpty) {
+                                        selectedGender.value =
+                                            controller.genders.firstWhere(
+                                                (gender) =>
+                                                    gender.id ==
+                                                    genderFromUserData,
+                                                orElse: () =>
+                                                    controller.genders.first);
+                                      }
                                     }
                                     return SingleChildScrollView(
                                       child: Column(
@@ -591,7 +628,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                             ),
                           ),
                         ),
-
                         Obx(() {
                           // Handle loading state for both genders and subGenders
                           // if (controller.genders.isEmpty || controller.subGenders.isEmpty) {
@@ -602,8 +638,9 @@ class EditProfilePageState extends State<EditProfilePage> {
                           //     ),
                           //   );
                           // }
+                          String? initialLookingForValue =
+                              controller.userData.first.lookingFor;
 
-                          // Return the Card with form elements
                           return Card(
                             elevation: 8,
                             shape: RoundedRectangleBorder(
@@ -612,18 +649,14 @@ class EditProfilePageState extends State<EditProfilePage> {
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: Column(
-                                mainAxisAlignment: MainAxisAlignment
-                                    .start, // Align content to top
-                                crossAxisAlignment: CrossAxisAlignment
-                                    .start, // Ensure left alignment
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Relationship Type Dropdown
                                   DropdownButtonFormField<String>(
-                                    value: controller.userRegistrationRequest
-                                            .lookingFor.isEmpty
-                                        ? null
-                                        : controller
-                                            .userRegistrationRequest.lookingFor,
+                                    value:
+                                        initialLookingForValue?.isEmpty ?? true
+                                            ? null
+                                            : initialLookingForValue,
                                     decoration: InputDecoration(
                                       labelText: 'Relationship Type',
                                       labelStyle:
@@ -679,6 +712,16 @@ class EditProfilePageState extends State<EditProfilePage> {
                                   Column(
                                     children: List.generate(
                                         controller.subGenders.length, (index) {
+                                      if (selectedOption.value == '' &&
+                                          controller.userData.isNotEmpty) {
+                                        String? subGenderFromUserData =
+                                            controller.userData.first.subGender;
+                                        if (subGenderFromUserData != null &&
+                                            subGenderFromUserData.isNotEmpty) {
+                                          selectedOption.value =
+                                              subGenderFromUserData;
+                                        }
+                                      }
                                       return RadioListTile<String>(
                                         title: Text(
                                           controller.subGenders[index].title,
@@ -705,7 +748,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                             ),
                           );
                         }),
-
                         Obx(() {
                           if (controller.preferences.isEmpty) {
                             return Center(
@@ -715,15 +757,12 @@ class EditProfilePageState extends State<EditProfilePage> {
                               ),
                             );
                           }
-
-                          // Ensure preferencesSelectedOptions has the same length as preferences
                           if (preferencesSelectedOptions.length !=
                               controller.preferences.length) {
                             preferencesSelectedOptions.value =
                                 List<bool>.filled(
                                     controller.preferences.length, false);
                           }
-
                           return Card(
                             color: AppColors.primaryColor,
                             elevation: 8,
@@ -739,20 +778,15 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     "Your Selected preferences",
                                     style:
                                         AppTextStyles.subheadingText.copyWith(
-                                      fontSize: 18, // Customize font size
+                                      fontSize: 18,
                                       color: AppColors.textColor,
                                     ),
                                     textAlign: TextAlign.left,
                                   ),
-                                  const SizedBox(
-                                      height:
-                                          20), // Space between title and list
-
-                                  // ListView.builder without Expanded (use shrinkWrap)
+                                  const SizedBox(height: 20),
                                   ListView.builder(
-                                    shrinkWrap: true, // Prevent overflow issues
-                                    physics:
-                                        NeverScrollableScrollPhysics(), // Prevent scrolling of ListView if inside scrollable parent
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
                                     itemCount: controller.preferences.length,
                                     itemBuilder: (context, index) {
                                       return CheckboxListTile(
@@ -781,7 +815,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                             ),
                           );
                         }),
-
                         Card(
                           color: AppColors.primaryColor,
                           elevation: 5,
@@ -795,29 +828,36 @@ class EditProfilePageState extends State<EditProfilePage> {
                                       ..copyWith(
                                           fontSize:
                                               getResponsiveFontSize(0.03))),
-
                                 SizedBox(height: 10),
-                                // Wrap the list of interests with Chips
-                                Wrap(
-                                  spacing: 8.0,
-                                  children: List.generate(
-                                      UpdatedselectedInterests.length, (index) {
-                                    return Chip(
-                                      label: Text(
-                                        UpdatedselectedInterests[index],
-                                        style: TextStyle(fontSize: 16),
-                                      ),
-                                      backgroundColor: AppColors.chipColor,
-                                      // Add a delete icon inside the Chip
-                                      deleteIcon: Icon(Icons.delete,
-                                          color: AppColors.inactiveColor),
-                                      onDeleted: () => deleteInterest(
-                                          index), // Delete on press
-                                    );
-                                  }),
-                                ),
+                                Obx(() {
+                                  interestsList = controller
+                                          .userData.first.interest.isNotEmpty
+                                      ? controller.userData.first.interest
+                                          .split(',')
+                                      : [];
+                                  if (UpdatedselectedInterests.isEmpty) {
+                                    UpdatedselectedInterests.addAll(
+                                        interestsList);
+                                  }
+                                  return Wrap(
+                                    spacing: 8.0,
+                                    children: List.generate(
+                                        UpdatedselectedInterests.length,
+                                        (index) {
+                                      return Chip(
+                                        label: Text(
+                                          UpdatedselectedInterests[index],
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                        backgroundColor: AppColors.chipColor,
+                                        deleteIcon: Icon(Icons.delete,
+                                            color: AppColors.inactiveColor),
+                                        onDeleted: () => deleteInterest(index),
+                                      );
+                                    }),
+                                  );
+                                }),
                                 SizedBox(height: 10),
-                                // Row with TextField and Add button
                                 Row(
                                   children: [
                                     Expanded(
@@ -844,8 +884,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     IconButton(
                                       icon: Icon(Icons.add,
                                           color: AppColors.activeColor),
-                                      onPressed:
-                                          addInterest, // Add interest when pressed
+                                      onPressed: addInterest,
                                     ),
                                   ],
                                 ),
@@ -853,15 +892,11 @@ class EditProfilePageState extends State<EditProfilePage> {
                             ),
                           ),
                         ),
-                        // Desires Section with Chips
                         buildRelationshipStatusInterestStep(
                             context, MediaQuery.of(context).size),
                       ],
                     ),
-
               SizedBox(height: 16),
-
-              // Privacy Settings
               Card(
                 color: AppColors.primaryColor,
                 elevation: 5,
@@ -923,15 +958,15 @@ Widget buildDropdown<T>(
   String label,
   List<T> items,
   T? selectedValue,
+  initialCountry,
   double fontSize,
   Function(T?) onChanged, {
-  String Function(T)?
-      displayValue, // Helper to extract display value from items
+  String Function(T)? displayValue,
 }) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8.0),
     child: DropdownButtonFormField<T>(
-      value: selectedValue, // Bind to the selected value
+      value: selectedValue,
       items: items.map((T value) {
         return DropdownMenuItem<T>(
           value: value,
@@ -941,7 +976,7 @@ Widget buildDropdown<T>(
           ),
         );
       }).toList(),
-      onChanged: onChanged, // Use the provided onChanged callback
+      onChanged: onChanged,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
@@ -964,10 +999,7 @@ Widget buildDropdown<T>(
 
 Widget buildRelationshipStatusInterestStep(
     BuildContext context, Size screenSize) {
-  // Initialize controller inside build method
   Controller controller = Get.put(Controller());
-
-  // Categories for relationship and kinks
   final relationshipCategory = controller.categories.firstWhere(
     (category) => category.category == 'Relationship',
     orElse: () => Category(category: 'Relationship', desires: []),
@@ -983,12 +1015,23 @@ Widget buildRelationshipStatusInterestStep(
     ...kinksCategory.desires.map((desire) => desire.title)
   ];
 
-  // Reactive variables
   RxList<bool> selectedOptions = List.filled(options.length, false).obs;
   RxList<String> selectedStatus = <String>[].obs;
   RxList<int> selectedDesireIds = <int>[].obs;
+  void initializeSelectedValues() {
+    if (controller.userDesire.isNotEmpty &&
+        controller.userDesire.first.title.isNotEmpty) {
+      List<String> initialDesires =
+          controller.userDesire.first.title.split(',');
+      for (var initialDesire in initialDesires) {
+        int index = options.indexOf(initialDesire.trim());
+        if (index != -1) {
+          selectedOptions[index] = true;
+        }
+      }
+    }
+  }
 
-  // Updates selected desires and desire IDs
   void updateSelectedStatus() {
     selectedStatus.clear();
     selectedDesireIds.clear();
@@ -1007,6 +1050,7 @@ Widget buildRelationshipStatusInterestStep(
 
   void handleChipSelection(int index) {
     selectedOptions[index] = !selectedOptions[index];
+    initializeSelectedValues();
     updateSelectedStatus();
   }
 
@@ -1014,7 +1058,7 @@ Widget buildRelationshipStatusInterestStep(
   //double titleFontSize = screenWidth * 0.05;
   double bodyFontSize = screenWidth * 0.03;
   double chipFontSize = screenWidth * 0.03;
-
+  // initializeSelectedValues();
   return Card(
     color: AppColors.primaryColor,
     elevation: 8,
@@ -1027,7 +1071,6 @@ Widget buildRelationshipStatusInterestStep(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Selected desires section (Chips)
             Obx(() {
               return selectedStatus.isNotEmpty
                   ? Column(
@@ -1201,8 +1244,7 @@ Widget buildRelationshipStatusInterestStep(
 }
 
 RxList<String> selectedLanguages = <String>[].obs;
-RxList<int> selectedLanguagesId =
-    <int>[].obs; // For storing selected language IDs
+RxList<int> selectedLanguagesId = <int>[].obs;
 RxString searchQuery = ''.obs;
 
 Widget languages(BuildContext context) {
@@ -1216,7 +1258,6 @@ Widget languages(BuildContext context) {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Language Selection Row (Button with Down Arrow)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -1236,7 +1277,6 @@ Widget languages(BuildContext context) {
                   ),
                 ),
                 onPressed: () {
-                  // Open bottom sheet when button is pressed
                   showLanguageSelectionBottomSheet(context);
                 },
                 child: Row(
@@ -1244,9 +1284,6 @@ Widget languages(BuildContext context) {
                   children: [
                     Text(
                       'Select Languages',
-                      // selectedLanguages.isEmpty
-                      //     ? 'Select Languages'
-                      //     : selectedLanguages.join(', '),
                       style: TextStyle(fontSize: 14),
                     ),
                     SizedBox(width: 8),
@@ -1259,26 +1296,26 @@ Widget languages(BuildContext context) {
               ),
             ],
           ),
-
-          // Display the selected languages as chips
           SizedBox(height: 10),
           Obx(() {
-            return Wrap(
-              spacing: 8, // Horizontal space between chips
-              runSpacing: 8, // Vertical space between chips
-              children: selectedLanguages.map((language) {
-                return Chip(
-                  label: Text(language),
-                  deleteIcon: Icon(Icons.cancel, size: 18), // Delete icon
-                  onDeleted: () {
-                    // Remove language from the selected list when deleted
-                    selectedLanguages.remove(language);
-                    updateSelectedLanguageIds();
-                  },
-                  backgroundColor: Colors.blue.withOpacity(0.1),
-                  labelStyle: TextStyle(fontSize: 14),
-                );
-              }).toList(),
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: selectedLanguages.map((language) {
+                  return Chip(
+                    label: Text(language),
+                    deleteIcon: Icon(Icons.cancel, size: 18),
+                    onDeleted: () {
+                      selectedLanguages.remove(language);
+                      updateSelectedLanguageIds();
+                    },
+                    backgroundColor: Colors.blue.withOpacity(0.1),
+                    labelStyle: TextStyle(fontSize: 14),
+                  );
+                }).toList(),
+              ),
             );
           }),
         ],
@@ -1337,7 +1374,7 @@ void showLanguageSelectionBottomSheet(BuildContext context) {
               return Expanded(
                 child: GridView.builder(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3, // Display 3 languages per row
+                    crossAxisCount: 3,
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
                   ),
@@ -1356,14 +1393,20 @@ void showLanguageSelectionBottomSheet(BuildContext context) {
                         fontSize: 14,
                       ),
                       onSelected: (bool selected) {
+                        print('in the on selected');
                         if (selected) {
                           if (!selectedLanguages.contains(language)) {
                             selectedLanguages.add(language);
+
+                            // selectedLanguages
+                            //     .add(controller.userLang.first.title);
+                      
                           }
                         } else {
                           selectedLanguages.remove(language);
                         }
                         updateSelectedLanguageIds(); // Update IDs
+                        
                       },
                     );
                   },
@@ -1401,7 +1444,9 @@ void showLanguageSelectionBottomSheet(BuildContext context) {
                 onPressed: () {
                   updateSelectedLanguageIds();
                   Navigator.pop(context);
-                  print('-------===-----=======-------${selectedLanguagesId}');
+                  for (int i in selectedLanguagesId) {
+                    print(i.toString());
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
@@ -1425,11 +1470,11 @@ void showFullImageDialog(BuildContext context, String imagePath) {
       return Dialog(
         backgroundColor: Colors.black.withOpacity(0.9),
         child: GestureDetector(
-          onTap: () => Navigator.of(context).pop(), // Close dialog on tap
+          onTap: () => Navigator.of(context).pop(),
           child: Center(
             child: Image.asset(
               imagePath,
-              fit: BoxFit.contain, // Adjust the image size to fit
+              fit: BoxFit.contain,
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
             ),
@@ -1455,8 +1500,7 @@ class InfoField extends StatelessWidget {
   Widget build(BuildContext context) {
     double getResponsiveFontSize(double scale) {
       double screenWidth = MediaQuery.of(context).size.width;
-      return screenWidth *
-          scale; // Adjust this scale for different text elements
+      return screenWidth * scale;
     }
 
     TextEditingController controller =
@@ -1474,7 +1518,7 @@ class InfoField extends StatelessWidget {
                     .copyWith(fontSize: getResponsiveFontSize(0.03))),
             SizedBox(height: 10),
             TextField(
-              cursorColor: AppColors.cursorColor, // White cursor color
+              cursorColor: AppColors.cursorColor,
               controller: controller,
               style: AppTextStyles.bodyText
                   .copyWith(fontSize: getResponsiveFontSize(0.03)),
