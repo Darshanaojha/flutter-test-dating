@@ -82,19 +82,17 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                       SizedBox(height: size.height * 0.05),
                       ElevatedButton(
                         onPressed: () async {
-              
                           if (formKey.currentState!.validate()) {
-                            formKey.currentState!.save(); 
+                            formKey.currentState!.save();
 
-                  
                             bool isSuccess =
                                 await controller.login(loginRequest);
 
                             if (isSuccess) {
-                            
-                              Get.to(
-                                  NavigationBottomBar());
-                             
+                              await controller.fetchProfile();
+                              await controller.fetchProfileUserPhotos();
+                              await controller.fetchAllFaq();
+                              Get.to(NavigationBottomBar());
                             }
                           }
                         },
@@ -215,7 +213,6 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
         SizedBox(height: size.height * 0.02),
         TextButton(
           onPressed: () {
-        
             Get.to(UserInputPage());
             // Get.to(OTPVerificationPage());
             // Get.to(RegisterProfilePage());

@@ -24,7 +24,8 @@ class UserUploadImagesResponse {
   Map<String, dynamic> toJson() {
     return {
       'success': success,
-      'payload': payload?.toJson(), // Convert payload to JSON only if it's not null
+      'payload':
+          payload?.toJson(), // Convert payload to JSON only if it's not null
       'error': error.toJson(),
     };
   }
@@ -43,7 +44,9 @@ class UserUploadImagesPayload {
   factory UserUploadImagesPayload.fromJson(Map<String, dynamic> json) {
     return UserUploadImagesPayload(
       message: json['message'],
-      data: json['data'] != null ? UserImageData.fromJson(json['data']) : null, // Check if data exists before deserializing
+      data: json['data'] != null
+          ? UserImageData.fromJson(json['data'])
+          : null, // Check if data exists before deserializing
     );
   }
 
@@ -116,6 +119,16 @@ class UserImageData {
       'updated': updated,
     };
   }
+
+  List<String> get images {
+    List<String> imageList = [img1, img2, img3, img4, img5, img6];
+    imageList = imageList.where((image) => image.isNotEmpty).toList();
+    while (imageList.length < 3) {
+      imageList
+          .add(''); 
+    }
+    return imageList.take(6).toList();
+  }
 }
 
 class ApiError {
@@ -131,7 +144,8 @@ class ApiError {
   factory ApiError.fromJson(Map<String, dynamic> json) {
     return ApiError(
       code: json['code'],
-      message: json['message'] ?? '', // Default to empty string if message is null
+      message:
+          json['message'] ?? '', // Default to empty string if message is null
     );
   }
 

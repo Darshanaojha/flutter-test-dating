@@ -6,6 +6,7 @@ import 'package:dating_application/Models/ResponseModels/get_all_desires_model_r
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
+import '../../../Models/RequestModels/user_profile_update_request_model.dart';
 import '../../../Models/ResponseModels/get_all_gender_from_response_model.dart';
 import '../../../constants.dart';
 import '../editphoto/edituserprofilephoto.dart';
@@ -20,7 +21,7 @@ class EditProfilePage extends StatefulWidget {
 
 class EditProfilePageState extends State<EditProfilePage> {
   final Controller controller = Get.put(Controller());
-  RxList<RxString> images = <RxString>[].obs;
+
   RxBool isLatLongFetched = false.obs;
   RxList<String> genderIds = <String>[].obs;
   List<bool> isImageLoading = [];
@@ -36,12 +37,6 @@ class EditProfilePageState extends State<EditProfilePage> {
   }
 
   bool isLoading = false;
-  Future<void> fetchData() async {
-    await Future.delayed(Duration(seconds: 2));
-    setState(() {
-      isLoading = false;
-    });
-  }
 
   List<Category> categories = [];
   RxList<Desire> desiresList = <Desire>[].obs;
@@ -52,6 +47,7 @@ class EditProfilePageState extends State<EditProfilePage> {
 
   List<String> interestsList = [];
   RxList<bool> preferencesSelectedOptions = <bool>[].obs;
+
   TextEditingController interestController = TextEditingController();
   RxList<String> UpdatedselectedInterests = <String>[].obs;
   void addInterest() {
@@ -91,25 +87,11 @@ class EditProfilePageState extends State<EditProfilePage> {
     try {
       debounce?.cancel();
       isLatLongFetched.value = false;
-      await fetchData();
-      await controller.fetchProfileUserPhotos();
-      await controller.fetchDesires();
-      await controller.fetchPreferences();
+      await controller.fetchCountries();
       await controller.fetchGenders();
+      await controller.fetchPreferences();
       await controller.fetchlang();
-      await controller.fetchProfile();
-      controller.fetchCountries();
-      if (controller.userPhotos != null) {
-        final userPhotos = controller.userPhotos!;
-        images.clear();
-        if (userPhotos.img1.isNotEmpty) images.add(RxString(userPhotos.img1));
-        if (userPhotos.img2.isNotEmpty) images.add(RxString(userPhotos.img2));
-        if (userPhotos.img3.isNotEmpty) images.add(RxString(userPhotos.img3));
-        if (userPhotos.img4.isNotEmpty) images.add(RxString(userPhotos.img4));
-        if (userPhotos.img5.isNotEmpty) images.add(RxString(userPhotos.img5));
-        if (userPhotos.img6.isNotEmpty) images.add(RxString(userPhotos.img6));
-      }
-      loadImages();
+      await controller.fetchDesires();
       genderIds.addAll(controller.genders.map((gender) => gender.id));
       for (String genderId in genderIds) {
         controller.fetchSubGender(SubGenderRequest(genderId: genderId));
@@ -117,36 +99,18 @@ class EditProfilePageState extends State<EditProfilePage> {
 
       preferencesSelectedOptions.value =
           List<bool>.filled(controller.preferences.length, false);
+      List<int> matchingIndexes = [];
+      for (var p in controller.userPreferences) {
+        int index = controller.preferences
+            .indexWhere((preference) => preference.id == p.preferenceId);
+        if (index != -1) {
+          matchingIndexes.add(index);
+          preferencesSelectedOptions[index] = true;
+        }
+      }
+      print("Matching indexes: $matchingIndexes");
     } catch (e) {
       failure('Error', e.toString());
-    }
-  }
-
-  void loadImages() {
-    for (int i = 0; i < images.length; i++) {
-      final image = AssetImage(images[i].value);
-      final imageStream = image.resolve(ImageConfiguration());
-
-      imageStream.addListener(
-        ImageStreamListener(
-          (ImageInfo info, bool synchronousCall) {
-            setState(() {
-              // isImageLoading[i] = false;
-              if (i < isImageLoading.length) {
-                isImageLoading[i] = false;
-              }
-            });
-          },
-          onError: (exception, stackTrace) {
-            setState(() {
-              // isImageLoading[i] = false;
-              if (i < isImageLoading.length) {
-                isImageLoading[i] = false;
-              }
-            });
-          },
-        ),
-      );
     }
   }
 
@@ -157,11 +121,6 @@ class EditProfilePageState extends State<EditProfilePage> {
   void onDobChanged(String value) {
     controller.userProfileUpdateRequest.dob = value;
     print("Date of Birth: $value");
-  }
-
-  void onusernameChanged(String value) {
-    // controller.userProfileUpdateRequest.username = value;
-    print("user name : $value");
   }
 
   void onNickNameChanged(String value) {
@@ -246,711 +205,900 @@ class EditProfilePageState extends State<EditProfilePage> {
     // double chipFontSize = screenWidth * 0.03;
     final selectedGender = Rx<Gender?>(null);
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Edit Profile'),
-        backgroundColor: AppColors.primaryColor,
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Stack(
-                children: [
-                  Card(
-                    color: AppColors.primaryColor,
-                    elevation: 5,
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Photos",
-                              style: AppTextStyles.textStyle.copyWith(
-                                  fontSize: getResponsiveFontSize(0.03))),
-                          SizedBox(height: 5),
-                          SizedBox(
-                            height: 350,
-                            child: images.isEmpty
-                                ? Center(child: Text("No images available"))
-                                : ListView.builder(
-                                    scrollDirection: Axis.vertical,
-                                    itemCount: images.length,
-                                    itemBuilder: (context, index) {
-                                      if (index >= images.length)
-                                        return Container();
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: Stack(
-                                          alignment: Alignment.center,
-                                          children: [
-                                            GestureDetector(
-                                              onTap: () => showFullImageDialog(
-                                                  context, images[index].value),
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                child: Image.asset(
-                                                  images[index].value,
-                                                  fit: BoxFit.cover,
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.9,
-                                                  height: MediaQuery.of(context)
-                                                          .size
-                                                          .height *
-                                                      0.45,
-                                                  errorBuilder: (context, error,
-                                                      stackTrace) {
-                                                    return Center(
-                                                      child: Icon(Icons.error),
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                            ),
-                                            if (isImageLoading[index])
-                                              SpinKitCircle(
-                                                color: AppColors.progressColor,
-                                                size: 50.0,
-                                              ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  ),
-                          ),
-                          TextButton.icon(
-                            onPressed: () {
-                              Get.to(EditPhotosPage());
-                            },
-                            icon: Icon(Icons.edit, color: AppColors.iconColor),
-                            label: Text('Edit Photos',
-                                style: AppTextStyles.buttonText.copyWith(
-                                    color: AppColors.iconColor,
-                                    fontSize: getResponsiveFontSize(0.04))),
-                          ),
-                        ],
-                      ),
-                    ),
+        appBar: AppBar(
+          title: Text('Edit Profile'),
+          backgroundColor: AppColors.primaryColor,
+        ),
+        body: FutureBuilder(
+            future: controller.fetchProfile(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: SpinKitCircle(
+                    size: 150.0,
+                    color: AppColors.progressColor,
                   ),
-                  Positioned(
-                    top: 0,
-                    right: 16,
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          height: 40,
-                          child: FloatingActionButton.extended(
-                            onPressed: () {},
-                            backgroundColor: AppColors.buttonColor,
-                            icon: Icon(Icons.visibility,
-                                color: AppColors.textColor, size: 18),
-                            label: Text(
-                              'Preview',
-                              style: AppTextStyles.textStyle.copyWith(
-                                  fontSize: getResponsiveFontSize(0.03)),
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 16),
-                        SizedBox(
-                          height: 40,
-                          child: FloatingActionButton.extended(
-                            onPressed: () async {
-                              setState(() {
-                                isLoading = true;
-                              });
-                              await Future.delayed(Duration(seconds: 2));
-                              setState(() {
-                                isLoading = false;
-                              });
-                              //pref
-                              List<int> selectedPreferences = [];
-                              for (int i = 0;
-                                  i < preferencesSelectedOptions.length;
-                                  i++) {
-                                if (preferencesSelectedOptions[i]) {
-                                  selectedPreferences.add(
-                                      int.parse(controller.preferences[i].id));
-                                }
-                              }
-                              controller.userProfileUpdateRequest.preferences =
-                                  selectedPreferences;
-                              // pref end
-                              emailAlerts.value == true
-                                  ? controller.userProfileUpdateRequest
-                                      .emailAlerts = "1"
-                                  : "0";
-                              visibility_status.value == true
-                                  ? controller
-                                      .userProfileUpdateRequest.visibility = '1'
-                                  : '0';
-                              controller.updateProfile(
-                                  controller.userProfileUpdateRequest);
-
-                              success('Updated', 'Profile Saved!');
-                            },
-                            backgroundColor: AppColors.buttonColor,
-                            icon: Icon(Icons.save,
-                                color: AppColors.textColor, size: 18),
-                            label: Text(
-                              'Save',
-                              style: AppTextStyles.textStyle.copyWith(
-                                  fontSize: getResponsiveFontSize(0.03)),
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                );
+              }
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'Error loading user profile: ${snapshot.error}',
+                    style: TextStyle(color: Colors.red),
                   ),
-                ],
-              ),
-              SizedBox(height: 16),
-              isLoading
-                  ? Center(
-                      child: SpinKitCircle(
-                        color: AppColors.progressColor,
-                        size: 50.0,
-                      ),
-                    )
-                  : Column(
-                      children: [
-                        InfoField(
-                          initialValue:
-                              controller.userData.first.name.isNotEmpty
-                                  ? controller.userData.first.name
-                                  : controller.userProfileUpdateRequest.name,
-                          label: 'Name',
-                          onChanged: onUserNameChanged,
-                        ),
-                        InfoField(
-                          initialValue: controller.userData.first.dob.isNotEmpty
-                              ? controller.userData.first.name
-                              : controller.userProfileUpdateRequest.dob,
-                          label: 'Date of Birth',
-                          onChanged: onDobChanged,
-                        ),
-                        InfoField(
-                          initialValue: controller
-                                  .userData.first.nickname.isNotEmpty
-                              ? controller.userData.first.nickname
-                              : controller.userProfileUpdateRequest.nickname,
-                          label: 'Nick name',
-                          onChanged: onNickNameChanged,
-                        ),
-                        InfoField(
-                          initialValue: controller.userData.first.bio.isNotEmpty
-                              ? controller.userData.first.bio
-                              : controller.userProfileUpdateRequest.bio,
-                          label: 'About',
-                          onChanged: onAboutChanged,
-                        ),
-                        InfoField(
-                          initialValue:
-                              controller.userData.first.username.isNotEmpty
-                                  ? controller.userData.first.username
-                                  : '',
-                          label: 'User Name',
-                          onChanged: onusernameChanged,
-                        ),
-                        Obx(() {
-                          Country? initialCountry =
-                              controller.countries.firstWhere(
-                            (country) =>
-                                country.id ==
-                                controller.userData.first.countryId,
-                          );
-                          if (controller.countries.isEmpty) {
-                            return Center(
-                              child: SpinKitCircle(
-                                size: 50,
-                                color: AppColors.progressColor,
-                              ),
-                            );
-                          }
-
-                          return buildDropdown<Country>(
-                            "Country",
-                            controller.countries,
-                            initialCountry,
-                            selectedCountry,
-                            16.0,
-                            (Country? value) {
-                              controller.userProfileUpdateRequest.countryId =
-                                  value?.id ?? '';
-                            },
-                            displayValue: (Country country) => country.name,
-                          );
-                        }),
-                        InfoField(
-                          initialValue:
-                              controller.userData.first.address.isNotEmpty
-                                  ? controller.userData.first.address
-                                  : controller.userProfileUpdateRequest.address,
-                          label: 'Address',
-                          onChanged: onAddressChnaged,
-                        ),
-                        InfoField(
-                          initialValue:
-                              controller.userData.first.city.isNotEmpty
-                                  ? controller.userData.first.city
-                                  : controller.userProfileUpdateRequest.city,
-                          label: 'City',
-                          onChanged: onCityChanged,
-                        ),
-                        Obx(() {
-                          if (isLatLongFetched.value) {
-                            return Column(
-                              children: [
-                                InfoField(
-                                  initialValue: controller
-                                          .userData.first.latitude.isNotEmpty
-                                      ? controller.userData.first.latitude
-                                      : controller
-                                          .userProfileUpdateRequest.latitude,
-                                  label: 'Latitude',
-                                  onChanged: onLatitudeChnage,
-                                ),
-                                InfoField(
-                                  initialValue: controller
-                                          .userData.first.longitude.isNotEmpty
-                                      ? controller.userData.first.longitude
-                                      : controller
-                                          .userProfileUpdateRequest.longitude,
-                                  label: 'Longitude',
-                                  onChanged: onLongitudeChnage,
-                                ),
-                              ],
-                            );
-                          } else {
-                            return isLoading
-                                ? Center(
-                                    child: SpinKitCircle(
-                                      size: 90,
-                                      color: AppColors.progressColor,
-                                    ), // Show loading spinner while fetching
-                                  )
-                                : Container(); // Empty container if lat-long is not fetched
-                          }
-                        }),
-                        languages(context),
-                        Card(
-                          elevation: 8,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Center(
-                              child: Column(
-                                children: [
-                                  Text('Gender'),
-                                  Obx(() {
-                                    if (controller.genders.isEmpty) {
-                                      return Center(
-                                        child: SpinKitCircle(
-                                          size: 90,
-                                          color: AppColors.progressColor,
-                                        ),
-                                      );
-                                    }
-                                    if (selectedGender.value == null &&
-                                        controller.userData.isNotEmpty) {
-                                      String? genderFromUserData =
-                                          controller.userData.first.gender;
-                                      if (genderFromUserData != null &&
-                                          genderFromUserData.isNotEmpty) {
-                                        selectedGender.value =
-                                            controller.genders.firstWhere(
-                                                (gender) =>
-                                                    gender.id ==
-                                                    genderFromUserData,
-                                                orElse: () =>
-                                                    controller.genders.first);
-                                      }
-                                    }
-                                    return SingleChildScrollView(
-                                      child: Column(
-                                        children:
-                                            controller.genders.map((gender) {
-                                          return RadioListTile<Gender?>(
-                                            title: Text(
-                                              gender.title,
-                                              style: AppTextStyles.bodyText
-                                                  .copyWith(
-                                                fontSize: bodyFontSize,
-                                                color: AppColors.textColor,
-                                              ),
-                                            ),
-                                            value: gender,
-                                            groupValue: selectedGender.value,
-                                            onChanged: (Gender? value) {
-                                              selectedGender.value = value;
-
-                                              // Safe parsing using tryParse
-                                              final parsedGenderId =
-                                                  int.tryParse(value?.id ?? '');
-
-                                              if (parsedGenderId != null) {
-                                                controller
-                                                        .userProfileUpdateRequest
-                                                        .gender =
-                                                    parsedGenderId.toString();
-                                              } else {
-                                                controller
-                                                    .userProfileUpdateRequest
-                                                    .gender = '';
-                                              }
-
-                                              controller.fetchSubGender(
-                                                  SubGenderRequest(
-                                                      genderId: parsedGenderId
-                                                          .toString()));
-                                            },
-                                            activeColor: AppColors.buttonColor,
-                                          );
-                                        }).toList(),
-                                      ),
-                                    );
-                                  }),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        Obx(() {
-                          // Handle loading state for both genders and subGenders
-                          // if (controller.genders.isEmpty || controller.subGenders.isEmpty) {
-                          //   return Center(
-                          //     child: SpinKitCircle(
-                          //       size: 90,
-                          //       color: AppColors.acceptColor,
-                          //     ),
-                          //   );
-                          // }
-                          String? initialLookingForValue =
-                              controller.userData.first.lookingFor;
-
-                          return Card(
-                            elevation: 8,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  DropdownButtonFormField<String>(
-                                    value:
-                                        initialLookingForValue?.isEmpty ?? true
-                                            ? null
-                                            : initialLookingForValue,
-                                    decoration: InputDecoration(
-                                      labelText: 'Relationship Type',
-                                      labelStyle:
-                                          AppTextStyles.labelText.copyWith(
-                                        fontSize: titleFontSize,
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: BorderSide(
-                                            color: AppColors.textColor),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderSide:
-                                            BorderSide(color: Colors.white),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderSide:
-                                            BorderSide(color: Colors.white),
-                                      ),
-                                    ),
-                                    items: [
-                                      DropdownMenuItem(
-                                        value: '1',
-                                        child: Text(
-                                          'Serious Relationship',
-                                          style:
-                                              AppTextStyles.bodyText.copyWith(
-                                            fontSize: bodyFontSize,
-                                          ),
-                                        ),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: '2',
-                                        child: Text(
-                                          'Hookup',
-                                          style:
-                                              AppTextStyles.bodyText.copyWith(
-                                            fontSize: bodyFontSize,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                    onChanged: (value) {
-                                      if (value != null) {
-                                        controller.userRegistrationRequest
-                                            .lookingFor = value;
-                                      }
-                                    },
-                                    iconEnabledColor: AppColors.textColor,
-                                    iconDisabledColor: AppColors.inactiveColor,
-                                  ),
-                                  SizedBox(height: 5),
-                                  Column(
-                                    children: List.generate(
-                                        controller.subGenders.length, (index) {
-                                      if (selectedOption.value == '' &&
-                                          controller.userData.isNotEmpty) {
-                                        String? subGenderFromUserData =
-                                            controller.userData.first.subGender;
-                                        if (subGenderFromUserData != null &&
-                                            subGenderFromUserData.isNotEmpty) {
-                                          selectedOption.value =
-                                              subGenderFromUserData;
-                                        }
-                                      }
-                                      return RadioListTile<String>(
-                                        title: Text(
-                                          controller.subGenders[index].title,
-                                          style:
-                                              AppTextStyles.bodyText.copyWith(
-                                            fontSize: bodyFontSize,
-                                            color: AppColors.textColor,
-                                          ),
-                                        ),
-                                        value: controller.subGenders[index].id,
-                                        groupValue: selectedOption.value,
-                                        onChanged: (String? value) {
-                                          selectedOption.value = value ?? '';
-                                          controller.userProfileUpdateRequest
-                                              .subGender = value ?? '';
-                                        },
-                                        activeColor: AppColors.buttonColor,
-                                        contentPadding: EdgeInsets.zero,
-                                      );
-                                    }),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }),
-                        Obx(() {
-                          if (controller.preferences.isEmpty) {
-                            return Center(
-                              child: SpinKitCircle(
-                                size: 90,
-                                color: AppColors.progressColor,
-                              ),
-                            );
-                          }
-                          if (preferencesSelectedOptions.length !=
-                              controller.preferences.length) {
-                            preferencesSelectedOptions.value =
-                                List<bool>.filled(
-                                    controller.preferences.length, false);
-                          }
-                          return Card(
-                            color: AppColors.primaryColor,
-                            elevation: 8,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Your Selected preferences",
-                                    style:
-                                        AppTextStyles.subheadingText.copyWith(
-                                      fontSize: 18,
-                                      color: AppColors.textColor,
-                                    ),
-                                    textAlign: TextAlign.left,
-                                  ),
-                                  const SizedBox(height: 20),
-                                  ListView.builder(
-                                    shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    itemCount: controller.preferences.length,
-                                    itemBuilder: (context, index) {
-                                      return CheckboxListTile(
-                                        title: Text(
-                                          controller.preferences[index].title,
-                                          style:
-                                              AppTextStyles.bodyText.copyWith(
-                                            fontSize: bodyFontSize,
-                                            color: AppColors.textColor,
-                                          ),
-                                        ),
-                                        value:
-                                            preferencesSelectedOptions[index],
-                                        onChanged: (bool? value) {
-                                          preferencesSelectedOptions[index] =
-                                              value ?? false;
-                                        },
-                                        activeColor: AppColors.buttonColor,
-                                        checkColor: Colors.white,
-                                        contentPadding: EdgeInsets.zero,
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }),
-                        Card(
-                          color: AppColors.primaryColor,
-                          elevation: 5,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Interests",
-                                    style: AppTextStyles.subheadingText
-                                      ..copyWith(
-                                          fontSize:
-                                              getResponsiveFontSize(0.03))),
-                                SizedBox(height: 10),
-                                Obx(() {
-                                  interestsList = controller
-                                          .userData.first.interest.isNotEmpty
-                                      ? controller.userData.first.interest
-                                          .split(',')
-                                      : [];
-                                  if (UpdatedselectedInterests.isEmpty) {
-                                    UpdatedselectedInterests.addAll(
-                                        interestsList);
-                                  }
-                                  return Wrap(
-                                    spacing: 8.0,
-                                    children: List.generate(
-                                        UpdatedselectedInterests.length,
-                                        (index) {
-                                      return Chip(
-                                        label: Text(
-                                          UpdatedselectedInterests[index],
-                                          style: TextStyle(fontSize: 16),
-                                        ),
-                                        backgroundColor: AppColors.chipColor,
-                                        deleteIcon: Icon(Icons.delete,
-                                            color: AppColors.inactiveColor),
-                                        onDeleted: () => deleteInterest(index),
-                                      );
-                                    }),
-                                  );
-                                }),
-                                SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextField(
-                                        controller: interestController,
-                                        cursorColor: AppColors.cursorColor,
-                                        decoration: InputDecoration(
-                                          labelText: 'update Interest',
-                                          labelStyle: AppTextStyles.buttonText
-                                              .copyWith(
-                                                  fontSize:
-                                                      getResponsiveFontSize(
-                                                          0.03)),
-                                          filled: true,
-                                          fillColor: AppColors.formFieldColor,
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide: BorderSide.none,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.add,
-                                          color: AppColors.activeColor),
-                                      onPressed: addInterest,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        buildRelationshipStatusInterestStep(
-                            context, MediaQuery.of(context).size),
-                      ],
-                    ),
-              SizedBox(height: 16),
-              Card(
-                color: AppColors.primaryColor,
-                elevation: 5,
+                );
+              }
+              if (!snapshot.hasData || snapshot.data == null) {
+                return Center(
+                  child: Text(
+                    'No data available.',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                );
+              }
+              return SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Privacy Settings",
-                          style: AppTextStyles.subheadingText
-                              .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                      SizedBox(height: 10),
-                      PrivacyToggle(
-                        label: "Email Alert",
-                        value: emailAlerts.value,
-                        onChanged: (val) =>
-                            setState(() => emailAlerts.value = val),
+                      Stack(
+                        children: [
+                          Card(
+                            color: AppColors.primaryColor,
+                            elevation: 5,
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Photos",
+                                    style: AppTextStyles.textStyle.copyWith(
+                                      fontSize: getResponsiveFontSize(0.03),
+                                    ),
+                                  ),
+                                  SizedBox(height: 5),
+                                  SizedBox(
+                                    height: 350,
+                                    child: controller.userPhotos!.images.isEmpty
+                                        ? Center(
+                                            child: Text("No images available"))
+                                        : ListView.builder(
+                                            scrollDirection: Axis.vertical,
+                                            itemCount: controller
+                                                .userPhotos!.images.length,
+                                            itemBuilder: (context, index) {
+                                              String imageUrl = controller
+                                                  .userPhotos!.images[index];
+
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 8.0),
+                                                child: Stack(
+                                                  alignment: Alignment.center,
+                                                  children: [
+                                                    GestureDetector(
+                                                      onTap: () =>
+                                                          showFullImageDialog(
+                                                              context,
+                                                              imageUrl), // show full image on tap
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10),
+                                                        child: Image.network(
+                                                          imageUrl,
+                                                          fit: BoxFit.cover,
+                                                          width: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.9,
+                                                          height: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .height *
+                                                              0.45,
+                                                          errorBuilder:
+                                                              (context, error,
+                                                                  stackTrace) {
+                                                            return Center(
+                                                              child: Icon(
+                                                                  Icons.error),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                  ),
+                                  TextButton.icon(
+                                    onPressed: () {
+                                      Get.to(EditPhotosPage());
+                                    },
+                                    icon: Icon(Icons.edit,
+                                        color: AppColors.iconColor),
+                                    label: Text(
+                                      'Edit Photos',
+                                      style: AppTextStyles.buttonText.copyWith(
+                                        color: AppColors.iconColor,
+                                        fontSize: getResponsiveFontSize(0.04),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: 0,
+                            right: 16,
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  height: 40,
+                                  child: FloatingActionButton.extended(
+                                    onPressed: () {},
+                                    backgroundColor: AppColors.buttonColor,
+                                    icon: Icon(Icons.visibility,
+                                        color: AppColors.textColor, size: 18),
+                                    label: Text(
+                                      'Preview',
+                                      style: AppTextStyles.textStyle.copyWith(
+                                          fontSize:
+                                              getResponsiveFontSize(0.03)),
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 16),
+                                SizedBox(
+                                  height: 40,
+                                  child: FloatingActionButton.extended(
+                                    onPressed: () async {
+                                      setState(() {
+                                        isLoading = true;
+                                      });
+                                      await Future.delayed(
+                                          Duration(seconds: 2));
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+
+                                      UserProfileUpdateRequest
+                                          userProfileUpdateRequest =
+                                          UserProfileUpdateRequest(
+                                        name: controller
+                                                .userProfileUpdateRequest
+                                                .name
+                                                .isNotEmpty
+                                            ? controller
+                                                .userProfileUpdateRequest.name
+                                            : controller.userData.first.name,
+                                        latitude: controller
+                                                .userProfileUpdateRequest
+                                                .latitude
+                                                .isNotEmpty
+                                            ? controller
+                                                .userProfileUpdateRequest
+                                                .latitude
+                                            : controller
+                                                .userData.first.latitude,
+                                        longitude: controller
+                                                .userProfileUpdateRequest
+                                                .longitude
+                                                .isNotEmpty
+                                            ? controller
+                                                .userProfileUpdateRequest
+                                                .longitude
+                                            : controller
+                                                .userData.first.longitude,
+                                        address: controller
+                                                .userProfileUpdateRequest
+                                                .address
+                                                .isNotEmpty
+                                            ? controller
+                                                .userProfileUpdateRequest
+                                                .address
+                                            : controller.userData.first.address,
+                                        countryId: controller
+                                            .userProfileUpdateRequest.countryId,
+                                        state: '',
+                                        city: controller
+                                                .userProfileUpdateRequest
+                                                .city
+                                                .isNotEmpty
+                                            ? controller
+                                                .userProfileUpdateRequest.city
+                                            : controller.userData.first.city,
+                                        dob: controller.userProfileUpdateRequest
+                                                .dob.isNotEmpty
+                                            ? controller
+                                                .userProfileUpdateRequest.dob
+                                            : controller.userData.first.dob,
+                                        nickname: controller
+                                                .userProfileUpdateRequest
+                                                .nickname
+                                                .isNotEmpty
+                                            ? controller
+                                                .userProfileUpdateRequest
+                                                .nickname
+                                            : controller
+                                                .userData.first.nickname,
+                                        gender: controller
+                                            .userProfileUpdateRequest.gender,
+                                        subGender: controller
+                                            .userProfileUpdateRequest.subGender,
+                                        lang: controller
+                                            .userProfileUpdateRequest.lang,
+                                        interest: controller
+                                            .userProfileUpdateRequest.interest,
+                                        bio: controller.userProfileUpdateRequest
+                                                .bio.isNotEmpty
+                                            ? controller
+                                                .userProfileUpdateRequest.bio
+                                            : controller.userData.first.bio,
+                                        visibility: controller
+                                            .userProfileUpdateRequest
+                                            .visibility,
+                                        emailAlerts: controller
+                                                .userProfileUpdateRequest
+                                                .emailAlerts
+                                                .isNotEmpty
+                                            ? controller
+                                                .userProfileUpdateRequest
+                                                .emailAlerts
+                                            : controller
+                                                .userData.first.emailAlerts,
+                                        preferences: controller
+                                            .userProfileUpdateRequest
+                                            .preferences,
+                                        desires: controller
+                                            .userProfileUpdateRequest.desires,
+                                      );
+                                      //pref
+                                      List<int> selectedPreferences = [];
+                                      for (int i = 0;
+                                          i < preferencesSelectedOptions.length;
+                                          i++) {
+                                        if (preferencesSelectedOptions[i]) {
+                                          selectedPreferences.add(int.parse(
+                                              controller.preferences[i].id));
+                                        }
+                                      }
+                                      controller.userProfileUpdateRequest
+                                          .preferences = selectedPreferences;
+                                      // pref end
+                                      emailAlerts.value == true
+                                          ? controller.userProfileUpdateRequest
+                                              .emailAlerts = "1"
+                                          : "0";
+                                      visibility_status.value == true
+                                          ? controller.userProfileUpdateRequest
+                                              .visibility = '1'
+                                          : '0';
+                                      controller.updateProfile(
+                                          userProfileUpdateRequest);
+
+                                      success('Updated', 'Profile Saved!');
+                                    },
+                                    backgroundColor: AppColors.buttonColor,
+                                    icon: Icon(Icons.save,
+                                        color: AppColors.textColor, size: 18),
+                                    label: Text(
+                                      'Save',
+                                      style: AppTextStyles.textStyle.copyWith(
+                                          fontSize:
+                                              getResponsiveFontSize(0.03)),
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      PrivacyToggle(
-                        label: visibility_status.value
-                            ? "Online Visible"
-                            : "Hide Online ",
-                        value: visibility_status.value,
-                        onChanged: (val) => setState(() {
-                          visibility_status.value = val;
-                        }),
-                      ),
-                      PrivacyToggle(
-                        label: "Hide me on Flame",
-                        value: hideMeOnFlame,
-                        onChanged: (val) => setState(() => hideMeOnFlame = val),
-                      ),
-                      SizedBox(height: 10),
-                      PrivacyToggle(
-                        label: "Incognito Mode",
-                        value: incognitoMode,
-                        onChanged: (val) => setState(() => incognitoMode = val),
-                      ),
-                      SizedBox(height: 10),
-                      PrivacyToggle(
-                        label: "Opt out of Ping + Note",
-                        value: optOutOfPingNote,
-                        onChanged: (val) =>
-                            setState(() => optOutOfPingNote = val),
+                      SizedBox(height: 16),
+                      isLoading
+                          ? Center(
+                              child: SpinKitCircle(
+                                color: AppColors.progressColor,
+                                size: 50.0,
+                              ),
+                            )
+                          : Column(
+                              children: [
+                                InfoField(
+                                  initialValue:
+                                      controller.userData.first.name.isNotEmpty
+                                          ? controller.userData.first.name
+                                          : controller
+                                              .userProfileUpdateRequest.name,
+                                  label: 'Name',
+                                  onChanged: onUserNameChanged,
+                                ),
+                                InfoField(
+                                  initialValue: controller
+                                          .userData.first.dob.isNotEmpty
+                                      ? controller.userData.first.dob
+                                      : controller.userProfileUpdateRequest.dob,
+                                  label: 'Date of Birth',
+                                  onChanged: onDobChanged,
+                                ),
+                                InfoField(
+                                  initialValue: controller
+                                          .userData.first.nickname.isNotEmpty
+                                      ? controller.userData.first.nickname
+                                      : controller
+                                          .userProfileUpdateRequest.nickname,
+                                  label: 'Nick name',
+                                  onChanged: onNickNameChanged,
+                                ),
+                                InfoField(
+                                  initialValue: controller
+                                          .userData.first.bio.isNotEmpty
+                                      ? controller.userData.first.bio
+                                      : controller.userProfileUpdateRequest.bio,
+                                  label: 'About',
+                                  onChanged: onAboutChanged,
+                                ),
+                                // InfoField(
+                                // initialValue: controller
+                                //         .userData.first.username.isNotEmpty
+                                //     ? controller.userData.first.username
+                                //     : '',
+                                //   label: 'User Name',
+                                //   onChanged: onusernameChanged,
+                                // ),
+                                Obx(() {
+                                  if (controller.countries.isEmpty) {
+                                    return Center(
+                                      child: SpinKitCircle(
+                                        size: 50,
+                                        color: AppColors.progressColor,
+                                      ),
+                                    );
+                                  }
+                                  Country? initialCountry =
+                                      controller.countries.firstWhere(
+                                    (country) =>
+                                        country.id ==
+                                        controller.userData.first.countryId,
+                                  );
+
+                                  return buildDropdown<Country>(
+                                    "Country",
+                                    controller.countries,
+                                    initialCountry,
+                                    selectedCountry,
+                                    16.0,
+                                    (Country? value) {
+                                      controller.userProfileUpdateRequest
+                                          .countryId = value?.id ?? '';
+                                    },
+                                    displayValue: (Country country) =>
+                                        country.name,
+                                  );
+                                }),
+                                InfoField(
+                                  initialValue: controller
+                                          .userData.first.address.isNotEmpty
+                                      ? controller.userData.first.address
+                                      : controller
+                                          .userProfileUpdateRequest.address,
+                                  label: 'Address',
+                                  onChanged: onAddressChnaged,
+                                ),
+                                InfoField(
+                                  initialValue:
+                                      controller.userData.first.city.isNotEmpty
+                                          ? controller.userData.first.city
+                                          : controller
+                                              .userProfileUpdateRequest.city,
+                                  label: 'City',
+                                  onChanged: onCityChanged,
+                                ),
+                                Obx(() {
+                                  if (isLatLongFetched.value) {
+                                    return Column(
+                                      children: [
+                                        InfoField(
+                                          initialValue: controller.userData
+                                                  .first.latitude.isNotEmpty
+                                              ? controller
+                                                  .userData.first.latitude
+                                              : controller
+                                                  .userProfileUpdateRequest
+                                                  .latitude,
+                                          label: 'Latitude',
+                                          onChanged: onLatitudeChnage,
+                                        ),
+                                        InfoField(
+                                          initialValue: controller.userData
+                                                  .first.longitude.isNotEmpty
+                                              ? controller
+                                                  .userData.first.longitude
+                                              : controller
+                                                  .userProfileUpdateRequest
+                                                  .longitude,
+                                          label: 'Longitude',
+                                          onChanged: onLongitudeChnage,
+                                        ),
+                                      ],
+                                    );
+                                  } else {
+                                    return isLoading
+                                        ? Center(
+                                            child: SpinKitCircle(
+                                              size: 90,
+                                              color: AppColors.progressColor,
+                                            ), // Show loading spinner while fetching
+                                          )
+                                        : Container(); // Empty container if lat-long is not fetched
+                                  }
+                                }),
+                                languages(context),
+                                Card(
+                                  elevation: 8,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Center(
+                                      child: Column(
+                                        children: [
+                                          Text('Gender'),
+                                          Obx(() {
+                                            if (controller.genders.isEmpty) {
+                                              return Center(
+                                                child: SpinKitCircle(
+                                                  size: 90,
+                                                  color:
+                                                      AppColors.progressColor,
+                                                ),
+                                              );
+                                            }
+                                            if (selectedGender.value == null &&
+                                                controller
+                                                    .userData.isNotEmpty) {
+                                              String? genderFromUserData =
+                                                  controller
+                                                      .userData.first.gender;
+                                              if (genderFromUserData
+                                                  .isNotEmpty) {
+                                                selectedGender.value = controller
+                                                    .genders
+                                                    .firstWhere(
+                                                        (gender) =>
+                                                            gender.id ==
+                                                            genderFromUserData,
+                                                        orElse: () => controller
+                                                            .genders.first);
+                                              }
+                                            }
+                                            return SingleChildScrollView(
+                                              child: Column(
+                                                children: controller.genders
+                                                    .map((gender) {
+                                                  return RadioListTile<Gender?>(
+                                                    title: Text(
+                                                      gender.title,
+                                                      style: AppTextStyles
+                                                          .bodyText
+                                                          .copyWith(
+                                                        fontSize: bodyFontSize,
+                                                        color:
+                                                            AppColors.textColor,
+                                                      ),
+                                                    ),
+                                                    value: gender,
+                                                    groupValue:
+                                                        selectedGender.value,
+                                                    onChanged: (Gender? value) {
+                                                      selectedGender.value =
+                                                          value;
+
+                                                      // Safe parsing using tryParse
+                                                      final parsedGenderId =
+                                                          int.tryParse(
+                                                              value?.id ?? '');
+
+                                                      if (parsedGenderId !=
+                                                          null) {
+                                                        controller
+                                                                .userProfileUpdateRequest
+                                                                .gender =
+                                                            parsedGenderId
+                                                                .toString();
+                                                      } else {
+                                                        controller
+                                                            .userProfileUpdateRequest
+                                                            .gender = '';
+                                                      }
+
+                                                      controller.fetchSubGender(
+                                                          SubGenderRequest(
+                                                              genderId:
+                                                                  parsedGenderId
+                                                                      .toString()));
+                                                    },
+                                                    activeColor:
+                                                        AppColors.buttonColor,
+                                                  );
+                                                }).toList(),
+                                              ),
+                                            );
+                                          }),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Obx(() {
+                                  String? initialLookingForValue =
+                                      controller.userData.first.lookingFor;
+
+                                  return Card(
+                                    elevation: 8,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          DropdownButtonFormField<String>(
+                                            value: initialLookingForValue
+                                                        ?.isEmpty ??
+                                                    true
+                                                ? null
+                                                : initialLookingForValue,
+                                            decoration: InputDecoration(
+                                              labelText: 'Relationship Type',
+                                              labelStyle: AppTextStyles
+                                                  .labelText
+                                                  .copyWith(
+                                                fontSize: titleFontSize,
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                borderSide: BorderSide(
+                                                    color: AppColors.textColor),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                    color: Colors.white),
+                                              ),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                            items: [
+                                              DropdownMenuItem(
+                                                value: '1',
+                                                child: Text(
+                                                  'Serious Relationship',
+                                                  style: AppTextStyles.bodyText
+                                                      .copyWith(
+                                                    fontSize: bodyFontSize,
+                                                  ),
+                                                ),
+                                              ),
+                                              DropdownMenuItem(
+                                                value: '2',
+                                                child: Text(
+                                                  'Hookup',
+                                                  style: AppTextStyles.bodyText
+                                                      .copyWith(
+                                                    fontSize: bodyFontSize,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                            onChanged: (value) {
+                                              if (value != null) {
+                                                controller
+                                                    .userRegistrationRequest
+                                                    .lookingFor = value;
+                                              }
+                                            },
+                                            iconEnabledColor:
+                                                AppColors.textColor,
+                                            iconDisabledColor:
+                                                AppColors.inactiveColor,
+                                          ),
+                                          SizedBox(height: 5),
+                                          Column(
+                                            children: List.generate(
+                                                controller.subGenders.length,
+                                                (index) {
+                                              if (selectedOption.value == '' &&
+                                                  controller
+                                                      .userData.isNotEmpty) {
+                                                String? subGenderFromUserData =
+                                                    controller.userData.first
+                                                        .subGender;
+                                                if (subGenderFromUserData
+                                                    .isNotEmpty) {
+                                                  selectedOption.value =
+                                                      subGenderFromUserData;
+                                                }
+                                              }
+                                              return RadioListTile<String>(
+                                                title: Text(
+                                                  controller
+                                                      .subGenders[index].title,
+                                                  style: AppTextStyles.bodyText
+                                                      .copyWith(
+                                                    fontSize: bodyFontSize,
+                                                    color: AppColors.textColor,
+                                                  ),
+                                                ),
+                                                value: controller
+                                                    .subGenders[index].id,
+                                                groupValue:
+                                                    selectedOption.value,
+                                                onChanged: (String? value) {
+                                                  selectedOption.value =
+                                                      value ?? '';
+                                                  controller
+                                                      .userProfileUpdateRequest
+                                                      .subGender = value ?? '';
+                                                },
+                                                activeColor:
+                                                    AppColors.buttonColor,
+                                                contentPadding: EdgeInsets.zero,
+                                              );
+                                            }),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }),
+                                Obx(() {
+                                  if (controller.preferences.isEmpty) {
+                                    return Center(
+                                      child: SpinKitCircle(
+                                        size: 90,
+                                        color: AppColors.progressColor,
+                                      ),
+                                    );
+                                  }
+                                  if (preferencesSelectedOptions.length !=
+                                      controller.preferences.length) {
+                                    preferencesSelectedOptions.value =
+                                        List<bool>.filled(
+                                            controller.preferences.length,
+                                            false);
+                                  }
+                                  return Card(
+                                    color: AppColors.primaryColor,
+                                    elevation: 8,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Your Selected preferences",
+                                            style: AppTextStyles.subheadingText
+                                                .copyWith(
+                                              fontSize: 18,
+                                              color: AppColors.textColor,
+                                            ),
+                                            textAlign: TextAlign.left,
+                                          ),
+                                          const SizedBox(height: 20),
+                                          ListView.builder(
+                                            shrinkWrap: true,
+                                            physics:
+                                                NeverScrollableScrollPhysics(),
+                                            itemCount:
+                                                controller.preferences.length,
+                                            itemBuilder: (context, index) {
+                                              return CheckboxListTile(
+                                                title: Text(
+                                                  controller
+                                                      .preferences[index].title,
+                                                  style: AppTextStyles.bodyText
+                                                      .copyWith(
+                                                    fontSize: bodyFontSize,
+                                                    color: AppColors.textColor,
+                                                  ),
+                                                ),
+                                                value:
+                                                    preferencesSelectedOptions[
+                                                        index],
+                                                onChanged: (bool? value) {
+                                                  preferencesSelectedOptions[
+                                                      index] = value ?? false;
+                                                },
+                                                activeColor:
+                                                    AppColors.buttonColor,
+                                                checkColor: Colors.white,
+                                                contentPadding: EdgeInsets.zero,
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }),
+                                Card(
+                                  color: AppColors.primaryColor,
+                                  elevation: 5,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text("Interests",
+                                            style: AppTextStyles.subheadingText
+                                              ..copyWith(
+                                                  fontSize:
+                                                      getResponsiveFontSize(
+                                                          0.03))),
+                                        SizedBox(height: 10),
+                                        Obx(() {
+                                          interestsList = controller.userData
+                                                  .first.interest.isNotEmpty
+                                              ? controller
+                                                  .userData.first.interest
+                                                  .split(',')
+                                              : [];
+                                          if (UpdatedselectedInterests
+                                              .isEmpty) {
+                                            UpdatedselectedInterests.addAll(
+                                                interestsList);
+                                          }
+                                          return Wrap(
+                                            spacing: 8.0,
+                                            children: List.generate(
+                                                UpdatedselectedInterests.length,
+                                                (index) {
+                                              return Chip(
+                                                label: Text(
+                                                  UpdatedselectedInterests[
+                                                      index],
+                                                  style:
+                                                      TextStyle(fontSize: 16),
+                                                ),
+                                                backgroundColor:
+                                                    AppColors.chipColor,
+                                                deleteIcon: Icon(Icons.delete,
+                                                    color: AppColors
+                                                        .inactiveColor),
+                                                onDeleted: () =>
+                                                    deleteInterest(index),
+                                              );
+                                            }),
+                                          );
+                                        }),
+                                        SizedBox(height: 10),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: TextField(
+                                                controller: interestController,
+                                                cursorColor:
+                                                    AppColors.cursorColor,
+                                                decoration: InputDecoration(
+                                                  labelText: 'update Interest',
+                                                  labelStyle: AppTextStyles
+                                                      .buttonText
+                                                      .copyWith(
+                                                          fontSize:
+                                                              getResponsiveFontSize(
+                                                                  0.03)),
+                                                  filled: true,
+                                                  fillColor:
+                                                      AppColors.formFieldColor,
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    borderSide: BorderSide.none,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            IconButton(
+                                              icon: Icon(Icons.add,
+                                                  color: AppColors.activeColor),
+                                              onPressed: addInterest,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                buildRelationshipStatusInterestStep(
+                                    context, MediaQuery.of(context).size),
+                              ],
+                            ),
+                      SizedBox(height: 16),
+                      Card(
+                        color: AppColors.primaryColor,
+                        elevation: 5,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Privacy Settings",
+                                  style: AppTextStyles.subheadingText.copyWith(
+                                      fontSize: getResponsiveFontSize(0.03))),
+                              SizedBox(height: 10),
+                              PrivacyToggle(
+                                label: "Email Alert",
+                                value: emailAlerts.value,
+                                onChanged: (val) =>
+                                    setState(() => emailAlerts.value = val),
+                              ),
+                              PrivacyToggle(
+                                label: visibility_status.value
+                                    ? "Online Visible"
+                                    : "Hide Online ",
+                                value: visibility_status.value,
+                                onChanged: (val) => setState(() {
+                                  visibility_status.value = val;
+                                }),
+                              ),
+                              PrivacyToggle(
+                                label: "Hide me on Flame",
+                                value: hideMeOnFlame,
+                                onChanged: (val) =>
+                                    setState(() => hideMeOnFlame = val),
+                              ),
+                              SizedBox(height: 10),
+                              PrivacyToggle(
+                                label: "Incognito Mode",
+                                value: incognitoMode,
+                                onChanged: (val) =>
+                                    setState(() => incognitoMode = val),
+                              ),
+                              SizedBox(height: 10),
+                              PrivacyToggle(
+                                label: "Opt out of Ping + Note",
+                                value: optOutOfPingNote,
+                                onChanged: (val) =>
+                                    setState(() => optOutOfPingNote = val),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+              );
+            }));
   }
 }
 
@@ -1018,6 +1166,7 @@ Widget buildRelationshipStatusInterestStep(
   RxList<bool> selectedOptions = List.filled(options.length, false).obs;
   RxList<String> selectedStatus = <String>[].obs;
   RxList<int> selectedDesireIds = <int>[].obs;
+
   void initializeSelectedValues() {
     if (controller.userDesire.isNotEmpty &&
         controller.userDesire.first.title.isNotEmpty) {
@@ -1030,6 +1179,10 @@ Widget buildRelationshipStatusInterestStep(
         }
       }
     }
+  }
+
+  if (selectedOptions.isEmpty) {
+    initializeSelectedValues();
   }
 
   void updateSelectedStatus() {
@@ -1050,196 +1203,217 @@ Widget buildRelationshipStatusInterestStep(
 
   void handleChipSelection(int index) {
     selectedOptions[index] = !selectedOptions[index];
-    initializeSelectedValues();
     updateSelectedStatus();
   }
 
   double screenWidth = screenSize.width;
-  //double titleFontSize = screenWidth * 0.05;
   double bodyFontSize = screenWidth * 0.03;
   double chipFontSize = screenWidth * 0.03;
-  // initializeSelectedValues();
-  return Card(
-    color: AppColors.primaryColor,
-    elevation: 8,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Obx(() {
-              return selectedStatus.isNotEmpty
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "You selected:",
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: bodyFontSize,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textColor,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: selectedStatus.map((status) {
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
-                                child: Chip(
-                                  label: Text(status),
-                                  backgroundColor: AppColors.buttonColor,
-                                  labelStyle: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: chipFontSize,
-                                  ),
-                                  deleteIcon: Icon(
-                                    Icons.delete,
-                                    color: AppColors.deniedColor,
-                                  ),
-                                  onDeleted: () {
-                                    int index = options.indexOf(status);
-                                    selectedOptions[index] = false;
-                                    updateSelectedStatus(); // Update after deletion
-                                  },
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                      ],
-                    )
-                  : Container();
-            }),
-            Text(
-              "Select your Desires:",
-              style: AppTextStyles.bodyText.copyWith(
-                fontSize: bodyFontSize,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textColor,
-              ),
-            ),
-            SizedBox(height: 10),
 
-            // List of all desires to select from
-            SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: List.generate(options.length, (index) {
-                  return GestureDetector(
-                    onTap: () {
-                      handleChipSelection(
-                          index); // Handle desire selection/deselection
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Chip(
-                        label: Text(options[index]),
-                        backgroundColor: selectedOptions[index]
-                            ? AppColors.buttonColor
-                            : AppColors.formFieldColor,
-                        labelStyle: TextStyle(
-                          color: selectedOptions[index]
-                              ? Colors.white
-                              : AppColors.textColor,
-                          fontSize: chipFontSize,
-                        ),
-                      ),
-                    ),
-                  );
+  return FutureBuilder(
+    future: controller.fetchDesires(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Center(child: SpinKitCircle());
+      }
+      if (snapshot.hasError) {
+        return Center(child: Text('Error: ${snapshot.error}'));
+      }
+
+      return Card(
+        color: AppColors.primaryColor,
+        elevation: 8,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Obx(() {
+                  List<String> allDesires = [];
+                  if (controller.userDesire.isNotEmpty &&
+                      controller.userDesire.first.title.isNotEmpty) {
+                    allDesires.addAll(controller.userDesire.first.title
+                        .split(',')
+                        .map((desire) => desire.trim()));
+                  }
+                  allDesires.addAll(selectedStatus);
+                  allDesires = allDesires.toSet().toList();
+
+                  return allDesires.isNotEmpty
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "You selected:",
+                              style: AppTextStyles.bodyText.copyWith(
+                                fontSize: bodyFontSize,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textColor,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: allDesires.map((status) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 8.0),
+                                    child: Chip(
+                                      label: Text(status),
+                                      backgroundColor: AppColors.buttonColor,
+                                      labelStyle: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: chipFontSize,
+                                      ),
+                                      deleteIcon: Icon(
+                                        Icons.delete,
+                                        color: AppColors.deniedColor,
+                                      ),
+                                      onDeleted: () {
+                                        int index = options.indexOf(status);
+                                        selectedOptions[index] = false;
+                                        updateSelectedStatus();
+                                      },
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                          ],
+                        )
+                      : Container();
                 }),
-              ),
-            ),
 
-            SizedBox(height: 20),
-
-            // Reset and Cancel Button
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Confirm reset selections
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text(
-                          'Confirm Reset',
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: bodyFontSize,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textColor,
-                          ),
-                        ),
-                        content: Text(
-                          'Are you sure you want to clear your selections?',
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: bodyFontSize,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textColor,
-                          ),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context); // Close the dialog
-                            },
-                            child: Text(
-                              'Cancel',
-                              style: AppTextStyles.bodyText.copyWith(
-                                fontSize: bodyFontSize,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textColor,
-                              ),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              // Reset all selections
-                              selectedOptions.value = List.filled(
-                                  options.length, false); // Reset selections
-                              updateSelectedStatus(); // Update status after reset
-                              Navigator.pop(context); // Close the dialog
-                            },
-                            child: Text(
-                              'Confirm',
-                              style: AppTextStyles.bodyText.copyWith(
-                                fontSize: bodyFontSize,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textColor,
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.deniedColor,
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                ),
-                child: Text(
-                  'Cancel',
-                  style: AppTextStyles.buttonText.copyWith(
-                    fontSize: AppTextStyles.buttonSize,
+                Text(
+                  "Select your Desires:",
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: bodyFontSize,
+                    fontWeight: FontWeight.bold,
                     color: AppColors.textColor,
                   ),
                 ),
-              ),
+
+                SizedBox(height: 10),
+                Obx(() {
+                  return controller.categories.isNotEmpty
+                      ? SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
+                            children: List.generate(options.length, (index) {
+                              return GestureDetector(
+                                onTap: () {
+                                  handleChipSelection(index);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.only(bottom: 8.0),
+                                  child: Chip(
+                                    label: Text(options[index]),
+                                    backgroundColor: selectedOptions[index]
+                                        ? AppColors.buttonColor
+                                        : AppColors.formFieldColor,
+                                    labelStyle: TextStyle(
+                                      color: selectedOptions[index]
+                                          ? Colors.white
+                                          : AppColors.textColor,
+                                      fontSize: chipFontSize,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }),
+                          ),
+                        )
+                      : Container();
+                }),
+
+                SizedBox(height: 20),
+                // Reset and Cancel Button
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text(
+                              'Confirm Reset',
+                              style: AppTextStyles.bodyText.copyWith(
+                                fontSize: bodyFontSize,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textColor,
+                              ),
+                            ),
+                            content: Text(
+                              'Are you sure you want to clear your selections?',
+                              style: AppTextStyles.bodyText.copyWith(
+                                fontSize: bodyFontSize,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textColor,
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text(
+                                  'Cancel',
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    fontSize: bodyFontSize,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textColor,
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  selectedOptions.value =
+                                      List.filled(options.length, false);
+                                  updateSelectedStatus();
+                                  Navigator.pop(context);
+                                },
+                                child: Text(
+                                  'Confirm',
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    fontSize: bodyFontSize,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.deniedColor,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    ),
+                    child: Text(
+                      'Cancel',
+                      style: AppTextStyles.buttonText.copyWith(
+                        fontSize: AppTextStyles.buttonSize,
+                        color: AppColors.textColor,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
-    ),
+      );
+    },
   );
 }
 
@@ -1248,6 +1422,9 @@ RxList<int> selectedLanguagesId = <int>[].obs;
 RxString searchQuery = ''.obs;
 
 Widget languages(BuildContext context) {
+  if (selectedLanguages.isEmpty) {
+    selectedLanguages.addAll(controller.userLang.map((lang) => lang.title));
+  }
   return Card(
     elevation: 8,
     shape: RoundedRectangleBorder(
@@ -1400,13 +1577,11 @@ void showLanguageSelectionBottomSheet(BuildContext context) {
 
                             // selectedLanguages
                             //     .add(controller.userLang.first.title);
-                      
                           }
                         } else {
                           selectedLanguages.remove(language);
                         }
                         updateSelectedLanguageIds(); // Update IDs
-                        
                       },
                     );
                   },
@@ -1472,7 +1647,7 @@ void showFullImageDialog(BuildContext context, String imagePath) {
         child: GestureDetector(
           onTap: () => Navigator.of(context).pop(),
           child: Center(
-            child: Image.asset(
+            child: Image.network(
               imagePath,
               fit: BoxFit.contain,
               width: MediaQuery.of(context).size.width,
