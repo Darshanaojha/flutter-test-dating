@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../Controllers/controller.dart';
+import '../../Models/RequestModels/usernameupdate_request_model.dart';
 import '../settings/appinfopages/appinfopagestart.dart';
 import '../settings/setting.dart';
 import 'editprofile/edituserprofile.dart';
@@ -22,324 +23,476 @@ class UserProfilePage extends StatefulWidget {
 
 class UserProfilePageState extends State<UserProfilePage> {
   Controller controller = Get.put(Controller());
-  bool isLoading = true; // Used to simulate loading state for fetching data
-
-  // Dummy data for user profile (replace with actual data)
-  List<String> userPhotos = [
-    'assets/images/image1.jpg',
-    'assets/images/image1.jpg',
-    'assets/images/image1.jpg',
-    'assets/images/image1.jpg',
-  ];
-
-  String userName = 'John Doe';
-  String userAge = '25';
-  String userGender = 'Male';
+  bool isLoading = true;
   String userProfileCompletion = '80% Complete';
-
-  // Simulate data fetching (loading state)
-  Future<void> fetchData() async {
-    await Future.delayed(Duration(seconds: 2)); // Simulate network delay
-    setState(() {
-      isLoading = false;
-    });
-  }
 
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
-    return screenWidth * scale; // Adjust this scale for different text elements
+    return screenWidth * scale;
   }
 
   @override
   void initState() {
     super.initState();
-    fetchData();
+  }
+
+  int calculateAge(String dob) {
+    DateTime birthDate =
+        DateTime.parse(dob); // Parse the date of birth string to DateTime
+    DateTime now = DateTime.now();
+
+    // Calculate the age
+    int age = now.year - birthDate.year;
+    if (now.month < birthDate.month ||
+        (now.month == birthDate.month && now.day < birthDate.day)) {
+      age--; // Subtract one if the user hasn't had their birthday yet this year
+    }
+
+    return age;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
-          // Main content wrapped inside SingleChildScrollView for vertical scrolling
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                // User Photos (Horizontal Scrolling)
-                SizedBox(
-                  height: 200,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: userPhotos.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: GestureDetector(
-                          onTap: () =>
-                              showFullImageDialog(context, userPhotos[index]),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: Image.asset(
-                              userPhotos[index],
-                              fit: BoxFit.cover,
-                              width: 150,
-                              height: 200,
+          FutureBuilder(
+              future: controller.fetchProfileUserPhotos(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: SpinKitCircle(
+                      size: 150.0,
+                      color: AppColors.progressColor,
+                    ),
+                  );
+                }
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      'Error loading user photos: ${snapshot.error}',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  );
+                }
+
+                return SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      // User Photos (Horizontal Scrolling)
+                      SizedBox(
+                        height: 200,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: controller
+                              .userPhotos!.images.length, //userPhotos.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: GestureDetector(
+                                onTap: () => showFullImageDialog(context,
+                                    controller.userPhotos!.images[index]),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: Image.network(
+                                    controller.userPhotos!.images[index],
+                                    fit: BoxFit.cover,
+                                    width: 150,
+                                    height: 200,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+
+                      // Title and Pencil Icon
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Display username and hint text
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  controller.userData.isNotEmpty
+                                      ? controller.userData.first.username
+                                      : 'NA',
+                                  style: AppTextStyles.titleText.copyWith(
+                                    fontSize: getResponsiveFontSize(0.03),
+                                  ),
+                                ),
+                                SizedBox(
+                                    height:
+                                        8), // Optional space between username and the small text
+                                Text(
+                                  'Click to change username',
+                                  style: AppTextStyles.textStyle.copyWith(
+                                    fontSize: getResponsiveFontSize(0.02),
+                                    color: Colors
+                                        .grey, // Optional: change color to make it look like a hint
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            // Pencil icon button to open dialog for username editing
+                            IconButton(
+                              icon: Icon(Icons.edit,
+                                  size: 30, color: Colors.blue),
+                              onPressed: () {
+                                // Open a dialog when the pencil icon is pressed
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text(
+                                        'Edit Username',
+                                        style: AppTextStyles.titleText.copyWith(
+                                          fontSize: getResponsiveFontSize(0.03),
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      content: SingleChildScrollView(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              // TextField for username editing
+                                              TextField(
+                                                cursorColor:
+                                                    AppColors.cursorColor,
+                                                controller:
+                                                    TextEditingController(
+                                                  text: controller
+                                                          .usernameUpdateRequest
+                                                          .username
+                                                          .isNotEmpty
+                                                      ? controller
+                                                          .usernameUpdateRequest
+                                                          .username
+                                                      : controller.userData
+                                                          .first.username,
+                                                ),
+                                                onChanged: (value) {
+                                                  // Update the username request on text change
+                                                  controller
+                                                      .usernameUpdateRequest
+                                                      .username = value;
+                                                },
+                                                decoration: InputDecoration(
+                                                  labelText: 'Username',
+                                                  labelStyle: AppTextStyles
+                                                      .labelText
+                                                      .copyWith(
+                                                          fontSize:
+                                                              getResponsiveFontSize(
+                                                                  0.03)),
+                                                  filled: true,
+                                                  fillColor:
+                                                      AppColors.formFieldColor,
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    borderSide: BorderSide.none,
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(height: 20),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      actions: <Widget>[
+                                        // Cancel button to close the dialog without saving
+                                        TextButton(
+                                          style: TextButton.styleFrom(
+                                            foregroundColor:
+                                                AppColors.textColor,
+                                            backgroundColor:
+                                                AppColors.inactiveColor,
+                                          ),
+                                          onPressed: () {
+                                            Navigator.of(context)
+                                                .pop(); // Close the dialog
+                                          },
+                                          child: Text('Cancel',
+                                              style: AppTextStyles.buttonText
+                                                  .copyWith(
+                                                      fontSize:
+                                                          getResponsiveFontSize(
+                                                              0.03))),
+                                        ),
+                                        // Save button to update the username
+                                        ElevatedButton(
+                                          style: TextButton.styleFrom(
+                                            foregroundColor:
+                                                AppColors.textColor,
+                                            backgroundColor:
+                                                AppColors.activeColor,
+                                          ),
+                                          onPressed: () {
+                                            Get.snackbar(
+                                                '',
+                                                controller.usernameUpdateRequest
+                                                    .username
+                                                    .toString());
+                                            UsernameUpdateRequest usernameUpdateRequest =
+                                                UsernameUpdateRequest(
+                                                    username: controller
+                                                            .usernameUpdateRequest
+                                                            .username
+                                                            .isNotEmpty
+                                                        ? controller
+                                                            .usernameUpdateRequest
+                                                            .username
+                                                        : controller.userData
+                                                            .first.username);
+                                            controller.updateusername(
+                                                usernameUpdateRequest);
+                                            Navigator.of(context)
+                                                .pop();
+                                          },
+                                          child: Text('Save'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      // User Info: Age & Gender
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Row(
+                          children: [
+                            Text(
+                              controller.userData.isNotEmpty
+                                  ? '${calculateAge(controller.userData.first.dob)} years old | ${controller.userData.first.gender}'
+                                  : 'NA',
+                              style: AppTextStyles.labelText.copyWith(
+                                  fontSize: getResponsiveFontSize(0.03)),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Profile Completion Card
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Card(
+                          elevation: 5,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                    'Profile Completion: $userProfileCompletion',
+                                    style: AppTextStyles.labelText.copyWith(
+                                        fontSize: getResponsiveFontSize(0.03))),
+                                SizedBox(height: 10),
+                                Text(
+                                    'Complete your profile to unlock more features!',
+                                    style: AppTextStyles.labelText.copyWith(
+                                        fontSize: getResponsiveFontSize(0.03))),
+                              ],
                             ),
                           ),
                         ),
-                      );
-                    },
-                  ),
-                ),
-
-                // Title and Pencil Icon
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(userName,
-                          style: AppTextStyles.titleText
-                              .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                      IconButton(
-                        icon: Icon(Icons.edit, size: 30, color: Colors.blue),
-                        onPressed: () {
-                          Get.snackbar(
-                              'data',
-                              controller.userRegistrationRequest
-                                  .toJson()
-                                  .toString());
-                          Get.to(EditProfilePage());
-                        }, // Navigate to Edit Profile
                       ),
-                    ],
-                  ),
-                ),
 
-                // User Info: Age & Gender
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
-                    children: [
-                      Text('$userAge years old | $userGender',
-                          style: AppTextStyles.labelText
-                              .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                    ],
-                  ),
-                ),
-
-                // Profile Completion Card
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Card(
-                    elevation: 5,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Profile Completion: $userProfileCompletion',
-                              style: AppTextStyles.labelText.copyWith(
-                                  fontSize: getResponsiveFontSize(0.03))),
-                          SizedBox(height: 10),
-                          Text('Complete your profile to unlock more features!',
-                              style: AppTextStyles.labelText.copyWith(
-                                  fontSize: getResponsiveFontSize(0.03))),
-                        ],
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Card(
+                          color: Colors.orange, // Set the color to orange
+                          elevation: 5,
+                          child: InkWell(
+                            onTap: () {
+                              Get.to(MembershipPage());
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(16),
+                              width: double.infinity,
+                              height: 100,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.card_membership,
+                                    size: 40,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(width: 56),
+                                  Text(
+                                    'Membership',
+                                    style: AppTextStyles.titleText.copyWith(
+                                        fontSize: getResponsiveFontSize(0.03)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ),
 
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Card(
-                    color: Colors.orange, // Set the color to orange
-                    elevation: 5,
-                    child: InkWell(
-                      onTap: () {
-                        Get.to(MembershipPage());
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(16),
-                        width: double.infinity,
-                        height: 100,
-                        child: Row(
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Card(
+                          color: Colors.orange, // Set the color to orange
+                          elevation: 5,
+                          child: InkWell(
+                            onTap: showMessageBottomSheet,
+                            child: Container(
+                              padding: EdgeInsets.all(16),
+                              width: double.infinity,
+                              height: 100,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.notifications_active,
+                                    size: 40,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(width: 76),
+                                  Text(
+                                    'Messages',
+                                    style: AppTextStyles.titleText.copyWith(
+                                        fontSize: getResponsiveFontSize(0.03)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Uplift Profile Card (orange color)
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Card(
+                          color: Colors.orange, // Set the color to orange
+                          elevation: 5,
+                          child: InkWell(
+                            onTap: () {
+                              showUpgradeBottomSheet(context);
+                            }, // Call the showUpgradeBottomSheet function
+                            child: Container(
+                              padding: EdgeInsets.all(16),
+                              width: double.infinity,
+                              height: 100,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons
+                                        .upload, // You can change this icon to any other icon
+                                    size: 30,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(
+                                      width:
+                                          66), // Add spacing between the icon and the text
+                                  Text(
+                                    'Uplift Profile',
+                                    style: AppTextStyles.titleText.copyWith(
+                                        fontSize: getResponsiveFontSize(0.03)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Example usage in your UserProfilePage
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
                           children: [
-                            Icon(
-                              Icons.card_membership,
-                              size: 40,
-                              color: Colors.white,
+                            // My Constellation Card
+                            SettingCard(
+                              title: 'My Constellation',
+                              subtitle: 'Add partners to your constellation',
+                              icon: Icons.arrow_forward,
+                              onTap: () {
+                                Get.to(AddPartnerPage());
+                              },
                             ),
-                            SizedBox(width: 56),
-                            Text(
-                              'Membership',
-                              style: AppTextStyles.titleText.copyWith(
-                                  fontSize: getResponsiveFontSize(0.03)),
+
+                            // Edit Profile Card
+                            SettingCard(
+                              title: 'Edit Profile',
+                              subtitle: 'Edit your profile details',
+                              icon: Icons.edit,
+                              onTap: () {
+                                Get.to(EditProfilePage());
+                                if (controller.userLang.isNotEmpty) {
+                                  Get.snackbar(
+                                      '', controller.userLang.first.title);
+                                } else {
+                                  Get.snackbar('', 'No language available');
+                                }
+                              },
                             ),
+
+                            // Other settings cards
+                            SettingCard(
+                              title: 'Search Settings',
+                              subtitle: 'Customize your search settings',
+                              icon: Icons.search,
+                              onTap: () {
+                                Get.to(ShareProfilePage(
+                                  id: '1',
+                                ));
+                                // Navigate or show settings action
+                              },
+                            ),
+                            SettingCard(
+                              title: 'App Settings',
+                              subtitle: 'Manage app preferences',
+                              icon: Icons.settings,
+                              onTap: () {
+                                Get.to(SettingsPage());
+                              },
+                            ),
+                            SettingCard(
+                              title: 'Share My Profile',
+                              subtitle: 'Share your profile with others',
+                              icon: Icons.share,
+                              onTap: showShareProfileBottomSheet,
+                            ),
+                            SettingCard(
+                                title: 'Magazine',
+                                subtitle: 'abc',
+                                icon: Icons.bolt,
+                                onTap: () {}),
+                            SettingCard(
+                                title: 'Our Community',
+                                subtitle: 'community support',
+                                icon: Icons.support,
+                                onTap: () {}),
+                            SettingCard(
+                                title: 'Help',
+                                subtitle: 'helpline',
+                                icon: Icons.help,
+                                onTap: () {
+                                  // Get.to(AppInfoPage());
+                                  showHelpBottomSheet(context);
+                                }),
                           ],
                         ),
                       ),
-                    ),
-                  ),
-                ),
-
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Card(
-                    color: Colors.orange, // Set the color to orange
-                    elevation: 5,
-                    child: InkWell(
-                      onTap: showMessageBottomSheet,
-                      child: Container(
-                        padding: EdgeInsets.all(16),
-                        width: double.infinity,
-                        height: 100,
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.notifications_active,
-                              size: 40,
-                              color: Colors.white,
-                            ),
-                            SizedBox(width: 76),
-                            Text(
-                              'Messages',
-                              style: AppTextStyles.titleText.copyWith(
-                                  fontSize: getResponsiveFontSize(0.03)),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                // Uplift Profile Card (orange color)
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Card(
-                    color: Colors.orange, // Set the color to orange
-                    elevation: 5,
-                    child: InkWell(
-                      onTap: () {
-                        showUpgradeBottomSheet(context);
-                      }, // Call the showUpgradeBottomSheet function
-                      child: Container(
-                        padding: EdgeInsets.all(16),
-                        width: double.infinity,
-                        height: 100,
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons
-                                  .upload, // You can change this icon to any other icon
-                              size: 30,
-                              color: Colors.white,
-                            ),
-                            SizedBox(
-                                width:
-                                    66), // Add spacing between the icon and the text
-                            Text(
-                              'Uplift Profile',
-                              style: AppTextStyles.titleText.copyWith(
-                                  fontSize: getResponsiveFontSize(0.03)),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                // Example usage in your UserProfilePage
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      // My Constellation Card
-                      SettingCard(
-                        title: 'My Constellation',
-                        subtitle: 'Add partners to your constellation',
-                        icon: Icons.arrow_forward,
-                        onTap: () {
-                          Get.to(AddPartnerPage());
-                        },
-                      ),
-
-                      // Edit Profile Card
-                      SettingCard(
-                        title: 'Edit Profile',
-                        subtitle: 'Edit your profile details',
-                        icon: Icons.edit,
-                        onTap: () {
-                          Get.to(EditProfilePage());
-                          if (controller.userLang.isNotEmpty) {
-                            Get.snackbar('', controller.userLang.first.title);
-                          } else {
-                            Get.snackbar('', 'No language available');
-                          }
-                        },
-                      ),
-
-                      // Other settings cards
-                      SettingCard(
-                        title: 'Search Settings',
-                        subtitle: 'Customize your search settings',
-                        icon: Icons.search,
-                        onTap: () {
-                          Get.to(ShareProfilePage(
-                            id: '1',
-                          ));
-                          // Navigate or show settings action
-                        },
-                      ),
-                      SettingCard(
-                        title: 'App Settings',
-                        subtitle: 'Manage app preferences',
-                        icon: Icons.settings,
-                        onTap: () {
-                          Get.to(SettingsPage());
-                        },
-                      ),
-                      SettingCard(
-                        title: 'Share My Profile',
-                        subtitle: 'Share your profile with others',
-                        icon: Icons.share,
-                        onTap: showShareProfileBottomSheet,
-                      ),
-                      SettingCard(
-                          title: 'Magazine',
-                          subtitle: 'abc',
-                          icon: Icons.bolt,
-                          onTap: () {}),
-                      SettingCard(
-                          title: 'Our Community',
-                          subtitle: 'community support',
-                          icon: Icons.support,
-                          onTap: () {}),
-                      SettingCard(
-                          title: 'Help',
-                          subtitle: 'helpline',
-                          icon: Icons.help,
-                          onTap: () {
-                            // Get.to(AppInfoPage());
-                            showHelpBottomSheet(context);
-                          }),
                     ],
                   ),
-                ),
-              ],
-            ),
-          ),
-
-          // Loading spinner (SpinKitCircle) - Only visible when _isLoading is true
-          if (isLoading)
-            Center(
-              child: SpinKitCircle(
-                size: 150.0, // Adjust the size as needed
-                color: AppColors.progressColor,
-                // Choose the spinner color that matches your app
-              ),
-            ),
+                );
+              }),
         ],
       ),
     );
@@ -354,7 +507,7 @@ class UserProfilePageState extends State<UserProfilePage> {
           child: GestureDetector(
             onTap: () => Navigator.of(context).pop(), // Close dialog on tap
             child: Center(
-              child: Image.asset(
+              child: Image.network(
                 imagePath,
                 fit: BoxFit.contain, // Adjust the image size to fit
                 width: MediaQuery.of(context).size.width,

@@ -46,34 +46,31 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
   }
 
   intialize() async {
-     try {
-    await controller.fetchAllHeadlines();
-    await controller.fetchSafetyGuidelines();
-    await controller.fetchAllPackages();
-    await controller.reportReason();
-    await controller.fetchlang();
-    await controller.fetchProfileUserPhotos();
-    await controller.fetchAllFaq();
+    try {
+      await controller.fetchAllHeadlines();
+      await controller.fetchSafetyGuidelines();
+      await controller.fetchAllPackages();
+      await controller.reportReason();
+      await controller.fetchlang();
+      await controller.fetchDesires();
+      await controller.fetchGenders();
+      await controller.fetchCountries();
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
 
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        Get.offAll(() => Login())!.then((_) {
-        //  _handleIncomingLinks();
-        });
+        Get.offAll(() => Login());
       } else {
-        Get.offAll(() => NavigationBottomBar())!.then((_) {
-        //  _handleIncomingLinks();
-             controller.fetchProfile();
-        });
+         await controller.fetchProfile();
+          await controller.fetchProfileUserPhotos();
+          await controller.fetchAllFaq();
+        Get.offAll(() => NavigationBottomBar());
       }
     } catch (e) {
       failure("Error", e.toString());
-      Get.offAll(() => Login())!.then((_) {
-     //   _handleIncomingLinks();
-      });
+      Get.offAll(() => Login());
     } finally {
       setState(() {
         _isLoading = false;
@@ -81,7 +78,6 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
     }
   }
 
-  
   @override
   void dispose() {
     _linkSubscription?.cancel();

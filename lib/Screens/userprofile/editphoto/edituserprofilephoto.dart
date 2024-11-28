@@ -32,18 +32,18 @@ class EditPhotosPageState extends State<EditPhotosPage> {
   intialize() async {
     try {
       await controller.fetchProfileUserPhotos();
-      if (controller.userPhotos != null) {
-        final userPhotos = controller.userPhotos!;
-        images.clear();
-        updatedImages.clear();
-        if (userPhotos.img1.isNotEmpty) images.add(RxString(userPhotos.img1));
-        if (userPhotos.img2.isNotEmpty) images.add(RxString(userPhotos.img2));
-        if (userPhotos.img3.isNotEmpty) images.add(RxString(userPhotos.img3));
-        if (userPhotos.img4.isNotEmpty) images.add(RxString(userPhotos.img4));
-        if (userPhotos.img5.isNotEmpty) images.add(RxString(userPhotos.img5));
-        if (userPhotos.img6.isNotEmpty) images.add(RxString(userPhotos.img6));
-        updatedImages.assignAll(images);
-      }
+      // if (controller.userPhotos != null) {
+      //   final userPhotos = controller.userPhotos!;
+      //   images.clear();
+      //   updatedImages.clear();
+      //   if (userPhotos.img1.isNotEmpty) images.add(RxString(userPhotos.img1));
+      //   if (userPhotos.img2.isNotEmpty) images.add(RxString(userPhotos.img2));
+      //   if (userPhotos.img3.isNotEmpty) images.add(RxString(userPhotos.img3));
+      //   if (userPhotos.img4.isNotEmpty) images.add(RxString(userPhotos.img4));
+      //   if (userPhotos.img5.isNotEmpty) images.add(RxString(userPhotos.img5));
+      //   if (userPhotos.img6.isNotEmpty) images.add(RxString(userPhotos.img6));
+      //   updatedImages.assignAll(images);
+      // }
     } catch (e) {
       failure('Error', e.toString());
     }
@@ -232,8 +232,8 @@ class EditPhotosPageState extends State<EditPhotosPage> {
       builder: (BuildContext context) {
         return Dialog(
           backgroundColor: Colors.black.withOpacity(0.8),
-          child: Image.file(
-            File(imagePath),
+          child: Image.network(
+           imagePath,
             fit: BoxFit.contain,
             width: double.infinity,
             height: MediaQuery.of(context).size.height * 0.7,
@@ -287,21 +287,21 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                         mainAxisSpacing: 8.0,
                         childAspectRatio: 1.0,
                       ),
-                      itemCount: 6,
+                      itemCount:  controller.userPhotos!.images.length,
                       itemBuilder: (context, index) {
+                        String? imageUrl = controller.userPhotos!.images[index];
                         if (index < updatedImages.length) {
                           return Padding(
                             padding: const EdgeInsets.all(4.0),
                             child: GestureDetector(
-                              onTap: () => showFullPhotoDialog(
-                                  updatedImages[index].value),
+                              onTap: () => showFullPhotoDialog(imageUrl),
                               child: Stack(
                                 alignment: Alignment.bottomRight,
                                 children: [
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(10),
                                     child: Image.network(
-                                      updatedImages[index].value,
+                                      imageUrl,
                                       fit: BoxFit.cover,
                                       width: double.infinity,
                                       height: double.infinity,

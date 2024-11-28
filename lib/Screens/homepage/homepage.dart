@@ -28,20 +28,11 @@ class HomePageState extends State<HomePage> {
   int messageCount = 0;
   final TextEditingController messageController = TextEditingController();
   final FocusNode messageFocusNode = FocusNode();
-  // final PageController _pageController = PageController();
   final PageController _imagePageController = PageController();
-
-  Future<void> loadImage() async {
-    await Future.delayed(Duration(seconds: 2));
-    setState(() {
-      isLoading = false;
-    });
-  }
 
   @override
   void initState() {
     super.initState();
-    loadImage();
   }
 
   @override
@@ -65,7 +56,7 @@ class HomePageState extends State<HomePage> {
           child: GestureDetector(
             onTap: () => Navigator.of(context).pop(), // Close dialog on tap
             child: Center(
-              child: Image.asset(
+              child: Image.network(
                 imagePath,
                 fit: BoxFit.contain, // Adjust the image size to fit
                 width: MediaQuery.of(context).size.width,
@@ -249,240 +240,288 @@ class HomePageState extends State<HomePage> {
 
     // Responsive font size calculation
     double fontSize = size.width * 0.045; // Base font size
-    double subheadingFontSize = size.width * 0.04;
     double bodyFontSize = size.width * 0.035;
 
     return Scaffold(
         resizeToAvoidBottomInset: true,
         body: Stack(
           children: [
-            SingleChildScrollView(
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height,
-                    child: PageView.builder(
-                      // controller: _pageController,
-                      itemCount: controller.userSuggestionsList.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: EdgeInsets.all(
-                            MediaQuery.of(context).size.width * 0.04,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.4,
-                                child: Stack(
+            FutureBuilder(
+                future: controller.userSuggestions(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: SpinKitCircle(
+                        size: 150.0,
+                        color: AppColors.progressColor,
+                      ),
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        'Error loading user photos: ${snapshot.error}',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    );
+                  }
+                  if (!snapshot.hasData || snapshot.data == null) {
+                    return Center(
+                      child: Text(
+                        'No data available.',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    );
+                  }
+                  return SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height,
+                          child: PageView.builder(
+                            // controller: _pageController,
+                            itemCount: controller.userSuggestionsList.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: EdgeInsets.all(
+                                  MediaQuery.of(context).size.width * 0.04,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    if (isLoading)
-                                      Center(
-                                        child: SpinKitCircle(
-                                          size: 150.0,
-                                          color: AppColors.acceptColor,
-                                        ),
-                                      ),
-                                    ListView.builder(
-                                      controller: _imagePageController,
-                                      scrollDirection: Axis.vertical,
-                                      itemCount: controller
-                                          .userSuggestionsList[index]
-                                          .images
-                                          .length,
-                                      itemBuilder: (context, imgIndex) {
-                                        return GestureDetector(
-                                          onTap: () => _showFullImageDialog(
-                                              context,
-                                              controller
-                                                  .userSuggestionsList[index]
-                                                  .images[imgIndex]),
-                                          child: Container(
-                                            margin: EdgeInsets.only(bottom: 12),
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
-                                              child: Image.asset(
-                                                controller
-                                                    .userSuggestionsList[index]
-                                                    .images[imgIndex],
-                                                fit: BoxFit.cover,
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.9,
-                                                height: MediaQuery.of(context)
-                                                        .size
-                                                        .height *
-                                                    0.45,
+                                    SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.4,
+                                      child: Stack(
+                                        children: [
+                                          if (isLoading)
+                                            Center(
+                                              child: SpinKitCircle(
+                                                size: 150.0,
+                                                color: AppColors.acceptColor,
                                               ),
                                             ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                    Positioned(
-                                      bottom: 10,
-                                      right: 0,
-                                      child: Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          vertical: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              0.1, // Adjust vertical padding
-                                        ),
-                                        child: Transform.rotate(
-                                          angle:
-                                              -1.5708, // -1.5708 radians = 90 degrees counterclockwise
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment
-                                                .center, // Centers the dots horizontally
-                                            children: [
-                                              SmoothPageIndicator(
-                                                controller:
-                                                    _imagePageController,
-                                                count: controller
-                                                    .userSuggestionsList[index]
-                                                    .images
-                                                    .length,
-                                                effect: ExpandingDotsEffect(
-                                                  dotHeight: 10,
-                                                  dotWidth: 10,
-                                                  spacing: 10,
-                                                  radius: 5,
-                                                  dotColor: Colors.grey
-                                                      .withOpacity(0.5),
-                                                  activeDotColor:
-                                                      AppColors.acceptColor,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 16,
-                                left: 16,
-                                child: Row(
-                                  children: [
-                                    IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          isLiked = !isLiked;
-                                        });
-                                      },
-                                      icon: Icon(
-                                        isLiked
-                                            ? Icons.favorite
-                                            : Icons.favorite_border,
-                                        size: 40,
-                                        color:
-                                            isLiked ? Colors.red : Colors.white,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          isDisliked = !isDisliked;
-                                        });
-                                      },
-                                      icon: Icon(
-                                        isDisliked
-                                            ? Icons.thumb_down
-                                            : Icons.thumb_down_alt_outlined,
-                                        size: 40,
-                                        color: isDisliked
-                                            ? Colors.red
-                                            : Colors.white,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        showShareProfileBottomSheet();
-                                        setState(() {
-                                          isShare = !isShare;
-                                        });
-                                      },
-                                      icon: Icon(
-                                        isShare ? Icons.share : Icons.share,
-                                        size: 40,
-                                        color: isShare
-                                            ? Colors.green
-                                            : Colors.white,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      onPressed: showmessageBottomSheet,
-                                      icon: Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          Icon(
-                                            Icons.chat_outlined,
-                                            size: 40,
-                                            color: AppColors.textColor,
-                                          ),
-                                          if (messageCount > 0)
-                                            Positioned(
-                                              top: 0,
-                                              right: 0,
-                                              child: CircleAvatar(
-                                                radius: 10,
-                                                backgroundColor:
-                                                    AppColors.deniedColor,
-                                                child: Text(
-                                                  '$messageCount',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: AppColors.textColor,
+                                          ListView.builder(
+                                            controller: _imagePageController,
+                                            scrollDirection: Axis.vertical,
+                                            itemCount: controller
+                                                .userSuggestionsList[index]
+                                                .images
+                                                .length,
+                                            itemBuilder: (context, imgIndex) {
+                                              return GestureDetector(
+                                                onTap: () =>
+                                                    _showFullImageDialog(
+                                                        context,
+                                                        controller
+                                                            .userSuggestionsList[
+                                                                index]
+                                                            .images[imgIndex]),
+                                                child: Container(
+                                                  margin: EdgeInsets.only(
+                                                      bottom: 12),
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15),
+                                                    child: Image.network(
+                                                      controller
+                                                          .userSuggestionsList[
+                                                              index]
+                                                          .images[imgIndex],
+                                                      fit: BoxFit.cover,
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.9,
+                                                      height:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .height *
+                                                              0.45,
+                                                    ),
                                                   ),
                                                 ),
+                                              );
+                                            },
+                                          ),
+                                          Positioned(
+                                            bottom: 10,
+                                            right: 0,
+                                            child: Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                vertical: MediaQuery.of(context)
+                                                        .size
+                                                        .height *
+                                                    0.1, // Adjust vertical padding
+                                              ),
+                                              child: Transform.rotate(
+                                                angle:
+                                                    -1.5708, // -1.5708 radians = 90 degrees counterclockwise
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .center, // Centers the dots horizontally
+                                                  children: [
+                                                    SmoothPageIndicator(
+                                                      controller:
+                                                          _imagePageController,
+                                                      count: controller
+                                                          .userSuggestionsList[
+                                                              index]
+                                                          .images
+                                                          .length,
+                                                      effect:
+                                                          ExpandingDotsEffect(
+                                                        dotHeight: 10,
+                                                        dotWidth: 10,
+                                                        spacing: 10,
+                                                        radius: 5,
+                                                        dotColor: Colors.grey
+                                                            .withOpacity(0.5),
+                                                        activeDotColor:
+                                                            AppColors
+                                                                .acceptColor,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
+                                          )
                                         ],
                                       ),
                                     ),
+                                    Positioned(
+                                      bottom: 16,
+                                      left: 16,
+                                      child: Row(
+                                        children: [
+                                          IconButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                isLiked = !isLiked;
+                                              });
+                                            },
+                                            icon: Icon(
+                                              isLiked
+                                                  ? Icons.favorite
+                                                  : Icons.favorite_border,
+                                              size: 40,
+                                              color: isLiked
+                                                  ? Colors.red
+                                                  : Colors.white,
+                                            ),
+                                          ),
+                                          IconButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                isDisliked = !isDisliked;
+                                              });
+                                            },
+                                            icon: Icon(
+                                              isDisliked
+                                                  ? Icons.thumb_down
+                                                  : Icons
+                                                      .thumb_down_alt_outlined,
+                                              size: 40,
+                                              color: isDisliked
+                                                  ? Colors.red
+                                                  : Colors.white,
+                                            ),
+                                          ),
+                                          IconButton(
+                                            onPressed: () {
+                                              showShareProfileBottomSheet();
+                                              setState(() {
+                                                isShare = !isShare;
+                                              });
+                                            },
+                                            icon: Icon(
+                                              isShare
+                                                  ? Icons.share
+                                                  : Icons.share,
+                                              size: 40,
+                                              color: isShare
+                                                  ? Colors.green
+                                                  : Colors.white,
+                                            ),
+                                          ),
+                                          IconButton(
+                                            onPressed: showmessageBottomSheet,
+                                            icon: Stack(
+                                              alignment: Alignment.center,
+                                              children: [
+                                                Icon(
+                                                  Icons.chat_outlined,
+                                                  size: 40,
+                                                  color: AppColors.textColor,
+                                                ),
+                                                if (messageCount > 0)
+                                                  Positioned(
+                                                    top: 0,
+                                                    right: 0,
+                                                    child: CircleAvatar(
+                                                      radius: 10,
+                                                      backgroundColor:
+                                                          AppColors.deniedColor,
+                                                      child: Text(
+                                                        '$messageCount',
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: AppColors
+                                                              .textColor,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: 16),
+                                    Text(
+                                      controller.userSuggestionsList[index]
+                                              .name ??
+                                          'NA',
+                                      style: AppTextStyles.headingText.copyWith(
+                                        fontSize: fontSize,
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          '${controller.userSuggestionsList[index].dob != null ? DateTime.now().year - DateTime.parse(controller.userSuggestionsList[index].dob!).year : 'NA'} years old | ',
+                                          style:
+                                              AppTextStyles.bodyText.copyWith(
+                                            fontSize: bodyFontSize,
+                                          ),
+                                        ),
+                                        Text(
+                                          '${controller.userSuggestionsList[index].city ?? 'NA'} | ',
+                                          style:
+                                              AppTextStyles.bodyText.copyWith(
+                                            fontSize: bodyFontSize,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ],
                                 ),
-                              ),
-                              SizedBox(height: 16),
-                              Text(
-                                controller.userSuggestionsList[index].name ??
-                                    'NA',
-                                style: AppTextStyles.headingText.copyWith(
-                                  fontSize: fontSize,
-                                ),
-                              ),
-                              Row(
-                                children: [
-                                  Text(
-                                    '${controller.userSuggestionsList[index].dob != null ? DateTime.now().year - DateTime.parse(controller.userSuggestionsList[index].dob!).year : 'NA'} years old | ',
-                                    style: AppTextStyles.bodyText.copyWith(
-                                      fontSize: bodyFontSize,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${controller.userSuggestionsList[index].city ?? 'NA'} | ',
-                                    style: AppTextStyles.bodyText.copyWith(
-                                      fontSize: bodyFontSize,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                              );
+                            },
                           ),
-                        );
-                      },
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-            ),
+                  );
+                })
           ],
         ));
   }

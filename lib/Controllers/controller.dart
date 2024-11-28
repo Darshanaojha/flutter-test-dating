@@ -182,6 +182,7 @@ class Controller extends GetxController {
       if (response != null) {
         await storeUserData(response);
         success('Success', 'Login successful!');
+       
         return true;
       } else {
         failure('Error', 'Login failed. Please check your credentials.');
@@ -302,8 +303,6 @@ class Controller extends GetxController {
       return false;
     }
   }
-
-  
 
   RxList<Message> messages = <Message>[].obs;
   Future<bool> chatHistory() async {
@@ -1061,7 +1060,7 @@ class Controller extends GetxController {
     }
   }
 
- RxList<SuggestedUser> userSuggestionsList = <SuggestedUser>[].obs;
+  RxList<SuggestedUser> userSuggestionsList = <SuggestedUser>[].obs;
 
   Future<bool> userSuggestions() async {
     try {
@@ -1094,7 +1093,7 @@ class Controller extends GetxController {
             response.payload!.highlightedAccount!.isNotEmpty) {
           userSuggestionsList.addAll(response.payload!.highlightedAccount!);
         }
-
+       
         return true;
       } else {
         failure('Error', 'Failed to fetch the user suggestions');
@@ -1271,8 +1270,9 @@ class Controller extends GetxController {
       return null;
     }
   }
- 
- UsernameUpdateRequest usernameUpdateRequest = UsernameUpdateRequest(username: '');
+
+  UsernameUpdateRequest usernameUpdateRequest =
+      UsernameUpdateRequest(username: '');
   Future<bool> updateusername(
       UsernameUpdateRequest usernameUpdateRequest) async {
     try {

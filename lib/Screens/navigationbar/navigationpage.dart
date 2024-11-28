@@ -1,4 +1,5 @@
 import 'package:dating_application/Screens/login.dart';
+import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../constants.dart';
@@ -7,8 +8,7 @@ import '../homepage/homepage.dart';
 import '../likespages/userlikespage.dart';
 import '../settings/setting.dart';
 import '../userprofile/userprofilepage.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart'; 
-
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
 class NavigationController extends GetxController {
   final Rx<int> selectedIndex = 0.obs;
@@ -48,10 +48,10 @@ class NavigationBottomBar extends StatelessWidget {
             TextButton(
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.textColor,
-                backgroundColor: AppColors.primaryColor, 
+                backgroundColor: AppColors.primaryColor,
               ),
               onPressed: () {
-                Navigator.of(context).pop(); 
+                Navigator.of(context).pop();
               },
               child: Text('No',
                   style: AppTextStyles.headingText.copyWith(
@@ -60,12 +60,13 @@ class NavigationBottomBar extends StatelessWidget {
             TextButton(
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.textColor,
-                backgroundColor:
-                    AppColors.inactiveColor, 
+                backgroundColor: AppColors.inactiveColor,
               ),
               onPressed: () {
-                Get.offAll(() =>
-                    Login());
+                EncryptedSharedPreferences preferences =
+                    EncryptedSharedPreferences.getInstance();
+                preferences.clear();
+                Get.offAll(() => Login());
               },
               child: Text('Yes',
                   style: AppTextStyles.headingText.copyWith(
