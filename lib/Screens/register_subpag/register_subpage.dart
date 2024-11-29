@@ -29,10 +29,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   String? gender;
   String description = '';
   RxString selectedOption = ''.obs;
-    RxList<String> selectedLanguages = <String>[].obs;
-    RxList<int> selectedLanguagesId = <int>[].obs;
-    RxString searchQuery = ''.obs;
-       final selectedGender = Rx<Gender?>(null);
+  RxList<String> selectedLanguages = <String>[].obs;
+  RxList<int> selectedLanguagesId = <int>[].obs;
+  RxString searchQuery = ''.obs;
+  final selectedGender = Rx<Gender?>(null);
   int currentPage = 1;
   final PageController pageController = PageController();
   RxList<bool> preferencesSelectedOptions = <bool>[].obs;
@@ -95,7 +95,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     }
   }
 
-
   Widget buildStepWidget(int step, Size screenSize) {
     switch (step) {
       case 1:
@@ -136,8 +135,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       children: [
         Text("Final Step: Submit Form"),
         ElevatedButton(
-          onPressed:
-              nextStep, 
+          onPressed: nextStep,
           style: ElevatedButton.styleFrom(
             padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
             backgroundColor: AppColors.buttonColor,
@@ -205,8 +203,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
   Widget buildBirthdayStep(Size screenSize) {
-    final controller = Get.find<Controller>();
-
     double titleFontSize = screenSize.width * 0.05;
     double subHeadingFontSize = screenSize.width * 0.045;
     double datePickerFontSize = screenSize.width * 0.03;
@@ -288,29 +284,31 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
             // Next Button
             ElevatedButton(
-              onPressed: (){
-                        DateTime now = DateTime.now();
-                        int age = now.year - selectedDate.year;
-                        if (now.month < selectedDate.month ||
-                            (now.month == selectedDate.month &&
-                                now.day < selectedDate.day)) {
-                          age--; 
-                        }
-                        if (age < 18) {
-                          failure('Failed',
-                              'You must be at least 18 years old to proceed.');
-                          return;
-                        }
-                        String formattedDate =
-                            '${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}';
-                        controller.userRegistrationRequest.dob = formattedDate;
-                        markStepAsCompleted(1);
-                        Get.snackbar('dob', controller.userRegistrationRequest.dob.toString());
-                        pageController.nextPage(
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.ease,
-                        );
-                    },
+              onPressed: () {
+                DateTime now = DateTime.now();
+                int age = now.year - selectedDate.year;
+                if (now.month < selectedDate.month ||
+                    (now.month == selectedDate.month &&
+                        now.day < selectedDate.day)) {
+                  age--;
+                }
+                if (age < 18) {
+                  failure('Failed',
+                      'You must be at least 18 years old to proceed.');
+                  return;
+                }
+                String formattedDate =
+                    '${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}';
+                controller.userRegistrationRequest.dob = formattedDate;
+                markStepAsCompleted(1);
+                Get.snackbar(
+                    'dob', controller.userRegistrationRequest.dob.toString());
+                print(controller.userRegistrationRequest.dob.toString());
+                pageController.nextPage(
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.ease,
+                );
+              },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                 backgroundColor: controller.userRegistrationRequest.dob.isEmpty
@@ -395,7 +393,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       } else {
                         // Mark the step as completed
                         markStepAsCompleted(2);
-                      Get.snackbar('nickname', controller.userRegistrationRequest.nickname.toString());
+                        Get.snackbar(
+                            'nickname',
+                            controller.userRegistrationRequest.nickname
+                                .toString());
                         // Move to the next page in the PageView
                         pageController.nextPage(
                           duration: Duration(milliseconds: 300),
@@ -436,8 +437,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
   // Step 3: Gender Selection
   Widget buildGenderStep(Size screenSize) {
-
-
     double titleFontSize = screenSize.width * 0.05;
     double optionFontSize = screenSize.width * 0.03;
 
@@ -521,7 +520,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                 'Please select an option to proceed.');
                           } else {
                             markStepAsCompleted(3);
-                             Get.snackbar('gender', controller.userRegistrationRequest.gender.toString());
+                            Get.snackbar(
+                                'gender',
+                                controller.userRegistrationRequest.gender
+                                    .toString());
                             pageController.nextPage(
                               duration: Duration(milliseconds: 300),
                               curve: Curves.ease,
@@ -684,7 +686,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                               'Failed', 'Please select an option to proceed.');
                         } else {
                           markStepAsCompleted(4);
-Get.snackbar('subgender', controller.userRegistrationRequest.subGender.toString());
+                          Get.snackbar(
+                              'subgender',
+                              controller.userRegistrationRequest.subGender
+                                  .toString());
                           pageController.nextPage(
                             duration: Duration(milliseconds: 300),
                             curve: Curves.ease,
@@ -824,7 +829,10 @@ Get.snackbar('subgender', controller.userRegistrationRequest.subGender.toString(
                   } else {
                     markStepAsCompleted(
                         5); // Mark the current step as completed
-Get.snackbar('pref', controller.userRegistrationRequest.preferences.toString());
+                    Get.snackbar(
+                        'pref',
+                        controller.userRegistrationRequest.preferences
+                            .toString());
                     // Move to the next page in the PageView
                     pageController.nextPage(
                       duration: Duration(milliseconds: 300),
@@ -1057,7 +1065,10 @@ Get.snackbar('pref', controller.userRegistrationRequest.preferences.toString());
                           onPressed: () {
                             // Mark the current step as completed
                             markStepAsCompleted(6);
-Get.snackbar('desries', controller.userRegistrationRequest.desires.toString());
+                            Get.snackbar(
+                                'desries',
+                                controller.userRegistrationRequest.desires
+                                    .toString());
                             // Move to the next page in the PageView
                             pageController.nextPage(
                               duration: Duration(milliseconds: 300),
@@ -1277,7 +1288,10 @@ Get.snackbar('desries', controller.userRegistrationRequest.desires.toString());
                           onPressed: () {
                             // Mark the current step as completed
                             markStepAsCompleted(7);
-Get.snackbar('intrest', controller.userRegistrationRequest.interest.toString());
+                            Get.snackbar(
+                                'intrest',
+                                controller.userRegistrationRequest.interest
+                                    .toString());
                             // Move to the next page in the PageView
                             pageController.nextPage(
                               duration: Duration(milliseconds: 300),
@@ -1320,7 +1334,6 @@ Get.snackbar('intrest', controller.userRegistrationRequest.interest.toString());
 
   // languages 8
   Widget buildUserLanguageStep(BuildContext context) {
-  
     void updateSelectedStatus() {
       selectedLanguagesId.clear();
       for (int i = 0; i < controller.language.length; i++) {
@@ -1465,7 +1478,8 @@ Get.snackbar('intrest', controller.userRegistrationRequest.interest.toString());
                       'Selected Language IDs: ${controller.userRegistrationRequest.lang}');
                   // Proceed to the next page or step
                   markStepAsCompleted(8);
-                  Get.snackbar('lang', controller.userRegistrationRequest.lang.toString());
+                  Get.snackbar('lang',
+                      controller.userRegistrationRequest.lang.toString());
                   pageController.nextPage(
                     duration: Duration(milliseconds: 300),
                     curve: Curves.ease,
@@ -1600,7 +1614,10 @@ Get.snackbar('intrest', controller.userRegistrationRequest.interest.toString());
                       ? () {
                           // Mark the current step as completed
                           markStepAsCompleted(9);
-Get.snackbar('bio', controller.userRegistrationRequest.bio.toString());
+                          Get.snackbar(
+                              'bio',
+                              controller.userRegistrationRequest.bio
+                                  .toString());
                           // Move to the next page in the PageView
                           pageController.nextPage(
                             duration: Duration(milliseconds: 300),
@@ -1721,7 +1738,6 @@ Get.snackbar('bio', controller.userRegistrationRequest.bio.toString());
 
     // onChange callback function
     void onChange(String permissionType, bool granted) {
-    
       if (permissionType == 'notification') {
         print(
             "Notification permission changed: ${granted ? 'Granted' : 'Denied'}");
@@ -1866,7 +1882,10 @@ Get.snackbar('bio', controller.userRegistrationRequest.bio.toString());
                 ? () {
                     // Mark the current step as completed
                     markStepAsCompleted(10);
-  Get.snackbar('permission', controller.userRegistrationRequest.emailAlerts.toString());
+                    Get.snackbar(
+                        'permission',
+                        controller.userRegistrationRequest.emailAlerts
+                            .toString());
                     // Move to the next page in the PageView
                     pageController.nextPage(
                       duration: Duration(milliseconds: 300),
@@ -1904,9 +1923,7 @@ Get.snackbar('bio', controller.userRegistrationRequest.bio.toString());
 
 // photos 11
   Widget buildPhotosOfUser(Size screenSize) {
-    RxList<File?> images =
-        RxList<File?>(List.filled(6, null));
-
+    RxList<File?> images = RxList<File?>(List.filled(6, null));
 
     Future<void> requestCameraPermission() async {
       var status = await Permission.camera.request();
@@ -1958,10 +1975,13 @@ Get.snackbar('bio', controller.userRegistrationRequest.bio.toString());
     // Handle 'Next' Button Press
     void onNextButtonPressed() {
       if (controller.userRegistrationRequest.photos.isNotEmpty) {
-         controller.userRegistrationRequest.imgcount= controller.userRegistrationRequest.photos.length.toString();
-        markStepAsCompleted(11); 
-        Get.snackbar('photo', controller.userRegistrationRequest.photos.toString());
-        Get.snackbar('photo', controller.userRegistrationRequest.imgcount.toString());
+        controller.userRegistrationRequest.imgcount =
+            controller.userRegistrationRequest.photos.length.toString();
+        markStepAsCompleted(11);
+        Get.snackbar(
+            'photo', controller.userRegistrationRequest.photos.toString());
+        Get.snackbar(
+            'photo', controller.userRegistrationRequest.imgcount.toString());
         // Move to the next page in the PageView
         pageController.nextPage(
           duration: Duration(milliseconds: 300),
@@ -2158,7 +2178,7 @@ Get.snackbar('bio', controller.userRegistrationRequest.bio.toString());
                   )),
             ),
             ElevatedButton(
-              onPressed: onBackPressed, 
+              onPressed: onBackPressed,
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                 backgroundColor: AppColors.buttonColor,
@@ -2214,7 +2234,8 @@ Get.snackbar('bio', controller.userRegistrationRequest.bio.toString());
                   controller.userRegistrationRequest.packageId = planId;
 
                   markStepAsCompleted(12);
-  Get.snackbar('payment', controller.userRegistrationRequest.packageId.toString());
+                  Get.snackbar('payment',
+                      controller.userRegistrationRequest.packageId.toString());
                   pageController.nextPage(
                     duration: Duration(milliseconds: 300),
                     curve: Curves.ease,
@@ -2261,50 +2282,55 @@ Get.snackbar('bio', controller.userRegistrationRequest.bio.toString());
               children: [
                 Obx(() {
                   return Container(
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.formFieldColor),
-                    ),
-                    child: DropdownButton<String>(
-                      value: controller.benefits.isEmpty
-                          ? null
-                          : controller.benefits
-                                  .map((benefit) => benefit.title)
-                                  .toList()
-                                  .contains(controller.selectedBenefit.value)
-                              ? controller.selectedBenefit.value
-                              : null,
-                      hint: Text(
-                        "Click to know what we offer",
-                        style: AppTextStyles.bodyText.copyWith(
-                          fontSize: fontSize - 6,
-                          color: AppColors.textColor.withOpacity(0.6),
-                        ),
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.formFieldColor),
                       ),
-                      icon: Icon(Icons.arrow_drop_down,
-                          color: AppColors.iconColor),
-                      isExpanded: true,
-                      onChanged: (String? newValue) {
-                        if (newValue != null) {
-                          controller.selectedBenefit.value = newValue;
-                        }
-                      },
-                      items: controller.benefits
-                          .map<DropdownMenuItem<String>>((Benefit benefit) {
-                        return DropdownMenuItem<String>(
-                          value: benefit.title,
+                      child: GestureDetector(
+                        onTap: () async {
+                          
+                          await showDialog<String>(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text("Choose a benefit"),
+                                content: SingleChildScrollView(
+                                  child: ListBody(
+                                    children: controller.benefits
+                                        .map<Widget>((Benefit benefit) {
+                                      return ListTile(
+                                        title: Text(
+                                          benefit.title,
+                                          style:
+                                              AppTextStyles.bodyText.copyWith(
+                                            fontSize: fontSize - 6,
+                                            color: AppColors.textColor,
+                                          ),
+                                        ),
+                                        onTap: () {
+                                          Navigator.of(context)
+                                              .pop(); // Simply close the dialog without returning anything
+                                        },
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        child: AbsorbPointer(
+                          // Disable interaction with the original DropdownButton
                           child: Text(
-                            benefit.title,
+                            "Click to know what we offer",
                             style: AppTextStyles.bodyText.copyWith(
                               fontSize: fontSize - 6,
-                              color: AppColors.textColor,
+                              color: AppColors.textColor.withOpacity(0.6),
                             ),
                           ),
-                        );
-                      }).toList(),
-                    ),
-                  );
+                        ),
+                      ));
                 })
               ],
             ),
@@ -2976,16 +3002,15 @@ Get.snackbar('bio', controller.userRegistrationRequest.bio.toString());
       ],
     );
   }
-   void nextStep() {
+
+  void nextStep() {
     if (currentPage < 14) {
- 
       markStepAsCompleted(currentPage);
       pageController.nextPage(
         duration: Duration(milliseconds: 300),
         curve: Curves.ease,
       );
     } else {
-
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
