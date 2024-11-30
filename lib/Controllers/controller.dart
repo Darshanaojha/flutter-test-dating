@@ -182,7 +182,7 @@ class Controller extends GetxController {
       if (response != null) {
         await storeUserData(response);
         success('Success', 'Login successful!');
-       
+
         return true;
       } else {
         failure('Error', 'Login failed. Please check your credentials.');
@@ -1015,9 +1015,7 @@ class Controller extends GetxController {
     }
   }
 
-  UpdateProfilePhotoRequest updateProfilePhotoRequest =
-      UpdateProfilePhotoRequest(
-          img1: '', img2: '', img3: '', img4: '', img5: '', img6: '');
+ 
   Future<bool> updateprofilephoto(
       UpdateProfilePhotoRequest updateProfilePhotoRequest) async {
     try {
@@ -1093,7 +1091,7 @@ class Controller extends GetxController {
             response.payload!.highlightedAccount!.isNotEmpty) {
           userSuggestionsList.addAll(response.payload!.highlightedAccount!);
         }
-       
+
         return true;
       } else {
         failure('Error', 'Failed to fetch the user suggestions');
