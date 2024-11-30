@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dating_application/Models/RequestModels/change_password_request.dart';
 import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
+import 'package:dating_application/Models/RequestModels/updating_package_request_model.dart';
 import 'package:dating_application/Models/ResponseModels/change_password_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_benifites_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_faq_response_model.dart';
@@ -11,6 +12,7 @@ import 'package:dating_application/Models/ResponseModels/get_all_packages_respon
 import 'package:dating_application/Models/ResponseModels/get_all_saftey_guidelines_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_whoareyoulookingfor_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/subgender_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/updating_package_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/user_upload_images_response_model.dart';
 import 'package:dating_application/Providers/change_password_provider.dart';
 import 'package:dating_application/Providers/fetch_all_desires_provider.dart';
@@ -18,6 +20,7 @@ import 'package:dating_application/Providers/fetch_all_faq_provider.dart';
 import 'package:dating_application/Providers/fetch_all_headlines_provider.dart';
 import 'package:dating_application/Providers/fetch_all_preferences_provider.dart';
 import 'package:dating_application/Providers/fetch_all_safety_guildlines_provider.dart';
+import 'package:dating_application/Providers/fetch_subscripted_package_provider.dart';
 import 'package:dating_application/Providers/login_provider.dart';
 import 'package:dating_application/Providers/share_profile_provider.dart';
 import 'package:dating_application/Providers/user_profile_provider.dart';
@@ -61,6 +64,7 @@ import '../Models/ResponseModels/forget_password_verification_response_model.dar
 import '../Models/ResponseModels/get_all_country_response_model.dart';
 import '../Models/ResponseModels/get_all_desires_model_response.dart';
 import '../Models/ResponseModels/get_all_language_response_model.dart';
+import '../Models/ResponseModels/get_all_subscripted_package_model.dart';
 import '../Models/ResponseModels/get_report_user_options_response_model.dart';
 import '../Models/ResponseModels/like_history_response_model.dart';
 import '../Models/ResponseModels/liked_by_response_model.dart';
@@ -106,6 +110,7 @@ import '../Providers/update_latitude_longitude_provider.dart';
 import '../Providers/update_profile_photo_provider.dart';
 import '../Providers/update_profile_provider.dart';
 import '../Providers/update_visibility_status_provider.dart';
+import '../Providers/updating_package_provider.dart';
 import '../Providers/user_registration_provider.dart';
 import '../Providers/user_suggestions_provider.dart';
 import '../Providers/usernameupdate_provider.dart';
@@ -1288,4 +1293,44 @@ class Controller extends GetxController {
       return false;
     }
   }
+   RxList<PackageData> subscripted = <PackageData>[].obs;
+
+  Future<bool> fetchAllsubscripted() async {
+    try {
+      subscripted.clear();
+      SubscribedPackagesModel? response =
+          await FetchSubscriptedPackageProvider().fetchAllSubscriptedPackage();
+      if (response != null) {
+        subscripted.addAll(response.payload.data);
+        success('success', 'successfully fetched all the headlines');
+        return true;
+      } else {
+        failure('Error', 'Failed to fetch the headlines');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+   UpdateNewPackageRequestModel updateNewPackageRequestModel =
+      UpdateNewPackageRequestModel(packageId: '');
+  Future<bool> updatinguserpackage(
+      UpdateNewPackageRequestModel updateNewPackageRequestModel) async {
+    try {
+      UpdateNewPackageResponse? response =
+          await UpdatingPackageProvider().updatingpackage(updateNewPackageRequestModel);
+      if (response != null) {
+        success('success', response.payload.message);
+        return true;
+      } else {
+        failure('Error', 'Failed to update the profile');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
 }
