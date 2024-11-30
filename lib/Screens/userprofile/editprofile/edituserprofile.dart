@@ -1205,44 +1205,10 @@ Widget buildRelationshipStatusInterestStep(
   RxList<String> selectedStatus = <String>[].obs;
   RxList<int> selectedDesireIds = <int>[].obs;
 
-  // Initialize selected desires from the controller's userDesire
-  void initializeSelectedValues() {
-    if (controller.userDesire.isNotEmpty &&
-        controller.userDesire.first.title.isNotEmpty) {
-      List<String> initialDesires = [];
-
-      // Collect all user desires into a list
-      for (var d in controller.userDesire) {
-        initialDesires.add(d.title);
-      }
-
-      // Mark corresponding options as selected based on the initial desires
-      for (var initialDesire in initialDesires) {
-        int index = options.indexOf(initialDesire);
-        if (index != -1) {
-          selectedOptions[index] = true;
-        }
-      }
-
-      // Debugging: Check if the desires are being marked properly
-      print('Selected options after initialization:');
-      for (int i = 0; i < selectedOptions.length; i++) {
-        print('${options[i]}: ${selectedOptions[i]}');
-      }
-    }
-  }
-
-  // Initialize selected values on first render
-  if (selectedOptions.isEmpty) {
-    initializeSelectedValues();
-  }
-
-  // Update the selected status and update the controller's desires
   void updateSelectedStatus() {
     selectedStatus.clear();
     selectedDesireIds.clear();
-
-    // Update selectedStatus and selectedDesireIds based on selectedOptions
+    
     for (int i = 0; i < selectedOptions.length; i++) {
       if (selectedOptions[i]) {
         selectedStatus.add(options[i]);
@@ -1250,9 +1216,9 @@ Widget buildRelationshipStatusInterestStep(
             .firstWhere((category) => category.category == 'Relationship')
             .desires[i]
             .id));
+    
       }
     }
-    // Update the controller's desires based on selectedDesireIds
     controller.userProfileUpdateRequest.desires = selectedDesireIds;
   }
 
@@ -1289,15 +1255,31 @@ Widget buildRelationshipStatusInterestStep(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Obx(() {
-                  List<String> allDesires = [];
+                  RxList<String> allDesires = <String>[].obs;
+
                   if (controller.userDesire.isNotEmpty &&
                       controller.userDesire.first.title.isNotEmpty) {
-                    allDesires.addAll(controller.userDesire.first.title
-                        .split(',')
-                        .map((desire) => desire.trim()));
+                    allDesires.addAll(controller.userDesire
+                        .map((desire) => desire.title)
+                        .toList());
                   }
+                  for (String desireTitle in allDesires) {
+                    selectedStatus.add(desireTitle);
+                    var desire = controller.categories
+                        .firstWhere(
+                            (category) => category.category == 'Relationship')
+                        .desires
+                        .firstWhere((d) => d.title == desireTitle);
+
+                    selectedDesireIds.add(int.parse(desire.id));
+                  }
+                  print(
+                      "Updated selectedDesireIds: ${selectedDesireIds.toString()}");
                   allDesires.addAll(selectedStatus);
-                  allDesires = allDesires.toSet().toList();
+                  allDesires = allDesires.toSet().toList().obs;
+
+                  // Print debugging info
+                  print("Updated allDesires: ${allDesires.toString()}");
 
                   return allDesires.isNotEmpty
                       ? Column(
@@ -1330,9 +1312,12 @@ Widget buildRelationshipStatusInterestStep(
                                         color: AppColors.deniedColor,
                                       ),
                                       onDeleted: () {
+                                        // Handle deletion
                                         int index = options.indexOf(status);
-                                        selectedOptions[index] = false;
-                                        updateSelectedStatus();
+                                        if (index != -1) {
+                                          selectedOptions[index] = false;
+                                          updateSelectedStatus();
+                                        }
                                       },
                                     ),
                                   );
@@ -1353,7 +1338,6 @@ Widget buildRelationshipStatusInterestStep(
                     color: AppColors.textColor,
                   ),
                 ),
-
                 SizedBox(height: 10),
                 Obx(() {
                   return controller.categories.isNotEmpty
