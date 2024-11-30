@@ -319,7 +319,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                                           ),
                                   ),
                                   TextButton.icon(
-                                    onPressed: () {
+                                    onPressed: () async {
+                                      await controller.fetchProfileUserPhotos();
                                       Get.to(EditPhotosPage());
                                     },
                                     icon: Icon(Icons.edit,
@@ -526,9 +527,9 @@ class EditProfilePageState extends State<EditProfilePage> {
                                           : '0';
                                       controller.updateProfile(
                                           userProfileUpdateRequest);
-                                          for(var d in controller.userDesire){
-              print(d.title);
-                                          }
+                                      for (var d in controller.userDesire) {
+                                        print(d.title);
+                                      }
                                       success('Updated', 'Profile Saved!');
                                     },
                                     backgroundColor: AppColors.buttonColor,
@@ -553,9 +554,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                       SizedBox(height: 16),
                       isLoading
                           ? Center(
-                              child: SpinKitCircle(
+                              child: CircularProgressIndicator(
                                 color: AppColors.progressColor,
-                                size: 50.0,
                               ),
                             )
                           : Column(
@@ -605,8 +605,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                 Obx(() {
                                   if (controller.countries.isEmpty) {
                                     return Center(
-                                      child: SpinKitCircle(
-                                        size: 50,
+                                      child: CircularProgressIndicator(
                                         color: AppColors.progressColor,
                                       ),
                                     );
@@ -681,8 +680,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                   } else {
                                     return isLoading
                                         ? Center(
-                                            child: SpinKitCircle(
-                                              size: 90,
+                                            child: CircularProgressIndicator(
                                               color: AppColors.progressColor,
                                             ), // Show loading spinner while fetching
                                           )
@@ -704,8 +702,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                                           Obx(() {
                                             if (controller.genders.isEmpty) {
                                               return Center(
-                                                child: SpinKitCircle(
-                                                  size: 90,
+                                                child:
+                                                    CircularProgressIndicator(
                                                   color:
                                                       AppColors.progressColor,
                                                 ),
@@ -918,8 +916,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                 Obx(() {
                                   if (controller.preferences.isEmpty) {
                                     return Center(
-                                      child: SpinKitCircle(
-                                        size: 90,
+                                      child: CircularProgressIndicator(
                                         color: AppColors.progressColor,
                                       ),
                                     );
@@ -1208,48 +1205,44 @@ Widget buildRelationshipStatusInterestStep(
   RxList<String> selectedStatus = <String>[].obs;
   RxList<int> selectedDesireIds = <int>[].obs;
 
+  // Initialize selected desires from the controller's userDesire
   void initializeSelectedValues() {
     if (controller.userDesire.isNotEmpty &&
         controller.userDesire.first.title.isNotEmpty) {
       List<String> initialDesires = [];
 
-      for (var o in options) {
-        print(o);
-      }
-
-      print('length of the desires is ${controller.userDesire.length}');
+      // Collect all user desires into a list
       for (var d in controller.userDesire) {
         initialDesires.add(d.title);
-        print(d.title);
       }
 
+      // Mark corresponding options as selected based on the initial desires
       for (var initialDesire in initialDesires) {
-        print(initialDesire);
         int index = options.indexOf(initialDesire);
-        print(index);
         if (index != -1) {
           selectedOptions[index] = true;
-          print(index);
         }
       }
 
-      print('length of initial desires is ${initialDesires.length}');
-      print('selected options length is ${selectedOptions.length}');
-
-      for (bool s in selectedOptions) {
-        print(s);
+      // Debugging: Check if the desires are being marked properly
+      print('Selected options after initialization:');
+      for (int i = 0; i < selectedOptions.length; i++) {
+        print('${options[i]}: ${selectedOptions[i]}');
       }
     }
   }
 
+  // Initialize selected values on first render
   if (selectedOptions.isEmpty) {
     initializeSelectedValues();
   }
 
+  // Update the selected status and update the controller's desires
   void updateSelectedStatus() {
     selectedStatus.clear();
     selectedDesireIds.clear();
 
+    // Update selectedStatus and selectedDesireIds based on selectedOptions
     for (int i = 0; i < selectedOptions.length; i++) {
       if (selectedOptions[i]) {
         selectedStatus.add(options[i]);
@@ -1259,9 +1252,11 @@ Widget buildRelationshipStatusInterestStep(
             .id));
       }
     }
+    // Update the controller's desires based on selectedDesireIds
     controller.userProfileUpdateRequest.desires = selectedDesireIds;
   }
 
+  // Handle chip selection
   void handleChipSelection(int index) {
     selectedOptions[index] = !selectedOptions[index];
     updateSelectedStatus();
@@ -1275,7 +1270,7 @@ Widget buildRelationshipStatusInterestStep(
     future: controller.fetchDesires(),
     builder: (context, snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
-        return Center(child: SpinKitCircle());
+        return Center(child: CircularProgressIndicator());
       }
       if (snapshot.hasError) {
         return Center(child: Text('Error: ${snapshot.error}'));
