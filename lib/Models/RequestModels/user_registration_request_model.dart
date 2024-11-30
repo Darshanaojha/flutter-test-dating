@@ -118,12 +118,16 @@ class UserRegistrationRequest {
   }
 
 
-  void validateEmail(String email) {
-    final emailPattern = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-    if (!emailPattern.hasMatch(email)) {
-      throw ArgumentError("Invalid email format for field: Email.");
-    }
+void validateEmail(String email) {
+  if (email.isEmpty) {
+    throw ArgumentError("Email cannot be empty.");
   }
+  final emailPattern = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+  if (!emailPattern.hasMatch(email)) {
+    throw FormatException("Invalid email format for field: Email.");
+  }
+}
+
 
 
   void validatePassword(String password) {

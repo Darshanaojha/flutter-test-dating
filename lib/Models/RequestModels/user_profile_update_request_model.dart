@@ -46,7 +46,7 @@ class UserProfileUpdateRequest {
       longitude: json['longitude'],
       address: json['address'],
       countryId: json['countryid'],
-      state: json['state'] ?? '', // Default to an empty string if 'state' is null
+      state: json['state'] ?? '',
       city: json['city'],
       dob: json['dob'],
       nickname: json['nickname'],

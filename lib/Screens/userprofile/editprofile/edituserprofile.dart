@@ -72,15 +72,15 @@ class EditProfilePageState extends State<EditProfilePage> {
   }
 
   void deleteInterest(int index) {
-    setState(() {
-      UpdatedselectedInterests.removeAt(index);
-    });
+    UpdatedselectedInterests.removeAt(index);
   }
 
+  late Future<bool> _fetchProfileFuture;
   @override
   void initState() {
     super.initState();
     intialize();
+    _fetchProfileFuture = controller.fetchProfile();
   }
 
   intialize() async {
@@ -209,8 +209,8 @@ class EditProfilePageState extends State<EditProfilePage> {
           title: Text('Edit Profile'),
           backgroundColor: AppColors.primaryColor,
         ),
-        body: FutureBuilder(
-            future: controller.fetchProfile(),
+        body: FutureBuilder<bool>(
+            future: _fetchProfileFuture, //controller.fetchProfile(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(
@@ -319,7 +319,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                                           ),
                                   ),
                                   TextButton.icon(
-                                    onPressed: () {
+                                    onPressed: () async {
+                                      await controller.fetchProfileUserPhotos();
                                       Get.to(EditPhotosPage());
                                     },
                                     icon: Icon(Icons.edit,
@@ -372,7 +373,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                                       setState(() {
                                         isLoading = false;
                                       });
-
+                                      print(
+                                          'desires are : ${controller.userProfileUpdateRequest.desires}');
                                       UserProfileUpdateRequest
                                           userProfileUpdateRequest =
                                           UserProfileUpdateRequest(
@@ -410,7 +412,14 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                 .address
                                             : controller.userData.first.address,
                                         countryId: controller
-                                            .userProfileUpdateRequest.countryId,
+                                                .userProfileUpdateRequest
+                                                .countryId
+                                                .isNotEmpty
+                                            ? controller
+                                                .userProfileUpdateRequest
+                                                .countryId
+                                            : controller
+                                                .userData.first.countryId,
                                         state: '',
                                         city: controller
                                                 .userProfileUpdateRequest
@@ -434,13 +443,32 @@ class EditProfilePageState extends State<EditProfilePage> {
                                             : controller
                                                 .userData.first.nickname,
                                         gender: controller
-                                            .userProfileUpdateRequest.gender,
+                                                .userProfileUpdateRequest
+                                                .gender
+                                                .isNotEmpty
+                                            ? controller
+                                                .userProfileUpdateRequest.gender
+                                            : controller.userData.first.gender,
                                         subGender: controller
-                                            .userProfileUpdateRequest.subGender,
+                                                .userProfileUpdateRequest
+                                                .subGender
+                                                .isNotEmpty
+                                            ? controller
+                                                .userProfileUpdateRequest
+                                                .subGender
+                                            : controller
+                                                .userData.first.subGender,
                                         lang: controller
                                             .userProfileUpdateRequest.lang,
                                         interest: controller
-                                            .userProfileUpdateRequest.interest,
+                                                .userProfileUpdateRequest
+                                                .interest
+                                                .isNotEmpty
+                                            ? controller
+                                                .userProfileUpdateRequest
+                                                .interest
+                                            : controller
+                                                .userData.first.interest,
                                         bio: controller.userProfileUpdateRequest
                                                 .bio.isNotEmpty
                                             ? controller
@@ -477,6 +505,18 @@ class EditProfilePageState extends State<EditProfilePage> {
                                       controller.userProfileUpdateRequest
                                           .preferences = selectedPreferences;
                                       // pref end
+                                      List<int> sendlang = [];
+                                      for (int i = 0;
+                                          i < controller.language.length;
+                                          i++) {
+                                        if (selectedLanguages.contains(
+                                            controller.language[i].title)) {
+                                          sendlang.add(int.parse(
+                                              controller.language[i].id));
+                                        }
+                                      }
+                                      controller.userProfileUpdateRequest.lang =
+                                          sendlang;
                                       emailAlerts.value == true
                                           ? controller.userProfileUpdateRequest
                                               .emailAlerts = "1"
@@ -487,7 +527,9 @@ class EditProfilePageState extends State<EditProfilePage> {
                                           : '0';
                                       controller.updateProfile(
                                           userProfileUpdateRequest);
-
+                                      for (var d in controller.userDesire) {
+                                        print(d.title);
+                                      }
                                       success('Updated', 'Profile Saved!');
                                     },
                                     backgroundColor: AppColors.buttonColor,
@@ -512,9 +554,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                       SizedBox(height: 16),
                       isLoading
                           ? Center(
-                              child: SpinKitCircle(
+                              child: CircularProgressIndicator(
                                 color: AppColors.progressColor,
-                                size: 50.0,
                               ),
                             )
                           : Column(
@@ -564,8 +605,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                 Obx(() {
                                   if (controller.countries.isEmpty) {
                                     return Center(
-                                      child: SpinKitCircle(
-                                        size: 50,
+                                      child: CircularProgressIndicator(
                                         color: AppColors.progressColor,
                                       ),
                                     );
@@ -640,8 +680,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                   } else {
                                     return isLoading
                                         ? Center(
-                                            child: SpinKitCircle(
-                                              size: 90,
+                                            child: CircularProgressIndicator(
                                               color: AppColors.progressColor,
                                             ), // Show loading spinner while fetching
                                           )
@@ -663,8 +702,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                                           Obx(() {
                                             if (controller.genders.isEmpty) {
                                               return Center(
-                                                child: SpinKitCircle(
-                                                  size: 90,
+                                                child:
+                                                    CircularProgressIndicator(
                                                   color:
                                                       AppColors.progressColor,
                                                 ),
@@ -877,8 +916,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                 Obx(() {
                                   if (controller.preferences.isEmpty) {
                                     return Center(
-                                      child: SpinKitCircle(
-                                        size: 90,
+                                      child: CircularProgressIndicator(
                                         color: AppColors.progressColor,
                                       ),
                                     );
@@ -1167,28 +1205,44 @@ Widget buildRelationshipStatusInterestStep(
   RxList<String> selectedStatus = <String>[].obs;
   RxList<int> selectedDesireIds = <int>[].obs;
 
+  // Initialize selected desires from the controller's userDesire
   void initializeSelectedValues() {
     if (controller.userDesire.isNotEmpty &&
         controller.userDesire.first.title.isNotEmpty) {
-      List<String> initialDesires =
-          controller.userDesire.first.title.split(',');
+      List<String> initialDesires = [];
+
+      // Collect all user desires into a list
+      for (var d in controller.userDesire) {
+        initialDesires.add(d.title);
+      }
+
+      // Mark corresponding options as selected based on the initial desires
       for (var initialDesire in initialDesires) {
-        int index = options.indexOf(initialDesire.trim());
+        int index = options.indexOf(initialDesire);
         if (index != -1) {
           selectedOptions[index] = true;
         }
       }
+
+      // Debugging: Check if the desires are being marked properly
+      print('Selected options after initialization:');
+      for (int i = 0; i < selectedOptions.length; i++) {
+        print('${options[i]}: ${selectedOptions[i]}');
+      }
     }
   }
 
+  // Initialize selected values on first render
   if (selectedOptions.isEmpty) {
     initializeSelectedValues();
   }
 
+  // Update the selected status and update the controller's desires
   void updateSelectedStatus() {
     selectedStatus.clear();
     selectedDesireIds.clear();
 
+    // Update selectedStatus and selectedDesireIds based on selectedOptions
     for (int i = 0; i < selectedOptions.length; i++) {
       if (selectedOptions[i]) {
         selectedStatus.add(options[i]);
@@ -1198,9 +1252,11 @@ Widget buildRelationshipStatusInterestStep(
             .id));
       }
     }
+    // Update the controller's desires based on selectedDesireIds
     controller.userProfileUpdateRequest.desires = selectedDesireIds;
   }
 
+  // Handle chip selection
   void handleChipSelection(int index) {
     selectedOptions[index] = !selectedOptions[index];
     updateSelectedStatus();
@@ -1214,7 +1270,7 @@ Widget buildRelationshipStatusInterestStep(
     future: controller.fetchDesires(),
     builder: (context, snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
-        return Center(child: SpinKitCircle());
+        return Center(child: CircularProgressIndicator());
       }
       if (snapshot.hasError) {
         return Center(child: Text('Error: ${snapshot.error}'));
@@ -1661,15 +1717,36 @@ void showFullImageDialog(BuildContext context, String imagePath) {
 }
 
 // Custom Widget for User Info
-class InfoField extends StatelessWidget {
+class InfoField extends StatefulWidget {
   final String initialValue;
   final String label;
-  final dynamic onChanged;
-  const InfoField(
-      {super.key,
-      required this.initialValue,
-      required this.label,
-      required this.onChanged});
+  final Function(String) onChanged;
+
+  const InfoField({
+    super.key,
+    required this.initialValue,
+    required this.label,
+    required this.onChanged,
+  });
+
+  @override
+  _InfoFieldState createState() => _InfoFieldState();
+}
+
+class _InfoFieldState extends State<InfoField> {
+  late TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController(text: widget.initialValue);
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1678,8 +1755,6 @@ class InfoField extends StatelessWidget {
       return screenWidth * scale;
     }
 
-    TextEditingController controller =
-        TextEditingController(text: initialValue);
     return Card(
       color: AppColors.primaryColor,
       elevation: 5,
@@ -1688,15 +1763,19 @@ class InfoField extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label,
-                style: AppTextStyles.buttonText
-                    .copyWith(fontSize: getResponsiveFontSize(0.03))),
+            Text(
+              widget.label,
+              style: AppTextStyles.buttonText.copyWith(
+                fontSize: getResponsiveFontSize(0.03),
+              ),
+            ),
             SizedBox(height: 10),
             TextField(
               cursorColor: AppColors.cursorColor,
               controller: controller,
-              style: AppTextStyles.bodyText
-                  .copyWith(fontSize: getResponsiveFontSize(0.03)),
+              style: AppTextStyles.bodyText.copyWith(
+                fontSize: getResponsiveFontSize(0.03),
+              ),
               decoration: InputDecoration(
                 filled: true,
                 fillColor: AppColors.formFieldColor,
@@ -1705,7 +1784,7 @@ class InfoField extends StatelessWidget {
                   borderSide: BorderSide.none,
                 ),
               ),
-              onChanged: onChanged,
+              onChanged: widget.onChanged,
             ),
             Divider(color: AppColors.textColor),
           ],

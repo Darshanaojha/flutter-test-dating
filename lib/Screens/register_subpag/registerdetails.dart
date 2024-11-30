@@ -137,6 +137,8 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                               : null, // Pass null if empty
                           (value) {
                             controller.userRegistrationRequest.name = value;
+                          },(value){
+                            controller.userRegistrationRequest.name = value;
                           },
                           fontSize,
                         ),
@@ -149,16 +151,23 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           (value) {
                             controller.userRegistrationRequest.email = value;
                           },
+                          (value){
+                            controller.userRegistrationRequest.email = value;
+                          },
                           fontSize,
                         ),
                         buildTextField("UserName",null, (value) {
                           controller.userRegistrationRequest.username = value;
-                        }, fontSize),
+                        },(value){
+                            controller.userRegistrationRequest.username = value;
+                          }, fontSize),
 
                         // Mobile Field
                         buildTextField("Mobile",null, (value) {
                           controller.userRegistrationRequest.mobile = value;
-                        }, fontSize),
+                        },(value){
+                            controller.userRegistrationRequest.mobile = value;
+                          }, fontSize),
 
                         buildTextField("Address", null,(value) {
                           controller.userRegistrationRequest.address = value;
@@ -170,17 +179,23 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           debounce = Timer(Duration(milliseconds: 1000), () {
                             fetchLatLong();
                           });
-                        },  fontSize),
+                        },(value){
+                            controller.userRegistrationRequest.address = value;
+                          },  fontSize),
 
                         // Password Field
                         buildTextField("Password",null, (value) {
                           controller.userRegistrationRequest.password = value;
-                        },fontSize, obscureText: true),
+                        },(value){
+                            controller.userRegistrationRequest.password = value;
+                          },fontSize, obscureText: true),
 
                         // Confirm Password Field
                         buildTextField("Confirm Password", null,(value) {
                           confirmPassword.text = value;
-                        }, fontSize, obscureText: true),
+                        },(value){
+                            confirmPassword.text=value;
+                          }, fontSize, obscureText: true),
 
                         // Country Dropdown
                         Obx(() {
@@ -210,7 +225,9 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                         // City Field
                         buildTextField("City",null, (value) {
                           controller.userRegistrationRequest.city = value;
-                        },  fontSize),
+                        }, (value){
+                            controller.userRegistrationRequest.city = value;
+                          }, fontSize),
                         Obx(() {
                           if (isLatLongFetched.value) {
                             return Column(
@@ -284,6 +301,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     String label,
     String? initialValue,
     onChanged,
+    onSaved,
     double fontSize, {
     bool obscureText = false,
     bool enabled = true,
@@ -322,6 +340,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
         ),
         initialValue: initialValue,
         onChanged: onChanged,
+        onSaved: onSaved,
       ),
     );
   }

@@ -6,7 +6,6 @@ import 'package:pinput/pinput.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/registration_otp_verification_request_model.dart';
 import 'registerdetails.dart';
-
 class OTPVerificationPage extends StatefulWidget {
   const OTPVerificationPage({super.key});
 
@@ -19,6 +18,8 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
 
   String? backEndOtp = '';
   String? email = '';
+  bool isOtpValid = true;  // Flag to track OTP validity
+
   RegistrationOtpVerificationRequest registrationOtpVerificationRequest =
       RegistrationOtpVerificationRequest(
     email: '',
@@ -91,6 +92,10 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                 length: 6,
                 onChanged: (value) {
                   registrationOtpVerificationRequest.otp = value;
+                  // Reset OTP validity status when user starts typing
+                  setState(() {
+                    isOtpValid = true; // Reset OTP validity to valid
+                  });
                 },
                 showCursor: true,
                 defaultPinTheme: defaultPinTheme,
@@ -107,8 +112,10 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                   ),
                   onPressed: () async {
                     if (registrationOtpVerificationRequest.otp.length != 6) {
-                      failure(
-                          "Invalid OTP", "Please enter a valid 6-digit OTP.");
+                      setState(() {
+                        isOtpValid = false; // OTP is invalid
+                      });
+                      failure("Invalid OTP", "Please enter a valid 6-digit OTP.");
                       return;
                     }
 
@@ -120,8 +127,10 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                         success("Success", "OTP verified!");
                         Get.to(RegisterProfilePage());
                       } else {
-                        failure("Error",
-                            "OTP verification failed. Please try again.");
+                        setState(() {
+                          isOtpValid = false; // OTP verification failed
+                        });
+                        failure("Error", "OTP verification failed. Please try again.");
                       }
                     });
                   },
@@ -135,33 +144,42 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
               SizedBox(height: size.height * 0.04),
               Column(
                 children: [
-                  Text(
-                    "The OTP you entered is incorrect. Please click on 'Regenerate OTP' to generate a new OTP.",
-                    style: AppTextStyles.errorText.copyWith(
-                      fontSize: fontSize,
+                  if (!isOtpValid) // Only show if OTP is invalid
+                    Text(
+                      "The OTP you entered is incorrect. Please click on 'Regenerate OTP' to generate a new OTP.",
+                      style: AppTextStyles.errorText.copyWith(
+                        fontSize: fontSize,
+                      ),
                     ),
-                  ),
                   SizedBox(height: size.height * 0.04),
-                  SizedBox(
-                    width: double.infinity,
-                    height: size.height * 0.055,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                        backgroundColor: AppColors.buttonColor,
-                        foregroundColor: Colors.white,
-                      ),
-                      onPressed: () {
+                  if (!isOtpValid) // Show Regenerate OTP button only when OTP is invalid
+                    SizedBox(
+                      width: double.infinity,
+                      height: size.height * 0.055,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                          backgroundColor: AppColors.buttonColor,
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: () {
                        
-                      },
-                      child: Text(
-                        "Regenerate OTP",
-                        style: AppTextStyles.buttonText
-                            .copyWith(fontSize: buttonFontSize),
+                          controller.getOtpForRegistration(controller.registrationOTPRequest);
+                          registrationOtpVerificationRequest.otp = '';  // Clear OTP input
+
+                       
+                          setState(() {
+                            registrationOtpVerificationRequest.otp = ''; // Clear OTP input
+                            isOtpValid = true; // Reset OTP validity when regenerating
+                          });
+                        },
+                        child: Text(
+                          "Regenerate OTP",
+                          style: AppTextStyles.buttonText
+                              .copyWith(fontSize: buttonFontSize),
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ],

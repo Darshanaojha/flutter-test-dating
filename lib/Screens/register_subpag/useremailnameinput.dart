@@ -30,14 +30,16 @@ class UserInputPageState extends State<UserInputPage> {
     return null;
   }
 
-  String? validateEmail(String? value) {
+  String? validateGmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter your email';
     }
-    String pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
+
+    String pattern = r'^[a-zA-Z0-9._%+-]+@gmail\.com$';
     RegExp regExp = RegExp(pattern);
+
     if (!regExp.hasMatch(value)) {
-      return 'Enter a valid email address';
+      return 'Please enter a valid Gmail address';
     }
     return null;
   }
@@ -97,8 +99,7 @@ class UserInputPageState extends State<UserInputPage> {
                   validator: validateName,
                   onChanged: (value) {
                     controller.registrationOTPRequest.name = value;
-                    controller.userRegistrationRequest.name=value;
-
+                    controller.userRegistrationRequest.name = value;
                   },
                   onSaved: (value) {
                     controller.registrationOTPRequest.name = value ?? '';
@@ -126,10 +127,10 @@ class UserInputPageState extends State<UserInputPage> {
                   ),
                   style: TextStyle(
                       fontSize: fontSize, color: AppColors.primaryColor),
-                  validator: validateEmail,
+                  validator: validateGmail,
                   onChanged: (value) {
                     controller.registrationOTPRequest.email = value;
-                    controller.userRegistrationRequest.email=value;
+                    controller.userRegistrationRequest.email = value;
                   },
                   onSaved: (value) {
                     controller.registrationOTPRequest.email = value ?? '';
@@ -150,13 +151,16 @@ class UserInputPageState extends State<UserInputPage> {
                         'Please check your inputs and try again.',
                       );
                     }
-                    Get.snackbar('', controller.userRegistrationRequest.toJson().toString());
+                    Get.snackbar('',
+                        controller.userRegistrationRequest.toJson().toString());
                   },
                   style: ElevatedButton.styleFrom(
+                    foregroundColor: AppColors.textColor,
                     backgroundColor: AppColors.buttonColor,
-                    padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                    padding:
+                        EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(30),
                     ),
                   ),
                   child: Text(

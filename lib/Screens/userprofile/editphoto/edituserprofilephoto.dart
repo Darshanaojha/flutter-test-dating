@@ -21,8 +21,8 @@ class EditPhotosPage extends StatefulWidget {
 
 class EditPhotosPageState extends State<EditPhotosPage> {
   Controller controller = Get.put(Controller());
-  RxList<RxString> images = <RxString>[].obs;
   RxList<RxString> updatedImages = <RxString>[].obs;
+  
   @override
   void initState() {
     super.initState();
@@ -31,19 +31,9 @@ class EditPhotosPageState extends State<EditPhotosPage> {
 
   intialize() async {
     try {
-      await controller.fetchProfileUserPhotos();
-      // if (controller.userPhotos != null) {
-      //   final userPhotos = controller.userPhotos!;
-      //   images.clear();
-      //   updatedImages.clear();
-      //   if (userPhotos.img1.isNotEmpty) images.add(RxString(userPhotos.img1));
-      //   if (userPhotos.img2.isNotEmpty) images.add(RxString(userPhotos.img2));
-      //   if (userPhotos.img3.isNotEmpty) images.add(RxString(userPhotos.img3));
-      //   if (userPhotos.img4.isNotEmpty) images.add(RxString(userPhotos.img4));
-      //   if (userPhotos.img5.isNotEmpty) images.add(RxString(userPhotos.img5));
-      //   if (userPhotos.img6.isNotEmpty) images.add(RxString(userPhotos.img6));
-      //   updatedImages.assignAll(images);
-      // }
+      updatedImages.value = controller.userPhotos!.images
+          .map((image) => RxString(image))
+          .toList();
     } catch (e) {
       failure('Error', e.toString());
     }
@@ -92,7 +82,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
           if (index < updatedImages.length) {
             updatedImages[index] = base64Image.obs;
           } else {
-            updatedImages.add(RxString(base64Image));
+            updatedImages.add(base64Image.obs);
           }
 
           success("Success", "Image updated successfully");
@@ -114,7 +104,6 @@ class EditPhotosPageState extends State<EditPhotosPage> {
 
     setState(() {
       updatedImages.removeAt(index);
-      images.removeAt(index);
       isLoading = false;
     });
   }
@@ -233,7 +222,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
         return Dialog(
           backgroundColor: Colors.black.withOpacity(0.8),
           child: Image.network(
-           imagePath,
+            imagePath,
             fit: BoxFit.contain,
             width: double.infinity,
             height: MediaQuery.of(context).size.height * 0.7,
@@ -280,60 +269,62 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                         color: AppColors.progressColor,
                       ),
                     )
-                  : GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 8.0,
-                        mainAxisSpacing: 8.0,
-                        childAspectRatio: 1.0,
-                      ),
-                      itemCount:  controller.userPhotos!.images.length,
-                      itemBuilder: (context, index) {
-                        String? imageUrl = controller.userPhotos!.images[index];
-                        if (index < updatedImages.length) {
-                          return Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: GestureDetector(
-                              onTap: () => showFullPhotoDialog(imageUrl),
-                              child: Stack(
-                                alignment: Alignment.bottomRight,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: Image.network(
-                                      imageUrl,
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                      height: double.infinity,
+                  : Obx(() => GridView.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 8.0,
+                          mainAxisSpacing: 8.0,
+                          childAspectRatio: 1.0,
+                        ),
+                        itemCount: updatedImages.length,
+                        itemBuilder: (context, index) {
+                          RxString? imageUrl =
+                              RxString(controller.userPhotos!.images[index]);
+                          if (index < updatedImages.length) {
+                            return Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: GestureDetector(
+                                onTap: () =>
+                                    showFullPhotoDialog(imageUrl.value),
+                                child: Stack(
+                                  alignment: Alignment.bottomRight,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Image.network(
+                                        imageUrl.value,
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                      ),
                                     ),
-                                  ),
-                                  IconButton(
-                                    icon: Icon(Icons.more_vert,
-                                        color: AppColors.activeColor),
-                                    onPressed: () => showDeleteOptions(index),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        } else {
-                          return Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: GestureDetector(
-                              onTap: () => showPhotoSelectionDialog(index),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Container(
-                                  color: Colors.grey[200],
-                                  child: Icon(Icons.add_a_photo,
-                                      size: 40, color: AppColors.activeColor),
+                                    IconButton(
+                                      icon: Icon(Icons.more_vert,
+                                          color: AppColors.activeColor),
+                                      onPressed: () => showDeleteOptions(index),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
-                          );
-                        }
-                      },
-                    ),
+                            );
+                          } else {
+                            return Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: GestureDetector(
+                                onTap: () => showPhotoSelectionDialog(index),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Container(
+                                    color: Colors.grey[200],
+                                    child: Icon(Icons.add_a_photo,
+                                        size: 40, color: AppColors.activeColor),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                      )),
             ),
             SizedBox(height: screenSize.height * 0.03),
             Text(
