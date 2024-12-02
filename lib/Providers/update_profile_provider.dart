@@ -4,25 +4,25 @@ import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 import '../constants.dart';
 
-
 class UpdateProfileProvider extends GetConnect {
   Future<UserProfileUpdateResponse?> updateProfile(
       UserProfileUpdateRequest updateProfileRequest) async {
     try {
-      EncryptedSharedPreferences preferences = EncryptedSharedPreferences.getInstance();
+      EncryptedSharedPreferences preferences =
+          EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
-       Get.snackbar('data', updateProfileRequest.toJson().toString());
-       print(updateProfileRequest.toJson().toString());
+
+      print(updateProfileRequest.toJson().toString());
       if (token != null && token.isNotEmpty) {
         Response response = await post(
           '$baseurl/Profile/update_profile',
-          updateProfileRequest,
+          updateProfileRequest.toJson(),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token',
           },
         );
-
+        print('${response.statusCode}${response.body.toString()}');
         if (response.statusCode == 200) {
           if (response.body['error']['code'] == 0) {
             return UserProfileUpdateResponse.fromJson(response.body);

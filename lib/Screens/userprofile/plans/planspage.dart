@@ -124,10 +124,9 @@ class PricingPageState extends State<PricingPage> {
               return GestureDetector(
                 onTap: () {
                   planId.value = package.id;
-                  selectedPlan.value = package.unit; // Update selected plan
+                  selectedPlan.value = package.unit; 
                 },
                 child: Obx(() {
-                  // Wrap the card with Obx to ensure UI rebuilds on selectedPlan change
                   return Stack(
                     clipBehavior: Clip.none,
                     children: [
