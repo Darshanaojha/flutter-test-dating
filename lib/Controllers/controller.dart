@@ -781,7 +781,6 @@ class Controller extends GetxController {
     longitude: "",
     address: "",
     countryId: "",
-    state: "",
     city: "",
     dob: "",
     nickname: "",
@@ -799,7 +798,6 @@ class Controller extends GetxController {
   Future<bool> updateProfile(
       UserProfileUpdateRequest updateProfileRequest) async {
     try {
-      print(updateProfileRequest.toJson().toString());
       UserProfileUpdateResponse? response =
           await UpdateProfileProvider().updateProfile(updateProfileRequest);
       if (response != null) {

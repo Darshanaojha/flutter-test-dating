@@ -83,12 +83,21 @@ class EditProfilePageState extends State<EditProfilePage> {
   }
 
   Future<bool> fetchAllData() async {
-    if (!await controller.fetchProfile()) return false;
+    controller.fetchProfile().then((value) {
+      if (value == true) {
+        controller.userProfileUpdateRequest.preferences =
+            controller.userPreferences.map((p) => p.preferenceId).toList();
+        controller.userProfileUpdateRequest.lang =
+            controller.userLang.map((l) => l.langId).toList();
+      }
+      return false;
+    });
     if (!await controller.fetchCountries()) return false;
     if (!await controller.fetchGenders()) return false;
     if (!await controller.fetchPreferences()) return false;
     if (!await controller.fetchlang()) return false;
     if (!await controller.fetchDesires()) return false;
+
     return true;
   }
 
@@ -425,7 +434,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                 .countryId
                                             : controller
                                                 .userData.first.countryId,
-                                        state: '',
+                                     
                                         city: controller
                                                 .userProfileUpdateRequest
                                                 .city
@@ -497,31 +506,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                         desires: controller
                                             .userProfileUpdateRequest.desires,
                                       );
-                                      //pref
-                                      List<int> selectedPreferences = [];
-                                      for (int i = 0;
-                                          i < preferencesSelectedOptions.length;
-                                          i++) {
-                                        if (preferencesSelectedOptions[i]) {
-                                          selectedPreferences.add(int.parse(
-                                              controller.preferences[i].id));
-                                        }
-                                      }
-                                      controller.userProfileUpdateRequest
-                                          .preferences = selectedPreferences;
-                                      // pref end
-                                      List<int> sendlang = [];
-                                      for (int i = 0;
-                                          i < controller.language.length;
-                                          i++) {
-                                        if (selectedLanguages.contains(
-                                            controller.language[i].title)) {
-                                          sendlang.add(int.parse(
-                                              controller.language[i].id));
-                                        }
-                                      }
-                                      controller.userProfileUpdateRequest.lang =
-                                          sendlang;
+
                                       emailAlerts.value == true
                                           ? controller.userProfileUpdateRequest
                                               .emailAlerts = "1"
@@ -532,10 +517,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                                           : '0';
                                       controller.updateProfile(
                                           userProfileUpdateRequest);
-                                      for (var d in controller.userDesire) {
-                                        print(d.title);
-                                      }
-                                      success('Updated', 'Profile Saved!');
                                     },
                                     backgroundColor: AppColors.buttonColor,
                                     icon: Icon(Icons.save,
@@ -946,7 +927,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            "Your Selected preferences",
+                                            "Your Selected Preferences",
                                             style: AppTextStyles.subheadingText
                                                 .copyWith(
                                               fontSize: 18,
@@ -1194,7 +1175,8 @@ Widget buildRelationshipStatusInterestStep(
   RxList<bool> selectedOptions =
       List.filled(controller.desires.length, false).obs;
   RxList<UserDesire> selectedDesires = controller.userDesire;
-
+  controller.userProfileUpdateRequest.desires =
+      selectedDesires.map((userDesire) => userDesire.desiresId).toList();
   // Populate selectedOptions based on controller.userDesire
   for (var userDesire in controller.userDesire) {
     int index =
@@ -1418,12 +1400,14 @@ Widget buildRelationshipStatusInterestStep(
 
 RxList<String> selectedLanguages = <String>[].obs;
 RxList<int> selectedLanguagesId = <int>[].obs;
+
 RxString searchQuery = ''.obs;
 
 Widget languages(BuildContext context) {
   if (selectedLanguages.isEmpty) {
     selectedLanguages.addAll(controller.userLang.map((lang) => lang.title));
   }
+  controller.userProfileUpdateRequest.lang = selectedLanguagesId;
   return Card(
     elevation: 8,
     shape: RoundedRectangleBorder(

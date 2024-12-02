@@ -4,13 +4,12 @@ class UserProfileUpdateRequest {
   String longitude;
   String address;
   String countryId;
-  String state;
   String city;
   String dob;
   String nickname;
   String gender;
   String subGender;
-  List<int> lang;
+  List<dynamic> lang;
   String interest;
   String bio;
   String visibility;
@@ -24,7 +23,6 @@ class UserProfileUpdateRequest {
     required this.longitude,
     required this.address,
     required this.countryId,
-    required this.state,
     required this.city,
     required this.dob,
     required this.nickname,
@@ -46,7 +44,6 @@ class UserProfileUpdateRequest {
       longitude: json['longitude'],
       address: json['address'],
       countryId: json['countryid'],
-      state: json['state'] ?? '',
       city: json['city'],
       dob: json['dob'],
       nickname: json['nickname'],
@@ -55,9 +52,9 @@ class UserProfileUpdateRequest {
       interest: json['interest'],
       bio: json['bio'],
       visibility: json["visibility_status"],
-      lang: json['lang'] != null ? List<int>.from(json['lang']) : [], 
+      lang: json['lang'] != null ? List<int>.from(json['lang']) : [],
       emailAlerts: json['emailalerts'],
-      preferences: json['preferences'] ?? [], 
+      preferences: json['preferences'] ?? [],
       desires: json['desires'] ?? [],
     );
   }
@@ -66,21 +63,20 @@ class UserProfileUpdateRequest {
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      'latitude': latitude,
+      'latitute': latitude,
       'longitude': longitude,
       'address': address,
-      'countryid': countryId,
-      'state': state,
+      'country_id': countryId,
       'city': city,
       'dob': dob,
       'nickname': nickname,
       'gender': gender,
-      'subgender': subGender,
+      'sub_gender': subGender,
       'interest': interest,
       'bio': bio,
       'visibility_status': visibility,
       'lang': lang,
-      'emailalerts': emailAlerts,
+      'email_alerts': emailAlerts,
       'preferences': preferences,
       'desires': desires,
     };
@@ -121,7 +117,8 @@ class UserProfileUpdateRequest {
 
       // Validate date of birth format
       if (!isValidDate(dob)) {
-        failure('Invalid Date of Birth', 'Date of Birth should be in YYYY/MM/DD format.');
+        failure('Invalid Date of Birth',
+            'Date of Birth should be in YYYY/MM/DD format.');
         return false;
       }
 

@@ -22,20 +22,20 @@ class PlanPageState extends State<PlanPage> {
   @override
   void initState() {
     super.initState();
-    controller.fetchAllsubscripted();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        
         title: Text(
           'Your Plans',
           style: AppTextStyles.headingText.copyWith(
             fontSize: getResponsiveFontSize(context, 0.05),
           ),
         ),
-        backgroundColor: Colors.blue,
+        backgroundColor: AppColors.primaryColor,
       ),
       body: FutureBuilder(
         future: controller.fetchAllsubscripted(), 
