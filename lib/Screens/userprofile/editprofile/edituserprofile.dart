@@ -434,7 +434,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                 .countryId
                                             : controller
                                                 .userData.first.countryId,
-                                     
                                         city: controller
                                                 .userProfileUpdateRequest
                                                 .city
