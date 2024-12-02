@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import '../../../Models/RequestModels/user_profile_update_request_model.dart';
+import '../../../Models/ResponseModels/ProfileResponse.dart';
 import '../../../Models/ResponseModels/get_all_gender_from_response_model.dart';
 import '../../../constants.dart';
 import '../editphoto/edituserprofilephoto.dart';
@@ -38,8 +39,6 @@ class EditProfilePageState extends State<EditProfilePage> {
 
   bool isLoading = false;
 
-  List<Category> categories = [];
-  RxList<Desire> desiresList = <Desire>[].obs;
   Country? selectedCountry;
   RxList<Gender> genders = <Gender>[].obs;
   RxList<SubGenderRequest> subGenders = <SubGenderRequest>[].obs;
@@ -80,18 +79,24 @@ class EditProfilePageState extends State<EditProfilePage> {
   void initState() {
     super.initState();
     intialize();
-    _fetchProfileFuture = controller.fetchProfile();
+    _fetchProfileFuture = fetchAllData();
+  }
+
+  Future<bool> fetchAllData() async {
+    if (!await controller.fetchProfile()) return false;
+    if (!await controller.fetchCountries()) return false;
+    if (!await controller.fetchGenders()) return false;
+    if (!await controller.fetchPreferences()) return false;
+    if (!await controller.fetchlang()) return false;
+    if (!await controller.fetchDesires()) return false;
+    return true;
   }
 
   intialize() async {
     try {
       debounce?.cancel();
       isLatLongFetched.value = false;
-      await controller.fetchCountries();
-      await controller.fetchGenders();
-      await controller.fetchPreferences();
-      await controller.fetchlang();
-      await controller.fetchDesires();
+
       genderIds.addAll(controller.genders.map((gender) => gender.id));
       for (String genderId in genderIds) {
         controller.fetchSubGender(SubGenderRequest(genderId: genderId));
@@ -1186,274 +1191,228 @@ Widget buildDropdown<T>(
 Widget buildRelationshipStatusInterestStep(
     BuildContext context, Size screenSize) {
   Controller controller = Get.put(Controller());
-  final relationshipCategory = controller.categories.firstWhere(
-    (category) => category.category == 'Relationship',
-    orElse: () => Category(category: 'Relationship', desires: []),
-  );
+  RxList<bool> selectedOptions =
+      List.filled(controller.desires.length, false).obs;
+  RxList<UserDesire> selectedDesires = controller.userDesire;
 
-  final kinksCategory = controller.categories.firstWhere(
-    (category) => category.category == 'Kinks',
-    orElse: () => Category(category: 'Kinks', desires: []),
-  );
-
-  List<String> options = [
-    ...relationshipCategory.desires.map((desire) => desire.title),
-    ...kinksCategory.desires.map((desire) => desire.title)
-  ];
-
-  RxList<bool> selectedOptions = List.filled(options.length, false).obs;
-  RxList<String> selectedStatus = <String>[].obs;
-  RxList<int> selectedDesireIds = <int>[].obs;
-
-  void updateSelectedStatus() {
-    selectedStatus.clear();
-    selectedDesireIds.clear();
-    
-    for (int i = 0; i < selectedOptions.length; i++) {
-      if (selectedOptions[i]) {
-        selectedStatus.add(options[i]);
-        selectedDesireIds.add(int.parse(controller.categories
-            .firstWhere((category) => category.category == 'Relationship')
-            .desires[i]
-            .id));
-    
-      }
+  // Populate selectedOptions based on controller.userDesire
+  for (var userDesire in controller.userDesire) {
+    int index =
+        controller.desires.indexWhere((d) => d.id == userDesire.desiresId);
+    if (index != -1) {
+      selectedOptions[index] = true;
     }
-    controller.userProfileUpdateRequest.desires = selectedDesireIds;
   }
 
   // Handle chip selection
-  void handleChipSelection(int index) {
-    selectedOptions[index] = !selectedOptions[index];
-    updateSelectedStatus();
-  }
-
   double screenWidth = screenSize.width;
   double bodyFontSize = screenWidth * 0.03;
   double chipFontSize = screenWidth * 0.03;
 
-  return FutureBuilder(
-    future: controller.fetchDesires(),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return Center(child: CircularProgressIndicator());
-      }
-      if (snapshot.hasError) {
-        return Center(child: Text('Error: ${snapshot.error}'));
-      }
+  return Card(
+    color: AppColors.primaryColor,
+    elevation: 8,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Obx(() {
+              return selectedDesires.isNotEmpty
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "You selected:",
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: bodyFontSize,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: selectedDesires.map((desire) {
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: Chip(
+                                  label: Text(desire.title),
+                                  backgroundColor: AppColors.buttonColor,
+                                  labelStyle: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: chipFontSize,
+                                  ),
+                                  deleteIcon: Icon(
+                                    Icons.delete,
+                                    color: AppColors.deniedColor,
+                                  ),
+                                  onDeleted: () {
+                                    // Remove desire on deletion
+                                    selectedDesires.remove(desire);
+                                    int index = controller.desires.indexWhere(
+                                        (d) => d.id == desire.desiresId);
+                                    if (index != -1) {
+                                      selectedOptions[index] = false;
+                                    }
+                                    controller
+                                            .userProfileUpdateRequest.desires =
+                                        selectedDesires
+                                            .map((userDesire) =>
+                                                userDesire.desiresId)
+                                            .toList();
+                                  },
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                      ],
+                    )
+                  : Container();
+            }),
 
-      return Card(
-        color: AppColors.primaryColor,
-        elevation: 8,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Obx(() {
-                  RxList<String> allDesires = <String>[].obs;
+            Text(
+              "Select your Desires: ${controller.desires.length}",
+              style: AppTextStyles.bodyText.copyWith(
+                fontSize: bodyFontSize,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textColor,
+              ),
+            ),
+            SizedBox(height: 10),
+            Obx(() {
+              return controller.desires.isNotEmpty
+                  ? SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children:
+                            List.generate(controller.desires.length, (index) {
+                          return GestureDetector(
+                            onTap: () {
+                              // Add desire to selected list
+                              UserDesire userDesire = UserDesire(
+                                  desiresId: controller.desires[index].id,
+                                  title: controller.desires[index].title);
 
-                  if (controller.userDesire.isNotEmpty &&
-                      controller.userDesire.first.title.isNotEmpty) {
-                    allDesires.addAll(controller.userDesire
-                        .map((desire) => desire.title)
-                        .toList());
-                  }
-                  for (String desireTitle in allDesires) {
-                    selectedStatus.add(desireTitle);
-                    var desire = controller.categories
-                        .firstWhere(
-                            (category) => category.category == 'Relationship')
-                        .desires
-                        .firstWhere((d) => d.title == desireTitle);
+                              if (!selectedDesires.contains(userDesire)) {
+                                selectedDesires.add(userDesire);
+                                selectedOptions[index] = true;
+                                controller.userProfileUpdateRequest.desires =
+                                    selectedDesires
+                                        .map((userDesire) =>
+                                            userDesire.desiresId)
+                                        .toList();
+                              }
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Chip(
+                                label: Text(controller.desires[index].title),
+                                backgroundColor: selectedOptions[index]
+                                    ? AppColors.buttonColor
+                                    : AppColors.formFieldColor,
+                                labelStyle: TextStyle(
+                                  color: selectedOptions[index]
+                                      ? Colors.white
+                                      : AppColors.textColor,
+                                  fontSize: chipFontSize,
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
+                    )
+                  : Container();
+            }),
 
-                    selectedDesireIds.add(int.parse(desire.id));
-                  }
-                  print(
-                      "Updated selectedDesireIds: ${selectedDesireIds.toString()}");
-                  allDesires.addAll(selectedStatus);
-                  allDesires = allDesires.toSet().toList().obs;
-
-                  // Print debugging info
-                  print("Updated allDesires: ${allDesires.toString()}");
-
-                  return allDesires.isNotEmpty
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "You selected:",
+            SizedBox(height: 20),
+            // Reset and Cancel Button
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text(
+                          'Confirm Reset',
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: bodyFontSize,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                        content: Text(
+                          'Are you sure you want to clear your selections?',
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: bodyFontSize,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              'Cancel',
                               style: AppTextStyles.bodyText.copyWith(
                                 fontSize: bodyFontSize,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.textColor,
                               ),
                             ),
-                            SizedBox(height: 10),
-                            SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                children: allDesires.map((status) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(right: 8.0),
-                                    child: Chip(
-                                      label: Text(status),
-                                      backgroundColor: AppColors.buttonColor,
-                                      labelStyle: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: chipFontSize,
-                                      ),
-                                      deleteIcon: Icon(
-                                        Icons.delete,
-                                        color: AppColors.deniedColor,
-                                      ),
-                                      onDeleted: () {
-                                        // Handle deletion
-                                        int index = options.indexOf(status);
-                                        if (index != -1) {
-                                          selectedOptions[index] = false;
-                                          updateSelectedStatus();
-                                        }
-                                      },
-                                    ),
-                                  );
-                                }).toList(),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              selectedOptions.value =
+                                  List.filled(selectedOptions.length, false);
+                              selectedDesires.clear();
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              'Confirm',
+                              style: AppTextStyles.bodyText.copyWith(
+                                fontSize: bodyFontSize,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textColor,
                               ),
                             ),
-                            SizedBox(height: 20),
-                          ],
-                        )
-                      : Container();
-                }),
-
-                Text(
-                  "Select your Desires:",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: bodyFontSize,
-                    fontWeight: FontWeight.bold,
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.deniedColor,
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                ),
+                child: Text(
+                  'Cancel',
+                  style: AppTextStyles.buttonText.copyWith(
+                    fontSize: AppTextStyles.buttonSize,
                     color: AppColors.textColor,
                   ),
                 ),
-                SizedBox(height: 10),
-                Obx(() {
-                  return controller.categories.isNotEmpty
-                      ? SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          child: Wrap(
-                            spacing: 10,
-                            runSpacing: 10,
-                            children: List.generate(options.length, (index) {
-                              return GestureDetector(
-                                onTap: () {
-                                  handleChipSelection(index);
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.only(bottom: 8.0),
-                                  child: Chip(
-                                    label: Text(options[index]),
-                                    backgroundColor: selectedOptions[index]
-                                        ? AppColors.buttonColor
-                                        : AppColors.formFieldColor,
-                                    labelStyle: TextStyle(
-                                      color: selectedOptions[index]
-                                          ? Colors.white
-                                          : AppColors.textColor,
-                                      fontSize: chipFontSize,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }),
-                          ),
-                        )
-                      : Container();
-                }),
-
-                SizedBox(height: 20),
-                // Reset and Cancel Button
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text(
-                              'Confirm Reset',
-                              style: AppTextStyles.bodyText.copyWith(
-                                fontSize: bodyFontSize,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textColor,
-                              ),
-                            ),
-                            content: Text(
-                              'Are you sure you want to clear your selections?',
-                              style: AppTextStyles.bodyText.copyWith(
-                                fontSize: bodyFontSize,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textColor,
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Text(
-                                  'Cancel',
-                                  style: AppTextStyles.bodyText.copyWith(
-                                    fontSize: bodyFontSize,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.textColor,
-                                  ),
-                                ),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  selectedOptions.value =
-                                      List.filled(options.length, false);
-                                  updateSelectedStatus();
-                                  Navigator.pop(context);
-                                },
-                                child: Text(
-                                  'Confirm',
-                                  style: AppTextStyles.bodyText.copyWith(
-                                    fontSize: bodyFontSize,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.textColor,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.deniedColor,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    ),
-                    child: Text(
-                      'Cancel',
-                      style: AppTextStyles.buttonText.copyWith(
-                        fontSize: AppTextStyles.buttonSize,
-                        color: AppColors.textColor,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
-      );
-    },
+      ),
+    ),
   );
 }
 

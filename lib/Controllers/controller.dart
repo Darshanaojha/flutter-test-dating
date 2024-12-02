@@ -337,13 +337,18 @@ class Controller extends GetxController {
   }
 
   RxList<Category> categories = <Category>[].obs;
+  RxList<Desires> desires = <Desires>[].obs;
   Future<bool> fetchDesires() async {
     try {
       categories.clear();
+      desires.clear();
       final DesiresResponse? response =
           await FetchAllDesiresProvider().fetchDesires();
       if (response != null) {
         categories.addAll(response.payload.data);
+        for (var c in categories) {
+          desires.addAll(c.desires);
+        }
         success('success', 'successfully fetched all the desires');
         return true;
       } else {
@@ -1023,7 +1028,6 @@ class Controller extends GetxController {
     }
   }
 
- 
   Future<bool> updateprofilephoto(
       UpdateProfilePhotoRequest updateProfilePhotoRequest) async {
     try {
@@ -1296,7 +1300,8 @@ class Controller extends GetxController {
       return false;
     }
   }
-   RxList<PackageData> subscripted = <PackageData>[].obs;
+
+  RxList<PackageData> subscripted = <PackageData>[].obs;
 
   Future<bool> fetchAllsubscripted() async {
     try {
@@ -1316,13 +1321,14 @@ class Controller extends GetxController {
       return false;
     }
   }
-   UpdateNewPackageRequestModel updateNewPackageRequestModel =
+
+  UpdateNewPackageRequestModel updateNewPackageRequestModel =
       UpdateNewPackageRequestModel(packageId: '');
   Future<bool> updatinguserpackage(
       UpdateNewPackageRequestModel updateNewPackageRequestModel) async {
     try {
-      UpdateNewPackageResponse? response =
-          await UpdatingPackageProvider().updatingpackage(updateNewPackageRequestModel);
+      UpdateNewPackageResponse? response = await UpdatingPackageProvider()
+          .updatingpackage(updateNewPackageRequestModel);
       if (response != null) {
         success('success', response.payload.message);
         return true;
@@ -1342,7 +1348,8 @@ class Controller extends GetxController {
       HighlightProfileStatusRequest highlightProfileStatusRequest) async {
     try {
       HighlightProfileStatusResponse? response =
-          await HighlightProfileStatusProvider().highlightProfileStatus(highlightProfileStatusRequest);
+          await HighlightProfileStatusProvider()
+              .highlightProfileStatus(highlightProfileStatusRequest);
       if (response != null) {
         success('success', response.payload.message);
         return true;

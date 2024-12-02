@@ -1,5 +1,5 @@
 // Desire Model
-class Desire {
+class Desires {
   final String id;
   final String desiresCategoryId;
   final String title;
@@ -8,7 +8,7 @@ class Desire {
   final String created;
   final String updated;
 
-  Desire({
+  Desires({
     required this.id,
     required this.desiresCategoryId,
     required this.title,
@@ -18,8 +18,8 @@ class Desire {
     required this.updated,
   });
 
-  factory Desire.fromJson(Map<String, dynamic> json) {
-    return Desire(
+  factory Desires.fromJson(Map<String, dynamic> json) {
+    return Desires(
       id: json['id'],
       desiresCategoryId: json['desires_category_id'],
       title: json['title'],
@@ -45,8 +45,8 @@ class Desire {
 
 // Category Model
 class Category {
-   String category;
-   List<Desire> desires;
+  String category;
+  List<Desires> desires;
 
   Category({
     required this.category,
@@ -57,7 +57,7 @@ class Category {
     return Category(
       category: json['category'],
       desires: (json['desire'] as List)
-          .map((item) => Desire.fromJson(item))
+          .map((item) => Desires.fromJson(item))
           .toList(),
     );
   }
