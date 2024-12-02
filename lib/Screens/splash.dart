@@ -50,7 +50,6 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
       await controller.fetchAllHeadlines();
       await controller.fetchSafetyGuidelines();
       await controller.fetchAllPackages();
-      await controller.reportReason();
       await controller.fetchlang();
       await controller.fetchDesires();
       await controller.fetchGenders();
@@ -63,9 +62,11 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
       if (token == null || token.isEmpty) {
         Get.offAll(() => Login());
       } else {
-         await controller.fetchProfile();
-          await controller.fetchProfileUserPhotos();
-          await controller.fetchAllFaq();
+        await controller.fetchProfile();
+        await controller.reportReason();
+        await controller.fetchProfileUserPhotos();
+        await controller.fetchAllFaq();
+        await controller.fetchAllsubscripted();
         Get.offAll(() => NavigationBottomBar());
       }
     } catch (e) {

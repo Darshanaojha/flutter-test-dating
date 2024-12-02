@@ -36,6 +36,7 @@ import '../Models/RequestModels/edit_message_request_model.dart';
 import '../Models/RequestModels/estabish_connection_request_model.dart';
 import '../Models/RequestModels/forget_password_request_model.dart';
 import '../Models/RequestModels/forget_password_verification_request_model.dart';
+import '../Models/RequestModels/highlight_profile_status_request_model.dart';
 import '../Models/RequestModels/liked_by_request_model.dart';
 import '../Models/RequestModels/pin_profile_pic_request_model.dart';
 import '../Models/RequestModels/registration_otp_request_model.dart';
@@ -66,6 +67,7 @@ import '../Models/ResponseModels/get_all_desires_model_response.dart';
 import '../Models/ResponseModels/get_all_language_response_model.dart';
 import '../Models/ResponseModels/get_all_subscripted_package_model.dart';
 import '../Models/ResponseModels/get_report_user_options_response_model.dart';
+import '../Models/ResponseModels/highlight_profile_status_response_model.dart';
 import '../Models/ResponseModels/like_history_response_model.dart';
 import '../Models/ResponseModels/liked_by_response_model.dart';
 import '../Models/ResponseModels/pin_profile_pic_response_model.dart';
@@ -96,6 +98,7 @@ import '../Providers/fetch_all_language_provider.dart';
 import '../Providers/fetch_all_packages_provider.dart';
 import '../Providers/fetch_benefits_provider.dart';
 import '../Providers/fetch_sub_genders_provider.dart';
+import '../Providers/highlight_profile_status_provider.dart';
 import '../Providers/home_page_provider.dart';
 import '../Providers/likes_history_provider.dart';
 import '../Providers/master_setting_provider.dart';
@@ -1285,7 +1288,7 @@ class Controller extends GetxController {
         success('success', response.payload.message);
         return true;
       } else {
-        failure('Error', 'Failed to update the profile');
+        failure('Error', 'Failed to update the username');
         return false;
       }
     } catch (e) {
@@ -1302,10 +1305,10 @@ class Controller extends GetxController {
           await FetchSubscriptedPackageProvider().fetchAllSubscriptedPackage();
       if (response != null) {
         subscripted.addAll(response.payload.data);
-        success('success', 'successfully fetched all the headlines');
+        success('success', 'successfully fetched all the subscripted');
         return true;
       } else {
-        failure('Error', 'Failed to fetch the headlines');
+        failure('Error', 'Failed to fetch the subscripted');
         return false;
       }
     } catch (e) {
@@ -1324,7 +1327,7 @@ class Controller extends GetxController {
         success('success', response.payload.message);
         return true;
       } else {
-        failure('Error', 'Failed to update the profile');
+        failure('Error', 'Failed to update the userpackage');
         return false;
       }
     } catch (e) {
@@ -1333,4 +1336,23 @@ class Controller extends GetxController {
     }
   }
 
+  HighlightProfileStatusRequest highlightProfileStatusRequest =
+      HighlightProfileStatusRequest(status: '');
+  Future<bool> highlightProfile(
+      HighlightProfileStatusRequest highlightProfileStatusRequest) async {
+    try {
+      HighlightProfileStatusResponse? response =
+          await HighlightProfileStatusProvider().highlightProfileStatus(highlightProfileStatusRequest);
+      if (response != null) {
+        success('success', response.payload.message);
+        return true;
+      } else {
+        failure('Error', 'Failed to highlight your profile');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
 }

@@ -1,19 +1,30 @@
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import '../../../Controllers/controller.dart';
+
 class PricingPage extends StatefulWidget {
   const PricingPage({super.key});
 
   @override
   PricingPageState createState() => PricingPageState();
 }
-
 class PricingPageState extends State<PricingPage> {
+  Controller controller = Get.put(Controller());
   RxString selectedPlan = 'None'.obs;
+  RxString planId= ''.obs;
+
+  @override
+  void initState() {
+    super.initState();
+    controller.fetchAllHeadlines();
+    controller.fetchAllPackages();
+  }
 
   @override
   Widget build(BuildContext context) {
-    double fontSize = MediaQuery.of(context).size.width * 0.05; 
+    double fontSize = MediaQuery.of(context).size.width * 0.05;
 
     return Scaffold(
       appBar: AppBar(
@@ -34,7 +45,7 @@ class PricingPageState extends State<PricingPage> {
               buildPaymentWidget(context),
               SizedBox(height: 30),
               buildProsAndCons(context),
-              SizedBox(height: 50), 
+              SizedBox(height: 50),
             ],
           ),
         ),
@@ -42,17 +53,17 @@ class PricingPageState extends State<PricingPage> {
       floatingActionButton: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: SizedBox(
-          width: double.infinity, 
+          width: double.infinity,
           child: ElevatedButton(
             onPressed: selectedPlan.value != 'None'
                 ? () {
-                    showPaymentConfirmationDialog(context);
+                    showPaymentConfirmationDialog(context,planId.value);
                   }
-                : null,
+                : null, // Button is enabled only if a plan is selected
             style: ElevatedButton.styleFrom(
               backgroundColor: selectedPlan.value != 'None'
-                  ? AppColors.activeColor
-                  : AppColors.inactiveColor,
+                  ? Colors.green // Button color when a plan is selected
+                  : AppColors.inactiveColor, // Button color when no plan is selected
               padding: EdgeInsets.symmetric(vertical: 16),
             ),
             child: Text(
@@ -80,7 +91,9 @@ class PricingPageState extends State<PricingPage> {
             child: Column(
               children: [
                 Text(
-                  "Subscription Plans",
+                  controller.headlines.isNotEmpty
+                      ? controller.headlines[10].title
+                      : "Loading Title...",
                   style: AppTextStyles.titleText.copyWith(
                     fontSize: fontSize,
                     fontWeight: FontWeight.bold,
@@ -89,7 +102,9 @@ class PricingPageState extends State<PricingPage> {
                 ),
                 SizedBox(height: 10),
                 Text(
-                  "Choose a plan that suits you!",
+                  controller.headlines.isNotEmpty
+                      ? controller.headlines[10].description
+                      : "Loading Title...",
                   style: AppTextStyles.bodyText.copyWith(
                     fontSize: fontSize - 2,
                     color: AppColors.textColor,
@@ -99,114 +114,98 @@ class PricingPageState extends State<PricingPage> {
             ),
           ),
         ),
-        SizedBox(height: 20),
+        Obx(() {
+          return ListView.builder(
+            shrinkWrap: true,
+            itemCount: controller.packages.length,
+            itemBuilder: (context, index) {
+              final package = controller.packages[index];
 
-        // Monthly Plan Section
-        buildPlanCard(
-          context,
-          planType: 'Monthly',
-          amount: '₹99/month',
-          discount: '20% OFF',
-          icon: Icons.calendar_today,
-        ),
-        SizedBox(height: 20),
-
-        // Quarterly Plan Section
-        buildPlanCard(
-          context,
-          planType: 'Quarterly',
-          amount: '₹599/3 months',
-          discount: '15% OFF',
-          icon: Icons.calendar_view_day,
-        ),
-        SizedBox(height: 20),
-
-        // Yearly Plan Section
-        buildPlanCard(
-          context,
-          planType: 'Yearly',
-          amount: '₹999/year',
-          discount: '35% OFF',
-          icon: Icons.calendar_today,
-        ),
+              return GestureDetector(
+                onTap: () {
+                  planId.value = package.id;
+                  selectedPlan.value = package.unit; // Update selected plan
+                },
+                child: Obx(() {
+                  // Wrap the card with Obx to ensure UI rebuilds on selectedPlan change
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Card(
+                        elevation: 8,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        color: selectedPlan.value == package.unit
+                            ? Colors.green // Highlight selected plan in green
+                            : Colors.orange,
+                        child: Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today,
+                                color: AppColors.iconColor,
+                                size: fontSize,
+                              ),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  "${package.unit} Plan - ₹${package.offerAmount}",
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    fontSize: fontSize - 2,
+                                    color: AppColors.textColor,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                
+                                selectedPlan.value == package.unit
+                                    ? 'Selected'
+                                    : 'Select',
+                                style: AppTextStyles.bodyText.copyWith(
+                                  fontSize: fontSize - 2,
+                                  color: selectedPlan.value == package.unit
+                                      ? AppColors.buttonColor
+                                      : AppColors.formFieldColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 4,
+                        right: 2,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '20% OFF',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: fontSize - 6,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+              );
+            },
+          );
+        }),
       ],
     );
   }
 
-  Widget buildPlanCard(BuildContext context, {
-    required String planType,
-    required String amount,
-    required String discount,
-    required IconData icon,
-  }) {
-    double fontSize = MediaQuery.of(context).size.width * 0.05;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedPlan.value = planType;
-        });
-      },
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            color: selectedPlan.value == planType ? Colors.green : Colors.orange,
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Row(
-                children: [
-                  Icon(
-                    icon,
-                    color: AppColors.iconColor,
-                    size: fontSize,
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      "$planType Plan - $amount",
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize - 2,
-                        color: AppColors.textColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            top: 4,
-            right: 2,
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-              decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                discount,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: fontSize - 6,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget buildProsAndCons(BuildContext context) {
-  //  double fontSize = MediaQuery.of(context).size.width * 0.05;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -249,8 +248,7 @@ class PricingPageState extends State<PricingPage> {
     );
   }
 
-  // Show dialog when 'Continue' button is pressed
-  Future<void> showPaymentConfirmationDialog(BuildContext context) async {
+  Future<void> showPaymentConfirmationDialog(BuildContext context,String planId) async {
     double fontSize = MediaQuery.of(context).size.width * 0.05;
 
     return showDialog<void>(
@@ -275,7 +273,8 @@ class PricingPageState extends State<PricingPage> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                controller.updateNewPackageRequestModel.packageId=planId;
+                Navigator.of(context).pop();
               },
               child: Text(
                 'Cancel',

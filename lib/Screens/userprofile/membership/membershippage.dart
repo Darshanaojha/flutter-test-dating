@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 
+import '../../../Controllers/controller.dart';
 import '../../../constants.dart';
 class MembershipPage extends StatefulWidget {
   const MembershipPage({super.key});
@@ -12,6 +13,7 @@ class MembershipPage extends StatefulWidget {
 }
 
 class MembershipPageState extends State<MembershipPage> {
+  Controller controller = Get.put(Controller());
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
@@ -30,7 +32,7 @@ class MembershipPageState extends State<MembershipPage> {
               height: screenHeight * 0.4,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/images/image1.jpg'),
+                  image: NetworkImage(controller.userPhotos!.img1),
                   fit: BoxFit.cover,
                 ),
               ),

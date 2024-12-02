@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
 import '../../constants.dart';
+import '../userprofile/editprofile/edituserprofile.dart';
 import 'changepassword/changepasswordnewpassword.dart';
 import 'updateemailid/updateemailidpage.dart';
 
@@ -25,6 +26,7 @@ class SettingsPageState extends State<SettingsPage> {
 
   final TextEditingController desireController = TextEditingController();
   bool showOnlineUsers = false;
+  RxBool spotlightUser = false.obs;
   String currentLocation = "Fetching...";
   String locationSelection = "Current Location";
 
@@ -221,6 +223,28 @@ class SettingsPageState extends State<SettingsPage> {
                 showOnlineUsers ? "Online Users Visible" : "Hide Online Users",
                 style: AppTextStyles.textStyle
                     .copyWith(fontSize: getResponsiveFontSize(0.03)),
+              ),
+            ),
+            SizedBox(height: 20),
+            Text("Show Spotlight",
+                style: AppTextStyles.subheadingText
+                    .copyWith(fontSize: getResponsiveFontSize(0.03))),
+            Obx(
+              () => SwitchListTile(
+                value: spotlightUser.value,
+                onChanged: (bool value) {
+                  spotlightUser.value = value;
+                  controller.highlightProfileStatusRequest.status =
+                      value ? '1' : '0';
+                },
+                activeColor: AppColors.acceptColor,
+                title: Text(
+                  spotlightUser.value
+                      ? "Your profile Spotlight"
+                      : "Not Spotlight",
+                  style: AppTextStyles.textStyle
+                      .copyWith(fontSize: getResponsiveFontSize(0.03)),
+                ),
               ),
             ),
             SizedBox(height: 20),

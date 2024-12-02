@@ -13,6 +13,7 @@ import '../settings/appinfopages/appinfopagestart.dart';
 import '../settings/setting.dart';
 import 'editprofile/edituserprofile.dart';
 import 'membership/membershippage.dart';
+import 'membership/userselectedplan.dart';
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
@@ -34,6 +35,7 @@ class UserProfilePageState extends State<UserProfilePage> {
   @override
   void initState() {
     super.initState();
+    controller.fetchAllsubscripted();
   }
 
   int calculateAge(String dob) {
@@ -319,7 +321,9 @@ class UserProfilePageState extends State<UserProfilePage> {
                           elevation: 5,
                           child: InkWell(
                             onTap: () {
-                              Get.to(MembershipPage());
+                              
+                              Get.to(PlanPage());
+                        
                             },
                             child: Container(
                               padding: EdgeInsets.all(16),
