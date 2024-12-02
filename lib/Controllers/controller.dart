@@ -337,13 +337,18 @@ class Controller extends GetxController {
   }
 
   RxList<Category> categories = <Category>[].obs;
+  RxList<Desires> desires = <Desires>[].obs;
   Future<bool> fetchDesires() async {
     try {
       categories.clear();
+      desires.clear();
       final DesiresResponse? response =
           await FetchAllDesiresProvider().fetchDesires();
       if (response != null) {
         categories.addAll(response.payload.data);
+        for (var c in categories) {
+          desires.addAll(c.desires);
+        }
         success('success', 'successfully fetched all the desires');
         return true;
       } else {
