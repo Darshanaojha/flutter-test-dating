@@ -1,9 +1,14 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dating_application/Controllers/controller.dart';
+import 'package:dating_application/Screens/homepage/swaping.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:swipe_cards/draggable_card.dart';
+import 'package:swipe_cards/swipe_cards.dart';
 import '../../constants.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,21 +23,54 @@ class HomePageState extends State<HomePage> {
 
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
-    return screenWidth * scale; // Adjust this scale for different text elements
+    return screenWidth * scale;
   }
 
+  RxString filterType = 'All'.obs;
+  double _startX = 0;
+  double _startY = 0;
   bool isLiked = false;
   bool isDisliked = false;
+  bool isSuperLiked = false;
   bool isShare = false;
+  int nearby = 0;
+  int yourfavirout = 10;
   bool isLoading = true;
   int messageCount = 0;
   final TextEditingController messageController = TextEditingController();
   final FocusNode messageFocusNode = FocusNode();
   final PageController _imagePageController = PageController();
+  List<User> filteredList = [];
+  final double _swipeThreshold = 100;
+  List<SwipeItem> swipeItems = [];
+  late MatchEngine matchEngine;
 
   @override
   void initState() {
     super.initState();
+    initializeApp();
+  }
+
+  initializeApp() {
+    for (int i = 0; i < controller.userSuggestionsList.length; i++) {
+      swipeItems.add(SwipeItem(
+        content: controller.userSuggestionsList[i].userId,
+        likeAction: () {
+          success('Hey Boy', "Liked ${controller.userSuggestionsList[i].name}");
+        },
+        nopeAction: () {
+          failure('OOPS', "Nope ${controller.userSuggestionsList[i].name}");
+        },
+        superlikeAction: () {
+          success(
+              'Bravo', "Superliked ${controller.userSuggestionsList[i].name}");
+        },
+        onSlideUpdate: (SlideRegion? region) async {
+          print("Region: $region");
+        },
+      ));
+    }
+    matchEngine = MatchEngine(swipeItems: swipeItems);
   }
 
   @override
@@ -54,11 +92,11 @@ class HomePageState extends State<HomePage> {
         return Dialog(
           backgroundColor: Colors.black.withOpacity(0.9),
           child: GestureDetector(
-            onTap: () => Navigator.of(context).pop(), // Close dialog on tap
+            onTap: () => Navigator.of(context).pop(),
             child: Center(
               child: Image.network(
                 imagePath,
-                fit: BoxFit.contain, // Adjust the image size to fit
+                fit: BoxFit.contain,
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
               ),
@@ -86,9 +124,8 @@ class HomePageState extends State<HomePage> {
           padding: const EdgeInsets.all(16.0),
           child: Wrap(
             children: [
-              // Create a container with a width equal to the screen width, but with some margin for responsiveness
               SizedBox(
-                width: screenWidth - 32, // Margin of 16 on both sides
+                width: screenWidth - 32,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -100,16 +137,11 @@ class HomePageState extends State<HomePage> {
                       ),
                     ),
                     SizedBox(height: 16),
-
-                    // Share Button - Make button expand to full width
                     SizedBox(
-                      width: double
-                          .infinity, // Make the button take the full width
+                      width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pop(context); // Dismiss bottom sheet
-
-                          // Share the user profile
+                          Navigator.pop(context);
                           shareUserProfile();
                         },
                         style: ElevatedButton.styleFrom(
@@ -132,20 +164,15 @@ class HomePageState extends State<HomePage> {
                       ),
                     ),
                     SizedBox(height: 16),
-
-                    // Cancel Button - Make button expand to full width
                     SizedBox(
-                      width: double
-                          .infinity, // Make the button take the full width
+                      width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pop(context); // Dismiss bottom sheet
+                          Navigator.pop(context);
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              AppColors.inactiveColor, // Cancel button color
-                          padding: EdgeInsets.symmetric(
-                              vertical: 16), // Make button tall (height)
+                          backgroundColor: AppColors.inactiveColor,
+                          padding: EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -155,7 +182,7 @@ class HomePageState extends State<HomePage> {
                           style: AppTextStyles.buttonText.copyWith(
                             fontSize: getResponsiveFontSize(0.03),
                             fontWeight: FontWeight.w500,
-                            color: AppColors.textColor, // Button text color
+                            color: AppColors.textColor,
                           ),
                         ),
                       ),
@@ -167,8 +194,7 @@ class HomePageState extends State<HomePage> {
           ),
         );
       },
-      isScrollControlled:
-          true, // This ensures the bottom sheet can adjust based on content
+      isScrollControlled: true,
     );
   }
 
@@ -234,295 +260,348 @@ class HomePageState extends State<HomePage> {
     );
   }
 
+  void applyFilter(String filter) {
+    setState(() {
+      // selectedFilter = filter;
+
+      // Apply filter logic based on the selected filter
+      if (filter == 'All') {
+        filteredList = List.from(controller.userSuggestionsList);
+      } else if (filter == 'Near by') {
+        // filteredList = controller.userSuggestionsList.where((user) => user.location == 'Nearby').toList();
+      } else if (filter == 'Highlited') {
+        // filteredList = userSuggestionsList.where((user) => user.isHighlighted).toList();
+      } else if (filter == 'Your favourite') {
+        // filteredList = userSuggestionsList.where((user) => user.isFavourite).toList();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-
-    // Responsive font size calculation
-    double fontSize = size.width * 0.045; // Base font size
+    double fontSize = size.width * 0.045;
     double bodyFontSize = size.width * 0.035;
 
     return Scaffold(
-        resizeToAvoidBottomInset: true,
-        body: Stack(
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: Stack(
           children: [
             FutureBuilder(
-                future: controller.userSuggestions(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                      child: SpinKitCircle(
-                        size: 150.0,
-                        color: AppColors.progressColor,
-                      ),
-                    );
-                  }
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        'Error loading user photos: ${snapshot.error}',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    );
-                  }
-                  if (!snapshot.hasData || snapshot.data == null) {
-                    return Center(
-                      child: Text(
-                        'No data available.',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    );
-                  }
-                  return SingleChildScrollView(
+              future: controller.userSuggestions(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: SpinKitCircle(
+                      size: 150.0,
+                      color: Colors.blue,
+                    ),
+                  );
+                }
+
+                if (snapshot.hasError) {
+                  return Center(
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height,
-                          child: PageView.builder(
-                            // controller: _pageController,
-                            itemCount: controller.userSuggestionsList.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: EdgeInsets.all(
-                                  MediaQuery.of(context).size.width * 0.04,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.4,
-                                      child: Stack(
-                                        children: [
-                                          if (isLoading)
-                                            Center(
-                                              child: SpinKitCircle(
-                                                size: 150.0,
-                                                color: AppColors.acceptColor,
-                                              ),
-                                            ),
-                                          ListView.builder(
-                                            controller: _imagePageController,
-                                            scrollDirection: Axis.vertical,
-                                            itemCount: controller
-                                                .userSuggestionsList[index]
-                                                .images
-                                                .length,
-                                            itemBuilder: (context, imgIndex) {
-                                              return GestureDetector(
-                                                onTap: () =>
-                                                    _showFullImageDialog(
-                                                        context,
-                                                        controller
-                                                            .userSuggestionsList[
-                                                                index]
-                                                            .images[imgIndex]),
-                                                child: Container(
-                                                  margin: EdgeInsets.only(
-                                                      bottom: 12),
-                                                  child: ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            15),
-                                                    child: Image.network(
-                                                      controller
-                                                          .userSuggestionsList[
-                                                              index]
-                                                          .images[imgIndex],
-                                                      fit: BoxFit.cover,
-                                                      width:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.9,
-                                                      height:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .height *
-                                                              0.45,
-                                                    ),
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                          Positioned(
-                                            bottom: 10,
-                                            right: 0,
-                                            child: Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                vertical: MediaQuery.of(context)
-                                                        .size
-                                                        .height *
-                                                    0.1, // Adjust vertical padding
-                                              ),
-                                              child: Transform.rotate(
-                                                angle:
-                                                    -1.5708, // -1.5708 radians = 90 degrees counterclockwise
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .center, // Centers the dots horizontally
-                                                  children: [
-                                                    SmoothPageIndicator(
-                                                      controller:
-                                                          _imagePageController,
-                                                      count: controller
-                                                          .userSuggestionsList[
-                                                              index]
-                                                          .images
-                                                          .length,
-                                                      effect:
-                                                          ExpandingDotsEffect(
-                                                        dotHeight: 10,
-                                                        dotWidth: 10,
-                                                        spacing: 10,
-                                                        radius: 5,
-                                                        dotColor: Colors.grey
-                                                            .withOpacity(0.5),
-                                                        activeDotColor:
-                                                            AppColors
-                                                                .acceptColor,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                    Positioned(
-                                      bottom: 16,
-                                      left: 16,
-                                      child: Row(
-                                        children: [
-                                          IconButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                isLiked = !isLiked;
-                                              });
-                                            },
-                                            icon: Icon(
-                                              isLiked
-                                                  ? Icons.favorite
-                                                  : Icons.favorite_border,
-                                              size: 40,
-                                              color: isLiked
-                                                  ? Colors.red
-                                                  : Colors.white,
-                                            ),
-                                          ),
-                                          IconButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                isDisliked = !isDisliked;
-                                              });
-                                            },
-                                            icon: Icon(
-                                              isDisliked
-                                                  ? Icons.thumb_down
-                                                  : Icons
-                                                      .thumb_down_alt_outlined,
-                                              size: 40,
-                                              color: isDisliked
-                                                  ? Colors.red
-                                                  : Colors.white,
-                                            ),
-                                          ),
-                                          IconButton(
-                                            onPressed: () {
-                                              showShareProfileBottomSheet();
-                                              setState(() {
-                                                isShare = !isShare;
-                                              });
-                                            },
-                                            icon: Icon(
-                                              isShare
-                                                  ? Icons.share
-                                                  : Icons.share,
-                                              size: 40,
-                                              color: isShare
-                                                  ? Colors.green
-                                                  : Colors.white,
-                                            ),
-                                          ),
-                                          IconButton(
-                                            onPressed: showmessageBottomSheet,
-                                            icon: Stack(
-                                              alignment: Alignment.center,
-                                              children: [
-                                                Icon(
-                                                  Icons.chat_outlined,
-                                                  size: 40,
-                                                  color: AppColors.textColor,
-                                                ),
-                                                if (messageCount > 0)
-                                                  Positioned(
-                                                    top: 0,
-                                                    right: 0,
-                                                    child: CircleAvatar(
-                                                      radius: 10,
-                                                      backgroundColor:
-                                                          AppColors.deniedColor,
-                                                      child: Text(
-                                                        '$messageCount',
-                                                        style: TextStyle(
-                                                          fontSize: 12,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: AppColors
-                                                              .textColor,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(height: 16),
-                                    Text(
-                                      controller.userSuggestionsList[index]
-                                              .name ??
-                                          'NA',
-                                      style: AppTextStyles.headingText.copyWith(
-                                        fontSize: fontSize,
-                                      ),
-                                    ),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          '${controller.userSuggestionsList[index].dob != null ? DateTime.now().year - DateTime.parse(controller.userSuggestionsList[index].dob!).year : 'NA'} years old | ',
-                                          style:
-                                              AppTextStyles.bodyText.copyWith(
-                                            fontSize: bodyFontSize,
-                                          ),
-                                        ),
-                                        Text(
-                                          '${controller.userSuggestionsList[index].city ?? 'NA'} | ',
-                                          style:
-                                              AppTextStyles.bodyText.copyWith(
-                                            fontSize: bodyFontSize,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
+                        Icon(Icons.error, color: Colors.red, size: 50),
+                        SizedBox(height: 10),
+                        Text(
+                          'Error loading user photos: ${snapshot.error}',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                        SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              isLoading = true;
+                            });
+                          },
+                          child: Text('Retry'),
                         ),
                       ],
                     ),
                   );
-                })
+                }
+
+                if (!snapshot.hasData || snapshot.data == null) {
+                  return Center(
+                    child: Text(
+                      'No data available.',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  );
+                }
+
+                return Column(
+                  children: [
+                    Container(
+                      height: 80,
+                      padding: EdgeInsets.all(8),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: [
+                            buildFilterChip('All', Icons.all_inclusive,
+                                (value) {
+                              applyFilter('All');
+                            }),
+                            buildFilterChip('Nearby', Icons.location_on,
+                                (value) {
+                              applyFilter('Nearby');
+                            }),
+                            buildFilterChip('Highlighted', Icons.star, (value) {
+                              applyFilter('Highlighted');
+                            }),
+                            buildFilterChip('Favorites', Icons.favorite,
+                                (value) {
+                              applyFilter('Favorites');
+                            }),
+                            ElevatedButton(
+                              onPressed: () {
+                                Get.to(MySwipePage());
+                              },
+                              child: Text('Demo'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SafeArea(
+                      child: SizedBox(
+                         height: size.height * 0.65 - MediaQuery.of(context).viewInsets.bottom,
+                        child: SwipeCards(
+                          matchEngine: matchEngine,
+                          itemBuilder: (BuildContext context, int index) {
+                            return buildSwipeCard(
+                                context, index, fontSize, bodyFontSize);
+                          },
+                          onStackFinished: () {
+                            failure('Finished', "Stack Finished");
+                          },
+                          itemChanged: (SwipeItem item, int index) {
+                            print("Item: ${item.content}, Index: $index");
+                          },
+                          upSwipeAllowed: true,
+                          fillSpace: true,
+                        ),
+                      ),
+                    )
+                  ],
+                );
+              },
+            ),
           ],
-        ));
+        ),
+      ),
+    );
+  }
+
+  Widget buildFilterChip(
+      String label, IconData icon, ValueChanged<String> onChanged) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: FilterChip(
+        label: Row(
+          children: [
+            Icon(icon, size: 20, color: Colors.white),
+            SizedBox(width: 8),
+            Text(label, style: TextStyle(color: Colors.white)),
+          ],
+        ),
+        // selected: selectedFilter == label,
+        onSelected: (selected) {
+          onChanged(label);
+        },
+        selectedColor: Colors.blue,
+        backgroundColor: Colors.grey,
+        shape: StadiumBorder(),
+      ),
+    );
+  }
+
+  // Function to create each swipe card
+  Widget buildSwipeCard(
+      BuildContext context, int index, double fontSize, double bodyFontSize) {
+    final size = MediaQuery.of(context).size;
+
+    return Container(
+      alignment: Alignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: size.height * 0.4,
+            child: Stack(
+              children: [
+                if (isLoading)
+                  Center(
+                    child: SpinKitCircle(
+                      size: 150.0,
+                      color: Colors.green,
+                    ),
+                  ),
+                ListView.builder(
+                  controller: _imagePageController,
+                  scrollDirection: Axis.vertical,
+                  itemCount:
+                      controller.userSuggestionsList[index].images.length,
+                  itemBuilder: (context, imgIndex) {
+                    return GestureDetector(
+                      onTap: () => _showFullImageDialog(
+                          context,
+                          controller
+                              .userSuggestionsList[index].images[imgIndex]),
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 12),
+                        child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: CachedNetworkImage(
+                              imageUrl: controller
+                                  .userSuggestionsList[index].images[imgIndex],
+                              placeholder: (context, url) => Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                              errorWidget: (context, url, error) {
+                                print("Failed to load image from URL: $url");
+                                return Icon(
+                                  Icons.error,
+                                  color: Colors.red,
+                                );
+                              },
+                              fit: BoxFit.cover,
+                              width: size.width * 0.9,
+                              height: size.height * 0.45,
+                            )),
+                      ),
+                    );
+                  },
+                ),
+                Positioned(
+                  bottom: 10,
+                  right: 0,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: size.height * 0.1,
+                    ),
+                    child: Transform.rotate(
+                      angle: -1.5708,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SmoothPageIndicator(
+                            controller: _imagePageController,
+                            count: controller
+                                .userSuggestionsList[index].images.length,
+                            effect: ExpandingDotsEffect(
+                              dotHeight: 10,
+                              dotWidth: 10,
+                              spacing: 10,
+                              radius: 5,
+                              dotColor: Colors.grey.withOpacity(0.5),
+                              activeDotColor: Colors.green,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    isLiked = !isLiked;
+                  });
+                },
+                icon: Icon(
+                  isLiked ? Icons.favorite : Icons.favorite_border,
+                  size: 40,
+                  color: isLiked ? Colors.red : Colors.white,
+                ),
+              ),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    isDisliked = !isDisliked;
+                  });
+                },
+                icon: Icon(
+                  isDisliked ? Icons.thumb_down : Icons.thumb_down_alt_outlined,
+                  size: 40,
+                  color: isDisliked ? Colors.red : Colors.white,
+                ),
+              ),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    isShare = !isShare;
+                  });
+                },
+                icon: Icon(
+                  isShare ? Icons.share : Icons.share,
+                  size: 40,
+                  color: isShare ? Colors.green : Colors.white,
+                ),
+              ),
+              IconButton(
+                onPressed: showmessageBottomSheet,
+                icon: Icon(Icons.chat_outlined, size: 40),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          Text(
+            controller.userSuggestionsList[index].name ?? 'NA',
+            style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+          ),
+          Row(
+            children: [
+              Text(
+                '${controller.userSuggestionsList[index].dob != null ? DateTime.now().year - DateTime.parse(controller.userSuggestionsList[index].dob!).year : 'NA'} years old | ',
+                style: TextStyle(fontSize: bodyFontSize),
+              ),
+              Text(
+                '${controller.userSuggestionsList[index].city ?? 'NA'}',
+                style: TextStyle(fontSize: bodyFontSize),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    matchEngine.currentItem?.nope(); // Trigger 'Nope' action
+                  },
+                  child: Text("Nope"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    matchEngine.currentItem
+                        ?.superLike(); // Trigger 'Superlike' action
+                  },
+                  child: Text("Superlike"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    matchEngine.currentItem?.like(); // Trigger 'Like' action
+                  },
+                  child: Text("Like"),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
