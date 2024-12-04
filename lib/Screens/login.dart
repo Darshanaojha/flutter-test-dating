@@ -92,7 +92,9 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                               await controller.fetchProfile();
                               await controller.fetchProfileUserPhotos();
                               await controller.fetchAllFaq();
+                               await controller.fetchAllverificationtype();
                                await controller.reportReason();
+                               await controller.userSuggestions();
                                await controller.fetchAllsubscripted();
                               Get.to(NavigationBottomBar());
                             }

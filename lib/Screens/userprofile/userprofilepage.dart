@@ -1,10 +1,12 @@
 import 'package:dating_application/Screens/settings/appinfopages/faqpage.dart';
 import 'package:dating_application/Screens/shareprofilepage/shareprofilepage.dart';
+import 'package:dating_application/Screens/userprofile/accountverification/useraccountverification.dart';
 import 'package:dating_application/Screens/userprofile/addpartner/addpartnerpage.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../Controllers/controller.dart';
@@ -12,7 +14,6 @@ import '../../Models/RequestModels/usernameupdate_request_model.dart';
 import '../settings/appinfopages/appinfopagestart.dart';
 import '../settings/setting.dart';
 import 'editprofile/edituserprofile.dart';
-import 'membership/membershippage.dart';
 import 'membership/userselectedplan.dart';
 
 class UserProfilePage extends StatefulWidget {
@@ -35,19 +36,22 @@ class UserProfilePageState extends State<UserProfilePage> {
   @override
   void initState() {
     super.initState();
-    controller.fetchAllsubscripted();
+    initialize();
+  }
+
+  initialize() async {
+    await controller.fetchAllsubscripted();
+    await controller.fetchProfile();
   }
 
   int calculateAge(String dob) {
-    DateTime birthDate =
-        DateTime.parse(dob); // Parse the date of birth string to DateTime
+    DateTime birthDate = DateTime.parse(dob);
     DateTime now = DateTime.now();
 
-    // Calculate the age
     int age = now.year - birthDate.year;
     if (now.month < birthDate.month ||
         (now.month == birthDate.month && now.day < birthDate.day)) {
-      age--; // Subtract one if the user hasn't had their birthday yet this year
+      age--;
     }
 
     return age;
@@ -128,15 +132,12 @@ class UserProfilePageState extends State<UserProfilePage> {
                                     fontSize: getResponsiveFontSize(0.03),
                                   ),
                                 ),
-                                SizedBox(
-                                    height:
-                                        8), // Optional space between username and the small text
+                                SizedBox(height: 8),
                                 Text(
                                   'Click to change username',
                                   style: AppTextStyles.textStyle.copyWith(
                                     fontSize: getResponsiveFontSize(0.02),
-                                    color: Colors
-                                        .grey, // Optional: change color to make it look like a hint
+                                    color: Colors.grey,
                                   ),
                                 ),
                               ],
@@ -259,8 +260,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                                                             .first.username);
                                             controller.updateusername(
                                                 usernameUpdateRequest);
-                                            Navigator.of(context)
-                                                .pop();
+                                            Navigator.of(context).pop();
                                           },
                                           child: Text('Save'),
                                         ),
@@ -273,6 +273,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                           ],
                         ),
                       ),
+
                       // User Info: Age & Gender
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -286,6 +287,54 @@ class UserProfilePageState extends State<UserProfilePage> {
                                   fontSize: getResponsiveFontSize(0.03)),
                             ),
                           ],
+                        ),
+                      ),
+                      // Verification Status Card
+                      Card(
+                        elevation: 5,
+                        color: controller.userData.isNotEmpty &&
+                                controller.userData.first
+                                        .accountVerificationStatus ==
+                                    '1'
+                            ? Colors.green[
+                                50] // Light green background for verified account
+                            : Colors.red[
+                                50], // Light red background for unverified account
+                        child: InkWell(
+                          onTap: () {
+                            showVerificationDialog(context);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Account Verification',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: controller.userData.isNotEmpty &&
+                                            controller.userData.first
+                                                    .accountVerificationStatus ==
+                                                '1'
+                                        ? Colors
+                                            .green // Green text for verified account
+                                        : Colors
+                                            .red, // Red text for unverified account
+                                  ),
+                                ),
+                                controller.userData.isNotEmpty &&
+                                        controller.userData.first
+                                                .accountVerificationStatus ==
+                                            '1'
+                                    ? Icon(Icons.verified_user_outlined,
+                                        color: Colors.green)
+                                    : Icon(Icons.cancel_outlined,
+                                        color: Colors.red),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
 
@@ -321,9 +370,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                           elevation: 5,
                           child: InkWell(
                             onTap: () {
-                              
                               Get.to(PlanPage());
-                        
                             },
                             child: Container(
                               padding: EdgeInsets.all(16),
@@ -705,7 +752,57 @@ class UserProfilePageState extends State<UserProfilePage> {
         );
       },
       isScrollControlled:
-          true, // This ensures the bottom sheet can adjust based on content
+          true,
+    );
+  }
+
+  void showVerificationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Account Verification',
+            style: AppTextStyles.titleText,
+            textAlign: TextAlign.center,
+          ),
+          content: Text(
+            'To verify your account, you need to submit a photo. Choose one of the following options for your photo submission.',
+            style: AppTextStyles.titleText,
+            textAlign: TextAlign.center,
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.inactiveColor,
+              ),
+              child: Text(
+                'Cancel',
+                style: AppTextStyles.titleText,
+                textAlign: TextAlign.center,
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                controller.fetchAllverificationtype();
+                Navigator.of(context).pop();
+                Get.to(PhotoVerificationPage());
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.activeColor,
+              ),
+              child: Text(
+                'Confirm',
+                style: AppTextStyles.titleText,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
