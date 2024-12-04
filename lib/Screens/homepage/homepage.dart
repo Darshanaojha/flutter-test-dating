@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Screens/homepage/swaping.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
@@ -9,6 +8,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:swipe_cards/draggable_card.dart';
 import 'package:swipe_cards/swipe_cards.dart';
+
 import '../../constants.dart';
 
 class HomePage extends StatefulWidget {
@@ -27,8 +27,6 @@ class HomePageState extends State<HomePage> {
   }
 
   RxString filterType = 'All'.obs;
-  double _startX = 0;
-  double _startY = 0;
   bool isLiked = false;
   bool isDisliked = false;
   bool isSuperLiked = false;
@@ -40,30 +38,33 @@ class HomePageState extends State<HomePage> {
   final TextEditingController messageController = TextEditingController();
   final FocusNode messageFocusNode = FocusNode();
   final PageController _imagePageController = PageController();
-  List<User> filteredList = [];
-  final double _swipeThreshold = 100;
+  String currentFilter = 'All';
   List<SwipeItem> swipeItems = [];
   late MatchEngine matchEngine;
 
   @override
   void initState() {
     super.initState();
+    controller.filteredList.value = List.from(controller.userSuggestionsList);
+    controller.userSuggestionsList;
+    controller.userHighlightedList;
+    controller.userNearByList;
+    matchEngine = MatchEngine();
     initializeApp();
   }
 
   initializeApp() {
-    for (int i = 0; i < controller.userSuggestionsList.length; i++) {
+    for (int i = 0; i < controller.filteredList.length; i++) {
       swipeItems.add(SwipeItem(
-        content: controller.userSuggestionsList[i].userId,
+        content: controller.filteredList[i].userId,
         likeAction: () {
-          success('Hey Boy', "Liked ${controller.userSuggestionsList[i].name}");
+          success('Hey Boy', "Liked ${controller.filteredList[i].name}");
         },
         nopeAction: () {
-          failure('OOPS', "Nope ${controller.userSuggestionsList[i].name}");
+          failure('OOPS', "Nope ${controller.filteredList[i].name}");
         },
         superlikeAction: () {
-          success(
-              'Bravo', "Superliked ${controller.userSuggestionsList[i].name}");
+          success('Bravo', "Superliked ${controller.filteredList[i].name}");
         },
         onSlideUpdate: (SlideRegion? region) async {
           print("Region: $region");
@@ -85,7 +86,7 @@ class HomePageState extends State<HomePage> {
     });
   }
 
-  void _showFullImageDialog(BuildContext context, String imagePath) {
+  void showFullImageDialog(BuildContext context, String imagePath) {
     showDialog(
       context: context,
       builder: (context) {
@@ -262,17 +263,15 @@ class HomePageState extends State<HomePage> {
 
   void applyFilter(String filter) {
     setState(() {
-      // selectedFilter = filter;
-
-      // Apply filter logic based on the selected filter
+      controller.filteredList.clear();
       if (filter == 'All') {
-        filteredList = List.from(controller.userSuggestionsList);
+        controller.filteredList.addAll(controller.userSuggestionsList);
       } else if (filter == 'Near by') {
-        // filteredList = controller.userSuggestionsList.where((user) => user.location == 'Nearby').toList();
+        controller.filteredList.addAll(controller.userNearByList);
       } else if (filter == 'Highlited') {
-        // filteredList = userSuggestionsList.where((user) => user.isHighlighted).toList();
+        controller.filteredList.addAll(controller.userHighlightedList);
       } else if (filter == 'Your favourite') {
-        // filteredList = userSuggestionsList.where((user) => user.isFavourite).toList();
+        controller.filteredList.addAll(controller.userSuggestionsList);
       }
     });
   }
@@ -371,12 +370,17 @@ class HomePageState extends State<HomePage> {
                     ),
                     SafeArea(
                       child: SizedBox(
-                         height: size.height * 0.65 - MediaQuery.of(context).viewInsets.bottom,
+                        height: size.height * 0.7 -
+                            MediaQuery.of(context).viewInsets.bottom,
                         child: SwipeCards(
                           matchEngine: matchEngine,
                           itemBuilder: (BuildContext context, int index) {
-                            return buildSwipeCard(
-                                context, index, fontSize, bodyFontSize);
+                            var user = controller.filteredList[index];
+
+                            String filterType =
+                                currentFilter; // Set based on your filter
+                            return buildFilteredCard(context, user, size,
+                                fontSize, bodyFontSize, filterType);
                           },
                           onStackFinished: () {
                             failure('Finished', "Stack Finished");
@@ -388,7 +392,7 @@ class HomePageState extends State<HomePage> {
                           fillSpace: true,
                         ),
                       ),
-                    )
+                    ),
                   ],
                 );
               },
@@ -399,8 +403,7 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildFilterChip(
-      String label, IconData icon, ValueChanged<String> onChanged) {
+  Widget buildFilterChip(String label, IconData icon, Function(String) onTap) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
       child: FilterChip(
@@ -411,9 +414,8 @@ class HomePageState extends State<HomePage> {
             Text(label, style: TextStyle(color: Colors.white)),
           ],
         ),
-        // selected: selectedFilter == label,
         onSelected: (selected) {
-          onChanged(label);
+          onTap(label);
         },
         selectedColor: Colors.blue,
         backgroundColor: Colors.grey,
@@ -422,11 +424,81 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  // Function to create each swipe card
+  Widget buildFilteredCard(BuildContext context, user, Size size,
+      double fontSize, double bodyFontSize, String filterType) {
+    String additionalInfo = '';
+
+    switch (filterType) {
+      case 'Nearby':
+        additionalInfo = 'Nearby';
+        break;
+      case 'Highlighted':
+        additionalInfo = 'Highlighted';
+        break;
+      case 'Favorites':
+        additionalInfo = 'Favorites';
+        break;
+      default:
+        additionalInfo = 'All';
+    }
+
+    return buildCardLayout(context, user, size, fontSize, bodyFontSize,
+        additionalInfo: additionalInfo);
+  }
+
   Widget buildSwipeCard(
       BuildContext context, int index, double fontSize, double bodyFontSize) {
     final size = MediaQuery.of(context).size;
+    switch (currentFilter) {
+      case 'Nearby':
+        return buildNearbyCard(context, controller.userNearByList[index], size,
+            fontSize, bodyFontSize);
+      case 'Highlighted':
+        return buildHighlightedCard(
+            context,
+            controller.userHighlightedList[index],
+            size,
+            fontSize,
+            bodyFontSize);
+      case 'Favorites':
+        return buildFavoritesCard(
+            context,
+            controller.userSuggestionsList[index],
+            size,
+            fontSize,
+            bodyFontSize);
+      default:
+        return buildDefaultCard(context, controller.filteredList[index], size,
+            fontSize, bodyFontSize);
+    }
+  }
 
+  Widget buildDefaultCard(BuildContext context, user, Size size,
+      double fontSize, double bodyFontSize) {
+    return buildCardLayout(context, user, size, fontSize, bodyFontSize);
+  }
+
+  Widget buildNearbyCard(BuildContext context, user, Size size, double fontSize,
+      double bodyFontSize) {
+    return buildCardLayout(context, user, size, fontSize, bodyFontSize,
+        additionalInfo: 'Nearby');
+  }
+
+  Widget buildHighlightedCard(BuildContext context, user, Size size,
+      double fontSize, double bodyFontSize) {
+    return buildCardLayout(context, user, size, fontSize, bodyFontSize,
+        additionalInfo: 'Highlighted');
+  }
+
+  Widget buildFavoritesCard(BuildContext context, user, Size size,
+      double fontSize, double bodyFontSize) {
+    return buildCardLayout(context, user, size, fontSize, bodyFontSize,
+        additionalInfo: 'Favorites');
+  }
+
+  Widget buildCardLayout(BuildContext context, user, Size size, double fontSize,
+      double bodyFontSize,
+      {String? additionalInfo}) {
     return Container(
       alignment: Alignment.center,
       child: Column(
@@ -436,56 +508,53 @@ class HomePageState extends State<HomePage> {
             height: size.height * 0.4,
             child: Stack(
               children: [
-                if (isLoading)
-                  Center(
-                    child: SpinKitCircle(
-                      size: 150.0,
-                      color: Colors.green,
-                    ),
-                  ),
-                ListView.builder(
-                  controller: _imagePageController,
-                  scrollDirection: Axis.vertical,
-                  itemCount:
-                      controller.userSuggestionsList[index].images.length,
-                  itemBuilder: (context, imgIndex) {
-                    return GestureDetector(
-                      onTap: () => _showFullImageDialog(
-                          context,
-                          controller
-                              .userSuggestionsList[index].images[imgIndex]),
-                      child: Container(
-                        margin: EdgeInsets.only(bottom: 12),
-                        child: ClipRRect(
+                SafeArea(
+                  child: SwipeCards(
+                    matchEngine: matchEngine,
+                    itemBuilder: (BuildContext context, int index) {
+                      var images = controller.userSuggestionsList[index].images;
+                      if (images.isEmpty) {
+                        return Center(child: Text('No Images Available'));
+                      }
+
+                      return GestureDetector(
+                        onTap: () =>
+                            showFullImageDialog(context, images[index]),
+                        child: Container(
+                          margin: EdgeInsets.only(bottom: 12),
+                          child: ClipRRect(
                             borderRadius: BorderRadius.circular(15),
                             child: CachedNetworkImage(
-                              imageUrl: controller
-                                  .userSuggestionsList[index].images[imgIndex],
-                              placeholder: (context, url) => Center(
-                                child: CircularProgressIndicator(),
-                              ),
+                              imageUrl: images[index],
+                              placeholder: (context, url) =>
+                                  Center(child: CircularProgressIndicator()),
                               errorWidget: (context, url, error) {
                                 print("Failed to load image from URL: $url");
-                                return Icon(
-                                  Icons.error,
-                                  color: Colors.red,
-                                );
+                                return Icon(Icons.error, color: Colors.red);
                               },
                               fit: BoxFit.cover,
                               width: size.width * 0.9,
                               height: size.height * 0.45,
-                            )),
-                      ),
-                    );
-                  },
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    onStackFinished: () {
+                      failure('Finished', "Stack Finished");
+                    },
+                    itemChanged: (SwipeItem item, int index) {
+                      print("Item: ${item.content}, Index: $index");
+                    },
+                    upSwipeAllowed: true,
+                    fillSpace: true,
+                  ),
                 ),
                 Positioned(
                   bottom: 10,
                   right: 0,
                   child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      vertical: size.height * 0.1,
-                    ),
+                    padding: EdgeInsets.symmetric(vertical: size.height * 0.1),
                     child: Transform.rotate(
                       angle: -1.5708,
                       child: Row(
@@ -493,8 +562,7 @@ class HomePageState extends State<HomePage> {
                         children: [
                           SmoothPageIndicator(
                             controller: _imagePageController,
-                            count: controller
-                                .userSuggestionsList[index].images.length,
+                            count: user.images.length,
                             effect: ExpandingDotsEffect(
                               dotHeight: 10,
                               dotWidth: 10,
@@ -558,17 +626,17 @@ class HomePageState extends State<HomePage> {
           ),
           SizedBox(height: 16),
           Text(
-            controller.userSuggestionsList[index].name ?? 'NA',
+            user.name ?? 'NA',
             style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
           ),
           Row(
             children: [
               Text(
-                '${controller.userSuggestionsList[index].dob != null ? DateTime.now().year - DateTime.parse(controller.userSuggestionsList[index].dob!).year : 'NA'} years old | ',
+                '${user.dob != null ? DateTime.now().year - DateTime.parse(user.dob!).year : 'NA'} years old | ',
                 style: TextStyle(fontSize: bodyFontSize),
               ),
               Text(
-                '${controller.userSuggestionsList[index].city ?? 'NA'}',
+                '${user.city ?? 'NA'}',
                 style: TextStyle(fontSize: bodyFontSize),
               ),
             ],
@@ -580,20 +648,19 @@ class HomePageState extends State<HomePage> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    matchEngine.currentItem?.nope(); // Trigger 'Nope' action
+                    matchEngine.currentItem?.nope();
                   },
                   child: Text("Nope"),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    matchEngine.currentItem
-                        ?.superLike(); // Trigger 'Superlike' action
+                    matchEngine.currentItem?.superLike();
                   },
                   child: Text("Superlike"),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    matchEngine.currentItem?.like(); // Trigger 'Like' action
+                    matchEngine.currentItem?.like();
                   },
                   child: Text("Like"),
                 ),

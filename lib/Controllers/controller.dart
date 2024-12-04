@@ -51,6 +51,7 @@ import '../Models/RequestModels/update_visibility_status_request_model.dart';
 import '../Models/RequestModels/user_profile_update_request_model.dart';
 import '../Models/RequestModels/user_registration_request_model.dart';
 import '../Models/RequestModels/usernameupdate_request_model.dart';
+import '../Models/RequestModels/verify_account_request_model.dart';
 import '../Models/ResponseModels/ProfileResponse.dart';
 import '../Models/ResponseModels/all_active_user_resposne_model.dart';
 import '../Models/ResponseModels/app_details_response_model.dart';
@@ -66,6 +67,7 @@ import '../Models/ResponseModels/get_all_country_response_model.dart';
 import '../Models/ResponseModels/get_all_desires_model_response.dart';
 import '../Models/ResponseModels/get_all_language_response_model.dart';
 import '../Models/ResponseModels/get_all_subscripted_package_model.dart';
+import '../Models/ResponseModels/get_all_verification_response_model.dart';
 import '../Models/ResponseModels/get_report_user_options_response_model.dart';
 import '../Models/ResponseModels/highlight_profile_status_response_model.dart';
 import '../Models/ResponseModels/like_history_response_model.dart';
@@ -85,6 +87,7 @@ import '../Models/ResponseModels/user_profile_update_response_model.dart';
 import '../Models/ResponseModels/user_registration_response_model.dart';
 import '../Models/ResponseModels/user_suggestions_response_model.dart';
 import '../Models/ResponseModels/usernameupdate_response_model.dart';
+import '../Models/ResponseModels/verify_account_response_model.dart';
 import '../Providers/block_user_provider.dart';
 import '../Providers/chat_message_page_provider.dart';
 import '../Providers/connected_user_provider.dart';
@@ -98,6 +101,7 @@ import '../Providers/fetch_all_language_provider.dart';
 import '../Providers/fetch_all_packages_provider.dart';
 import '../Providers/fetch_benefits_provider.dart';
 import '../Providers/fetch_sub_genders_provider.dart';
+import '../Providers/fetch_verificationtype_provider.dart';
 import '../Providers/highlight_profile_status_provider.dart';
 import '../Providers/home_page_provider.dart';
 import '../Providers/likes_history_provider.dart';
@@ -117,6 +121,7 @@ import '../Providers/updating_package_provider.dart';
 import '../Providers/user_registration_provider.dart';
 import '../Providers/user_suggestions_provider.dart';
 import '../Providers/usernameupdate_provider.dart';
+import '../Providers/verify_account_provider.dart';
 import '../Screens/login.dart';
 import '../constants.dart';
 
@@ -1068,11 +1073,15 @@ class Controller extends GetxController {
     }
   }
 
+  RxList<SuggestedUser> filteredList = <SuggestedUser>[].obs;
   RxList<SuggestedUser> userSuggestionsList = <SuggestedUser>[].obs;
-
+  RxList<SuggestedUser> userHighlightedList = <SuggestedUser>[].obs;
+  RxList<SuggestedUser> userNearByList = <SuggestedUser>[].obs;
   Future<bool> userSuggestions() async {
     try {
       userSuggestionsList.clear();
+      userHighlightedList.clear();
+      userNearByList.clear();
       UserSuggestionsResponseModel? response =
           await UserSuggestionsProvider().userSuggestions();
       if (response != null && response.payload != null) {
@@ -1085,7 +1094,7 @@ class Controller extends GetxController {
 
         if (response.payload!.locationBase != null &&
             response.payload!.locationBase!.isNotEmpty) {
-          userSuggestionsList.addAll(response.payload!.locationBase!);
+          userNearByList.addAll(response.payload!.locationBase!);
         }
 
         if (response.payload!.preferenceBase != null &&
@@ -1099,7 +1108,7 @@ class Controller extends GetxController {
         }
         if (response.payload!.highlightedAccount != null &&
             response.payload!.highlightedAccount!.isNotEmpty) {
-          userSuggestionsList.addAll(response.payload!.highlightedAccount!);
+          userHighlightedList.addAll(response.payload!.highlightedAccount!);
         }
 
         return true;
@@ -1357,6 +1366,51 @@ class Controller extends GetxController {
       }
     } catch (e) {
       failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  VerificationType verificationtype = VerificationType(
+      id: '', title: '', description: '', status: '', created: '', updated: '');
+
+  Future<bool> fetchAllverificationtype() async {
+    try {
+      GetVerificationTypeResponse? response =
+          await FetchVerificationtypeProvider().fetchAllVerificationProvider();
+      if (response != null) {
+        verificationtype = response.payload.data;
+        success('success', 'successfully fetched all the verification');
+        return true;
+      } else {
+        failure('Error', 'Failed to fetch the verification');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RequestToVerifyAccount requestToVerifyAccount =
+      RequestToVerifyAccount(identifyImage: '', identifyNo: '');
+
+  Future<bool> verifyuseraccount(
+      RequestToVerifyAccount requestToVerifyAccount) async {
+    try {
+      RequestToVerifyAccountResponse? response = await VerifyAccountProvider()
+          .verifyaccountprovider(requestToVerifyAccount);
+      if (response != null) {
+        success('success', response.payload.message);
+        Get.close(1);
+        return true;
+      } else {
+        failure('Error', 'Failed to submit the verification request');
+        Get.close(1);
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      Get.close(1);
       return false;
     }
   }
