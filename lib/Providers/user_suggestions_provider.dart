@@ -24,8 +24,8 @@ class UserSuggestionsProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
-
-      if (response.statusCode == 200) {
+      print(response.body.toString());
+      if (response.statusCode == 200 && response.body != null) {
         if (response.body['error']['code'] == 0) {
           return UserSuggestionsResponseModel.fromJson(response.body);
         } else {
