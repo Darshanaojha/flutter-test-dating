@@ -12,6 +12,7 @@ const profileUrl = "Authentication/profile";
 class AppColors {
   static const Color primaryColor = Colors.black;
  static const Color disabled =Colors.grey;
+ 
   static const Color secondaryColor = Color(0xFF1C1C1C);
   static const Color textColor = Colors.white;
   static const Color accentColor = Colors.black;

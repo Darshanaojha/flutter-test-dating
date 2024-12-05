@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_country_response_model.dart';
-import 'package:dating_application/Models/ResponseModels/get_all_desires_model_response.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
@@ -120,6 +119,7 @@ class EditProfilePageState extends State<EditProfilePage> {
         if (index != -1) {
           matchingIndexes.add(index);
           preferencesSelectedOptions[index] = true;
+               
         }
       }
       print("Matching indexes: $matchingIndexes");
@@ -505,7 +505,17 @@ class EditProfilePageState extends State<EditProfilePage> {
                                         desires: controller
                                             .userProfileUpdateRequest.desires,
                                       );
-
+                                        List<int> selectedPreferences = [];
+                                      for (int i = 0;
+                                          i < preferencesSelectedOptions.length;
+                                          i++) {
+                                        if (preferencesSelectedOptions[i]) {
+                                          selectedPreferences.add(int.parse(
+                                              controller.preferences[i].id));
+                                        }
+                                      }
+                                      controller.userProfileUpdateRequest
+                                          .preferences = selectedPreferences;
                                       emailAlerts.value == true
                                           ? controller.userProfileUpdateRequest
                                               .emailAlerts = "1"
@@ -955,6 +965,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                 value:
                                                     preferencesSelectedOptions[
                                                         index],
+                                                         
                                                 onChanged: (bool? value) {
                                                   preferencesSelectedOptions[
                                                       index] = value ?? false;

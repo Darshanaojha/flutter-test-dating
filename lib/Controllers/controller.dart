@@ -135,6 +135,9 @@ class Controller extends GetxController {
       await preferences.setString('userId', userLoginResponse.payload.userId);
       await preferences.setString('email', userLoginResponse.payload.email);
       await preferences.setString('contact', userLoginResponse.payload.contact);
+      await preferences.setString('status', userLoginResponse.payload.status);
+      await preferences.setString(
+          'package_status', userLoginResponse.payload.packagestatus);
     } catch (e) {
       failure('Error', e.toString());
     }
@@ -161,7 +164,6 @@ class Controller extends GetxController {
     imgcount: '',
     lang: [],
     photos: [],
-    packageId: '',
     emailAlerts: '',
     username: '',
     lookingFor: '',
@@ -187,7 +189,7 @@ class Controller extends GetxController {
     }
   }
 
-  Future<bool> login(dynamic userLoginRequest) async {
+  Future<UserLoginResponse?> login(dynamic userLoginRequest) async {
     try {
       final UserLoginResponse? response =
           await LoginProvider().userLogin(userLoginRequest);
@@ -196,14 +198,14 @@ class Controller extends GetxController {
         await storeUserData(response);
         success('Success', 'Login successful!');
 
-        return true;
+        return response;
       } else {
         failure('Error', 'Login failed. Please check your credentials.');
-        return false;
+        return null;
       }
     } catch (e) {
       failure('Error', e.toString());
-      return false;
+      return null;
     }
   }
 

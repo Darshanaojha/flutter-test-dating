@@ -1,4 +1,6 @@
+import 'package:dating_application/Models/ResponseModels/user_login_response_model.dart';
 import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
+import 'package:dating_application/Screens/navigationbar/unsubscribenavigation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../Controllers/controller.dart';
@@ -85,18 +87,28 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                           if (formKey.currentState!.validate()) {
                             formKey.currentState!.save();
 
-                            bool isSuccess =
+                            UserLoginResponse? response =
                                 await controller.login(loginRequest);
 
-                            if (isSuccess) {
-                              await controller.fetchProfile();
-                              await controller.fetchProfileUserPhotos();
-                              await controller.fetchAllFaq();
-                               await controller.fetchAllverificationtype();
-                               await controller.reportReason();
-                               await controller.userSuggestions();
-                               await controller.fetchAllsubscripted();
-                              Get.to(NavigationBottomBar());
+                            if (response != null) {
+                              if (response.success == true) {
+                                // String status = response.payload.status;
+                                String packagestatus = response.payload.packagestatus;
+                                if ( packagestatus=='0') {
+                                  Get.to(Unsubscribenavigation());
+                                } else if (packagestatus=='1') {
+                                 
+                                  Get.to(NavigationBottomBar());
+                                } 
+                              } else {
+                                Get.snackbar(
+                                  'Login Failed',
+                                  'Invalid credentials or network error.',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: Colors.red,
+                                  colorText: Colors.white,
+                                );
+                              }
                             }
                           }
                         },
