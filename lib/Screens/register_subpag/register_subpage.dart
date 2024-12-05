@@ -68,7 +68,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
         List<bool>.filled(controller.preferences.length, false);
   }
 
-  List<bool> stepCompletion = List.generate(14, (index) => false);
+  List<bool> stepCompletion = List.generate(13, (index) => false);
 
   void markStepAsCompleted(int step) {
     setState(() {
@@ -120,10 +120,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       case 11:
         return buildPhotosOfUser(screenSize);
       case 12:
-        return buildPaymentWidget(screenSize);
-      case 13:
         return buildSafetyGuidelinesWidget(screenSize);
-      case 14:
+      case 13:
         return buildProfileSummaryPage(screenSize);
       default:
         return buildFinalStep(screenSize);
@@ -391,13 +389,11 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       if (controller.userRegistrationRequest.nickname.isEmpty) {
                         failure('Nickname', 'Enter Your Nickname');
                       } else {
-                        // Mark the step as completed
                         markStepAsCompleted(2);
                         Get.snackbar(
                             'nickname',
                             controller.userRegistrationRequest.nickname
                                 .toString());
-                        // Move to the next page in the PageView
                         pageController.nextPage(
                           duration: Duration(milliseconds: 300),
                           curve: Curves.ease,
@@ -2192,7 +2188,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
-// step: 12
+// step: 0000000
   Widget buildPaymentWidget(Size screenSize) {
     double fontSize = screenSize.width * 0.03;
     Future<void> showPaymentConfirmationDialog(BuildContext context,
@@ -2216,42 +2212,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 color: AppColors.textColor,
               ),
             ),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text(
-                  'Cancel',
-                  style: AppTextStyles.bodyText.copyWith(
-                    color: AppColors.deniedColor,
-                    fontSize: fontSize,
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  controller.userRegistrationRequest.packageId = planId;
-
-                  markStepAsCompleted(12);
-                  Get.snackbar('payment',
-                      controller.userRegistrationRequest.packageId.toString());
-                  pageController.nextPage(
-                    duration: Duration(milliseconds: 300),
-                    curve: Curves.ease,
-                  );
-
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-                child: Text(
-                  'Subscribe',
-                  style: AppTextStyles.bodyText.copyWith(
-                    color: AppColors.acceptColor,
-                    fontSize: fontSize,
-                  ),
-                ),
-              ),
-            ],
           );
         },
       );
@@ -2289,7 +2249,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       ),
                       child: GestureDetector(
                         onTap: () async {
-                          
                           await showDialog<String>(
                             context: context,
                             builder: (BuildContext context) {
@@ -2309,8 +2268,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                           ),
                                         ),
                                         onTap: () {
-                                          Navigator.of(context)
-                                              .pop(); // Simply close the dialog without returning anything
+                                          Navigator.of(context).pop();
                                         },
                                       );
                                     }).toList(),
@@ -2321,7 +2279,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           );
                         },
                         child: AbsorbPointer(
-                          // Disable interaction with the original DropdownButton
                           child: Text(
                             "Click to know what we offer",
                             style: AppTextStyles.bodyText.copyWith(
@@ -2379,7 +2336,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
                 return GestureDetector(
                   onTap: () {
-                    // Show payment confirmation dialog when package is selected
                     showPaymentConfirmationDialog(
                       context,
                       package.unit,
@@ -2482,7 +2438,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             );
           }),
           ElevatedButton(
-            onPressed: onBackPressed, // Call the onBackPressed method
+            onPressed: onBackPressed,
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
               backgroundColor: AppColors.buttonColor,
@@ -2490,12 +2446,28 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             ),
             child: Text('Back', style: AppTextStyles.buttonText),
           ),
+          ElevatedButton(
+            onPressed: () {
+              markStepAsCompleted(12);
+
+              pageController.nextPage(
+                duration: Duration(milliseconds: 300),
+                curve: Curves.ease,
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+              backgroundColor: AppColors.buttonColor,
+              foregroundColor: AppColors.textColor,
+            ),
+            child: Text('Skip', style: AppTextStyles.buttonText),
+          ),
         ],
       ),
     );
   }
 
-// step 13
+// step 12
   Widget buildSafetyGuidelinesWidget(Size screenSize) {
     double fontSize = screenSize.width * 0.03;
     final controller = Get.find<Controller>();
@@ -2616,7 +2588,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           // Acknowledge Button
           ElevatedButton(
             onPressed: () {
-              markStepAsCompleted(13);
+              markStepAsCompleted(12);
 
               // Move to the next page in the PageView
               pageController.nextPage(
@@ -2650,7 +2622,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
-// step 14
+// step 13
   Widget buildProfileSummaryPage(Size screenSize) {
     double fontSize = screenSize.width * 0.03;
     final controller =
@@ -2861,7 +2833,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      "You are subscribed to the ${profile.packageId} Plan (${profile.packageId} INR).", // Dynamically showing subscription plan
+                      "You are subscribed to the ${''} Plan (${''} INR).",
                       style: AppTextStyles.bodyText.copyWith(
                         fontSize: fontSize - 2,
                         color: AppColors.textColor,
@@ -3004,7 +2976,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
   void nextStep() {
-    if (currentPage < 14) {
+    if (currentPage < 13) {
       markStepAsCompleted(currentPage);
       pageController.nextPage(
         duration: Duration(milliseconds: 300),

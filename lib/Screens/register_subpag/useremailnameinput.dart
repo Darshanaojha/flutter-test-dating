@@ -25,17 +25,25 @@ class UserInputPageState extends State<UserInputPage> {
 
   String? validateName(String? value) {
     if (value == null || value.isEmpty) {
+      failure('Name','Please enter your name' );
       return 'Please enter your name';
+    }
+    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
+      failure('RE-Enter','Name must contain only alphabets');
+      return 'Name must contain only alphabets';
     }
     return null;
   }
 
   String? validateGmail(String? value) {
     if (value == null || value.isEmpty) {
+      failure('Email','Please enter your email' );
       return 'Please enter your email';
     }
 
-    String pattern = r'^[a-zA-Z0-9._%+-]+@gmail\.com$';
+    // String pattern = r'^[a-zA-Z0-9._%+-]+@gmail\.com$';
+    String pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
+
     RegExp regExp = RegExp(pattern);
 
     if (!regExp.hasMatch(value)) {

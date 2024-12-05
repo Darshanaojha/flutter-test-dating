@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Screens/login.dart';
 import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
+import 'package:dating_application/Screens/navigationbar/unsubscribenavigation.dart';
 import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
@@ -58,6 +59,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
           EncryptedSharedPreferences.getInstance();
 
       String? token = preferences.getString('token');
+      String? packageStatus = preferences.getString('package_status');
 
       if (token == null || token.isEmpty) {
         Get.offAll(() => Login());
@@ -69,7 +71,14 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
         await controller.fetchAllFaq();
         await controller.userSuggestions();
         await controller.fetchAllsubscripted();
-        Get.offAll(() => NavigationBottomBar());
+
+        if (packageStatus != null && packageStatus.isNotEmpty) {
+          if (packageStatus == "1") {
+            Get.offAll(() => NavigationBottomBar());
+          } else {
+            Get.offAll(() => Unsubscribenavigation());
+          }
+        }
       }
     } catch (e) {
       failure("Error", e.toString());

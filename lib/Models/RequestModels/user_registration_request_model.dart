@@ -1,30 +1,29 @@
-import '../../constants.dart';  
+import '../../constants.dart';
 
 class UserRegistrationRequest {
-   String name;
-   String email;
-   String mobile;
-   String latitude;
-   String longitude;
-   String address;
-   String password;
-   String countryId;
-   String city;
-   String dob;
-   String nickname;
-   String gender;
-   String subGender;
-   List<int> preferences;
-   List<int> desires;
-   String interest;
-   List<int> lang;
-   String bio;
-   List<String> photos;
-   String packageId;
-   String imgcount;
-   String emailAlerts;
-   String username;
-   String lookingFor;
+  String name;
+  String email;
+  String mobile;
+  String latitude;
+  String longitude;
+  String address;
+  String password;
+  String countryId;
+  String city;
+  String dob;
+  String nickname;
+  String gender;
+  String subGender;
+  List<int> preferences;
+  List<int> desires;
+  String interest;
+  List<int> lang;
+  String bio;
+  List<String> photos;
+  String imgcount;
+  String emailAlerts;
+  String username;
+  String lookingFor;
 
   UserRegistrationRequest({
     required this.name,
@@ -46,7 +45,6 @@ class UserRegistrationRequest {
     required this.interest,
     required this.bio,
     required this.photos,
-    required this.packageId,
     required this.imgcount,
     required this.emailAlerts,
     required this.username,
@@ -68,14 +66,13 @@ class UserRegistrationRequest {
       nickname: json['nickname'],
       gender: json['gender'],
       subGender: json['sub_gender'],
-      preferences: List<int>.from(json['preferences'] ?? []), 
-      desires: List<int>.from(json['desires'] ?? []), 
+      preferences: List<int>.from(json['preferences'] ?? []),
+      desires: List<int>.from(json['desires'] ?? []),
       interest: json['interest'],
       bio: json['bio'],
-      imgcount:json['img_count'],
+      imgcount: json['img_count'],
       lang: List<int>.from(json['lang']),
       photos: List<String>.from(json['photos'] ?? []),
-      packageId: json['package_id'],
       emailAlerts: json['email_alerts'],
       username: json['username'],
       lookingFor: json['looking_for'],
@@ -97,14 +94,13 @@ class UserRegistrationRequest {
       'nickname': nickname,
       'gender': gender,
       'sub_gender': subGender,
-      'preferences': preferences,  
-      'desires': desires,  
+      'preferences': preferences,
+      'desires': desires,
       'interest': interest,
       'bio': bio,
-      'lang':lang,
-      'img_count':imgcount,
-      'photos': photos, 
-      'package_id': packageId,
+      'lang': lang,
+      'img_count': imgcount,
+      'photos': photos,
       'email_alerts': emailAlerts,
       'username': username,
       'looking_for': lookingFor,
@@ -117,31 +113,29 @@ class UserRegistrationRequest {
     }
   }
 
-
-void validateEmail(String email) {
-  if (email.isEmpty) {
-    throw ArgumentError("Email cannot be empty.");
+  void validateEmail(String email) {
+    if (email.isEmpty) {
+      throw ArgumentError("Email cannot be empty.");
+    }
+    final emailPattern =
+        RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    if (!emailPattern.hasMatch(email)) {
+      throw FormatException("Invalid email format for field: Email.");
+    }
   }
-  final emailPattern = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-  if (!emailPattern.hasMatch(email)) {
-    throw FormatException("Invalid email format for field: Email.");
-  }
-}
-
-
 
   void validatePassword(String password) {
     if (password.length < 8) {
       throw ArgumentError("Password must be at least 8 characters long.");
     }
-  
+
     final hasDigit = RegExp(r'[0-9]').hasMatch(password);
     final hasSpecialChar = RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password);
     if (!hasDigit || !hasSpecialChar) {
-      throw ArgumentError("Password must contain at least one digit and one special character.");
+      throw ArgumentError(
+          "Password must contain at least one digit and one special character.");
     }
   }
-
 
   void validateCoordinate(String coordinate, String fieldName) {
     final doubleValue = double.tryParse(coordinate);
@@ -153,7 +147,8 @@ void validateEmail(String email) {
   void validateDateFormat(String date) {
     final datePattern = RegExp(r'^\d{4}-\d{2}-\d{2}$');
     if (!datePattern.hasMatch(date)) {
-      throw ArgumentError("Date of birth must be in the format YYYY-MM-DD for field: Date of Birth.");
+      throw ArgumentError(
+          "Date of birth must be in the format YYYY-MM-DD for field: Date of Birth.");
     }
   }
 
@@ -165,11 +160,11 @@ void validateEmail(String email) {
     }
   }
 
-
   void validateGender(String gender, String fieldName) {
     final validGenders = ['Male', 'Female', 'Other'];
     if (!validGenders.contains(gender)) {
-      throw ArgumentError("Invalid value for $fieldName. Valid options are: Male, Female, Other.");
+      throw ArgumentError(
+          "Invalid value for $fieldName. Valid options are: Male, Female, Other.");
     }
   }
 
@@ -186,14 +181,14 @@ void validateEmail(String email) {
     if (photos.isEmpty) {
       throw ArgumentError("Photos list cannot be empty for field: Photos.");
     }
-    final urlPattern = RegExp(r'^(http|https):\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}\/[^\s]*$');
+    final urlPattern =
+        RegExp(r'^(http|https):\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}\/[^\s]*$');
     for (var photo in photos) {
       if (!urlPattern.hasMatch(photo)) {
         throw ArgumentError("Invalid photo URL for field: $photo.");
       }
     }
   }
-
 
   void validate() {
     try {
@@ -212,10 +207,10 @@ void validateEmail(String email) {
       validateCoordinate(latitude, "Latitude");
       validateCoordinate(longitude, "Longitude");
       validateDateFormat(dob);
-      validateAge(dob); 
+      validateAge(dob);
       validateGender(gender, "Gender");
       validateGender(subGender, "Sub-Gender");
-      validateList(lang,"Language");
+      validateList(lang, "Language");
       validateList(preferences, "Preferences");
       validateList(desires, "Desires");
       validatePhotos(photos);

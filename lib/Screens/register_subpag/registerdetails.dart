@@ -5,6 +5,7 @@ import 'package:dating_application/Models/ResponseModels/get_all_country_respons
 import 'package:dating_application/Screens/register_subpag/register_subpage.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
@@ -23,12 +24,12 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
   List<String> states = ["Maharashtra", "California", "London"];
   String? selectedState;
   RxBool isLatLongFetched = false.obs;
+  bool obscurePassword = true;
 
   late AnimationController animationController;
   late Animation<double> fadeInAnimation;
 
   Country? selectedCountry;
-
   final controller = Get.find<Controller>();
   TextEditingController confirmPassword = TextEditingController();
   Timer? debounce;
@@ -130,20 +131,22 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                     key: formKey,
                     child: Column(
                       children: [
-                        buildTextField(
+                        buildTextFieldNameEmail(
                           "Name",
                           controller.userRegistrationRequest.name.isNotEmpty
                               ? controller.userRegistrationRequest.name
                               : null, // Pass null if empty
                           (value) {
                             controller.userRegistrationRequest.name = value;
-                          },(value){
+                          },
+                          (value) {
                             controller.userRegistrationRequest.name = value;
                           },
                           fontSize,
+                          enabled: false,
                         ),
 
-                        buildTextField(
+                        buildTextFieldNameEmail(
                           "Email",
                           controller.userRegistrationRequest.email.isNotEmpty
                               ? controller.userRegistrationRequest.email
@@ -151,25 +154,26 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           (value) {
                             controller.userRegistrationRequest.email = value;
                           },
-                          (value){
+                          (value) {
                             controller.userRegistrationRequest.email = value;
                           },
                           fontSize,
+                          enabled: false,
                         ),
-                        buildTextField("UserName",null, (value) {
+                        buildTextField("UserName", null, (value) {
                           controller.userRegistrationRequest.username = value;
-                        },(value){
-                            controller.userRegistrationRequest.username = value;
-                          }, fontSize),
+                        }, (value) {
+                          controller.userRegistrationRequest.username = value;
+                        }, fontSize),
 
                         // Mobile Field
-                        buildTextField("Mobile",null, (value) {
+                        buildTextField("Mobile", null, (value) {
                           controller.userRegistrationRequest.mobile = value;
-                        },(value){
-                            controller.userRegistrationRequest.mobile = value;
-                          }, fontSize),
+                        }, (value) {
+                          controller.userRegistrationRequest.mobile = value;
+                        }, fontSize, isMobileField: true),
 
-                        buildTextField("Address", null,(value) {
+                        buildTextField("Address", null, (value) {
                           controller.userRegistrationRequest.address = value;
 
                           if (debounce?.isActive ?? false) {
@@ -179,23 +183,30 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           debounce = Timer(Duration(milliseconds: 1000), () {
                             fetchLatLong();
                           });
-                        },(value){
-                            controller.userRegistrationRequest.address = value;
-                          },  fontSize),
+                        }, (value) {
+                          controller.userRegistrationRequest.address = value;
+                        }, fontSize),
 
                         // Password Field
-                        buildTextField("Password",null, (value) {
-                          controller.userRegistrationRequest.password = value;
-                        },(value){
+                        buildTextField(
+                          "Password",
+                          null,
+                          (value) {
                             controller.userRegistrationRequest.password = value;
-                          },fontSize, obscureText: true),
+                          },
+                          (value) {
+                            controller.userRegistrationRequest.password = value;
+                          },
+                          fontSize,
+                          obscureText: true,
+                        ),
 
                         // Confirm Password Field
-                        buildTextField("Confirm Password", null,(value) {
+                        buildTextField("Confirm Password", null, (value) {
                           confirmPassword.text = value;
-                        },(value){
-                            confirmPassword.text=value;
-                          }, fontSize, obscureText: true),
+                        }, (value) {
+                          confirmPassword.text = value;
+                        }, fontSize, obscureText: true),
 
                         // Country Dropdown
                         Obx(() {
@@ -217,17 +228,23 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                               controller.userRegistrationRequest.countryId =
                                   value?.id ?? '';
                             },
-                            displayValue: (Country country) =>
-                                country.name, 
+                            displayValue: (Country country) => country.name,
                           );
                         }),
 
                         // City Field
-                        buildTextField("City",null, (value) {
-                          controller.userRegistrationRequest.city = value;
-                        }, (value){
+                        buildTextField(
+                          "City",
+                          null,
+                          (value) {
                             controller.userRegistrationRequest.city = value;
-                          }, fontSize),
+                          },
+                          (value) {
+                            controller.userRegistrationRequest.city = value;
+                          },
+                          fontSize,
+                          isCityField: true,
+                        ),
                         Obx(() {
                           if (isLatLongFetched.value) {
                             return Column(
@@ -263,17 +280,46 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                               success(
                                   'Success', 'Form submitted successfully!');
                             }
-                            Get.snackbar('name', controller.userRegistrationRequest.name.toString());
-                            Get.snackbar('email', controller.userRegistrationRequest.email.toString());
-                               Get.snackbar('email', controller.userRegistrationRequest.username.toString());
-                            Get.snackbar('mobile', controller.userRegistrationRequest.mobile.toString());
-                            Get.snackbar('address', controller.userRegistrationRequest.address.toString());
-                            Get.snackbar('password', controller.userRegistrationRequest.password.toString());
-                            Get.snackbar('country', controller.userRegistrationRequest.countryId.toString());
-                            Get.snackbar('city', controller.userRegistrationRequest.city.toString());
-                            Get.snackbar('latitude', controller.userRegistrationRequest.latitude.toString());
-                            Get.snackbar('longitude', controller.userRegistrationRequest.longitude.toString());
-                           
+                            Get.snackbar(
+                                'name',
+                                controller.userRegistrationRequest.name
+                                    .toString());
+                            Get.snackbar(
+                                'email',
+                                controller.userRegistrationRequest.email
+                                    .toString());
+                            Get.snackbar(
+                                'email',
+                                controller.userRegistrationRequest.username
+                                    .toString());
+                            Get.snackbar(
+                                'mobile',
+                                controller.userRegistrationRequest.mobile
+                                    .toString());
+                            Get.snackbar(
+                                'address',
+                                controller.userRegistrationRequest.address
+                                    .toString());
+                            Get.snackbar(
+                                'password',
+                                controller.userRegistrationRequest.password
+                                    .toString());
+                            Get.snackbar(
+                                'country',
+                                controller.userRegistrationRequest.countryId
+                                    .toString());
+                            Get.snackbar(
+                                'city',
+                                controller.userRegistrationRequest.city
+                                    .toString());
+                            Get.snackbar(
+                                'latitude',
+                                controller.userRegistrationRequest.latitude
+                                    .toString());
+                            Get.snackbar(
+                                'longitude',
+                                controller.userRegistrationRequest.longitude
+                                    .toString());
                           },
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.symmetric(
@@ -297,7 +343,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     );
   }
 
-  Widget buildTextField(
+  Widget buildTextFieldNameEmail(
     String label,
     String? initialValue,
     onChanged,
@@ -311,9 +357,82 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
       child: TextFormField(
         obscureText: obscureText,
         enabled: enabled,
+        readOnly: true,
         validator: (value) {
           if (value == null || value.isEmpty) {
             return '$label is required';
+          }
+          return null;
+        },
+        style: AppTextStyles.inputFieldText.copyWith(
+          fontSize: fontSize,
+          color: enabled ? AppColors.disabled : AppColors.disabled,
+        ),
+        cursorColor: enabled ? AppColors.disabled : Colors.grey,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: AppTextStyles.labelText.copyWith(
+            fontSize: fontSize,
+            color: enabled ? AppColors.primaryColor : Colors.grey,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+                color: enabled ? AppColors.primaryColor : Colors.grey),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+                color: enabled ? AppColors.primaryColor : Colors.grey),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+                color: enabled ? AppColors.primaryColor : Colors.grey),
+          ),
+          fillColor:
+              enabled ? AppColors.formFieldColor : AppColors.primaryColor,
+          filled: true,
+        ),
+        initialValue: initialValue,
+        onChanged: enabled ? onChanged : null,
+        onSaved: onSaved,
+      ),
+    );
+  }
+
+  Widget buildTextField(
+    String label,
+    String? initialValue,
+    onChanged,
+    onSaved,
+    double fontSize, {
+    bool obscureText = false,
+    bool enabled = true,
+    bool isCityField = false,
+    bool isMobileField = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        obscureText: obscureText,
+        enabled: enabled,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return '$label is required';
+          }
+          if (isCityField && !RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
+            failure('City', 'City name must only contain letters');
+            return 'City name must only contain letters';
+          }
+          if (isMobileField) {
+            if (!RegExp(r'^\d+$').hasMatch(value)) {
+              failure('Mobile', 'Mobile number must only contain digits');
+              return 'Mobile number must only contain digits';
+            }
+            if (value.length != 10) {
+              return 'Mobile number must be exactly 10 digits';
+            }
           }
           return null;
         },
@@ -338,9 +457,14 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           fillColor: AppColors.formFieldColor,
           filled: true,
         ),
+
         initialValue: initialValue,
         onChanged: onChanged,
         onSaved: onSaved,
+        inputFormatters: [
+          if (isMobileField) FilteringTextInputFormatter.digitsOnly,
+        ],
+        maxLength: isMobileField ? 10 : null,
       ),
     );
   }

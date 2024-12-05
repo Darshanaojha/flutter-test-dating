@@ -30,31 +30,37 @@ class UserLoginPayload {
   final String userId;
   final String email;
   final String contact;
+  final String status;
+  final String packagestatus;
   final String token;
 
   UserLoginPayload({
     required this.userId,
     required this.email,
     required this.contact,
+    required this.status,
+    required this.packagestatus,
     required this.token,
   });
-
 
   factory UserLoginPayload.fromJson(Map<String, dynamic> json) {
     return UserLoginPayload(
       userId: json['userId'] ?? '',
       email: json['email'] ?? '',
       contact: json['contact'] ?? '',
+      status: json['status'] ?? '',
+      packagestatus: json['package_status'],
       token: json['token'] ?? '',
     );
   }
-
 
   Map<String, dynamic> toJson() {
     return {
       'userId': userId,
       'email': email,
       'contact': contact,
+      'status': status,
+      'package_status': packagestatus,
       'token': token,
     };
   }
@@ -73,7 +79,8 @@ class ApiError {
   factory ApiError.fromJson(Map<String, dynamic> json) {
     return ApiError(
       code: json['code'],
-      message: json['message'] ?? '', // Default to an empty string if message is null
+      message: json['message'] ??
+          '', // Default to an empty string if message is null
     );
   }
 

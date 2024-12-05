@@ -29,7 +29,6 @@ class UserRegistrationProvider extends GetConnect {
   print('imgcount: ${userRegistrationRequest.imgcount}');
   print('lang: ${userRegistrationRequest.lang}');
   print('photos: ${userRegistrationRequest.photos}');
-  print('packageId: ${userRegistrationRequest.packageId}');
   print('emailAlerts: ${userRegistrationRequest.emailAlerts}');
   print('username: ${userRegistrationRequest.username}');
   print('lookingFor: ${userRegistrationRequest.lookingFor}');

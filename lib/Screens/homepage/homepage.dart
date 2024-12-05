@@ -10,6 +10,8 @@ import 'package:swipe_cards/draggable_card.dart';
 import 'package:swipe_cards/swipe_cards.dart';
 
 import '../../constants.dart';
+import '../navigationbar/unsubscribenavigation.dart';
+import 'unsubscribeuser.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -363,6 +365,13 @@ class HomePageState extends State<HomePage> {
                                 Get.to(MySwipePage());
                               },
                               child: Text('Demo'),
+                            ),
+                             ElevatedButton(
+                              onPressed: () {
+                                    controller.fetchProfileUserPhotos();
+                                Get.to(Unsubscribenavigation());
+                              },
+                              child: Text('unsubscribe'),
                             ),
                           ],
                         ),
