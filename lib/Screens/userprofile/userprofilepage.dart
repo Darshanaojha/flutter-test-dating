@@ -6,7 +6,7 @@ import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../Controllers/controller.dart';
@@ -36,25 +36,13 @@ class UserProfilePageState extends State<UserProfilePage> {
   @override
   void initState() {
     super.initState();
-    initialize();
   }
 
-  initialize() async {
-    await controller.fetchAllsubscripted();
-    await controller.fetchProfile();
-  }
-
-  int calculateAge(String dob) {
-    DateTime birthDate = DateTime.parse(dob);
-    DateTime now = DateTime.now();
-
-    int age = now.year - birthDate.year;
-    if (now.month < birthDate.month ||
-        (now.month == birthDate.month && now.day < birthDate.day)) {
-      age--;
-    }
-
-    return age;
+  Future<bool> initializeData() async {
+    if (!await controller.fetchProfileUserPhotos()) return false;
+    if (!await controller.fetchAllsubscripted()) return false;
+    if (!await controller.fetchProfile()) return false;
+    return true;
   }
 
   @override
@@ -64,7 +52,7 @@ class UserProfilePageState extends State<UserProfilePage> {
       body: Stack(
         children: [
           FutureBuilder(
-              future: controller.fetchProfileUserPhotos(),
+              future: initializeData(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
@@ -83,16 +71,24 @@ class UserProfilePageState extends State<UserProfilePage> {
                   );
                 }
 
+                if (!snapshot.hasData ||
+                    controller.userPhotos == null ||
+                    controller.userPhotos!.images.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No photos available.',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  );
+                }
                 return SingleChildScrollView(
                   child: Column(
                     children: [
-                      // User Photos (Horizontal Scrolling)
                       SizedBox(
                         height: 200,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          itemCount: controller
-                              .userPhotos!.images.length, //userPhotos.length,
+                          itemCount: controller.userPhotos?.images.length ?? 0,
                           itemBuilder: (context, index) {
                             return Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -102,7 +98,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(15),
                                   child: Image.network(
-                                    controller.userPhotos!.images[index],
+                                    controller.userPhotos?.images[index] ?? '',
                                     fit: BoxFit.cover,
                                     width: 150,
                                     height: 200,
@@ -113,21 +109,20 @@ class UserProfilePageState extends State<UserProfilePage> {
                           },
                         ),
                       ),
-
-                      // Title and Pencil Icon
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            // Display username and hint text
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  controller.userData.isNotEmpty
-                                      ? controller.userData.first.username
-                                      : 'NA',
+                                  controller.usernameUpdateRequest.username
+                                          .isNotEmpty
+                                      ? controller
+                                          .usernameUpdateRequest.username
+                                      : controller.userData.first.username,
                                   style: AppTextStyles.titleText.copyWith(
                                     fontSize: getResponsiveFontSize(0.03),
                                   ),
@@ -142,13 +137,10 @@ class UserProfilePageState extends State<UserProfilePage> {
                                 ),
                               ],
                             ),
-
-                            // Pencil icon button to open dialog for username editing
                             IconButton(
                               icon: Icon(Icons.edit,
                                   size: 30, color: Colors.blue),
                               onPressed: () {
-                                // Open a dialog when the pencil icon is pressed
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
@@ -167,7 +159,6 @@ class UserProfilePageState extends State<UserProfilePage> {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              // TextField for username editing
                                               TextField(
                                                 cursorColor:
                                                     AppColors.cursorColor,
@@ -184,7 +175,6 @@ class UserProfilePageState extends State<UserProfilePage> {
                                                           .first.username,
                                                 ),
                                                 onChanged: (value) {
-                                                  // Update the username request on text change
                                                   controller
                                                       .usernameUpdateRequest
                                                       .username = value;
@@ -214,7 +204,6 @@ class UserProfilePageState extends State<UserProfilePage> {
                                         ),
                                       ),
                                       actions: <Widget>[
-                                        // Cancel button to close the dialog without saving
                                         TextButton(
                                           style: TextButton.styleFrom(
                                             foregroundColor:
@@ -223,8 +212,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                                                 AppColors.inactiveColor,
                                           ),
                                           onPressed: () {
-                                            Navigator.of(context)
-                                                .pop(); // Close the dialog
+                                            Navigator.of(context).pop();
                                           },
                                           child: Text('Cancel',
                                               style: AppTextStyles.buttonText
@@ -233,7 +221,6 @@ class UserProfilePageState extends State<UserProfilePage> {
                                                           getResponsiveFontSize(
                                                               0.03))),
                                         ),
-                                        // Save button to update the username
                                         ElevatedButton(
                                           style: TextButton.styleFrom(
                                             foregroundColor:
@@ -273,15 +260,14 @@ class UserProfilePageState extends State<UserProfilePage> {
                           ],
                         ),
                       ),
-
-                      // User Info: Age & Gender
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Row(
                           children: [
                             Text(
                               controller.userData.isNotEmpty
-                                  ? '${calculateAge(controller.userData.first.dob)} years old | ${controller.userData.first.gender}'
+                                  ? '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userData.first.dob).year} '
+                                      ' years old | ${controller.userData.first.gender}'
                                   : 'NA',
                               style: AppTextStyles.labelText.copyWith(
                                   fontSize: getResponsiveFontSize(0.03)),
@@ -289,17 +275,14 @@ class UserProfilePageState extends State<UserProfilePage> {
                           ],
                         ),
                       ),
-                      // Verification Status Card
                       Card(
                         elevation: 5,
                         color: controller.userData.isNotEmpty &&
                                 controller.userData.first
                                         .accountVerificationStatus ==
                                     '1'
-                            ? Colors.green[
-                                50] // Light green background for verified account
-                            : Colors.red[
-                                50], // Light red background for unverified account
+                            ? Colors.green[50]
+                            : Colors.red[50],
                         child: InkWell(
                           onTap: () {
                             showVerificationDialog(context);
@@ -318,10 +301,8 @@ class UserProfilePageState extends State<UserProfilePage> {
                                             controller.userData.first
                                                     .accountVerificationStatus ==
                                                 '1'
-                                        ? Colors
-                                            .green // Green text for verified account
-                                        : Colors
-                                            .red, // Red text for unverified account
+                                        ? Colors.green
+                                        : Colors.red,
                                   ),
                                 ),
                                 controller.userData.isNotEmpty &&
@@ -337,8 +318,6 @@ class UserProfilePageState extends State<UserProfilePage> {
                           ),
                         ),
                       ),
-
-                      // Profile Completion Card
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Card(
@@ -362,11 +341,10 @@ class UserProfilePageState extends State<UserProfilePage> {
                           ),
                         ),
                       ),
-
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Card(
-                          color: Colors.orange, // Set the color to orange
+                          color: Colors.orange,
                           elevation: 5,
                           child: InkWell(
                             onTap: () {
@@ -395,11 +373,10 @@ class UserProfilePageState extends State<UserProfilePage> {
                           ),
                         ),
                       ),
-
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Card(
-                          color: Colors.orange, // Set the color to orange
+                          color: Colors.orange,
                           elevation: 5,
                           child: InkWell(
                             onTap: showMessageBottomSheet,
@@ -426,16 +403,15 @@ class UserProfilePageState extends State<UserProfilePage> {
                           ),
                         ),
                       ),
-                      // Uplift Profile Card (orange color)
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Card(
-                          color: Colors.orange, // Set the color to orange
+                          color: Colors.orange,
                           elevation: 5,
                           child: InkWell(
                             onTap: () {
                               showUpgradeBottomSheet(context);
-                            }, // Call the showUpgradeBottomSheet function
+                            },
                             child: Container(
                               padding: EdgeInsets.all(16),
                               width: double.infinity,
@@ -443,14 +419,11 @@ class UserProfilePageState extends State<UserProfilePage> {
                               child: Row(
                                 children: [
                                   Icon(
-                                    Icons
-                                        .upload, // You can change this icon to any other icon
+                                    Icons.upload,
                                     size: 30,
                                     color: Colors.white,
                                   ),
-                                  SizedBox(
-                                      width:
-                                          66), // Add spacing between the icon and the text
+                                  SizedBox(width: 66),
                                   Text(
                                     'Uplift Profile',
                                     style: AppTextStyles.titleText.copyWith(
@@ -462,12 +435,10 @@ class UserProfilePageState extends State<UserProfilePage> {
                           ),
                         ),
                       ),
-                      // Example usage in your UserProfilePage
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           children: [
-                            // My Constellation Card
                             SettingCard(
                               title: 'My Constellation',
                               subtitle: 'Add partners to your constellation',
@@ -476,8 +447,6 @@ class UserProfilePageState extends State<UserProfilePage> {
                                 Get.to(AddPartnerPage());
                               },
                             ),
-
-                            // Edit Profile Card
                             SettingCard(
                               title: 'Edit Profile',
                               subtitle: 'Edit your profile details',
@@ -492,8 +461,6 @@ class UserProfilePageState extends State<UserProfilePage> {
                                 }
                               },
                             ),
-
-                            // Other settings cards
                             SettingCard(
                               title: 'Search Settings',
                               subtitle: 'Customize your search settings',
@@ -502,7 +469,6 @@ class UserProfilePageState extends State<UserProfilePage> {
                                 Get.to(ShareProfilePage(
                                   id: '1',
                                 ));
-                                // Navigate or show settings action
                               },
                             ),
                             SettingCard(
@@ -534,7 +500,6 @@ class UserProfilePageState extends State<UserProfilePage> {
                                 subtitle: 'helpline',
                                 icon: Icons.help,
                                 onTap: () {
-                                  // Get.to(AppInfoPage());
                                   showHelpBottomSheet(context);
                                 }),
                           ],
@@ -556,11 +521,11 @@ class UserProfilePageState extends State<UserProfilePage> {
         return Dialog(
           backgroundColor: Colors.black.withOpacity(0.9),
           child: GestureDetector(
-            onTap: () => Navigator.of(context).pop(), // Close dialog on tap
+            onTap: () => Navigator.of(context).pop(),
             child: Center(
               child: Image.network(
                 imagePath,
-                fit: BoxFit.contain, // Adjust the image size to fit
+                fit: BoxFit.contain,
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
               ),
@@ -580,24 +545,20 @@ class UserProfilePageState extends State<UserProfilePage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // App Info
               ListTile(
                 leading: Icon(Icons.info_outline),
                 title: Text('App Info'),
                 trailing: Icon(Icons.arrow_forward),
                 onTap: () {
-                  // Navigate to AppInfoPage
                   Get.to(AppInfoPage());
                 },
               ),
               Divider(),
-              // FAQ
               ListTile(
                 leading: Icon(Icons.help_outline),
                 title: Text('FAQs'),
                 trailing: Icon(Icons.arrow_forward),
                 onTap: () {
-                  // Navigate to FAQ Page
                   Get.to(FaqPage());
                 },
               ),
@@ -608,7 +569,6 @@ class UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
-  // Card widget for feature sections like Membership, Pings, etc.
   Widget buildFeatureCard(String title, IconData icon, VoidCallback onTap) {
     return Card(
       elevation: 5,
@@ -632,7 +592,6 @@ class UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
-  // General Card for Settings Sections (My Constellation, Edit Profile, etc.)
   Widget buildSettingCard(
       String title, String subtitle, IconData icon, VoidCallback onTap) {
     return Padding(
@@ -649,13 +608,10 @@ class UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
-  // Helper function for settings items like Magazine, Help, etc.
   Widget buildSettingItem(String title) {
     return ListTile(
       title: Text(title),
-      onTap: () {
-        // Handle item tap (navigate or show actions)
-      },
+      onTap: () {},
     );
   }
 
@@ -663,16 +619,14 @@ class UserProfilePageState extends State<UserProfilePage> {
     showModalBottomSheet(
       context: context,
       builder: (context) {
-        // Get screen width for responsive design
         double screenWidth = MediaQuery.of(context).size.width;
 
         return Padding(
           padding: const EdgeInsets.all(16.0),
           child: Wrap(
             children: [
-              // Create a container with a width equal to the screen width, but with some margin for responsiveness
               SizedBox(
-                width: screenWidth - 32, // Margin of 16 on both sides
+                width: screenWidth - 32,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -684,23 +638,16 @@ class UserProfilePageState extends State<UserProfilePage> {
                       ),
                     ),
                     SizedBox(height: 16),
-
-                    // Share Button - Make button expand to full width
                     SizedBox(
-                      width: double
-                          .infinity, // Make the button take the full width
+                      width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pop(context); // Dismiss bottom sheet
-
-                          // Share the user profile
+                          Navigator.pop(context);
                           shareUserProfile();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors
-                              .activeColor, // Button color from AppColors
-                          padding: EdgeInsets.symmetric(
-                              vertical: 16), // Make button tall (height)
+                          backgroundColor: AppColors.activeColor,
+                          padding: EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -710,26 +657,21 @@ class UserProfilePageState extends State<UserProfilePage> {
                           style: AppTextStyles.buttonText.copyWith(
                             fontSize: getResponsiveFontSize(0.03),
                             fontWeight: FontWeight.w500,
-                            color: AppColors.textColor, // Button text color
+                            color: AppColors.textColor,
                           ),
                         ),
                       ),
                     ),
                     SizedBox(height: 16),
-
-                    // Cancel Button - Make button expand to full width
                     SizedBox(
-                      width: double
-                          .infinity, // Make the button take the full width
+                      width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pop(context); // Dismiss bottom sheet
+                          Navigator.pop(context);
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              AppColors.inactiveColor, // Cancel button color
-                          padding: EdgeInsets.symmetric(
-                              vertical: 16), // Make button tall (height)
+                          backgroundColor: AppColors.inactiveColor,
+                          padding: EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -739,7 +681,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                           style: AppTextStyles.buttonText.copyWith(
                             fontSize: getResponsiveFontSize(0.03),
                             fontWeight: FontWeight.w500,
-                            color: AppColors.textColor, // Button text color
+                            color: AppColors.textColor,
                           ),
                         ),
                       ),
@@ -751,8 +693,7 @@ class UserProfilePageState extends State<UserProfilePage> {
           ),
         );
       },
-      isScrollControlled:
-          true,
+      isScrollControlled: true,
     );
   }
 
@@ -774,7 +715,7 @@ class UserProfilePageState extends State<UserProfilePage> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close dialog
+                Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.inactiveColor,
@@ -806,14 +747,10 @@ class UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
-// Function to share the user profile
   void shareUserProfile() {
-    final String profileUrl =
-        'https://example.com/user-profile'; // Replace with the actual profile URL or content
+    final String profileUrl = 'https://example.com/user-profile';
     final String profileDetails =
         "Check out this profile:\nJohn Doe\nAge: 25\nGender: Male\n$profileUrl";
-
-    // Use share_plus to share the profile link or details to other apps
     Share.share(profileDetails);
   }
 }
@@ -852,18 +789,7 @@ Future<void> showMessageBottomSheet() async {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                // if (_pingController.text.isNotEmpty) {
-                //   setState(() {
-                //     _pingCount--;
-                //   });
-                //   _pingController.clear();
-                //   Get.back();
-                //   ScaffoldMessenger.of(context).showSnackBar(
-                //     SnackBar(content: Text('Ping sent!')),
-                //   );
-                // }
-              },
+              onPressed: () {},
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.buttonColor,
               ),
@@ -890,20 +816,18 @@ Future<void> showUpgradeBottomSheet(BuildContext context) async {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Title of the Bottom Sheet
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
                 'Found Uplift',
                 style: AppTextStyles.titleText.copyWith(
                   fontSize: screenWidth * 0.04,
-                  color: Colors.white, // Set text color to white for contrast
+                  color: Colors.white,
                 ),
                 textAlign: TextAlign.center,
               ),
             ),
             SizedBox(height: 10),
-            // Subtitle with additional information
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
@@ -911,14 +835,12 @@ Future<void> showUpgradeBottomSheet(BuildContext context) async {
                 'and you can access earlier with premium benefits.',
                 style: AppTextStyles.bodyText.copyWith(
                   fontSize: screenWidth * 0.04,
-                  color: Colors.white, // Set text color to white for contrast
+                  color: Colors.white,
                 ),
                 textAlign: TextAlign.center,
               ),
             ),
             SizedBox(height: 20),
-
-            // Orange Card with Icon, Text, and Discount Label
             Stack(
               children: [
                 // The Orange Card
@@ -927,59 +849,52 @@ Future<void> showUpgradeBottomSheet(BuildContext context) async {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  color: Colors.orange, // Set card background color to orange
+                  color: Colors.orange,
                   child: Padding(
-                    padding: const EdgeInsets.all(24.0), // Increased padding
+                    padding: const EdgeInsets.all(24.0),
                     child: Row(
                       children: [
-                        // Icon for the card
                         Icon(
                           Icons.calendar_today,
-                          color:
-                              Colors.white, // Icon color is white for contrast
-                          size: 24, // Adjust size as needed
+                          color: Colors.white,
+                          size: 24,
                         ),
                         SizedBox(width: 10),
-                        // Text for the card
                         Expanded(
                           child: Text(
-                            "24-hour Premium Plan - ₹299", // Plan description
+                            "24-hour Premium Plan - ₹299",
                             style: AppTextStyles.bodyText.copyWith(
                               fontSize: screenWidth * 0.04,
-                              color: Colors.white, // White text for readability
+                              color: Colors.white,
                             ),
                           ),
                         ),
-                        // Plan Status (text)
                         Text(
-                          'Selected', // Status of the plan
+                          'Selected',
                           style: AppTextStyles.bodyText.copyWith(
                             fontSize: screenWidth * 0.04,
-                            color: AppColors
-                                .buttonColor, // Color for the status text
+                            color: AppColors.buttonColor,
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-
-                // Positioned Discount Label (20% OFF)
                 Positioned(
-                  top: 4, // Slightly higher position
-                  right: 2, // Position at the top-right corner
+                  top: 4,
+                  right: 2,
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
                     decoration: BoxDecoration(
-                      color: Colors.red, // Set the background color to red
-                      borderRadius: BorderRadius.circular(12), // Curved corners
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      '20% OFF', // Display the discount percentage
+                      '20% OFF',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: screenWidth * 0.04, // Smaller font size
+                        fontSize: screenWidth * 0.04,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -987,19 +902,12 @@ Future<void> showUpgradeBottomSheet(BuildContext context) async {
                 ),
               ],
             ),
-
             SizedBox(height: 20),
-
-            // Purchase Button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: ElevatedButton(
                 onPressed: () {
-                  // Simulate purchase process
                   Get.back();
-                  // ScaffoldMessenger.of(context).showSnackBar(
-                  //   SnackBar(content: Text('Profile upgraded! Enjoy your 24 hours of premium access.')),
-                  // );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.buttonColor,
@@ -1015,9 +923,8 @@ Future<void> showUpgradeBottomSheet(BuildContext context) async {
         ),
       ),
     ),
-    isScrollControlled: true, // Allow bottom sheet to have a controlled size
-    backgroundColor:
-        Colors.transparent, // Transparent background for the full-screen effect
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
   );
 }
 
@@ -1026,8 +933,6 @@ class SettingCard extends StatelessWidget {
   final String subtitle;
   final IconData icon;
   final VoidCallback onTap;
-
-  // Constructor with an optional width parameter
   const SettingCard({
     super.key,
     required this.title,
@@ -1044,7 +949,7 @@ class SettingCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: SizedBox(
-        width: cardWidth, // Set the responsive width
+        width: cardWidth,
         child: Card(
           elevation: 10,
           child: ListTile(
@@ -1056,7 +961,7 @@ class SettingCard extends StatelessWidget {
             subtitle:
                 Text(subtitle, style: TextStyle(fontSize: screenWidth * 0.03)),
             trailing: Icon(icon),
-            onTap: onTap, // Call the onTap function when the card is tapped
+            onTap: onTap,
           ),
         ),
       ),

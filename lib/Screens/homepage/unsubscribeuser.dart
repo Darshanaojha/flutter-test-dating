@@ -1,7 +1,10 @@
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import '../../constants.dart';
+import '../navigationbar/navigationpage.dart';
+import '../navigationbar/unsubscribenavigation.dart';
 
 class Unsubscribeuser extends StatefulWidget {
   const Unsubscribeuser({super.key});
@@ -74,14 +77,11 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
       body: FutureBuilder<bool>(
         future: _fetchProfileFuture,
         builder: (context, snapshot) {
-          // While data is loading, show a loading indicator
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
               child: CircularProgressIndicator(),
             );
           }
-
-          // If there's an error while fetching data
           if (snapshot.hasError) {
             return Center(
               child: Text(
@@ -140,7 +140,7 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
                     Row(
                       children: [
                         Text(
-                          '${controller.userData.first.dob != null ? DateTime.now().year - DateTime.parse(controller.userData[0].dob!).year : 'NA'} years old | ',
+                          '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userData.first.dob).year} years old | ',
                           style: AppTextStyles.bodyText.copyWith(
                             fontSize: bodyFontSize,
                           ),
@@ -181,6 +181,9 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
                                   package.id,
                                   '₹${package.offerAmount}',
                                 );
+                                controller.updateNewPackageRequestModel
+                                    .packageId = package.id;
+                                    Get.snackbar('', package.id.toString());
                               },
                               child: Stack(
                                 clipBehavior: Clip.none,
@@ -263,8 +266,6 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
               ),
             );
           }
-
-          // If data is not successfully loaded, show a fallback message
           return Center(
             child: Text(
               'Failed to load data. Please try again.',
@@ -278,6 +279,8 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
 
   Future<void> showPaymentConfirmationDialog(BuildContext context,
       String planType, String planId, String amount) async {
+        controller.updateNewPackageRequestModel
+                                    .packageId = planId;
     double fontSize = MediaQuery.of(context).size.width *
         0.03; // Adjust font size based on screen size
     return showDialog<void>(
@@ -363,7 +366,9 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Get.offAll(NavigationBottomBar());
+                controller.updatinguserpackage(
+                    controller.updateNewPackageRequestModel);
               },
               child: Text(
                 "Confirm",

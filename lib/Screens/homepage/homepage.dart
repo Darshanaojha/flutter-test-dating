@@ -4,14 +4,12 @@ import 'package:dating_application/Screens/homepage/swaping.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:swipe_cards/draggable_card.dart';
 import 'package:swipe_cards/swipe_cards.dart';
-
 import '../../constants.dart';
-import '../navigationbar/unsubscribenavigation.dart';
-import 'unsubscribeuser.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -43,7 +41,7 @@ class HomePageState extends State<HomePage> {
   String currentFilter = 'All';
   List<SwipeItem> swipeItems = [];
   late MatchEngine matchEngine;
-
+  late Future<bool> _fetchSuggestion;
   @override
   void initState() {
     super.initState();
@@ -52,10 +50,11 @@ class HomePageState extends State<HomePage> {
     controller.userHighlightedList;
     controller.userNearByList;
     matchEngine = MatchEngine();
-    initializeApp();
+    _fetchSuggestion = initializeApp();
   }
 
-  initializeApp() {
+  Future<bool> initializeApp() async {
+    if (!await controller.userSuggestions()) return false;
     for (int i = 0; i < controller.filteredList.length; i++) {
       swipeItems.add(SwipeItem(
         content: controller.filteredList[i].userId,
@@ -74,6 +73,7 @@ class HomePageState extends State<HomePage> {
       ));
     }
     matchEngine = MatchEngine(swipeItems: swipeItems);
+    return true;
   }
 
   @override
@@ -290,7 +290,7 @@ class HomePageState extends State<HomePage> {
         child: Stack(
           children: [
             FutureBuilder(
-              future: controller.userSuggestions(),
+              future: _fetchSuggestion,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
@@ -366,13 +366,13 @@ class HomePageState extends State<HomePage> {
                               },
                               child: Text('Demo'),
                             ),
-                             ElevatedButton(
-                              onPressed: () {
-                                    controller.fetchProfileUserPhotos();
-                                Get.to(Unsubscribenavigation());
-                              },
-                              child: Text('unsubscribe'),
-                            ),
+                            //  ElevatedButton(
+                            //   onPressed: () {
+                            //         controller.fetchProfileUserPhotos();
+                            //     Get.to(Unsubscribenavigation());
+                            //   },
+                            //   child: Text('unsubscribe'),
+                            // ),
                           ],
                         ),
                       ),
@@ -504,180 +504,202 @@ class HomePageState extends State<HomePage> {
     return buildCardLayout(context, user, size, fontSize, bodyFontSize,
         additionalInfo: 'Favorites');
   }
+Widget buildCardLayout(
+  BuildContext context,
+  user,
+  Size size,
+  double fontSize,
+  double bodyFontSize, {
+  String? additionalInfo,
+}) {
+  // Get the list of images for the user
+  var images = controller.userSuggestionsList.isEmpty
+      ? []
+      : controller.userSuggestionsList[0].images;
 
-  Widget buildCardLayout(BuildContext context, user, Size size, double fontSize,
-      double bodyFontSize,
-      {String? additionalInfo}) {
-    return Container(
-      alignment: Alignment.center,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: size.height * 0.4,
-            child: Stack(
-              children: [
-                SafeArea(
-                  child: SwipeCards(
-                    matchEngine: matchEngine,
-                    itemBuilder: (BuildContext context, int index) {
-                      var images = controller.userSuggestionsList[index].images;
-                      if (images.isEmpty) {
-                        return Center(child: Text('No Images Available'));
-                      }
+  return Container(
+    alignment: Alignment.center,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Display SwipeCards to show images
+        SizedBox(
+          height: size.height * 0.4,
+          child: Stack(
+            children: [
+              SafeArea(
+                child: SwipeCards(
+                  matchEngine: matchEngine,
+                  itemBuilder: (BuildContext context, int index) {
+                    if (images.isEmpty) {
+                      return Center(child: Text('No Images Available'));
+                    }
 
-                      return GestureDetector(
-                        onTap: () =>
-                            showFullImageDialog(context, images[index]),
-                        child: Container(
-                          margin: EdgeInsets.only(bottom: 12),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: CachedNetworkImage(
-                              imageUrl: images[index],
-                              placeholder: (context, url) =>
-                                  Center(child: CircularProgressIndicator()),
-                              errorWidget: (context, url, error) {
-                                print("Failed to load image from URL: $url");
-                                return Icon(Icons.error, color: Colors.red);
-                              },
-                              fit: BoxFit.cover,
-                              width: size.width * 0.9,
-                              height: size.height * 0.45,
-                            ),
+                    return GestureDetector(
+                      onTap: () => showFullImageDialog(context, images[index]),
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 12),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: CachedNetworkImage(
+                            imageUrl: images[index],
+                            placeholder: (context, url) =>
+                                Center(child: CircularProgressIndicator()),
+                            errorWidget: (context, url, error) {
+                              print("Failed to load image from URL: $url");
+                              return Icon(Icons.error, color: Colors.red);
+                            },
+                            fit: BoxFit.cover,
+                            width: size.width * 0.9,
+                            height: size.height * 0.45,
                           ),
                         ),
-                      );
-                    },
-                    onStackFinished: () {
-                      failure('Finished', "Stack Finished");
-                    },
-                    itemChanged: (SwipeItem item, int index) {
-                      print("Item: ${item.content}, Index: $index");
-                    },
-                    upSwipeAllowed: true,
-                    fillSpace: true,
-                  ),
-                ),
-                Positioned(
-                  bottom: 10,
-                  right: 0,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: size.height * 0.1),
-                    child: Transform.rotate(
-                      angle: -1.5708,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SmoothPageIndicator(
-                            controller: _imagePageController,
-                            count: user.images.length,
-                            effect: ExpandingDotsEffect(
-                              dotHeight: 10,
-                              dotWidth: 10,
-                              spacing: 10,
-                              radius: 5,
-                              dotColor: Colors.grey.withOpacity(0.5),
-                              activeDotColor: Colors.green,
-                            ),
-                          ),
-                        ],
                       ),
+                    );
+                  },
+                  onStackFinished: () {
+                    failure('Finished', "Stack Finished");
+                  },
+                  itemChanged: (SwipeItem item, int index) {
+                    print("Item: ${item.content}, Index: $index");
+                  },
+                  upSwipeAllowed: true,
+                  fillSpace: true,
+                ),
+              ),
+              // Positioned SmoothPageIndicator for image navigation at the corner
+              Positioned(
+                bottom: 10,
+                right: 0,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: size.height * 0.1),
+                  child: Transform.rotate(
+                    angle: -1.5708, // Rotate indicator 90 degrees
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SmoothPageIndicator(
+                          controller: _imagePageController,
+                          count: images.length, // Number of images to scroll through
+                          effect: ExpandingDotsEffect(
+                            dotHeight: 10,
+                            dotWidth: 10,
+                            spacing: 10,
+                            radius: 5,
+                            dotColor: Colors.grey.withOpacity(0.5),
+                            activeDotColor: Colors.green,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ],
-            ),
-          ),
-          Row(
-            children: [
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    isLiked = !isLiked;
-                  });
-                },
-                icon: Icon(
-                  isLiked ? Icons.favorite : Icons.favorite_border,
-                  size: 40,
-                  color: isLiked ? Colors.red : Colors.white,
-                ),
-              ),
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    isDisliked = !isDisliked;
-                  });
-                },
-                icon: Icon(
-                  isDisliked ? Icons.thumb_down : Icons.thumb_down_alt_outlined,
-                  size: 40,
-                  color: isDisliked ? Colors.red : Colors.white,
-                ),
-              ),
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    isShare = !isShare;
-                  });
-                },
-                icon: Icon(
-                  isShare ? Icons.share : Icons.share,
-                  size: 40,
-                  color: isShare ? Colors.green : Colors.white,
-                ),
-              ),
-              IconButton(
-                onPressed: showmessageBottomSheet,
-                icon: Icon(Icons.chat_outlined, size: 40),
               ),
             ],
           ),
-          SizedBox(height: 16),
-          Text(
-            user.name ?? 'NA',
-            style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-          ),
-          Row(
-            children: [
-              Text(
-                '${user.dob != null ? DateTime.now().year - DateTime.parse(user.dob!).year : 'NA'} years old | ',
-                style: TextStyle(fontSize: bodyFontSize),
-              ),
-              Text(
-                '${user.city ?? 'NA'}',
-                style: TextStyle(fontSize: bodyFontSize),
-              ),
-            ],
-          ),
+        ),
+        
+        // Show the total number of images (length of the images list)
+        if (images.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    matchEngine.currentItem?.nope();
-                  },
-                  child: Text("Nope"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    matchEngine.currentItem?.superLike();
-                  },
-                  child: Text("Superlike"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    matchEngine.currentItem?.like();
-                  },
-                  child: Text("Like"),
-                ),
-              ],
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Text(
+              'Total Images: ${images.length}',
+              style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
           ),
-        ],
-      ),
-    );
-  }
+
+        // Row of action buttons (Like, Dislike, etc.)
+        Row(
+          children: [
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  isLiked = !isLiked;
+                });
+              },
+              icon: Icon(
+                isLiked ? Icons.favorite : Icons.favorite_border,
+                size: 40,
+                color: isLiked ? Colors.red : Colors.white,
+              ),
+            ),
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  isDisliked = !isDisliked;
+                });
+              },
+              icon: Icon(
+                isDisliked ? Icons.thumb_down : Icons.thumb_down_alt_outlined,
+                size: 40,
+                color: isDisliked ? Colors.red : Colors.white,
+              ),
+            ),
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  isShare = !isShare;
+                });
+              },
+              icon: Icon(
+                isShare ? Icons.share : Icons.share,
+                size: 40,
+                color: isShare ? Colors.green : Colors.white,
+              ),
+            ),
+            IconButton(
+              onPressed: showmessageBottomSheet,
+              icon: Icon(Icons.chat_outlined, size: 40),
+            ),
+          ],
+        ),
+        SizedBox(height: 16),
+        Text(
+          user.name ?? 'NA',
+          style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+        ),
+        Row(
+          children: [
+            Text(
+              '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userData.first.dob).year}',
+              style: TextStyle(fontSize: bodyFontSize),
+            ),
+            Text(
+              '${user.city ?? 'NA'}',
+              style: TextStyle(fontSize: bodyFontSize),
+            ),
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  matchEngine.currentItem?.nope();
+                },
+                child: Text("Nope"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  matchEngine.currentItem?.superLike();
+                },
+                child: Text("Superlike"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  matchEngine.currentItem?.like();
+                },
+                child: Text("Like"),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 }

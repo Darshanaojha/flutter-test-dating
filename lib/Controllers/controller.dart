@@ -4,8 +4,10 @@ import 'package:dating_application/Models/RequestModels/change_password_request.
 import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
 import 'package:dating_application/Models/RequestModels/updating_package_request_model.dart';
 import 'package:dating_application/Models/ResponseModels/change_password_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/deletefavourite_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_benifites_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_faq_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/get_all_favourites_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_gender_from_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_headlines_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_packages_response_model.dart';
@@ -17,6 +19,7 @@ import 'package:dating_application/Models/ResponseModels/user_upload_images_resp
 import 'package:dating_application/Providers/change_password_provider.dart';
 import 'package:dating_application/Providers/fetch_all_desires_provider.dart';
 import 'package:dating_application/Providers/fetch_all_faq_provider.dart';
+import 'package:dating_application/Providers/fetch_all_favourites_provider.dart';
 import 'package:dating_application/Providers/fetch_all_headlines_provider.dart';
 import 'package:dating_application/Providers/fetch_all_preferences_provider.dart';
 import 'package:dating_application/Providers/fetch_all_safety_guildlines_provider.dart';
@@ -32,12 +35,14 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import '../Models/RequestModels/block_User_request_model.dart';
 import '../Models/RequestModels/delete_message_request_model.dart';
+import '../Models/RequestModels/deletefavourite_request_model.dart';
 import '../Models/RequestModels/edit_message_request_model.dart';
 import '../Models/RequestModels/estabish_connection_request_model.dart';
 import '../Models/RequestModels/forget_password_request_model.dart';
 import '../Models/RequestModels/forget_password_verification_request_model.dart';
 import '../Models/RequestModels/highlight_profile_status_request_model.dart';
 import '../Models/RequestModels/liked_by_request_model.dart';
+import '../Models/RequestModels/marksasfavourite_request_model.dart';
 import '../Models/RequestModels/pin_profile_pic_request_model.dart';
 import '../Models/RequestModels/registration_otp_request_model.dart';
 import '../Models/RequestModels/registration_otp_verification_request_model.dart';
@@ -72,6 +77,7 @@ import '../Models/ResponseModels/get_report_user_options_response_model.dart';
 import '../Models/ResponseModels/highlight_profile_status_response_model.dart';
 import '../Models/ResponseModels/like_history_response_model.dart';
 import '../Models/ResponseModels/liked_by_response_model.dart';
+import '../Models/ResponseModels/marksasfavourite_response_model.dart';
 import '../Models/ResponseModels/pin_profile_pic_response_model.dart';
 import '../Models/ResponseModels/registration_otp_response_model.dart';
 import '../Models/ResponseModels/registration_otp_verification_response_model.dart';
@@ -92,6 +98,7 @@ import '../Providers/block_user_provider.dart';
 import '../Providers/chat_message_page_provider.dart';
 import '../Providers/connected_user_provider.dart';
 import '../Providers/delete_message_provider.dart';
+import '../Providers/deletefavourite_provider_model.dart';
 import '../Providers/edit_message_provider.dart';
 import '../Providers/established_connection_message_provider.dart';
 import '../Providers/fetch_all_active_user_provider.dart';
@@ -105,6 +112,7 @@ import '../Providers/fetch_verificationtype_provider.dart';
 import '../Providers/highlight_profile_status_provider.dart';
 import '../Providers/home_page_provider.dart';
 import '../Providers/likes_history_provider.dart';
+import '../Providers/markasfavourite_provider.dart';
 import '../Providers/master_setting_provider.dart';
 import '../Providers/pin_profile_pic_provider.dart';
 import '../Providers/post_like_provider.dart';
@@ -1338,8 +1346,11 @@ class Controller extends GetxController {
     try {
       UpdateNewPackageResponse? response = await UpdatingPackageProvider()
           .updatingpackage(updateNewPackageRequestModel);
-      if (response != null) {
+      if (response != null && response.success == true) {
         success('success', response.payload.message);
+        EncryptedSharedPreferences preferences =
+            EncryptedSharedPreferences.getInstance();
+        await preferences.setString('package_status', "1");
         return true;
       } else {
         failure('Error', 'Failed to update the userpackage');
@@ -1407,6 +1418,75 @@ class Controller extends GetxController {
         return true;
       } else {
         failure('Error', 'Failed to submit the verification request');
+        Get.close(1);
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      Get.close(1);
+      return false;
+    }
+  }
+
+  RxList<Favourite> favourite = <Favourite>[].obs;
+
+  Future<bool> fetchallfavourites() async {
+    try {
+      favourite.clear();
+      GetFavouritesResponse? response =
+          await FetchAllFavouritesProvider().fetchallfavouritesprovider();
+      if (response != null) {
+        favourite.addAll(response.payload.data);
+        success('success', 'successfully fetched all the favourites');
+        return true;
+      } else {
+        failure('Error', 'Failed to fetch the favourites');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  MarkFavouriteRequestModel markFavouriteRequestModel =
+      MarkFavouriteRequestModel(favouriteId: '');
+
+  Future<bool> markasfavourite(
+      MarkFavouriteRequestModel markFavouriteRequestModel) async {
+    try {
+      MarkFavouriteResponse? response = await MarkasfavouriteProvider()
+          .markasfavouriteprovider(markFavouriteRequestModel);
+      if (response != null) {
+        success('success', response.payload.message);
+        Get.close(1);
+        return true;
+      } else {
+        failure('Error', 'Failed to submit the mark as favourite request');
+        Get.close(1);
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      Get.close(1);
+      return false;
+    }
+  }
+
+  DeleteFavouritesRequest deleteFavouritesRequest =
+      DeleteFavouritesRequest(favouriteId: '');
+
+  Future<bool> deletefavourite(
+      DeleteFavouritesRequest deleteFavouritesRequest) async {
+    try {
+      DeleteFavouriteResponse? response = await DeletefavouriteProviderModel()
+          .deletefavouriteprovider(deleteFavouritesRequest);
+      if (response != null) {
+        success('success', response.payload);
+        Get.close(1);
+        return true;
+      } else {
+        failure('Error', 'Failed to submit the delete favourite request');
         Get.close(1);
         return false;
       }
