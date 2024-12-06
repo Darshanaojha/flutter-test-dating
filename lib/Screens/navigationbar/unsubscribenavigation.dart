@@ -6,119 +6,90 @@ import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Controllers/controller.dart';
-import '../../Models/ResponseModels/get_all_packages_response_model.dart';
 import '../../constants.dart';
-import '../homepage/packagestonewuser.dart';
 import '../settings/setting.dart';
+import '../userprofile/membership/membershippage.dart';
 
 class UnSubscribeNavigationController extends GetxController {
   final Rx<int> selectedIndex = 0.obs;
   final RxString selectedPlan = 'None'.obs;
-  final RxList<Package> packages = <Package>[].obs;
 
   final List<Widget> screens = [
     Unsubscribeuser(), // Screen for unsubscribing
     UserProfilePage(), // Profile page
   ];
 
+  // Method to navigate to the respective screen
   void navigateTo(int index) {
     selectedIndex.value = index;
     showPackagesDialog();
   }
-  
+
   // Show the packages dialog
   void showPackagesDialog() {
     Get.defaultDialog(
       title: 'Subscribe to Enjoy',
-      
-      onCancel: () {
-        Get.back();
-      },
-      onConfirm: () {
-        PackageListWidget();
-
-      },
-    );
-  }
-
-  // Show payment confirmation dialog
-  Future<void> showPaymentConfirmationDialog(BuildContext context,
-      String planType, String planId, String amount) async {
-    double fontSize = MediaQuery.of(context).size.width * 0.03;
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false, // Prevent dismissal by tapping outside
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            "Confirm Subscription",
+      titleStyle: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        color: AppColors.primaryColor,
+      ),
+      backgroundColor: AppColors.acceptColor,
+      barrierDismissible: true,
+      radius: 15.0,
+      contentPadding: EdgeInsets.all(20),
+      content: Column(
+        children: [
+          Text(
+            "Choose a Subscription Plan",
             style: AppTextStyles.titleText.copyWith(
-              fontSize: fontSize,
+              fontSize: 18,
               color: AppColors.textColor,
             ),
           ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "Do you want to subscribe to the $planType plan for $amount?",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: fontSize - 2,
-                    color: AppColors.textColor,
-                  ),
-                ),
-                SizedBox(height: 16),
-                // Other content here
-                Text(
-                  "Additional information about the plan can go here.",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: fontSize - 2,
-                    color: AppColors.textColor,
-                  ),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  "Terms and conditions for the plan can also be shown here.",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: fontSize - 2,
-                    color: AppColors.textColor,
-                  ),
-                ),
-              ],
+        
+        ],
+      ),
+      actions: [
+        // Cancel Button
+        TextButton(
+          onPressed: () {
+            Get.back(); // Close the dialog
+          },
+          child: Text(
+            'Cancel',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: AppColors.buttonColor,
             ),
           ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                "Cancel",
-                style: AppTextStyles.buttonText.copyWith(
-                  fontSize: fontSize,
-                  color: AppColors.buttonColor,
-                ),
-              ),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            Get.to(MembershipPage());
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.buttonColor, // Button color
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                "Confirm",
-                style: AppTextStyles.buttonText.copyWith(
-                  fontSize: fontSize,
-                  color: AppColors.buttonColor,
-                ),
-              ),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          ),
+          child: Text(
+            'Confirm Subscription',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
-          ],
-        );
-      },
+          ),
+        ),
+      ],
     );
   }
 }
+
 
 class Unsubscribenavigation extends StatefulWidget {
   const Unsubscribenavigation({super.key});
@@ -138,13 +109,6 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation> {
   @override
   void initState() {
     super.initState();
-    initializeData();
-  }
-
-  Future<bool> initializeData() async {
-    if (!await controller.fetchAllPackages()) return false;
-    if (!await controller.fetchAllHeadlines()) return false;
-    return true;
   }
 
   void showLogoutDialog(BuildContext context) {
@@ -265,4 +229,3 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation> {
     );
   }
 }
-

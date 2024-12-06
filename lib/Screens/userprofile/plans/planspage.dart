@@ -1,8 +1,11 @@
+import 'package:dating_application/Screens/homepage/homepage.dart';
+import 'package:dating_application/Screens/login.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../Controllers/controller.dart';
+import '../../navigationbar/navigationpage.dart';
 
 class PricingPage extends StatefulWidget {
   const PricingPage({super.key});
@@ -10,10 +13,11 @@ class PricingPage extends StatefulWidget {
   @override
   PricingPageState createState() => PricingPageState();
 }
+
 class PricingPageState extends State<PricingPage> {
   Controller controller = Get.put(Controller());
   RxString selectedPlan = 'None'.obs;
-  RxString planId= ''.obs;
+  RxString planId = ''.obs;
 
   @override
   void initState() {
@@ -47,29 +51,6 @@ class PricingPageState extends State<PricingPage> {
               buildProsAndCons(context),
               SizedBox(height: 50),
             ],
-          ),
-        ),
-      ),
-      floatingActionButton: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: selectedPlan.value != 'None'
-                ? () {
-                    showPaymentConfirmationDialog(context,planId.value);
-                  }
-                : null, // Button is enabled only if a plan is selected
-            style: ElevatedButton.styleFrom(
-              backgroundColor: selectedPlan.value != 'None'
-                  ? Colors.green // Button color when a plan is selected
-                  : AppColors.inactiveColor, // Button color when no plan is selected
-              padding: EdgeInsets.symmetric(vertical: 16),
-            ),
-            child: Text(
-              'Continue',
-              style: AppTextStyles.buttonText.copyWith(fontSize: fontSize),
-            ),
           ),
         ),
       ),
@@ -123,8 +104,11 @@ class PricingPageState extends State<PricingPage> {
 
               return GestureDetector(
                 onTap: () {
+                  showPaymentConfirmationDialog(context, planId.value);
                   planId.value = package.id;
-                  selectedPlan.value = package.unit; 
+                  selectedPlan.value = package.unit;
+                  controller.updateNewPackageRequestModel.packageId =
+                      package.id;
                 },
                 child: Obx(() {
                   return Stack(
@@ -158,7 +142,6 @@ class PricingPageState extends State<PricingPage> {
                                 ),
                               ),
                               Text(
-                                
                                 selectedPlan.value == package.unit
                                     ? 'Selected'
                                     : 'Select',
@@ -177,7 +160,8 @@ class PricingPageState extends State<PricingPage> {
                         top: 4,
                         right: 2,
                         child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+                          padding:
+                              EdgeInsets.symmetric(vertical: 4, horizontal: 6),
                           decoration: BoxDecoration(
                             color: Colors.red,
                             borderRadius: BorderRadius.circular(12),
@@ -247,7 +231,8 @@ class PricingPageState extends State<PricingPage> {
     );
   }
 
-  Future<void> showPaymentConfirmationDialog(BuildContext context,String planId) async {
+  Future<void> showPaymentConfirmationDialog(
+      BuildContext context, String planId) async {
     double fontSize = MediaQuery.of(context).size.width * 0.05;
 
     return showDialog<void>(
@@ -272,7 +257,7 @@ class PricingPageState extends State<PricingPage> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                controller.updateNewPackageRequestModel.packageId=planId;
+                Get.snackbar('', planId.toString());
                 Navigator.of(context).pop();
               },
               child: Text(
@@ -285,9 +270,12 @@ class PricingPageState extends State<PricingPage> {
             ),
             TextButton(
               onPressed: () {
-                // Proceed with the subscription logic
+                   Get.offAll(NavigationBottomBar());
+                controller.updatinguserpackage(
+                    controller.updateNewPackageRequestModel);
+
+                print("Subscribed to plan id ${planId.toString()}");
                 print("Subscribed to ${selectedPlan.value}");
-                Navigator.of(context).pop(); // Close the dialog
               },
               child: Text(
                 'Subscribe',
