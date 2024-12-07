@@ -41,7 +41,7 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
     });
     if (email != null) {
       registrationOtpVerificationRequest = RegistrationOtpVerificationRequest(
-        email: email!,
+        email:  controller.userRegistrationRequest.email,
         otp: '',
       );
     }
@@ -118,14 +118,15 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                       failure("Invalid OTP", "Please enter a valid 6-digit OTP.");
                       return;
                     }
-
+                      Get.snackbar('otp entered is',registrationOtpVerificationRequest.otp.toString() );
                     controller
                         .otpVerificationForRegistration(
                             registrationOtpVerificationRequest)
                         .then((value) {
                       if (value) {
                         success("Success", "OTP verified!");
-                        Get.to(RegisterProfilePage());
+                        Get.offAll(RegisterProfilePage());
+                     
                       } else {
                         setState(() {
                           isOtpValid = false; // OTP verification failed

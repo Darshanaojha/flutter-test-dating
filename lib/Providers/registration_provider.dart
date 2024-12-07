@@ -12,7 +12,7 @@ class RegistrationProvider extends GetConnect {
   Future<CountryResponse?> fetchCountries() async {
     try {
       Response response = await get('$baseurl/Common/country');
-
+    
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return CountryResponse.fromJson(response.body);
@@ -69,13 +69,11 @@ class RegistrationProvider extends GetConnect {
   Future<RegistrationOtpVerificationResponse?> otpVerificationForRegistration(
     RegistrationOtpVerificationRequest registrationOtpVerificationRequest) async {
   try {
-    final requestBody = registrationOtpVerificationRequest.toJson();
-    if (baseurl.isEmpty) {
-      throw Exception("Base URL is not defined.");
-    }
+    print(registrationOtpVerificationRequest.toJson().toString());
+    
     Response response = await post(
       '$baseurl/Authentication/verifyotp', 
-      requestBody,
+      registrationOtpVerificationRequest.toJson(),
       headers: {
         'Content-Type': 'application/json', 
       },

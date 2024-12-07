@@ -752,6 +752,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
+  lightning_overlay:
+    dependency: "direct main"
+    description:
+      name: lightning_overlay
+      sha256: eb6ee15432014cfcb7e6d7e82103ea24270a333ebdaf152d8fb0550086d12b91
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.8"
   lints:
     dependency: transitive
     description:

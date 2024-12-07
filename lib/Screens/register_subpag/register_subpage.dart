@@ -383,30 +383,22 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 height: 40), // Adds space between the text field and button
 
             ElevatedButton(
-              onPressed: controller.userRegistrationRequest.nickname.isEmpty
-                  ? null
-                  : () {
-                      if (controller.userRegistrationRequest.nickname.isEmpty) {
-                        failure('Nickname', 'Enter Your Nickname');
-                      } else {
-                        markStepAsCompleted(2);
-                        Get.snackbar(
-                            'nickname',
-                            controller.userRegistrationRequest.nickname
-                                .toString());
-                        pageController.nextPage(
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.ease,
-                        );
-                      }
-                    },
-              // Disable button if the name is empty
+              onPressed: () {
+                if (controller.userRegistrationRequest.nickname.isEmpty) {
+                  failure('Nickname', 'Enter Your Nickname');
+                } else {
+                  markStepAsCompleted(2);
+                  Get.snackbar('nickname',
+                      controller.userRegistrationRequest.nickname.toString());
+                  pageController.nextPage(
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.ease,
+                  );
+                }
+              },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                backgroundColor:
-                    controller.userRegistrationRequest.nickname.isNotEmpty
-                        ? AppColors.buttonColor
-                        : AppColors.activeColor,
+                backgroundColor: AppColors.activeColor,
                 foregroundColor: AppColors.textColor,
               ),
               child: Text(
@@ -416,6 +408,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 ),
               ),
             ),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: onBackPressed, // Call the onBackPressed method
               style: ElevatedButton.styleFrom(
@@ -541,6 +534,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   ),
                 );
               }),
+              SizedBox(height: 20),
               ElevatedButton(
                 onPressed: onBackPressed, // Call the onBackPressed method
                 style: ElevatedButton.styleFrom(
@@ -562,6 +556,12 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     double titleFontSize = screenSize.width * 0.05;
     double descriptionFontSize = screenSize.width * 0.03;
     double optionFontSize = screenSize.width * 0.03;
+    String? validateSelection(dynamic value) {
+      if (value == null) {
+        return 'Please select a value';
+      }
+      return null;
+    }
 
     return Obx(() {
       if (controller.subGenders.isEmpty) {
@@ -608,6 +608,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 value: controller.userRegistrationRequest.lookingFor.isEmpty
                     ? null
                     : controller.userRegistrationRequest.lookingFor,
+                validator: validateSelection,
                 decoration: InputDecoration(
                   labelText: 'Relationship Type',
                   labelStyle: AppTextStyles.labelText
@@ -674,9 +675,18 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               ),
               SizedBox(height: 30),
               ElevatedButton(
-                onPressed: selectedOption.value.isEmpty
+                onPressed: controller
+                            .userRegistrationRequest.lookingFor.isEmpty ||
+                        selectedOption.value.isEmpty
                     ? null
                     : () {
+                        validateSelection(dynamic value) {
+                          if (value == null) {
+                            return 'Please select a value';
+                          }
+                          return null;
+                        }
+
                         if (selectedOption.value.isEmpty) {
                           failure(
                               'Failed', 'Please select an option to proceed.');
@@ -706,6 +716,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   ),
                 ),
               ),
+              SizedBox(height: 20),
               ElevatedButton(
                 onPressed: onBackPressed, // Call the onBackPressed method
                 style: ElevatedButton.styleFrom(
@@ -1469,17 +1480,21 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               alignment: Alignment.centerRight,
               child: ElevatedButton(
                 onPressed: () {
-                  print('Next button pressed');
-                  print(
-                      'Selected Language IDs: ${controller.userRegistrationRequest.lang}');
-                  // Proceed to the next page or step
-                  markStepAsCompleted(8);
-                  Get.snackbar('lang',
-                      controller.userRegistrationRequest.lang.toString());
-                  pageController.nextPage(
-                    duration: Duration(milliseconds: 300),
-                    curve: Curves.ease,
-                  );
+                  if (selectedLanguages.isEmpty) {
+                    failure('Error', 'Please select at least one language');
+                    return;
+                  } else {
+                    print('Next button pressed');
+                    print(
+                        'Selected Language IDs: ${controller.userRegistrationRequest.lang}');
+                    markStepAsCompleted(8);
+                    Get.snackbar('lang',
+                        controller.userRegistrationRequest.lang.toString());
+                    pageController.nextPage(
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.ease,
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
@@ -1490,7 +1505,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               ),
             ),
             ElevatedButton(
-              onPressed: onBackPressed, // Call the onBackPressed method
+              onPressed: onBackPressed,
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                 backgroundColor: AppColors.buttonColor,
@@ -1543,8 +1558,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 ),
               ),
               SizedBox(height: 20),
-
-              // Description text (can be added if provided)
               Text(
                 controller.headlines.isNotEmpty
                     ? controller.headlines[7].description
@@ -1656,11 +1669,11 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
+  RxBool notificationGranted = false.obs;
+  RxBool locationGranted = false.obs;
+
   // step 10
   Widget buildPermissionRequestStep(Size screenSize) {
-    RxBool notificationGranted = false.obs;
-    RxBool locationGranted = false.obs;
-
     // Function to show the permission request dialog
     Future<void> showPermissionDialog(
         BuildContext context, String permissionType) async {
@@ -1904,6 +1917,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             ),
           );
         }),
+        SizedBox(height: 20),
         ElevatedButton(
           onPressed: onBackPressed, // Call the onBackPressed method
           style: ElevatedButton.styleFrom(
@@ -2173,6 +2187,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     color: AppColors.primaryColor,
                   )),
             ),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: onBackPressed,
               style: ElevatedButton.styleFrom(

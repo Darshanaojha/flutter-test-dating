@@ -519,22 +519,22 @@ Widget buildCardLayout(
 
   return Container(
     alignment: Alignment.center,
+    decoration: BoxDecoration(
+      color: Colors.black, // Set the background color to black
+      borderRadius: BorderRadius.circular(15), // Optional: Add rounded corners for the card
+    ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Display SwipeCards to show images
+        // Display vertically scrollable ListView for images
         SizedBox(
           height: size.height * 0.4,
           child: Stack(
             children: [
               SafeArea(
-                child: SwipeCards(
-                  matchEngine: matchEngine,
+                child: ListView.builder(
+                  itemCount: images.length,
                   itemBuilder: (BuildContext context, int index) {
-                    if (images.isEmpty) {
-                      return Center(child: Text('No Images Available'));
-                    }
-
                     return GestureDetector(
                       onTap: () => showFullImageDialog(context, images[index]),
                       child: Container(
@@ -557,14 +557,6 @@ Widget buildCardLayout(
                       ),
                     );
                   },
-                  onStackFinished: () {
-                    failure('Finished', "Stack Finished");
-                  },
-                  itemChanged: (SwipeItem item, int index) {
-                    print("Item: ${item.content}, Index: $index");
-                  },
-                  upSwipeAllowed: true,
-                  fillSpace: true,
                 ),
               ),
               // Positioned SmoothPageIndicator for image navigation at the corner
@@ -598,7 +590,7 @@ Widget buildCardLayout(
             ],
           ),
         ),
-        
+
         // Show the total number of images (length of the images list)
         if (images.isNotEmpty)
           Padding(
@@ -686,7 +678,7 @@ Widget buildCardLayout(
                 onPressed: () {
                   matchEngine.currentItem?.superLike();
                 },
-                child: Text("Superlike"),
+                child: Text("faviourite"),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -701,5 +693,7 @@ Widget buildCardLayout(
     ),
   );
 }
+
+
 
 }

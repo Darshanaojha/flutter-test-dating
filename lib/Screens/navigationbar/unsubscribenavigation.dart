@@ -6,6 +6,7 @@ import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Controllers/controller.dart';
+import '../../Models/RequestModels/update_activity_status_request_model.dart';
 import '../../constants.dart';
 import '../settings/setting.dart';
 import '../userprofile/membership/membershippage.dart';
@@ -147,6 +148,9 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation> {
                     EncryptedSharedPreferences.getInstance();
                 preferences.clear();
                 Get.offAll(() => Login()); // Make sure Login() is defined
+                 UpdateActivityStatusRequest updateActivityStatusRequest =
+                    UpdateActivityStatusRequest(status: '0');
+                controller.updateactivitystatus(updateActivityStatusRequest);
               },
               child: Text('Yes',
                   style: AppTextStyles.headingText.copyWith(

@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dating_application/Models/RequestModels/change_password_request.dart';
 import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
+import 'package:dating_application/Models/RequestModels/update_activity_status_request_model.dart';
 import 'package:dating_application/Models/RequestModels/updating_package_request_model.dart';
+import 'package:dating_application/Models/ResponseModels/activity_status_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/change_password_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/deletefavourite_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_benifites_response_model.dart';
@@ -16,6 +18,7 @@ import 'package:dating_application/Models/ResponseModels/get_all_whoareyoulookin
 import 'package:dating_application/Models/ResponseModels/subgender_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/updating_package_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/user_upload_images_response_model.dart';
+import 'package:dating_application/Providers/activity_status_provider.dart';
 import 'package:dating_application/Providers/change_password_provider.dart';
 import 'package:dating_application/Providers/fetch_all_desires_provider.dart';
 import 'package:dating_application/Providers/fetch_all_faq_provider.dart';
@@ -1074,7 +1077,27 @@ class Controller extends GetxController {
         success('success', response.payload.message);
         return true;
       } else {
-        failure('Error', 'Failed to report the user');
+        failure('Error', 'Failed to update lat long of the user');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  UpdateActivityStatusRequest updateActivityStatusRequest =
+      UpdateActivityStatusRequest(status: '');
+  Future<bool> updateactivitystatus(
+      UpdateActivityStatusRequest updateActivityStatusRequest) async {
+    try {
+      UpdateActivityStatusResponse? response = await ActivityStatusProvider()
+          .updateactivitystatusprovider(updateActivityStatusRequest);
+      if (response != null) {
+        success('success', response.payload.message);
+        return true;
+      } else {
+        failure('Error', 'Failed to update the activity status');
         return false;
       }
     } catch (e) {
