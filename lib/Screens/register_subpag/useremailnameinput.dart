@@ -142,6 +142,7 @@ class UserInputPageState extends State<UserInputPage> {
                   },
                   onSaved: (value) {
                     controller.registrationOTPRequest.email = value ?? '';
+                     controller.userRegistrationRequest.email = value ?? '';
                   },
                 ),
                 SizedBox(height: 40),
@@ -153,6 +154,7 @@ class UserInputPageState extends State<UserInputPage> {
                       Get.to(OTPVerificationPage());
                       controller.getOtpForRegistration(
                           controller.registrationOTPRequest);
+                          Get.snackbar('Email is', controller.registrationOTPRequest.email.toString());
                     } else {
                       failure(
                         'Validation Failed',

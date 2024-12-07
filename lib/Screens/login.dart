@@ -23,6 +23,8 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
   late AnimationController animationController;
   late Animation<double> fadeInAnimation;
 
+  bool isLoading = false; // Variable to manage the loading state
+
   @override
   void initState() {
     super.initState();
@@ -56,8 +58,8 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
           child: FadeTransition(
             opacity: fadeInAnimation,
             child: Container(
-              width: size.width * 0.9,
-              height: size.height * 0.7,
+              width: size.width * 0.96,
+              height: size.height * 0.5,
               decoration: BoxDecoration(
                 color: AppColors.secondaryColor,
                 borderRadius: BorderRadius.circular(30),
@@ -87,19 +89,27 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                           if (formKey.currentState!.validate()) {
                             formKey.currentState!.save();
 
+                            setState(() {
+                              isLoading = true; // Start loading
+                            });
+
+                            // Perform login request
                             UserLoginResponse? response =
                                 await controller.login(loginRequest);
 
+                            setState(() {
+                              isLoading = false; // End loading
+                            });
+
                             if (response != null) {
                               if (response.success == true) {
-                                // String status = response.payload.status;
-                                String packagestatus = response.payload.packagestatus;
-                                if ( packagestatus=='0') {
+                                String packagestatus =
+                                    response.payload.packagestatus;
+                                if (packagestatus == '0') {
                                   Get.to(Unsubscribenavigation());
-                                } else if (packagestatus=='1') {
-                                 
+                                } else if (packagestatus == '1') {
                                   Get.to(NavigationBottomBar());
-                                } 
+                                }
                               } else {
                                 Get.snackbar(
                                   'Login Failed',
@@ -121,9 +131,11 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        child: Text('Login',
-                            style: AppTextStyles.buttonText
-                                .copyWith(fontSize: fontSize)),
+                        child: Text(
+                          'Login',
+                          style: AppTextStyles.buttonText
+                              .copyWith(fontSize: fontSize),
+                        ),
                       ),
                       SizedBox(height: size.height * 0.02),
                       buildForgotPasswordButton(fontSize),

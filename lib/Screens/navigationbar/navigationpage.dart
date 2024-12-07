@@ -1,7 +1,9 @@
 import 'package:dating_application/Screens/login.dart';
+import 'package:dating_application/Screens/userprofile/editprofile/edituserprofile.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../Models/RequestModels/update_activity_status_request_model.dart';
 import '../../constants.dart';
 import '../chatmessagespage/chatmessagepage.dart';
 import '../homepage/homepage.dart';
@@ -67,6 +69,9 @@ class NavigationBottomBar extends StatelessWidget {
                     EncryptedSharedPreferences.getInstance();
                 preferences.clear();
                 Get.offAll(() => Login());
+                UpdateActivityStatusRequest updateActivityStatusRequest =
+                    UpdateActivityStatusRequest(status: '0');
+                controller.updateactivitystatus(updateActivityStatusRequest);
               },
               child: Text('Yes',
                   style: AppTextStyles.headingText.copyWith(
@@ -153,7 +158,7 @@ class NavigationBottomBar extends StatelessWidget {
                   : AppColors.textColor,
             ),
             Icon(
-              Icons.message,
+              Icons.messenger,
               size: 30,
               color: controller.selectedIndex.value == 2
                   ? AppColors.primaryColor

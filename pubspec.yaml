@@ -41,6 +41,7 @@ dependencies:
   curved_navigation_bar: ^1.0.6
   swipe_cards: ^2.0.0+1
   cached_network_image: ^3.2.0
+  lightning_overlay: ^0.0.8
 
 
 dev_dependencies:

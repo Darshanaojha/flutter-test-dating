@@ -58,9 +58,9 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
 
   Future<void> fetchLatLong() async {
     try {
-      print(controller.userRegistrationRequest.address);
+      print(controller.userRegistrationRequest.city);
       List<Location> locations =
-          await locationFromAddress(controller.userRegistrationRequest.address);
+          await locationFromAddress(controller.userRegistrationRequest.city);
       print(locations.first.toString());
       if (locations.isNotEmpty) {
         print('not empty');
@@ -175,14 +175,6 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
 
                         buildTextField("Address", null, (value) {
                           controller.userRegistrationRequest.address = value;
-
-                          if (debounce?.isActive ?? false) {
-                            debounce?.cancel();
-                          }
-
-                          debounce = Timer(Duration(milliseconds: 1000), () {
-                            fetchLatLong();
-                          });
                         }, (value) {
                           controller.userRegistrationRequest.address = value;
                         }, fontSize),
@@ -238,6 +230,13 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           null,
                           (value) {
                             controller.userRegistrationRequest.city = value;
+                            if (debounce?.isActive ?? false) {
+                              debounce?.cancel();
+                            }
+
+                            debounce = Timer(Duration(milliseconds: 1000), () {
+                              fetchLatLong();
+                            });
                           },
                           (value) {
                             controller.userRegistrationRequest.city = value;
@@ -276,6 +275,15 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                                 failure('Failed', 'Passwords do not match!');
                                 return;
                               }
+
+                              String? validateSelection(dynamic value) {
+                                if (value == null) {
+                                  failure('', 'Country cannot be empty');
+                                  return 'Please select a value';
+                                }
+                                return null;
+                              }
+
                               Get.to(MultiStepFormPage());
                               success(
                                   'Success', 'Form submitted successfully!');
@@ -516,6 +524,14 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     );
   }
 
+  String? validateSelection(dynamic value) {
+    if (value == null) {
+      failure('', 'Country cannot be empty');
+      return 'Please select a value';
+    }
+    return null;
+  }
+
   Widget buildDropdown<T>(
     String label,
     List<T> items,
@@ -539,6 +555,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           );
         }).toList(),
         onChanged: onChanged, // Use the provided onChanged callback
+        validator: validateSelection,
         decoration: InputDecoration(
           labelText: label,
           labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),

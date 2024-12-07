@@ -67,7 +67,6 @@ class MySwipePageState extends State<MySwipePage> {
       body: Container(
         child: Column(
           children: [
-            // Swipe Cards Container
             Container(
               height: 550,
               child: SwipeCards(
@@ -75,7 +74,7 @@ class MySwipePageState extends State<MySwipePage> {
                 itemBuilder: (BuildContext context, int index) {
                   return Container(
                     alignment: Alignment.center,
-                    color: _colors[index], // Background color of the card
+                    color: _colors[index],
                     child: Text(
                       _names[index],
                       style: TextStyle(fontSize: 40, color: Colors.white),
@@ -95,7 +94,6 @@ class MySwipePageState extends State<MySwipePage> {
                 fillSpace: true,
               ),
             ),
-            // Action Buttons (Like, Dislike, Superlike)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20.0),
               child: Row(
@@ -103,19 +101,19 @@ class MySwipePageState extends State<MySwipePage> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      _matchEngine.currentItem!.nope(); // Trigger 'Nope' action
+                      _matchEngine.currentItem!.nope();
                     },
                     child: Text("Nope"),
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      _matchEngine.currentItem!.superLike(); // Trigger 'Superlike' action
+                      _matchEngine.currentItem!.superLike();
                     },
                     child: Text("Superlike"),
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      _matchEngine.currentItem!.like(); // Trigger 'Like' action
+                      _matchEngine.currentItem!.like();
                     },
                     child: Text("Like"),
                   ),

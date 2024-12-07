@@ -1,15 +1,19 @@
 import 'dart:async';
 
 import 'package:dating_application/Controllers/controller.dart';
-import 'package:dating_application/Screens/login.dart';
+import 'package:dating_application/Models/RequestModels/update_activity_status_request_model.dart';
 import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
 import 'package:dating_application/Screens/navigationbar/unsubscribenavigation.dart';
-import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import '../Models/RequestModels/update_lat_long_request_model.dart';
+import '../constants.dart';
+import 'login.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
@@ -23,7 +27,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
   late Animation<double> opacityAnimation;
   late Animation<double> scaleAnimation;
   Controller controller = Get.put(Controller());
-  bool _isLoading = true; // Track loading state
+  bool _isLoading = true;
   StreamSubscription? _linkSubscription;
 
   @override
@@ -48,6 +52,24 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
 
   intialize() async {
     try {
+      Position position = await _getUserLocation();
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
+      Placemark place = placemarks.first;
+
+      UpdateLatLongRequest updateLatLongRequest = UpdateLatLongRequest(
+        latitude: position.latitude.toString(),
+        longitude: position.longitude.toString(),
+        city: place.locality ?? 'Unknown', // Get city from placemark
+        address: place.name ?? 'Unknown', // Get address from placemark
+      );
+      controller.updatelatlong(updateLatLongRequest);
+
+      UpdateActivityStatusRequest updateActivityStatusRequest =
+          UpdateActivityStatusRequest(status: '1');
+      controller.updateactivitystatus(updateActivityStatusRequest);
+
+      // Fetch other data needed for the app
       await controller.fetchAllHeadlines();
       await controller.fetchSafetyGuidelines();
       await controller.fetchAllPackages();
@@ -55,6 +77,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
       await controller.fetchDesires();
       await controller.fetchGenders();
       await controller.fetchCountries();
+
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
 
@@ -88,6 +111,32 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
         _isLoading = false;
       });
     }
+  }
+
+  // Function to get user's location
+  Future<Position> _getUserLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Check if location services are enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      throw 'Location services are disabled.';
+    }
+
+    // Check location permission
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.whileInUse &&
+          permission != LocationPermission.always) {
+        throw 'Location permission denied';
+      }
+    }
+
+    // Get current position
+    return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
   }
 
   @override
