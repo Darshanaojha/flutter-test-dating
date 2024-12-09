@@ -224,6 +224,60 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           );
                         }),
 
+                        DropdownButtonFormField<String>(
+                          value: controller
+                                  .userRegistrationRequest.lookingFor.isEmpty
+                              ? null
+                              : controller.userRegistrationRequest.lookingFor,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please select a relationship type';
+                            }
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                            labelText: 'Relationship Type',
+                            labelStyle: AppTextStyles.labelText
+                                .copyWith(fontSize: fontSize),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide:
+                                  BorderSide(color: AppColors.textColor),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: '1',
+                              child: Text(
+                                'Serious Relationship',
+                                style: AppTextStyles.bodyText
+                                    .copyWith(fontSize: fontSize),
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: '2',
+                              child: Text(
+                                'Hookup',
+                                style: AppTextStyles.bodyText
+                                    .copyWith(fontSize: fontSize),
+                              ),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            if (value != null) {
+                              controller.userRegistrationRequest.lookingFor =
+                                  value;
+                            }
+                          },
+                          iconEnabledColor: AppColors.textColor,
+                          iconDisabledColor: AppColors.disabled,
+                        ),
                         // City Field
                         buildTextField(
                           "City",

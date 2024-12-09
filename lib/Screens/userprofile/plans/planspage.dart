@@ -1,5 +1,3 @@
-import 'package:dating_application/Screens/homepage/homepage.dart';
-import 'package:dating_application/Screens/login.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -28,7 +26,8 @@ class PricingPageState extends State<PricingPage> {
 
   @override
   Widget build(BuildContext context) {
-    double fontSize = MediaQuery.of(context).size.width * 0.05;
+    // double fontSize = MediaQuery.of(context).size.width * 0.05;
+    double responsiveheight = MediaQuery.of(context).size.height * 0.07;
 
     return Scaffold(
       appBar: AppBar(
@@ -42,12 +41,11 @@ class PricingPageState extends State<PricingPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Send unlimited likes, see who likes you first, filter by desires and find your people. Plus, you can chat with them!",
-                style: AppTextStyles.labelText,
-              ),
-              SizedBox(height: 20),
+                  "Send unlimited likes, see who likes you first, filter by desires and find your people. Plus, you can chat with them!",
+                  style: AppTextStyles.labelText),
+              SizedBox(height: responsiveheight),
               buildPaymentWidget(context),
-              SizedBox(height: 30),
+              SizedBox(height: responsiveheight),
               buildProsAndCons(context),
               SizedBox(height: 50),
             ],
@@ -270,7 +268,7 @@ class PricingPageState extends State<PricingPage> {
             ),
             TextButton(
               onPressed: () {
-                   Get.offAll(NavigationBottomBar());
+                Get.offAll(NavigationBottomBar());
                 controller.updatinguserpackage(
                     controller.updateNewPackageRequestModel);
 

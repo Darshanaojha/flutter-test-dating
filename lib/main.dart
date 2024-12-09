@@ -3,11 +3,11 @@ import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
-
+import 'Controllers/controller.dart';
 import 'Models/RequestModels/update_activity_status_request_model.dart';
 import 'Providers/fcmService.dart';
 import 'Screens/userprofile/editprofile/edituserprofile.dart';
@@ -24,6 +24,7 @@ void main() async {
     final fcmService = FCMService();
     await fcmService.setupNotifications();
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    Controller controller = Get.put(Controller());
     runApp(const MainApp());
   } catch (e) {
     failure('Error', 'Error in the main method');
@@ -84,7 +85,6 @@ class MainAppState extends State<MainApp> with WidgetsBindingObserver {
     );
   }
 }
-
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print('Handling a background message: ${message.messageId}');

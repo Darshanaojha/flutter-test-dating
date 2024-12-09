@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:dating_application/Models/ResponseModels/get_all_benifites_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_desires_model_response.dart';
 import 'package:dating_application/Screens/login.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
@@ -22,7 +22,7 @@ class MultiStepFormPage extends StatefulWidget {
 }
 
 class MultiStepFormPageState extends State<MultiStepFormPage> {
-  Controller controller = Get.find<Controller>();
+  final controller = Get.find<Controller>();
   RxString date = "".obs;
   DateTime selectedDate = DateTime.now();
   String name = '';
@@ -172,7 +172,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             padding: const EdgeInsets.only(right: 16.0),
             child: Center(
               child: Text(
-                "$currentPage of 14",
+                "$currentPage of 13",
                 style: TextStyle(
                   fontSize: isPortrait ? fontSize : fontSize + 2,
                   fontWeight: FontWeight.bold,
@@ -327,7 +327,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     double titleFontSize = screenSize.width * 0.05;
     double labelfontSize = screenSize.width * 0.03;
     double inputTextFontSize = screenSize.width * 0.045;
-
+    TextEditingController nicknameController = TextEditingController(
+      text: controller.userRegistrationRequest.nickname ?? '',
+    );
     return Card(
       elevation: 8,
       shape: RoundedRectangleBorder(
@@ -349,6 +351,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             ),
             SizedBox(height: 20),
             TextField(
+              controller: nicknameController,
               onChanged: (value) {
                 controller.userRegistrationRequest.nickname = value;
               },
@@ -383,19 +386,24 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 height: 40), // Adds space between the text field and button
 
             ElevatedButton(
-              onPressed: () {
-                if (controller.userRegistrationRequest.nickname.isEmpty) {
-                  failure('Nickname', 'Enter Your Nickname');
-                } else {
-                  markStepAsCompleted(2);
-                  Get.snackbar('nickname',
-                      controller.userRegistrationRequest.nickname.toString());
-                  pageController.nextPage(
-                    duration: Duration(milliseconds: 300),
-                    curve: Curves.ease,
-                  );
-                }
-              },
+              onPressed: controller.userRegistrationRequest.nickname.isEmpty
+                  ? null
+                  : () {
+                      if (controller.userRegistrationRequest.nickname.isEmpty) {
+                        failure('Nickname', 'Enter Your Nickname');
+                        return;
+                      } else {
+                        markStepAsCompleted(2);
+                        Get.snackbar(
+                            'nickname',
+                            controller.userRegistrationRequest.nickname
+                                .toString());
+                        pageController.nextPage(
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.ease,
+                        );
+                      }
+                    },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                 backgroundColor: AppColors.activeColor,
@@ -604,53 +612,53 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 ),
               ),
               SizedBox(height: 20),
-              DropdownButtonFormField<String>(
-                value: controller.userRegistrationRequest.lookingFor.isEmpty
-                    ? null
-                    : controller.userRegistrationRequest.lookingFor,
-                validator: validateSelection,
-                decoration: InputDecoration(
-                  labelText: 'Relationship Type',
-                  labelStyle: AppTextStyles.labelText
-                      .copyWith(fontSize: optionFontSize),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: AppColors.textColor),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                ),
-                items: [
-                  DropdownMenuItem(
-                    value: '1',
-                    child: Text(
-                      'Serious Relationship',
-                      style: AppTextStyles.bodyText
-                          .copyWith(fontSize: optionFontSize),
-                    ),
-                  ),
-                  DropdownMenuItem(
-                    value: '2',
-                    child: Text(
-                      'Hookup',
-                      style: AppTextStyles.bodyText
-                          .copyWith(fontSize: optionFontSize),
-                    ),
-                  ),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    controller.userRegistrationRequest.lookingFor = value;
-                  }
-                },
-                iconEnabledColor: AppColors.textColor,
-                iconDisabledColor: AppColors.disabled,
-              ),
-              SizedBox(height: 20),
+              // DropdownButtonFormField<String>(
+              //   value: controller.userRegistrationRequest.lookingFor.isEmpty
+              //       ? null
+              //       : controller.userRegistrationRequest.lookingFor,
+              //   validator: validateSelection,
+              //   decoration: InputDecoration(
+              //     labelText: 'Relationship Type',
+              //     labelStyle: AppTextStyles.labelText
+              //         .copyWith(fontSize: optionFontSize),
+              //     border: OutlineInputBorder(
+              //       borderRadius: BorderRadius.circular(10),
+              //       borderSide: BorderSide(color: AppColors.textColor),
+              //     ),
+              //     focusedBorder: OutlineInputBorder(
+              //       borderSide: BorderSide(color: Colors.white),
+              //     ),
+              //     enabledBorder: OutlineInputBorder(
+              //       borderSide: BorderSide(color: Colors.white),
+              //     ),
+              //   ),
+              //   items: [
+              //     DropdownMenuItem(
+              //       value: '1',
+              //       child: Text(
+              //         'Serious Relationship',
+              //         style: AppTextStyles.bodyText
+              //             .copyWith(fontSize: optionFontSize),
+              //       ),
+              //     ),
+              //     DropdownMenuItem(
+              //       value: '2',
+              //       child: Text(
+              //         'Hookup',
+              //         style: AppTextStyles.bodyText
+              //             .copyWith(fontSize: optionFontSize),
+              //       ),
+              //     ),
+              //   ],
+              //   onChanged: (value) {
+              //     if (value != null) {
+              //       controller.userRegistrationRequest.lookingFor = value;
+              //     }
+              //   },
+              //   iconEnabledColor: AppColors.textColor,
+              //   iconDisabledColor: AppColors.disabled,
+              // ),
+              // SizedBox(height: 20),
               Column(
                 children: List.generate(controller.subGenders.length, (index) {
                   return RadioListTile<String>(
@@ -675,9 +683,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               ),
               SizedBox(height: 30),
               ElevatedButton(
-                onPressed: controller
-                            .userRegistrationRequest.lookingFor.isEmpty ||
-                        selectedOption.value.isEmpty
+                onPressed: selectedOption.value.isEmpty
                     ? null
                     : () {
                         validateSelection(dynamic value) {
@@ -1522,11 +1528,12 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 // step 9
   Widget buildUserDescriptionStep(Size screenSize) {
     RxString userDescription = ''.obs;
-
+    bool _isInputValid = true;
     // Function to track text changes
     void onDescriptionChanged(String value) {
-      userDescription.value = value; // Bind the RxString to the TextField
+      userDescription.value = value;
       controller.userRegistrationRequest.bio = value;
+      _isInputValid = RegExp(r'^[a-zA-Z\s]*$').hasMatch(value);
     }
 
     double screenWidth = screenSize.width;
@@ -1591,11 +1598,17 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(color: AppColors.textColor),
                   ),
+                  errorText:
+                      _isInputValid ? null : 'Please enter only alphabets',
                 ),
                 style: TextStyle(
                   color: AppColors.textColor,
                   fontSize: inputFontSize,
                 ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(
+                      RegExp(r'[a-zA-Z\s]')), // Only allow alphabets and spaces
+                ],
                 cursorColor: AppColors.cursorColor,
                 textInputAction: TextInputAction.done,
               ),
@@ -1621,6 +1634,17 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   onPressed: userDescription.value.isNotEmpty &&
                           userDescription.value.length <= 250
                       ? () {
+                          if (userDescription.value.isEmpty) {
+                            failure(
+                              'Validation Error',
+                              'Description cannot be empty.',
+                            );
+                          } else if (userDescription.value.length > 250) {
+                            failure(
+                              'Validation Error',
+                              'Description cannot exceed 250 characters.',
+                            );
+                          }
                           // Mark the current step as completed
                           markStepAsCompleted(9);
                           Get.snackbar(
@@ -1984,7 +2008,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
     // Handle 'Next' Button Press
     void onNextButtonPressed() {
-      if (controller.userRegistrationRequest.photos.isNotEmpty) {
+      if (controller.userRegistrationRequest.photos.length >= 3) {
         controller.userRegistrationRequest.imgcount =
             controller.userRegistrationRequest.photos.length.toString();
         markStepAsCompleted(11);
@@ -1998,7 +2022,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           curve: Curves.ease,
         );
       } else {
-        Get.snackbar("Error", "Please add at least one photo.");
+        Get.snackbar("Error", "Please add at least three photo.");
       }
     }
 
@@ -2040,13 +2064,16 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     crossAxisSpacing: 20.0,
                     mainAxisSpacing: 40.0,
                   ),
-                  itemCount: images.length, // Fixed number of slots (6)
+                  itemCount: images.length,
                   itemBuilder: (context, index) {
                     if (images[index] == null) {
+                         String? base64Image = controller.userRegistrationRequest.photos.length > index
+                      ? controller.userRegistrationRequest.photos[index]
+                      : "You are already add the photos";
+                   
                       return Center(
                         child: ElevatedButton(
                           onPressed: () {
-                            // Open the dialog when the "add photo" button is pressed
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
@@ -2098,6 +2125,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           ),
                         ),
                       );
+                      
                     } else {
                       // Display the image if available
                       return Center(
@@ -2203,289 +2231,288 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
-// step: 0000000
-  Widget buildPaymentWidget(Size screenSize) {
-    double fontSize = screenSize.width * 0.03;
-    Future<void> showPaymentConfirmationDialog(BuildContext context,
-        String planType, String planId, String amount) async {
-      return showDialog<void>(
-        context: context,
-        barrierDismissible: false, // Prevent dismissal by tapping outside
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(
-              "Confirm Subscription",
-              style: AppTextStyles.titleText.copyWith(
-                fontSize: fontSize,
-                color: AppColors.textColor,
-              ),
-            ),
-            content: Text(
-              "Do you want to subscribe to the $planType plan for $amount?",
-              style: AppTextStyles.bodyText.copyWith(
-                fontSize: fontSize - 2,
-                color: AppColors.textColor,
-              ),
-            ),
-          );
-        },
-      );
-    }
+// // step: 0000000
+//   Widget buildPaymentWidget(Size screenSize) {
+//     double fontSize = screenSize.width * 0.03;
+//     Future<void> showPaymentConfirmationDialog(BuildContext context,
+//         String planType, String planId, String amount) async {
+//       return showDialog<void>(
+//         context: context,
+//         barrierDismissible: false, // Prevent dismissal by tapping outside
+//         builder: (BuildContext context) {
+//           return AlertDialog(
+//             title: Text(
+//               "Confirm Subscription",
+//               style: AppTextStyles.titleText.copyWith(
+//                 fontSize: fontSize,
+//                 color: AppColors.textColor,
+//               ),
+//             ),
+//             content: Text(
+//               "Do you want to subscribe to the $planType plan for $amount?",
+//               style: AppTextStyles.bodyText.copyWith(
+//                 fontSize: fontSize - 2,
+//                 color: AppColors.textColor,
+//               ),
+//             ),
+//           );
+//         },
+//       );
+//     }
 
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              children: [
-                Text(
-                  "What We Offer",
-                  style: AppTextStyles.titleText.copyWith(
-                    fontSize: fontSize,
-                    color: AppColors.textColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Obx(() {
-                  return Container(
-                      width: MediaQuery.of(context).size.width * 0.8,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.formFieldColor),
-                      ),
-                      child: GestureDetector(
-                        onTap: () async {
-                          await showDialog<String>(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text("Choose a benefit"),
-                                content: SingleChildScrollView(
-                                  child: ListBody(
-                                    children: controller.benefits
-                                        .map<Widget>((Benefit benefit) {
-                                      return ListTile(
-                                        title: Text(
-                                          benefit.title,
-                                          style:
-                                              AppTextStyles.bodyText.copyWith(
-                                            fontSize: fontSize - 6,
-                                            color: AppColors.textColor,
-                                          ),
-                                        ),
-                                        onTap: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                        child: AbsorbPointer(
-                          child: Text(
-                            "Click to know what we offer",
-                            style: AppTextStyles.bodyText.copyWith(
-                              fontSize: fontSize - 6,
-                              color: AppColors.textColor.withOpacity(0.6),
-                            ),
-                          ),
-                        ),
-                      ));
-                })
-              ],
-            ),
-          ),
-          SizedBox(height: 20),
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Text(
-                    controller.headlines.isNotEmpty
-                        ? controller.headlines[10].title
-                        : "Loading Title...",
-                    style: AppTextStyles.titleText.copyWith(
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textColor,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    controller.headlines.isNotEmpty
-                        ? controller.headlines[10].description
-                        : "Loading Title...",
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2,
-                      color: AppColors.textColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-          Obx(() {
-            return ListView.builder(
-              shrinkWrap: true,
-              itemCount: controller.packages.length,
-              itemBuilder: (context, index) {
-                final package = controller.packages[index];
+//     return SingleChildScrollView(
+//       child: Column(
+//         children: [
+//           Padding(
+//             padding: const EdgeInsets.symmetric(horizontal: 16.0),
+//             child: Row(
+//               children: [
+//                 Text(
+//                   "What We Offer",
+//                   style: AppTextStyles.titleText.copyWith(
+//                     fontSize: fontSize,
+//                     color: AppColors.textColor,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//           SizedBox(height: 20),
+//           Padding(
+//             padding: const EdgeInsets.symmetric(horizontal: 16.0),
+//             child: Row(
+//               mainAxisAlignment: MainAxisAlignment.center,
+//               children: [
+//                 Obx(() {
+//                   return Container(
+//                       width: MediaQuery.of(context).size.width * 0.8,
+//                       decoration: BoxDecoration(
+//                         borderRadius: BorderRadius.circular(12),
+//                         border: Border.all(color: AppColors.formFieldColor),
+//                       ),
+//                       child: GestureDetector(
+//                         onTap: () async {
+//                           await showDialog<String>(
+//                             context: context,
+//                             builder: (BuildContext context) {
+//                               return AlertDialog(
+//                                 title: Text("Choose a benefit"),
+//                                 content: SingleChildScrollView(
+//                                   child: ListBody(
+//                                     children: controller.benefits
+//                                         .map<Widget>((Benefit benefit) {
+//                                       return ListTile(
+//                                         title: Text(
+//                                           benefit.title,
+//                                           style:
+//                                               AppTextStyles.bodyText.copyWith(
+//                                             fontSize: fontSize - 6,
+//                                             color: AppColors.textColor,
+//                                           ),
+//                                         ),
+//                                         onTap: () {
+//                                           Navigator.of(context).pop();
+//                                         },
+//                                       );
+//                                     }).toList(),
+//                                   ),
+//                                 ),
+//                               );
+//                             },
+//                           );
+//                         },
+//                         child: AbsorbPointer(
+//                           child: Text(
+//                             "Click to know what we offer",
+//                             style: AppTextStyles.bodyText.copyWith(
+//                               fontSize: fontSize - 6,
+//                               color: AppColors.textColor.withOpacity(0.6),
+//                             ),
+//                           ),
+//                         ),
+//                       ));
+//                 })
+//               ],
+//             ),
+//           ),
+//           SizedBox(height: 20),
+//           Card(
+//             elevation: 8,
+//             shape: RoundedRectangleBorder(
+//               borderRadius: BorderRadius.circular(12),
+//             ),
+//             child: Padding(
+//               padding: const EdgeInsets.all(16.0),
+//               child: Column(
+//                 children: [
+//                   Text(
+//                     controller.headlines.isNotEmpty
+//                         ? controller.headlines[10].title
+//                         : "Loading Title...",
+//                     style: AppTextStyles.titleText.copyWith(
+//                       fontSize: fontSize,
+//                       fontWeight: FontWeight.bold,
+//                       color: AppColors.textColor,
+//                     ),
+//                   ),
+//                   SizedBox(height: 10),
+//                   Text(
+//                     controller.headlines.isNotEmpty
+//                         ? controller.headlines[10].description
+//                         : "Loading Title...",
+//                     style: AppTextStyles.bodyText.copyWith(
+//                       fontSize: fontSize - 2,
+//                       color: AppColors.textColor,
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+//           SizedBox(height: 20),
+//           Obx(() {
+//             return ListView.builder(
+//               shrinkWrap: true,
+//               itemCount: controller.packages.length,
+//               itemBuilder: (context, index) {
+//                 final package = controller.packages[index];
 
-                return GestureDetector(
-                  onTap: () {
-                    showPaymentConfirmationDialog(
-                      context,
-                      package.unit,
-                      package.id,
-                      '₹${package.offerAmount}',
-                    );
-                  },
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Card(
-                        elevation: 8,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        color: Colors.orange,
-                        child: Padding(
-                          padding: const EdgeInsets.all(24.0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.calendar_today,
-                                color: AppColors.iconColor,
-                                size: fontSize,
-                              ),
-                              SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  "${package.unit} Plan - ₹${package.offerAmount}",
-                                  style: AppTextStyles.bodyText.copyWith(
-                                    fontSize: fontSize - 2,
-                                    color: AppColors.textColor,
-                                  ),
-                                ),
-                              ),
-                              Obx(() {
-                                return Text(
-                                  selectedPlan.value == package.unit
-                                      ? 'Selected'
-                                      : 'Select',
-                                  style: AppTextStyles.bodyText.copyWith(
-                                    fontSize: fontSize - 2,
-                                    color: selectedPlan.value == package.unit
-                                        ? AppColors.buttonColor
-                                        : AppColors.formFieldColor,
-                                  ),
-                                );
-                              }),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 4,
-                        right: 2,
-                        child: Container(
-                          padding:
-                              EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            '20% OFF',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: fontSize - 6,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          }),
-          SizedBox(height: 20),
-          Obx(() {
-            return Visibility(
-              visible: selectedPlan.value != 'None',
-              child: ElevatedButton(
-                onPressed: () {
-                  markStepAsCompleted(12);
-                  pageController.nextPage(
-                    duration: Duration(milliseconds: 300),
-                    curve: Curves.ease,
-                  );
-                },
-                child: Text(
-                  "Next",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: fontSize,
-                    color: AppColors.textColor,
-                  ),
-                ),
-              ),
-            );
-          }),
-          ElevatedButton(
-            onPressed: onBackPressed,
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-              backgroundColor: AppColors.buttonColor,
-              foregroundColor: AppColors.textColor,
-            ),
-            child: Text('Back', style: AppTextStyles.buttonText),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              markStepAsCompleted(12);
+//                 return GestureDetector(
+//                   onTap: () {
+//                     showPaymentConfirmationDialog(
+//                       context,
+//                       package.unit,
+//                       package.id,
+//                       '₹${package.offerAmount}',
+//                     );
+//                   },
+//                   child: Stack(
+//                     clipBehavior: Clip.none,
+//                     children: [
+//                       Card(
+//                         elevation: 8,
+//                         shape: RoundedRectangleBorder(
+//                           borderRadius: BorderRadius.circular(12),
+//                         ),
+//                         color: Colors.orange,
+//                         child: Padding(
+//                           padding: const EdgeInsets.all(24.0),
+//                           child: Row(
+//                             children: [
+//                               Icon(
+//                                 Icons.calendar_today,
+//                                 color: AppColors.iconColor,
+//                                 size: fontSize,
+//                               ),
+//                               SizedBox(width: 10),
+//                               Expanded(
+//                                 child: Text(
+//                                   "${package.unit} Plan - ₹${package.offerAmount}",
+//                                   style: AppTextStyles.bodyText.copyWith(
+//                                     fontSize: fontSize - 2,
+//                                     color: AppColors.textColor,
+//                                   ),
+//                                 ),
+//                               ),
+//                               Obx(() {
+//                                 return Text(
+//                                   selectedPlan.value == package.unit
+//                                       ? 'Selected'
+//                                       : 'Select',
+//                                   style: AppTextStyles.bodyText.copyWith(
+//                                     fontSize: fontSize - 2,
+//                                     color: selectedPlan.value == package.unit
+//                                         ? AppColors.buttonColor
+//                                         : AppColors.formFieldColor,
+//                                   ),
+//                                 );
+//                               }),
+//                             ],
+//                           ),
+//                         ),
+//                       ),
+//                       Positioned(
+//                         top: 4,
+//                         right: 2,
+//                         child: Container(
+//                           padding:
+//                               EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+//                           decoration: BoxDecoration(
+//                             color: Colors.red,
+//                             borderRadius: BorderRadius.circular(12),
+//                           ),
+//                           child: Text(
+//                             '20% OFF',
+//                             textAlign: TextAlign.center,
+//                             style: TextStyle(
+//                               color: Colors.white,
+//                               fontSize: fontSize - 6,
+//                               fontWeight: FontWeight.bold,
+//                             ),
+//                           ),
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 );
+//               },
+//             );
+//           }),
+//           SizedBox(height: 20),
+//           Obx(() {
+//             return Visibility(
+//               visible: selectedPlan.value != 'None',
+//               child: ElevatedButton(
+//                 onPressed: () {
+//                   markStepAsCompleted(12);
+//                   pageController.nextPage(
+//                     duration: Duration(milliseconds: 300),
+//                     curve: Curves.ease,
+//                   );
+//                 },
+//                 child: Text(
+//                   "Next",
+//                   style: AppTextStyles.bodyText.copyWith(
+//                     fontSize: fontSize,
+//                     color: AppColors.textColor,
+//                   ),
+//                 ),
+//               ),
+//             );
+//           }),
+//           ElevatedButton(
+//             onPressed: onBackPressed,
+//             style: ElevatedButton.styleFrom(
+//               padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+//               backgroundColor: AppColors.buttonColor,
+//               foregroundColor: AppColors.textColor,
+//             ),
+//             child: Text('Back', style: AppTextStyles.buttonText),
+//           ),
+//           ElevatedButton(
+//             onPressed: () {
+//               markStepAsCompleted(12);
 
-              pageController.nextPage(
-                duration: Duration(milliseconds: 300),
-                curve: Curves.ease,
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-              backgroundColor: AppColors.buttonColor,
-              foregroundColor: AppColors.textColor,
-            ),
-            child: Text('Skip', style: AppTextStyles.buttonText),
-          ),
-        ],
-      ),
-    );
-  }
+//               pageController.nextPage(
+//                 duration: Duration(milliseconds: 300),
+//                 curve: Curves.ease,
+//               );
+//             },
+//             style: ElevatedButton.styleFrom(
+//               padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+//               backgroundColor: AppColors.buttonColor,
+//               foregroundColor: AppColors.textColor,
+//             ),
+//             child: Text('Skip', style: AppTextStyles.buttonText),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
 
 // step 12
   Widget buildSafetyGuidelinesWidget(Size screenSize) {
     double fontSize = screenSize.width * 0.03;
-    final controller = Get.find<Controller>();
 
     return SingleChildScrollView(
       child: Column(
@@ -2537,16 +2564,22 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  controller.safetyGuidelines.isNotEmpty
-                      ? ListView.builder(
-                          shrinkWrap:
-                              true, // Allows ListView to take only as much space as needed
-                          physics:
-                              NeverScrollableScrollPhysics(), // Prevents nested scrolls
+                  // Loading state handling for safety guidelines
+                  controller.safetyGuidelines.isEmpty
+                      ? Center(
+                          child: SpinKitCircle(
+                            size: 35.0,
+                            color: AppColors.progressColor,
+                          ),
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
                           itemCount: controller.safetyGuidelines.length,
                           itemBuilder: (context, index) {
                             var guideline = controller.safetyGuidelines[index];
                             return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 SizedBox(height: 15),
                                 Row(
@@ -2570,6 +2603,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                               color: AppColors.textColor,
                                             ),
                                           ),
+                                          SizedBox(height: 5),
                                           Text(
                                             guideline.description,
                                             style:
@@ -2586,12 +2620,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                               ],
                             );
                           },
-                        )
-                      : Center(
-                          child: SpinKitCircle(
-                            size: 35.0, // Adjust the size as needed
-                            color: AppColors.progressColor,
-                          ),
                         ),
                   SizedBox(height: 20),
                 ],
@@ -2604,8 +2632,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           ElevatedButton(
             onPressed: () {
               markStepAsCompleted(12);
-
-              // Move to the next page in the PageView
               pageController.nextPage(
                 duration: Duration(milliseconds: 300),
                 curve: Curves.ease,
@@ -2623,8 +2649,11 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               ),
             ),
           ),
+          SizedBox(height: 10),
+
+          // Back Button
           ElevatedButton(
-            onPressed: onBackPressed, // Call the onBackPressed method
+            onPressed: onBackPressed,
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
               backgroundColor: AppColors.buttonColor,

@@ -1,51 +1,27 @@
-class UpdateEmailIdResponse {
+class AppSettingResponse {
   final bool success;
-  final Payload payload;
+  final String payload;
   final Error error;
 
-  UpdateEmailIdResponse({
+  AppSettingResponse({
     required this.success,
     required this.payload,
     required this.error,
   });
 
-  
-  factory UpdateEmailIdResponse.fromJson(Map<String, dynamic> json) {
-    return UpdateEmailIdResponse(
+  factory AppSettingResponse.fromJson(Map<String, dynamic> json) {
+    return AppSettingResponse(
       success: json['success'],
-      payload: Payload.fromJson(json['payload']),
+      payload: json['payload'],
       error: Error.fromJson(json['error']),
     );
   }
 
-
   Map<String, dynamic> toJson() {
     return {
       'success': success,
-      'payload': payload.toJson(),
+      'payload': payload,
       'error': error.toJson(),
-    };
-  }
-}
-
-class Payload {
-  final String message;
-
-  Payload({
-    required this.message,
-  });
-
-
-  factory Payload.fromJson(Map<String, dynamic> json) {
-    return Payload(
-      message: json['message'],
-    );
-  }
-
-
-  Map<String, dynamic> toJson() {
-    return {
-      'message': message,
     };
   }
 }
@@ -54,11 +30,11 @@ class Error {
   final int code;
   final String message;
 
+  
   Error({
     required this.code,
     required this.message,
   });
-
 
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
@@ -66,7 +42,6 @@ class Error {
       message: json['message'],
     );
   }
-
 
   Map<String, dynamic> toJson() {
     return {

@@ -1,4 +1,4 @@
-// SafetyGuideline Model
+
 class SafetyGuideline {
   final String id;
   final String title;
@@ -27,7 +27,7 @@ class SafetyGuideline {
   }
 }
 
-// Payload Model
+
 class Payload {
   final String msg;
   final List<SafetyGuideline> data;
@@ -54,7 +54,6 @@ class Payload {
   }
 }
 
-// Error Model
 class Error {
   final int code;
   final String message;
@@ -79,7 +78,6 @@ class Error {
   }
 }
 
-// Top-level SafetyGuidelinesResponse Model
 class SafetyGuidelinesResponse {
   final bool success;
   final Payload payload;

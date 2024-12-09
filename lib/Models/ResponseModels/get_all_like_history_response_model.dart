@@ -5,7 +5,6 @@ class LikeHistoryResponse {
 
   LikeHistoryResponse({this.success, this.payload, this.error});
 
-  // Factory method to create a LikeHistoryResponse instance from JSON
   factory LikeHistoryResponse.fromJson(Map<String, dynamic> json) {
     return LikeHistoryResponse(
       success: json['success'],
@@ -15,7 +14,6 @@ class LikeHistoryResponse {
     );
   }
 
-  // Method to convert a LikeHistoryResponse instance to JSON
   Map<String, dynamic> toJson() {
     return {
       'success': success,
@@ -32,7 +30,6 @@ class Payload {
 
   Payload({this.message, this.likeCount, this.data});
 
-  // Factory method to create a Payload instance from JSON
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
       message: json['message'],
@@ -43,7 +40,6 @@ class Payload {
     );
   }
 
-  // Method to convert a Payload instance to JSON
   Map<String, dynamic> toJson() {
     return {
       'message': message,

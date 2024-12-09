@@ -1,7 +1,7 @@
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get_connect.dart';
 
-import '../Models/ResponseModels/like_history_response_model.dart';
+import '../Models/ResponseModels/get_all_like_history_response_model.dart';
 import '../constants.dart';
 
 class LikesHistoryProvider extends GetConnect {
@@ -17,7 +17,7 @@ class LikesHistoryProvider extends GetConnect {
       }
 
       Response response = await post(
-        '$baseurl/Chats/user_suggestions',
+        '$baseurl/Profile/likes',
         null,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',

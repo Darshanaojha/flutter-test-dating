@@ -34,14 +34,13 @@ class Payload {
     required this.message,
   });
 
-  // Convert Payload object to JSON string
+ 
   Map<String, dynamic> toJson() {
     return {
       'message': message,
     };
   }
 
-  // Create Payload object from JSON string
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
       message: json['message'] ?? '',

@@ -5,7 +5,7 @@ class PinProfilePicResponseModel {
 
   PinProfilePicResponseModel({this.success, this.payload, this.error});
 
-  // Factory method to create a PhotoPinUpdateResponse instance from JSON
+
   factory PinProfilePicResponseModel.fromJson(Map<String, dynamic> json) {
     return PinProfilePicResponseModel(
       success: json['success'],
@@ -15,7 +15,7 @@ class PinProfilePicResponseModel {
     );
   }
 
-  // Method to convert a PhotoPinUpdateResponse instance to JSON
+
   Map<String, dynamic> toJson() {
     return {
       'success': success,
@@ -30,14 +30,14 @@ class Payload {
 
   Payload({this.message});
 
-  // Factory method to create a Payload instance from JSON
+
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
       message: json['message'],
     );
   }
 
-  // Method to convert a Payload instance to JSON
+  
   Map<String, dynamic> toJson() {
     return {
       'message': message,
@@ -51,7 +51,6 @@ class Error {
 
   Error({this.code, this.message});
 
-  // Factory method to create an ErrorDetails instance from JSON
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
       code: json['code'],
@@ -59,7 +58,6 @@ class Error {
     );
   }
 
-  // Method to convert an ErrorDetails instance to JSON
   Map<String, dynamic> toJson() {
     return {
       'code': code,

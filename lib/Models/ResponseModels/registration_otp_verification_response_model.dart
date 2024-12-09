@@ -9,7 +9,7 @@ class RegistrationOtpVerificationResponse {
     required this.error,
   });
 
-  // Factory constructor to create RegistrationOtpVerificationResponse from JSON
+ 
   factory RegistrationOtpVerificationResponse.fromJson(Map<String, dynamic> json) {
     return RegistrationOtpVerificationResponse(
       success: json['success'],
@@ -18,7 +18,7 @@ class RegistrationOtpVerificationResponse {
     );
   }
 
-  // Method to convert RegistrationOtpVerificationResponse object to JSON
+
   Map<String, dynamic> toJson() {
     return {
       'success': success,
@@ -35,14 +35,14 @@ class RegistrationOtpVerificationPayload {
     required this.message,
   });
 
-  // Factory constructor to create RegistrationOtpVerificationPayload from JSON
+  
   factory RegistrationOtpVerificationPayload.fromJson(Map<String, dynamic> json) {
     return RegistrationOtpVerificationPayload(
-      message: json['message'] ?? '', // Default to empty string if message is null
+      message: json['message'] ?? '',
     );
   }
 
-  // Method to convert RegistrationOtpVerificationPayload object to JSON
+
   Map<String, dynamic> toJson() {
     return {
       'message': message,
@@ -59,15 +59,15 @@ class ApiError {
     required this.message,
   });
 
-  // Factory constructor to create ApiError from JSON
+
   factory ApiError.fromJson(Map<String, dynamic> json) {
     return ApiError(
       code: json['code'],
-      message: json['message'] ?? '', // Default to empty string if message is null
+      message: json['message'] ?? '',
     );
   }
 
-  // Method to convert ApiError object to JSON
+
   Map<String, dynamic> toJson() {
     return {
       'code': code,

@@ -75,16 +75,15 @@ class ApiError {
     required this.message,
   });
 
-  // Factory constructor to create ApiError from JSON
+
   factory ApiError.fromJson(Map<String, dynamic> json) {
     return ApiError(
       code: json['code'],
       message: json['message'] ??
-          '', // Default to an empty string if message is null
+          '', 
     );
   }
 
-  // Method to convert ApiError object to JSON
   Map<String, dynamic> toJson() {
     return {
       'code': code,

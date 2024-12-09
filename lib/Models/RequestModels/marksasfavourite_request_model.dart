@@ -1,5 +1,5 @@
 class MarkFavouriteRequestModel {
-  String favouriteId;
+  String? favouriteId;
 
   MarkFavouriteRequestModel({
     required this.favouriteId,
