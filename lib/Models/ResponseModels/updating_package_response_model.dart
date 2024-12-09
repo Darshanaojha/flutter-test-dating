@@ -9,7 +9,6 @@ class UpdateNewPackageResponse {
     required this.error,
   });
 
-  // Factory method to create an instance from JSON
   factory UpdateNewPackageResponse.fromJson(Map<String, dynamic> json) {
     return UpdateNewPackageResponse(
       success: json['success'],
@@ -18,7 +17,7 @@ class UpdateNewPackageResponse {
     );
   }
 
-  // Convert the model back to a JSON map
+
   Map<String, dynamic> toJson() {
     return {
       'success': success,
@@ -35,14 +34,12 @@ class Payload {
     required this.message,
   });
 
-  // Factory method to create an instance from JSON
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
       message: json['message'],
     );
   }
 
-  // Convert the model back to a JSON map
   Map<String, dynamic> toJson() {
     return {
       'message': message,
@@ -59,7 +56,7 @@ class Error {
     required this.message,
   });
 
-  // Factory method to create an instance from JSON
+
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
       code: json['code'],
@@ -67,7 +64,6 @@ class Error {
     );
   }
 
-  // Convert the model back to a JSON map
   Map<String, dynamic> toJson() {
     return {
       'code': code,

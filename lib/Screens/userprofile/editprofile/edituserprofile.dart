@@ -799,8 +799,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                         children: [
                                           DropdownButtonFormField<String>(
                                             value: initialLookingForValue
-                                                        ?.isEmpty ??
-                                                    true
+                                                        .isEmpty
                                                 ? null
                                                 : initialLookingForValue,
                                             decoration: InputDecoration(

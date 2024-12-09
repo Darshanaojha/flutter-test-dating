@@ -9,7 +9,7 @@ class SubGenderResponse {
     required this.error,
   });
 
-  // Factory constructor to create SubGenderResponse from JSON
+
   factory SubGenderResponse.fromJson(Map<String, dynamic> json) {
     return SubGenderResponse(
       success: json['success'],
@@ -18,7 +18,7 @@ class SubGenderResponse {
     );
   }
 
-  // Method to convert SubGenderResponse object to JSON
+
   Map<String, dynamic> toJson() {
     return {
       'success': success,
@@ -37,7 +37,7 @@ class SubGenderPayload {
     required this.data,
   });
 
-  // Factory constructor to create SubGenderPayload from JSON
+
   factory SubGenderPayload.fromJson(Map<String, dynamic> json) {
     var dataList = (json['data'] as List)
         .map((item) => SubGenderData.fromJson(item))
@@ -49,7 +49,6 @@ class SubGenderPayload {
     );
   }
 
-  // Method to convert SubGenderPayload object to JSON
   Map<String, dynamic> toJson() {
     return {
       'msg': msg,
@@ -67,7 +66,7 @@ class SubGenderData {
     required this.title,
   });
 
-  // Factory constructor to create SubGenderData from JSON
+
   factory SubGenderData.fromJson(Map<String, dynamic> json) {
     return SubGenderData(
       id: json['id'],
@@ -75,7 +74,7 @@ class SubGenderData {
     );
   }
 
-  // Method to convert SubGenderData object to JSON
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -93,15 +92,14 @@ class ApiError {
     required this.message,
   });
 
-  // Factory constructor to create ApiError from JSON
+
   factory ApiError.fromJson(Map<String, dynamic> json) {
     return ApiError(
       code: json['code'],
-      message: json['message'] ?? '',  // Default to an empty string if message is null
+      message: json['message'] ?? '',
     );
   }
 
-  // Method to convert ApiError object to JSON
   Map<String, dynamic> toJson() {
     return {
       'code': code,

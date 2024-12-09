@@ -5,7 +5,7 @@ class LikedByResponseModel {
 
   LikedByResponseModel({this.success, this.payload, this.error});
 
-  // Factory method to create a ResponseModel instance from JSON
+
   factory LikedByResponseModel.fromJson(Map<String, dynamic> json) {
     return LikedByResponseModel(
       success: json['success'],
@@ -15,7 +15,6 @@ class LikedByResponseModel {
     );
   }
 
-  // Method to convert a ResponseModel instance to JSON
   Map<String, dynamic> toJson() {
     return {
       'success': success,
@@ -30,14 +29,13 @@ class Payload {
 
   Payload({this.message});
 
-  // Factory method to create a Payload instance from JSON
+
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
       message: json['message'],
     );
   }
 
-  // Method to convert a Payload instance to JSON
   Map<String, dynamic> toJson() {
     return {
       'message': message,
@@ -58,7 +56,6 @@ class Error {
     );
   }
 
-  // Method to convert an ErrorDetails instance to JSON
   Map<String, dynamic> toJson() {
     return {
       'code': code,

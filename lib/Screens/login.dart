@@ -17,7 +17,7 @@ class Login extends StatefulWidget {
 }
 
 class LoginState extends State<Login> with TickerProviderStateMixin {
-  Controller controller = Get.put(Controller());
+  final controller = Get.find<Controller>();
   final formKey = GlobalKey<FormState>();
   late UserLoginRequest loginRequest;
   late AnimationController animationController;
@@ -106,9 +106,9 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                                 String packagestatus =
                                     response.payload.packagestatus;
                                 if (packagestatus == '0') {
-                                  Get.to(Unsubscribenavigation());
+                                  Get.offAll(Unsubscribenavigation());
                                 } else if (packagestatus == '1') {
-                                  Get.to(NavigationBottomBar());
+                                  Get.offAll(NavigationBottomBar());
                                 }
                               } else {
                                 Get.snackbar(

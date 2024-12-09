@@ -9,7 +9,6 @@ class UpdateLatLongResponse {
     required this.error,
   });
 
-  // Factory constructor to create an instance from JSON
   factory UpdateLatLongResponse.fromJson(Map<String, dynamic> json) {
     return UpdateLatLongResponse(
       success: json['success'],
@@ -18,7 +17,7 @@ class UpdateLatLongResponse {
     );
   }
 
-  // Method to convert instance to JSON
+
   Map<String, dynamic> toJson() {
     return {
       'success': success,
@@ -33,14 +32,13 @@ class Payload {
 
   Payload({required this.message});
 
-  // Factory constructor to create an instance from JSON
+
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
       message: json['message'],
     );
   }
 
-  // Method to convert instance to JSON
   Map<String, dynamic> toJson() {
     return {
       'message': message,
@@ -54,7 +52,7 @@ class Error {
 
   Error({required this.code, required this.message});
 
-  // Factory constructor to create an instance from JSON
+
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
       code: json['code'],

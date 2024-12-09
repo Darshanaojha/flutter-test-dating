@@ -66,7 +66,8 @@ class LikesPageState extends State<LikesPage> {
   ];
 
   bool isLiked = false;
-  bool isDisliked = false;
+  bool isShare = false;
+  bool isSms = false;
   int pingCount = 0;
   int likeCount = 10;
   final PageController imagePageController = PageController();
@@ -418,15 +419,29 @@ class LikesPageState extends State<LikesPage> {
                               IconButton(
                                 onPressed: () {
                                   setState(() {
-                                    isDisliked = !isDisliked;
+                                    isShare = !isShare;
                                   });
                                 },
                                 icon: Icon(
-                                  isDisliked
-                                      ? Icons.thumb_down
-                                      : Icons.thumb_down_alt_outlined,
+                                  isShare
+                                      ? Icons.share
+                                      : Icons.share_sharp,
                                   size: 30,
-                                  color: isDisliked ? Colors.red : Colors.white,
+                                  color: isShare ? Colors.red : Colors.white,
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    isSms = !isSms;
+                                  });
+                                },
+                                icon: Icon(
+                                  isSms
+                                      ? Icons.messenger
+                                      : Icons.messenger_outline,
+                                  size: 30,
+                                  color: isSms ? Colors.red : Colors.white,
                                 ),
                               ),
                             ],

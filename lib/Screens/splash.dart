@@ -52,24 +52,6 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
 
   intialize() async {
     try {
-      Position position = await _getUserLocation();
-      List<Placemark> placemarks =
-          await placemarkFromCoordinates(position.latitude, position.longitude);
-      Placemark place = placemarks.first;
-
-      UpdateLatLongRequest updateLatLongRequest = UpdateLatLongRequest(
-        latitude: position.latitude.toString(),
-        longitude: position.longitude.toString(),
-        city: place.locality ?? 'Unknown', // Get city from placemark
-        address: place.name ?? 'Unknown', // Get address from placemark
-      );
-      controller.updatelatlong(updateLatLongRequest);
-
-      UpdateActivityStatusRequest updateActivityStatusRequest =
-          UpdateActivityStatusRequest(status: '1');
-      controller.updateactivitystatus(updateActivityStatusRequest);
-
-      // Fetch other data needed for the app
       await controller.fetchAllHeadlines();
       await controller.fetchSafetyGuidelines();
       await controller.fetchAllPackages();
@@ -91,6 +73,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
         await controller.reportReason();
         await controller.fetchAllverificationtype();
         await controller.fetchProfileUserPhotos();
+        await controller.fetchallfavourites();
         await controller.fetchAllFaq();
         await controller.userSuggestions();
         await controller.fetchAllsubscripted();
@@ -103,6 +86,22 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
           }
         }
       }
+      Position position = await _getUserLocation();
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
+      Placemark place = placemarks.first;
+
+      UpdateLatLongRequest updateLatLongRequest = UpdateLatLongRequest(
+        latitude: position.latitude.toString(),
+        longitude: position.longitude.toString(),
+        city: place.locality ?? 'Unknown',
+        address: place.name ?? 'Unknown',
+      );
+      controller.updatelatlong(updateLatLongRequest);
+
+      UpdateActivityStatusRequest updateActivityStatusRequest =
+          UpdateActivityStatusRequest(status: '1');
+      controller.updateactivitystatus(updateActivityStatusRequest);
     } catch (e) {
       failure("Error", e.toString());
       Get.offAll(() => Login());

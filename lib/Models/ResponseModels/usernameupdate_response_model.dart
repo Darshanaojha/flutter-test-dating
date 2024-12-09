@@ -3,14 +3,14 @@ class UsernameUpdateResponse {
   Payload payload;
   ErrorDetails error;
 
-  // Constructor
+
   UsernameUpdateResponse({
     required this.success,
     required this.payload,
     required this.error,
   });
 
-  // Factory method to create an instance from a JSON map
+
   factory UsernameUpdateResponse.fromJson(Map<String, dynamic> json) {
     return UsernameUpdateResponse(
       success: json['success'] ?? false,
@@ -19,7 +19,7 @@ class UsernameUpdateResponse {
     );
   }
 
-  // Method to convert the object back to a JSON map
+  
   Map<String, dynamic> toJson() {
     return {
       'success': success,

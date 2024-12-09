@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:dating_application/Screens/userprofile/userprofilepage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -19,7 +18,7 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
   final ImagePicker _picker = ImagePicker();
   bool isSelfieTaken = false;
   String selfiePath = '';
-  bool isLoading = true; // Track loading state
+  bool isLoading = true; 
 
   @override
   void initState() {
@@ -34,7 +33,6 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
     });
   }
 
-  // Take a photo using the camera
   void takePhoto() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
 
@@ -47,17 +45,15 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
       print('Base64 Encoded Image: $base64Image');
       controller.requestToVerifyAccount.identifyImage = base64Image;
       controller.requestToVerifyAccount.identifyNo =
-          controller.verificationtype!.id;
+          controller.verificationtype.id;
     }
   }
 
-  // Function to encode the image to Base64
   Future<String> encodeImageToBase64(String filePath) async {
     final bytes = await File(filePath).readAsBytes();
     return base64Encode(bytes);
   }
 
-  // Submit the verification
   void submitVerification()  {
     if (isSelfieTaken) {
       controller
@@ -68,7 +64,6 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
     }
   }
 
-  // Show full image in a dialog
   void showFullImageDialog(String photoPath) {
     showDialog(
       context: context,
@@ -90,29 +85,26 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
       body: isLoading
           ? Center(
               child:
-                  CircularProgressIndicator()) // Show loading spinner while data is being fetched
+                  CircularProgressIndicator())
           : SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Title
+                 
                     Text(
-                      "Verification Type: ${controller.verificationtype?.title ?? 'Loading...'}", // Handle null safely
+                      "Verification Type: ${controller.verificationtype.title}", 
                       style: AppTextStyles.titleText,
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 16),
-                    // Description
                     Text(
-                      'Description: ${controller.verificationtype?.description ?? 'Loading...'}', // Handle null safely
+                      'Description: ${controller.verificationtype.description}',
                       style: AppTextStyles.bodyText,
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 50),
-
-                    // Photo Option: Selfie (Centered)
                     if (isSelfieTaken)
                       GestureDetector(
                         onTap: () => showFullImageDialog(selfiePath),
@@ -133,9 +125,9 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
                           backgroundColor: AppColors.buttonColor,
                         ),
                         child: Icon(
-                          Icons.camera_alt, // Camera icon
-                          color: AppColors.textColor, // Color for the icon
-                          size: 30, // Icon size
+                          Icons.camera_alt,
+                          color: AppColors.textColor,
+                          size: 30,
                         ),
                       ),
 

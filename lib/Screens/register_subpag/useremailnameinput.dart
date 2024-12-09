@@ -13,7 +13,7 @@ class UserInputPage extends StatefulWidget {
 
 class UserInputPageState extends State<UserInputPage> {
   final formKey = GlobalKey<FormState>();
-  Controller controller = Get.find();
+  final controller = Get.find<Controller>();
 
   @override
   void initState() {
@@ -25,11 +25,11 @@ class UserInputPageState extends State<UserInputPage> {
 
   String? validateName(String? value) {
     if (value == null || value.isEmpty) {
-      failure('Name','Please enter your name' );
+      failure('Name', 'Please enter your name');
       return 'Please enter your name';
     }
     if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
-      failure('RE-Enter','Name must contain only alphabets');
+      failure('RE-Enter', 'Name must contain only alphabets');
       return 'Name must contain only alphabets';
     }
     return null;
@@ -37,7 +37,7 @@ class UserInputPageState extends State<UserInputPage> {
 
   String? validateGmail(String? value) {
     if (value == null || value.isEmpty) {
-      failure('Email','Please enter your email' );
+      failure('Email', 'Please enter your email');
       return 'Please enter your email';
     }
 
@@ -142,7 +142,7 @@ class UserInputPageState extends State<UserInputPage> {
                   },
                   onSaved: (value) {
                     controller.registrationOTPRequest.email = value ?? '';
-                     controller.userRegistrationRequest.email = value ?? '';
+                    controller.userRegistrationRequest.email = value ?? '';
                   },
                 ),
                 SizedBox(height: 40),
@@ -154,7 +154,8 @@ class UserInputPageState extends State<UserInputPage> {
                       Get.to(OTPVerificationPage());
                       controller.getOtpForRegistration(
                           controller.registrationOTPRequest);
-                          Get.snackbar('Email is', controller.registrationOTPRequest.email.toString());
+                      Get.snackbar('Email is',
+                          controller.registrationOTPRequest.email.toString());
                     } else {
                       failure(
                         'Validation Failed',

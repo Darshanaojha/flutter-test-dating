@@ -19,6 +19,7 @@ import 'package:dating_application/Models/ResponseModels/subgender_response_mode
 import 'package:dating_application/Models/ResponseModels/updating_package_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/user_upload_images_response_model.dart';
 import 'package:dating_application/Providers/activity_status_provider.dart';
+import 'package:dating_application/Providers/app_setting_provider.dart';
 import 'package:dating_application/Providers/change_password_provider.dart';
 import 'package:dating_application/Providers/fetch_all_desires_provider.dart';
 import 'package:dating_application/Providers/fetch_all_faq_provider.dart';
@@ -36,6 +37,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
+import '../Models/RequestModels/app_setting_request_model.dart';
 import '../Models/RequestModels/block_User_request_model.dart';
 import '../Models/RequestModels/delete_message_request_model.dart';
 import '../Models/RequestModels/deletefavourite_request_model.dart';
@@ -63,6 +65,7 @@ import '../Models/RequestModels/verify_account_request_model.dart';
 import '../Models/ResponseModels/ProfileResponse.dart';
 import '../Models/ResponseModels/all_active_user_resposne_model.dart';
 import '../Models/ResponseModels/app_details_response_model.dart';
+import '../Models/ResponseModels/app_setting_response_model.dart';
 import '../Models/ResponseModels/block_user_response_model.dart';
 import '../Models/ResponseModels/chat_history_response_model.dart';
 import '../Models/ResponseModels/connected_user_response_model.dart';
@@ -78,7 +81,7 @@ import '../Models/ResponseModels/get_all_subscripted_package_model.dart';
 import '../Models/ResponseModels/get_all_verification_response_model.dart';
 import '../Models/ResponseModels/get_report_user_options_response_model.dart';
 import '../Models/ResponseModels/highlight_profile_status_response_model.dart';
-import '../Models/ResponseModels/like_history_response_model.dart';
+import '../Models/ResponseModels/get_all_like_history_response_model.dart';
 import '../Models/ResponseModels/liked_by_response_model.dart';
 import '../Models/ResponseModels/marksasfavourite_response_model.dart';
 import '../Models/ResponseModels/pin_profile_pic_response_model.dart';
@@ -114,7 +117,7 @@ import '../Providers/fetch_sub_genders_provider.dart';
 import '../Providers/fetch_verificationtype_provider.dart';
 import '../Providers/highlight_profile_status_provider.dart';
 import '../Providers/home_page_provider.dart';
-import '../Providers/likes_history_provider.dart';
+import '../Providers/fetch_all_likes_history_provider.dart';
 import '../Providers/markasfavourite_provider.dart';
 import '../Providers/master_setting_provider.dart';
 import '../Providers/pin_profile_pic_provider.dart';
@@ -1106,7 +1109,7 @@ class Controller extends GetxController {
     }
   }
 
-  RxList<SuggestedUser> filteredList = <SuggestedUser>[].obs;
+
   RxList<SuggestedUser> userSuggestionsList = <SuggestedUser>[].obs;
   RxList<SuggestedUser> userHighlightedList = <SuggestedUser>[].obs;
   RxList<SuggestedUser> userNearByList = <SuggestedUser>[].obs;
@@ -1155,6 +1158,7 @@ class Controller extends GetxController {
     }
   }
 
+  LikeModel likeModel = LikeModel(likedBy: '');
   Future<bool> postLike(LikeModel likeModel) async {
     try {
       LikedByResponseModel? response =
@@ -1510,6 +1514,29 @@ class Controller extends GetxController {
         return true;
       } else {
         failure('Error', 'Failed to submit the delete favourite request');
+        Get.close(1);
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      Get.close(1);
+      return false;
+    }
+  }
+
+  AppSettingRequest appSettingRequest =
+      AppSettingRequest(minimumAge: '', maximumAge: '', rangeKm: '');
+
+  Future<bool> appsetting(AppSettingRequest appSettingRequest) async {
+    try {
+      AppSettingResponse? response =
+          await AppSettingProvider().appsettingprovider(appSettingRequest);
+      if (response != null) {
+        success('success', response.payload);
+        Get.close(1);
+        return true;
+      } else {
+        failure('Error', 'Failed to submit the mark as favourite request');
         Get.close(1);
         return false;
       }

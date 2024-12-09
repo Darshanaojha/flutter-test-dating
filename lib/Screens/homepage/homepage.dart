@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dating_application/Controllers/controller.dart';
+import 'package:dating_application/Models/ResponseModels/user_suggestions_response_model.dart';
 import 'package:dating_application/Screens/homepage/swaping.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -45,27 +46,33 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    controller.filteredList.value = List.from(controller.userSuggestionsList);
-    controller.userSuggestionsList;
-    controller.userHighlightedList;
-    controller.userNearByList;
     matchEngine = MatchEngine();
     _fetchSuggestion = initializeApp();
   }
 
   Future<bool> initializeApp() async {
     if (!await controller.userSuggestions()) return false;
-    for (int i = 0; i < controller.filteredList.length; i++) {
+    for (int i = 0; i < controller.userSuggestionsList.length; i++) {
       swipeItems.add(SwipeItem(
-        content: controller.filteredList[i].userId,
+        content: controller.userSuggestionsList[i].userId,
         likeAction: () {
-          success('Hey Boy', "Liked ${controller.filteredList[i].name}");
+          controller.likeModel.likedBy =
+              controller.userSuggestionsList[i].userId;
+          controller.postLike(controller.likeModel);
+
+          success('Hey Boy',
+              "Liked ${controller.userSuggestionsList[i].name} ${controller.userSuggestionsList[i].userId}");
         },
         nopeAction: () {
-          failure('OOPS', "Nope ${controller.filteredList[i].name}");
+          success('OOPS', "Nope ${controller.userSuggestionsList[i].name}");
         },
         superlikeAction: () {
-          success('Bravo', "Superliked ${controller.filteredList[i].name}");
+          controller.markFavouriteRequestModel.favouriteId =
+              controller.userSuggestionsList[i].userId;
+
+          controller.markasfavourite(controller.markFavouriteRequestModel);
+          success(
+              'Bravo', "Superliked ${controller.userSuggestionsList[i].name}");
         },
         onSlideUpdate: (SlideRegion? region) async {
           print("Region: $region");
@@ -148,10 +155,8 @@ class HomePageState extends State<HomePage> {
                           shareUserProfile();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors
-                              .activeColor, // Button color from AppColors
-                          padding: EdgeInsets.symmetric(
-                              vertical: 16), // Make button tall (height)
+                          backgroundColor: AppColors.activeColor,
+                          padding: EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -161,7 +166,7 @@ class HomePageState extends State<HomePage> {
                           style: AppTextStyles.buttonText.copyWith(
                             fontSize: getResponsiveFontSize(0.03),
                             fontWeight: FontWeight.w500,
-                            color: AppColors.textColor, // Button text color
+                            color: AppColors.textColor,
                           ),
                         ),
                       ),
@@ -265,15 +270,18 @@ class HomePageState extends State<HomePage> {
 
   void applyFilter(String filter) {
     setState(() {
-      controller.filteredList.clear();
+      // Clear the current list to avoid mixing with old data
+      controller.userSuggestionsList.clear();
+
+      // Apply filter and update the list accordingly
       if (filter == 'All') {
-        controller.filteredList.addAll(controller.userSuggestionsList);
+        controller.userSuggestionsList.addAll(controller.userSuggestionsList);
       } else if (filter == 'Near by') {
-        controller.filteredList.addAll(controller.userNearByList);
+        controller.userSuggestionsList.addAll(controller.userNearByList);
       } else if (filter == 'Highlited') {
-        controller.filteredList.addAll(controller.userHighlightedList);
+        controller.userSuggestionsList.addAll(controller.userHighlightedList);
       } else if (filter == 'Your favourite') {
-        controller.filteredList.addAll(controller.userSuggestionsList);
+        controller.userSuggestionsList;
       }
     });
   }
@@ -363,6 +371,20 @@ class HomePageState extends State<HomePage> {
                             ElevatedButton(
                               onPressed: () {
                                 Get.to(MySwipePage());
+                                Get.snackbar(
+                                    'usersuggestion',
+                                    controller.userSuggestionsList.length
+                                        .toString());
+                                Get.snackbar(
+                                    'highlighted',
+                                    controller.userHighlightedList.length
+                                        .toString());
+                                Get.snackbar(
+                                    'usernearbylist',
+                                    controller.userNearByList.length
+                                        .toString());
+                                Get.snackbar('userfavourite',
+                                    controller.favourite.length.toString());
                               },
                               child: Text('Demo'),
                             ),
@@ -384,7 +406,7 @@ class HomePageState extends State<HomePage> {
                         child: SwipeCards(
                           matchEngine: matchEngine,
                           itemBuilder: (BuildContext context, int index) {
-                            var user = controller.filteredList[index];
+                            var user = controller.userSuggestionsList[index];
 
                             String filterType =
                                 currentFilter; // Set based on your filter
@@ -471,14 +493,10 @@ class HomePageState extends State<HomePage> {
             bodyFontSize);
       case 'Favorites':
         return buildFavoritesCard(
-            context,
-            controller.userSuggestionsList[index],
-            size,
-            fontSize,
-            bodyFontSize);
+            context, controller.favourite[index], size, fontSize, bodyFontSize);
       default:
-        return buildDefaultCard(context, controller.filteredList[index], size,
-            fontSize, bodyFontSize);
+        return buildDefaultCard(context, controller.userSuggestionsList[index],
+            size, fontSize, bodyFontSize);
     }
   }
 
@@ -504,196 +522,175 @@ class HomePageState extends State<HomePage> {
     return buildCardLayout(context, user, size, fontSize, bodyFontSize,
         additionalInfo: 'Favorites');
   }
-Widget buildCardLayout(
-  BuildContext context,
-  user,
-  Size size,
-  double fontSize,
-  double bodyFontSize, {
-  String? additionalInfo,
-}) {
-  // Get the list of images for the user
-  var images = controller.userSuggestionsList.isEmpty
-      ? []
-      : controller.userSuggestionsList[0].images;
 
-  return Container(
-    alignment: Alignment.center,
-    decoration: BoxDecoration(
-      color: Colors.black, // Set the background color to black
-      borderRadius: BorderRadius.circular(15), // Optional: Add rounded corners for the card
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Display vertically scrollable ListView for images
-        SizedBox(
-          height: size.height * 0.4,
-          child: Stack(
-            children: [
-              SafeArea(
-                child: ListView.builder(
-                  itemCount: images.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return GestureDetector(
-                      onTap: () => showFullImageDialog(context, images[index]),
-                      child: Container(
-                        margin: EdgeInsets.only(bottom: 12),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: CachedNetworkImage(
-                            imageUrl: images[index],
-                            placeholder: (context, url) =>
-                                Center(child: CircularProgressIndicator()),
-                            errorWidget: (context, url, error) {
-                              print("Failed to load image from URL: $url");
-                              return Icon(Icons.error, color: Colors.red);
-                            },
-                            fit: BoxFit.cover,
-                            width: size.width * 0.9,
-                            height: size.height * 0.45,
+  Widget buildCardLayout(
+    BuildContext context,
+    user,
+    Size size,
+    double fontSize,
+    double bodyFontSize, {
+    String? additionalInfo,
+  }) {
+    var images = controller.userSuggestionsList.isEmpty
+        ? []
+        : controller.userSuggestionsList[0].images;
+
+    return Container(
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: size.height * 0.4,
+            child: Stack(
+              children: [
+                SafeArea(
+                  child: ListView.builder(
+                    itemCount: images.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      images = controller.userSuggestionsList[index].images;
+                      if (images.isEmpty) {
+                        return Center(child: Text('No Images Available'));
+                      }
+                      return GestureDetector(
+                        onTap: () =>
+                            showFullImageDialog(context, images[index]),
+                        child: Container(
+                          margin: EdgeInsets.only(bottom: 12),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: CachedNetworkImage(
+                              imageUrl: images[index],
+                              placeholder: (context, url) =>
+                                  Center(child: CircularProgressIndicator()),
+                              errorWidget: (context, url, error) {
+                                print("Failed to load image from URL: $url");
+                                print('--------------');
+                                print(
+                                    "Failed to load image from URL: ${images[index]}");
+                                return Icon(Icons.error, color: Colors.red);
+                              },
+                              fit: BoxFit.cover,
+                              width: size.width * 0.9,
+                              height: size.height * 0.45,
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
-              ),
-              // Positioned SmoothPageIndicator for image navigation at the corner
-              Positioned(
-                bottom: 10,
-                right: 0,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: size.height * 0.1),
-                  child: Transform.rotate(
-                    angle: -1.5708, // Rotate indicator 90 degrees
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SmoothPageIndicator(
-                          controller: _imagePageController,
-                          count: images.length, // Number of images to scroll through
-                          effect: ExpandingDotsEffect(
-                            dotHeight: 10,
-                            dotWidth: 10,
-                            spacing: 10,
-                            radius: 5,
-                            dotColor: Colors.grey.withOpacity(0.5),
-                            activeDotColor: Colors.green,
+                Positioned(
+                  bottom: 10,
+                  right: 0,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: size.height * 0.1),
+                    child: Transform.rotate(
+                      angle: -1.5708,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SmoothPageIndicator(
+                            controller: _imagePageController,
+                            count: images.length,
+                            effect: ExpandingDotsEffect(
+                              dotHeight: 10,
+                              dotWidth: 10,
+                              spacing: 10,
+                              radius: 5,
+                              dotColor: Colors.grey.withOpacity(0.5),
+                              activeDotColor: Colors.green,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-
-        // Show the total number of images (length of the images list)
-        if (images.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Text(
-              'Total Images: ${images.length}',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+              ],
             ),
           ),
-
-        // Row of action buttons (Like, Dislike, etc.)
-        Row(
-          children: [
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  isLiked = !isLiked;
-                });
-              },
-              icon: Icon(
-                isLiked ? Icons.favorite : Icons.favorite_border,
-                size: 40,
-                color: isLiked ? Colors.red : Colors.white,
-              ),
-            ),
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  isDisliked = !isDisliked;
-                });
-              },
-              icon: Icon(
-                isDisliked ? Icons.thumb_down : Icons.thumb_down_alt_outlined,
-                size: 40,
-                color: isDisliked ? Colors.red : Colors.white,
-              ),
-            ),
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  isShare = !isShare;
-                });
-              },
-              icon: Icon(
-                isShare ? Icons.share : Icons.share,
-                size: 40,
-                color: isShare ? Colors.green : Colors.white,
-              ),
-            ),
-            IconButton(
-              onPressed: showmessageBottomSheet,
-              icon: Icon(Icons.chat_outlined, size: 40),
-            ),
-          ],
-        ),
-        SizedBox(height: 16),
-        Text(
-          user.name ?? 'NA',
-          style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-        ),
-        Row(
-          children: [
-            Text(
-              '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userData.first.dob).year}',
-              style: TextStyle(fontSize: bodyFontSize),
-            ),
-            Text(
-              '${user.city ?? 'NA'}',
-              style: TextStyle(fontSize: bodyFontSize),
-            ),
-          ],
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          Row(
             children: [
-              ElevatedButton(
+              IconButton(
                 onPressed: () {
-                  matchEngine.currentItem?.nope();
+                  setState(() {
+                    isLiked = !isLiked;
+                  });
                 },
-                child: Text("Nope"),
+                icon: Icon(
+                  isLiked ? Icons.favorite : Icons.favorite_border,
+                  size: 40,
+                  color: isLiked ? Colors.red : Colors.white,
+                ),
               ),
-              ElevatedButton(
+              IconButton(
                 onPressed: () {
-                  matchEngine.currentItem?.superLike();
+                  setState(() {
+                    isShare = !isShare;
+                  });
                 },
-                child: Text("faviourite"),
+                icon: Icon(
+                  isShare ? Icons.share : Icons.share,
+                  size: 40,
+                  color: isShare ? Colors.green : Colors.white,
+                ),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  matchEngine.currentItem?.like();
-                },
-                child: Text("Like"),
+              IconButton(
+                onPressed: showmessageBottomSheet,
+                icon: Icon(Icons.messenger_outline, size: 40),
               ),
             ],
           ),
-        ),
-      ],
-    ),
-  );
-}
-
-
-
+          SizedBox(height: 16),
+          Text(
+            user.name ?? 'NA',
+            style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+          ),
+          Row(
+            children: [
+              Text(
+                '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userData.first.dob).year} Years Old || ',
+                style: TextStyle(fontSize: bodyFontSize),
+              ),
+              Text(
+                '${user.city ?? 'NA'}',
+                style: TextStyle(fontSize: bodyFontSize),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    matchEngine.currentItem?.nope();
+                  },
+                  child: Text("Nope"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    matchEngine.currentItem?.superLike();
+                  },
+                  child: Text("faviourite"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    matchEngine.currentItem?.like();
+                  },
+                  child: Text("Like"),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
