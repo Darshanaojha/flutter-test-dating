@@ -241,6 +241,7 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
         SizedBox(height: size.height * 0.02),
         TextButton(
           onPressed: () {
+            
             Get.to(UserInputPage());
             // Get.to(OTPVerificationPage());
             // Get.to(RegisterProfilePage());

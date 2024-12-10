@@ -1,3 +1,4 @@
+import 'package:dating_application/Models/RequestModels/user_registration_request_model.dart';
 import 'package:dating_application/Screens/register_subpag/registrationotp.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,6 +21,7 @@ class UserInputPageState extends State<UserInputPage> {
   void initState() {
     super.initState();
     initialize();
+    controller.userRegistrationRequest.reset();
   }
 
   initialize() {}

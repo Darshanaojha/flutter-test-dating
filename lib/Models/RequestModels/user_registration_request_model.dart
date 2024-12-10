@@ -79,6 +79,33 @@ class UserRegistrationRequest {
     );
   }
 
+
+   void reset() {
+    name = '';
+    email = '';
+    mobile = '';
+    latitude = '';
+    longitude = '';
+    address = '';
+    password = '';
+    countryId = '';
+    city = '';
+    dob = '';
+    nickname = '';
+    gender = '';
+    subGender = '';
+    preferences = [];
+    desires = [];
+    interest = '';
+    lang = [];
+    bio = '';
+    photos = [];
+    imgcount = '';
+    emailAlerts = '';
+    username = '';
+    lookingFor = '';
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'name': name,

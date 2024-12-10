@@ -65,7 +65,12 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     }
     preferencesSelectedOptions.value =
         List<bool>.filled(controller.preferences.length, false);
+  }
+
+  @override
+  void dispose() {
     resetImagesForNewUser();
+    super.dispose();
   }
 
   List<bool> stepCompletion = List.generate(13, (index) => false);
@@ -121,8 +126,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
         return buildPhotosOfUser(screenSize);
       case 12:
         return buildSafetyGuidelinesWidget(screenSize);
-      case 13:
-        return buildProfileSummaryPage(screenSize);
       default:
         return buildFinalStep(screenSize);
     }
@@ -2362,13 +2365,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
           // Acknowledge Button
           ElevatedButton(
-            onPressed: () {
-              markStepAsCompleted(12);
-              pageController.nextPage(
-                duration: Duration(milliseconds: 300),
-                curve: Curves.ease,
-              );
-            },
+            onPressed:nextStep,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.buttonColor,
               foregroundColor: AppColors.textColor,
@@ -2384,331 +2381,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           SizedBox(height: 10),
 
           // Back Button
-          ElevatedButton(
-            onPressed: onBackPressed,
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-              backgroundColor: AppColors.buttonColor,
-              foregroundColor: AppColors.textColor,
-            ),
-            child: Text('Back', style: AppTextStyles.buttonText),
-          ),
-        ],
-      ),
-    );
-  }
-
-// step 13
-  Widget buildProfileSummaryPage(Size screenSize) {
-    double fontSize = screenSize.width * 0.03;
-    final controller =
-        Get.find<Controller>(); // Assuming Controller holds user data
-    var profile = controller.userRegistrationRequest;
-
-    // Show Profile Picture in Dialog
-    void showProfileImageDialog(BuildContext context) {
-      showDialog(
-        context: context,
-        builder: (context) => Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset(profile.photos[
-                    0]), // Displaying the user's first photo in a dialog
-                SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.buttonColor,
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  ),
-                  child: Text(
-                    'Close',
-                    style: AppTextStyles.buttonText,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          // First Card: Profile Summary Header
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Text(
-                    "Profile Summary",
-                    style: AppTextStyles.titleText.copyWith(
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textColor,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    "Review your profile and preferences before starting your journey.",
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2,
-                      color: AppColors.textColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-
-          // Second Card: Profile Picture
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: GestureDetector(
-                onTap: () =>
-                    showProfileImageDialog(context), // Show image on tap
-                child: CircleAvatar(
-                  radius: fontSize * 1.5,
-                  backgroundImage: AssetImage(
-                      profile.photos[0]), // Use dynamic profile picture
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-
-          // Third Card: Name and Age
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Name: ${profile.name}", // Dynamically showing name
-                          style: AppTextStyles.titleText.copyWith(
-                            fontSize: fontSize,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textColor,
-                          ),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          "Age: ${profile.dob}", // Dynamically showing age
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: fontSize - 2,
-                            color: AppColors.textColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-
-          // Fourth Card: Preferences
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Your Preferences:",
-                    style: AppTextStyles.titleText.copyWith(
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textColor,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    "Interested in: ${profile.interest}", // Dynamically showing preference
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2,
-                      color: AppColors.textColor,
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    "Looking for: ${profile.lookingFor}", // Dynamically showing looking for
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2,
-                      color: AppColors.textColor,
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    "Location: ${profile.longitude}", // Dynamically showing location
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2,
-                      color: AppColors.textColor,
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    "Hobbies: ${profile.desires.join(", ")}", // Dynamically showing hobbies
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2,
-                      color: AppColors.textColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-
-          // Fifth Card: Subscription Plan
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.star,
-                    color: AppColors.accentColor,
-                    size: fontSize,
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      "You are subscribed to the ${''} Plan (${''} INR).",
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize - 2,
-                        color: AppColors.textColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-
-          // Sixth Card: Safety Acknowledgment
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.check_circle,
-                    color: Colors.green,
-                    size: fontSize,
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      "You have acknowledged the safety guidelines.", // Static, as user has already acknowledged
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize - 2,
-                        color: AppColors.textColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 30),
-
-          // Edit Button
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  print("User is ready to start browsing matches.");
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.buttonColor,
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.edit,
-                      color: AppColors.iconColor,
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      'Edit',
-                      style: AppTextStyles.buttonText.copyWith(
-                        fontSize: fontSize,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 30),
-
-          // Submit Button
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                onPressed: nextStep,
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 80),
-                  backgroundColor: AppColors.buttonColor,
-                  foregroundColor: AppColors.textColor,
-                ),
-                child: Text('Submit', style: AppTextStyles.buttonText),
-              ),
-            ),
-          ),
           ElevatedButton(
             onPressed: onBackPressed,
             style: ElevatedButton.styleFrom(
@@ -2752,7 +2424,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
   void nextStep() {
-    if (currentPage < 13) {
+    if (currentPage < 12) {
       markStepAsCompleted(currentPage);
       pageController.nextPage(
         duration: Duration(milliseconds: 300),
