@@ -48,6 +48,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   void initState() {
     super.initState();
     intialize();
+    
   }
 
   intialize() async {
@@ -564,12 +565,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     double titleFontSize = screenSize.width * 0.05;
     double descriptionFontSize = screenSize.width * 0.03;
     double optionFontSize = screenSize.width * 0.03;
-    String? validateSelection(dynamic value) {
-      if (value == null) {
-        return 'Please select a value';
-      }
-      return null;
-    }
 
     return Obx(() {
       if (controller.subGenders.isEmpty) {
@@ -582,7 +577,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       }
 
       return Card(
-        elevation: 8,
+        elevation: 6,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -612,105 +607,52 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 ),
               ),
               SizedBox(height: 20),
-              // DropdownButtonFormField<String>(
-              //   value: controller.userRegistrationRequest.lookingFor.isEmpty
-              //       ? null
-              //       : controller.userRegistrationRequest.lookingFor,
-              //   validator: validateSelection,
-              //   decoration: InputDecoration(
-              //     labelText: 'Relationship Type',
-              //     labelStyle: AppTextStyles.labelText
-              //         .copyWith(fontSize: optionFontSize),
-              //     border: OutlineInputBorder(
-              //       borderRadius: BorderRadius.circular(10),
-              //       borderSide: BorderSide(color: AppColors.textColor),
-              //     ),
-              //     focusedBorder: OutlineInputBorder(
-              //       borderSide: BorderSide(color: Colors.white),
-              //     ),
-              //     enabledBorder: OutlineInputBorder(
-              //       borderSide: BorderSide(color: Colors.white),
-              //     ),
-              //   ),
-              //   items: [
-              //     DropdownMenuItem(
-              //       value: '1',
-              //       child: Text(
-              //         'Serious Relationship',
-              //         style: AppTextStyles.bodyText
-              //             .copyWith(fontSize: optionFontSize),
-              //       ),
-              //     ),
-              //     DropdownMenuItem(
-              //       value: '2',
-              //       child: Text(
-              //         'Hookup',
-              //         style: AppTextStyles.bodyText
-              //             .copyWith(fontSize: optionFontSize),
-              //       ),
-              //     ),
-              //   ],
-              //   onChanged: (value) {
-              //     if (value != null) {
-              //       controller.userRegistrationRequest.lookingFor = value;
-              //     }
-              //   },
-              //   iconEnabledColor: AppColors.textColor,
-              //   iconDisabledColor: AppColors.disabled,
-              // ),
-              // SizedBox(height: 20),
-              Column(
-                children: List.generate(controller.subGenders.length, (index) {
-                  return RadioListTile<String>(
-                    title: Text(
-                      controller.subGenders[index].title,
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: optionFontSize,
-                        color: AppColors.textColor,
-                      ),
-                    ),
-                    value: controller.subGenders[index].id,
-                    groupValue: selectedOption.value,
-                    onChanged: (String? value) {
-                      selectedOption.value = value ?? '';
-                      controller.userRegistrationRequest.subGender =
-                          value ?? '';
-                    },
-                    activeColor: AppColors.buttonColor,
-                    contentPadding: EdgeInsets.zero,
-                  );
-                }),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children:
+                        List.generate(controller.subGenders.length, (index) {
+                      return RadioListTile<String>(
+                        title: Text(
+                          controller.subGenders[index].title,
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: optionFontSize,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                        value: controller.subGenders[index].id,
+                        groupValue: selectedOption.value,
+                        onChanged: (String? value) {
+                          selectedOption.value = value ?? '';
+                          controller.userRegistrationRequest.subGender =
+                              value ?? '';
+                        },
+                        activeColor: AppColors.buttonColor,
+                        contentPadding: EdgeInsets.zero,
+                      );
+                    }),
+                  ),
+                ),
               ),
               SizedBox(height: 30),
               ElevatedButton(
                 onPressed: selectedOption.value.isEmpty
-                    ? null
+                    ? null // Disable button if no option is selected
                     : () {
-                        validateSelection(dynamic value) {
-                          if (value == null) {
-                            return 'Please select a value';
-                          }
-                          return null;
-                        }
-
-                        if (selectedOption.value.isEmpty) {
-                          failure(
-                              'Failed', 'Please select an option to proceed.');
-                        } else {
-                          markStepAsCompleted(4);
-                          Get.snackbar(
-                              'subgender',
-                              controller.userRegistrationRequest.subGender
-                                  .toString());
-                          pageController.nextPage(
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.ease,
-                          );
-                        }
+                        // Proceed to the next step if a valid option is selected
+                        markStepAsCompleted(4);
+                        Get.snackbar(
+                            'Sub-gender',
+                            controller.userRegistrationRequest.subGender
+                                .toString());
+                        pageController.nextPage(
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.ease,
+                        );
                       },
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                  backgroundColor: selectedOption.isEmpty
+                  backgroundColor: selectedOption.value.isEmpty
                       ? AppColors.disabled // If no preference is selected
                       : AppColors.buttonColor, // If preference is selected
                   foregroundColor: AppColors.textColor,
@@ -722,7 +664,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
               ElevatedButton(
                 onPressed: onBackPressed, // Call the onBackPressed method
                 style: ElevatedButton.styleFrom(
@@ -1956,559 +1898,352 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
 // photos 11
-  Widget buildPhotosOfUser(Size screenSize) {
-    RxList<File?> images = RxList<File?>(List.filled(6, null));
+ Widget buildPhotosOfUser(Size screenSize) {
+  RxList<File?> images = RxList<File?>(List.filled(6, null));
 
-    Future<void> requestCameraPermission() async {
-      var status = await Permission.camera.request();
-      if (status.isDenied) {
-        Get.snackbar('Permission Denied', "Camera permission denied");
-      }
+
+  void resetImagesForNewUser() {
+  images.clear(); 
+  images.addAll(List.filled(6, null));}
+
+
+
+
+  Future<void> requestCameraPermission() async {
+    var status = await Permission.camera.request();
+    if (status.isDenied) {
+      Get.snackbar('Permission Denied', "Camera permission denied");
     }
-
-    Future<void> requestGalleryPermission() async {
-      var status = await Permission.photos.request();
-      if (status.isDenied) {
-        Get.snackbar('Permission Denied', "Gallery permission denied");
-      }
-    }
-
-    Future<void> pickImage(int index, ImageSource source) async {
-      if (source == ImageSource.camera) {
-        await requestCameraPermission();
-      } else if (source == ImageSource.gallery) {
-        await requestGalleryPermission();
-      }
-
-      final picker = ImagePicker();
-      final pickedFile = await picker.pickImage(source: source);
-
-      if (pickedFile != null) {
-        File imageFile = File(pickedFile.path);
-
-        final compressedImage = await FlutterImageCompress.compressWithFile(
-          imageFile.path,
-          quality: 50,
-        );
-
-        if (compressedImage != null) {
-          String base64Image = base64Encode(compressedImage);
-          if (index < controller.userRegistrationRequest.photos.length) {
-            controller.userRegistrationRequest.photos[index] = base64Image;
-          } else {
-            controller.userRegistrationRequest.photos.add(base64Image);
-          }
-
-          images[index] = imageFile;
-        } else {
-          Get.snackbar("Error", "Image compression failed");
-        }
-      }
-    }
-
-    // Handle 'Next' Button Press
-    void onNextButtonPressed() {
-      if (controller.userRegistrationRequest.photos.length >= 3) {
-        controller.userRegistrationRequest.imgcount =
-            controller.userRegistrationRequest.photos.length.toString();
-        markStepAsCompleted(11);
-        Get.snackbar(
-            'photo', controller.userRegistrationRequest.photos.toString());
-        Get.snackbar(
-            'photo', controller.userRegistrationRequest.imgcount.toString());
-        // Move to the next page in the PageView
-        pageController.nextPage(
-          duration: Duration(milliseconds: 300),
-          curve: Curves.ease,
-        );
-      } else {
-        Get.snackbar("Error", "Please add at least three photo.");
-      }
-    }
-
-    double screenWidth = screenSize.width;
-    double iconSize = screenWidth * 0.12;
-    double imageContainerSize = screenWidth * 0.39;
-
-    return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              controller.headlines.isNotEmpty
-                  ? controller.headlines[8].title
-                  : "Loading Title...",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              controller.headlines.isNotEmpty
-                  ? controller.headlines[8].description
-                  : "",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey.shade600,
-              ),
-            ),
-            SizedBox(height: 20),
-            Expanded(
-              child: Obx(() {
-                return GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 20.0,
-                    mainAxisSpacing: 40.0,
-                  ),
-                  itemCount: images.length,
-                  itemBuilder: (context, index) {
-                    if (images[index] == null) {
-                         String? base64Image = controller.userRegistrationRequest.photos.length > index
-                      ? controller.userRegistrationRequest.photos[index]
-                      : "You are already add the photos";
-                   
-                      return Center(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: const Text('Pick an image'),
-                                  content: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                          pickImage(index, ImageSource.camera);
-                                        },
-                                        child: const Row(
-                                          children: [
-                                            Icon(Icons.camera_alt),
-                                            SizedBox(width: 8),
-                                            Text("Camera"),
-                                          ],
-                                        ),
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                          pickImage(index, ImageSource.gallery);
-                                        },
-                                        child: const Row(
-                                          children: [
-                                            Icon(Icons.photo),
-                                            SizedBox(width: 8),
-                                            Text("Gallery"),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            shape: CircleBorder(),
-                            padding: EdgeInsets.all(12),
-                          ),
-                          child: Icon(
-                            Icons.add_a_photo,
-                            size: iconSize, // Responsive icon size
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      );
-                      
-                    } else {
-                      // Display the image if available
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: imageContainerSize,
-                              height: imageContainerSize,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: GestureDetector(
-                                onTap: () {
-                                  // Show options to change the image
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: const Text('Pick an image'),
-                                        content: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            ElevatedButton(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                                pickImage(
-                                                    index, ImageSource.camera);
-                                              },
-                                              child: const Row(
-                                                children: [
-                                                  Icon(Icons.camera_alt),
-                                                  SizedBox(width: 8),
-                                                  Text("Camera"),
-                                                ],
-                                              ),
-                                            ),
-                                            ElevatedButton(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                                pickImage(
-                                                    index, ImageSource.gallery);
-                                              },
-                                              child: const Row(
-                                                children: [
-                                                  Icon(Icons.photo),
-                                                  SizedBox(width: 8),
-                                                  Text("Gallery"),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                                child: Image.file(
-                                  images[index]!,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                  },
-                );
-              }),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: onNextButtonPressed,
-              style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 24),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  backgroundColor:
-                      controller.userRegistrationRequest.photos.isNotEmpty
-                          ? AppColors.activeColor
-                          : AppColors.inactiveColor),
-              child: Text("Next",
-                  style: AppTextStyles.buttonText.copyWith(
-                    color: AppColors.primaryColor,
-                  )),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: onBackPressed,
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                backgroundColor: AppColors.buttonColor,
-                foregroundColor: AppColors.textColor,
-              ),
-              child: Text('Back', style: AppTextStyles.buttonText),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
-// // step: 0000000
-//   Widget buildPaymentWidget(Size screenSize) {
-//     double fontSize = screenSize.width * 0.03;
-//     Future<void> showPaymentConfirmationDialog(BuildContext context,
-//         String planType, String planId, String amount) async {
-//       return showDialog<void>(
-//         context: context,
-//         barrierDismissible: false, // Prevent dismissal by tapping outside
-//         builder: (BuildContext context) {
-//           return AlertDialog(
-//             title: Text(
-//               "Confirm Subscription",
-//               style: AppTextStyles.titleText.copyWith(
-//                 fontSize: fontSize,
-//                 color: AppColors.textColor,
-//               ),
-//             ),
-//             content: Text(
-//               "Do you want to subscribe to the $planType plan for $amount?",
-//               style: AppTextStyles.bodyText.copyWith(
-//                 fontSize: fontSize - 2,
-//                 color: AppColors.textColor,
-//               ),
-//             ),
-//           );
-//         },
-//       );
-//     }
+  Future<void> requestGalleryPermission() async {
+    var status = await Permission.photos.request();
+    if (status.isDenied) {
+      Get.snackbar('Permission Denied', "Gallery permission denied");
+    }
+  }
 
-//     return SingleChildScrollView(
-//       child: Column(
-//         children: [
-//           Padding(
-//             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-//             child: Row(
-//               children: [
-//                 Text(
-//                   "What We Offer",
-//                   style: AppTextStyles.titleText.copyWith(
-//                     fontSize: fontSize,
-//                     color: AppColors.textColor,
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//           SizedBox(height: 20),
-//           Padding(
-//             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-//             child: Row(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               children: [
-//                 Obx(() {
-//                   return Container(
-//                       width: MediaQuery.of(context).size.width * 0.8,
-//                       decoration: BoxDecoration(
-//                         borderRadius: BorderRadius.circular(12),
-//                         border: Border.all(color: AppColors.formFieldColor),
-//                       ),
-//                       child: GestureDetector(
-//                         onTap: () async {
-//                           await showDialog<String>(
-//                             context: context,
-//                             builder: (BuildContext context) {
-//                               return AlertDialog(
-//                                 title: Text("Choose a benefit"),
-//                                 content: SingleChildScrollView(
-//                                   child: ListBody(
-//                                     children: controller.benefits
-//                                         .map<Widget>((Benefit benefit) {
-//                                       return ListTile(
-//                                         title: Text(
-//                                           benefit.title,
-//                                           style:
-//                                               AppTextStyles.bodyText.copyWith(
-//                                             fontSize: fontSize - 6,
-//                                             color: AppColors.textColor,
-//                                           ),
-//                                         ),
-//                                         onTap: () {
-//                                           Navigator.of(context).pop();
-//                                         },
-//                                       );
-//                                     }).toList(),
-//                                   ),
-//                                 ),
-//                               );
-//                             },
-//                           );
-//                         },
-//                         child: AbsorbPointer(
-//                           child: Text(
-//                             "Click to know what we offer",
-//                             style: AppTextStyles.bodyText.copyWith(
-//                               fontSize: fontSize - 6,
-//                               color: AppColors.textColor.withOpacity(0.6),
-//                             ),
-//                           ),
-//                         ),
-//                       ));
-//                 })
-//               ],
-//             ),
-//           ),
-//           SizedBox(height: 20),
-//           Card(
-//             elevation: 8,
-//             shape: RoundedRectangleBorder(
-//               borderRadius: BorderRadius.circular(12),
-//             ),
-//             child: Padding(
-//               padding: const EdgeInsets.all(16.0),
-//               child: Column(
-//                 children: [
-//                   Text(
-//                     controller.headlines.isNotEmpty
-//                         ? controller.headlines[10].title
-//                         : "Loading Title...",
-//                     style: AppTextStyles.titleText.copyWith(
-//                       fontSize: fontSize,
-//                       fontWeight: FontWeight.bold,
-//                       color: AppColors.textColor,
-//                     ),
-//                   ),
-//                   SizedBox(height: 10),
-//                   Text(
-//                     controller.headlines.isNotEmpty
-//                         ? controller.headlines[10].description
-//                         : "Loading Title...",
-//                     style: AppTextStyles.bodyText.copyWith(
-//                       fontSize: fontSize - 2,
-//                       color: AppColors.textColor,
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//           SizedBox(height: 20),
-//           Obx(() {
-//             return ListView.builder(
-//               shrinkWrap: true,
-//               itemCount: controller.packages.length,
-//               itemBuilder: (context, index) {
-//                 final package = controller.packages[index];
+  Future<void> pickImage(int index, ImageSource source) async {
+    if (source == ImageSource.camera) {
+      await requestCameraPermission();
+    } else if (source == ImageSource.gallery) {
+      await requestGalleryPermission();
+    }
 
-//                 return GestureDetector(
-//                   onTap: () {
-//                     showPaymentConfirmationDialog(
-//                       context,
-//                       package.unit,
-//                       package.id,
-//                       '₹${package.offerAmount}',
-//                     );
-//                   },
-//                   child: Stack(
-//                     clipBehavior: Clip.none,
-//                     children: [
-//                       Card(
-//                         elevation: 8,
-//                         shape: RoundedRectangleBorder(
-//                           borderRadius: BorderRadius.circular(12),
-//                         ),
-//                         color: Colors.orange,
-//                         child: Padding(
-//                           padding: const EdgeInsets.all(24.0),
-//                           child: Row(
-//                             children: [
-//                               Icon(
-//                                 Icons.calendar_today,
-//                                 color: AppColors.iconColor,
-//                                 size: fontSize,
-//                               ),
-//                               SizedBox(width: 10),
-//                               Expanded(
-//                                 child: Text(
-//                                   "${package.unit} Plan - ₹${package.offerAmount}",
-//                                   style: AppTextStyles.bodyText.copyWith(
-//                                     fontSize: fontSize - 2,
-//                                     color: AppColors.textColor,
-//                                   ),
-//                                 ),
-//                               ),
-//                               Obx(() {
-//                                 return Text(
-//                                   selectedPlan.value == package.unit
-//                                       ? 'Selected'
-//                                       : 'Select',
-//                                   style: AppTextStyles.bodyText.copyWith(
-//                                     fontSize: fontSize - 2,
-//                                     color: selectedPlan.value == package.unit
-//                                         ? AppColors.buttonColor
-//                                         : AppColors.formFieldColor,
-//                                   ),
-//                                 );
-//                               }),
-//                             ],
-//                           ),
-//                         ),
-//                       ),
-//                       Positioned(
-//                         top: 4,
-//                         right: 2,
-//                         child: Container(
-//                           padding:
-//                               EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-//                           decoration: BoxDecoration(
-//                             color: Colors.red,
-//                             borderRadius: BorderRadius.circular(12),
-//                           ),
-//                           child: Text(
-//                             '20% OFF',
-//                             textAlign: TextAlign.center,
-//                             style: TextStyle(
-//                               color: Colors.white,
-//                               fontSize: fontSize - 6,
-//                               fontWeight: FontWeight.bold,
-//                             ),
-//                           ),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 );
-//               },
-//             );
-//           }),
-//           SizedBox(height: 20),
-//           Obx(() {
-//             return Visibility(
-//               visible: selectedPlan.value != 'None',
-//               child: ElevatedButton(
-//                 onPressed: () {
-//                   markStepAsCompleted(12);
-//                   pageController.nextPage(
-//                     duration: Duration(milliseconds: 300),
-//                     curve: Curves.ease,
-//                   );
-//                 },
-//                 child: Text(
-//                   "Next",
-//                   style: AppTextStyles.bodyText.copyWith(
-//                     fontSize: fontSize,
-//                     color: AppColors.textColor,
-//                   ),
-//                 ),
-//               ),
-//             );
-//           }),
-//           ElevatedButton(
-//             onPressed: onBackPressed,
-//             style: ElevatedButton.styleFrom(
-//               padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-//               backgroundColor: AppColors.buttonColor,
-//               foregroundColor: AppColors.textColor,
-//             ),
-//             child: Text('Back', style: AppTextStyles.buttonText),
-//           ),
-//           ElevatedButton(
-//             onPressed: () {
-//               markStepAsCompleted(12);
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: source);
 
-//               pageController.nextPage(
-//                 duration: Duration(milliseconds: 300),
-//                 curve: Curves.ease,
-//               );
-//             },
-//             style: ElevatedButton.styleFrom(
-//               padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-//               backgroundColor: AppColors.buttonColor,
-//               foregroundColor: AppColors.textColor,
-//             ),
-//             child: Text('Skip', style: AppTextStyles.buttonText),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
+    if (pickedFile != null) {
+      File imageFile = File(pickedFile.path);
+      final compressedImage = await FlutterImageCompress.compressWithFile(
+        imageFile.path,
+        quality: 50,
+      );
+
+      if (compressedImage != null) {
+        String base64Image = base64Encode(compressedImage);
+        if (index < controller.userRegistrationRequest.photos.length) {
+          controller.userRegistrationRequest.photos[index] = base64Image;
+        } else {
+          controller.userRegistrationRequest.photos.add(base64Image);
+        }
+
+        images[index] = imageFile;  // Update the image list
+      } else {
+        Get.snackbar("Error", "Image compression failed");
+      }
+    }
+  }
+
+  void onNextButtonPressed() {
+    if (controller.userRegistrationRequest.photos.length >= 3) {
+      controller.userRegistrationRequest.imgcount =
+          controller.userRegistrationRequest.photos.length.toString();
+      markStepAsCompleted(11);
+      Get.snackbar('photo', controller.userRegistrationRequest.photos.toString());
+      Get.snackbar('photo', controller.userRegistrationRequest.imgcount.toString());
+      pageController.nextPage(
+        duration: Duration(milliseconds: 300),
+        curve: Curves.ease,
+      );
+    } else {
+      Get.snackbar("Error", "Please add at least three photos.");
+    }
+  }
+
+  double screenWidth = screenSize.width;
+  double iconSize = screenWidth * 0.12;
+  double imageContainerSize = screenWidth * 0.39;
+  resetImagesForNewUser();
+  return Scaffold(
+    body: Padding(
+      padding: EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            controller.headlines.isNotEmpty
+                ? controller.headlines[8].title
+                : "Loading Title...",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            controller.headlines.isNotEmpty
+                ? controller.headlines[8].description
+                : "",
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey.shade600,
+            ),
+          ),
+          SizedBox(height: 20),
+          Expanded(
+            child: Obx(() {
+              return GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 20.0,
+                  mainAxisSpacing: 40.0,
+                ),
+                itemCount: images.length,
+                itemBuilder: (context, index) {
+                  bool isPhotoUploaded = images[index] != null ||
+                      (controller.userRegistrationRequest.photos.length >
+                          index);
+
+                  return Center(
+                    child: isPhotoUploaded
+                        ? Stack(
+                            children: [
+                              Container(
+                                width: imageContainerSize,
+                                height: imageContainerSize,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: const Text('Pick an image'),
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                  pickImage(index,
+                                                      ImageSource.camera);
+                                                },
+                                                child: const Row(
+                                                  children: [
+                                                    Icon(Icons.camera_alt),
+                                                    SizedBox(width: 8),
+                                                    Text("Camera"),
+                                                  ],
+                                                ),
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                  pickImage(index,
+                                                      ImageSource.gallery);
+                                                },
+                                                child: const Row(
+                                                  children: [
+                                                    Icon(Icons.photo),
+                                                    SizedBox(width: 8),
+                                                    Text("Gallery"),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: images[index] != null
+                                      ? Image.file(
+                                          images[index]!, 
+                                          fit: BoxFit.cover,
+                                        )
+                                      : (controller.userRegistrationRequest
+                                                      .photos.length >
+                                                  index &&
+                                              controller
+                                                  .userRegistrationRequest
+                                                  .photos[index]
+                                                  .isNotEmpty)
+                                          ? Image.memory(
+                                              base64Decode(controller
+                                                  .userRegistrationRequest
+                                                  .photos[index]),
+                                              fit: BoxFit.cover,
+                                            )
+                                          : Container(
+                                              color: Colors.grey.shade300,
+                                              child: Icon(
+                                                Icons.add_a_photo,
+                                                color: Colors.grey.shade600,
+                                              ),
+                                            ),
+                                ),
+                              ),
+                              Positioned(
+                                right: 4,
+                                top: 4,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: const Text('Pick an image'),
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                  pickImage(index,
+                                                      ImageSource.camera);
+                                                },
+                                                child: const Row(
+                                                  children: [
+                                                    Icon(Icons.camera_alt),
+                                                    SizedBox(width: 8),
+                                                    Text("Camera"),
+                                                  ],
+                                                ),
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                  pickImage(index,
+                                                      ImageSource.gallery);
+                                                },
+                                                child: const Row(
+                                                  children: [
+                                                    Icon(Icons.photo),
+                                                    SizedBox(width: 8),
+                                                    Text("Gallery"),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: Icon(
+                                    Icons.more_vert,
+                                    size: 20,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        : ElevatedButton(
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('Pick an image'),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            pickImage(index,
+                                                ImageSource.camera);
+                                          },
+                                          child: const Row(
+                                            children: [
+                                              Icon(Icons.camera_alt),
+                                              SizedBox(width: 8),
+                                              Text("Camera"),
+                                            ],
+                                          ),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            pickImage(index,
+                                                ImageSource.gallery);
+                                          },
+                                          child: const Row(
+                                            children: [
+                                              Icon(Icons.photo),
+                                              SizedBox(width: 8),
+                                              Text("Gallery"),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              shape: CircleBorder(),
+                              padding: EdgeInsets.all(12),
+                            ),
+                            child: Icon(
+                              Icons.add_a_photo,
+                              size: iconSize,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                  );
+                },
+              );
+            }),
+          ),
+          SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: onNextButtonPressed,
+            style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                backgroundColor: controller.userRegistrationRequest.photos.isNotEmpty
+                    ? AppColors.activeColor
+                    : AppColors.inactiveColor),
+            child: Text("Next",
+                style: AppTextStyles.buttonText.copyWith(
+                  color: AppColors.primaryColor,
+                )),
+          ),
+          SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: onBackPressed,
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+              backgroundColor: AppColors.buttonColor,
+              foregroundColor: AppColors.textColor,
+            ),
+            child: Text('Back', style: AppTextStyles.buttonText),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 
 // step 12
   Widget buildSafetyGuidelinesWidget(Size screenSize) {

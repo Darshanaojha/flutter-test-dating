@@ -3,22 +3,26 @@ import '../../constants.dart';
 class RegistrationOTPRequest {
   String email;
   String name;
+  String mobile;
 
   RegistrationOTPRequest({
     required this.email,
     required this.name,
+    required this.mobile,
   });
 
   factory RegistrationOTPRequest.fromJson(Map<String, dynamic> json) {
     String email = json['email'] ?? '';
     String name = json['name'] ?? '';
-    return RegistrationOTPRequest(email: email, name: name);
+    String mobile = json['mobile']?? '';
+    return RegistrationOTPRequest(email: email, name: name, mobile: mobile);
   }
 
   Map<String, dynamic> toJson() {
     return {
       'email': email,
       'name': name,
+      'mobile':mobile,
     };
   }
 

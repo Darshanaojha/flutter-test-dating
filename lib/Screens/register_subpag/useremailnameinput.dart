@@ -1,5 +1,6 @@
 import 'package:dating_application/Screens/register_subpag/registrationotp.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../Controllers/controller.dart';
 import '../../constants.dart';
@@ -146,7 +147,52 @@ class UserInputPageState extends State<UserInputPage> {
                   },
                 ),
                 SizedBox(height: 40),
-
+                TextFormField(
+                  cursorColor: AppColors.cursorColor,
+                  decoration: InputDecoration(
+                    labelText: 'Mobile Number',
+                    labelStyle: TextStyle(
+                      fontSize: fontSize,
+                      color: AppColors.textColor,
+                    ),
+                    filled: true,
+                    fillColor: AppColors.formFieldColor,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: AppColors.primaryColor),
+                    ),
+                  ),
+                  style: TextStyle(
+                      fontSize: fontSize, color: AppColors.primaryColor),
+                  keyboardType:
+                      TextInputType.phone, // Ensure the input is numeric
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly, // Allow only digits
+                    LengthLimitingTextInputFormatter(
+                        10), // Limit input to 10 digits
+                  ],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a mobile number';
+                    } else if (value.length != 10) {
+                      return 'Mobile number must be 10 digits';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    controller.registrationOTPRequest.mobile = value;
+                    controller.userRegistrationRequest.mobile = value;
+                  },
+                  onSaved: (value) {
+                    controller.registrationOTPRequest.mobile =
+                        value ?? '';
+                  },
+                ),
+                     SizedBox(height: 40),
                 // Submit Button
                 ElevatedButton(
                   onPressed: () {
