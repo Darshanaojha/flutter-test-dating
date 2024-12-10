@@ -175,7 +175,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             padding: const EdgeInsets.only(right: 16.0),
             child: Center(
               child: Text(
-                "$currentPage of 13",
+                "$currentPage of 12",
                 style: TextStyle(
                   fontSize: isPortrait ? fontSize : fontSize + 2,
                   fontWeight: FontWeight.bold,
