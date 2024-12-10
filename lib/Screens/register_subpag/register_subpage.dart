@@ -48,7 +48,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   void initState() {
     super.initState();
     intialize();
-    
   }
 
   intialize() async {
@@ -64,9 +63,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     for (String genderId in genderIds) {
       await controller.fetchSubGender(SubGenderRequest(genderId: genderId));
     }
-
     preferencesSelectedOptions.value =
         List<bool>.filled(controller.preferences.length, false);
+    resetImagesForNewUser();
   }
 
   List<bool> stepCompletion = List.generate(13, (index) => false);
@@ -1897,353 +1896,351 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
-// photos 11
- Widget buildPhotosOfUser(Size screenSize) {
   RxList<File?> images = RxList<File?>(List.filled(6, null));
-
-
   void resetImagesForNewUser() {
-  images.clear(); 
-  images.addAll(List.filled(6, null));}
-
-
-
-
-  Future<void> requestCameraPermission() async {
-    var status = await Permission.camera.request();
-    if (status.isDenied) {
-      Get.snackbar('Permission Denied', "Camera permission denied");
-    }
+    images.clear();
+    images.addAll(List.filled(6, null));
   }
 
-  Future<void> requestGalleryPermission() async {
-    var status = await Permission.photos.request();
-    if (status.isDenied) {
-      Get.snackbar('Permission Denied', "Gallery permission denied");
-    }
-  }
-
-  Future<void> pickImage(int index, ImageSource source) async {
-    if (source == ImageSource.camera) {
-      await requestCameraPermission();
-    } else if (source == ImageSource.gallery) {
-      await requestGalleryPermission();
-    }
-
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: source);
-
-    if (pickedFile != null) {
-      File imageFile = File(pickedFile.path);
-      final compressedImage = await FlutterImageCompress.compressWithFile(
-        imageFile.path,
-        quality: 50,
-      );
-
-      if (compressedImage != null) {
-        String base64Image = base64Encode(compressedImage);
-        if (index < controller.userRegistrationRequest.photos.length) {
-          controller.userRegistrationRequest.photos[index] = base64Image;
-        } else {
-          controller.userRegistrationRequest.photos.add(base64Image);
-        }
-
-        images[index] = imageFile;  // Update the image list
-      } else {
-        Get.snackbar("Error", "Image compression failed");
+// photos 11
+  Widget buildPhotosOfUser(Size screenSize) {
+    Future<void> requestCameraPermission() async {
+      var status = await Permission.camera.request();
+      if (status.isDenied) {
+        Get.snackbar('Permission Denied', "Camera permission denied");
       }
     }
-  }
 
-  void onNextButtonPressed() {
-    if (controller.userRegistrationRequest.photos.length >= 3) {
-      controller.userRegistrationRequest.imgcount =
-          controller.userRegistrationRequest.photos.length.toString();
-      markStepAsCompleted(11);
-      Get.snackbar('photo', controller.userRegistrationRequest.photos.toString());
-      Get.snackbar('photo', controller.userRegistrationRequest.imgcount.toString());
-      pageController.nextPage(
-        duration: Duration(milliseconds: 300),
-        curve: Curves.ease,
-      );
-    } else {
-      Get.snackbar("Error", "Please add at least three photos.");
+    Future<void> requestGalleryPermission() async {
+      var status = await Permission.photos.request();
+      if (status.isDenied) {
+        Get.snackbar('Permission Denied', "Gallery permission denied");
+      }
     }
-  }
 
-  double screenWidth = screenSize.width;
-  double iconSize = screenWidth * 0.12;
-  double imageContainerSize = screenWidth * 0.39;
-  resetImagesForNewUser();
-  return Scaffold(
-    body: Padding(
-      padding: EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            controller.headlines.isNotEmpty
-                ? controller.headlines[8].title
-                : "Loading Title...",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            controller.headlines.isNotEmpty
-                ? controller.headlines[8].description
-                : "",
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey.shade600,
-            ),
-          ),
-          SizedBox(height: 20),
-          Expanded(
-            child: Obx(() {
-              return GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 20.0,
-                  mainAxisSpacing: 40.0,
-                ),
-                itemCount: images.length,
-                itemBuilder: (context, index) {
-                  bool isPhotoUploaded = images[index] != null ||
-                      (controller.userRegistrationRequest.photos.length >
-                          index);
+    Future<void> pickImage(int index, ImageSource source) async {
+      if (source == ImageSource.camera) {
+        await requestCameraPermission();
+      } else if (source == ImageSource.gallery) {
+        await requestGalleryPermission();
+      }
 
-                  return Center(
-                    child: isPhotoUploaded
-                        ? Stack(
-                            children: [
-                              Container(
-                                width: imageContainerSize,
-                                height: imageContainerSize,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title: const Text('Pick an image'),
-                                          content: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              ElevatedButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                  pickImage(index,
-                                                      ImageSource.camera);
-                                                },
-                                                child: const Row(
-                                                  children: [
-                                                    Icon(Icons.camera_alt),
-                                                    SizedBox(width: 8),
-                                                    Text("Camera"),
-                                                  ],
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: source);
+
+      if (pickedFile != null) {
+        File imageFile = File(pickedFile.path);
+        final compressedImage = await FlutterImageCompress.compressWithFile(
+          imageFile.path,
+          quality: 50,
+        );
+
+        if (compressedImage != null) {
+          String base64Image = base64Encode(compressedImage);
+          if (index < controller.userRegistrationRequest.photos.length) {
+            controller.userRegistrationRequest.photos[index] = base64Image;
+          } else {
+            controller.userRegistrationRequest.photos.add(base64Image);
+          }
+
+          images[index] = imageFile;
+        } else {
+          Get.snackbar("Error", "Image compression failed");
+        }
+      }
+    }
+
+    void onNextButtonPressed() {
+      if (controller.userRegistrationRequest.photos.length >= 3) {
+        controller.userRegistrationRequest.imgcount =
+            controller.userRegistrationRequest.photos.length.toString();
+        markStepAsCompleted(11);
+        Get.snackbar(
+            'photo', controller.userRegistrationRequest.photos.toString());
+        Get.snackbar(
+            'photo', controller.userRegistrationRequest.imgcount.toString());
+        pageController.nextPage(
+          duration: Duration(milliseconds: 300),
+          curve: Curves.ease,
+        );
+      } else {
+        Get.snackbar("Error", "Please add at least three photos.");
+      }
+    }
+
+    double screenWidth = screenSize.width;
+    double iconSize = screenWidth * 0.12;
+    double imageContainerSize = screenWidth * 0.39;
+    resetImagesForNewUser();
+    return Scaffold(
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              controller.headlines.isNotEmpty
+                  ? controller.headlines[8].title
+                  : "Loading Title...",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              controller.headlines.isNotEmpty
+                  ? controller.headlines[8].description
+                  : "",
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            SizedBox(height: 20),
+            Expanded(
+              child: Obx(() {
+                return GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 20.0,
+                    mainAxisSpacing: 40.0,
+                  ),
+                  itemCount: images.length,
+                  itemBuilder: (context, index) {
+                    bool isPhotoUploaded = images[index] != null ||
+                        (controller.userRegistrationRequest.photos.length >
+                            index);
+
+                    return Center(
+                      child: isPhotoUploaded
+                          ? Stack(
+                              children: [
+                                Container(
+                                  width: imageContainerSize,
+                                  height: imageContainerSize,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: const Text('Pick an image'),
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    pickImage(index,
+                                                        ImageSource.camera);
+                                                  },
+                                                  child: const Row(
+                                                    children: [
+                                                      Icon(Icons.camera_alt),
+                                                      SizedBox(width: 8),
+                                                      Text("Camera"),
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
-                                              ElevatedButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                  pickImage(index,
-                                                      ImageSource.gallery);
-                                                },
-                                                child: const Row(
-                                                  children: [
-                                                    Icon(Icons.photo),
-                                                    SizedBox(width: 8),
-                                                    Text("Gallery"),
-                                                  ],
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    pickImage(index,
+                                                        ImageSource.gallery);
+                                                  },
+                                                  child: const Row(
+                                                    children: [
+                                                      Icon(Icons.photo),
+                                                      SizedBox(width: 8),
+                                                      Text("Gallery"),
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                  child: images[index] != null
-                                      ? Image.file(
-                                          images[index]!, 
-                                          fit: BoxFit.cover,
-                                        )
-                                      : (controller.userRegistrationRequest
-                                                      .photos.length >
-                                                  index &&
-                                              controller
-                                                  .userRegistrationRequest
-                                                  .photos[index]
-                                                  .isNotEmpty)
-                                          ? Image.memory(
-                                              base64Decode(controller
-                                                  .userRegistrationRequest
-                                                  .photos[index]),
-                                              fit: BoxFit.cover,
-                                            )
-                                          : Container(
-                                              color: Colors.grey.shade300,
-                                              child: Icon(
-                                                Icons.add_a_photo,
-                                                color: Colors.grey.shade600,
-                                              ),
+                                              ],
                                             ),
-                                ),
-                              ),
-                              Positioned(
-                                right: 4,
-                                top: 4,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title: const Text('Pick an image'),
-                                          content: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              ElevatedButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                  pickImage(index,
-                                                      ImageSource.camera);
-                                                },
-                                                child: const Row(
-                                                  children: [
-                                                    Icon(Icons.camera_alt),
-                                                    SizedBox(width: 8),
-                                                    Text("Camera"),
-                                                  ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: images[index] != null
+                                        ? Image.file(
+                                            images[index]!,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : (controller.userRegistrationRequest
+                                                        .photos.length >
+                                                    index &&
+                                                controller
+                                                    .userRegistrationRequest
+                                                    .photos[index]
+                                                    .isNotEmpty)
+                                            ? Image.memory(
+                                                base64Decode(controller
+                                                    .userRegistrationRequest
+                                                    .photos[index]),
+                                                fit: BoxFit.cover,
+                                              )
+                                            : Container(
+                                                color: Colors.grey.shade300,
+                                                child: Icon(
+                                                  Icons.add_a_photo,
+                                                  color: Colors.grey.shade600,
                                                 ),
                                               ),
-                                              ElevatedButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                  pickImage(index,
-                                                      ImageSource.gallery);
-                                                },
-                                                child: const Row(
-                                                  children: [
-                                                    Icon(Icons.photo),
-                                                    SizedBox(width: 8),
-                                                    Text("Gallery"),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                  child: Icon(
-                                    Icons.more_vert,
-                                    size: 20,
-                                    color: Colors.grey,
                                   ),
                                 ),
-                              ),
-                            ],
-                          )
-                        : ElevatedButton(
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text('Pick an image'),
-                                    content: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                            pickImage(index,
-                                                ImageSource.camera);
-                                          },
-                                          child: const Row(
-                                            children: [
-                                              Icon(Icons.camera_alt),
-                                              SizedBox(width: 8),
-                                              Text("Camera"),
-                                            ],
-                                          ),
-                                        ),
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                            pickImage(index,
-                                                ImageSource.gallery);
-                                          },
-                                          child: const Row(
-                                            children: [
-                                              Icon(Icons.photo),
-                                              SizedBox(width: 8),
-                                              Text("Gallery"),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
+                                Positioned(
+                                  right: 4,
+                                  top: 4,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: const Text('Pick an image'),
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    pickImage(index,
+                                                        ImageSource.camera);
+                                                  },
+                                                  child: const Row(
+                                                    children: [
+                                                      Icon(Icons.camera_alt),
+                                                      SizedBox(width: 8),
+                                                      Text("Camera"),
+                                                    ],
+                                                  ),
+                                                ),
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    pickImage(index,
+                                                        ImageSource.gallery);
+                                                  },
+                                                  child: const Row(
+                                                    children: [
+                                                      Icon(Icons.photo),
+                                                      SizedBox(width: 8),
+                                                      Text("Gallery"),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Icon(
+                                      Icons.more_vert,
+                                      size: 20,
+                                      color: Colors.grey,
                                     ),
-                                  );
-                                },
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              shape: CircleBorder(),
-                              padding: EdgeInsets.all(12),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : ElevatedButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text('Pick an image'),
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                              pickImage(
+                                                  index, ImageSource.camera);
+                                            },
+                                            child: const Row(
+                                              children: [
+                                                Icon(Icons.camera_alt),
+                                                SizedBox(width: 8),
+                                                Text("Camera"),
+                                              ],
+                                            ),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                              pickImage(
+                                                  index, ImageSource.gallery);
+                                            },
+                                            child: const Row(
+                                              children: [
+                                                Icon(Icons.photo),
+                                                SizedBox(width: 8),
+                                                Text("Gallery"),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                shape: CircleBorder(),
+                                padding: EdgeInsets.all(12),
+                              ),
+                              child: Icon(
+                                Icons.add_a_photo,
+                                size: iconSize,
+                                color: Colors.grey.shade600,
+                              ),
                             ),
-                            child: Icon(
-                              Icons.add_a_photo,
-                              size: iconSize,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                  );
-                },
-              );
-            }),
-          ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: onNextButtonPressed,
-            style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 24),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                backgroundColor: controller.userRegistrationRequest.photos.isNotEmpty
-                    ? AppColors.activeColor
-                    : AppColors.inactiveColor),
-            child: Text("Next",
-                style: AppTextStyles.buttonText.copyWith(
-                  color: AppColors.primaryColor,
-                )),
-          ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: onBackPressed,
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-              backgroundColor: AppColors.buttonColor,
-              foregroundColor: AppColors.textColor,
+                    );
+                  },
+                );
+              }),
             ),
-            child: Text('Back', style: AppTextStyles.buttonText),
-          ),
-        ],
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: onNextButtonPressed,
+              style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  backgroundColor:
+                      controller.userRegistrationRequest.photos.isNotEmpty
+                          ? AppColors.activeColor
+                          : AppColors.inactiveColor),
+              child: Text("Next",
+                  style: AppTextStyles.buttonText.copyWith(
+                    color: AppColors.primaryColor,
+                  )),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: onBackPressed,
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                backgroundColor: AppColors.buttonColor,
+                foregroundColor: AppColors.textColor,
+              ),
+              child: Text('Back', style: AppTextStyles.buttonText),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
 // step 12
   Widget buildSafetyGuidelinesWidget(Size screenSize) {
