@@ -224,7 +224,7 @@ class Controller extends GetxController {
   }
 
   RegistrationOTPRequest registrationOTPRequest =
-      RegistrationOTPRequest(email: '', name: '');
+      RegistrationOTPRequest(email: '', name: '',mobile:'');
 
   Future<bool> getOtpForRegistration(
       RegistrationOTPRequest registrationOTPRequest) async {

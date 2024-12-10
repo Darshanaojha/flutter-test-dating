@@ -137,11 +137,10 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                   ],
                 ),
                 SizedBox(height: 20),
-                // List of chat users
                 Expanded(
                   child: Obx(() {
                     final chatMessages =
-                        controller.messages; // Accessing RxList<Message>
+                        controller.messages; 
 
                     if (chatMessages.isEmpty) {
                       return Center(
@@ -184,7 +183,6 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                               children: [
                                 GestureDetector(
                                   onTap: () {
-                                    // Block navigation to ChatPage when tapping on image
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -237,7 +235,6 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                                       ],
                                     ),
                                     SizedBox(height: 4),
-                                    // Display time since last message
                                     Text(
                                       timeAgoText,
                                       style: AppTextStyles.bodyText.copyWith(

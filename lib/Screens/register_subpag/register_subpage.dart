@@ -63,9 +63,14 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     for (String genderId in genderIds) {
       await controller.fetchSubGender(SubGenderRequest(genderId: genderId));
     }
-
     preferencesSelectedOptions.value =
         List<bool>.filled(controller.preferences.length, false);
+  }
+
+  @override
+  void dispose() {
+    resetImagesForNewUser();
+    super.dispose();
   }
 
   List<bool> stepCompletion = List.generate(13, (index) => false);
@@ -121,8 +126,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
         return buildPhotosOfUser(screenSize);
       case 12:
         return buildSafetyGuidelinesWidget(screenSize);
-      case 13:
-        return buildProfileSummaryPage(screenSize);
       default:
         return buildFinalStep(screenSize);
     }
@@ -172,7 +175,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             padding: const EdgeInsets.only(right: 16.0),
             child: Center(
               child: Text(
-                "$currentPage of 13",
+                "$currentPage of 12",
                 style: TextStyle(
                   fontSize: isPortrait ? fontSize : fontSize + 2,
                   fontWeight: FontWeight.bold,
@@ -564,12 +567,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     double titleFontSize = screenSize.width * 0.05;
     double descriptionFontSize = screenSize.width * 0.03;
     double optionFontSize = screenSize.width * 0.03;
-    String? validateSelection(dynamic value) {
-      if (value == null) {
-        return 'Please select a value';
-      }
-      return null;
-    }
 
     return Obx(() {
       if (controller.subGenders.isEmpty) {
@@ -582,7 +579,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       }
 
       return Card(
-        elevation: 8,
+        elevation: 6,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -612,105 +609,52 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 ),
               ),
               SizedBox(height: 20),
-              // DropdownButtonFormField<String>(
-              //   value: controller.userRegistrationRequest.lookingFor.isEmpty
-              //       ? null
-              //       : controller.userRegistrationRequest.lookingFor,
-              //   validator: validateSelection,
-              //   decoration: InputDecoration(
-              //     labelText: 'Relationship Type',
-              //     labelStyle: AppTextStyles.labelText
-              //         .copyWith(fontSize: optionFontSize),
-              //     border: OutlineInputBorder(
-              //       borderRadius: BorderRadius.circular(10),
-              //       borderSide: BorderSide(color: AppColors.textColor),
-              //     ),
-              //     focusedBorder: OutlineInputBorder(
-              //       borderSide: BorderSide(color: Colors.white),
-              //     ),
-              //     enabledBorder: OutlineInputBorder(
-              //       borderSide: BorderSide(color: Colors.white),
-              //     ),
-              //   ),
-              //   items: [
-              //     DropdownMenuItem(
-              //       value: '1',
-              //       child: Text(
-              //         'Serious Relationship',
-              //         style: AppTextStyles.bodyText
-              //             .copyWith(fontSize: optionFontSize),
-              //       ),
-              //     ),
-              //     DropdownMenuItem(
-              //       value: '2',
-              //       child: Text(
-              //         'Hookup',
-              //         style: AppTextStyles.bodyText
-              //             .copyWith(fontSize: optionFontSize),
-              //       ),
-              //     ),
-              //   ],
-              //   onChanged: (value) {
-              //     if (value != null) {
-              //       controller.userRegistrationRequest.lookingFor = value;
-              //     }
-              //   },
-              //   iconEnabledColor: AppColors.textColor,
-              //   iconDisabledColor: AppColors.disabled,
-              // ),
-              // SizedBox(height: 20),
-              Column(
-                children: List.generate(controller.subGenders.length, (index) {
-                  return RadioListTile<String>(
-                    title: Text(
-                      controller.subGenders[index].title,
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: optionFontSize,
-                        color: AppColors.textColor,
-                      ),
-                    ),
-                    value: controller.subGenders[index].id,
-                    groupValue: selectedOption.value,
-                    onChanged: (String? value) {
-                      selectedOption.value = value ?? '';
-                      controller.userRegistrationRequest.subGender =
-                          value ?? '';
-                    },
-                    activeColor: AppColors.buttonColor,
-                    contentPadding: EdgeInsets.zero,
-                  );
-                }),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children:
+                        List.generate(controller.subGenders.length, (index) {
+                      return RadioListTile<String>(
+                        title: Text(
+                          controller.subGenders[index].title,
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: optionFontSize,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                        value: controller.subGenders[index].id,
+                        groupValue: selectedOption.value,
+                        onChanged: (String? value) {
+                          selectedOption.value = value ?? '';
+                          controller.userRegistrationRequest.subGender =
+                              value ?? '';
+                        },
+                        activeColor: AppColors.buttonColor,
+                        contentPadding: EdgeInsets.zero,
+                      );
+                    }),
+                  ),
+                ),
               ),
               SizedBox(height: 30),
               ElevatedButton(
                 onPressed: selectedOption.value.isEmpty
-                    ? null
+                    ? null // Disable button if no option is selected
                     : () {
-                        validateSelection(dynamic value) {
-                          if (value == null) {
-                            return 'Please select a value';
-                          }
-                          return null;
-                        }
-
-                        if (selectedOption.value.isEmpty) {
-                          failure(
-                              'Failed', 'Please select an option to proceed.');
-                        } else {
-                          markStepAsCompleted(4);
-                          Get.snackbar(
-                              'subgender',
-                              controller.userRegistrationRequest.subGender
-                                  .toString());
-                          pageController.nextPage(
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.ease,
-                          );
-                        }
+                        // Proceed to the next step if a valid option is selected
+                        markStepAsCompleted(4);
+                        Get.snackbar(
+                            'Sub-gender',
+                            controller.userRegistrationRequest.subGender
+                                .toString());
+                        pageController.nextPage(
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.ease,
+                        );
                       },
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                  backgroundColor: selectedOption.isEmpty
+                  backgroundColor: selectedOption.value.isEmpty
                       ? AppColors.disabled // If no preference is selected
                       : AppColors.buttonColor, // If preference is selected
                   foregroundColor: AppColors.textColor,
@@ -722,7 +666,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
               ElevatedButton(
                 onPressed: onBackPressed, // Call the onBackPressed method
                 style: ElevatedButton.styleFrom(
@@ -1955,10 +1899,14 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
+  RxList<File?> images = RxList<File?>(List.filled(6, null));
+  void resetImagesForNewUser() {
+    images.clear();
+    images.addAll(List.filled(6, null));
+  }
+
 // photos 11
   Widget buildPhotosOfUser(Size screenSize) {
-    RxList<File?> images = RxList<File?>(List.filled(6, null));
-
     Future<void> requestCameraPermission() async {
       var status = await Permission.camera.request();
       if (status.isDenied) {
@@ -1985,7 +1933,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
       if (pickedFile != null) {
         File imageFile = File(pickedFile.path);
-
         final compressedImage = await FlutterImageCompress.compressWithFile(
           imageFile.path,
           quality: 50,
@@ -2006,7 +1953,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       }
     }
 
-    // Handle 'Next' Button Press
     void onNextButtonPressed() {
       if (controller.userRegistrationRequest.photos.length >= 3) {
         controller.userRegistrationRequest.imgcount =
@@ -2016,20 +1962,19 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             'photo', controller.userRegistrationRequest.photos.toString());
         Get.snackbar(
             'photo', controller.userRegistrationRequest.imgcount.toString());
-        // Move to the next page in the PageView
         pageController.nextPage(
           duration: Duration(milliseconds: 300),
           curve: Curves.ease,
         );
       } else {
-        Get.snackbar("Error", "Please add at least three photo.");
+        Get.snackbar("Error", "Please add at least three photos.");
       }
     }
 
     double screenWidth = screenSize.width;
     double iconSize = screenWidth * 0.12;
     double imageContainerSize = screenWidth * 0.39;
-
+    resetImagesForNewUser();
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -2066,134 +2011,203 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   ),
                   itemCount: images.length,
                   itemBuilder: (context, index) {
-                    if (images[index] == null) {
-                         String? base64Image = controller.userRegistrationRequest.photos.length > index
-                      ? controller.userRegistrationRequest.photos[index]
-                      : "You are already add the photos";
-                   
-                      return Center(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: const Text('Pick an image'),
-                                  content: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                          pickImage(index, ImageSource.camera);
-                                        },
-                                        child: const Row(
-                                          children: [
-                                            Icon(Icons.camera_alt),
-                                            SizedBox(width: 8),
-                                            Text("Camera"),
-                                          ],
-                                        ),
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                          pickImage(index, ImageSource.gallery);
-                                        },
-                                        child: const Row(
-                                          children: [
-                                            Icon(Icons.photo),
-                                            SizedBox(width: 8),
-                                            Text("Gallery"),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
+                    bool isPhotoUploaded = images[index] != null ||
+                        (controller.userRegistrationRequest.photos.length >
+                            index);
+
+                    return Center(
+                      child: isPhotoUploaded
+                          ? Stack(
+                              children: [
+                                Container(
+                                  width: imageContainerSize,
+                                  height: imageContainerSize,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                );
-                              },
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            shape: CircleBorder(),
-                            padding: EdgeInsets.all(12),
-                          ),
-                          child: Icon(
-                            Icons.add_a_photo,
-                            size: iconSize, // Responsive icon size
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      );
-                      
-                    } else {
-                      // Display the image if available
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: imageContainerSize,
-                              height: imageContainerSize,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: GestureDetector(
-                                onTap: () {
-                                  // Show options to change the image
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: const Text('Pick an image'),
-                                        content: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            ElevatedButton(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                                pickImage(
-                                                    index, ImageSource.camera);
-                                              },
-                                              child: const Row(
-                                                children: [
-                                                  Icon(Icons.camera_alt),
-                                                  SizedBox(width: 8),
-                                                  Text("Camera"),
-                                                ],
-                                              ),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: const Text('Pick an image'),
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    pickImage(index,
+                                                        ImageSource.camera);
+                                                  },
+                                                  child: const Row(
+                                                    children: [
+                                                      Icon(Icons.camera_alt),
+                                                      SizedBox(width: 8),
+                                                      Text("Camera"),
+                                                    ],
+                                                  ),
+                                                ),
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    pickImage(index,
+                                                        ImageSource.gallery);
+                                                  },
+                                                  child: const Row(
+                                                    children: [
+                                                      Icon(Icons.photo),
+                                                      SizedBox(width: 8),
+                                                      Text("Gallery"),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                            ElevatedButton(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                                pickImage(
-                                                    index, ImageSource.gallery);
-                                              },
-                                              child: const Row(
-                                                children: [
-                                                  Icon(Icons.photo),
-                                                  SizedBox(width: 8),
-                                                  Text("Gallery"),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                          );
+                                        },
                                       );
                                     },
-                                  );
-                                },
-                                child: Image.file(
-                                  images[index]!,
-                                  fit: BoxFit.cover,
+                                    child: images[index] != null
+                                        ? Image.file(
+                                            images[index]!,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : (controller.userRegistrationRequest
+                                                        .photos.length >
+                                                    index &&
+                                                controller
+                                                    .userRegistrationRequest
+                                                    .photos[index]
+                                                    .isNotEmpty)
+                                            ? Image.memory(
+                                                base64Decode(controller
+                                                    .userRegistrationRequest
+                                                    .photos[index]),
+                                                fit: BoxFit.cover,
+                                              )
+                                            : Container(
+                                                color: Colors.grey.shade300,
+                                                child: Icon(
+                                                  Icons.add_a_photo,
+                                                  color: Colors.grey.shade600,
+                                                ),
+                                              ),
+                                  ),
                                 ),
+                                Positioned(
+                                  right: 4,
+                                  top: 4,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: const Text('Pick an image'),
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    pickImage(index,
+                                                        ImageSource.camera);
+                                                  },
+                                                  child: const Row(
+                                                    children: [
+                                                      Icon(Icons.camera_alt),
+                                                      SizedBox(width: 8),
+                                                      Text("Camera"),
+                                                    ],
+                                                  ),
+                                                ),
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    pickImage(index,
+                                                        ImageSource.gallery);
+                                                  },
+                                                  child: const Row(
+                                                    children: [
+                                                      Icon(Icons.photo),
+                                                      SizedBox(width: 8),
+                                                      Text("Gallery"),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Icon(
+                                      Icons.more_vert,
+                                      size: 20,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : ElevatedButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text('Pick an image'),
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                              pickImage(
+                                                  index, ImageSource.camera);
+                                            },
+                                            child: const Row(
+                                              children: [
+                                                Icon(Icons.camera_alt),
+                                                SizedBox(width: 8),
+                                                Text("Camera"),
+                                              ],
+                                            ),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                              pickImage(
+                                                  index, ImageSource.gallery);
+                                            },
+                                            child: const Row(
+                                              children: [
+                                                Icon(Icons.photo),
+                                                SizedBox(width: 8),
+                                                Text("Gallery"),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                shape: CircleBorder(),
+                                padding: EdgeInsets.all(12),
+                              ),
+                              child: Icon(
+                                Icons.add_a_photo,
+                                size: iconSize,
+                                color: Colors.grey.shade600,
                               ),
                             ),
-                          ],
-                        ),
-                      );
-                    }
+                    );
                   },
                 );
               }),
@@ -2230,285 +2244,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       ),
     );
   }
-
-// // step: 0000000
-//   Widget buildPaymentWidget(Size screenSize) {
-//     double fontSize = screenSize.width * 0.03;
-//     Future<void> showPaymentConfirmationDialog(BuildContext context,
-//         String planType, String planId, String amount) async {
-//       return showDialog<void>(
-//         context: context,
-//         barrierDismissible: false, // Prevent dismissal by tapping outside
-//         builder: (BuildContext context) {
-//           return AlertDialog(
-//             title: Text(
-//               "Confirm Subscription",
-//               style: AppTextStyles.titleText.copyWith(
-//                 fontSize: fontSize,
-//                 color: AppColors.textColor,
-//               ),
-//             ),
-//             content: Text(
-//               "Do you want to subscribe to the $planType plan for $amount?",
-//               style: AppTextStyles.bodyText.copyWith(
-//                 fontSize: fontSize - 2,
-//                 color: AppColors.textColor,
-//               ),
-//             ),
-//           );
-//         },
-//       );
-//     }
-
-//     return SingleChildScrollView(
-//       child: Column(
-//         children: [
-//           Padding(
-//             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-//             child: Row(
-//               children: [
-//                 Text(
-//                   "What We Offer",
-//                   style: AppTextStyles.titleText.copyWith(
-//                     fontSize: fontSize,
-//                     color: AppColors.textColor,
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//           SizedBox(height: 20),
-//           Padding(
-//             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-//             child: Row(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               children: [
-//                 Obx(() {
-//                   return Container(
-//                       width: MediaQuery.of(context).size.width * 0.8,
-//                       decoration: BoxDecoration(
-//                         borderRadius: BorderRadius.circular(12),
-//                         border: Border.all(color: AppColors.formFieldColor),
-//                       ),
-//                       child: GestureDetector(
-//                         onTap: () async {
-//                           await showDialog<String>(
-//                             context: context,
-//                             builder: (BuildContext context) {
-//                               return AlertDialog(
-//                                 title: Text("Choose a benefit"),
-//                                 content: SingleChildScrollView(
-//                                   child: ListBody(
-//                                     children: controller.benefits
-//                                         .map<Widget>((Benefit benefit) {
-//                                       return ListTile(
-//                                         title: Text(
-//                                           benefit.title,
-//                                           style:
-//                                               AppTextStyles.bodyText.copyWith(
-//                                             fontSize: fontSize - 6,
-//                                             color: AppColors.textColor,
-//                                           ),
-//                                         ),
-//                                         onTap: () {
-//                                           Navigator.of(context).pop();
-//                                         },
-//                                       );
-//                                     }).toList(),
-//                                   ),
-//                                 ),
-//                               );
-//                             },
-//                           );
-//                         },
-//                         child: AbsorbPointer(
-//                           child: Text(
-//                             "Click to know what we offer",
-//                             style: AppTextStyles.bodyText.copyWith(
-//                               fontSize: fontSize - 6,
-//                               color: AppColors.textColor.withOpacity(0.6),
-//                             ),
-//                           ),
-//                         ),
-//                       ));
-//                 })
-//               ],
-//             ),
-//           ),
-//           SizedBox(height: 20),
-//           Card(
-//             elevation: 8,
-//             shape: RoundedRectangleBorder(
-//               borderRadius: BorderRadius.circular(12),
-//             ),
-//             child: Padding(
-//               padding: const EdgeInsets.all(16.0),
-//               child: Column(
-//                 children: [
-//                   Text(
-//                     controller.headlines.isNotEmpty
-//                         ? controller.headlines[10].title
-//                         : "Loading Title...",
-//                     style: AppTextStyles.titleText.copyWith(
-//                       fontSize: fontSize,
-//                       fontWeight: FontWeight.bold,
-//                       color: AppColors.textColor,
-//                     ),
-//                   ),
-//                   SizedBox(height: 10),
-//                   Text(
-//                     controller.headlines.isNotEmpty
-//                         ? controller.headlines[10].description
-//                         : "Loading Title...",
-//                     style: AppTextStyles.bodyText.copyWith(
-//                       fontSize: fontSize - 2,
-//                       color: AppColors.textColor,
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//           SizedBox(height: 20),
-//           Obx(() {
-//             return ListView.builder(
-//               shrinkWrap: true,
-//               itemCount: controller.packages.length,
-//               itemBuilder: (context, index) {
-//                 final package = controller.packages[index];
-
-//                 return GestureDetector(
-//                   onTap: () {
-//                     showPaymentConfirmationDialog(
-//                       context,
-//                       package.unit,
-//                       package.id,
-//                       '₹${package.offerAmount}',
-//                     );
-//                   },
-//                   child: Stack(
-//                     clipBehavior: Clip.none,
-//                     children: [
-//                       Card(
-//                         elevation: 8,
-//                         shape: RoundedRectangleBorder(
-//                           borderRadius: BorderRadius.circular(12),
-//                         ),
-//                         color: Colors.orange,
-//                         child: Padding(
-//                           padding: const EdgeInsets.all(24.0),
-//                           child: Row(
-//                             children: [
-//                               Icon(
-//                                 Icons.calendar_today,
-//                                 color: AppColors.iconColor,
-//                                 size: fontSize,
-//                               ),
-//                               SizedBox(width: 10),
-//                               Expanded(
-//                                 child: Text(
-//                                   "${package.unit} Plan - ₹${package.offerAmount}",
-//                                   style: AppTextStyles.bodyText.copyWith(
-//                                     fontSize: fontSize - 2,
-//                                     color: AppColors.textColor,
-//                                   ),
-//                                 ),
-//                               ),
-//                               Obx(() {
-//                                 return Text(
-//                                   selectedPlan.value == package.unit
-//                                       ? 'Selected'
-//                                       : 'Select',
-//                                   style: AppTextStyles.bodyText.copyWith(
-//                                     fontSize: fontSize - 2,
-//                                     color: selectedPlan.value == package.unit
-//                                         ? AppColors.buttonColor
-//                                         : AppColors.formFieldColor,
-//                                   ),
-//                                 );
-//                               }),
-//                             ],
-//                           ),
-//                         ),
-//                       ),
-//                       Positioned(
-//                         top: 4,
-//                         right: 2,
-//                         child: Container(
-//                           padding:
-//                               EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-//                           decoration: BoxDecoration(
-//                             color: Colors.red,
-//                             borderRadius: BorderRadius.circular(12),
-//                           ),
-//                           child: Text(
-//                             '20% OFF',
-//                             textAlign: TextAlign.center,
-//                             style: TextStyle(
-//                               color: Colors.white,
-//                               fontSize: fontSize - 6,
-//                               fontWeight: FontWeight.bold,
-//                             ),
-//                           ),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 );
-//               },
-//             );
-//           }),
-//           SizedBox(height: 20),
-//           Obx(() {
-//             return Visibility(
-//               visible: selectedPlan.value != 'None',
-//               child: ElevatedButton(
-//                 onPressed: () {
-//                   markStepAsCompleted(12);
-//                   pageController.nextPage(
-//                     duration: Duration(milliseconds: 300),
-//                     curve: Curves.ease,
-//                   );
-//                 },
-//                 child: Text(
-//                   "Next",
-//                   style: AppTextStyles.bodyText.copyWith(
-//                     fontSize: fontSize,
-//                     color: AppColors.textColor,
-//                   ),
-//                 ),
-//               ),
-//             );
-//           }),
-//           ElevatedButton(
-//             onPressed: onBackPressed,
-//             style: ElevatedButton.styleFrom(
-//               padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-//               backgroundColor: AppColors.buttonColor,
-//               foregroundColor: AppColors.textColor,
-//             ),
-//             child: Text('Back', style: AppTextStyles.buttonText),
-//           ),
-//           ElevatedButton(
-//             onPressed: () {
-//               markStepAsCompleted(12);
-
-//               pageController.nextPage(
-//                 duration: Duration(milliseconds: 300),
-//                 curve: Curves.ease,
-//               );
-//             },
-//             style: ElevatedButton.styleFrom(
-//               padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-//               backgroundColor: AppColors.buttonColor,
-//               foregroundColor: AppColors.textColor,
-//             ),
-//             child: Text('Skip', style: AppTextStyles.buttonText),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
 
 // step 12
   Widget buildSafetyGuidelinesWidget(Size screenSize) {
@@ -2630,13 +2365,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
           // Acknowledge Button
           ElevatedButton(
-            onPressed: () {
-              markStepAsCompleted(12);
-              pageController.nextPage(
-                duration: Duration(milliseconds: 300),
-                curve: Curves.ease,
-              );
-            },
+            onPressed:nextStep,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.buttonColor,
               foregroundColor: AppColors.textColor,
@@ -2652,331 +2381,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           SizedBox(height: 10),
 
           // Back Button
-          ElevatedButton(
-            onPressed: onBackPressed,
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-              backgroundColor: AppColors.buttonColor,
-              foregroundColor: AppColors.textColor,
-            ),
-            child: Text('Back', style: AppTextStyles.buttonText),
-          ),
-        ],
-      ),
-    );
-  }
-
-// step 13
-  Widget buildProfileSummaryPage(Size screenSize) {
-    double fontSize = screenSize.width * 0.03;
-    final controller =
-        Get.find<Controller>(); // Assuming Controller holds user data
-    var profile = controller.userRegistrationRequest;
-
-    // Show Profile Picture in Dialog
-    void showProfileImageDialog(BuildContext context) {
-      showDialog(
-        context: context,
-        builder: (context) => Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset(profile.photos[
-                    0]), // Displaying the user's first photo in a dialog
-                SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.buttonColor,
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  ),
-                  child: Text(
-                    'Close',
-                    style: AppTextStyles.buttonText,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          // First Card: Profile Summary Header
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Text(
-                    "Profile Summary",
-                    style: AppTextStyles.titleText.copyWith(
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textColor,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    "Review your profile and preferences before starting your journey.",
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2,
-                      color: AppColors.textColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-
-          // Second Card: Profile Picture
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: GestureDetector(
-                onTap: () =>
-                    showProfileImageDialog(context), // Show image on tap
-                child: CircleAvatar(
-                  radius: fontSize * 1.5,
-                  backgroundImage: AssetImage(
-                      profile.photos[0]), // Use dynamic profile picture
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-
-          // Third Card: Name and Age
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Name: ${profile.name}", // Dynamically showing name
-                          style: AppTextStyles.titleText.copyWith(
-                            fontSize: fontSize,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textColor,
-                          ),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          "Age: ${profile.dob}", // Dynamically showing age
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: fontSize - 2,
-                            color: AppColors.textColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-
-          // Fourth Card: Preferences
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Your Preferences:",
-                    style: AppTextStyles.titleText.copyWith(
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textColor,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    "Interested in: ${profile.interest}", // Dynamically showing preference
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2,
-                      color: AppColors.textColor,
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    "Looking for: ${profile.lookingFor}", // Dynamically showing looking for
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2,
-                      color: AppColors.textColor,
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    "Location: ${profile.longitude}", // Dynamically showing location
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2,
-                      color: AppColors.textColor,
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    "Hobbies: ${profile.desires.join(", ")}", // Dynamically showing hobbies
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize - 2,
-                      color: AppColors.textColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-
-          // Fifth Card: Subscription Plan
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.star,
-                    color: AppColors.accentColor,
-                    size: fontSize,
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      "You are subscribed to the ${''} Plan (${''} INR).",
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize - 2,
-                        color: AppColors.textColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-
-          // Sixth Card: Safety Acknowledgment
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.check_circle,
-                    color: Colors.green,
-                    size: fontSize,
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      "You have acknowledged the safety guidelines.", // Static, as user has already acknowledged
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize - 2,
-                        color: AppColors.textColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 30),
-
-          // Edit Button
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  print("User is ready to start browsing matches.");
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.buttonColor,
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.edit,
-                      color: AppColors.iconColor,
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      'Edit',
-                      style: AppTextStyles.buttonText.copyWith(
-                        fontSize: fontSize,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 30),
-
-          // Submit Button
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                onPressed: nextStep,
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 80),
-                  backgroundColor: AppColors.buttonColor,
-                  foregroundColor: AppColors.textColor,
-                ),
-                child: Text('Submit', style: AppTextStyles.buttonText),
-              ),
-            ),
-          ),
           ElevatedButton(
             onPressed: onBackPressed,
             style: ElevatedButton.styleFrom(
@@ -3020,7 +2424,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
   void nextStep() {
-    if (currentPage < 13) {
+    if (currentPage < 12) {
       markStepAsCompleted(currentPage);
       pageController.nextPage(
         duration: Duration(milliseconds: 300),

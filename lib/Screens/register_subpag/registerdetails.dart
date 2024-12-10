@@ -131,7 +131,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                     key: formKey,
                     child: Column(
                       children: [
-                        buildTextFieldNameEmail(
+                        buildTextFieldNameEmailMobile(
                           "Name",
                           controller.userRegistrationRequest.name.isNotEmpty
                               ? controller.userRegistrationRequest.name
@@ -146,7 +146,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           enabled: false,
                         ),
 
-                        buildTextFieldNameEmail(
+                        buildTextFieldNameEmailMobile(
                           "Email",
                           controller.userRegistrationRequest.email.isNotEmpty
                               ? controller.userRegistrationRequest.email
@@ -160,18 +160,28 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           fontSize,
                           enabled: false,
                         ),
+                        // Mobile Field
+                        buildTextFieldNameEmailMobile(
+                          "Mobile",
+                          controller.userRegistrationRequest.mobile.isNotEmpty
+                              ? controller.userRegistrationRequest.mobile
+                              : null,
+                          (value) {
+                            controller.userRegistrationRequest.mobile = value;
+                          },
+                          (value) {
+                            controller.userRegistrationRequest.mobile = value;
+                          },
+                          fontSize,
+                          isMobileField: true,
+                          enabled: false,
+                        ),
+
                         buildTextField("UserName", null, (value) {
                           controller.userRegistrationRequest.username = value;
                         }, (value) {
                           controller.userRegistrationRequest.username = value;
                         }, fontSize),
-
-                        // Mobile Field
-                        buildTextField("Mobile", null, (value) {
-                          controller.userRegistrationRequest.mobile = value;
-                        }, (value) {
-                          controller.userRegistrationRequest.mobile = value;
-                        }, fontSize, isMobileField: true),
 
                         buildTextField("Address", null, (value) {
                           controller.userRegistrationRequest.address = value;
@@ -180,14 +190,16 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                         }, fontSize),
 
                         // Password Field
-                        buildTextField(
+                        buildPasswordField(
                           "Password",
                           null,
                           (value) {
-                            controller.userRegistrationRequest.password = value;
+                            controller.userRegistrationRequest.password =
+                                value.toString();
                           },
                           (value) {
-                            controller.userRegistrationRequest.password = value;
+                            controller.userRegistrationRequest.password =
+                                value.toString();
                           },
                           fontSize,
                           obscureText: true,
@@ -338,6 +350,25 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                                 return null;
                               }
 
+                              void validatePassword(String password) {
+                                if (password.length < 8) {
+                                  failure("Password",
+                                      "Password must be at least 8 characters long.");
+                                  return;
+                                }
+
+                                final hasDigit =
+                                    RegExp(r'[0-9]').hasMatch(password);
+                                final hasSpecialChar =
+                                    RegExp(r'[!@#$%^&*(),.?":{}|<>]')
+                                        .hasMatch(password);
+                                if (!hasDigit || !hasSpecialChar) {
+                                  failure("Password",
+                                      "Password must contain at least one digit and one special character.");
+                                  return;
+                                }
+                              }
+
                               Get.to(MultiStepFormPage());
                               success(
                                   'Success', 'Form submitted successfully!');
@@ -405,7 +436,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     );
   }
 
-  Widget buildTextFieldNameEmail(
+  Widget buildTextFieldNameEmailMobile(
     String label,
     String? initialValue,
     onChanged,
@@ -413,6 +444,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     double fontSize, {
     bool obscureText = false,
     bool enabled = true,
+    bool isMobileField = false,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -423,6 +455,15 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
         validator: (value) {
           if (value == null || value.isEmpty) {
             return '$label is required';
+          }
+          if (isMobileField) {
+            if (!RegExp(r'^\d+$').hasMatch(value)) {
+              failure('Mobile', 'Mobile number must only contain digits');
+              return 'Mobile number must only contain digits';
+            }
+            if (value.length != 10) {
+              return 'Mobile number must be exactly 10 digits';
+            }
           }
           return null;
         },
@@ -459,6 +500,10 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
         initialValue: initialValue,
         onChanged: enabled ? onChanged : null,
         onSaved: onSaved,
+        inputFormatters: [
+          if (isMobileField) FilteringTextInputFormatter.digitsOnly,
+        ],
+        maxLength: isMobileField ? 10 : null,
       ),
     );
   }
@@ -472,7 +517,6 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     bool obscureText = false,
     bool enabled = true,
     bool isCityField = false,
-    bool isMobileField = false,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -487,15 +531,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
             failure('City', 'City name must only contain letters');
             return 'City name must only contain letters';
           }
-          if (isMobileField) {
-            if (!RegExp(r'^\d+$').hasMatch(value)) {
-              failure('Mobile', 'Mobile number must only contain digits');
-              return 'Mobile number must only contain digits';
-            }
-            if (value.length != 10) {
-              return 'Mobile number must be exactly 10 digits';
-            }
-          }
+
           return null;
         },
         style: AppTextStyles.inputFieldText
@@ -523,10 +559,85 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
         initialValue: initialValue,
         onChanged: onChanged,
         onSaved: onSaved,
-        inputFormatters: [
-          if (isMobileField) FilteringTextInputFormatter.digitsOnly,
-        ],
-        maxLength: isMobileField ? 10 : null,
+      ),
+    );
+  }
+
+  void validatePassword(String password) {
+    if (password.length < 8) {
+      failure("Password", "Password must be at least 8 characters long.");
+      return;
+    }
+
+    final hasDigit = RegExp(r'[0-9]').hasMatch(password);
+    final hasSpecialChar = RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password);
+    if (!hasDigit || !hasSpecialChar) {
+      failure("Password",
+          "Password must contain at least one digit and one special character.");
+      return;
+    }
+  }
+
+  Widget buildPasswordField(
+    String label,
+    String? initialValue,
+    Function(String?) onChanged,
+    Function(String?) onSaved,
+    double fontSize, {
+    bool obscureText = true,
+    bool enabled = true,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        obscureText: obscureText,
+        enabled: enabled,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return '$label is required';
+          }
+          
+          if(value.length<8) {
+            return '$label must be at least 8 characters long.';
+          }
+
+          try {
+            validatePassword(value);
+          } catch (e) {
+            return e
+                .toString(); // Returns the error message from validatePassword function
+          }
+
+          return null; // If no validation error
+        },
+        style: TextStyle(
+            fontSize:
+                fontSize), // You can replace this with your custom text style
+        cursorColor: Colors.black, // Customize this to match your theme
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(fontSize: fontSize),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide:
+                BorderSide(color: Colors.black), // Customize border color
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide:
+                BorderSide(color: Colors.black), // Customize border color
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide:
+                BorderSide(color: Colors.black), // Customize border color
+          ),
+          fillColor: AppColors.formFieldColor, // Customize background color
+          filled: true,
+        ),
+        initialValue: initialValue,
+        onChanged: onChanged,
+        onSaved: onSaved,
       ),
     );
   }
