@@ -190,14 +190,16 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                         }, fontSize),
 
                         // Password Field
-                        buildTextField(
+                        buildPasswordField(
                           "Password",
                           null,
                           (value) {
-                            controller.userRegistrationRequest.password = value;
+                            controller.userRegistrationRequest.password =
+                                value.toString();
                           },
                           (value) {
-                            controller.userRegistrationRequest.password = value;
+                            controller.userRegistrationRequest.password =
+                                value.toString();
                           },
                           fontSize,
                           obscureText: true,
@@ -346,6 +348,25 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                                   return 'Please select a value';
                                 }
                                 return null;
+                              }
+
+                              void validatePassword(String password) {
+                                if (password.length < 8) {
+                                  failure("Password",
+                                      "Password must be at least 8 characters long.");
+                                  return;
+                                }
+
+                                final hasDigit =
+                                    RegExp(r'[0-9]').hasMatch(password);
+                                final hasSpecialChar =
+                                    RegExp(r'[!@#$%^&*(),.?":{}|<>]')
+                                        .hasMatch(password);
+                                if (!hasDigit || !hasSpecialChar) {
+                                  failure("Password",
+                                      "Password must contain at least one digit and one special character.");
+                                  return;
+                                }
                               }
 
                               Get.to(MultiStepFormPage());
@@ -535,6 +556,85 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           filled: true,
         ),
 
+        initialValue: initialValue,
+        onChanged: onChanged,
+        onSaved: onSaved,
+      ),
+    );
+  }
+
+  void validatePassword(String password) {
+    if (password.length < 8) {
+      failure("Password", "Password must be at least 8 characters long.");
+      return;
+    }
+
+    final hasDigit = RegExp(r'[0-9]').hasMatch(password);
+    final hasSpecialChar = RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password);
+    if (!hasDigit || !hasSpecialChar) {
+      failure("Password",
+          "Password must contain at least one digit and one special character.");
+      return;
+    }
+  }
+
+  Widget buildPasswordField(
+    String label,
+    String? initialValue,
+    Function(String?) onChanged,
+    Function(String?) onSaved,
+    double fontSize, {
+    bool obscureText = true,
+    bool enabled = true,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        obscureText: obscureText,
+        enabled: enabled,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return '$label is required';
+          }
+          
+          if(value.length<8) {
+            return '$label must be at least 8 characters long.';
+          }
+
+          try {
+            validatePassword(value);
+          } catch (e) {
+            return e
+                .toString(); // Returns the error message from validatePassword function
+          }
+
+          return null; // If no validation error
+        },
+        style: TextStyle(
+            fontSize:
+                fontSize), // You can replace this with your custom text style
+        cursorColor: Colors.black, // Customize this to match your theme
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(fontSize: fontSize),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide:
+                BorderSide(color: Colors.black), // Customize border color
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide:
+                BorderSide(color: Colors.black), // Customize border color
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide:
+                BorderSide(color: Colors.black), // Customize border color
+          ),
+          fillColor: AppColors.formFieldColor, // Customize background color
+          filled: true,
+        ),
         initialValue: initialValue,
         onChanged: onChanged,
         onSaved: onSaved,
