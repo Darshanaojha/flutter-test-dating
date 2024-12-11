@@ -214,8 +214,10 @@ class EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     double screenWidth = screenSize.width;
+    double screenheight = screenSize.height;
     double titleFontSize = screenWidth * 0.05;
     double bodyFontSize = screenWidth * 0.03;
+
     // double chipFontSize = screenWidth * 0.03;
     final selectedGender = Rx<Gender?>(null);
     return Scaffold(
@@ -375,194 +377,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                                   ),
                                 ),
                                 SizedBox(width: 16),
-                                SizedBox(
-                                  height: 40,
-                                  child: FloatingActionButton.extended(
-                                    onPressed: () async {
-                                      print(
-                                          'desires are : ${controller.userProfileUpdateRequest.desires}');
-                                      if (_formKey.currentState!.validate()) {
-                                        // If validation passes, prepare the data
-                                        print('Form is valid!');
-
-                                        UserProfileUpdateRequest
-                                            userProfileUpdateRequest =
-                                            UserProfileUpdateRequest(
-                                          name: controller
-                                                  .userProfileUpdateRequest
-                                                  .name
-                                                  .isNotEmpty
-                                              ? controller
-                                                  .userProfileUpdateRequest.name
-                                              : controller.userData.first.name,
-                                          latitude: controller
-                                                  .userProfileUpdateRequest
-                                                  .latitude
-                                                  .isNotEmpty
-                                              ? controller
-                                                  .userProfileUpdateRequest
-                                                  .latitude
-                                              : controller
-                                                  .userData.first.latitude,
-                                          longitude: controller
-                                                  .userProfileUpdateRequest
-                                                  .longitude
-                                                  .isNotEmpty
-                                              ? controller
-                                                  .userProfileUpdateRequest
-                                                  .longitude
-                                              : controller
-                                                  .userData.first.longitude,
-                                          address: controller
-                                                  .userProfileUpdateRequest
-                                                  .address
-                                                  .isNotEmpty
-                                              ? controller
-                                                  .userProfileUpdateRequest
-                                                  .address
-                                              : controller
-                                                  .userData.first.address,
-                                          countryId: controller
-                                                  .userProfileUpdateRequest
-                                                  .countryId
-                                                  .isNotEmpty
-                                              ? controller
-                                                  .userProfileUpdateRequest
-                                                  .countryId
-                                              : controller
-                                                  .userData.first.countryId,
-                                          city: controller
-                                                  .userProfileUpdateRequest
-                                                  .city
-                                                  .isNotEmpty
-                                              ? controller
-                                                  .userProfileUpdateRequest.city
-                                              : controller.userData.first.city,
-                                          dob: controller
-                                                  .userProfileUpdateRequest
-                                                  .dob
-                                                  .isNotEmpty
-                                              ? controller
-                                                  .userProfileUpdateRequest.dob
-                                              : controller.userData.first.dob,
-                                          nickname: controller
-                                                  .userProfileUpdateRequest
-                                                  .nickname
-                                                  .isNotEmpty
-                                              ? controller
-                                                  .userProfileUpdateRequest
-                                                  .nickname
-                                              : controller
-                                                  .userData.first.nickname,
-                                          gender: controller
-                                                  .userProfileUpdateRequest
-                                                  .gender
-                                                  .isNotEmpty
-                                              ? controller
-                                                  .userProfileUpdateRequest
-                                                  .gender
-                                              : controller
-                                                  .userData.first.gender,
-                                          subGender: controller
-                                                  .userProfileUpdateRequest
-                                                  .subGender
-                                                  .isNotEmpty
-                                              ? controller
-                                                  .userProfileUpdateRequest
-                                                  .subGender
-                                              : controller
-                                                  .userData.first.subGender,
-                                          lang: controller
-                                                  .userProfileUpdateRequest
-                                                  .lang
-                                                  .isNotEmpty
-                                              ? controller
-                                                  .userProfileUpdateRequest.lang
-                                              : controller.userLang,
-                                          interest: controller
-                                                  .userProfileUpdateRequest
-                                                  .interest
-                                                  .isNotEmpty
-                                              ? controller
-                                                  .userProfileUpdateRequest
-                                                  .interest
-                                              : controller
-                                                  .userData.first.interest,
-                                          bio: controller
-                                                  .userProfileUpdateRequest
-                                                  .bio
-                                                  .isNotEmpty
-                                              ? controller
-                                                  .userProfileUpdateRequest.bio
-                                              : controller.userData.first.bio,
-                                          visibility: controller
-                                              .userProfileUpdateRequest
-                                              .visibility,
-                                          emailAlerts: controller
-                                                  .userProfileUpdateRequest
-                                                  .emailAlerts
-                                                  .isNotEmpty
-                                              ? controller
-                                                  .userProfileUpdateRequest
-                                                  .emailAlerts
-                                              : controller
-                                                  .userData.first.emailAlerts,
-                                          preferences: controller
-                                              .userProfileUpdateRequest
-                                              .preferences,
-                                          desires: controller
-                                                  .userProfileUpdateRequest
-                                                  .desires
-                                                  .isNotEmpty
-                                              ? controller
-                                                  .userProfileUpdateRequest
-                                                  .desires
-                                              : controller.userDesire,
-                                        );
-                                        List<int> selectedPreferences = [];
-                                        for (int i = 0;
-                                            i <
-                                                preferencesSelectedOptions
-                                                    .length;
-                                            i++) {
-                                          if (preferencesSelectedOptions[i]) {
-                                            selectedPreferences.add(int.parse(
-                                                controller.preferences[i].id));
-                                          }
-                                        }
-                                        controller.userProfileUpdateRequest
-                                            .preferences = selectedPreferences;
-                                        emailAlerts.value == true
-                                            ? controller
-                                                .userProfileUpdateRequest
-                                                .emailAlerts = "1"
-                                            : "0";
-                                        visibility_status.value == true
-                                            ? controller
-                                                .userProfileUpdateRequest
-                                                .visibility = '1'
-                                            : '0';
-                                        controller.updateProfile(
-                                            userProfileUpdateRequest);
-                                        Navigator.pop(context);
-                                      } else {
-                                        failure("Invalid", 'Form is invalid');
-                                      }
-                                    },
-                                    backgroundColor: AppColors.buttonColor,
-                                    icon: Icon(Icons.save,
-                                        color: AppColors.textColor, size: 18),
-                                    label: Text(
-                                      'Save',
-                                      style: AppTextStyles.textStyle.copyWith(
-                                          fontSize:
-                                              getResponsiveFontSize(0.03)),
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                  ),
-                                ),
                               ],
                             ),
                           ),
@@ -576,7 +390,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                               ),
                             )
                           : Form(
-                              key: _formKey, // Assign the GlobalKey to the Form
+                              key: _formKey,
                               child: Column(
                                 children: [
                                   InfoField(
@@ -692,6 +506,12 @@ class EditProfilePageState extends State<EditProfilePage> {
                                       (Country? value) {
                                         controller.userProfileUpdateRequest
                                             .countryId = value?.id ?? '';
+                                      },
+                                      validator: (Country? value) {
+                                        if (value == null) {
+                                          return 'Please select a country'; // Error if no country is selected
+                                        }
+                                        return null; // No error if a country is selected
                                       },
                                       displayValue: (Country country) =>
                                           country.name,
@@ -809,6 +629,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                   }),
                                   languages(context),
                                   Card(
+                                    color: AppColors.primaryColor,
                                     elevation: 8,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
@@ -916,6 +737,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                         controller.userData.first.lookingFor;
 
                                     return Card(
+                                      color: AppColors.primaryColor,
                                       elevation: 8,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12),
@@ -1278,6 +1100,136 @@ class EditProfilePageState extends State<EditProfilePage> {
                           ),
                         ),
                       ),
+                      SizedBox(
+                        height: screenheight * 0.08,
+                        width: screenWidth * 2,
+                        child: FloatingActionButton.extended(
+                          onPressed: () async {
+                            print(
+                                'desires are : ${controller.userProfileUpdateRequest.desires}');
+                            if (_formKey.currentState!.validate()) {
+                              if (controller
+                                  .userProfileUpdateRequest.name.isEmpty) {
+                                failure('Name ', 'Please Enter the Name');
+                                return;
+                              }
+                              print('Form is valid!');
+
+                              UserProfileUpdateRequest
+                                  userProfileUpdateRequest =
+                                  UserProfileUpdateRequest(
+                                name: controller.userProfileUpdateRequest.name
+                                        .isNotEmpty
+                                    ? controller.userProfileUpdateRequest.name
+                                    : controller.userData.first.name,
+                                latitude: controller.userProfileUpdateRequest
+                                        .latitude.isNotEmpty
+                                    ? controller
+                                        .userProfileUpdateRequest.latitude
+                                    : controller.userData.first.latitude,
+                                longitude: controller.userProfileUpdateRequest
+                                        .longitude.isNotEmpty
+                                    ? controller
+                                        .userProfileUpdateRequest.longitude
+                                    : controller.userData.first.longitude,
+                                address: controller.userProfileUpdateRequest
+                                        .address.isNotEmpty
+                                    ? controller
+                                        .userProfileUpdateRequest.address
+                                    : controller.userData.first.address,
+                                countryId: controller.userProfileUpdateRequest
+                                        .countryId.isNotEmpty
+                                    ? controller
+                                        .userProfileUpdateRequest.countryId
+                                    : controller.userData.first.countryId,
+                                city: controller.userProfileUpdateRequest.city
+                                        .isNotEmpty
+                                    ? controller.userProfileUpdateRequest.city
+                                    : controller.userData.first.city,
+                                dob: controller
+                                        .userProfileUpdateRequest.dob.isNotEmpty
+                                    ? controller.userProfileUpdateRequest.dob
+                                    : controller.userData.first.dob,
+                                nickname: controller.userProfileUpdateRequest
+                                        .nickname.isNotEmpty
+                                    ? controller
+                                        .userProfileUpdateRequest.nickname
+                                    : controller.userData.first.nickname,
+                                gender: controller.userProfileUpdateRequest
+                                        .gender.isNotEmpty
+                                    ? controller.userProfileUpdateRequest.gender
+                                    : controller.userData.first.gender,
+                                subGender: controller.userProfileUpdateRequest
+                                        .subGender.isNotEmpty
+                                    ? controller
+                                        .userProfileUpdateRequest.subGender
+                                    : controller.userData.first.subGender,
+                                lang: controller.userProfileUpdateRequest.lang
+                                        .isNotEmpty
+                                    ? controller.userProfileUpdateRequest.lang
+                                    : controller.userLang,
+                                interest: controller.userProfileUpdateRequest
+                                        .interest.isNotEmpty
+                                    ? controller
+                                        .userProfileUpdateRequest.interest
+                                    : controller.userData.first.interest,
+                                bio: controller
+                                        .userProfileUpdateRequest.bio.isNotEmpty
+                                    ? controller.userProfileUpdateRequest.bio
+                                    : controller.userData.first.bio,
+                                visibility: controller
+                                    .userProfileUpdateRequest.visibility,
+                                emailAlerts: controller.userProfileUpdateRequest
+                                        .emailAlerts.isNotEmpty
+                                    ? controller
+                                        .userProfileUpdateRequest.emailAlerts
+                                    : controller.userData.first.emailAlerts,
+                                preferences: controller
+                                    .userProfileUpdateRequest.preferences,
+                                desires: controller.userProfileUpdateRequest
+                                        .desires.isNotEmpty
+                                    ? controller
+                                        .userProfileUpdateRequest.desires
+                                    : controller.userDesire,
+                              );
+                              List<int> selectedPreferences = [];
+                              for (int i = 0;
+                                  i < preferencesSelectedOptions.length;
+                                  i++) {
+                                if (preferencesSelectedOptions[i]) {
+                                  selectedPreferences.add(
+                                      int.parse(controller.preferences[i].id));
+                                }
+                              }
+                              controller.userProfileUpdateRequest.preferences =
+                                  selectedPreferences;
+                              emailAlerts.value == true
+                                  ? controller.userProfileUpdateRequest
+                                      .emailAlerts = "1"
+                                  : "0";
+                              visibility_status.value == true
+                                  ? controller
+                                      .userProfileUpdateRequest.visibility = '1'
+                                  : '0';
+                              controller
+                                  .updateProfile(userProfileUpdateRequest);
+                            } else {
+                              failure("Invalid", 'Form is invalid');
+                            }
+                          },
+                          backgroundColor: AppColors.acceptColor,
+                          icon: Icon(Icons.save,
+                              color: AppColors.textColor, size: 18),
+                          label: Text(
+                            'Save',
+                            style: AppTextStyles.textStyle.copyWith(
+                                fontSize: getResponsiveFontSize(0.04)),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -1294,7 +1246,20 @@ Widget buildDropdown<T>(
   double fontSize,
   Function(T?) onChanged, {
   String Function(T)? displayValue,
+  String? Function(T?)? validator,
 }) {
+  String? _errorText;
+  void validateInput(T? value) {
+    if (validator != null) {
+      String? error = validator(value); // Run the validator
+      if (error != null) {
+        _errorText = error; // If there's an error, update the error text
+      } else {
+        _errorText = null; // Clear the error if valid
+      }
+    }
+  }
+
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8.0),
     child: DropdownButtonFormField<T>(
@@ -1322,6 +1287,7 @@ Widget buildDropdown<T>(
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: Colors.white),
         ),
+        errorText: _errorText,
       ),
       style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
       dropdownColor: AppColors.secondaryColor,
@@ -1569,6 +1535,7 @@ Widget languages(BuildContext context) {
   }
   controller.userProfileUpdateRequest.lang = selectedLanguagesId;
   return Card(
+    color: AppColors.primaryColor,
     elevation: 8,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12),
@@ -1803,7 +1770,6 @@ void showFullImageDialog(BuildContext context, String imagePath) {
   );
 }
 
-// Custom Widget for User Info
 class InfoField extends StatefulWidget {
   final String initialValue;
   final String label;
@@ -1825,6 +1791,7 @@ class InfoField extends StatefulWidget {
 class InfoFieldState extends State<InfoField> {
   late TextEditingController controller;
   String? _errorText;
+
   @override
   void initState() {
     super.initState();
@@ -1837,17 +1804,19 @@ class InfoFieldState extends State<InfoField> {
     super.dispose();
   }
 
-  void _validateInput(String value) {
+  // This method is triggered for validation
+  void validateInput(String value) {
     if (widget.validator != null) {
       String? error = widget.validator!(value);
       setState(() {
-        _errorText = error; // Update the error message state
+        _errorText = error; // Update error text on each validation
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Helper function to make font size responsive
     double getResponsiveFontSize(double scale) {
       double screenWidth = MediaQuery.of(context).size.width;
       return screenWidth * scale;
@@ -1861,6 +1830,7 @@ class InfoFieldState extends State<InfoField> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Displaying the label of the input field
             Text(
               widget.label,
               style: AppTextStyles.buttonText.copyWith(
@@ -1883,20 +1853,11 @@ class InfoFieldState extends State<InfoField> {
                 ),
                 errorText: _errorText,
               ),
-              onChanged: widget.onChanged,
+              onChanged: (value) {
+                widget.onChanged(value);
+                validateInput(value); // Validate on input change
+              },
             ),
-            if (_errorText !=
-                null) // If there's an error, show it below the TextField
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(
-                  _errorText!,
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: getResponsiveFontSize(0.02),
-                  ),
-                ),
-              ),
             Divider(color: AppColors.textColor),
           ],
         ),
