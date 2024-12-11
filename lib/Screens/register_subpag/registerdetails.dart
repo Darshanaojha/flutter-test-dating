@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_country_response_model.dart';
 import 'package:dating_application/Screens/register_subpag/register_subpage.dart';
@@ -20,8 +19,6 @@ class RegisterProfilePage extends StatefulWidget {
 class RegisterProfilePageState extends State<RegisterProfilePage>
     with TickerProviderStateMixin {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
-  List<String> states = ["Maharashtra", "California", "London"];
   String? selectedState;
   RxBool isLatLongFetched = false.obs;
   bool obscurePassword = true;
@@ -534,8 +531,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
 
           return null;
         },
-        style: AppTextStyles.inputFieldText
-            .copyWith(fontSize: fontSize), // Responsive font size
+        style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
         cursorColor: AppColors.textColor,
         decoration: InputDecoration(
           labelText: label,
@@ -555,7 +551,6 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           fillColor: AppColors.formFieldColor,
           filled: true,
         ),
-
         initialValue: initialValue,
         onChanged: onChanged,
         onSaved: onSaved,
@@ -596,43 +591,37 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           if (value == null || value.isEmpty) {
             return '$label is required';
           }
-          
-          if(value.length<8) {
+
+          if (value.length < 8) {
             return '$label must be at least 8 characters long.';
           }
 
           try {
             validatePassword(value);
           } catch (e) {
-            return e
-                .toString(); // Returns the error message from validatePassword function
+            return e.toString();
           }
 
-          return null; // If no validation error
+          return null;
         },
-        style: TextStyle(
-            fontSize:
-                fontSize), // You can replace this with your custom text style
-        cursorColor: Colors.black, // Customize this to match your theme
+        style: TextStyle(fontSize: fontSize),
+        cursorColor: AppColors.cursorColor,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(fontSize: fontSize),
+          labelStyle: TextStyle(fontSize: fontSize, color: AppColors.textColor),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide:
-                BorderSide(color: Colors.black), // Customize border color
+            borderSide: BorderSide(color: AppColors.textColor),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide:
-                BorderSide(color: Colors.black), // Customize border color
+            borderSide: BorderSide(color: AppColors.textColor),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide:
-                BorderSide(color: Colors.black), // Customize border color
+            borderSide: BorderSide(color: AppColors.textColor),
           ),
-          fillColor: AppColors.formFieldColor, // Customize background color
+          fillColor: AppColors.formFieldColor,
           filled: true,
         ),
         initialValue: initialValue,
@@ -649,13 +638,12 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     bool obscureText = false,
     bool enabled = true,
   }) {
-    // Create a TextEditingController with the passed value
     TextEditingController controller = TextEditingController(text: value);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
-        controller: controller, // Use the controller to manage the value
+        controller: controller,
         obscureText: obscureText,
         enabled: enabled,
         validator: (value) {
@@ -664,8 +652,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           }
           return null;
         },
-        style: AppTextStyles.inputFieldText
-            .copyWith(fontSize: fontSize), // Responsive font size
+        style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
         cursorColor: AppColors.textColor,
         decoration: InputDecoration(
           labelText: label,
@@ -703,13 +690,12 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     T? selectedValue,
     double fontSize,
     Function(T?) onChanged, {
-    String Function(T)?
-        displayValue, // Helper to extract display value from items
+    String Function(T)? displayValue,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: DropdownButtonFormField<T>(
-        value: selectedValue, // Bind to the selected value
+        value: selectedValue,
         items: items.map((T value) {
           return DropdownMenuItem<T>(
             value: value,
@@ -719,7 +705,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
             ),
           );
         }).toList(),
-        onChanged: onChanged, // Use the provided onChanged callback
+        onChanged: onChanged,
         validator: validateSelection,
         decoration: InputDecoration(
           labelText: label,

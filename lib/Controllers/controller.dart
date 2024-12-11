@@ -137,6 +137,7 @@ import '../Providers/user_suggestions_provider.dart';
 import '../Providers/usernameupdate_provider.dart';
 import '../Providers/verify_account_provider.dart';
 import '../Screens/login.dart';
+import '../Screens/userprofile/userprofilepage.dart';
 import '../constants.dart';
 
 class Controller extends GetxController {
@@ -823,6 +824,7 @@ class Controller extends GetxController {
           await UpdateProfileProvider().updateProfile(updateProfileRequest);
       if (response != null) {
         success('success', response.payload.message);
+        Get.close(1);
         return true;
       } else {
         failure('Error', 'Failed to update the profile');
@@ -1109,7 +1111,7 @@ class Controller extends GetxController {
     }
   }
 
-
+ RxList<SuggestedUser> currentList = <SuggestedUser>[].obs;
   RxList<SuggestedUser> userSuggestionsList = <SuggestedUser>[].obs;
   RxList<SuggestedUser> userHighlightedList = <SuggestedUser>[].obs;
   RxList<SuggestedUser> userNearByList = <SuggestedUser>[].obs;

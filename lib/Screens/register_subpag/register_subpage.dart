@@ -167,37 +167,41 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
     double fontSize = screenWidth < 400 ? 18 : 20;
 
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Center(
-              child: Text(
-                "$currentPage of 12",
-                style: TextStyle(
-                  fontSize: isPortrait ? fontSize : fontSize + 2,
-                  fontWeight: FontWeight.bold,
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Center(
+                child: Text(
+                  "$currentPage of 12",
+                  style: TextStyle(
+                    fontSize: isPortrait ? fontSize : fontSize + 2,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
+          ],
+        ),
+        body: SafeArea(
+          child: PageView.builder(
+            controller: pageController,
+            onPageChanged: onPageChanged,
+            // onPageChanged: (index) {
+            //   setState(() {
+            //     currentPage = index + 1;
+            //   });
+            // },
+            itemCount: 14,
+            itemBuilder: (context, index) {
+              return buildStepWidget(index + 1, screenSize);
+            },
           ),
-        ],
-      ),
-      body: SafeArea(
-        child: PageView.builder(
-          controller: pageController,
-          onPageChanged: onPageChanged,
-          // onPageChanged: (index) {
-          //   setState(() {
-          //     currentPage = index + 1;
-          //   });
-          // },
-          itemCount: 14,
-          itemBuilder: (context, index) {
-            return buildStepWidget(index + 1, screenSize);
-          },
         ),
       ),
     );

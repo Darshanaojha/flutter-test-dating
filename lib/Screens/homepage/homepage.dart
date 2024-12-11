@@ -46,21 +46,27 @@ class HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     matchEngine = MatchEngine();
+
     _fetchSuggestion = initializeApp();
   }
 
   Future<bool> initializeApp() async {
     if (!await controller.userSuggestions()) return false;
+
+    if (controller.userSuggestionsList.isEmpty) {
+      print("No user suggestions found.");
+      return false;
+    }
+
     for (int i = 0; i < controller.userSuggestionsList.length; i++) {
       swipeItems.add(SwipeItem(
         content: controller.userSuggestionsList[i].userId,
         likeAction: () {
+          // Ensure likeModel is properly initialized
           controller.likeModel.likedBy =
               controller.userSuggestionsList[i].userId;
           controller.postLike(controller.likeModel);
-
-          success('Hey Boy',
-              "Liked ${controller.userSuggestionsList[i].name} ${controller.userSuggestionsList[i].userId}");
+          success('Hey Boy', "Liked ${controller.userSuggestionsList[i].name}");
         },
         nopeAction: () {
           success('OOPS', "Nope ${controller.userSuggestionsList[i].name}");
@@ -68,7 +74,6 @@ class HomePageState extends State<HomePage> {
         superlikeAction: () {
           controller.markFavouriteRequestModel.favouriteId =
               controller.userSuggestionsList[i].userId;
-
           controller.markasfavourite(controller.markFavouriteRequestModel);
           success(
               'Bravo', "Superliked ${controller.userSuggestionsList[i].name}");
@@ -78,7 +83,12 @@ class HomePageState extends State<HomePage> {
         },
       ));
     }
+
     matchEngine = MatchEngine(swipeItems: swipeItems);
+    if (matchEngine.currentItem != null) {
+      matchEngine.currentItem?.nope();
+    }
+
     return true;
   }
 
@@ -269,18 +279,16 @@ class HomePageState extends State<HomePage> {
 
   void applyFilter(String filter) {
     setState(() {
-      // Clear the current list to avoid mixing with old data
+      currentFilter = filter;
       controller.userSuggestionsList.clear();
-
-      // Apply filter and update the list accordingly
       if (filter == 'All') {
         controller.userSuggestionsList.addAll(controller.userSuggestionsList);
-      } else if (filter == 'Near by') {
+      } else if (filter == 'Nearby') {
         controller.userSuggestionsList.addAll(controller.userNearByList);
-      } else if (filter == 'Highlited') {
+      } else if (filter == 'Highlighted') {
         controller.userSuggestionsList.addAll(controller.userHighlightedList);
       } else if (filter == 'Your favourite') {
-        controller.userSuggestionsList;
+        // controller.userSuggestionsList.addAll(controller.favourite);
       }
     });
   }
@@ -387,13 +395,6 @@ class HomePageState extends State<HomePage> {
                               },
                               child: Text('Demo'),
                             ),
-                            //  ElevatedButton(
-                            //   onPressed: () {
-                            //         controller.fetchProfileUserPhotos();
-                            //     Get.to(Unsubscribenavigation());
-                            //   },
-                            //   child: Text('unsubscribe'),
-                            // ),
                           ],
                         ),
                       ),
@@ -530,9 +531,9 @@ class HomePageState extends State<HomePage> {
     double bodyFontSize, {
     String? additionalInfo,
   }) {
-    var images = controller.userSuggestionsList.isEmpty
-        ? []
-        : controller.userSuggestionsList[0].images;
+    var images = controller.userSuggestionsList.isNotEmpty
+        ? controller.userSuggestionsList[0].images ?? []
+        : [];
 
     return Container(
       alignment: Alignment.center,
