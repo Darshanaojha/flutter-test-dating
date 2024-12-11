@@ -82,57 +82,47 @@ class UserProfileUpdateRequest {
     };
   }
 
-  // Validation method
-  bool validate() {
-    try {
-      // Validate required fields
-      validateNotEmpty(name, 'Name');
-      validateNotEmpty(address, 'Address');
-      validateNotEmpty(countryId, 'Country ID');
-      validateNotEmpty(city, 'City');
-      validateNotEmpty(gender, 'Gender');
-      validateNotEmpty(subGender, 'Sub-Gender');
+  List<String> validate() {
+    List<String> validationErrors = [];
 
-      // Validate lists for null or empty
-      if (preferences.isEmpty) {
-        failure('Preferences List', 'Preferences list cannot be empty.');
-        return false;
-      }
+    // Validate required fields
+    validationErrors.addAll(_validateNotEmpty(name, 'Name'));
+    validationErrors.addAll(_validateNotEmpty(address, 'Address'));
+    validationErrors.addAll(_validateNotEmpty(countryId, 'Country ID'));
+    validationErrors.addAll(_validateNotEmpty(city, 'City'));
+    validationErrors.addAll(_validateNotEmpty(gender, 'Gender'));
+    validationErrors.addAll(_validateNotEmpty(subGender, 'Sub-Gender'));
 
-      if (desires.isEmpty) {
-        failure('Desires List', 'Desires list cannot be empty.');
-        return false;
-      }
-
-      // Validate coordinates
-      if (!isValidCoordinate(latitude)) {
-        failure('Invalid Latitude', 'Latitude must be between -180 and 180.');
-        return false;
-      }
-
-      if (!isValidCoordinate(longitude)) {
-        failure('Invalid Longitude', 'Longitude must be between -180 and 180.');
-        return false;
-      }
-
-      // Validate date of birth format
-      if (!isValidDate(dob)) {
-        failure('Invalid Date of Birth',
-            'Date of Birth should be in YYYY/MM/DD format.');
-        return false;
-      }
-
-      return true; // All validations passed
-    } catch (e) {
-      failure("Validation Error", e.toString());
-      return false;
+    // Validate lists for null or empty
+    if (preferences.isEmpty) {
+      validationErrors.add('Preferences list cannot be empty.');
     }
+    if (desires.isEmpty) {
+      validationErrors.add('Desires list cannot be empty.');
+    }
+
+    // Validate coordinates
+    if (!isValidCoordinate(latitude)) {
+      validationErrors.add('Latitude must be between -180 and 180.');
+    }
+    if (!isValidCoordinate(longitude)) {
+      validationErrors.add('Longitude must be between -180 and 180.');
+    }
+
+    // Validate date of birth format
+    if (!isValidDate(dob)) {
+      validationErrors.add('Date of Birth should be in YYYY/MM/DD format.');
+    }
+
+    return validationErrors;
   }
 
-  void validateNotEmpty(String value, String fieldName) {
+  List<String> _validateNotEmpty(String value, String fieldName) {
+    List<String> errors = [];
     if (value.isEmpty) {
-      throw ArgumentError("$fieldName is required and cannot be empty.");
+      errors.add('$fieldName is required and cannot be empty.');
     }
+    return errors;
   }
 
   bool isValidCoordinate(String coordinate) {
@@ -143,9 +133,5 @@ class UserProfileUpdateRequest {
   bool isValidDate(String date) {
     final datePattern = RegExp(r'^\d{4}/\d{2}/\d{2}$');
     return datePattern.hasMatch(date);
-  }
-
-  void failure(String title, String message) {
-    print('$title: $message');
   }
 }

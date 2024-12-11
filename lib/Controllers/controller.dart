@@ -1109,7 +1109,7 @@ class Controller extends GetxController {
     }
   }
 
-
+ RxList<SuggestedUser> currentList = <SuggestedUser>[].obs;
   RxList<SuggestedUser> userSuggestionsList = <SuggestedUser>[].obs;
   RxList<SuggestedUser> userHighlightedList = <SuggestedUser>[].obs;
   RxList<SuggestedUser> userNearByList = <SuggestedUser>[].obs;

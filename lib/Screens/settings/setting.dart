@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
 import '../../constants.dart';
+import '../homepage/homepage.dart';
 import '../userprofile/editprofile/edituserprofile.dart';
 import 'changepassword/changepasswordnewpassword.dart';
 import 'updateemailid/updateemailidpage.dart';
@@ -21,7 +22,7 @@ class SettingsPageState extends State<SettingsPage> {
   final List<String> lookingFor = [];
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
-    return screenWidth * scale; // Adjust this scale for different text elements
+    return screenWidth * scale;
   }
 
   final TextEditingController desireController = TextEditingController();
@@ -110,12 +111,13 @@ class SettingsPageState extends State<SettingsPage> {
               onChanged: (double value) {
                 setState(() {
                   maxDistance = value;
+                  controller.appSettingRequest.rangeKm = value.toString();
                 });
               },
             ),
             SizedBox(height: 20),
 
-            // Age Range
+// Age Range
             Text("Age Range",
                 style: AppTextStyles.subheadingText
                     .copyWith(fontSize: getResponsiveFontSize(0.03))),
@@ -133,34 +135,33 @@ class SettingsPageState extends State<SettingsPage> {
               onChanged: (RangeValues values) {
                 setState(() {
                   ageRange = values;
+                  controller.appSettingRequest.minimumAge =
+                      values.start.round().toString();
+                  controller.appSettingRequest.maximumAge =
+                      values.end.round().toString();
                 });
               },
             ),
-            SizedBox(height: 20),
 
-            // Looking For (Checkboxes)
-            Text("Looking For",
-                style: AppTextStyles.subheadingText
-                    .copyWith(fontSize: getResponsiveFontSize(0.03))),
-            ...genderOptions.map((gender) {
-              return CheckboxListTile(
-                title: Text(gender,
-                    style: AppTextStyles.textStyle
-                        .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                value: lookingFor.contains(gender),
-                onChanged: (bool? selected) {
-                  setState(() {
-                    if (selected == true) {
-                      lookingFor.add(gender); // Add to list if selected
-                    } else {
-                      lookingFor
-                          .remove(gender); // Remove from list if unselected
-                    }
-                  });
-                },
-                activeColor: AppColors.activeColor,
-              );
-            }),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                controller.appsetting(controller.appSettingRequest);
+                     Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.buttonColor,
+                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Text(
+                "Apply",
+                style: AppTextStyles.buttonText
+                    .copyWith(fontSize: getResponsiveFontSize(0.03)),
+              ),
+            ),
             SizedBox(height: 20),
             Text("Selected: ${lookingFor.join(", ")}",
                 style: AppTextStyles.textStyle
@@ -180,33 +181,7 @@ class SettingsPageState extends State<SettingsPage> {
               onTap: () async {
                 await showLocationSelectionDialog();
               },
-            ),
-            SizedBox(height: 20),
-            Text("Search By",
-                style: AppTextStyles.subheadingText
-                    .copyWith(fontSize: getResponsiveFontSize(0.03))),
-            TextField(
-              controller: desireController,
-              cursorColor: AppColors.cursorColor,
-              decoration: InputDecoration(
-                hintText: 'Enter your desires...',
-                hintStyle: AppTextStyles.inputFieldText
-                    .copyWith(fontSize: getResponsiveFontSize(0.03)),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.formFieldColor),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                ),
-                fillColor: AppColors.formFieldColor,
-                filled: true,
-              ),
-              style: AppTextStyles.inputFieldText,
-            ),
+            ), 
             SizedBox(height: 20),
             Text("Show Recent Online Users",
                 style: AppTextStyles.subheadingText
@@ -281,22 +256,6 @@ class SettingsPageState extends State<SettingsPage> {
               ),
               child: Text(
                 "Update Email",
-                style: AppTextStyles.buttonText
-                    .copyWith(fontSize: getResponsiveFontSize(0.03)),
-              ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.buttonColor,
-                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: Text(
-                "Apply Settings",
                 style: AppTextStyles.buttonText
                     .copyWith(fontSize: getResponsiveFontSize(0.03)),
               ),
