@@ -22,6 +22,6 @@ class HighlightProfileStatusRequest {
 
 
   String toJsonString() {
-    return jsonEncode(this.toJson());
+    return jsonEncode(toJson());
   }
 }

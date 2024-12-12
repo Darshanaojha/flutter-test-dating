@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 
 import '../../../Controllers/controller.dart';
 import '../../../constants.dart';
-import 'updateemailotpverification.dart';
 
 class UpdateEmailPage extends StatefulWidget {
   const UpdateEmailPage({super.key});
@@ -11,30 +10,24 @@ class UpdateEmailPage extends StatefulWidget {
   @override
   UpdateEmailPageState createState() => UpdateEmailPageState();
 }
-class UpdateEmailPageState extends State<UpdateEmailPage> {
-    Controller controller = Get.find();
 
+class UpdateEmailPageState extends State<UpdateEmailPage> {
+  Controller controller = Get.find();
 
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
-    return screenWidth * scale; 
+    return screenWidth * scale;
   }
 
-    @override
+  final formKey = GlobalKey<FormState>();
+
+  @override
   void initState() {
     super.initState();
     initialize();
   }
 
-  initialize() async {
-
-  }
-  final formKey = GlobalKey<FormState>();
-
-  String? passwordError;
-  String? emailError;
-
-
+  initialize() async {}
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +35,8 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
       appBar: AppBar(
         title: Text(
           "Update Email",
-          style: AppTextStyles.headingText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+          style: AppTextStyles.headingText.copyWith(
+              fontSize: getResponsiveFontSize(0.03)),
         ),
         backgroundColor: AppColors.primaryColor,
       ),
@@ -54,19 +48,23 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
             children: [
               Text(
                 "Enter your password and new email address to update your email.",
-                style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                style: AppTextStyles.bodyText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03)),
               ),
               SizedBox(height: 32),
               Form(
                 key: formKey,
                 child: Column(
                   children: [
+                    // Password Field
                     TextFormField(
                       obscureText: true,
-                      style: AppTextStyles.inputFieldText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                      style: AppTextStyles.inputFieldText.copyWith(
+                          fontSize: getResponsiveFontSize(0.03)),
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        labelStyle: AppTextStyles.labelText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                        labelStyle: AppTextStyles.labelText.copyWith(
+                            fontSize: getResponsiveFontSize(0.03)),
                         fillColor: AppColors.formFieldColor,
                         filled: true,
                         focusedBorder: OutlineInputBorder(
@@ -75,7 +73,6 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        errorText: passwordError,
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -83,16 +80,23 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
                         }
                         return null;
                       },
-                      onChanged: (value){
-                        controller.updateEmailIdRequest.password=value;
+                      onChanged: (value) {
+                        controller.updateEmailIdRequest.password = value;
+                      },
+                      onSaved: (value) {
+                        controller.updateEmailIdRequest.password = value ?? '';
                       },
                     ),
                     SizedBox(height: 16),
+
+                    // New Email Field
                     TextFormField(
-                      style: AppTextStyles.inputFieldText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                      style: AppTextStyles.inputFieldText.copyWith(
+                          fontSize: getResponsiveFontSize(0.03)),
                       decoration: InputDecoration(
                         labelText: 'New Email ID',
-                        labelStyle: AppTextStyles.labelText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                        labelStyle: AppTextStyles.labelText.copyWith(
+                            fontSize: getResponsiveFontSize(0.03)),
                         fillColor: AppColors.formFieldColor,
                         filled: true,
                         focusedBorder: OutlineInputBorder(
@@ -101,7 +105,6 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        errorText: emailError,
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -115,16 +118,51 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
                         }
                         return null;
                       },
-                      onChanged: (value){
-                         controller.updateEmailIdRequest.password=value;
+                      onChanged: (value) {
+                        controller.updateEmailIdRequest.newEmail = value;
+                      },
+                      onSaved: (value) {
+                        controller.updateEmailIdRequest.newEmail = value ?? '';
                       },
                     ),
                     SizedBox(height: 32),
+
+                    // Update Button
                     SizedBox(
-                      width: 200, // Set the width as needed
+                      width: 200,
                       child: ElevatedButton(
-                        onPressed: (){
-                         controller.updateEmailId(controller.updateEmailIdRequest);
+                        onPressed: () async {
+                          if (formKey.currentState?.validate() ?? false) {
+                            // Save form data
+                            formKey.currentState?.save();
+
+                            // Call the update method
+                            try {
+                              
+                              await controller.updateEmailId(
+                                  controller.updateEmailIdRequest);
+                              // Show success message
+                             success(
+                                "Success",
+                                "Email has been updated successfully!",
+                             
+                              );
+                            } catch (e) {
+                              // Handle error
+                             failure(
+                                "Error",
+                                "Failed to update email: ${e.toString()}",
+                               
+                              );
+                            }
+                          } else {
+                            
+                            failure(
+                              "Error",
+                              "Please fix the errors in the form.",
+                             
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.buttonColor,
@@ -135,15 +173,11 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
                         ),
                         child: Text(
                           "Update Email",
-                          style: AppTextStyles.buttonText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                          style: AppTextStyles.buttonText.copyWith(
+                              fontSize: getResponsiveFontSize(0.03)),
                         ),
                       ),
                     ),
-                    ElevatedButton(
-                        onPressed: () {
-                          Get.to(EmailOtpVerificationPage());
-                        },
-                        child: Text('Next'))
                   ],
                 ),
               ),

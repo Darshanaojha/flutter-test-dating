@@ -4,7 +4,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
 import '../../constants.dart';
-import '../homepage/homepage.dart';
 import '../userprofile/editprofile/edituserprofile.dart';
 import 'changepassword/changepasswordnewpassword.dart';
 import 'updateemailid/updateemailidpage.dart';

@@ -26,6 +26,7 @@ class HomePageState extends State<HomePage> {
     return screenWidth * scale;
   }
 
+  RxString selectedFilter = 'All'.obs;
   RxString filterType = 'All'.obs;
   bool isLiked = false;
   bool isDisliked = false;
@@ -38,7 +39,6 @@ class HomePageState extends State<HomePage> {
   final TextEditingController messageController = TextEditingController();
   final FocusNode messageFocusNode = FocusNode();
   final PageController _imagePageController = PageController();
-  String currentFilter = 'All';
   List<SwipeItem> swipeItems = [];
   late MatchEngine matchEngine;
   late Future<bool> _fetchSuggestion;
@@ -277,20 +277,25 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  void applyFilter(String filter) {
-    setState(() {
-      currentFilter = filter;
-      controller.userSuggestionsList.clear();
-      if (filter == 'All') {
-        controller.userSuggestionsList.addAll(controller.userSuggestionsList);
-      } else if (filter == 'Nearby') {
-        controller.userSuggestionsList.addAll(controller.userNearByList);
-      } else if (filter == 'Highlighted') {
-        controller.userSuggestionsList.addAll(controller.userHighlightedList);
-      } else if (filter == 'Your favourite') {
-        // controller.userSuggestionsList.addAll(controller.favourite);
-      }
-    });
+  Widget buildFilterChip(String label, IconData icon, Function(String) onTap) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: FilterChip(
+        label: Row(
+          children: [
+            Icon(icon, size: 20, color: Colors.white),
+            SizedBox(width: 8),
+            Text(label, style: TextStyle(color: Colors.white)),
+          ],
+        ),
+        onSelected: (selected) {
+          onTap(label);
+        },
+        selectedColor: Colors.blue,
+        backgroundColor: AppColors.FilterChipColor,
+        shape: StadiumBorder(),
+      ),
+    );
   }
 
   @override
@@ -362,18 +367,42 @@ class HomePageState extends State<HomePage> {
                           children: [
                             buildFilterChip('All', Icons.all_inclusive,
                                 (value) {
+                              setState(() {
+                                selectedFilter.value = 'All';
+                              });
                               applyFilter('All');
+                              Get.snackbar(
+                                  'All',
+                                  controller.userSuggestionsList.length
+                                      .toString());
                             }),
                             buildFilterChip('Nearby', Icons.location_on,
                                 (value) {
+                              setState(() {
+                                selectedFilter.value = 'Nearby';
+                              });
                               applyFilter('Nearby');
+                              Get.snackbar('NearBy',
+                                  controller.userNearByList.length.toString());
                             }),
                             buildFilterChip('Highlighted', Icons.star, (value) {
+                              setState(() {
+                                selectedFilter.value = 'Highlighted';
+                              });
                               applyFilter('Highlighted');
+                              Get.snackbar(
+                                  'Highlighted',
+                                  controller.userHighlightedList.length
+                                      .toString());
                             }),
                             buildFilterChip('Favorites', Icons.favorite,
                                 (value) {
+                              setState(() {
+                                selectedFilter.value = 'Favorites';
+                              });
                               applyFilter('Favorites');
+                              Get.snackbar('userfavourite',
+                                  controller.favourite.length.toString());
                             }),
                             ElevatedButton(
                               onPressed: () {
@@ -408,8 +437,7 @@ class HomePageState extends State<HomePage> {
                           itemBuilder: (BuildContext context, int index) {
                             var user = controller.userSuggestionsList[index];
 
-                            String filterType =
-                                currentFilter; // Set based on your filter
+                            String filterType = selectedFilter.value;
                             return buildFilteredCard(context, user, size,
                                 fontSize, bodyFontSize, filterType);
                           },
@@ -434,25 +462,20 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildFilterChip(String label, IconData icon, Function(String) onTap) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-      child: FilterChip(
-        label: Row(
-          children: [
-            Icon(icon, size: 20, color: Colors.white),
-            SizedBox(width: 8),
-            Text(label, style: TextStyle(color: Colors.white)),
-          ],
-        ),
-        onSelected: (selected) {
-          onTap(label);
-        },
-        selectedColor: Colors.blue,
-        backgroundColor: Colors.grey,
-        shape: StadiumBorder(),
-      ),
-    );
+  void applyFilter(String filter) {
+    setState(() {
+      controller.userSuggestionsList.clear();
+
+      if (filter == 'All') {
+        controller.userSuggestionsList.addAll(controller.userSuggestionsList);
+      } else if (filter == 'Nearby') {
+        controller.userSuggestionsList.addAll(controller.userNearByList);
+      } else if (filter == 'Highlighted') {
+        controller.userSuggestionsList.addAll(controller.userHighlightedList);
+      } else if (filter == 'Favorites') {
+        // controller.userSuggestionsList.addAll(controller.favourite);
+      }
+    });
   }
 
   Widget buildFilteredCard(BuildContext context, user, Size size,
@@ -460,6 +483,8 @@ class HomePageState extends State<HomePage> {
     String additionalInfo = '';
 
     switch (filterType) {
+      case "All":
+        additionalInfo = 'All';
       case 'Nearby':
         additionalInfo = 'Nearby';
         break;
@@ -473,14 +498,22 @@ class HomePageState extends State<HomePage> {
         additionalInfo = 'All';
     }
 
-    return buildCardLayout(context, user, size, fontSize, bodyFontSize,
+    return buildCardLayoutAll(context, user, size, fontSize, bodyFontSize,
         additionalInfo: additionalInfo);
   }
 
-  Widget buildSwipeCard(
-      BuildContext context, int index, double fontSize, double bodyFontSize) {
+  Widget buildSwipeCard(BuildContext context, int index, double fontSize,
+      double bodyFontSize, String filterType) {
     final size = MediaQuery.of(context).size;
-    switch (currentFilter) {
+
+    switch (filterType) {
+      case "All":
+        return buildCardLayoutAll(
+            context,
+            controller.userSuggestionsList[index],
+            size,
+            fontSize,
+            bodyFontSize);
       case 'Nearby':
         return buildNearbyCard(context, controller.userNearByList[index], size,
             fontSize, bodyFontSize);
@@ -502,28 +535,29 @@ class HomePageState extends State<HomePage> {
 
   Widget buildDefaultCard(BuildContext context, user, Size size,
       double fontSize, double bodyFontSize) {
-    return buildCardLayout(context, user, size, fontSize, bodyFontSize);
+    return buildCardLayoutAll(context, user, size, fontSize, bodyFontSize);
   }
 
   Widget buildNearbyCard(BuildContext context, user, Size size, double fontSize,
       double bodyFontSize) {
-    return buildCardLayout(context, user, size, fontSize, bodyFontSize,
+    return buildCardLayoutNearBy(context, user, size, fontSize, bodyFontSize,
         additionalInfo: 'Nearby');
   }
 
   Widget buildHighlightedCard(BuildContext context, user, Size size,
       double fontSize, double bodyFontSize) {
-    return buildCardLayout(context, user, size, fontSize, bodyFontSize,
+    return buildCardLayoutHighlighted(
+        context, user, size, fontSize, bodyFontSize,
         additionalInfo: 'Highlighted');
   }
 
   Widget buildFavoritesCard(BuildContext context, user, Size size,
       double fontSize, double bodyFontSize) {
-    return buildCardLayout(context, user, size, fontSize, bodyFontSize,
+    return buildCardLayoutAll(context, user, size, fontSize, bodyFontSize,
         additionalInfo: 'Favorites');
   }
 
-  Widget buildCardLayout(
+  Widget buildCardLayoutAll(
     BuildContext context,
     user,
     Size size,
@@ -569,9 +603,6 @@ class HomePageState extends State<HomePage> {
                                   Center(child: CircularProgressIndicator()),
                               errorWidget: (context, url, error) {
                                 print("Failed to load image from URL: $url");
-                                print('--------------');
-                                print(
-                                    "Failed to load image from URL: ${images[index]}");
                                 return Icon(Icons.error, color: Colors.red);
                               },
                               fit: BoxFit.cover,
@@ -672,19 +703,391 @@ class HomePageState extends State<HomePage> {
                   onPressed: () {
                     matchEngine.currentItem?.nope();
                   },
-                  child: Text("Nope"),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.NopeColor),
+                  child: Text("Nope",
+                      style: AppTextStyles.buttonText
+                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
                 ),
                 ElevatedButton(
                   onPressed: () {
                     matchEngine.currentItem?.superLike();
                   },
-                  child: Text("faviourite"),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.FavouriteColor),
+                  child: Text("Favourite",
+                      style: AppTextStyles.buttonText
+                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
                 ),
                 ElevatedButton(
                   onPressed: () {
                     matchEngine.currentItem?.like();
                   },
-                  child: Text("Like"),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.LikeColor),
+                  child: Text("Like",
+                      style: AppTextStyles.buttonText
+                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildCardLayoutNearBy(
+    BuildContext context,
+    user,
+    Size size,
+    double fontSize,
+    double bodyFontSize, {
+    String? additionalInfo,
+  }) {
+    var images = controller.userNearByList.isNotEmpty
+        ? controller.userNearByList[0].images ?? []
+        : [];
+
+    return Container(
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: size.height * 0.4,
+            child: Stack(
+              children: [
+                SafeArea(
+                  child: ListView.builder(
+                    itemCount: images.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      images = controller.userNearByList[index].images;
+                      if (images.isEmpty) {
+                        return Center(child: Text('No Images Available'));
+                      }
+                      return GestureDetector(
+                        onTap: () =>
+                            showFullImageDialog(context, images[index]),
+                        child: Container(
+                          margin: EdgeInsets.only(bottom: 12),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: CachedNetworkImage(
+                              imageUrl: images[index],
+                              placeholder: (context, url) =>
+                                  Center(child: CircularProgressIndicator()),
+                              errorWidget: (context, url, error) {
+                                print("Failed to load image from URL: $url");
+                                return Icon(Icons.error, color: Colors.red);
+                              },
+                              fit: BoxFit.cover,
+                              width: size.width * 0.9,
+                              height: size.height * 0.45,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Positioned(
+                  bottom: 10,
+                  right: 0,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: size.height * 0.1),
+                    child: Transform.rotate(
+                      angle: -1.5708,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SmoothPageIndicator(
+                            controller: _imagePageController,
+                            count: images.length,
+                            effect: ExpandingDotsEffect(
+                              dotHeight: 10,
+                              dotWidth: 10,
+                              spacing: 10,
+                              radius: 5,
+                              dotColor: Colors.grey.withOpacity(0.5),
+                              activeDotColor: Colors.green,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    isLiked = !isLiked;
+                  });
+                },
+                icon: Icon(
+                  isLiked ? Icons.favorite : Icons.favorite_border,
+                  size: 40,
+                  color: isLiked ? Colors.red : Colors.white,
+                ),
+              ),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    isShare = !isShare;
+                  });
+                },
+                icon: Icon(
+                  isShare ? Icons.share : Icons.share,
+                  size: 40,
+                  color: isShare ? Colors.green : Colors.white,
+                ),
+              ),
+              IconButton(
+                onPressed: showmessageBottomSheet,
+                icon: Icon(Icons.messenger_outline, size: 40),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          Text(
+            controller.userNearByList.first.name ?? 'NA',
+            style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+          ),
+          Row(
+            children: [
+              Text(
+                '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userNearByList.first.dob.toString()).year} Years Old || ',
+                style: TextStyle(fontSize: bodyFontSize),
+              ),
+              Text(
+                '${controller.userNearByList.first.city ?? 'NA'}',
+                style: TextStyle(fontSize: bodyFontSize),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    matchEngine.currentItem?.nope();
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.NopeColor),
+                  child: Text("Nope",
+                      style: AppTextStyles.buttonText
+                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    matchEngine.currentItem?.superLike();
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.FavouriteColor),
+                  child: Text("Favourite",
+                      style: AppTextStyles.buttonText
+                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    matchEngine.currentItem?.like();
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.LikeColor),
+                  child: Text("Like",
+                      style: AppTextStyles.buttonText
+                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildCardLayoutHighlighted(
+    BuildContext context,
+    user,
+    Size size,
+    double fontSize,
+    double bodyFontSize, {
+    String? additionalInfo,
+  }) {
+    var images = controller.userHighlightedList.isNotEmpty
+        ? controller.userHighlightedList[0].images ?? []
+        : [];
+
+    return Container(
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: size.height * 0.4,
+            child: Stack(
+              children: [
+                SafeArea(
+                  child: ListView.builder(
+                    itemCount: images.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      images = controller.userHighlightedList[index].images;
+                      if (images.isEmpty) {
+                        return Center(child: Text('No Images Available'));
+                      }
+                      return GestureDetector(
+                        onTap: () =>
+                            showFullImageDialog(context, images[index]),
+                        child: Container(
+                          margin: EdgeInsets.only(bottom: 12),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: CachedNetworkImage(
+                              imageUrl: images[index],
+                              placeholder: (context, url) =>
+                                  Center(child: CircularProgressIndicator()),
+                              errorWidget: (context, url, error) {
+                                print("Failed to load image from URL: $url");
+                                return Icon(Icons.error, color: Colors.red);
+                              },
+                              fit: BoxFit.cover,
+                              width: size.width * 0.9,
+                              height: size.height * 0.45,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Positioned(
+                  bottom: 10,
+                  right: 0,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: size.height * 0.1),
+                    child: Transform.rotate(
+                      angle: -1.5708,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SmoothPageIndicator(
+                            controller: _imagePageController,
+                            count: images.length,
+                            effect: ExpandingDotsEffect(
+                              dotHeight: 10,
+                              dotWidth: 10,
+                              spacing: 10,
+                              radius: 5,
+                              dotColor: Colors.grey.withOpacity(0.5),
+                              activeDotColor: Colors.green,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    isLiked = !isLiked;
+                  });
+                },
+                icon: Icon(
+                  isLiked ? Icons.favorite : Icons.favorite_border,
+                  size: 40,
+                  color: isLiked ? Colors.red : Colors.white,
+                ),
+              ),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    isShare = !isShare;
+                  });
+                },
+                icon: Icon(
+                  isShare ? Icons.share : Icons.share,
+                  size: 40,
+                  color: isShare ? Colors.green : Colors.white,
+                ),
+              ),
+              IconButton(
+                onPressed: showmessageBottomSheet,
+                icon: Icon(Icons.messenger_outline, size: 40),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          Text(
+            controller.userHighlightedList.first.name ?? 'NA',
+            style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+          ),
+          Row(
+            children: [
+              Text(
+                '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userHighlightedList.first.dob.toString()).year} Years Old || ',
+                style: TextStyle(fontSize: bodyFontSize),
+              ),
+              Text(
+                '${controller.userHighlightedList.first.city ?? 'NA'}',
+                style: TextStyle(fontSize: bodyFontSize),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    matchEngine.currentItem?.nope();
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.NopeColor),
+                  child: Text("Nope",
+                      style: AppTextStyles.buttonText
+                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    matchEngine.currentItem?.superLike();
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.FavouriteColor),
+                  child: Text("Favourite",
+                      style: AppTextStyles.buttonText
+                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    matchEngine.currentItem?.like();
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.LikeColor),
+                  child: Text("Like",
+                      style: AppTextStyles.buttonText
+                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
                 ),
               ],
             ),

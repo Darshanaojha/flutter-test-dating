@@ -187,6 +187,151 @@ class EditProfilePageState extends State<EditProfilePage> {
     print("Interests: $value");
   }
 
+  String? validateName(String value) {
+    if (value.isEmpty) {
+      return 'Name cannot be empty';
+    }
+    if (value.length < 3) {
+      return 'Name should be at least 3 characters long';
+    }
+    return null;
+  }
+
+  String? validateLatitude(String value) {
+    if (value.isEmpty) {
+      return 'Latitude cannot be empty';
+    }
+    try {
+      double latitude = double.parse(value);
+      if (latitude < -90 || latitude > 90) {
+        return 'Latitude must be between -90 and 90 degrees';
+      }
+    } catch (e) {
+      return 'Latitude must be a valid number';
+    }
+    return null;
+  }
+
+  String? validateLongitude(String value) {
+    if (value.isEmpty) {
+      return 'Longitude cannot be empty';
+    }
+    try {
+      double longitude = double.parse(value);
+      if (longitude < -180 || longitude > 180) {
+        return 'Longitude must be between -180 and 180 degrees';
+      }
+    } catch (e) {
+      return 'Longitude must be a valid number';
+    }
+    return null;
+  }
+
+  String? validateAddress(String value) {
+    if (value.isEmpty) {
+      return 'Address cannot be empty';
+    }
+    if (value.length < 5) {
+      return 'Address should be at least 5 characters long';
+    }
+    return null;
+  }
+
+  String? validateCountryId(String value) {
+    if (value.isEmpty) {
+      return 'Country ID cannot be empty';
+    }
+    return null;
+  }
+
+  String? validateCity(String value) {
+    if (value.isEmpty) {
+      return 'City cannot be empty';
+    }
+    return null;
+  }
+
+  String? validateDob(String value) {
+    if (value.isEmpty) {
+      return 'Date of birth cannot be empty';
+    }
+    // Optionally check for valid date format if needed
+    return null;
+  }
+
+  String? validateNickname(String value) {
+    if (value.isEmpty) {
+      return 'Nickname cannot be empty';
+    }
+    if (value.length < 3) {
+      return 'Nickname should be at least 3 characters long';
+    }
+    return null;
+  }
+
+  String? validateGender(String value) {
+    if (value.isEmpty) {
+      return 'Gender cannot be empty';
+    }
+    return null;
+  }
+
+  String? validateSubGender(String value) {
+    if (value.isEmpty) {
+      return 'Sub-gender cannot be empty';
+    }
+    return null;
+  }
+
+  String? validateLang(List<String> value) {
+    if (value.isEmpty) {
+      return 'At least one language should be selected';
+    }
+    return null;
+  }
+
+  String? validateInterest(String value) {
+    if (value.isEmpty) {
+      return 'Interest cannot be empty';
+    }
+    return null;
+  }
+
+  String? validateBio(String value) {
+    if (value.isEmpty) {
+      return 'Bio cannot be empty';
+    }
+    return null;
+  }
+
+  String? validateVisibility(String value) {
+    if (value.isEmpty) {
+      return 'Visibility cannot be empty';
+    }
+    return null;
+  }
+
+  String? validateEmailAlerts(String value) {
+    if (value.isEmpty) {
+      return 'Email Alerts cannot be empty';
+    }
+    return null;
+  }
+
+  String? validatePreferences(List<String> value) {
+    if (value.isEmpty) {
+      return 'Preferences cannot be empty';
+    }
+    return null;
+  }
+
+  String? validateDesires(List<String> value) {
+    if (value.isEmpty) {
+      return 'Desires cannot be empty';
+    }
+    return null;
+  }
+
   Future<void> fetchLatLong() async {
     try {
       print(controller.userRegistrationRequest.city);
@@ -402,13 +547,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     label: 'Name',
                                     onChanged: onUserNameChanged,
                                     validator: (value) {
-                                      if (value.isEmpty) {
-                                        return 'Name cannot be empty';
-                                      }
-                                      if (value.length < 3) {
-                                        return 'Name should be at least 3 characters long';
-                                      }
-                                      return null; // No error
+                                      return validateName(
+                                          value); // Use the validateName function
                                     },
                                   ),
                                   InfoField(
@@ -420,30 +560,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     label: 'Date of Birth',
                                     onChanged: onDobChanged,
                                     validator: (value) {
-                                      if (value.isEmpty) {
-                                        return 'Date of Birth cannot be empty';
-                                      }
-
-                                      // Check if the date is in the correct format (YYYY/MM/DD)
-                                      final datePattern =
-                                          RegExp(r'^\d{4}/\d{2}/\d{2}$');
-                                      if (!datePattern.hasMatch(value)) {
-                                        return 'Date of Birth must be in YYYY/MM/DD format';
-                                      }
-
-                                      // Check if the date is valid
-                                      try {
-                                        DateTime dob = DateTime.parse(
-                                            value.replaceAll('/',
-                                                '-')); // Convert to a valid format for DateTime.parse
-                                        if (dob.isAfter(DateTime.now())) {
-                                          return 'Date of Birth cannot be in the future';
-                                        }
-                                      } catch (e) {
-                                        return 'Invalid Date of Birth';
-                                      }
-
-                                      return null; // No error
+                                      return validateDob(
+                                          value); // Use the validateDob function
                                     },
                                   ),
                                   InfoField(
@@ -455,13 +573,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     label: 'Nick name',
                                     onChanged: onNickNameChanged,
                                     validator: (value) {
-                                      if (value.isEmpty) {
-                                        return 'Name cannot be empty';
-                                      }
-                                      if (value.length < 3) {
-                                        return 'Name should be at least 3 characters long';
-                                      }
-                                      return null; // No error
+                                      return validateNickname(
+                                          value); // Use the validateNickname function
                                     },
                                   ),
                                   InfoField(
@@ -473,13 +586,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     label: 'About',
                                     onChanged: onAboutChanged,
                                     validator: (value) {
-                                      if (value.isEmpty) {
-                                        return 'About cannot be empty';
-                                      }
-                                      if (value.length < 3) {
-                                        return 'Name should be at least 25 characters long';
-                                      }
-                                      return null; // No error
+                                      return validateBio(
+                                          value); // Use the validateBio function
                                     },
                                   ),
                                   Obx(() {
@@ -507,11 +615,9 @@ class EditProfilePageState extends State<EditProfilePage> {
                                         controller.userProfileUpdateRequest
                                             .countryId = value?.id ?? '';
                                       },
-                                      validator: (Country? value) {
-                                        if (value == null) {
-                                          return 'Please select a country'; // Error if no country is selected
-                                        }
-                                        return null; // No error if a country is selected
+                                      validator: (value) {
+                                        return validateCountryId(value
+                                            as String); // Use the validateCountryId function
                                       },
                                       displayValue: (Country country) =>
                                           country.name,
@@ -526,13 +632,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     label: 'Address',
                                     onChanged: onAddressChnaged,
                                     validator: (value) {
-                                      if (value.isEmpty) {
-                                        return 'Address cannot be empty'; // Error if address is empty
-                                      }
-                                      if (value.length < 5) {
-                                        return 'Address should be at least 5 characters long'; // Ensure address has sufficient length
-                                      }
-                                      return null; // No error, validation passed
+                                      return validateAddress(
+                                          value); // Use the validateAddress function
                                     },
                                   ),
                                   InfoField(
@@ -544,13 +645,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     label: 'City',
                                     onChanged: onCityChanged,
                                     validator: (value) {
-                                      if (value!.isEmpty) {
-                                        return 'City cannot be empty'; // Error if city is empty
-                                      }
-                                      if (value.length < 2) {
-                                        return 'City should be at least 2 characters long'; // Ensure city has sufficient length
-                                      }
-                                      return null; // No error, validation passed
+                                      return validateCity(
+                                          value); // Use the validateCity function
                                     },
                                   ),
                                   Obx(() {
@@ -568,22 +664,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                             label: 'Latitude',
                                             onChanged: onLatitudeChnage,
                                             validator: (value) {
-                                              if (value!.isEmpty) {
-                                                return 'Latitude cannot be empty';
-                                              }
-
-                                              final doubleValue =
-                                                  double.tryParse(value);
-                                              if (doubleValue == null) {
-                                                return 'Latitude must be a valid number';
-                                              }
-
-                                              if (doubleValue < -90 ||
-                                                  doubleValue > 90) {
-                                                return 'Latitude must be between -90 and 90';
-                                              }
-
-                                              return null; // No error
+                                              return validateLatitude(value);
                                             },
                                           ),
                                           InfoField(
@@ -597,22 +678,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                                             label: 'Longitude',
                                             onChanged: onLongitudeChnage,
                                             validator: (value) {
-                                              if (value!.isEmpty) {
-                                                return 'Longitude cannot be empty';
-                                              }
-
-                                              final doubleValue =
-                                                  double.tryParse(value);
-                                              if (doubleValue == null) {
-                                                return 'Longitude must be a valid number';
-                                              }
-
-                                              if (doubleValue < -90 ||
-                                                  doubleValue > 90) {
-                                                return 'Longitude must be between -90 and 90';
-                                              }
-
-                                              return null; // No error
+                                              return validateLongitude(
+                                                  value); // Use the validateLongitude function
                                             },
                                           ),
                                         ],
@@ -1108,13 +1175,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                             print(
                                 'desires are : ${controller.userProfileUpdateRequest.desires}');
                             if (_formKey.currentState!.validate()) {
-                              if (controller
-                                  .userProfileUpdateRequest.name.isEmpty) {
-                                failure('Name ', 'Please Enter the Name');
-                                return;
-                              }
-                              print('Form is valid!');
-
                               UserProfileUpdateRequest
                                   userProfileUpdateRequest =
                                   UserProfileUpdateRequest(
@@ -1164,10 +1224,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     ? controller
                                         .userProfileUpdateRequest.subGender
                                     : controller.userData.first.subGender,
-                                lang: controller.userProfileUpdateRequest.lang
-                                        .isNotEmpty
-                                    ? controller.userProfileUpdateRequest.lang
-                                    : controller.userLang,
+                                lang: controller.userProfileUpdateRequest.lang,
                                 interest: controller.userProfileUpdateRequest
                                         .interest.isNotEmpty
                                     ? controller
@@ -1192,6 +1249,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                         .userProfileUpdateRequest.desires
                                     : controller.userDesire,
                               );
+
                               List<int> selectedPreferences = [];
                               for (int i = 0;
                                   i < preferencesSelectedOptions.length;
@@ -1211,10 +1269,15 @@ class EditProfilePageState extends State<EditProfilePage> {
                                   ? controller
                                       .userProfileUpdateRequest.visibility = '1'
                                   : '0';
-                              controller
-                                  .updateProfile(userProfileUpdateRequest);
+                              if (userProfileUpdateRequest.validate()) {
+                                controller
+                                    .updateProfile(userProfileUpdateRequest);
+                              }
+
+                              return;
                             } else {
                               failure("Invalid", 'Form is invalid');
+                              return;
                             }
                           },
                           backgroundColor: AppColors.acceptColor,
@@ -1248,14 +1311,14 @@ Widget buildDropdown<T>(
   String Function(T)? displayValue,
   String? Function(T?)? validator,
 }) {
-  String? _errorText;
+  String? errorText;
   void validateInput(T? value) {
     if (validator != null) {
       String? error = validator(value); // Run the validator
       if (error != null) {
-        _errorText = error; // If there's an error, update the error text
+        errorText = error; // If there's an error, update the error text
       } else {
-        _errorText = null; // Clear the error if valid
+        errorText = null; // Clear the error if valid
       }
     }
   }
@@ -1287,7 +1350,7 @@ Widget buildDropdown<T>(
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: Colors.white),
         ),
-        errorText: _errorText,
+        errorText: errorText,
       ),
       style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
       dropdownColor: AppColors.secondaryColor,
@@ -1804,7 +1867,6 @@ class InfoFieldState extends State<InfoField> {
     super.dispose();
   }
 
-  // This method is triggered for validation
   void validateInput(String value) {
     if (widget.validator != null) {
       String? error = widget.validator!(value);

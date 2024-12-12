@@ -575,7 +575,7 @@ class LikesPageState extends State<LikesPage> {
                   },
                   activeColor: AppColors.buttonColor,
                 );
-              }).toList(),
+              }),
             ],
           ),
         );

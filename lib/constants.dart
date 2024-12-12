@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 const encryptionkey = "flamrpisyst2024!";
 const baseurl = "http://192.168.1.7/dating_backend_springboot/admin";
 const ip = "http://192.168.1.7/dating_backend_springboot/";
@@ -10,28 +11,30 @@ const loginUrl = "Authentication/login";
 const profileUrl = "Authentication/profile";
 
 class AppColors {
-  static const Color primaryColor = Colors.black;
- static const Color disabled =Colors.grey;
- 
-  static const Color secondaryColor = Color(0xFF1C1C1C);
-  static const Color textColor = Colors.white;
-  static const Color accentColor = Colors.black;
-  static const Color cursorColor = Colors.white;
-  static const Color acceptColor = Colors.green;
-  static const Color deniedColor = Colors.red;
-  static const Color iconColor = Colors.blue;
-  static const Color buttonColor = Colors.blue;
-  static const Color chipColor = Colors.orange;
-  static const Color formFieldColor = Color.fromARGB(255, 85, 84, 84);
-  static const Color inactiveColor = Colors.red;
-  static const Color activeColor = Colors.green;
+  static Color primaryColor = Colors.black;
+  static Color disabled = Colors.grey;
+  static Color secondaryColor = Color(0xFF1C1C1C);
+  static Color NopeColor = Color.fromARGB(255, 217, 37, 25);
+  static Color FavouriteColor = Color.fromARGB(255, 49, 183, 190);
+  static Color LikeColor = Color.fromARGB(255, 46, 212, 52);
+  static Color FilterChipColor = Colors.orange;
+  static Color textColor = Colors.white;
+  static Color accentColor = Colors.black;
+  static Color cursorColor = Colors.white;
+  static Color acceptColor = Colors.green;
+  static Color deniedColor = Colors.red;
+  static Color iconColor = Colors.blue;
+  static Color buttonColor = Colors.blue;
+  static Color chipColor = Colors.orange;
+  static Color formFieldColor = Color.fromARGB(255, 85, 84, 84);
+  static Color inactiveColor = Colors.red;
+  static Color activeColor = Colors.green;
   static Color successColor = Colors.green.withOpacity(0.3);
   static Color successBorderColor = Colors.green;
   static Color errorColor = Colors.red.withOpacity(0.3);
   static Color errorBorderColor = Colors.red;
   static Color navigationColor = Colors.orange;
   static Color progressColor = Colors.orange;
-
   static var primaryTextColor;
 }
 
@@ -183,7 +186,8 @@ class FirebaseConstants {
   static const String appId = '1:837611833070:android:3cd2c487816f9828f215ff';
   static const String messagingSenderId = '837611833070';
   static const String projectId = 'datingapplication-f7813';
-  static const String storageBucket = 'datingapplication-f7813.firebasestorage.app';
+  static const String storageBucket =
+      'datingapplication-f7813.firebasestorage.app';
 
   static const FirebaseOptions firebaseOptions = FirebaseOptions(
     apiKey: apiKey,
