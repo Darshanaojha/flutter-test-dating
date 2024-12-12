@@ -1073,7 +1073,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     FocusNode interestFocusNode = FocusNode();
 
     bool isSelectionValid() {
-      return selectedInterests.length > 0 && selectedInterests.length <= 6;
+      return selectedInterests.isNotEmpty && selectedInterests.length <= 6;
     }
 
     void addInterest() {
@@ -1476,12 +1476,12 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 // step 9
   Widget buildUserDescriptionStep(Size screenSize) {
     RxString userDescription = ''.obs;
-    bool _isInputValid = true;
+    bool isInputValid = true;
     // Function to track text changes
     void onDescriptionChanged(String value) {
       userDescription.value = value;
       controller.userRegistrationRequest.bio = value;
-      _isInputValid = RegExp(r'^[a-zA-Z\s]*$').hasMatch(value);
+      isInputValid = RegExp(r'^[a-zA-Z\s]*$').hasMatch(value);
     }
 
     double screenWidth = screenSize.width;
@@ -1547,7 +1547,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     borderSide: BorderSide(color: AppColors.textColor),
                   ),
                   errorText:
-                      _isInputValid ? null : 'Please enter only alphabets',
+                      isInputValid ? null : 'Please enter only alphabets',
                 ),
                 style: TextStyle(
                   color: AppColors.textColor,

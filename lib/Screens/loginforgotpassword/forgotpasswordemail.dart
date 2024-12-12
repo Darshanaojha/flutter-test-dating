@@ -126,11 +126,6 @@ class EmailInputPageState extends State<EmailInputPage> {
                             .copyWith(fontSize: fontSize),
                       ),
                     ),
-                    ElevatedButton(
-                        onPressed: () {
-                          Get.to(PasswordInputPage());
-                        },
-                        child: Text('Next'))
                   ],
                 ),
               ),

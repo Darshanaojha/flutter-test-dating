@@ -157,7 +157,6 @@ class PasswordInputPageState extends State<PasswordInputPage> {
                       ),
                       child: Text('Submit', style: AppTextStyles.buttonText.copyWith(fontSize: fontSize)),
                     ),
-                    ElevatedButton(onPressed: (){Get.to(OTPInputPage());}, child: Text("Next"))
                   ],
                 ),
               ),

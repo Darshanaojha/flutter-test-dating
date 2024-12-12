@@ -11,11 +11,11 @@ class MySwipePage extends StatefulWidget {
 }
 
 class MySwipePageState extends State<MySwipePage> {
-  List<SwipeItem> _swipeItems = [];
+  final List<SwipeItem> _swipeItems = [];
   late MatchEngine _matchEngine;
-  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
-  List<String> _names = ["Red", "Blue", "Green", "Yellow", "Orange"];
-  List<Color> _colors = [
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+  final List<String> _names = ["Red", "Blue", "Green", "Yellow", "Orange"];
+  final List<Color> _colors = [
     Colors.red,
     Colors.blue,
     Colors.green,
@@ -67,7 +67,7 @@ class MySwipePageState extends State<MySwipePage> {
       body: Container(
         child: Column(
           children: [
-            Container(
+            SizedBox(
               height: 550,
               child: SwipeCards(
                 matchEngine: _matchEngine,

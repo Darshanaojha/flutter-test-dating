@@ -1,3 +1,5 @@
+import '../../constants.dart';
+
 class UserProfileUpdateRequest {
   String name;
   String latitude;
@@ -82,56 +84,77 @@ class UserProfileUpdateRequest {
     };
   }
 
-  List<String> validate() {
-    List<String> validationErrors = [];
-
-    // Validate required fields
-    validationErrors.addAll(_validateNotEmpty(name, 'Name'));
-    validationErrors.addAll(_validateNotEmpty(address, 'Address'));
-    validationErrors.addAll(_validateNotEmpty(countryId, 'Country ID'));
-    validationErrors.addAll(_validateNotEmpty(city, 'City'));
-    validationErrors.addAll(_validateNotEmpty(gender, 'Gender'));
-    validationErrors.addAll(_validateNotEmpty(subGender, 'Sub-Gender'));
-
-    // Validate lists for null or empty
-    if (preferences.isEmpty) {
-      validationErrors.add('Preferences list cannot be empty.');
+  bool validate() {
+    if (name.isEmpty || name == null) {
+      failure('Name is required', 'Please provide your name.');
+      return false;
     }
-    if (desires.isEmpty) {
-      validationErrors.add('Desires list cannot be empty.');
+    if (latitude.isEmpty || latitude == null) {
+      failure('Latitude is required', 'Please provide your latitude.');
+      return false;
     }
-
-    // Validate coordinates
-    if (!isValidCoordinate(latitude)) {
-      validationErrors.add('Latitude must be between -180 and 180.');
+    if (longitude.isEmpty || longitude == null) {
+      failure('Longitude is required', 'Please provide your longitude.');
+      return false;
     }
-    if (!isValidCoordinate(longitude)) {
-      validationErrors.add('Longitude must be between -180 and 180.');
+    if (address.isEmpty || address == null) {
+      failure('Address is required', 'Please provide your address.');
+      return false;
     }
-
-    // Validate date of birth format
-    if (!isValidDate(dob)) {
-      validationErrors.add('Date of Birth should be in YYYY/MM/DD format.');
+    if (countryId.isEmpty || countryId == null) {
+      failure('Country is required', 'Please select your country.');
+      return false;
     }
-
-    return validationErrors;
-  }
-
-  List<String> _validateNotEmpty(String value, String fieldName) {
-    List<String> errors = [];
-    if (value.isEmpty) {
-      errors.add('$fieldName is required and cannot be empty.');
+    if (city.isEmpty || city == null) {
+      failure('City is required', 'Please provide your city.');
+      return false;
     }
-    return errors;
-  }
-
-  bool isValidCoordinate(String coordinate) {
-    final doubleValue = double.tryParse(coordinate);
-    return doubleValue != null && doubleValue >= -180 && doubleValue <= 180;
-  }
-
-  bool isValidDate(String date) {
-    final datePattern = RegExp(r'^\d{4}/\d{2}/\d{2}$');
-    return datePattern.hasMatch(date);
+    if (dob.isEmpty || dob == null) {
+      failure(
+          'Date of Birth is required', 'Please provide your date of birth.');
+      return false;
+    }
+    if (nickname.isEmpty || nickname == null) {
+      failure('Nickname is required', 'Please provide a nickname.');
+      return false;
+    }
+    if (gender.isEmpty || gender == null) {
+      failure('Gender is required', 'Please select your gender.');
+      return false;
+    }
+    if (subGender.isEmpty || subGender == null) {
+      failure('Sub-Gender is required', 'Please provide your sub-gender.');
+      return false;
+    }
+    if (lang.isEmpty || lang == null) {
+      failure('Language is required', 'Please select your languages.');
+      return false;
+    }
+    if (interest.isEmpty || interest == null) {
+      failure('Interest is required', 'Please provide your interest.');
+      return false;
+    }
+    if (bio.isEmpty || bio == null) {
+      failure('Bio is required', 'Please provide a short bio.');
+      return false;
+    }
+    if (visibility.isEmpty || visibility == null) {
+      failure('Visibility is required', 'Please choose your visibility.');
+      return false;
+    }
+    if (emailAlerts.isEmpty || emailAlerts == null) {
+      failure('Email Alerts is required',
+          'Please select your email alert preferences.');
+      return false;
+    }
+    if (preferences.isEmpty || preferences == null) {
+      failure('Preferences are required', 'Please set your preferences.');
+      return false;
+    }
+    if (desires.isEmpty || desires == null) {
+      failure('Desires are required', 'Please set your desires.');
+      return false;
+    }
+    return true;
   }
 }

@@ -70,6 +70,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
         Get.offAll(() => Login());
       } else {
         await controller.fetchProfile();
+        await controller.userSuggestions();
         await controller.reportReason();
         await controller.fetchAllverificationtype();
         await controller.fetchProfileUserPhotos();

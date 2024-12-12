@@ -31,6 +31,7 @@ import 'package:dating_application/Providers/fetch_subscripted_package_provider.
 import 'package:dating_application/Providers/login_provider.dart';
 import 'package:dating_application/Providers/share_profile_provider.dart';
 import 'package:dating_application/Providers/user_profile_provider.dart';
+import 'package:dating_application/Screens/homepage/homepage.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
@@ -137,7 +138,7 @@ import '../Providers/user_suggestions_provider.dart';
 import '../Providers/usernameupdate_provider.dart';
 import '../Providers/verify_account_provider.dart';
 import '../Screens/login.dart';
-import '../Screens/userprofile/userprofilepage.dart';
+import '../Screens/settings/updateemailid/updateemailotpverification.dart';
 import '../constants.dart';
 
 class Controller extends GetxController {
@@ -767,6 +768,7 @@ class Controller extends GetxController {
       await prefs.setString('update_email', updateEmailIdRequest.newEmail);
       if (response != null) {
         success('success', response.payload.message);
+        Get.to(EmailOtpVerificationPage());
         return true;
       } else {
         failure('Error', 'Failed to update email');
@@ -786,6 +788,7 @@ class Controller extends GetxController {
           await UpdateEmailVerificationProvider().verifyEmailOtp(request);
       if (response != null) {
         success('success', response.payload.message);
+        Get.close(3);
         return true;
       } else {
         failure('Error', 'Failed to verify otp for email');
@@ -1111,7 +1114,7 @@ class Controller extends GetxController {
     }
   }
 
- RxList<SuggestedUser> currentList = <SuggestedUser>[].obs;
+
   RxList<SuggestedUser> userSuggestionsList = <SuggestedUser>[].obs;
   RxList<SuggestedUser> userHighlightedList = <SuggestedUser>[].obs;
   RxList<SuggestedUser> userNearByList = <SuggestedUser>[].obs;

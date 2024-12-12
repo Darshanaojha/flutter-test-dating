@@ -14,7 +14,7 @@ class UsernameUpdateProvider extends GetConnect {
     try {
 
       EncryptedSharedPreferences preferences =
-          await EncryptedSharedPreferences.getInstance();
+          EncryptedSharedPreferences.getInstance();
 
 
       String? token = preferences.getString('token');

@@ -256,7 +256,7 @@ class ShareProfilePageState extends State<ShareProfilePage>
                                                       AppTextStyles.bodyText),
                                             ],
                                           ))
-                                      .toList(),
+                                      ,
                                 ],
                               ),
                             ),
@@ -299,7 +299,7 @@ class ShareProfilePageState extends State<ShareProfilePage>
                                                       AppTextStyles.bodyText),
                                             ],
                                           ))
-                                      .toList(),
+                                      ,
                                 ],
                               ),
                             ),
@@ -342,7 +342,7 @@ class ShareProfilePageState extends State<ShareProfilePage>
                                                       AppTextStyles.bodyText),
                                             ],
                                           ))
-                                      .toList(),
+                                      ,
                                 ],
                               ),
                             ),
