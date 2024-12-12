@@ -1108,13 +1108,35 @@ class EditProfilePageState extends State<EditProfilePage> {
                             print(
                                 'desires are : ${controller.userProfileUpdateRequest.desires}');
                             if (_formKey.currentState!.validate()) {
-                              if (controller
-                                  .userProfileUpdateRequest.name.isEmpty) {
-                                failure('Name ', 'Please Enter the Name');
-                                return;
+                              List<dynamic?> fieldsToCheck = [
+                                controller.userProfileUpdateRequest.name,
+                                controller.userProfileUpdateRequest.nickname,
+                                controller.userProfileUpdateRequest.lang,
+                                controller.userProfileUpdateRequest.subGender,
+                                controller.userProfileUpdateRequest.dob,
+                                controller.userProfileUpdateRequest.interest,
+                                controller.userProfileUpdateRequest.visibility,
+                                controller.userProfileUpdateRequest.preferences
+                                        .isEmpty
+                                    ? null
+                                    : "preferences",
+                                controller.userProfileUpdateRequest.latitude,
+                                controller.userProfileUpdateRequest.longitude,
+                                controller.userProfileUpdateRequest.address,
+                                controller.userProfileUpdateRequest.city,
+                                controller.userProfileUpdateRequest.countryId,
+                                controller.userProfileUpdateRequest.bio,
+                                controller.userProfileUpdateRequest.desires,
+                                controller.userProfileUpdateRequest.emailAlerts,
+                                controller.userProfileUpdateRequest.gender,
+                              ];
+                              for (var field in fieldsToCheck) {
+                                if (field == null || field.isEmpty) {
+                                  failure('Fields',
+                                      'Please Enter All Required Fields');
+                                  return;
+                                }
                               }
-                              print('Form is valid!');
-
                               UserProfileUpdateRequest
                                   userProfileUpdateRequest =
                                   UserProfileUpdateRequest(
