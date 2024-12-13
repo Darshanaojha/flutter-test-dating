@@ -132,8 +132,6 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
                       ),
 
                     SizedBox(height: 50),
-
-                    // Centered Submit Button
                     Center(
                       child: ElevatedButton(
                         onPressed: submitVerification,

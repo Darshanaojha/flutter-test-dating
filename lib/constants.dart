@@ -133,53 +133,100 @@ void success(title, message) {
   Get.snackbar(
     '',
     '',
-    titleText: Text(
-      title,
-      style: GoogleFonts.raleway(
-        color: Colors.white,
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
+    titleText: Padding(
+      padding: const EdgeInsets.only(right: 16.0),
+      child: Row(
+        children: [
+          Icon(
+            Icons.check_circle_outline,
+            color: Colors.black,
+            size: 24,
+          ),
+          SizedBox(width: 10),
+          Text(
+            title,
+            style: GoogleFonts.raleway(
+              color: Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     ),
-    messageText: Text(
-      message,
-      style: GoogleFonts.raleway(
-        color: Colors.white,
-        fontSize: 14,
+    messageText: Padding(
+      padding: const EdgeInsets.only(right: 16.0),
+      child: Text(
+        message,
+        style: GoogleFonts.raleway(
+          color: Colors.black,
+          fontSize: 14,
+        ),
       ),
     ),
-    colorText: Colors.white,
-    backgroundColor: Colors.green.withOpacity(0.3),
-    borderColor: Colors.green,
+    colorText: Colors.black,
+    backgroundColor: Colors.green.withOpacity(0.85),
+    borderColor: Colors.green.shade700,
     borderWidth: 2,
+    borderRadius: 8.0, 
+    snackPosition: SnackPosition.TOP,
+    margin: EdgeInsets.all(16),
+    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+    duration: Duration(seconds: 3),
+    animationDuration: Duration(milliseconds: 250),
   );
 }
 
-void failure(title, message) {
+void failure( title,  message) {
   Get.snackbar(
     '',
     '',
-    titleText: Text(
-      title,
-      style: GoogleFonts.raleway(
-        color: Colors.white,
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
+    titleText: Padding(
+      padding: const EdgeInsets.only(right: 16.0),
+      child: Row(
+        children: [
+          Icon(
+            Icons.error_outline,
+            color: Colors.black,
+            size: 24,
+          ),
+          SizedBox(width: 10),
+          Text(
+            title,
+            style: GoogleFonts.raleway(
+              color: Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     ),
-    messageText: Text(
-      message,
-      style: GoogleFonts.raleway(
-        color: Colors.white,
-        fontSize: 14,
+    messageText: Padding(
+      padding: const EdgeInsets.only(right: 16.0),
+      child: Text(
+        message,
+        style: GoogleFonts.raleway(
+          color: Colors.black,
+          fontSize: 14,
+        ),
       ),
     ),
-    colorText: Colors.white,
-    backgroundColor: Colors.red.withOpacity(0.3),
-    borderColor: Colors.red,
+    colorText: Colors.black,
+    backgroundColor: Colors.red.withOpacity(0.85),
+    borderColor: Colors.red.shade700,
     borderWidth: 2,
+    borderRadius: 8.0, 
+    snackPosition: SnackPosition.TOP,
+    margin: EdgeInsets.all(16),
+    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+    duration: Duration(seconds: 3),
+    animationDuration: Duration(milliseconds: 250),
   );
 }
+
+
+
 
 class FirebaseConstants {
   static const String apiKey = 'AIzaSyC3ROuYfPMzBPPtA4f_5HsxfVilIUuxgbc';

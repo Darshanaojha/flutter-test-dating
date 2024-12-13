@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dating_application/Models/RequestModels/change_password_request.dart';
+import 'package:dating_application/Models/RequestModels/profile_like_request_model.dart';
 import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
 import 'package:dating_application/Models/RequestModels/update_activity_status_request_model.dart';
 import 'package:dating_application/Models/RequestModels/updating_package_request_model.dart';
@@ -15,6 +16,7 @@ import 'package:dating_application/Models/ResponseModels/get_all_headlines_respo
 import 'package:dating_application/Models/ResponseModels/get_all_packages_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_saftey_guidelines_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_whoareyoulookingfor_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/profile_like_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/subgender_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/updating_package_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/user_upload_images_response_model.dart';
@@ -78,6 +80,7 @@ import '../Models/ResponseModels/forget_password_verification_response_model.dar
 import '../Models/ResponseModels/get_all_country_response_model.dart';
 import '../Models/ResponseModels/get_all_desires_model_response.dart';
 import '../Models/ResponseModels/get_all_language_response_model.dart';
+import '../Models/ResponseModels/get_all_likes_pages_response.dart';
 import '../Models/ResponseModels/get_all_subscripted_package_model.dart';
 import '../Models/ResponseModels/get_all_verification_response_model.dart';
 import '../Models/ResponseModels/get_report_user_options_response_model.dart';
@@ -114,6 +117,7 @@ import '../Providers/fetch_all_genders_provider.dart';
 import '../Providers/fetch_all_language_provider.dart';
 import '../Providers/fetch_all_packages_provider.dart';
 import '../Providers/fetch_benefits_provider.dart';
+import '../Providers/fetch_likes_page_provider.dart';
 import '../Providers/fetch_sub_genders_provider.dart';
 import '../Providers/fetch_verificationtype_provider.dart';
 import '../Providers/highlight_profile_status_provider.dart';
@@ -123,6 +127,7 @@ import '../Providers/markasfavourite_provider.dart';
 import '../Providers/master_setting_provider.dart';
 import '../Providers/pin_profile_pic_provider.dart';
 import '../Providers/post_like_provider.dart';
+import '../Providers/profile_like_provider.dart';
 import '../Providers/registration_provider.dart';
 import '../Providers/report_against_user_provider.dart';
 import '../Providers/report_reason_provider.dart';
@@ -226,7 +231,7 @@ class Controller extends GetxController {
   }
 
   RegistrationOTPRequest registrationOTPRequest =
-      RegistrationOTPRequest(email: '', name: '',mobile:'');
+      RegistrationOTPRequest(email: '', name: '', mobile: '');
 
   Future<bool> getOtpForRegistration(
       RegistrationOTPRequest registrationOTPRequest) async {
@@ -1114,10 +1119,10 @@ class Controller extends GetxController {
     }
   }
 
-
   RxList<SuggestedUser> userSuggestionsList = <SuggestedUser>[].obs;
   RxList<SuggestedUser> userHighlightedList = <SuggestedUser>[].obs;
   RxList<SuggestedUser> userNearByList = <SuggestedUser>[].obs;
+
   Future<bool> userSuggestions() async {
     try {
       userSuggestionsList.clear();
@@ -1551,4 +1556,47 @@ class Controller extends GetxController {
       return false;
     }
   }
+
+  ProfileLikeRequest profileLikeRequest = ProfileLikeRequest(likedBy: '');
+  Future<bool> profileLike(ProfileLikeRequest profileLikeRequest) async {
+    try {
+      ProfileLikeResponse? response =
+          await ProfileLikeProvider().profileLikeProvider(profileLikeRequest);
+      if (response != null) {
+        success('Success', response.payload.message);
+        return true;
+      }
+
+      failure('Error', 'Failed to process the like request.');
+      return false;
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  
+RxList<LikeRequestPages> likespage = <LikeRequestPages>[].obs;
+Future<bool> likesuserpage() async {
+  try {
+    likespage.clear();
+    GetAllLikesResponse? response = await FetchLikesPageProvider().likespageprovider();
+    if (response != null && response.payload != null) {
+      success('Success', response.payload.message);
+      if (response.payload.data != null && response.payload.data.isNotEmpty) {
+        likespage.addAll(response.payload.data);
+
+        return true;
+      } else {
+        return true;
+      }
+    } else {
+      failure('Error', 'Failed to fetch the connections');
+      return false;
+    }
+  } catch (e) {
+    failure('Error', e.toString());
+    return false;
+  }
+}
 }
