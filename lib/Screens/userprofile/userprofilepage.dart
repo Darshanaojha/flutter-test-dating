@@ -27,7 +27,7 @@ class UserProfilePageState extends State<UserProfilePage> {
   Controller controller = Get.put(Controller());
   bool isLoading = true;
   String userProfileCompletion = '80% Complete';
-
+    late Future<bool> _fetchprofilepage;
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
@@ -36,9 +36,10 @@ class UserProfilePageState extends State<UserProfilePage> {
   @override
   void initState() {
     super.initState();
+    _fetchprofilepage = fetchAllData();
   }
 
-  Future<bool> initializeData() async {
+  Future<bool> fetchAllData() async {
     if (!await controller.fetchProfileUserPhotos()) return false;
     if (!await controller.fetchAllsubscripted()) return false;
     if (!await controller.fetchProfile()) return false;
@@ -51,8 +52,8 @@ class UserProfilePageState extends State<UserProfilePage> {
       resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
-          FutureBuilder(
-              future: initializeData(),
+          FutureBuilder<bool>(
+              future: _fetchprofilepage,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
@@ -117,7 +118,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
+                               Text(
                                   controller.usernameUpdateRequest.username
                                           .isNotEmpty
                                       ? controller
@@ -127,6 +128,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                                     fontSize: getResponsiveFontSize(0.03),
                                   ),
                                 ),
+
                                 SizedBox(height: 8),
                                 Text(
                                   'Click to change username',
@@ -165,14 +167,15 @@ class UserProfilePageState extends State<UserProfilePage> {
                                                 controller:
                                                     TextEditingController(
                                                   text: controller
-                                                          .usernameUpdateRequest
+                                                          .userData
+                                                          .first
                                                           .username
                                                           .isNotEmpty
-                                                      ? controller
+                                                      ? controller.userData
+                                                          .first.username
+                                                      : controller
                                                           .usernameUpdateRequest
-                                                          .username
-                                                      : controller.userData
-                                                          .first.username,
+                                                          .username,
                                                 ),
                                                 onChanged: (value) {
                                                   controller
@@ -229,24 +232,27 @@ class UserProfilePageState extends State<UserProfilePage> {
                                                 AppColors.activeColor,
                                           ),
                                           onPressed: () {
-                                            Get.snackbar(
-                                                '',
-                                                controller.usernameUpdateRequest
-                                                    .username
-                                                    .toString());
-                                            UsernameUpdateRequest usernameUpdateRequest =
+                                            UsernameUpdateRequest
+                                                usernameUpdateRequest =
                                                 UsernameUpdateRequest(
-                                                    username: controller
-                                                            .usernameUpdateRequest
-                                                            .username
-                                                            .isNotEmpty
-                                                        ? controller
-                                                            .usernameUpdateRequest
-                                                            .username
-                                                        : controller.userData
-                                                            .first.username);
+                                              username: controller
+                                                      .usernameUpdateRequest
+                                                      .username
+                                                      .isNotEmpty
+                                                  ? controller
+                                                      .usernameUpdateRequest
+                                                      .username
+                                                  : controller
+                                                      .userData.first.username,
+                                            );
                                             controller.updateusername(
                                                 usernameUpdateRequest);
+
+                                            // Show confirmation
+                                            Get.snackbar('Success',
+                                                'Username updated successfully!');
+
+                                            // Close the dialog
                                             Navigator.of(context).pop();
                                           },
                                           child: Text('Save'),
@@ -344,7 +350,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Card(
-                          color: Colors.orange,
+                          color: Color.fromARGB(255, 11, 122, 67),
                           elevation: 5,
                           child: InkWell(
                             onTap: () {
@@ -373,68 +379,68 @@ class UserProfilePageState extends State<UserProfilePage> {
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Card(
-                          color: Colors.orange,
-                          elevation: 5,
-                          child: InkWell(
-                            onTap: showMessageBottomSheet,
-                            child: Container(
-                              padding: EdgeInsets.all(16),
-                              width: double.infinity,
-                              height: 100,
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.notifications_active,
-                                    size: 40,
-                                    color: Colors.white,
-                                  ),
-                                  SizedBox(width: 76),
-                                  Text(
-                                    'Messages',
-                                    style: AppTextStyles.titleText.copyWith(
-                                        fontSize: getResponsiveFontSize(0.03)),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Card(
-                          color: Colors.orange,
-                          elevation: 5,
-                          child: InkWell(
-                            onTap: () {
-                              showUpgradeBottomSheet(context);
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(16),
-                              width: double.infinity,
-                              height: 100,
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.upload,
-                                    size: 30,
-                                    color: Colors.white,
-                                  ),
-                                  SizedBox(width: 66),
-                                  Text(
-                                    'Uplift Profile',
-                                    style: AppTextStyles.titleText.copyWith(
-                                        fontSize: getResponsiveFontSize(0.03)),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      // Padding(
+                      //   padding: const EdgeInsets.all(16.0),
+                      //   child: Card(
+                      //     color: Colors.orange,
+                      //     elevation: 5,
+                      //     child: InkWell(
+                      //       onTap: showMessageBottomSheet,
+                      //       child: Container(
+                      //         padding: EdgeInsets.all(16),
+                      //         width: double.infinity,
+                      //         height: 100,
+                      //         child: Row(
+                      //           children: [
+                      //             Icon(
+                      //               Icons.notifications_active,
+                      //               size: 40,
+                      //               color: Colors.white,
+                      //             ),
+                      //             SizedBox(width: 76),
+                      //             Text(
+                      //               'Messages',
+                      //               style: AppTextStyles.titleText.copyWith(
+                      //                   fontSize: getResponsiveFontSize(0.03)),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
+                      // Padding(
+                      //   padding: const EdgeInsets.all(16.0),
+                      //   child: Card(
+                      //     color: Colors.orange,
+                      //     elevation: 5,
+                      //     child: InkWell(
+                      //       onTap: () {
+                      //         showUpgradeBottomSheet(context);
+                      //       },
+                      //       child: Container(
+                      //         padding: EdgeInsets.all(16),
+                      //         width: double.infinity,
+                      //         height: 100,
+                      //         child: Row(
+                      //           children: [
+                      //             Icon(
+                      //               Icons.upload,
+                      //               size: 30,
+                      //               color: Colors.white,
+                      //             ),
+                      //             SizedBox(width: 66),
+                      //             Text(
+                      //               'Uplift Profile',
+                      //               style: AppTextStyles.titleText.copyWith(
+                      //                   fontSize: getResponsiveFontSize(0.03)),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
@@ -461,16 +467,16 @@ class UserProfilePageState extends State<UserProfilePage> {
                                 }
                               },
                             ),
-                            SettingCard(
-                              title: 'Search Settings',
-                              subtitle: 'Customize your search settings',
-                              icon: Icons.search,
-                              onTap: () {
-                                Get.to(ShareProfilePage(
-                                  id: '1',
-                                ));
-                              },
-                            ),
+                            // SettingCard(
+                            //   title: 'Search Settings',
+                            //   subtitle: 'Customize your search settings',
+                            //   icon: Icons.search,
+                            //   onTap: () {
+                            //     Get.to(ShareProfilePage(
+                            //       id: '1',
+                            //     ));
+                            //   },
+                            // ),
                             SettingCard(
                               title: 'App Settings',
                               subtitle: 'Manage app preferences',
@@ -480,21 +486,21 @@ class UserProfilePageState extends State<UserProfilePage> {
                               },
                             ),
                             SettingCard(
-                              title: 'Share My Profile',
-                              subtitle: 'Share your profile with others',
+                              title: 'Share The Application',
+                              subtitle: 'Share our Application with others',
                               icon: Icons.share,
                               onTap: showShareProfileBottomSheet,
                             ),
-                            SettingCard(
-                                title: 'Magazine',
-                                subtitle: 'abc',
-                                icon: Icons.bolt,
-                                onTap: () {}),
-                            SettingCard(
-                                title: 'Our Community',
-                                subtitle: 'community support',
-                                icon: Icons.support,
-                                onTap: () {}),
+                            // SettingCard(
+                            //     title: 'Magazine',
+                            //     subtitle: 'abc',
+                            //     icon: Icons.bolt,
+                            //     onTap: () {}),
+                            // SettingCard(
+                            //     title: 'Our Community',
+                            //     subtitle: 'community support',
+                            //     icon: Icons.support,
+                            //     onTap: () {}),
                             SettingCard(
                                 title: 'Help',
                                 subtitle: 'helpline',

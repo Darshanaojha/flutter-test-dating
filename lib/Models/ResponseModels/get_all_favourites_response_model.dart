@@ -1,3 +1,5 @@
+
+
 class GetFavouritesResponse {
   bool success;
   Payload payload;
@@ -8,6 +10,7 @@ class GetFavouritesResponse {
     required this.payload,
     required this.error,
   });
+
 
   factory GetFavouritesResponse.fromJson(Map<String, dynamic> json) {
     return GetFavouritesResponse(
@@ -36,19 +39,20 @@ class Payload {
   });
 
   factory Payload.fromJson(Map<String, dynamic> json) {
-    var dataList = json['data'] as List;
-    List<Favourite> favourites = dataList.map((i) => Favourite.fromJson(i)).toList();
+    var list = json['data'] as List;
+    List<Favourite> favouritesList =
+        list.map((item) => Favourite.fromJson(item)).toList();
 
     return Payload(
       message: json['message'],
-      data: favourites,
+      data: favouritesList,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'message': message,
-      'data': data.map((f) => f.toJson()).toList(),
+      'data': data.map((favourite) => favourite.toJson()).toList(),
     };
   }
 }
@@ -60,6 +64,15 @@ class Favourite {
   String status;
   String created;
   String updated;
+  String dob;
+  String name;
+  String username;
+  String img1;
+  String img2;
+  String img3;
+  String img4;
+  String img5;
+  String img6;
 
   Favourite({
     required this.id,
@@ -68,6 +81,15 @@ class Favourite {
     required this.status,
     required this.created,
     required this.updated,
+    required this.dob,
+    required this.name,
+    required this.username,
+    required this.img1,
+    required this.img2,
+    required this.img3,
+    required this.img4,
+    required this.img5,
+    required this.img6,
   });
 
   factory Favourite.fromJson(Map<String, dynamic> json) {
@@ -78,6 +100,15 @@ class Favourite {
       status: json['status'],
       created: json['created'],
       updated: json['updated'],
+      dob: json['dob'],
+      name: json['name'],
+      username: json['username'],
+      img1: json['img1'],
+      img2: json['img2'],
+      img3: json['img3'],
+      img4: json['img4'],
+      img5: json['img5'],
+      img6: json['img6'],
     );
   }
 
@@ -89,6 +120,15 @@ class Favourite {
       'status': status,
       'created': created,
       'updated': updated,
+      'dob': dob,
+      'name': name,
+      'username': username,
+      'img1': img1,
+      'img2': img2,
+      'img3': img3,
+      'img4': img4,
+      'img5': img5,
+      'img6': img6,
     };
   }
 }

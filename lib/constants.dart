@@ -17,7 +17,7 @@ class AppColors {
   static Color NopeColor = Color.fromARGB(255, 217, 37, 25);
   static Color FavouriteColor = Color.fromARGB(255, 49, 183, 190);
   static Color LikeColor = Color.fromARGB(255, 46, 212, 52);
-  static Color FilterChipColor = Colors.orange;
+  static Color FilterChipColor = Color.fromARGB(255, 11, 122, 67);
   static Color textColor = Colors.white;
   static Color accentColor = Colors.black;
   static Color cursorColor = Colors.white;
@@ -25,7 +25,7 @@ class AppColors {
   static Color deniedColor = Colors.red;
   static Color iconColor = Colors.blue;
   static Color buttonColor = Colors.blue;
-  static Color chipColor = Colors.orange;
+  static Color chipColor = Color.fromARGB(255, 11, 122, 67);
   static Color formFieldColor = Color.fromARGB(255, 85, 84, 84);
   static Color inactiveColor = Colors.red;
   static Color activeColor = Colors.green;
@@ -33,8 +33,8 @@ class AppColors {
   static Color successBorderColor = Colors.green;
   static Color errorColor = Colors.red.withOpacity(0.3);
   static Color errorBorderColor = Colors.red;
-  static Color navigationColor = Colors.orange;
-  static Color progressColor = Colors.orange;
+  static Color navigationColor =  Color.fromARGB(255, 11, 122, 67);
+  static Color progressColor = Color.fromARGB(255, 11, 122, 67);
   static var primaryTextColor;
 }
 
