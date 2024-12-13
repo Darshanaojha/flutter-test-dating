@@ -17,7 +17,7 @@ class AppColors {
   static Color NopeColor = Color.fromARGB(255, 217, 37, 25);
   static Color FavouriteColor = Color.fromARGB(255, 49, 183, 190);
   static Color LikeColor = Color.fromARGB(255, 46, 212, 52);
-  static Color FilterChipColor = Colors.orange;
+  static Color FilterChipColor = Color.fromARGB(255, 11, 122, 67);
   static Color textColor = Colors.white;
   static Color accentColor = Colors.black;
   static Color cursorColor = Colors.white;
@@ -25,7 +25,7 @@ class AppColors {
   static Color deniedColor = Colors.red;
   static Color iconColor = Colors.blue;
   static Color buttonColor = Colors.blue;
-  static Color chipColor = Colors.orange;
+  static Color chipColor = Color.fromARGB(255, 11, 122, 67);
   static Color formFieldColor = Color.fromARGB(255, 85, 84, 84);
   static Color inactiveColor = Colors.red;
   static Color activeColor = Colors.green;
@@ -33,8 +33,8 @@ class AppColors {
   static Color successBorderColor = Colors.green;
   static Color errorColor = Colors.red.withOpacity(0.3);
   static Color errorBorderColor = Colors.red;
-  static Color navigationColor = Colors.orange;
-  static Color progressColor = Colors.orange;
+  static Color navigationColor =  Color.fromARGB(255, 11, 122, 67);
+  static Color progressColor = Color.fromARGB(255, 11, 122, 67);
   static var primaryTextColor;
 }
 
@@ -133,53 +133,100 @@ void success(title, message) {
   Get.snackbar(
     '',
     '',
-    titleText: Text(
-      title,
-      style: GoogleFonts.raleway(
-        color: Colors.white,
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
+    titleText: Padding(
+      padding: const EdgeInsets.only(right: 16.0),
+      child: Row(
+        children: [
+          Icon(
+            Icons.check_circle_outline,
+            color: Colors.black,
+            size: 24,
+          ),
+          SizedBox(width: 10),
+          Text(
+            title,
+            style: GoogleFonts.raleway(
+              color: Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     ),
-    messageText: Text(
-      message,
-      style: GoogleFonts.raleway(
-        color: Colors.white,
-        fontSize: 14,
+    messageText: Padding(
+      padding: const EdgeInsets.only(right: 16.0),
+      child: Text(
+        message,
+        style: GoogleFonts.raleway(
+          color: Colors.black,
+          fontSize: 14,
+        ),
       ),
     ),
-    colorText: Colors.white,
-    backgroundColor: Colors.green.withOpacity(0.3),
-    borderColor: Colors.green,
+    colorText: Colors.black,
+    backgroundColor: Colors.green.withOpacity(0.85),
+    borderColor: Colors.green.shade700,
     borderWidth: 2,
+    borderRadius: 8.0, 
+    snackPosition: SnackPosition.TOP,
+    margin: EdgeInsets.all(16),
+    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+    duration: Duration(seconds: 3),
+    animationDuration: Duration(milliseconds: 250),
   );
 }
 
-void failure(title, message) {
+void failure( title,  message) {
   Get.snackbar(
     '',
     '',
-    titleText: Text(
-      title,
-      style: GoogleFonts.raleway(
-        color: Colors.white,
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
+    titleText: Padding(
+      padding: const EdgeInsets.only(right: 16.0),
+      child: Row(
+        children: [
+          Icon(
+            Icons.error_outline,
+            color: Colors.black,
+            size: 24,
+          ),
+          SizedBox(width: 10),
+          Text(
+            title,
+            style: GoogleFonts.raleway(
+              color: Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     ),
-    messageText: Text(
-      message,
-      style: GoogleFonts.raleway(
-        color: Colors.white,
-        fontSize: 14,
+    messageText: Padding(
+      padding: const EdgeInsets.only(right: 16.0),
+      child: Text(
+        message,
+        style: GoogleFonts.raleway(
+          color: Colors.black,
+          fontSize: 14,
+        ),
       ),
     ),
-    colorText: Colors.white,
-    backgroundColor: Colors.red.withOpacity(0.3),
-    borderColor: Colors.red,
+    colorText: Colors.black,
+    backgroundColor: Colors.red.withOpacity(0.85),
+    borderColor: Colors.red.shade700,
     borderWidth: 2,
+    borderRadius: 8.0, 
+    snackPosition: SnackPosition.TOP,
+    margin: EdgeInsets.all(16),
+    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+    duration: Duration(seconds: 3),
+    animationDuration: Duration(milliseconds: 250),
   );
 }
+
+
+
 
 class FirebaseConstants {
   static const String apiKey = 'AIzaSyC3ROuYfPMzBPPtA4f_5HsxfVilIUuxgbc';

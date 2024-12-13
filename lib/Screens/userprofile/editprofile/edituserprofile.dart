@@ -1178,76 +1178,72 @@ class EditProfilePageState extends State<EditProfilePage> {
                               UserProfileUpdateRequest
                                   userProfileUpdateRequest =
                                   UserProfileUpdateRequest(
-                                name: controller.userProfileUpdateRequest.name
+                                name: controller.userData.first.name
                                         .isNotEmpty
-                                    ? controller.userProfileUpdateRequest.name
-                                    : controller.userData.first.name,
-                                latitude: controller.userProfileUpdateRequest
+                                    ? controller.userData.first.name
+                                    : controller.userProfileUpdateRequest.name,
+                                latitude: controller.userData.first
                                         .latitude.isNotEmpty
                                     ? controller
-                                        .userProfileUpdateRequest.latitude
-                                    : controller.userData.first.latitude,
-                                longitude: controller.userProfileUpdateRequest
+                                        .userData.first.latitude
+                                    : controller.userProfileUpdateRequest.latitude,
+                                longitude: controller.userData.first
                                         .longitude.isNotEmpty
                                     ? controller
-                                        .userProfileUpdateRequest.longitude
-                                    : controller.userData.first.longitude,
-                                address: controller.userProfileUpdateRequest
+                                       .userData.first.longitude
+                                    : controller.userProfileUpdateRequest.longitude,
+                                address: controller.userData.first
                                         .address.isNotEmpty
-                                    ? controller
-                                        .userProfileUpdateRequest.address
-                                    : controller.userData.first.address,
-                                countryId: controller.userProfileUpdateRequest
+                                    ? controller.
+                                        userData.first.address
+                                    : controller.userProfileUpdateRequest.address,
+                                countryId: controller.userData.first
                                         .countryId.isNotEmpty
-                                    ? controller
-                                        .userProfileUpdateRequest.countryId
-                                    : controller.userData.first.countryId,
-                                city: controller.userProfileUpdateRequest.city
+                                    ? controller.
+                                        userData.first.countryId
+                                    : controller.userProfileUpdateRequest.countryId,
+                                city: controller.userData.first.city
                                         .isNotEmpty
-                                    ? controller.userProfileUpdateRequest.city
-                                    : controller.userData.first.city,
+                                    ? controller.userData.first.city
+                                    : controller.userProfileUpdateRequest.city,
                                 dob: controller
-                                        .userProfileUpdateRequest.dob.isNotEmpty
-                                    ? controller.userProfileUpdateRequest.dob
-                                    : controller.userData.first.dob,
-                                nickname: controller.userProfileUpdateRequest
+                                        .userData.first.dob.isNotEmpty
+                                    ? controller.userData.first.dob
+                                    : controller.userProfileUpdateRequest.dob,
+                                nickname: controller.userData.first
                                         .nickname.isNotEmpty
                                     ? controller
-                                        .userProfileUpdateRequest.nickname
-                                    : controller.userData.first.nickname,
-                                gender: controller.userProfileUpdateRequest
+                                        .userData.first.nickname
+                                    : controller.userProfileUpdateRequest.nickname,
+                                gender: controller.userData.first
                                         .gender.isNotEmpty
-                                    ? controller.userProfileUpdateRequest.gender
-                                    : controller.userData.first.gender,
-                                subGender: controller.userProfileUpdateRequest
+                                    ? controller.userData.first.gender
+                                    : controller.userProfileUpdateRequest.gender,
+                                subGender: controller.userData.first
                                         .subGender.isNotEmpty
                                     ? controller
-                                        .userProfileUpdateRequest.subGender
-                                    : controller.userData.first.subGender,
+                                        .userData.first.subGender
+                                    : controller.userProfileUpdateRequest.subGender,
                                 lang: controller.userProfileUpdateRequest.lang,
-                                interest: controller.userProfileUpdateRequest
+                                interest: controller.userData.first
                                         .interest.isNotEmpty
                                     ? controller
-                                        .userProfileUpdateRequest.interest
-                                    : controller.userData.first.interest,
+                                        .userData.first.interest
+                                    : controller.userProfileUpdateRequest.interest,
                                 bio: controller
-                                        .userProfileUpdateRequest.bio.isNotEmpty
-                                    ? controller.userProfileUpdateRequest.bio
-                                    : controller.userData.first.bio,
+                                        .userData.first.bio.isNotEmpty
+                                    ? controller.userData.first.bio
+                                    : controller.userProfileUpdateRequest.bio,
                                 visibility: controller
                                     .userProfileUpdateRequest.visibility,
-                                emailAlerts: controller.userProfileUpdateRequest
+                                emailAlerts: controller.userData.first
                                         .emailAlerts.isNotEmpty
                                     ? controller
-                                        .userProfileUpdateRequest.emailAlerts
-                                    : controller.userData.first.emailAlerts,
+                                        .userData.first.emailAlerts
+                                    : controller.userProfileUpdateRequest.emailAlerts,
                                 preferences: controller
                                     .userProfileUpdateRequest.preferences,
-                                desires: controller.userProfileUpdateRequest
-                                        .desires.isNotEmpty
-                                    ? controller
-                                        .userProfileUpdateRequest.desires
-                                    : controller.userDesire,
+                                desires: controller.userProfileUpdateRequest.desires,
                               );
 
                               List<int> selectedPreferences = [];

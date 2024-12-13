@@ -16,7 +16,6 @@ class PasswordInputPageState extends State<PasswordInputPage> {
   final formKey = GlobalKey<FormState>();
   Controller controller = Get.find();
 
-
   @override
   void initState() {
     super.initState();
@@ -42,6 +41,12 @@ class PasswordInputPageState extends State<PasswordInputPage> {
     if (value.length < 8) {
       return 'Password must be at least 8 characters';
     }
+    final hasDigit = RegExp(r'[0-9]').hasMatch(value);
+    final hasSpecialChar = RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value);
+    if (!hasDigit || !hasSpecialChar) {
+      failure("Password",
+          "Password must contain at least one digit and one special character.");
+    }
     return null;
   }
 
@@ -66,7 +71,8 @@ class PasswordInputPageState extends State<PasswordInputPage> {
         backgroundColor: AppColors.primaryColor,
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1, vertical: 30),
+        padding:
+            EdgeInsets.symmetric(horizontal: screenWidth * 0.1, vertical: 30),
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -82,11 +88,13 @@ class PasswordInputPageState extends State<PasswordInputPage> {
                   children: [
                     TextFormField(
                       cursorColor: AppColors.cursorColor,
-                      style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
+                      style: AppTextStyles.inputFieldText
+                          .copyWith(fontSize: fontSize),
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        labelStyle: AppTextStyles.bodyText.copyWith(fontSize: fontSize),
+                        labelStyle:
+                            AppTextStyles.bodyText.copyWith(fontSize: fontSize),
                         filled: true,
                         fillColor: AppColors.formFieldColor,
                         border: OutlineInputBorder(
@@ -99,7 +107,8 @@ class PasswordInputPageState extends State<PasswordInputPage> {
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: AppColors.errorBorderColor),
+                          borderSide:
+                              BorderSide(color: AppColors.errorBorderColor),
                         ),
                       ),
                       validator: validatePassword,
@@ -110,11 +119,13 @@ class PasswordInputPageState extends State<PasswordInputPage> {
                     SizedBox(height: 20),
                     TextFormField(
                       cursorColor: AppColors.cursorColor,
-                      style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
+                      style: AppTextStyles.inputFieldText
+                          .copyWith(fontSize: fontSize),
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: 'Confirm Password',
-                        labelStyle: AppTextStyles.bodyText.copyWith(fontSize: fontSize),
+                        labelStyle:
+                            AppTextStyles.bodyText.copyWith(fontSize: fontSize),
                         filled: true,
                         fillColor: AppColors.formFieldColor,
                         border: OutlineInputBorder(
@@ -127,7 +138,8 @@ class PasswordInputPageState extends State<PasswordInputPage> {
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: AppColors.errorBorderColor),
+                          borderSide:
+                              BorderSide(color: AppColors.errorBorderColor),
                         ),
                       ),
                       validator: validateConfirmPassword,
@@ -139,23 +151,27 @@ class PasswordInputPageState extends State<PasswordInputPage> {
                     ),
                     SizedBox(height: 20),
                     ElevatedButton(
-                      onPressed: () async{
+                      onPressed: () async {
                         if (formKey.currentState?.validate() ?? false) {
                           formKey.currentState?.save();
-                          await controller.getOtpForgetPassword(controller.forgetPasswordRequest);
-                          Get.to(OTPInputPage()); 
+                          await controller.getOtpForgetPassword(
+                              controller.forgetPasswordRequest);
+                          Get.to(OTPInputPage());
                         } else {
                           failure('password', '');
                         }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.buttonColor,
-                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                        padding:
+                            EdgeInsets.symmetric(vertical: 15, horizontal: 50),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: Text('Submit', style: AppTextStyles.buttonText.copyWith(fontSize: fontSize)),
+                      child: Text('Submit',
+                          style: AppTextStyles.buttonText
+                              .copyWith(fontSize: fontSize)),
                     ),
                   ],
                 ),
@@ -167,4 +183,3 @@ class PasswordInputPageState extends State<PasswordInputPage> {
     );
   }
 }
-

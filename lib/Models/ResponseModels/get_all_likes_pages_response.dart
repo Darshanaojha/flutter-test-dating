@@ -1,19 +1,16 @@
-
-
-class GetFavouritesResponse {
+class GetAllLikesResponse {
   bool success;
   Payload payload;
   Error error;
 
-  GetFavouritesResponse({
+  GetAllLikesResponse({
     required this.success,
     required this.payload,
     required this.error,
   });
 
-
-  factory GetFavouritesResponse.fromJson(Map<String, dynamic> json) {
-    return GetFavouritesResponse(
+  factory GetAllLikesResponse.fromJson(Map<String, dynamic> json) {
+    return GetAllLikesResponse(
       success: json['success'],
       payload: Payload.fromJson(json['payload']),
       error: Error.fromJson(json['error']),
@@ -31,7 +28,7 @@ class GetFavouritesResponse {
 
 class Payload {
   String message;
-  List<Favourite> data;
+  List<LikeRequestPages> data;
 
   Payload({
     required this.message,
@@ -40,75 +37,68 @@ class Payload {
 
   factory Payload.fromJson(Map<String, dynamic> json) {
     var list = json['data'] as List;
-    List<Favourite> favouritesList =
-        list.map((item) => Favourite.fromJson(item)).toList();
+    List<LikeRequestPages> dataList = list.map((i) => LikeRequestPages.fromJson(i)).toList();
 
     return Payload(
       message: json['message'],
-      data: favouritesList,
+      data: dataList,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'message': message,
-      'data': data.map((favourite) => favourite.toJson()).toList(),
+      'data': data.map((i) => i.toJson()).toList(),
     };
   }
 }
 
-class Favourite {
+class LikeRequestPages {
   String id;
   String userId;
-  String favouriteId;
+  String conectionId;
+  String type;
   String status;
   String created;
   String updated;
-  String dob;
   String name;
-  String username;
-  String img1;
-  String img2;
-  String img3;
-  String img4;
-  String img5;
-  String img6;
+  String nickname;
+  String email;
+  String profileImage;
+  List<String> images;
 
-  Favourite({
+  LikeRequestPages({
     required this.id,
     required this.userId,
-    required this.favouriteId,
+    required this.conectionId,
+    required this.type,
     required this.status,
     required this.created,
     required this.updated,
-    required this.dob,
     required this.name,
-    required this.username,
-    required this.img1,
-    required this.img2,
-    required this.img3,
-    required this.img4,
-    required this.img5,
-    required this.img6,
+    required this.nickname,
+    required this.email,
+    required this.profileImage,
+    required this.images,
   });
 
-  factory Favourite.fromJson(Map<String, dynamic> json) {
-    return Favourite(
+  factory LikeRequestPages.fromJson(Map<String, dynamic> json) {
+    var list = json['images'] as List;
+    List<String> imagesList = List<String>.from(list);
+
+    return LikeRequestPages(
       id: json['id'],
       userId: json['user_id'],
-      favouriteId: json['favourite_id'],
+      conectionId: json['conection_id'],
+      type: json['type'],
       status: json['status'],
       created: json['created'],
       updated: json['updated'],
-      dob: json['dob'],
       name: json['name'],
-      username: json['username'],
-      img1: json['img1'],
-      img2: json['img2'],
-      img3: json['img3'],
-      img4: json['img4'],
-      img5: json['img5'],
-      img6: json['img6'],
+      nickname: json['nickname'],
+      email: json['email'],
+      profileImage: json['profile_image'],
+      images: imagesList,
     );
   }
 
@@ -116,19 +106,16 @@ class Favourite {
     return {
       'id': id,
       'user_id': userId,
-      'favourite_id': favouriteId,
+      'conection_id': conectionId,
+      'type': type,
       'status': status,
       'created': created,
       'updated': updated,
-      'dob': dob,
       'name': name,
-      'username': username,
-      'img1': img1,
-      'img2': img2,
-      'img3': img3,
-      'img4': img4,
-      'img5': img5,
-      'img6': img6,
+      'nickname': nickname,
+      'email': email,
+      'profile_image': profileImage,
+      'images': images,
     };
   }
 }

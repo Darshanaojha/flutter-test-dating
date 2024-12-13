@@ -51,7 +51,7 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<bool> initializeApp() async {
-    if (!await controller.userSuggestions()) return false;
+    if (await controller.userSuggestions()) return false;
 
     if (controller.userSuggestionsList.isEmpty) {
       print("No user suggestions found.");
@@ -62,10 +62,9 @@ class HomePageState extends State<HomePage> {
       swipeItems.add(SwipeItem(
         content: controller.userSuggestionsList[i].userId,
         likeAction: () {
-          // Ensure likeModel is properly initialized
-          controller.likeModel.likedBy =
-              controller.userSuggestionsList[i].userId;
-          controller.postLike(controller.likeModel);
+          controller.profileLikeRequest.likedBy =
+              controller.userSuggestionsList[i].userId.toString();
+          controller.profileLike(controller.profileLikeRequest);
           success('Hey Boy', "Liked ${controller.userSuggestionsList[i].name}");
         },
         nopeAction: () {
@@ -83,13 +82,36 @@ class HomePageState extends State<HomePage> {
         },
       ));
     }
-
     matchEngine = MatchEngine(swipeItems: swipeItems);
     if (matchEngine.currentItem != null) {
       matchEngine.currentItem?.nope();
+    } else {
+      print('No current item to "nope"');
     }
 
     return true;
+  }
+
+  String cleanDateString(String? date) {
+    return date?.trim() ?? '';
+  }
+
+  String calculateAge(String dob) {
+    try {
+      DateTime birthDate = DateFormat('dd/MM/yyyy').parse(dob);
+
+      int age = DateTime.now().year - birthDate.year;
+      if (DateTime.now().month < birthDate.month ||
+          (DateTime.now().month == birthDate.month &&
+              DateTime.now().day < birthDate.day)) {
+        age--;
+      }
+
+      return '$age Years Old';
+    } catch (e) {
+      print('Error parsing date: $e');
+      return 'Invalid Date';
+    }
   }
 
   @override
@@ -257,7 +279,7 @@ class HomePageState extends State<HomePage> {
                     messageController.clear();
                     Get.back();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Message sent!')),
+                      SnackBar(content: Text('Message sent')),
                     );
                   }
                 },
@@ -432,24 +454,30 @@ class HomePageState extends State<HomePage> {
                       child: SizedBox(
                         height: size.height * 0.7 -
                             MediaQuery.of(context).viewInsets.bottom,
-                        child: SwipeCards(
-                          matchEngine: matchEngine,
-                          itemBuilder: (BuildContext context, int index) {
-                            var user = controller.userSuggestionsList[index];
-
-                            String filterType = selectedFilter.value;
-                            return buildFilteredCard(context, user, size,
-                                fontSize, bodyFontSize, filterType);
-                          },
-                          onStackFinished: () {
-                            failure('Finished', "Stack Finished");
-                          },
-                          itemChanged: (SwipeItem item, int index) {
-                            print("Item: ${item.content}, Index: $index");
-                          },
-                          upSwipeAllowed: true,
-                          fillSpace: true,
-                        ),
+                        child: controller.userSuggestionsList.isEmpty
+                            ? Center(child: Text('No Suggestions Available'))
+                            : SwipeCards(
+                                matchEngine: matchEngine,
+                                itemBuilder: (BuildContext context, int index) {
+                                  var user =
+                                      controller.userSuggestionsList[index];
+                                  return buildFilteredCard(
+                                      context,
+                                      user,
+                                      size,
+                                      fontSize,
+                                      bodyFontSize,
+                                      selectedFilter.value);
+                                },
+                                onStackFinished: () {
+                                  failure('Finished', "Stack Finished");
+                                },
+                                itemChanged: (SwipeItem item, int index) {
+                                  print("Item: ${item.content}, Index: $index");
+                                },
+                                upSwipeAllowed: true,
+                                fillSpace: true,
+                              ),
                       ),
                     ),
                   ],
@@ -473,7 +501,7 @@ class HomePageState extends State<HomePage> {
       } else if (filter == 'Highlighted') {
         controller.userSuggestionsList.addAll(controller.userHighlightedList);
       } else if (filter == 'Favorites') {
-        // controller.userSuggestionsList.addAll(controller.favourite);
+        //  controller.userSuggestionsList.addAll(controller.favourite );
       }
     });
   }
@@ -485,6 +513,7 @@ class HomePageState extends State<HomePage> {
     switch (filterType) {
       case "All":
         additionalInfo = 'All';
+        break;
       case 'Nearby':
         additionalInfo = 'Nearby';
         break;
@@ -650,7 +679,7 @@ class HomePageState extends State<HomePage> {
               IconButton(
                 onPressed: () {
                   setState(() {
-                    isLiked = !isLiked;
+                    isLiked = isLiked;
                   });
                 },
                 icon: Icon(
@@ -662,7 +691,7 @@ class HomePageState extends State<HomePage> {
               IconButton(
                 onPressed: () {
                   setState(() {
-                    isShare = !isShare;
+                    isShare = isShare;
                   });
                 },
                 icon: Icon(
@@ -685,7 +714,8 @@ class HomePageState extends State<HomePage> {
           Row(
             children: [
               Text(
-                '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userData.first.dob).year} Years Old || ',
+                // '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userData.first.dob).year} Years Old || ',
+                calculateAge(controller.userData?.first?.dob ?? 'Unknown Date'),
                 style: TextStyle(fontSize: bodyFontSize),
               ),
               Text(
@@ -830,7 +860,7 @@ class HomePageState extends State<HomePage> {
               IconButton(
                 onPressed: () {
                   setState(() {
-                    isLiked = !isLiked;
+                    isLiked = isLiked;
                   });
                 },
                 icon: Icon(
@@ -842,7 +872,7 @@ class HomePageState extends State<HomePage> {
               IconButton(
                 onPressed: () {
                   setState(() {
-                    isShare = !isShare;
+                    isShare = isShare;
                   });
                 },
                 icon: Icon(
@@ -865,7 +895,8 @@ class HomePageState extends State<HomePage> {
           Row(
             children: [
               Text(
-                '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userNearByList.first.dob.toString()).year} Years Old || ',
+                // '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userNearByList.first.dob.toString()).year} Years Old || ',
+                calculateAge(controller.userData?.first?.dob ?? 'Unknown Date'),
                 style: TextStyle(fontSize: bodyFontSize),
               ),
               Text(
@@ -1010,7 +1041,7 @@ class HomePageState extends State<HomePage> {
               IconButton(
                 onPressed: () {
                   setState(() {
-                    isLiked = !isLiked;
+                    isLiked = isLiked;
                   });
                 },
                 icon: Icon(
@@ -1022,7 +1053,7 @@ class HomePageState extends State<HomePage> {
               IconButton(
                 onPressed: () {
                   setState(() {
-                    isShare = !isShare;
+                    isShare = isShare;
                   });
                 },
                 icon: Icon(
@@ -1045,7 +1076,8 @@ class HomePageState extends State<HomePage> {
           Row(
             children: [
               Text(
-                '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userHighlightedList.first.dob.toString()).year} Years Old || ',
+                // '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userHighlightedList.first.dob.toString()).year} Years Old || ',
+                calculateAge(controller.userData?.first?.dob ?? 'Unknown Date'),
                 style: TextStyle(fontSize: bodyFontSize),
               ),
               Text(
