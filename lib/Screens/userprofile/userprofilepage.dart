@@ -1,5 +1,4 @@
 import 'package:dating_application/Screens/settings/appinfopages/faqpage.dart';
-import 'package:dating_application/Screens/shareprofilepage/shareprofilepage.dart';
 import 'package:dating_application/Screens/userprofile/accountverification/useraccountverification.dart';
 import 'package:dating_application/Screens/userprofile/addpartner/addpartnerpage.dart';
 import 'package:dating_application/constants.dart';
@@ -8,7 +7,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
-
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/usernameupdate_request_model.dart';
 import '../settings/appinfopages/appinfopagestart.dart';
@@ -442,17 +440,17 @@ class UserProfilePageState extends State<UserProfilePage> {
                       //   ),
                       // ),
                       Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(12.0),
                         child: Column(
                           children: [
-                            SettingCard(
-                              title: 'My Constellation',
-                              subtitle: 'Add partners to your constellation',
-                              icon: Icons.arrow_forward,
-                              onTap: () {
-                                Get.to(AddPartnerPage());
-                              },
-                            ),
+                            // SettingCard(
+                            //   title: 'My Constellation',
+                            //   subtitle: 'Add partners to your constellation',
+                            //   icon: Icons.arrow_forward,
+                            //   onTap: () {
+                            //     Get.to(AddPartnerPage());
+                            //   },
+                            // ),
                             SettingCard(
                               title: 'Edit Profile',
                               subtitle: 'Edit your profile details',

@@ -90,88 +90,127 @@ class NavigationBottomBar extends StatelessWidget {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(60),
-        child: AppBar(
-          elevation: 5,
-          title: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'FlamR',
-                style: AppTextStyles.headingText.copyWith(
-                  fontSize: getResponsiveFontSize(context, 0.08),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppColors.navigationright,
+                AppColors.navigationColorleft,
+              ],
+              stops: [0.0, 1.0],
+            ),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30), // Optional: Rounded top-left corner
+              topRight:
+                  Radius.circular(30), // Optional: Rounded top-right corner
+            ),
+          ),
+          child: AppBar(
+            elevation: 5,
+            title: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'FlamR',
+                  style: AppTextStyles.headingText.copyWith(
+                    fontSize: getResponsiveFontSize(context, 0.08),
+                  ),
                 ),
               ),
             ),
-          ),
-          backgroundColor: AppColors.navigationColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(30),
-              bottomRight: Radius.circular(30),
+            // backgroundColor: AppColors.navigationColor,
+            backgroundColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+              ),
             ),
-          ),
-          leading: IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SettingsPage()),
-              );
-            },
-          ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.exit_to_app),
+            leading: IconButton(
+              icon: Icon(Icons.settings),
               onPressed: () {
-                showLogoutDialog(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage()),
+                );
               },
             ),
-          ],
+            actions: [
+              IconButton(
+                icon: Icon(Icons.exit_to_app),
+                onPressed: () {
+                  showLogoutDialog(context);
+                },
+              ),
+            ],
+          ),
         ),
       ),
       body: Obx(() {
         return controller.screens[controller.selectedIndex.value];
       }),
       bottomNavigationBar: Obx(() {
-        return CurvedNavigationBar(
-          index: controller.selectedIndex.value,
-          onTap: (index) {
-            controller.navigateTo(index);
-          },
-          backgroundColor: AppColors.primaryColor,
-          color: AppColors.navigationColor,
-          height: 60,
-          animationDuration: Duration(milliseconds: 300),
-          items: <Widget>[
-            Icon(
-              Icons.home,
-              size: 30,
-              color: controller.selectedIndex.value == 0
-                  ? AppColors.primaryColor
-                  : AppColors.textColor,
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppColors.navigationright,
+                AppColors.navigationColorleft,
+              ],
+              stops: [0.0, 1.0],
             ),
-            Icon(
-              Icons.favorite,
-              size: 30,
-              color: controller.selectedIndex.value == 1
-                  ? AppColors.primaryColor
-                  : AppColors.textColor,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30), // Optional: Rounded top-left corner
+              topRight:
+                  Radius.circular(30), // Optional: Rounded top-right corner
             ),
-            Icon(
-              Icons.messenger,
-              size: 30,
-              color: controller.selectedIndex.value == 2
-                  ? AppColors.primaryColor
-                  : AppColors.textColor,
-            ),
-            Icon(
-              Icons.account_circle,
-              size: 30,
-              color: controller.selectedIndex.value == 3
-                  ? AppColors.primaryColor
-                  : AppColors.textColor,
-            ),
-          ],
+          ),
+          child: CurvedNavigationBar(
+            index: controller.selectedIndex.value,
+            onTap: (index) {
+              controller.navigateTo(index);
+            },
+            // backgroundColor:AppColors.primaryColor,
+            // color: AppColors.navigationColor,
+            backgroundColor: Colors.transparent,
+            color: AppColors.navigationColor,
+            height: 60,
+            animationDuration: Duration(milliseconds: 300),
+            items: <Widget>[
+              Icon(
+                Icons.home,
+                size: 30,
+                color: controller.selectedIndex.value == 0
+                    ? AppColors.primaryColor
+                    : AppColors.textColor,
+              ),
+              Icon(
+                Icons.favorite,
+                size: 30,
+                color: controller.selectedIndex.value == 1
+                    ? AppColors.primaryColor
+                    : AppColors.textColor,
+              ),
+              Icon(
+                Icons.messenger,
+                size: 30,
+                color: controller.selectedIndex.value == 2
+                    ? AppColors.primaryColor
+                    : AppColors.textColor,
+              ),
+              Icon(
+                Icons.account_circle,
+                size: 30,
+                color: controller.selectedIndex.value == 3
+                    ? AppColors.primaryColor
+                    : AppColors.textColor,
+              ),
+            ],
+          ),
         );
       }),
     );
