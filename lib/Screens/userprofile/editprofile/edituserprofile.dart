@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_country_response_model.dart';
-import 'package:dating_application/Screens/userprofile/userprofilepage.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';

@@ -1,5 +1,4 @@
 
-
 class GetFavouritesResponse {
   bool success;
   Payload payload;
@@ -10,7 +9,6 @@ class GetFavouritesResponse {
     required this.payload,
     required this.error,
   });
-
 
   factory GetFavouritesResponse.fromJson(Map<String, dynamic> json) {
     return GetFavouritesResponse(
@@ -67,12 +65,8 @@ class Favourite {
   String dob;
   String name;
   String username;
-  String img1;
-  String img2;
-  String img3;
-  String img4;
-  String img5;
-  String img6;
+  String city;
+  List<String> images;  
 
   Favourite({
     required this.id,
@@ -84,15 +78,20 @@ class Favourite {
     required this.dob,
     required this.name,
     required this.username,
-    required this.img1,
-    required this.img2,
-    required this.img3,
-    required this.img4,
-    required this.img5,
-    required this.img6,
+    required this.city,
+    required this.images,  
   });
 
   factory Favourite.fromJson(Map<String, dynamic> json) {
+    List<String> images = [
+      json['img1'] as String? ?? '',
+      json['img2'] as String? ?? '',
+      json['img3'] as String? ?? '',
+      json['img4'] as String? ?? '',
+      json['img5'] as String? ?? '',
+      json['img6'] as String? ?? '',
+    ].where((img) => img.isNotEmpty).toList();  
+
     return Favourite(
       id: json['id'],
       userId: json['user_id'],
@@ -103,12 +102,8 @@ class Favourite {
       dob: json['dob'],
       name: json['name'],
       username: json['username'],
-      img1: json['img1'],
-      img2: json['img2'],
-      img3: json['img3'],
-      img4: json['img4'],
-      img5: json['img5'],
-      img6: json['img6'],
+      city : json['city'],
+      images: images,  // Add images list to the object
     );
   }
 
@@ -123,12 +118,7 @@ class Favourite {
       'dob': dob,
       'name': name,
       'username': username,
-      'img1': img1,
-      'img2': img2,
-      'img3': img3,
-      'img4': img4,
-      'img5': img5,
-      'img6': img6,
+      'city':city,
     };
   }
 }

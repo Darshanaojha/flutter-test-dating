@@ -1121,7 +1121,6 @@ class Controller extends GetxController {
   RxList<SuggestedUser> userSuggestionsList = <SuggestedUser>[].obs;
   RxList<SuggestedUser> userHighlightedList = <SuggestedUser>[].obs;
   RxList<SuggestedUser> userNearByList = <SuggestedUser>[].obs;
-
   Future<bool> userSuggestions() async {
     try {
       userSuggestionsList.clear();
@@ -1134,26 +1133,43 @@ class Controller extends GetxController {
 
         if (response.payload!.desireBase != null &&
             response.payload!.desireBase!.isNotEmpty) {
+          print('desire base : ${response.payload!.desireBase!.length}');
           userSuggestionsList.addAll(response.payload!.desireBase!);
+          print(userSuggestionsList.length);
         }
 
         if (response.payload!.locationBase != null &&
             response.payload!.locationBase!.isNotEmpty) {
+          print('location base : ${response.payload!.locationBase!.length}');
+
           userNearByList.addAll(response.payload!.locationBase!);
+          print(userNearByList.length);
         }
 
         if (response.payload!.preferenceBase != null &&
             response.payload!.preferenceBase!.isNotEmpty) {
+          print(
+              'preference base : ${response.payload!.preferenceBase!.length}');
+
           userSuggestionsList.addAll(response.payload!.preferenceBase!);
+          print(userSuggestionsList.length);
         }
 
         if (response.payload!.languageBase != null &&
             response.payload!.languageBase!.isNotEmpty) {
+          print('language base : ${response.payload!.languageBase!.length}');
+
           userSuggestionsList.addAll(response.payload!.languageBase!);
+                    print(userSuggestionsList.length);
+
         }
         if (response.payload!.highlightedAccount != null &&
             response.payload!.highlightedAccount!.isNotEmpty) {
+          print(
+              'highlighted base : ${response.payload!.highlightedAccount!.length}');
+
           userHighlightedList.addAll(response.payload!.highlightedAccount!);
+          print(userHighlightedList.length);
         }
 
         return true;
@@ -1439,7 +1455,6 @@ class Controller extends GetxController {
       return false;
     }
   }
- 
 
   RequestToVerifyAccount requestToVerifyAccount =
       RequestToVerifyAccount(identifyImage: '', identifyNo: '');
