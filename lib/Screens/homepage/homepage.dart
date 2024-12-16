@@ -36,6 +36,7 @@ class HomePageState extends State<HomePage> {
   int yourfavirout = 10;
   bool isLoading = false;
   int messageCount = 0;
+  int MessageType = 1;
   final TextEditingController messageController = TextEditingController();
   final FocusNode messageFocusNode = FocusNode();
   final PageController _imagePageController = PageController();
@@ -143,7 +144,7 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  void showmessageBottomSheet() {
+  void showmessageBottomSheet(String userid) {
     Get.bottomSheet(
       Padding(
         padding: const EdgeInsets.all(16.0),
@@ -154,7 +155,6 @@ class HomePageState extends State<HomePage> {
               Text('Send a Message', style: AppTextStyles.inputFieldText),
               SizedBox(height: 20),
               TextField(
-                controller: messageController,
                 cursorColor: AppColors.cursorColor,
                 focusNode: messageFocusNode,
                 decoration: InputDecoration(
@@ -173,17 +173,20 @@ class HomePageState extends State<HomePage> {
                   filled: true,
                   hintText: 'Type your message here...',
                 ),
+                onChanged: (value){
+                  controller.establishConnectionMessageRequest.message=value;
+                  controller.establishConnectionMessageRequest.messagetype=MessageType.toString();
+                },
                 maxLines: 3,
               ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  if (messageController.text.isNotEmpty) {
+                  if (controller.establishConnectionMessageRequest.message.isEmpty) {
                     setState(() {
                       messageCount--;
                     });
-                    messageController.clear();
-                    Get.back();
+                    controller.sendConnectionMessage(controller.establishConnectionMessageRequest);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Message sent')),
                     );
@@ -544,7 +547,9 @@ class HomePageState extends State<HomePage> {
                       ),
                     ),
                     IconButton(
-                      onPressed: showmessageBottomSheet,
+                      onPressed: (){
+                        showmessageBottomSheet(user.id.toString());
+                      },
                       icon: Icon(Icons.messenger_outline, size: 40),
                     ),
                   ],
