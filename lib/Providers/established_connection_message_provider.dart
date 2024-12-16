@@ -3,13 +3,12 @@ import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 import '../Models/ResponseModels/establish_connection_response_model.dart';
 import '../constants.dart';
-
 class EstablishConnectionProvider extends GetConnect {
   Future<EstablishConnectionResponse?> sendConnectionMessage(
-      EstablishConnectionMessageRequest request) async {
+      EstablishConnectionMessageRequest establishConnectionMessageRequest) async {
     try {
       EncryptedSharedPreferences preferences =
-          EncryptedSharedPreferences.getInstance();
+          await EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
@@ -17,28 +16,39 @@ class EstablishConnectionProvider extends GetConnect {
         return null;
       }
 
+      Get.snackbar('Request', establishConnectionMessageRequest.toJson().toString());
+
       Response response = await post(
         '$baseurl/Chats/establish_connection',
-        request.toJson(),
+        establishConnectionMessageRequest.toJson(),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
         },
       );
+      Get.snackbar('Response', response.body.toString());
 
       if (response.statusCode == 200) {
-        if (response.body['error']['code'] == 0) {
-          return EstablishConnectionResponse.fromJson(response.body);
+        if (response.body['error'] != null) {
+          final errorCode = response.body['error']['code'];
+          final errorMessage = response.body['error']['message'];
+          print(errorMessage.toString());
+          if (errorCode == 0) {
+            return EstablishConnectionResponse.fromJson(response.body);
+          } else {
+            failure('Error', errorMessage);
+            return null;
+          }
         } else {
-          failure('Error', response.body['error']['message']);
-          return null;
+          return EstablishConnectionResponse.fromJson(response.body);
         }
       } else {
-        failure('Error', response.body.toString());
+        failure('Error', 'Unexpected error: ${response.body['error']['message']}');
         return null;
       }
     } catch (e) {
       failure('Error', e.toString());
+      print('Exception occurred: $e');
       return null;
     }
   }

@@ -1,14 +1,12 @@
 import 'package:encrypt_shared_preferences/provider.dart';
-import 'package:get/get_connect.dart';
+import 'package:get/get.dart';
 
-import '../Models/ResponseModels/user_suggestions_response_model.dart';
+import '../Models/ResponseModels/get_all_chat_history_page.dart';
 import '../constants.dart';
-
-class UserSuggestionsProvider extends GetConnect {
-  Future<UserSuggestionsResponseModel?> userSuggestions() async {
+class FetchAllChatHistoryPage extends GetConnect {
+  Future<GetAllChatHistoryPageResponse?> fetchallchathistorypage() async {
     try {
-      EncryptedSharedPreferences preferences =
-          EncryptedSharedPreferences.getInstance();
+      EncryptedSharedPreferences preferences = await EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
@@ -17,16 +15,17 @@ class UserSuggestionsProvider extends GetConnect {
       }
 
       Response response = await post(
-        '$baseurl/Chats/user_suggestions',
+        '$baseurl/Profile/connected_user',
         null,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
         },
       );
-      if (response.statusCode == 200 && response.body != null) {
+
+      if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
-        return UserSuggestionsResponseModel.fromJson(response.body);
+          return GetAllChatHistoryPageResponse.fromJson(response.body);
         } else {
           failure('Error', response.body['error']['message']);
           return null;
