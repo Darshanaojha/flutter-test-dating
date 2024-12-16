@@ -1,12 +1,12 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import '../../Models/ResponseModels/chat_history_response_model.dart';
+import '../../Models/ResponseModels/get_all_chat_history_page.dart';
 import '../../constants.dart';
 import '../chatpage/userchatpage.dart';
 import 'package:timeago/timeago.dart' as timeago;
-
 class ChatHistoryPage extends StatefulWidget {
   const ChatHistoryPage({super.key});
 
@@ -15,72 +15,39 @@ class ChatHistoryPage extends StatefulWidget {
 }
 
 class ChatHistoryPageState extends State<ChatHistoryPage> {
-  // final List<Map<String, dynamic>> chatUsers = [
-  //   {
-  //     'name': 'John Doe',
-  //     'age': 25,
-  //     'gender': 'Male',
-  //     'imageUrl': 'https://www.example.com/profile1.jpg',
-  //     'isOnline': true,
-  //     'lastMessageTime': DateTime.now().subtract(Duration(minutes: 10)),
-  //   },
-  //   {
-  //     'name': 'Jane Smith',
-  //     'age': 28,
-  //     'gender': 'Female',
-  //     'imageUrl': 'https://www.example.com/profile2.jpg',
-  //     'isOnline': false,
-  //     'lastMessageTime': null, // This is the problematic null value
-  //   },
-  //   {
-  //     'name': 'Alex Johnson',
-  //     'age': 22,
-  //     'gender': 'Non-binary',
-  //     'imageUrl': 'https://www.example.com/profile3.jpg',
-  //     'isOnline': true,
-  //     'lastMessageTime': DateTime.now().subtract(Duration(days: 1)),
-  //   },
-  // ];
-
-  final List<Message> chatUser = [];
   Controller controller = Get.put(Controller());
-
   String searchQuery = '';
   bool isLoading = true;
 
-  // Function to filter the chat users based on the search query
-  List<Message> getFilteredChatUsers() {
-    return controller.messages
-        .where((user) =>
-            user.id.toLowerCase().contains(searchQuery.toLowerCase()))
+  List<ChatHistoryItem> getFilteredChatUsers() {
+    return controller.chatHistoryItem
+        .where((user) => user.username.toLowerCase().contains(searchQuery.toLowerCase()))
         .toList();
   }
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 2), () {
-      setState(() {
-        isLoading = false;
-      });
-    });
-
     fetchChatUser();
   }
 
   fetchChatUser() async {
+    setState(() {
+      isLoading = true;
+    });
     await controller.chatHistory();
+    setState(() {
+      isLoading = false;
+    });
   }
 
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
-    return screenWidth * scale; // Adjust this scale for different text elements
+    return screenWidth * scale;
   }
 
   @override
   Widget build(BuildContext context) {
-   // final mQuery = MediaQuery.of(context).size;
-
     return Scaffold(
       backgroundColor: AppColors.secondaryColor,
       body: Stack(
@@ -100,8 +67,7 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                   },
                   decoration: InputDecoration(
                     hintText: 'Search Chat Users...',
-                    hintStyle:
-                        AppTextStyles.customTextStyle(color: Colors.grey),
+                    hintStyle: AppTextStyles.customTextStyle(color: Colors.grey),
                     prefixIcon: Icon(Icons.search, color: AppColors.iconColor),
                     filled: true,
                     fillColor: AppColors.formFieldColor,
@@ -112,13 +78,14 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                   ),
                 ),
                 SizedBox(height: 20),
-                // Online status indicator
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Chatting Members',
-                        style: AppTextStyles.bodyText
-                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
+                    Text(
+                      'Chatting Members',
+                      style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                    ),
                     Row(
                       children: [
                         Icon(
@@ -129,18 +96,18 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                         SizedBox(width: 8),
                         Text(
                           '${getFilteredChatUsers().length} members',
-                          style:
-                              AppTextStyles.customTextStyle(color: Colors.grey),
+                          style: AppTextStyles.customTextStyle(color: Colors.grey),
                         ),
                       ],
                     ),
                   ],
                 ),
                 SizedBox(height: 20),
+
+                // Displaying the list of chat users
                 Expanded(
                   child: Obx(() {
-                    final chatMessages =
-                        controller.messages; 
+                    final chatMessages = controller.chatHistoryItem;
 
                     if (chatMessages.isEmpty) {
                       return Center(
@@ -152,26 +119,23 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                     }
 
                     return ListView.builder(
-                      itemCount: chatMessages.length,
+                      itemCount: getFilteredChatUsers().length, // Use filtered list
                       itemBuilder: (context, index) {
-                        final message = chatMessages[index];
-
-                        // Handle null lastMessageTime
+                        final message = getFilteredChatUsers()[index];
                         final lastMessageTime = message.created;
-                        String timeAgoText = lastMessageTime.isNotEmpty
+                        String timeAgoText = (lastMessageTime.isNotEmpty)
                             ? timeago.format(DateTime.parse(lastMessageTime))
                             : 'No messages yet';
 
                         return GestureDetector(
                           onTap: () {
-                            // Navigate to ChatPage when tapping anywhere in the row
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ChatPage(
                                   user: {
-                                    'id': message.id,
-                                    'userName': message.id,
+                                    'id': message.id, // Use correct ID
+                                    'userName': message.username,
                                   },
                                 ),
                               ),
@@ -186,32 +150,25 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) =>
-                                            FullScreenImagePage(
-                                          imageUrl: 'assets/images/image.png',
+                                        builder: (context) => FullScreenImagePage(
+                                          imageUrl: message.profileImage,
                                         ),
                                       ),
                                     );
                                   },
                                   child: Hero(
-                                    tag: 'assets/images/image.png',
+                                    tag: message.profileImage,
                                     child: Container(
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        border: true
-                                            ? Border.all(
-                                                color: Colors.green,
-                                                width: 3.0,
-                                              )
-                                           
-                                            : null ,
+                                        border: Border.all(
+                                          color: Colors.green,
+                                          width: 3.0,
+                                        ),
                                       ),
                                       child: CircleAvatar(
-                                        radius:
-                                            MediaQuery.of(context).size.width *
-                                                0.08,
-                                        backgroundImage: AssetImage(
-                                            'assets/images/image.png'),
+                                        radius: MediaQuery.of(context).size.width * 0.08,
+                                        backgroundImage: CachedNetworkImageProvider(message.profileImage),
                                       ),
                                     ),
                                   ),
@@ -221,15 +178,12 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          message.id,
-                                          style:
-                                              AppTextStyles.bodyText.copyWith(
-                                            fontSize:
-                                                getResponsiveFontSize(0.04),
+                                          message.username,
+                                          style: AppTextStyles.bodyText.copyWith(
+                                            fontSize: getResponsiveFontSize(0.04),
                                           ),
                                         ),
                                       ],
@@ -254,6 +208,7 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
               ],
             ),
           ),
+
           if (isLoading)
             Center(
               child: SpinKitCircle(
@@ -281,8 +236,7 @@ class FullScreenImagePage extends StatelessWidget {
           tag: imageUrl,
           child: GestureDetector(
             onTap: () {
-              Navigator.pop(
-                  context); // Close the full-screen image view when tapped
+              Navigator.pop(context);
             },
             child: InteractiveViewer(
               child: Image.network(imageUrl),

@@ -23,6 +23,7 @@ import 'package:dating_application/Models/ResponseModels/user_upload_images_resp
 import 'package:dating_application/Providers/activity_status_provider.dart';
 import 'package:dating_application/Providers/app_setting_provider.dart';
 import 'package:dating_application/Providers/change_password_provider.dart';
+import 'package:dating_application/Providers/fetch_all_chat_history_page.dart';
 import 'package:dating_application/Providers/fetch_all_desires_provider.dart';
 import 'package:dating_application/Providers/fetch_all_faq_provider.dart';
 import 'package:dating_application/Providers/fetch_all_favourites_provider.dart';
@@ -76,6 +77,7 @@ import '../Models/ResponseModels/edit_message_response_model.dart';
 import '../Models/ResponseModels/establish_connection_response_model.dart';
 import '../Models/ResponseModels/forget_password_response_model.dart';
 import '../Models/ResponseModels/forget_password_verification_response_model.dart';
+import '../Models/ResponseModels/get_all_chat_history_page.dart';
 import '../Models/ResponseModels/get_all_country_response_model.dart';
 import '../Models/ResponseModels/get_all_desires_model_response.dart';
 import '../Models/ResponseModels/get_all_language_response_model.dart';
@@ -631,16 +633,33 @@ class Controller extends GetxController {
     }
   }
 
+  EstablishConnectionMessageRequest establishConnectionMessageRequest =
+      EstablishConnectionMessageRequest(
+          message: '', receiverId: '', messagetype: '');
   Future<bool> sendConnectionMessage(
-      EstablishConnectionMessageRequest request) async {
+      EstablishConnectionMessageRequest
+          establishConnectionMessageRequest) async {
     try {
       EstablishConnectionResponse? response =
-          await EstablishConnectionProvider().sendConnectionMessage(request);
+          await EstablishConnectionProvider()
+              .sendConnectionMessage(establishConnectionMessageRequest);
+
       if (response != null) {
-        success('success', response.payload.message);
+        if (!response.success) {
+          failure('Error', response.error.message);
+          return false;
+        }
+        if (response.payload != null && response.payload!.message.isNotEmpty) {
+          success('Success', response.payload!.message);
+          return true;
+        } else {
+          success('Success', 'Connection message sent successfully');
+        }
+        Get.close(1);
         return true;
       } else {
         failure('Error', 'Failed to send the connection message');
+        Get.close(1);
         return false;
       }
     } catch (e) {
@@ -1144,6 +1163,7 @@ class Controller extends GetxController {
 
           userNearByList.addAll(response.payload!.locationBase!);
           print(userNearByList.length);
+          userSuggestionsList.addAll(response.payload!.locationBase!);
         }
 
         if (response.payload!.preferenceBase != null &&
@@ -1160,8 +1180,7 @@ class Controller extends GetxController {
           print('language base : ${response.payload!.languageBase!.length}');
 
           userSuggestionsList.addAll(response.payload!.languageBase!);
-                    print(userSuggestionsList.length);
-
+          print(userSuggestionsList.length);
         }
         if (response.payload!.highlightedAccount != null &&
             response.payload!.highlightedAccount!.isNotEmpty) {
@@ -1170,6 +1189,7 @@ class Controller extends GetxController {
 
           userHighlightedList.addAll(response.payload!.highlightedAccount!);
           print(userHighlightedList.length);
+          userSuggestionsList.addAll(response.payload!.highlightedAccount!);
         }
 
         return true;
@@ -1501,6 +1521,53 @@ class Controller extends GetxController {
     }
   }
 
+  SuggestedUser convertFavouriteToSuggestedUser(Favourite favourite) {
+    return SuggestedUser(
+      id: favourite.id, // Favourite's id can be mapped to SuggestedUser's id
+      userId: favourite.userId, // Same here for userId
+      name: favourite.name, // Name can be copied directly
+      dob: favourite.dob, // Same for date of birth
+      username: favourite.username, // Username from Favourite to SuggestedUser
+      city: favourite.city, // City from Favourite to SuggestedUser
+      images: favourite.images, // List of images can be copied directly
+      status: favourite
+          .status, // Status from Favourite to SuggestedUser (if relevant)
+      created:
+          favourite.created, // Created date from Favourite to SuggestedUser
+      updated:
+          favourite.updated, // Updated date from Favourite to SuggestedUser
+      // Optional fields can be left null or set to a default value
+      email: null, // No email available in Favourite
+      mobile: null, // No mobile number available in Favourite
+      address: null, // No address available in Favourite
+      gender: null, // No gender available in Favourite
+      subGender: null, // No sub-gender available in Favourite
+      countryId: null, // No countryId available in Favourite
+      password: null, // No password available in Favourite
+      latitude: null, // No latitude available in Favourite
+      longitude: null, // No longitude available in Favourite
+      otp: null, // No OTP available in Favourite
+      type: null, // No type available in Favourite
+      nickname: null, // No nickname available in Favourite
+      interest: null, // No interest available in Favourite
+      bio: null, // No bio available in Favourite
+      emailAlerts: null, // No email alerts available in Favourite
+      lookingFor: null, // No lookingFor field in Favourite
+      profileImage: null, // No profileImage available in Favourite
+      userActiveStatus: null, // No active status available in Favourite
+      statusSetting: null, // No status setting available in Favourite
+      accountVerificationStatus:
+          null, // No account verification status in Favourite
+      accountHighlightStatus: null, // No highlight status in Favourite
+      genderName: null, // No gender name in Favourite
+      subGenderName: null, // No sub-gender name in Favourite
+      countryName: null, // No country name in Favourite
+      preferenceId: null, // No preferenceId in Favourite
+      desiresId: null, // No desiresId in Favourite
+      langId: null, // No languageId in Favourite
+    );
+  }
+
   MarkFavouriteRequestModel markFavouriteRequestModel =
       MarkFavouriteRequestModel(favouriteId: '');
 
@@ -1607,6 +1674,27 @@ class Controller extends GetxController {
         }
       } else {
         failure('Error', 'Failed to fetch the connections');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<ChatHistoryItem> chatHistoryItem = <ChatHistoryItem>[].obs;
+
+  Future<bool> fetchallchathistory() async {
+    try {
+      chatHistoryItem.clear();
+      GetAllChatHistoryPageResponse? response =
+          await FetchAllChatHistoryPage().fetchallchathistorypage();
+      if (response != null) {
+        chatHistoryItem.addAll(response.payload.data);
+        success('Success', 'Successfully fetched all the chat history page');
+        return true;
+      } else {
+        failure('Error', 'Failed to fetch the chat history page');
         return false;
       }
     } catch (e) {

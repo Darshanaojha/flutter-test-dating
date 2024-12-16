@@ -1,18 +1,18 @@
 class EstablishConnectionResponse {
   final bool success;
-  final Payload payload;
+  final Payload? payload;
   final Error error;
 
   EstablishConnectionResponse({
     required this.success,
-    required this.payload,
+    this.payload,
     required this.error,
   });
 
   factory EstablishConnectionResponse.fromJson(Map<String, dynamic> json) {
     return EstablishConnectionResponse(
       success: json['success'],
-      payload: Payload.fromJson(json['payload']),
+      payload: json['payload'] != null ? Payload.fromJson(json['payload']) : null,
       error: Error.fromJson(json['error']),
     );
   }
@@ -20,11 +20,12 @@ class EstablishConnectionResponse {
   Map<String, dynamic> toJson() {
     return {
       'success': success,
-      'payload': payload.toJson(),
+      'payload': payload?.toJson() ?? {}, 
       'error': error.toJson(),
     };
   }
 }
+
 
 class Payload {
   final String message;
@@ -35,9 +36,10 @@ class Payload {
 
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
-      message: json['message'],
+      message: json['message'] ?? '', 
     );
   }
+
 
   Map<String, dynamic> toJson() {
     return {
@@ -55,6 +57,7 @@ class Error {
     required this.message,
   });
 
+  
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
       code: json['code'],

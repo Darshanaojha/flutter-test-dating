@@ -1,6 +1,5 @@
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-
 import '../Models/ResponseModels/chat_history_response_model.dart';
 import '../constants.dart';
 

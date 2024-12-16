@@ -1,12 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dating_application/Controllers/controller.dart';
-import 'package:dating_application/Models/ResponseModels/get_all_favourites_response_model.dart';
 import 'package:dating_application/Screens/homepage/swaping.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:swipe_cards/draggable_card.dart';
 import 'package:swipe_cards/swipe_cards.dart';
@@ -28,7 +26,7 @@ class HomePageState extends State<HomePage> {
     return screenWidth * scale;
   }
 
-  RxString selectedFilter = '0'.obs;
+  RxInt selectedFilter = 0.obs;
   bool isLiked = false;
   bool isDisliked = false;
   bool isSuperLiked = false;
@@ -38,6 +36,7 @@ class HomePageState extends State<HomePage> {
   int yourfavirout = 10;
   bool isLoading = false;
   int messageCount = 0;
+  int MessageType = 1;
   final TextEditingController messageController = TextEditingController();
   final FocusNode messageFocusNode = FocusNode();
   final PageController _imagePageController = PageController();
@@ -145,96 +144,7 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  void shareUserProfile() {
-    final String profileUrl = 'https://example.com/user-profile';
-    final String profileDetails =
-        "Check out this profile:\nJohn Doe\nAge: 25\nGender: Male\n$profileUrl";
-    Share.share(profileDetails);
-  }
-
-  void showShareProfileBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        double screenWidth = MediaQuery.of(context).size.width;
-
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Wrap(
-            children: [
-              SizedBox(
-                width: screenWidth - 32,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "Share your profile",
-                      style: AppTextStyles.titleText.copyWith(
-                        fontSize: getResponsiveFontSize(0.03),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          shareUserProfile();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.activeColor,
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          "Share",
-                          style: AppTextStyles.buttonText.copyWith(
-                            fontSize: getResponsiveFontSize(0.03),
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textColor,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.inactiveColor,
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          "Cancel",
-                          style: AppTextStyles.buttonText.copyWith(
-                            fontSize: getResponsiveFontSize(0.03),
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textColor,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-      isScrollControlled: true,
-    );
-  }
-
-  void showmessageBottomSheet() {
+  void showmessageBottomSheet(String userid) {
     Get.bottomSheet(
       Padding(
         padding: const EdgeInsets.all(16.0),
@@ -245,7 +155,6 @@ class HomePageState extends State<HomePage> {
               Text('Send a Message', style: AppTextStyles.inputFieldText),
               SizedBox(height: 20),
               TextField(
-                controller: messageController,
                 cursorColor: AppColors.cursorColor,
                 focusNode: messageFocusNode,
                 decoration: InputDecoration(
@@ -264,17 +173,20 @@ class HomePageState extends State<HomePage> {
                   filled: true,
                   hintText: 'Type your message here...',
                 ),
+                onChanged: (value){
+                  controller.establishConnectionMessageRequest.message=value;
+                  controller.establishConnectionMessageRequest.messagetype=MessageType.toString();
+                },
                 maxLines: 3,
               ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  if (messageController.text.isNotEmpty) {
+                  if (controller.establishConnectionMessageRequest.message.isEmpty) {
                     setState(() {
                       messageCount--;
                     });
-                    messageController.clear();
-                    Get.back();
+                    controller.sendConnectionMessage(controller.establishConnectionMessageRequest);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Message sent')),
                     );
@@ -296,33 +208,31 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildFilterChip(String label, IconData icon, Function(String) onTap) {
+  Widget buildFilterButton(
+      int button, String label, IconData icon, Function(String) onTap) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-      child: FilterChip(
-        label: Row(
-          children: [
-            Icon(icon, size: 20, color: Colors.white),
-            SizedBox(width: 8),
-            Text(label, style: TextStyle(color: Colors.white)),
-          ],
-        ),
-        selected: selectedFilter.value == label,
-        onSelected: (bool selected) {
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: ElevatedButton.icon(
+        onPressed: () {
           setState(() {
-            isLoading = true;
-            selectedFilter.value = label;
-            onTap(label);
-            Future.delayed(Duration(seconds: 2), () {
-              setState(() {
-                isLoading = false;
-              });
-            });
+            selectedFilter.value = button;
           });
+          onTap(label);
+          // Trigger the custom action passed from parent
         },
-        selectedColor: Colors.blue,
-        backgroundColor: AppColors.FilterChipColor,
-        shape: StadiumBorder(),
+        icon: Icon(icon, size: 20), // Icon inside the button
+        label: Text(
+          label,
+          style: TextStyle(fontSize: 14, color: Colors.white),
+        ), // Text inside the button
+        style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white,
+          backgroundColor: selectedFilter.value == button
+              ? Colors.orange
+              : Colors.blue, // Icon and text color
+          shape: StadiumBorder(), // Rounded button shape
+          minimumSize: Size(100, 45), // Button size
+        ),
       ),
     );
   }
@@ -330,8 +240,6 @@ class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    double fontSize = size.width * 0.045;
-    double bodyFontSize = size.width * 0.035;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -394,10 +302,10 @@ class HomePageState extends State<HomePage> {
                         child: ListView(
                           scrollDirection: Axis.horizontal,
                           children: [
-                            buildFilterChip('All', Icons.all_inclusive,
+                            buildFilterButton(0, 'All', Icons.all_inclusive,
                                 (value) {
                               setState(() {
-                                selectedFilter.value = '0';
+                                selectedFilter.value = 0;
                               });
 
                               Get.snackbar(
@@ -405,18 +313,19 @@ class HomePageState extends State<HomePage> {
                                   controller.userSuggestionsList.length
                                       .toString());
                             }),
-                            buildFilterChip('NearBy', Icons.location_on,
+                            buildFilterButton(1, 'NearBy', Icons.location_on,
                                 (value) {
                               setState(() {
-                                selectedFilter.value = '1';
+                                selectedFilter.value = 1;
                               });
 
                               Get.snackbar('NearBy',
                                   controller.userNearByList.length.toString());
                             }),
-                            buildFilterChip('Highlighted', Icons.star, (value) {
+                            buildFilterButton(2, 'Highlighted', Icons.star,
+                                (value) {
                               setState(() {
-                                selectedFilter.value = '2';
+                                selectedFilter.value = 2;
                               });
 
                               Get.snackbar(
@@ -424,10 +333,10 @@ class HomePageState extends State<HomePage> {
                                   controller.userHighlightedList.length
                                       .toString());
                             }),
-                            buildFilterChip('Favourite', Icons.favorite,
+                            buildFilterButton(3, 'Favourite', Icons.favorite,
                                 (value) {
                               setState(() {
-                                selectedFilter.value = '3';
+                                selectedFilter.value = 3;
                               });
 
                               Get.snackbar('userfavourite',
@@ -458,61 +367,62 @@ class HomePageState extends State<HomePage> {
                       ),
                     ),
                     SafeArea(
-                      child: SizedBox(
-                        height: size.height * 0.7 -
-                            MediaQuery.of(context).viewInsets.bottom,
-                        child: isLoading
-                            ? Center(child: CircularProgressIndicator())
-                            : controller.userSuggestionsList.isEmpty
-                                ? Center(
-                                    child: Text('No Suggestions Available'))
-                                : isSwipeFinished
-                                    ? Center(
-                                        child: Text(
-                                          'Swipe is Finished',
-                                          style: TextStyle(
-                                              fontSize: fontSize,
-                                              color: Colors.white),
-                                        ),
-                                      )
-                                    : SwipeCards(
-                                        matchEngine: matchEngine,
-                                        itemBuilder:
-                                            (BuildContext context, int index) {
-                                          List<SuggestedUser> filteredList =
-                                              getFilteredList(
-                                                  selectedFilter.value);
-                                          SuggestedUser user =
-                                              filteredList[index];
-                                          List<Favourite> favorite =
-                                              getFilteredListFavourite(
-                                                  selectedFilter.value);
-                                          Favourite userList = favorite[index];
-                                          return buildFilteredCard(
-                                              context,
-                                              user,
-                                              userList,
-                                              size,
-                                              fontSize,
-                                              bodyFontSize,
-                                              selectedFilter.value);
-                                        },
-                                        onStackFinished: () {
-                                          setState(() {
-                                            isSwipeFinished = true;
-                                          });
-                                          failure('Finished', "Stack Finished");
-                                        },
-                                        itemChanged:
-                                            (SwipeItem item, int index) {
-                                          print(
-                                              "Item: ${item.content}, Index: $index");
-                                        },
-                                        upSwipeAllowed: true,
-                                        fillSpace: true,
-                                      ),
+                        child: SizedBox(
+                      height: size.height * 0.7 -
+                          MediaQuery.of(context).viewInsets.bottom,
+                      child: SwipeCards(
+                        matchEngine: matchEngine,
+                        itemBuilder: (BuildContext context, int index) {
+                          SuggestedUser user;
+
+                          switch (selectedFilter.value) {
+                            case 0:
+                              controller.userSuggestionsList.isEmpty
+                                  ? user = SuggestedUser()
+                                  : user =
+                                      controller.userSuggestionsList[index];
+                              break;
+                            case 1:
+                              controller.userNearByList.isEmpty
+                                  ? user = SuggestedUser()
+                                  : user = controller.userNearByList[index];
+                              break;
+                            case 2:
+                              controller.userHighlightedList.isEmpty
+                                  ? user = SuggestedUser()
+                                  : user =
+                                      controller.userHighlightedList[index];
+                              break;
+                            case 3:
+                              controller.favourite.isEmpty
+                                  ? user = SuggestedUser()
+                                  : user = controller
+                                      .convertFavouriteToSuggestedUser(
+                                          controller.favourite[index]);
+                              break;
+                            default:
+                              controller.userSuggestionsList.isEmpty
+                                  ? user = SuggestedUser()
+                                  : user =
+                                      controller.userSuggestionsList[index];
+                              break;
+                          }
+
+                          return buildCardLayoutAll(context, user, size);
+                        },
+                        onStackFinished: () {
+                          setState(() {
+                            isSwipeFinished = true;
+                          });
+                          failure('Finished', "Stack Finished");
+                        },
+                        itemChanged: (SwipeItem item, int index) {
+                          print("Item: ${item.content}, Index: $index");
+                        },
+                        upSwipeAllowed: true,
+                        fillSpace: true,
                       ),
-                    ),
+                    )),
                   ],
                 );
               },
@@ -523,850 +433,337 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  List<SuggestedUser> getFilteredList(String filterType) {
-    switch (filterType) {
-      case '0':
-        return controller.userSuggestionsList;
-      case '1':
-        return controller.userNearByList;
-      case '2':
-        return controller.userHighlightedList;
-      default:
-        return controller.userSuggestionsList;
-    }
-  }
-
-  List<Favourite> getFilteredListFavourite(String filterType) {
-    return controller.favourite;
-  }
-
-  Widget buildFilteredCard(
-    BuildContext context,
-    SuggestedUser user,
-    Favourite userList,
-    Size size,
-    double fontSize,
-    double bodyFontSize,
-    String filterType,
-  ) {
-    switch (filterType) {
-      case '0':
-        return buildCardLayoutAll(context, user, size, fontSize, bodyFontSize);
-      case '1':
-        return buildCardLayoutNearBy(
-            context, user, size, fontSize, bodyFontSize);
-      case '2':
-        return buildCardLayoutHighlighted(
-            context, user, size, fontSize, bodyFontSize);
-      case '3':
-        return buildCardLayoutFavourite(
-            context, controller.favourite, size, fontSize, bodyFontSize);
-      default:
-        return buildCardLayoutAll(context, user, size, fontSize, bodyFontSize);
-    }
-  }
-
-  Widget buildSwipeCard(
-    BuildContext context,
-    int index,
-    double fontSize,
-    double bodyFontSize,
-    String filterType,
-  ) {
-    final size = MediaQuery.of(context).size;
-
-    List<SuggestedUser> userList = getFilteredList(filterType);
-    List<Favourite> userListFavourite = getFilteredListFavourite(filterType);
-
-    if (userList.isEmpty) {
-      return Center(child: Text('No users found for this filter'));
-    }
-
-    switch (filterType) {
-      case '0':
-        return buildDefaultCard(
-            context, userList[index], size, fontSize, bodyFontSize);
-      case '1':
-        return buildNearbyCard(
-            context, userList[index], size, fontSize, bodyFontSize);
-      case '2':
-        return buildHighlightedCard(
-            context, userList[index], size, fontSize, bodyFontSize);
-      case '3':
-        return buildFavoritesCard(
-            context, userListFavourite[index], size, fontSize, bodyFontSize);
-      default:
-        return buildDefaultCard(
-            context, userList[index], size, fontSize, bodyFontSize);
-    }
-  }
-
-  Widget buildDefaultCard(BuildContext context, user, Size size,
-      double fontSize, double bodyFontSize) {
-    return buildCardLayoutAll(context, user, size, fontSize, bodyFontSize,
-        additionalInfo: '0');
-  }
-
-  Widget buildNearbyCard(BuildContext context, user, Size size, double fontSize,
-      double bodyFontSize) {
-    return buildCardLayoutNearBy(context, user, size, fontSize, bodyFontSize,
-        additionalInfo: '1');
-  }
-
-  Widget buildHighlightedCard(BuildContext context, user, Size size,
-      double fontSize, double bodyFontSize) {
-    return buildCardLayoutHighlighted(
-        context, user, size, fontSize, bodyFontSize,
-        additionalInfo: '2');
-  }
-
-  Widget buildFavoritesCard(BuildContext context, user, Size size,
-      double fontSize, double bodyFontSize) {
-    return buildCardLayoutAll(context, user, size, fontSize, bodyFontSize,
-        additionalInfo: '3');
-  }
-
   Widget buildCardLayoutAll(
     BuildContext context,
     SuggestedUser user,
     Size size,
-    double fontSize,
-    double bodyFontSize, {
-    String? additionalInfo,
-  }) {
-    var images = controller.userSuggestionsList.isNotEmpty
-        ? controller.userSuggestionsList[0].images ?? []
-        : [];
+  ) {
+    List<String> images = user.images;
 
-    return Container(
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: size.height * 0.4,
-            child: Stack(
+    return user.id == ''
+        ? Text("No users available")
+        : Container(
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SafeArea(
-                  child: ListView.builder(
-                    itemCount: images.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      images = controller.userSuggestionsList[index].images;
-                      if (images.isEmpty) {
-                        return Center(child: Text('No Images Available'));
-                      }
-                      return GestureDetector(
-                        onTap: () =>
-                            showFullImageDialog(context, images[index]),
-                        child: Container(
-                          margin: EdgeInsets.only(bottom: 12),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: CachedNetworkImage(
-                              imageUrl: images[index],
-                              placeholder: (context, url) =>
-                                  Center(child: CircularProgressIndicator()),
-                              errorWidget: (context, url, error) {
-                                print("Failed to load image from URL: $url");
-                                return Icon(Icons.error, color: Colors.red);
-                              },
-                              fit: BoxFit.cover,
-                              width: size.width * 0.9,
-                              height: size.height * 0.45,
+                SizedBox(
+                  height: size.height * 0.4,
+                  child: Stack(
+                    children: [
+                      SafeArea(
+                        child: ListView.builder(
+                          itemCount: user.images.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            if (images.isEmpty) {
+                              return Center(child: Text('No Images Available'));
+                            }
+                            return GestureDetector(
+                              onTap: () =>
+                                  showFullImageDialog(context, images[index]),
+                              child: Container(
+                                margin: EdgeInsets.only(bottom: 12),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: CachedNetworkImage(
+                                    imageUrl: images[index],
+                                    placeholder: (context, url) => Center(
+                                        child: CircularProgressIndicator()),
+                                    errorWidget: (context, url, error) {
+                                      print(
+                                          "Failed to load image from URL: $url");
+                                      return Icon(Icons.error,
+                                          color: Colors.red);
+                                    },
+                                    fit: BoxFit.cover,
+                                    width: size.width * 0.9,
+                                    height: size.height * 0.45,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 10,
+                        right: 0,
+                        child: Padding(
+                          padding:
+                              EdgeInsets.symmetric(vertical: size.height * 0.1),
+                          child: Transform.rotate(
+                            angle: -1.5708,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SmoothPageIndicator(
+                                  controller: _imagePageController,
+                                  count: images.length,
+                                  effect: ExpandingDotsEffect(
+                                    dotHeight: 10,
+                                    dotWidth: 10,
+                                    spacing: 10,
+                                    radius: 5,
+                                    dotColor: Colors.grey.withOpacity(0.5),
+                                    activeDotColor: Colors.green,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                      );
-                    },
+                      ),
+                    ],
                   ),
                 ),
-                Positioned(
-                  bottom: 10,
-                  right: 0,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: size.height * 0.1),
-                    child: Transform.rotate(
-                      angle: -1.5708,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SmoothPageIndicator(
-                            controller: _imagePageController,
-                            count: images.length,
-                            effect: ExpandingDotsEffect(
-                              dotHeight: 10,
-                              dotWidth: 10,
-                              spacing: 10,
-                              radius: 5,
-                              dotColor: Colors.grey.withOpacity(0.5),
-                              activeDotColor: Colors.green,
-                            ),
-                          ),
-                        ],
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          isLiked = isLiked;
+                        });
+                      },
+                      icon: Icon(
+                        isLiked ? Icons.favorite : Icons.favorite_border,
+                        size: 40,
+                        color: isLiked ? Colors.red : Colors.white,
                       ),
                     ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Row(
-            children: [
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    isLiked = isLiked;
-                  });
-                },
-                icon: Icon(
-                  isLiked ? Icons.favorite : Icons.favorite_border,
-                  size: 40,
-                  color: isLiked ? Colors.red : Colors.white,
-                ),
-              ),
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    isShare = isShare;
-                  });
-                },
-                icon: Icon(
-                  isShare ? Icons.share : Icons.share,
-                  size: 40,
-                  color: isShare ? Colors.green : Colors.white,
-                ),
-              ),
-              IconButton(
-                onPressed: showmessageBottomSheet,
-                icon: Icon(Icons.messenger_outline, size: 40),
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
-          Text(
-            user.name ?? 'NA',
-            style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-          ),
-          Row(
-            children: [
-              Text(
-                // '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userData.first.dob).year} Years Old || ',
-                calculateAge(controller.userSuggestionsList?.first?.dob ??
-                    'Unknown Date'),
-                style: TextStyle(fontSize: bodyFontSize),
-              ),
-              Text(
-                '${user.city}',
-                style: TextStyle(fontSize: bodyFontSize),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    matchEngine.currentItem?.nope();
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.NopeColor),
-                  child: Text("Nope",
-                      style: AppTextStyles.buttonText
-                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    matchEngine.currentItem?.superLike();
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.FavouriteColor),
-                  child: Text("Favourite",
-                      style: AppTextStyles.buttonText
-                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    matchEngine.currentItem?.like();
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.LikeColor),
-                  child: Text("Like",
-                      style: AppTextStyles.buttonText
-                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildCardLayoutNearBy(
-    BuildContext context,
-    user,
-    Size size,
-    double fontSize,
-    double bodyFontSize, {
-    String? additionalInfo,
-  }) {
-    var images = controller.userNearByList.isNotEmpty
-        ? controller.userNearByList[0].images ?? []
-        : [];
-
-    return Container(
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: size.height * 0.4,
-            child: Stack(
-              children: [
-                SafeArea(
-                  child: ListView.builder(
-                    itemCount: images.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      images = controller.userNearByList[index].images;
-                      if (images.isEmpty) {
-                        return Center(child: Text('No Images Available'));
-                      }
-                      return GestureDetector(
-                        onTap: () =>
-                            showFullImageDialog(context, images[index]),
-                        child: Container(
-                          margin: EdgeInsets.only(bottom: 12),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: CachedNetworkImage(
-                              imageUrl: images[index],
-                              placeholder: (context, url) =>
-                                  Center(child: CircularProgressIndicator()),
-                              errorWidget: (context, url, error) {
-                                print("Failed to load image from URL: $url");
-                                return Icon(Icons.error, color: Colors.red);
-                              },
-                              fit: BoxFit.cover,
-                              width: size.width * 0.9,
-                              height: size.height * 0.45,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                Positioned(
-                  bottom: 10,
-                  right: 0,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: size.height * 0.1),
-                    child: Transform.rotate(
-                      angle: -1.5708,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SmoothPageIndicator(
-                            controller: _imagePageController,
-                            count: images.length,
-                            effect: ExpandingDotsEffect(
-                              dotHeight: 10,
-                              dotWidth: 10,
-                              spacing: 10,
-                              radius: 5,
-                              dotColor: Colors.grey.withOpacity(0.5),
-                              activeDotColor: Colors.green,
-                            ),
-                          ),
-                        ],
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          isShare = isShare;
+                        });
+                      },
+                      icon: Icon(
+                        isShare ? Icons.share : Icons.share,
+                        size: 40,
+                        color: isShare ? Colors.green : Colors.white,
                       ),
                     ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Row(
-            children: [
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    isLiked = isLiked;
-                  });
-                },
-                icon: Icon(
-                  isLiked ? Icons.favorite : Icons.favorite_border,
-                  size: 40,
-                  color: isLiked ? Colors.red : Colors.white,
-                ),
-              ),
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    isShare = isShare;
-                  });
-                },
-                icon: Icon(
-                  isShare ? Icons.share : Icons.share,
-                  size: 40,
-                  color: isShare ? Colors.green : Colors.white,
-                ),
-              ),
-              IconButton(
-                onPressed: showmessageBottomSheet,
-                icon: Icon(Icons.messenger_outline, size: 40),
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
-          Text(
-            controller.userNearByList.first.name ?? 'NA',
-            style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-          ),
-          Row(
-            children: [
-              Text(
-                // '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userNearByList.first.dob.toString()).year} Years Old || ',
-                calculateAge(
-                    controller.userNearByList?.first?.dob ?? 'Unknown Date'),
-                style: TextStyle(fontSize: bodyFontSize),
-              ),
-              Text(
-                controller.userNearByList.first.city ?? 'NA',
-                style: TextStyle(fontSize: bodyFontSize),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    matchEngine.currentItem?.nope();
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.NopeColor),
-                  child: Text("Nope",
-                      style: AppTextStyles.buttonText
-                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    matchEngine.currentItem?.superLike();
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.FavouriteColor),
-                  child: Text("Favourite",
-                      style: AppTextStyles.buttonText
-                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    matchEngine.currentItem?.like();
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.LikeColor),
-                  child: Text("Like",
-                      style: AppTextStyles.buttonText
-                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildCardLayoutHighlighted(
-    BuildContext context,
-    user,
-    Size size,
-    double fontSize,
-    double bodyFontSize, {
-    String? additionalInfo,
-  }) {
-    var images = controller.userHighlightedList.isNotEmpty
-        ? controller.userHighlightedList[0].images ?? []
-        : [];
-
-    return Container(
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: size.height * 0.4,
-            child: Stack(
-              children: [
-                SafeArea(
-                  child: ListView.builder(
-                    itemCount: images.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      images = controller.userHighlightedList[index].images;
-                      if (images.isEmpty) {
-                        return Center(child: Text('No Images Available'));
-                      }
-                      return GestureDetector(
-                        onTap: () =>
-                            showFullImageDialog(context, images[index]),
-                        child: Container(
-                          margin: EdgeInsets.only(bottom: 12),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: CachedNetworkImage(
-                              imageUrl: images[index],
-                              placeholder: (context, url) =>
-                                  Center(child: CircularProgressIndicator()),
-                              errorWidget: (context, url, error) {
-                                print("Failed to load image from URL: $url");
-                                return Icon(Icons.error, color: Colors.red);
-                              },
-                              fit: BoxFit.cover,
-                              width: size.width * 0.9,
-                              height: size.height * 0.45,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                Positioned(
-                  bottom: 10,
-                  right: 0,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: size.height * 0.1),
-                    child: Transform.rotate(
-                      angle: -1.5708,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SmoothPageIndicator(
-                            controller: _imagePageController,
-                            count: images.length,
-                            effect: ExpandingDotsEffect(
-                              dotHeight: 10,
-                              dotWidth: 10,
-                              spacing: 10,
-                              radius: 5,
-                              dotColor: Colors.grey.withOpacity(0.5),
-                              activeDotColor: Colors.green,
-                            ),
-                          ),
-                        ],
-                      ),
+                    IconButton(
+                      onPressed: (){
+                        showmessageBottomSheet(user.id.toString());
+                      },
+                      icon: Icon(Icons.messenger_outline, size: 40),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          Row(
-            children: [
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    isLiked = isLiked;
-                  });
-                },
-                icon: Icon(
-                  isLiked ? Icons.favorite : Icons.favorite_border,
-                  size: 40,
-                  color: isLiked ? Colors.red : Colors.white,
+                SizedBox(height: 16),
+                Text(
+                  user.name ?? 'NA',
+                  style: TextStyle(
+                      fontSize: size.width * 0.04, fontWeight: FontWeight.bold),
                 ),
-              ),
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    isShare = isShare;
-                  });
-                },
-                icon: Icon(
-                  isShare ? Icons.share : Icons.share,
-                  size: 40,
-                  color: isShare ? Colors.green : Colors.white,
-                ),
-              ),
-              IconButton(
-                onPressed: showmessageBottomSheet,
-                icon: Icon(Icons.messenger_outline, size: 40),
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
-          Text(
-            controller.userHighlightedList.first.name ?? 'NA',
-            style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-          ),
-          Row(
-            children: [
-              Text(
-                // '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userHighlightedList.first.dob.toString()).year} Years Old || ',
-                calculateAge(controller.userHighlightedList?.first?.dob ??
-                    'Unknown Date'),
-                style: TextStyle(fontSize: bodyFontSize),
-              ),
-              Text(
-                controller.userHighlightedList.first.city ?? 'NA',
-                style: TextStyle(fontSize: bodyFontSize),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    matchEngine.currentItem?.nope();
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.NopeColor),
-                  child: Text("Nope",
-                      style: AppTextStyles.buttonText
-                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    matchEngine.currentItem?.superLike();
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.FavouriteColor),
-                  child: Text("Favourite",
-                      style: AppTextStyles.buttonText
-                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    matchEngine.currentItem?.like();
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.LikeColor),
-                  child: Text("Like",
-                      style: AppTextStyles.buttonText
-                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildCardLayoutFavourite(
-    BuildContext context,
-    List<Favourite> userList,
-    Size size,
-    double fontSize,
-    double bodyFontSize, {
-    String? additionalInfo,
-  }) {
-    if (userList.isEmpty) {
-      return Container(
-        alignment: Alignment.center,
-        height: size.height,
-        child: Text(
-          'Swipe is Finished',
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-      );
-    }
-    var images = userList.isNotEmpty ? userList[0].images : [];
-
-    return Container(
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: size.height * 0.4,
-            child: Stack(
-              children: [
-                SafeArea(
-                  child: ListView.builder(
-                    itemCount: images.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      images = userList[index].images;
-                      if (images.isEmpty) {
-                        return Center(child: Text('No Images Available'));
-                      }
-                      return GestureDetector(
-                        onTap: () =>
-                            showFullImageDialog(context, images[index]),
-                        child: Container(
-                          margin: EdgeInsets.only(bottom: 12),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: CachedNetworkImage(
-                              imageUrl: images[index],
-                              placeholder: (context, url) =>
-                                  Center(child: CircularProgressIndicator()),
-                              errorWidget: (context, url, error) {
-                                print("Failed to load image from URL: $url");
-                                return Icon(Icons.error, color: Colors.red);
-                              },
-                              fit: BoxFit.cover,
-                              width: size.width * 0.9,
-                              height: size.height * 0.45,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                Positioned(
-                  bottom: 10,
-                  right: 0,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: size.height * 0.1),
-                    child: Transform.rotate(
-                      angle: -1.5708,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SmoothPageIndicator(
-                            controller: _imagePageController,
-                            count: images.length,
-                            effect: ExpandingDotsEffect(
-                              dotHeight: 10,
-                              dotWidth: 10,
-                              spacing: 10,
-                              radius: 5,
-                              dotColor: Colors.grey.withOpacity(0.5),
-                              activeDotColor: Colors.green,
-                            ),
-                          ),
-                        ],
-                      ),
+                Row(
+                  children: [
+                    Text(
+                      // '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userData.first.dob).year} Years Old || ',
+                      calculateAge(user.dob ?? 'Unknown Date'),
+                      style: TextStyle(fontSize: size.width * 0.04),
                     ),
+                    Text(
+                      '${user.city}',
+                      style: TextStyle(fontSize: size.width * 0.04),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          matchEngine.currentItem?.nope();
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.NopeColor),
+                        child: Text("Nope",
+                            style: AppTextStyles.buttonText.copyWith(
+                                fontSize: getResponsiveFontSize(0.03))),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          matchEngine.currentItem?.superLike();
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.FavouriteColor),
+                        child: Text("Favourite",
+                            style: AppTextStyles.buttonText.copyWith(
+                                fontSize: getResponsiveFontSize(0.03))),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          matchEngine.currentItem?.like();
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.LikeColor),
+                        child: Text("Like",
+                            style: AppTextStyles.buttonText.copyWith(
+                                fontSize: getResponsiveFontSize(0.03))),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
-          Row(
-            children: [
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    isLiked = isLiked;
-                  });
-                },
-                icon: Icon(
-                  isLiked ? Icons.favorite : Icons.favorite_border,
-                  size: 40,
-                  color: isLiked ? Colors.red : Colors.white,
-                ),
-              ),
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    isShare = isShare;
-                  });
-                },
-                icon: Icon(
-                  isShare ? Icons.share : Icons.share,
-                  size: 40,
-                  color: isShare ? Colors.green : Colors.white,
-                ),
-              ),
-              IconButton(
-                onPressed: showmessageBottomSheet,
-                icon: Icon(Icons.messenger_outline, size: 40),
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
-          Text(
-            userList.isNotEmpty
-                ? userList.first.name ?? 'NA'
-                : 'NA', // Use null-safe check
-            style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-          ),
-          Row(
-            children: [
-              Text(
-                calculateAge(userList.isNotEmpty
-                    ? userList.first.dob ?? 'Unknown Date'
-                    : 'Unknown Date'),
-                style: TextStyle(fontSize: bodyFontSize),
-              ),
-              Text(
-                userList.isNotEmpty
-                    ? userList.first.city
-                    : 'Unknown City', // Use null-safe check
-                style: TextStyle(fontSize: bodyFontSize),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    matchEngine.currentItem?.nope();
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.NopeColor),
-                  child: Text("Nope",
-                      style: AppTextStyles.buttonText
-                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    matchEngine.currentItem?.superLike();
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.FavouriteColor),
-                  child: Text("Favourite",
-                      style: AppTextStyles.buttonText
-                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    matchEngine.currentItem?.like();
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.LikeColor),
-                  child: Text("Like",
-                      style: AppTextStyles.buttonText
-                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+          );
   }
+
+  // Widget arqam() {
+  //   return Padding(
+  //     padding: const EdgeInsets.all(8.0),
+  //     child: ListView.builder(
+  //       itemCount: controller.userSuggestionsList.length,
+  //       scrollDirection: Axis.horizontal,
+  //       itemBuilder: (context, index) {
+  //         SuggestedUser user = controller.userSuggestionsList[index];
+  //         return Container(
+  //           width: 300, // Width of each user card
+  //           margin: EdgeInsets.only(right: 10),
+  //           child: Stack(
+  //             children: [
+  //               // Stack of user cards, with one card on top of another
+  //               Positioned.fill(
+  //                 child: Card(
+  //                   color: Colors.black,
+  //                   shape: RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.circular(15),
+  //                   ),
+  //                   child: Column(
+  //                     children: [
+  //                       // List of images for each user (vertical scroll)
+  //                       SizedBox(
+  //                         height: 200, // Height of image list
+  //                         child: ListView.builder(
+  //                           itemCount: user.images.length,
+  //                           scrollDirection: Axis.vertical,
+  //                           itemBuilder: (context, imgIndex) {
+  //                             return Container(
+  //                               margin: EdgeInsets.only(bottom: 10),
+  //                               child: ClipRRect(
+  //                                 borderRadius: BorderRadius.circular(10),
+  //                                 child: Image.network(
+  //                                   user.images[imgIndex],
+  //                                   width: 150,
+  //                                   height: 150,
+  //                                   fit: BoxFit.cover,
+  //                                   errorBuilder: (context, error, stackTrace) {
+  //                                     return Center(
+  //                                         child: Icon(Icons.error,
+  //                                             color: Colors.red));
+  //                                   },
+  //                                 ),
+  //                               ),
+  //                             );
+  //                           },
+  //                         ),
+  //                       ),
+
+  //                       // User Info
+  //                       Padding(
+  //                         padding: const EdgeInsets.all(8.0),
+  //                         child: Column(
+  //                           crossAxisAlignment: CrossAxisAlignment.start,
+  //                           children: [
+  //                             // User Name
+  //                             Text(
+  //                               user.name ?? 'No Name',
+  //                               style: TextStyle(
+  //                                   fontSize: 16,
+  //                                   color: Colors.white,
+  //                                   fontWeight: FontWeight.bold),
+  //                             ),
+  //                             SizedBox(height: 5),
+
+  //                             // User Age
+  //                             Text(
+  //                               'Age: ${calculateAge(user.dob ?? '1900-01-01')}',
+  //                               style: TextStyle(
+  //                                   fontSize: 14, color: Colors.white),
+  //                             ),
+  //                             SizedBox(height: 5),
+
+  //                             // City and Gender
+  //                             Text(
+  //                               '${user.city ?? 'Unknown City'} | ${user.gender ?? 'Unknown Gender'}',
+  //                               style: TextStyle(
+  //                                   fontSize: 14, color: Colors.white),
+  //                             ),
+  //                             SizedBox(height: 5),
+
+  //                             // Other Essential Data (e.g., Account Status)
+  //                             Text(
+  //                               'Status: ${user.status ?? 'Unknown'}',
+  //                               style: TextStyle(
+  //                                   fontSize: 12, color: Colors.white),
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //               ),
+
+  //               // The "Like", "Nope", "Super Like" Buttons
+  //               Positioned(
+  //                 bottom: 10,
+  //                 left: 10,
+  //                 right: 10,
+  //                 child: Padding(
+  //                   padding: const EdgeInsets.symmetric(vertical: 20.0),
+  //                   child: Row(
+  //                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //                     children: [
+  //                       ElevatedButton(
+  //                         onPressed: () {
+  //                           // Replace with actual swipe action
+  //                           print("Nope button pressed");
+  //                         },
+  //                         style: ElevatedButton.styleFrom(
+  //                             backgroundColor: Colors.red),
+  //                         child: Text("Nope",
+  //                             style:
+  //                                 TextStyle(fontSize: 14, color: Colors.white)),
+  //                       ),
+  //                       ElevatedButton(
+  //                         onPressed: () {
+  //                           // Replace with actual swipe action
+  //                           print("Favourite button pressed");
+  //                         },
+  //                         style: ElevatedButton.styleFrom(
+  //                             backgroundColor: Colors.orange),
+  //                         child: Text("Favourite",
+  //                             style:
+  //                                 TextStyle(fontSize: 14, color: Colors.white)),
+  //                       ),
+  //                       ElevatedButton(
+  //                         onPressed: () {
+  //                           // Replace with actual swipe action
+  //                           print("Like button pressed");
+  //                         },
+  //                         style: ElevatedButton.styleFrom(
+  //                             backgroundColor: Colors.green),
+  //                         child: Text("Like",
+  //                             style:
+  //                                 TextStyle(fontSize: 14, color: Colors.white)),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         );
+  //       },
+  //     ),
+  //   );
+  // }
 }
