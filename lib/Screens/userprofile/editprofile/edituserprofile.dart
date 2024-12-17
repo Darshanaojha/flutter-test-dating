@@ -5,6 +5,7 @@ import 'package:dating_application/Models/ResponseModels/get_all_country_respons
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import '../../../Models/RequestModels/user_profile_update_request_model.dart';
 import '../../../Models/ResponseModels/ProfileResponse.dart';
 import '../../../Models/ResponseModels/get_all_gender_from_response_model.dart';
@@ -36,6 +37,8 @@ class EditProfilePageState extends State<EditProfilePage> {
     return screenWidth * scale;
   }
 
+  TextEditingController latitudeController = TextEditingController();
+  TextEditingController longitudeController = TextEditingController();
   bool isLoading = false;
 
   Country? selectedCountry;
@@ -121,6 +124,13 @@ class EditProfilePageState extends State<EditProfilePage> {
           preferencesSelectedOptions[index] = true;
         }
       }
+      latitudeController.text = controller.userData.first.latitude.isNotEmpty
+          ? controller.userData.first.latitude
+          : controller.userProfileUpdateRequest.latitude;
+
+      longitudeController.text = controller.userData.first.longitude.isNotEmpty
+          ? controller.userData.first.longitude
+          : controller.userProfileUpdateRequest.longitude;
       print("Matching indexes: $matchingIndexes");
     } catch (e) {
       failure('Error', e.toString());
@@ -354,6 +364,156 @@ class EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
+  Widget dobPicker({
+    required BuildContext context,
+    required String initialValue,
+    required Function(String) onChanged,
+    required String? Function(String)? validator,
+    required String label,
+  }) {
+    TextEditingController controller =
+        TextEditingController(text: initialValue);
+    String? _errorText;
+
+    void validateInput(String value) {
+      if (validator != null) {
+        String? error = validator!(value);
+        _errorText = error;
+      }
+    }
+
+    Future<void> _selectDate() async {
+      DateTime? pickedDate = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(1900),
+        lastDate: DateTime.now(),
+      );
+
+      if (pickedDate != null) {
+        // Format the picked date to dd/MM/yyyy
+        String formattedDate = DateFormat('dd/MM/yyyy').format(pickedDate);
+        controller.text = formattedDate;
+        onChanged(formattedDate);
+        _errorText =
+            null; // Clear any existing error after selecting a valid date
+      }
+    }
+
+    double getResponsiveFontSize(double scale) {
+      double screenWidth = MediaQuery.of(context).size.width;
+      return screenWidth * scale;
+    }
+
+    return Card(
+      color: AppColors.primaryColor,
+      elevation: 5,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Displaying the label of the input field
+            Text(
+              label,
+              style: AppTextStyles.buttonText.copyWith(
+                fontSize: getResponsiveFontSize(0.03),
+              ),
+            ),
+            SizedBox(height: 10),
+            GestureDetector(
+              onTap: _selectDate, // Open the date picker on tap
+              child: AbsorbPointer(
+                child: TextField(
+                  cursorColor: AppColors.cursorColor,
+                  controller: controller,
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
+                  ),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: AppColors.formFieldColor,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    errorText: _errorText,
+                    hintText: "Select your Date of Birth", // Optional hint
+                  ),
+                  onChanged: (value) {
+                    onChanged(value);
+                    validateInput(value); // Validate on input change
+                  },
+                ),
+              ),
+            ),
+            Divider(color: AppColors.textColor),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildTextFieldForLatLong({
+    required TextEditingController controller,
+    required String label,
+    required Function(String) onChanged,
+    double fontSize = 16.0,
+    bool isDisabled = false, // Add the disabled flag
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        controller: controller,
+        obscureText: false,
+        enabled: !isDisabled, // Disable interaction
+        onChanged: onChanged,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return '$label is required';
+          }
+          return null;
+        },
+        style: AppTextStyles.inputFieldText.copyWith(
+          fontSize: fontSize,
+          color: isDisabled ? AppColors.textColor : null,
+        ),
+        cursorColor: isDisabled ? AppColors.primaryColor : AppColors.textColor,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: AppTextStyles.labelText.copyWith(
+            fontSize: fontSize,
+            color: isDisabled ? Colors.grey : AppColors.textColor,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+              color: isDisabled ? Colors.grey : AppColors.textColor,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+              color: isDisabled ? Colors.grey : AppColors.textColor,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+              color: isDisabled
+                  ? Colors.grey
+                  : AppColors.textColor, // Change enabled border color
+            ),
+          ),
+          fillColor: isDisabled
+              ? AppColors.primaryColor
+              : AppColors.formFieldColor, // Change background color
+          filled: true,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
@@ -443,7 +603,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                       onTap: () =>
                                                           showFullImageDialog(
                                                               context,
-                                                              imageUrl), // show full image on tap
+                                                              imageUrl),
                                                       child: ClipRRect(
                                                         borderRadius:
                                                             BorderRadius
@@ -550,18 +710,22 @@ class EditProfilePageState extends State<EditProfilePage> {
                                           value); // Use the validateName function
                                     },
                                   ),
-                                  InfoField(
+                                  dobPicker(
+                                    context: context,
                                     initialValue:
                                         controller.userData.first.dob.isNotEmpty
                                             ? controller.userData.first.dob
                                             : controller
                                                 .userProfileUpdateRequest.dob,
-                                    label: 'Date of Birth',
-                                    onChanged: onDobChanged,
-                                    validator: (value) {
-                                      return validateDob(
-                                          value); // Use the validateDob function
+                                    onChanged: (value) {
+                                      controller.userProfileUpdateRequest.dob =
+                                          value;
+                                      print("Date of Birth: $value");
                                     },
+                                    validator: (value) {
+                                      return validateDob(value);
+                                    },
+                                    label: 'Date of Birth',
                                   ),
                                   InfoField(
                                     initialValue: controller
@@ -652,34 +816,21 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     if (isLatLongFetched.value) {
                                       return Column(
                                         children: [
-                                          InfoField(
-                                            initialValue: controller.userData
-                                                    .first.latitude.isNotEmpty
-                                                ? controller
-                                                    .userData.first.latitude
-                                                : controller
-                                                    .userProfileUpdateRequest
-                                                    .latitude,
+                                          buildTextFieldForLatLong(
+                                            controller: latitudeController,
                                             label: 'Latitude',
-                                            onChanged: onLatitudeChnage,
-                                            validator: (value) {
-                                              return validateLatitude(value);
+                                            onChanged: (value) {
+                                              onLatitudeChnage(value);
                                             },
+                                            isDisabled: true,
                                           ),
-                                          InfoField(
-                                            initialValue: controller.userData
-                                                    .first.longitude.isNotEmpty
-                                                ? controller
-                                                    .userData.first.longitude
-                                                : controller
-                                                    .userProfileUpdateRequest
-                                                    .longitude,
+                                          buildTextFieldForLatLong(
+                                            controller: longitudeController,
                                             label: 'Longitude',
-                                            onChanged: onLongitudeChnage,
-                                            validator: (value) {
-                                              return validateLongitude(
-                                                  value); // Use the validateLongitude function
+                                            onChanged: (value) {
+                                              onLongitudeChnage(value);
                                             },
+                                            isDisabled: true,
                                           ),
                                         ],
                                       );
@@ -799,9 +950,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     ),
                                   ),
                                   Obx(() {
-                                    String? initialLookingForValue =
-                                        controller.userData.first.lookingFor;
-
                                     return Card(
                                       color: AppColors.primaryColor,
                                       elevation: 8,
@@ -817,10 +965,15 @@ class EditProfilePageState extends State<EditProfilePage> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             DropdownButtonFormField<String>(
-                                              value:
-                                                  initialLookingForValue.isEmpty
-                                                      ? null
-                                                      : initialLookingForValue,
+                                              value: controller
+                                                      .userProfileUpdateRequest
+                                                      .lookingFor
+                                                      .isNotEmpty
+                                                  ? controller
+                                                      .userProfileUpdateRequest
+                                                      .lookingFor
+                                                  : controller.userData.first
+                                                      .lookingFor,
                                               decoration: InputDecoration(
                                                 labelText: 'Relationship Type',
                                                 labelStyle: AppTextStyles
@@ -872,9 +1025,21 @@ class EditProfilePageState extends State<EditProfilePage> {
                                               ],
                                               onChanged: (value) {
                                                 if (value != null) {
-                                                  controller
-                                                      .userRegistrationRequest
-                                                      .lookingFor = value;
+                                                  setState(() {
+                                                    controller
+                                                        .userProfileUpdateRequest
+                                                        .lookingFor = value;
+                                                  });
+                                                  Get.snackbar(
+                                                    'Selected',
+                                                    controller.userProfileUpdateRequest
+                                                                .lookingFor ==
+                                                            '1'
+                                                        ? 'Serious Relationship'
+                                                        : 'Hookup',
+                                                  );
+                                                  print(
+                                                      'Selected Relationship Type: $value');
                                                 }
                                               },
                                               iconEnabledColor:
@@ -1142,26 +1307,26 @@ class EditProfilePageState extends State<EditProfilePage> {
                                   visibility_status.value = val;
                                 }),
                               ),
-                              PrivacyToggle(
-                                label: "Hide me on Flame",
-                                value: hideMeOnFlame,
-                                onChanged: (val) =>
-                                    setState(() => hideMeOnFlame = val),
-                              ),
-                              SizedBox(height: 10),
-                              PrivacyToggle(
-                                label: "Incognito Mode",
-                                value: incognitoMode,
-                                onChanged: (val) =>
-                                    setState(() => incognitoMode = val),
-                              ),
-                              SizedBox(height: 10),
-                              PrivacyToggle(
-                                label: "Opt out of Ping + Note",
-                                value: optOutOfPingNote,
-                                onChanged: (val) =>
-                                    setState(() => optOutOfPingNote = val),
-                              ),
+                              // PrivacyToggle(
+                              //   label: "Hide me on Flame",
+                              //   value: hideMeOnFlame,
+                              //   onChanged: (val) =>
+                              //       setState(() => hideMeOnFlame = val),
+                              // ),
+                              // SizedBox(height: 10),
+                              // PrivacyToggle(
+                              //   label: "Incognito Mode",
+                              //   value: incognitoMode,
+                              //   onChanged: (val) =>
+                              //       setState(() => incognitoMode = val),
+                              // ),
+                              // SizedBox(height: 10),
+                              // PrivacyToggle(
+                              //   label: "Opt out of Ping + Note",
+                              //   value: optOutOfPingNote,
+                              //   onChanged: (val) =>
+                              //       setState(() => optOutOfPingNote = val),
+                              // ),
                             ],
                           ),
                         ),
@@ -1177,72 +1342,78 @@ class EditProfilePageState extends State<EditProfilePage> {
                               UserProfileUpdateRequest
                                   userProfileUpdateRequest =
                                   UserProfileUpdateRequest(
-                                name: controller.userData.first.name
+                                name: controller.userProfileUpdateRequest.name
                                         .isNotEmpty
-                                    ? controller.userData.first.name
-                                    : controller.userProfileUpdateRequest.name,
-                                latitude: controller.userData.first
+                                    ? controller.userProfileUpdateRequest.name
+                                    : controller.userData.first.name,
+                                latitude: controller.userProfileUpdateRequest
                                         .latitude.isNotEmpty
                                     ? controller
-                                        .userData.first.latitude
-                                    : controller.userProfileUpdateRequest.latitude,
-                                longitude: controller.userData.first
+                                        .userProfileUpdateRequest.latitude
+                                    : controller.userData.first.latitude,
+                                longitude: controller.userProfileUpdateRequest
                                         .longitude.isNotEmpty
                                     ? controller
-                                       .userData.first.longitude
-                                    : controller.userProfileUpdateRequest.longitude,
-                                address: controller.userData.first
+                                        .userProfileUpdateRequest.longitude
+                                    : controller.userData.first.longitude,
+                                address: controller.userProfileUpdateRequest
                                         .address.isNotEmpty
-                                    ? controller.
-                                        userData.first.address
-                                    : controller.userProfileUpdateRequest.address,
-                                countryId: controller.userData.first
+                                    ? controller
+                                        .userProfileUpdateRequest.address
+                                    : controller.userData.first.address,
+                                countryId: controller.userProfileUpdateRequest
                                         .countryId.isNotEmpty
-                                    ? controller.
-                                        userData.first.countryId
-                                    : controller.userProfileUpdateRequest.countryId,
-                                city: controller.userData.first.city
+                                    ? controller
+                                        .userProfileUpdateRequest.countryId
+                                    : controller.userData.first.countryId,
+                                city: controller.userProfileUpdateRequest.city
                                         .isNotEmpty
-                                    ? controller.userData.first.city
-                                    : controller.userProfileUpdateRequest.city,
+                                    ? controller.userProfileUpdateRequest.city
+                                    : controller.userData.first.city,
                                 dob: controller
-                                        .userData.first.dob.isNotEmpty
-                                    ? controller.userData.first.dob
-                                    : controller.userProfileUpdateRequest.dob,
-                                nickname: controller.userData.first
+                                        .userProfileUpdateRequest.dob.isNotEmpty
+                                    ? controller.userProfileUpdateRequest.dob
+                                    : controller.userData.first.dob,
+                                nickname: controller.userProfileUpdateRequest
                                         .nickname.isNotEmpty
                                     ? controller
-                                        .userData.first.nickname
-                                    : controller.userProfileUpdateRequest.nickname,
-                                gender: controller.userData.first
+                                        .userProfileUpdateRequest.nickname
+                                    : controller.userData.first.nickname,
+                                gender: controller.userProfileUpdateRequest
                                         .gender.isNotEmpty
-                                    ? controller.userData.first.gender
-                                    : controller.userProfileUpdateRequest.gender,
-                                subGender: controller.userData.first
+                                    ? controller.userProfileUpdateRequest.gender
+                                    : controller.userData.first.gender,
+                                subGender: controller.userProfileUpdateRequest
                                         .subGender.isNotEmpty
                                     ? controller
-                                        .userData.first.subGender
-                                    : controller.userProfileUpdateRequest.subGender,
+                                        .userProfileUpdateRequest.subGender
+                                    : controller.userData.first.subGender,
                                 lang: controller.userProfileUpdateRequest.lang,
-                                interest: controller.userData.first
+                                interest: controller.userProfileUpdateRequest
                                         .interest.isNotEmpty
                                     ? controller
-                                        .userData.first.interest
-                                    : controller.userProfileUpdateRequest.interest,
+                                        .userProfileUpdateRequest.interest
+                                    : controller.userData.first.interest,
                                 bio: controller
-                                        .userData.first.bio.isNotEmpty
-                                    ? controller.userData.first.bio
-                                    : controller.userProfileUpdateRequest.bio,
+                                        .userProfileUpdateRequest.bio.isNotEmpty
+                                    ? controller.userProfileUpdateRequest.bio
+                                    : controller.userData.first.bio,
                                 visibility: controller
                                     .userProfileUpdateRequest.visibility,
-                                emailAlerts: controller.userData.first
+                                emailAlerts: controller.userProfileUpdateRequest
                                         .emailAlerts.isNotEmpty
                                     ? controller
-                                        .userData.first.emailAlerts
-                                    : controller.userProfileUpdateRequest.emailAlerts,
+                                        .userProfileUpdateRequest.emailAlerts
+                                    : controller.userData.first.emailAlerts,
+                                lookingFor: controller.userProfileUpdateRequest
+                                        .lookingFor.isNotEmpty
+                                    ? controller
+                                        .userProfileUpdateRequest.lookingFor
+                                    : controller.userData.first.lookingFor,
                                 preferences: controller
                                     .userProfileUpdateRequest.preferences,
-                                desires: controller.userProfileUpdateRequest.desires,
+                                desires:
+                                    controller.userProfileUpdateRequest.desires,
                               );
 
                               List<int> selectedPreferences = [];
@@ -1361,7 +1532,6 @@ Widget buildRelationshipStatusInterestStep(
   RxList<UserDesire> selectedDesires = controller.userDesire;
   controller.userProfileUpdateRequest.desires =
       selectedDesires.map((userDesire) => userDesire.desiresId).toList();
-  // Populate selectedOptions based on controller.userDesire
   for (var userDesire in controller.userDesire) {
     int index =
         controller.desires.indexWhere((d) => d.id == userDesire.desiresId);
@@ -1369,8 +1539,6 @@ Widget buildRelationshipStatusInterestStep(
       selectedOptions[index] = true;
     }
   }
-
-  // Handle chip selection
   double screenWidth = screenSize.width;
   double bodyFontSize = screenWidth * 0.03;
   double chipFontSize = screenWidth * 0.03;
@@ -1419,7 +1587,6 @@ Widget buildRelationshipStatusInterestStep(
                                     color: AppColors.deniedColor,
                                   ),
                                   onDeleted: () {
-                                    // Remove desire on deletion
                                     selectedDesires.remove(desire);
                                     int index = controller.desires.indexWhere(
                                         (d) => d.id == desire.desiresId);
@@ -1443,7 +1610,6 @@ Widget buildRelationshipStatusInterestStep(
                     )
                   : Container();
             }),
-
             Text(
               "Select your Desires: ${controller.desires.length}",
               style: AppTextStyles.bodyText.copyWith(
@@ -1464,7 +1630,6 @@ Widget buildRelationshipStatusInterestStep(
                             List.generate(controller.desires.length, (index) {
                           return GestureDetector(
                             onTap: () {
-                              // Add desire to selected list
                               UserDesire userDesire = UserDesire(
                                   desiresId: controller.desires[index].id,
                                   title: controller.desires[index].title);
@@ -1477,6 +1642,7 @@ Widget buildRelationshipStatusInterestStep(
                                         .map((userDesire) =>
                                             userDesire.desiresId)
                                         .toList();
+                                return;
                               }
                             },
                             child: Padding(
@@ -1500,9 +1666,7 @@ Widget buildRelationshipStatusInterestStep(
                     )
                   : Container();
             }),
-
             SizedBox(height: 20),
-            // Reset and Cancel Button
             Align(
               alignment: Alignment.centerRight,
               child: ElevatedButton(
@@ -1866,14 +2030,13 @@ class InfoFieldState extends State<InfoField> {
     if (widget.validator != null) {
       String? error = widget.validator!(value);
       setState(() {
-        _errorText = error; // Update error text on each validation
+        _errorText = error;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Helper function to make font size responsive
     double getResponsiveFontSize(double scale) {
       double screenWidth = MediaQuery.of(context).size.width;
       return screenWidth * scale;

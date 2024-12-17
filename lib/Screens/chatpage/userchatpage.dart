@@ -30,8 +30,6 @@ class ChatPageState extends State<ChatPage> {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
   }
-
-  // Permissions request
   Future<void> requestPermissions() async {
     var cameraStatus = await Permission.camera.request();
     var galleryStatus = await Permission.photos.request();
@@ -41,13 +39,12 @@ class ChatPageState extends State<ChatPage> {
         galleryStatus.isDenied ||
         microphoneStatus.isDenied) {
       Get.snackbar(
-          'Permission Denied', 'Please allow all necessary permissions.',
+          'Permission ', 'Please allow all necessary permissions.',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: AppColors.deniedColor);
     }
   }
 
-  // Handle picking image or video from the camera
   Future<void> pickFromCamera() async {
     await requestPermissions();
 
@@ -64,7 +61,7 @@ class ChatPageState extends State<ChatPage> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   foregroundColor: AppColors.textColor,
-                  backgroundColor: AppColors.buttonColor, // text color
+                  backgroundColor: AppColors.buttonColor, 
                   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
@@ -81,7 +78,7 @@ class ChatPageState extends State<ChatPage> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   foregroundColor: AppColors.textColor,
-                  backgroundColor: AppColors.buttonColor, // text color
+                  backgroundColor: AppColors.buttonColor, 
                   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
@@ -121,7 +118,7 @@ class ChatPageState extends State<ChatPage> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   foregroundColor: AppColors.textColor,
-                  backgroundColor: AppColors.buttonColor, // text color
+                  backgroundColor: AppColors.buttonColor, 
                   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
@@ -138,7 +135,7 @@ class ChatPageState extends State<ChatPage> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   foregroundColor: AppColors.textColor,
-                  backgroundColor: AppColors.buttonColor, // text color
+                  backgroundColor: AppColors.buttonColor,
                   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
@@ -213,8 +210,6 @@ class ChatPageState extends State<ChatPage> {
 
   void editMessage(int index) {
     messageController.text = messages[index]['content'];
-
-    // Show the bottom sheet to edit the message
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -316,13 +311,11 @@ void showReportUserDialog() {
     context: context,
     builder: (BuildContext context) {
       return Obx(() {
-        // This makes the whole dialog reactive.
         return AlertDialog(
           title: Text('Report User'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Button to select the reason
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.black,
@@ -334,16 +327,14 @@ void showReportUserDialog() {
                   ),
                 ),
                 onPressed: () {
-                  // Open bottom sheet when button is pressed
                   showBottomSheet(
                     context: context,
                     label: "Select Reason",
                     options: controller.reportReasons.map((reason) => reason.title).toList(),
                     onSelected: (String? value) {
                       if (value != null && value.isNotEmpty) {
-                        // Update the selected reason in the controller model
                         controller.reportUserReasonFeedbackRequestModel.reasonId = value;
-                        isselected.value = true; // Mark as selected
+                        isselected.value = true;
                       } else {
                         isselected.value = false;
                       }
@@ -351,7 +342,7 @@ void showReportUserDialog() {
                   );
                 },
                 child: Row(
-                  mainAxisSize: MainAxisSize.min, // Ensures the row takes up only as much space as needed
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       controller.reportUserReasonFeedbackRequestModel.reasonId.isEmpty
@@ -359,17 +350,15 @@ void showReportUserDialog() {
                           : controller.reportUserReasonFeedbackRequestModel.reasonId,
                       style: AppTextStyles.bodyText,
                     ),
-                    SizedBox(width: 8), // Space between the text and the icon
+                    SizedBox(width: 8),
                     Icon(
-                      Icons.arrow_drop_down, // Down arrow icon
-                      color: AppColors.activeColor, // Icon color
+                      Icons.arrow_drop_down,
+                      color: AppColors.activeColor,
                     ),
                   ],
                 ),
               ),
               SizedBox(height: 10),
-
-              // Only show the description TextField if a reason is selected
               if (isselected.value)
                 TextField(
                   cursorColor: AppColors.cursorColor,
@@ -410,7 +399,7 @@ void showReportUserDialog() {
                         failure('Error', 'Please select a reason and provide a description.');
                       }
                     }
-                  : null, // Button is disabled if iswriting.value is false
+                  : null, 
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                 backgroundColor: AppColors.buttonColor,
@@ -425,7 +414,6 @@ void showReportUserDialog() {
   );
 }
 
-// Function to show the bottom sheet with a list of radio buttons
 void showBottomSheet({
   required BuildContext context,
   required String label,

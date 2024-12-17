@@ -1,6 +1,9 @@
+import 'package:dating_application/Controllers/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import '../../Models/ResponseModels/get_all_desires_model_response.dart';
+import '../../Models/ResponseModels/get_all_likes_pages_response.dart';
 import '../../constants.dart';
 
 class LikesPage extends StatefulWidget {
@@ -11,86 +14,27 @@ class LikesPage extends StatefulWidget {
 }
 
 class LikesPageState extends State<LikesPage> {
-  // Filter state
-  String selectedGender = 'All';
+  List<String> selectedGender = [];
   String selectedLocation = 'All';
-  String selectedDesire = 'All'; // New filter for "Desires"
-  int selectedAgeRange = 0; // 0: All, 1: 18-25, 2: 26-35, etc.
   bool isLoading = true;
-
-  final List<Map<String, dynamic>> users = [
-    // Sample users
-
-    {
-      'name': 'John Doe',
-      'age': 25,
-      'location': 'New York',
-      'km': 10,
-      'lastSeen': '2 hours ago',
-      'desires': 'Looking for someone adventurous',
-      'gender': 'Male',
-      'images': [
-        'assets/images/image1.jpg',
-        'assets/images/image2.jpg',
-        'assets/images/image3.jpg'
-      ],
-    },
-    {
-      'name': 'Jane Smith',
-      'age': 23,
-      'location': 'Los Angeles',
-      'km': 50,
-      'lastSeen': '1 day ago',
-      'desires': 'Looking for a partner who enjoys hiking',
-      'gender': 'Female',
-      'images': [
-        'assets/images/image2.jpg',
-        'assets/images/image3.jpg',
-        'assets/images/image1.jpg'
-      ],
-    },
-    {
-      'name': 'Sam Wilson',
-      'age': 28,
-      'location': 'Chicago',
-      'km': 100,
-      'lastSeen': '3 hours ago',
-      'desires': 'Looking for someone to explore new places',
-      'gender': 'Non-Binary',
-      'images': [
-        'assets/images/image3.jpg',
-        'assets/images/image1.jpg',
-        'assets/images/image2.jpg'
-      ],
-    },
-  ];
+  Controller controller = Get.put(Controller());
+  List<String> genders = [];
+  List<String> desires = [];
+  List<String> preferences = [];
+  List<String> selectedPreference = [];
+  List<String> selectedGenderFilters = [];
+  List<String> selectedPreferenceFilters = [];
+  List<String> selectedDesireFilters = [];
+  List<LikeRequestPages> filteredLikesPage = [];
 
   bool isLiked = false;
   bool isShare = false;
   bool isSms = false;
   int pingCount = 0;
-  int likeCount = 10;
   final PageController imagePageController = PageController();
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
-    return screenWidth * scale; // Adjust this scale for different text elements
-  }
-
-  // Filter logic for user profiles
-  List<Map<String, dynamic>> getFilteredUsers() {
-    return users.where((user) {
-      bool matchesGender =
-          selectedGender == 'All' || user['gender'] == selectedGender;
-      bool matchesLocation =
-          selectedLocation == 'All' || user['location'] == selectedLocation;
-      bool matchesDesire =
-          selectedDesire == 'All' || user['desires'].contains(selectedDesire);
-      bool matchesAge = selectedAgeRange == 0 ||
-          (selectedAgeRange == 1 && user['age'] >= 18 && user['age'] <= 25) ||
-          (selectedAgeRange == 2 && user['age'] >= 26 && user['age'] <= 35) ||
-          (selectedAgeRange == 3 && user['age'] >= 36);
-      return matchesGender && matchesLocation && matchesDesire && matchesAge;
-    }).toList();
+    return screenWidth * scale; 
   }
 
   void showFullImageDialog(BuildContext context, String imagePath) {
@@ -100,14 +44,39 @@ class LikesPageState extends State<LikesPage> {
         return Dialog(
           backgroundColor: Colors.black.withOpacity(0.9),
           child: GestureDetector(
-            onTap: () => Navigator.of(context).pop(), // Close dialog on tap
+            onTap: () => Navigator.of(context).pop(),
             child: Center(
-              child: Image.asset(
-                imagePath,
-                fit: BoxFit.contain, // Adjust the image size to fit
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-              ),
+              child: imagePath.startsWith('http')
+                  ? Image.network(
+                      imagePath,
+                      fit: BoxFit.contain,
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Center(
+                          child: Icon(
+                            Icons.broken_image,
+                            size: 100,
+                            color: Colors.grey,
+                          ),
+                        );
+                      },
+                    )
+                  : Image.asset(
+                      imagePath,
+                      fit: BoxFit.contain,
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Center(
+                          child: Icon(
+                            Icons.broken_image,
+                            size: 100,
+                            color: Colors.grey,
+                          ),
+                        );
+                      },
+                    ),
             ),
           ),
         );
@@ -120,24 +89,22 @@ class LikesPageState extends State<LikesPage> {
       Padding(
         padding: const EdgeInsets.all(0.0),
         child: Container(
-          color: Colors.black, // Set the background color to black
+          color: Colors.black, 
           child: Column(
-            mainAxisSize: MainAxisSize.min, // Minimize the space to fit content
+            mainAxisSize: MainAxisSize.min, 
             children: [
-              // Title of the Bottom Sheet
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
                   'Found Uplift',
                   style: AppTextStyles.titleText.copyWith(
                     fontSize: getResponsiveFontSize(0.03),
-                    color: Colors.white, // Set text color to white for contrast
+                    color: Colors.white, 
                   ),
                   textAlign: TextAlign.center,
                 ),
               ),
               SizedBox(height: 10),
-              // Subtitle with additional information
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
@@ -145,78 +112,70 @@ class LikesPageState extends State<LikesPage> {
                   'and you can access earlier with premium benefits.',
                   style: AppTextStyles.bodyText.copyWith(
                     fontSize: getResponsiveFontSize(0.03),
-                    color: Colors.white, // Set text color to white for contrast
+                    color: Colors.white, 
                   ),
                   textAlign: TextAlign.center,
                 ),
               ),
               SizedBox(height: 20),
-
-              // Orange Card with Icon, Text, and Discount Label
               Stack(
                 children: [
-                  // The Orange Card
                   Card(
                     elevation: 8,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    color: Colors.orange, // Set card background color to orange
+                    color: Colors.orange, 
                     child: Padding(
-                      padding: const EdgeInsets.all(24.0), // Increased padding
+                      padding: const EdgeInsets.all(24.0), 
                       child: Row(
                         children: [
-                          // Icon for the card
                           Icon(
                             Icons.calendar_today,
                             color: Colors
-                                .white, // Icon color is white for contrast
-                            size: 24, // Adjust size as needed
+                                .white, 
+                            size: 24, 
                           ),
                           SizedBox(width: 10),
-                          // Text for the card
                           Expanded(
                             child: Text(
-                              "24-hour Premium Plan - ₹299", // Plan description
+                              "24-hour Premium Plan - ₹299", 
                               style: AppTextStyles.bodyText.copyWith(
                                 fontSize: getResponsiveFontSize(0.03),
                                 color:
-                                    Colors.white, // White text for readability
+                                    Colors.white, 
                               ),
                             ),
                           ),
-                          // Plan Status (text)
                           Text(
-                            'Selected', // Status of the plan
+                            'Selected',
                             style: AppTextStyles.bodyText.copyWith(
                               fontSize: getResponsiveFontSize(0.03),
                               color: AppColors
-                                  .buttonColor, // Color for the status text
+                                  .buttonColor, 
                             ),
                           ),
                         ],
                       ),
                     ),
                   ),
-
-                  // Positioned Discount Label (20% OFF)
                   Positioned(
-                    top: 4, // Slightly higher position
-                    right: 2, // Position at the top-right corner
+                    top: 4, 
+                    right: 2, 
                     child: Container(
                       padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
                       decoration: BoxDecoration(
-                        color: Colors.red, // Set the background color to red
+                        color: Colors.red,
                         borderRadius:
-                            BorderRadius.circular(12), // Curved corners
+                            BorderRadius.circular(12), 
                       ),
                       child: Text(
-                        '20% OFF', // Display the discount percentage
+                        '20% OFF',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize:
-                              getResponsiveFontSize(0.03), // Smaller font size
+                              getResponsiveFontSize(0.03), 
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -226,13 +185,10 @@ class LikesPageState extends State<LikesPage> {
               ),
 
               SizedBox(height: 20),
-
-              // Purchase Button
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    // Simulate purchase process
                     Get.back();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -254,23 +210,102 @@ class LikesPageState extends State<LikesPage> {
           ),
         ),
       ),
-      isScrollControlled: true, // Allow bottom sheet to have a controlled size
+      isScrollControlled: true, 
       backgroundColor: Colors
-          .transparent, // Transparent background for the full-screen effect
+          .transparent,
     );
   }
 
-  Future<void> fetchData() async {
-    await Future.delayed(Duration(seconds: 2));
+  Future<bool> fetchData() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      await Future.delayed(Duration(seconds: 2));
+
+      filteredLikesPage = controller.likespage;
+
+      await controller.likesuserpage();
+      if (controller.likespage.isEmpty) {
+        print("No likes in the list");
+      } else {
+        print(controller.likespage.map((item) => item));
+      }
+
+      await controller.fetchGenders();
+      if (controller.genders.isEmpty) {
+        print("No genders in the list");
+      } else {
+        genders
+            .addAll(controller.genders.map((gender) => gender.title).toSet());
+        print(genders);
+      }
+
+      final relationshipCategory = controller.categories.firstWhere(
+        (category) => category.category == 'Relationship',
+        orElse: () => Category(category: 'Relationship', desires: []),
+      );
+
+      final kinksCategory = controller.categories.firstWhere(
+        (category) => category.category == 'Kinks',
+        orElse: () => Category(category: 'Kinks', desires: []),
+      );
+
+      desires.addAll([
+        ...relationshipCategory.desires.map((desire) => desire.title),
+        ...kinksCategory.desires.map((desire) => desire.title),
+      ]);
+
+      await controller.fetchPreferences();
+      preferences.addAll(controller.preferences
+          .map((preference) => preference.title)
+          .toSet()
+          .toList());
+      print(preferences);
+
+      return true;
+    } catch (e) {
+      print("Error during data fetching: $e");
+      return false;
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  void applyFilters() {
     setState(() {
-      isLoading = false; // Data is fetched, so hide the spinner
+      filteredLikesPage = controller.likespage;
+
+      if (selectedGenderFilters.isNotEmpty) {
+        filteredLikesPage = filteredLikesPage
+            .where((user) => selectedGenderFilters.contains(user.gender))
+            .toList();
+      }
+
+      if (selectedDesireFilters.isNotEmpty) {
+        filteredLikesPage = filteredLikesPage
+            .where((user) => user.desires
+                .any((desire) => selectedDesireFilters.contains(desire)))
+            .toList();
+      }
+
+      if (selectedPreferenceFilters.isNotEmpty) {
+        filteredLikesPage = filteredLikesPage
+            .where((user) => user.preferences.any(
+                (preference) => selectedPreferenceFilters.contains(preference)))
+            .toList();
+      }
     });
   }
 
   @override
   void initState() {
     super.initState();
-    // Fetch the data when the page is loaded
     fetchData();
   }
 
@@ -281,180 +316,175 @@ class LikesPageState extends State<LikesPage> {
         children: [
           Column(
             children: [
-              // Header with number of Likes and Pings
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Likes: $likeCount', style: AppTextStyles.bodyText),
+                    Text('Likes: ${filteredLikesPage.length}',
+                        style: AppTextStyles.bodyText),
                     Text('Pings: $pingCount', style: AppTextStyles.bodyText),
                   ],
                 ),
               ),
-              // Filters section with horizontal scroll
               SizedBox(
                 height: 60,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
+                    buildFilterChip('Gender', genders, selectedGenderFilters,
+                        (value) {
+                      setState(() {
+                        selectedGenderFilters = value;
+                      });
+                      applyFilters();
+                    }),
+                    // buildFilterChip('Location',
+                    //     ['All', 'New York', 'Los Angeles', 'Chicago'], (value) {
+                    //   setState(() {
+                    //     selectedLocation = value!;
+                    //   });
+                    // }),
+                    buildFilterChip('Desires', desires, selectedDesireFilters,
+                        (value) {
+                      setState(() {
+                        selectedDesireFilters = value;
+                      });
+                      applyFilters();
+                    }),
                     buildFilterChip(
-                        'Gender', ['All', 'Male', 'Female', 'Non-Binary'],
+                        'Preferences', preferences, selectedPreferenceFilters,
                         (value) {
                       setState(() {
-                        selectedGender = value!;
+                        selectedPreferenceFilters = value;
                       });
-                    }),
-                    buildFilterChip('Location',
-                        ['All', 'New York', 'Los Angeles', 'Chicago'], (value) {
-                      setState(() {
-                        selectedLocation = value!;
-                      });
-                    }),
-                    buildFilterChip('Age', ['All', '18-25', '26-35', '36+'],
-                        (value) {
-                      setState(() {
-                        selectedAgeRange =
-                            ['All', '18-25', '26-35', '36+'].indexOf(value!);
-                      });
-                    }),
-                    buildFilterChip('Desires', [
-                      'All',
-                      'Adventurous',
-                      'Hiking',
-                      'Explore new places'
-                    ], (value) {
-                      setState(() {
-                        selectedDesire = value!;
-                      });
-                    }),
+                      applyFilters();
+                    })
                   ],
                 ),
               ),
-
-              // User profiles
               Expanded(
-                child: ListView.builder(
-                  itemCount: getFilteredUsers().length,
-                  itemBuilder: (context, index) {
-                    var user = getFilteredUsers()[index];
-                    return Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Horizontal Image Scrolling
-                          SizedBox(
-                            height: 200,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: user['images'].length,
-                              itemBuilder: (context, imgIndex) {
-                                return Container(
-                                  margin: EdgeInsets.only(right: 12),
-                                  child: GestureDetector(
-                                    onTap: () => showFullImageDialog(
-                                        context, user['images'][imgIndex]),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(15),
-                                      child: Image.asset(
-                                        user['images'][
-                                            imgIndex], // Image path from the user's data
-                                        fit: BoxFit.cover,
-                                        width: 150,
-                                        height: 200,
+                child: filteredLikesPage.isEmpty
+                    ? Center(
+                        child: Text("No Likes in History."),
+                      )
+                    : ListView.builder(
+                        itemCount: filteredLikesPage.length,
+                        itemBuilder: (context, index) {
+                          var user = filteredLikesPage[index];
+                          return Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                    height: 200,
+                                    child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: user.images.length,
+                                      itemBuilder: (context, imgIndex) {
+                                        return Container(
+                                          margin: EdgeInsets.only(right: 12),
+                                          child: GestureDetector(
+                                            onTap: () => showFullImageDialog(
+                                                context, user.images[imgIndex]),
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                              child: Image.network(
+                                                user.images[imgIndex],
+                                                fit: BoxFit.cover,
+                                                width: 150,
+                                                height: 200,
+                                                errorBuilder: (context, error,
+                                                    stackTrace) {
+                                                  return Container(
+                                                    width: 150,
+                                                    height: 200,
+                                                    alignment: Alignment.center,
+                                                    color: Colors.grey.shade200,
+                                                    child: Icon(
+                                                      Icons.broken_image,
+                                                      size: 48,
+                                                      color: Colors.grey,
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    )),
+                                // User Information
+                                SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Text(user.name,
+                                        style: AppTextStyles.titleText.copyWith(
+                                            fontSize:
+                                                getResponsiveFontSize(0.04))),
+                                    Text(
+                                        (user.likedByMe == 0)
+                                            ? ' | Liked By ${user.name}'
+                                            : " | Liked By You",
+                                        style: AppTextStyles.bodyText.copyWith(
+                                            fontSize:
+                                                getResponsiveFontSize(0.03))),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Text('${user.name} years old | ',
+                                        style: AppTextStyles.bodyText.copyWith(
+                                            fontSize:
+                                                getResponsiveFontSize(0.03))),
+                                    Text('${user.countryName} | ',
+                                        style: AppTextStyles.bodyText.copyWith(
+                                            fontSize:
+                                                getResponsiveFontSize(0.03))),
+                                    Text('${user.gender} | ',
+                                        style: AppTextStyles.bodyText.copyWith(
+                                            fontSize:
+                                                getResponsiveFontSize(0.03))),
+                                    // Text('${user['km']} km away',
+                                    //     style: AppTextStyles.bodyText.copyWith(
+                                    //         fontSize: getResponsiveFontSize(0.03))),
+                                  ],
+                                ),
+                                SizedBox(height: 4),
+                                Text('Last Seen: ${user.updated}',
+                                    style: AppTextStyles.bodyText.copyWith(
+                                        fontSize: getResponsiveFontSize(0.03))),
+                                SizedBox(height: 12),
+                                Row(
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          isLiked = !isLiked;
+                                        });
+                                      },
+                                      icon: Icon(
+                                        isLiked
+                                            ? Icons.favorite
+                                            : Icons.favorite_border,
+                                        size: 30,
+                                        color:
+                                            isLiked ? Colors.red : Colors.white,
                                       ),
                                     ),
-                                  ),
-                                );
-                              },
+                                    
+                                  ],
+                                ),
+                              ],
                             ),
-                          ),
-                          // User Information
-                          SizedBox(height: 8),
-                          Text(user['name'],
-                              style: AppTextStyles.titleText.copyWith(
-                                  fontSize: getResponsiveFontSize(0.04))),
-                          Row(
-                            children: [
-                              Text('${user['age']} years old | ',
-                                  style: AppTextStyles.bodyText.copyWith(
-                                      fontSize: getResponsiveFontSize(0.03))),
-                              Text('${user['location']} | ',
-                                  style: AppTextStyles.bodyText.copyWith(
-                                      fontSize: getResponsiveFontSize(0.03))),
-                              Text('${user['km']} km away',
-                                  style: AppTextStyles.bodyText.copyWith(
-                                      fontSize: getResponsiveFontSize(0.03))),
-                            ],
-                          ),
-                          SizedBox(height: 4),
-                          Text('Last Seen: ${user['lastSeen']}',
-                              style: AppTextStyles.bodyText.copyWith(
-                                  fontSize: getResponsiveFontSize(0.03))),
-                          SizedBox(height: 12),
-                          Text('Desires:',
-                              style: AppTextStyles.bodyText.copyWith(
-                                  fontSize: getResponsiveFontSize(0.03))),
-                          Text(user['desires'],
-                              style: AppTextStyles.bodyText.copyWith(
-                                  fontSize: getResponsiveFontSize(0.03))),
-
-                          Row(
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    isLiked = !isLiked;
-                                  });
-                                },
-                                icon: Icon(
-                                  isLiked
-                                      ? Icons.favorite
-                                      : Icons.favorite_border,
-                                  size: 30,
-                                  color: isLiked ? Colors.red : Colors.white,
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    isShare = !isShare;
-                                  });
-                                },
-                                icon: Icon(
-                                  isShare
-                                      ? Icons.share
-                                      : Icons.share_sharp,
-                                  size: 30,
-                                  color: isShare ? Colors.red : Colors.white,
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    isSms = !isSms;
-                                  });
-                                },
-                                icon: Icon(
-                                  isSms
-                                      ? Icons.messenger
-                                      : Icons.messenger_outline,
-                                  size: 30,
-                                  color: isSms ? Colors.red : Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
               ),
             ],
           ),
-          // Floating "Upgrade Profile" button
           Positioned(
             bottom: 16,
             right: 16,
@@ -463,7 +493,6 @@ class LikesPageState extends State<LikesPage> {
               height: 60,
               child: FloatingActionButton(
                 onPressed: () {
-                  // Call the showUpgradeBottomSheet method when pressed
                   showUpgradeBottomSheet();
                 },
                 backgroundColor: AppColors.buttonColor,
@@ -481,8 +510,8 @@ class LikesPageState extends State<LikesPage> {
           if (isLoading)
             Center(
               child: SpinKitCircle(
-                size: 150.0, // Adjust the size of the spinner
-                color: AppColors.progressColor, // Set the spinner color
+                size: 150.0, 
+                color: AppColors.progressColor, 
               ),
             ),
         ],
@@ -491,20 +520,20 @@ class LikesPageState extends State<LikesPage> {
   }
 
   Widget buildFilterChip(
-      String label, List<String> options, Function(String?) onSelected) {
+    String label,
+    List<String> options,
+    List<String> initialSelection,
+    Function(List<String>) onSelected,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Container(
-        decoration: BoxDecoration(
-            // borderRadius: BorderRadius.circular(14),
-            // border: Border.all(color: AppColors.activeColor, width: 2),
-            ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               foregroundColor: AppColors.primaryColor,
-              backgroundColor: AppColors.secondaryColor, // Text color
+              backgroundColor: AppColors.secondaryColor,
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -512,21 +541,20 @@ class LikesPageState extends State<LikesPage> {
               ),
             ),
             onPressed: () {
-              // Open bottom sheet when button is pressed
-              showBottomSheet(label, options, onSelected);
+              if (options.isEmpty) return;
+              showBottomSheet(label, options, initialSelection, onSelected);
             },
             child: Row(
-              mainAxisSize: MainAxisSize
-                  .min, // Ensures the row takes up only as much space as needed
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   label,
                   style: AppTextStyles.bodyText,
                 ),
-                SizedBox(width: 8), // Space between the text and the icon
+                SizedBox(width: 8),
                 Icon(
-                  Icons.arrow_drop_down, // Down arrow icon
-                  color: AppColors.activeColor, // Icon color
+                  Icons.arrow_drop_down,
+                  color: AppColors.activeColor,
                 ),
               ],
             ),
@@ -537,49 +565,82 @@ class LikesPageState extends State<LikesPage> {
   }
 
   void showBottomSheet(
-      String label, List<String> options, Function(String?) onSelected) {
+    String label,
+    List<String> options,
+    List<String> initialSelection,
+    Function(List<String>) onSelected,
+  ) {
+    List<String> selectedOptions = List.from(initialSelection);
+
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (BuildContext context) {
-        return Container(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '$label Filter',
-                style: AppTextStyles.headingText.copyWith(fontSize: 22),
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Container(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '$label Filter',
+                    style: AppTextStyles.headingText.copyWith(fontSize: 22),
+                  ),
+                  SizedBox(height: 16),
+                  CheckboxListTile(
+                    title: Text('All', style: AppTextStyles.bodyText),
+                    value: selectedOptions.length == options.length,
+                    onChanged: (isChecked) {
+                      setState(() {
+                        if (isChecked == true) {
+                          selectedOptions = List.from(options);
+                        } else {
+                          selectedOptions.clear();
+                        }
+                      });
+                    },
+                    activeColor: AppColors.buttonColor,
+                  ),
+                  ...options.map((option) {
+                    return CheckboxListTile(
+                      title: Text(option, style: AppTextStyles.bodyText),
+                      value: selectedOptions.contains(option),
+                      onChanged: (isChecked) {
+                        setState(() {
+                          if (isChecked == true) {
+                            selectedOptions.add(option);
+                          } else {
+                            selectedOptions.remove(option);
+                          }
+                        });
+                      },
+                      activeColor: AppColors.buttonColor,
+                    );
+                  }),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.buttonColor,
+                      foregroundColor: Colors.white,
+                      padding:
+                          EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                    ),
+                    onPressed: () {
+                      onSelected(selectedOptions);
+                      Navigator.pop(context);
+                    },
+                    child: Text("Apply"),
+                  ),
+                ],
               ),
-              SizedBox(height: 16),
-              ...options.map((option) {
-                return RadioListTile<String>(
-                  title: Text(option, style: AppTextStyles.bodyText),
-                  value: option,
-                  groupValue: label == 'Gender'
-                      ? selectedGender
-                      : label == 'Location'
-                          ? selectedLocation
-                          : label == 'Desires'
-                              ? selectedDesire
-                              : selectedAgeRange == 0
-                                  ? 'All'
-                                  : label == 'Age' && option == 'All'
-                                      ? 'All'
-                                      : option,
-                  onChanged: (value) {
-                    setState(() {
-                      onSelected(value);
-                    });
-                    Navigator.pop(context);
-                  },
-                  activeColor: AppColors.buttonColor,
-                );
-              }),
-            ],
-          ),
+            );
+          },
         );
       },
     );
   }
 }
+
+

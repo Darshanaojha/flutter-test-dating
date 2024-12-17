@@ -60,6 +60,7 @@ class ChatHistoryItem {
   final String username;
   final String profileImage;
   final String lastSeen;
+  final String useractivestatus;
 
   ChatHistoryItem({
     required this.id,
@@ -73,6 +74,7 @@ class ChatHistoryItem {
     required this.username,
     required this.profileImage,
     required this.lastSeen,
+    required this.useractivestatus,
   });
 
   factory ChatHistoryItem.fromJson(Map<String, dynamic> json) {
@@ -88,6 +90,7 @@ class ChatHistoryItem {
       username: json['username'],
       profileImage: json['profile_image'],
       lastSeen: json['last_seen'],
+      useractivestatus:json['user_active_status'],
     );
   }
 }

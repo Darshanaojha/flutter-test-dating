@@ -1,6 +1,5 @@
 import 'package:dating_application/Screens/settings/appinfopages/faqpage.dart';
 import 'package:dating_application/Screens/userprofile/accountverification/useraccountverification.dart';
-import 'package:dating_application/Screens/userprofile/addpartner/addpartnerpage.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -25,7 +24,7 @@ class UserProfilePageState extends State<UserProfilePage> {
   Controller controller = Get.put(Controller());
   bool isLoading = true;
   String userProfileCompletion = '80% Complete';
-    late Future<bool> _fetchprofilepage;
+  late Future<bool> _fetchprofilepage;
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
@@ -116,7 +115,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                               Text(
+                                Text(
                                   controller.usernameUpdateRequest.username
                                           .isNotEmpty
                                       ? controller
@@ -126,7 +125,6 @@ class UserProfilePageState extends State<UserProfilePage> {
                                     fontSize: getResponsiveFontSize(0.03),
                                   ),
                                 ),
-
                                 SizedBox(height: 8),
                                 Text(
                                   'Click to change username',
@@ -165,20 +163,21 @@ class UserProfilePageState extends State<UserProfilePage> {
                                                 controller:
                                                     TextEditingController(
                                                   text: controller
-                                                          .userData
-                                                          .first
+                                                          .usernameUpdateRequest
                                                           .username
                                                           .isNotEmpty
-                                                      ? controller.userData
-                                                          .first.username
-                                                      : controller
+                                                      ? controller
                                                           .usernameUpdateRequest
-                                                          .username,
+                                                          .username
+                                                      : controller.userData
+                                                          .first.username,
                                                 ),
                                                 onChanged: (value) {
-                                                  controller
-                                                      .usernameUpdateRequest
-                                                      .username = value;
+                                                  setState(() {
+                                                    controller
+                                                        .usernameUpdateRequest
+                                                        .username = value;
+                                                  });
                                                 },
                                                 decoration: InputDecoration(
                                                   labelText: 'Username',

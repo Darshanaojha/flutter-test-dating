@@ -1,7 +1,8 @@
+
 class GetAllLikesResponse {
-  final bool success;
-  final Payload payload;
-  final Error error;
+  bool success;
+  Payload payload;
+  Error error;
 
   GetAllLikesResponse({
     required this.success,
@@ -9,7 +10,6 @@ class GetAllLikesResponse {
     required this.error,
   });
 
-  // Factory method to create an instance from JSON
   factory GetAllLikesResponse.fromJson(Map<String, dynamic> json) {
     return GetAllLikesResponse(
       success: json['success'],
@@ -18,7 +18,6 @@ class GetAllLikesResponse {
     );
   }
 
-  // Method to convert an instance to JSON
   Map<String, dynamic> toJson() {
     return {
       'success': success,
@@ -29,75 +28,96 @@ class GetAllLikesResponse {
 }
 
 class Payload {
-  final String message;
-  final List<LikeRequestPages> data;
+  String message;
+  List<LikeRequestPages> data;
 
   Payload({
     required this.message,
     required this.data,
   });
 
-  // Factory method to create an instance from JSON
   factory Payload.fromJson(Map<String, dynamic> json) {
+    var list = json['data'] as List;
+    List<LikeRequestPages> dataList =
+        list.map((i) => LikeRequestPages.fromJson(i)).toList();
+
     return Payload(
       message: json['message'],
-      data: (json['data'] as List)
-          .map((item) => LikeRequestPages.fromJson(item))
-          .toList(),
+      data: dataList,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'message': message,
-      'data': data.map((likeRequestPage) => likeRequestPage.toJson()).toList(),
+      'data': data.map((i) => i.toJson()).toList(),
     };
   }
 }
 
 class LikeRequestPages {
-  final String id;
-  final String userId;
-  final String conectionId;
-  final String type;
-  final String status;
-  final String created;
-  final String updated;
-  final String name;
-  final int likeedByMe;
-  final String nickname;
-  final String email;
-  final String dob;
-  final String gender;
-  final String countryName;
-  final String profileImage;
-  final List<String> images;
-  final List<Desire> desires;
-  final List<Preference> preferences;
+  String id;
+  String userId;
+  String conectionId;
+  String type;
+  String status;
+  String created;
+  String updated;
+  String name;
+  String nickname;
+  String email;
+  String profileImage;
+  String dob;
+  int likedByMe;
+  String gender;
+  String countryName;
+  List<String> images;
+  List<String> desires;
+  List<String> preferences;
 
-  LikeRequestPages({
-    required this.id,
-    required this.userId,
-    required this.conectionId,
-    required this.type,
-    required this.status,
-    required this.created,
-    required this.updated,
-    required this.name,
-    required this.likeedByMe,
-    required this.nickname,
-    required this.email,
-    required this.dob,
-    required this.gender,
-    required this.countryName,
-    required this.profileImage,
-    required this.images,
-    required this.desires,
-    required this.preferences,
-  });
+  LikeRequestPages(
+      {required this.id,
+      required this.userId,
+      required this.conectionId,
+      required this.type,
+      required this.status,
+      required this.created,
+      required this.updated,
+      required this.name,
+      required this.nickname,
+      required this.email,
+      required this.profileImage,
+      required this.dob,
+      required this.likedByMe,
+      required this.gender,
+      required this.countryName,
+      required this.images,
+      required this.desires,
+      required this.preferences});
 
-  // Factory method to create an instance from JSON
   factory LikeRequestPages.fromJson(Map<String, dynamic> json) {
+    List<String> imagesList = [];
+    for (var i = 1; i <= 6; i++) {
+      String imgKey = 'img$i';
+      if (json[imgKey] != null && json[imgKey].isNotEmpty) {
+        imagesList.add(json[imgKey]);
+      }
+    }
+
+    List<String> desiresList = [];
+    if (json['desires'] != null) {
+      for (var desire in json['desires']) {
+        desiresList.add(desire['title']);
+      }
+    }
+
+    List<String> preferencesList = [];
+    if (json['preferences'] != null) {
+      for (var preference in json['preferences']) {
+        preferencesList.add(preference['title']);
+      }
+    }
+
     return LikeRequestPages(
       id: json['id'],
       userId: json['user_id'],
@@ -107,20 +127,16 @@ class LikeRequestPages {
       created: json['created'],
       updated: json['updated'],
       name: json['name'],
-      likeedByMe: json['likeed_by_me'],
       nickname: json['nickname'],
       email: json['email'],
+      profileImage: json['profile_image'],
       dob: json['DOB'],
+      likedByMe: json['likeed_by_me'],
       gender: json['gender'],
       countryName: json['countryname'],
-      profileImage: json['profile_image'],
-      images: List<String>.from(json['images'] ?? []), // Handle null values
-      desires: (json['desires'] as List)
-          .map((item) => Desire.fromJson(item))
-          .toList(),
-      preferences: (json['preferences'] as List)
-          .map((item) => Preference.fromJson(item))
-          .toList(),
+      images: imagesList,
+      desires: desiresList,
+      preferences: preferencesList,
     );
   }
 
@@ -134,78 +150,29 @@ class LikeRequestPages {
       'created': created,
       'updated': updated,
       'name': name,
-      'likeed_by_me': likeedByMe,
       'nickname': nickname,
       'email': email,
+      'profile_image': profileImage,
       'DOB': dob,
+      'likeed_by_me': likedByMe,
       'gender': gender,
       'countryname': countryName,
-      'profile_image': profileImage,
       'images': images,
-      'desires': desires.map((desire) => desire.toJson()).toList(),
-      'preferences': preferences.map((preference) => preference.toJson()).toList(),
-    };
-  }
-}
-
-class Desire {
-  final String desiresId;
-  final String title;
-
-  Desire({
-    required this.desiresId,
-    required this.title,
-  });
-
-  factory Desire.fromJson(Map<String, dynamic> json) {
-    return Desire(
-      desiresId: json['desires_id'],
-      title: json['title'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'desires_id': desiresId,
-      'title': title,
-    };
-  }
-}
-
-class Preference {
-  final String preferenceId;
-  final String title;
-
-  Preference({
-    required this.preferenceId,
-    required this.title,
-  });
-
-  factory Preference.fromJson(Map<String, dynamic> json) {
-    return Preference(
-      preferenceId: json['preference_id'],
-      title: json['title'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'preference_id': preferenceId,
-      'title': title,
+      'desires': desires.map((d) => {'title': d}).toList(),
+      'preferences': preferences.map((p) => {'title': p}).toList(),
     };
   }
 }
 
 class Error {
-  final int code;
-  final String message;
+  int code;
+  String message;
 
   Error({
     required this.code,
     required this.message,
   });
 
-  // Factory method to create an instance from JSON
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
       code: json['code'],
@@ -220,3 +187,5 @@ class Error {
     };
   }
 }
+
+

@@ -93,17 +93,14 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
               ),
             );
           }
-          // Error state
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                'Error: ${snapshot.error}', // Show error message
+                'Error: ${snapshot.error}',
                 style: TextStyle(color: Colors.red, fontSize: 18),
               ),
             );
           }
-
-          // Data loaded successfully
           if (snapshot.connectionState == ConnectionState.done &&
               snapshot.hasData) {
             return Center(
@@ -170,8 +167,6 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
               ),
             );
           }
-
-          // Fallback case if no data or something unexpected occurs
           return Center(
             child: Text('No data available', style: TextStyle(fontSize: 18)),
           );
