@@ -67,11 +67,15 @@ class HomePageState extends State<HomePage> {
           success('OOPS', "Nope ${controller.userSuggestionsList[i].name}");
         },
         superlikeAction: () {
-          controller.markFavouriteRequestModel.favouriteId =
-              controller.userSuggestionsList[i].userId;
-          controller.markasfavourite(controller.markFavouriteRequestModel);
-          success(
-              'Bravo', "Superliked ${controller.userSuggestionsList[i].name}");
+          if (controller.userSuggestionsList[i].userId != null) {
+            controller.markFavouriteRequestModel.favouriteId =
+                controller.userSuggestionsList[i].userId;
+            controller.markasfavourite(controller.markFavouriteRequestModel);
+            success('Bravo',
+                "Superliked ${controller.userSuggestionsList[i].name}");
+          } else {
+            failure('Error', "Error: User ID is null.");
+          }
         },
         onSlideUpdate: (SlideRegion? region) async {
           print("Region: $region");
@@ -173,20 +177,23 @@ class HomePageState extends State<HomePage> {
                   filled: true,
                   hintText: 'Type your message here...',
                 ),
-                onChanged: (value){
-                  controller.establishConnectionMessageRequest.message=value;
-                  controller.establishConnectionMessageRequest.messagetype=MessageType.toString();
+                onChanged: (value) {
+                  controller.establishConnectionMessageRequest.message = value;
+                  controller.establishConnectionMessageRequest.messagetype =
+                      MessageType.toString();
                 },
                 maxLines: 3,
               ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  if (controller.establishConnectionMessageRequest.message.isEmpty) {
+                  if (controller
+                      .establishConnectionMessageRequest.message.isEmpty) {
                     setState(() {
                       messageCount--;
                     });
-                    controller.sendConnectionMessage(controller.establishConnectionMessageRequest);
+                    controller.sendConnectionMessage(
+                        controller.establishConnectionMessageRequest);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Message sent')),
                     );
@@ -218,20 +225,19 @@ class HomePageState extends State<HomePage> {
             selectedFilter.value = button;
           });
           onTap(label);
-          // Trigger the custom action passed from parent
         },
-        icon: Icon(icon, size: 20), // Icon inside the button
+        icon: Icon(icon, size: 20),
         label: Text(
           label,
           style: TextStyle(fontSize: 14, color: Colors.white),
-        ), // Text inside the button
+        ),
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.white,
           backgroundColor: selectedFilter.value == button
-              ? Colors.orange
-              : Colors.blue, // Icon and text color
-          shape: StadiumBorder(), // Rounded button shape
-          minimumSize: Size(100, 45), // Button size
+              ? AppColors.activeColor
+              : AppColors.buttonColor,
+          shape: StadiumBorder(),
+          minimumSize: Size(100, 45),
         ),
       ),
     );
@@ -522,32 +528,9 @@ class HomePageState extends State<HomePage> {
                 ),
                 Row(
                   children: [
+                    SizedBox(width: 16),
                     IconButton(
                       onPressed: () {
-                        setState(() {
-                          isLiked = isLiked;
-                        });
-                      },
-                      icon: Icon(
-                        isLiked ? Icons.favorite : Icons.favorite_border,
-                        size: 40,
-                        color: isLiked ? Colors.red : Colors.white,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          isShare = isShare;
-                        });
-                      },
-                      icon: Icon(
-                        isShare ? Icons.share : Icons.share,
-                        size: 40,
-                        color: isShare ? Colors.green : Colors.white,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: (){
                         showmessageBottomSheet(user.id.toString());
                       },
                       icon: Icon(Icons.messenger_outline, size: 40),
@@ -563,7 +546,6 @@ class HomePageState extends State<HomePage> {
                 Row(
                   children: [
                     Text(
-                      // '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userData.first.dob).year} Years Old || ',
                       calculateAge(user.dob ?? 'Unknown Date'),
                       style: TextStyle(fontSize: size.width * 0.04),
                     ),
@@ -590,7 +572,12 @@ class HomePageState extends State<HomePage> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          matchEngine.currentItem?.superLike();
+                          // matchEngine.currentItem?.superLike();
+                          if (matchEngine.currentItem != null) {
+                            matchEngine.currentItem?.superLike();
+                          } else {
+                            print("No current item to super like");
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.FavouriteColor),
@@ -615,155 +602,4 @@ class HomePageState extends State<HomePage> {
             ),
           );
   }
-
-  // Widget arqam() {
-  //   return Padding(
-  //     padding: const EdgeInsets.all(8.0),
-  //     child: ListView.builder(
-  //       itemCount: controller.userSuggestionsList.length,
-  //       scrollDirection: Axis.horizontal,
-  //       itemBuilder: (context, index) {
-  //         SuggestedUser user = controller.userSuggestionsList[index];
-  //         return Container(
-  //           width: 300, // Width of each user card
-  //           margin: EdgeInsets.only(right: 10),
-  //           child: Stack(
-  //             children: [
-  //               // Stack of user cards, with one card on top of another
-  //               Positioned.fill(
-  //                 child: Card(
-  //                   color: Colors.black,
-  //                   shape: RoundedRectangleBorder(
-  //                     borderRadius: BorderRadius.circular(15),
-  //                   ),
-  //                   child: Column(
-  //                     children: [
-  //                       // List of images for each user (vertical scroll)
-  //                       SizedBox(
-  //                         height: 200, // Height of image list
-  //                         child: ListView.builder(
-  //                           itemCount: user.images.length,
-  //                           scrollDirection: Axis.vertical,
-  //                           itemBuilder: (context, imgIndex) {
-  //                             return Container(
-  //                               margin: EdgeInsets.only(bottom: 10),
-  //                               child: ClipRRect(
-  //                                 borderRadius: BorderRadius.circular(10),
-  //                                 child: Image.network(
-  //                                   user.images[imgIndex],
-  //                                   width: 150,
-  //                                   height: 150,
-  //                                   fit: BoxFit.cover,
-  //                                   errorBuilder: (context, error, stackTrace) {
-  //                                     return Center(
-  //                                         child: Icon(Icons.error,
-  //                                             color: Colors.red));
-  //                                   },
-  //                                 ),
-  //                               ),
-  //                             );
-  //                           },
-  //                         ),
-  //                       ),
-
-  //                       // User Info
-  //                       Padding(
-  //                         padding: const EdgeInsets.all(8.0),
-  //                         child: Column(
-  //                           crossAxisAlignment: CrossAxisAlignment.start,
-  //                           children: [
-  //                             // User Name
-  //                             Text(
-  //                               user.name ?? 'No Name',
-  //                               style: TextStyle(
-  //                                   fontSize: 16,
-  //                                   color: Colors.white,
-  //                                   fontWeight: FontWeight.bold),
-  //                             ),
-  //                             SizedBox(height: 5),
-
-  //                             // User Age
-  //                             Text(
-  //                               'Age: ${calculateAge(user.dob ?? '1900-01-01')}',
-  //                               style: TextStyle(
-  //                                   fontSize: 14, color: Colors.white),
-  //                             ),
-  //                             SizedBox(height: 5),
-
-  //                             // City and Gender
-  //                             Text(
-  //                               '${user.city ?? 'Unknown City'} | ${user.gender ?? 'Unknown Gender'}',
-  //                               style: TextStyle(
-  //                                   fontSize: 14, color: Colors.white),
-  //                             ),
-  //                             SizedBox(height: 5),
-
-  //                             // Other Essential Data (e.g., Account Status)
-  //                             Text(
-  //                               'Status: ${user.status ?? 'Unknown'}',
-  //                               style: TextStyle(
-  //                                   fontSize: 12, color: Colors.white),
-  //                             ),
-  //                           ],
-  //                         ),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //               ),
-
-  //               // The "Like", "Nope", "Super Like" Buttons
-  //               Positioned(
-  //                 bottom: 10,
-  //                 left: 10,
-  //                 right: 10,
-  //                 child: Padding(
-  //                   padding: const EdgeInsets.symmetric(vertical: 20.0),
-  //                   child: Row(
-  //                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //                     children: [
-  //                       ElevatedButton(
-  //                         onPressed: () {
-  //                           // Replace with actual swipe action
-  //                           print("Nope button pressed");
-  //                         },
-  //                         style: ElevatedButton.styleFrom(
-  //                             backgroundColor: Colors.red),
-  //                         child: Text("Nope",
-  //                             style:
-  //                                 TextStyle(fontSize: 14, color: Colors.white)),
-  //                       ),
-  //                       ElevatedButton(
-  //                         onPressed: () {
-  //                           // Replace with actual swipe action
-  //                           print("Favourite button pressed");
-  //                         },
-  //                         style: ElevatedButton.styleFrom(
-  //                             backgroundColor: Colors.orange),
-  //                         child: Text("Favourite",
-  //                             style:
-  //                                 TextStyle(fontSize: 14, color: Colors.white)),
-  //                       ),
-  //                       ElevatedButton(
-  //                         onPressed: () {
-  //                           // Replace with actual swipe action
-  //                           print("Like button pressed");
-  //                         },
-  //                         style: ElevatedButton.styleFrom(
-  //                             backgroundColor: Colors.green),
-  //                         child: Text("Like",
-  //                             style:
-  //                                 TextStyle(fontSize: 14, color: Colors.white)),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //         );
-  //       },
-  //     ),
-  //   );
-  // }
 }

@@ -838,6 +838,7 @@ class Controller extends GetxController {
     interest: '',
     bio: '',
     visibility: '',
+    lookingFor: '',
     emailAlerts: '',
     preferences: [],
     desires: [],
@@ -1673,7 +1674,7 @@ class Controller extends GetxController {
           return true;
         }
       } else {
-        failure('Error', 'Failed to fetch the connections');
+        failure('Error', 'Failed to fetch the Likes Users');
         return false;
       }
     } catch (e) {

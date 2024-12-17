@@ -7,6 +7,8 @@ import '../../Models/ResponseModels/get_all_chat_history_page.dart';
 import '../../constants.dart';
 import '../chatpage/userchatpage.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'pinrequestpage.dart';
+
 class ChatHistoryPage extends StatefulWidget {
   const ChatHistoryPage({super.key});
 
@@ -21,21 +23,22 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
 
   List<ChatHistoryItem> getFilteredChatUsers() {
     return controller.chatHistoryItem
-        .where((user) => user.username.toLowerCase().contains(searchQuery.toLowerCase()))
+        .where((user) =>
+            user.username.toLowerCase().contains(searchQuery.toLowerCase()))
         .toList();
   }
 
   @override
   void initState() {
     super.initState();
-    fetchChatUser();
+    fetchChatUserList();
   }
 
-  fetchChatUser() async {
+  fetchChatUserList() async {
     setState(() {
       isLoading = true;
     });
-    await controller.chatHistory();
+    await controller.fetchallchathistory();
     setState(() {
       isLoading = false;
     });
@@ -57,7 +60,6 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Search bar
                 TextField(
                   cursorColor: AppColors.cursorColor,
                   onChanged: (query) {
@@ -67,7 +69,8 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                   },
                   decoration: InputDecoration(
                     hintText: 'Search Chat Users...',
-                    hintStyle: AppTextStyles.customTextStyle(color: Colors.grey),
+                    hintStyle:
+                        AppTextStyles.customTextStyle(color: Colors.grey),
                     prefixIcon: Icon(Icons.search, color: AppColors.iconColor),
                     filled: true,
                     fillColor: AppColors.formFieldColor,
@@ -78,33 +81,34 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                   ),
                 ),
                 SizedBox(height: 20),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Chatting Members',
-                      style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                      '${getFilteredChatUsers().length} members',
+                      style: AppTextStyles.customTextStyle(color: Colors.grey),
                     ),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.circle,
-                          color: AppColors.activeColor,
-                          size: 14,
+                    ElevatedButton(
+                      onPressed: () {
+                        Get.to(MessageRequestPage());
+                        Get.snackbar('count',
+                            controller.chatHistoryItem.length.toString());
+                        print("Request button pressed");
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
                         ),
-                        SizedBox(width: 8),
-                        Text(
-                          '${getFilteredChatUsers().length} members',
-                          style: AppTextStyles.customTextStyle(color: Colors.grey),
-                        ),
-                      ],
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      ),
+                      child: Text('Pin'),
                     ),
                   ],
                 ),
                 SizedBox(height: 20),
-
-                // Displaying the list of chat users
                 Expanded(
                   child: Obx(() {
                     final chatMessages = controller.chatHistoryItem;
@@ -119,7 +123,7 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                     }
 
                     return ListView.builder(
-                      itemCount: getFilteredChatUsers().length, // Use filtered list
+                      itemCount: getFilteredChatUsers().length,
                       itemBuilder: (context, index) {
                         final message = getFilteredChatUsers()[index];
                         final lastMessageTime = message.created;
@@ -134,7 +138,7 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                               MaterialPageRoute(
                                 builder: (context) => ChatPage(
                                   user: {
-                                    'id': message.id, // Use correct ID
+                                    'id': message.id,
                                     'userName': message.username,
                                   },
                                 ),
@@ -150,26 +154,62 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => FullScreenImagePage(
-                                          imageUrl: message.profileImage,
+                                        builder: (context) =>
+                                            FullScreenImagePage(
+                                          imageUrl: controller
+                                                  .chatHistoryItem[index]
+                                                  .profileImage, // fallback URL
                                         ),
                                       ),
                                     );
                                   },
                                   child: Hero(
-                                    tag: message.profileImage,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Colors.green,
-                                          width: 3.0,
+                                    tag: controller.chatHistoryItem[index]
+                                            .profileImage,
+                                    child: Stack(
+                                      clipBehavior: Clip.none,
+                                      children: [
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: message.useractivestatus ==
+                                                      '1'
+                                                  ? Colors.green
+                                                  : Colors.transparent,
+                                              width: 3.0,
+                                            ),
+                                          ),
+                                          child: CircleAvatar(
+                                            radius: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.08,
+                                            backgroundImage:
+                                                CachedNetworkImageProvider(
+                                              message.profileImage,
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                      child: CircleAvatar(
-                                        radius: MediaQuery.of(context).size.width * 0.08,
-                                        backgroundImage: CachedNetworkImageProvider(message.profileImage),
-                                      ),
+                                      
+                                        if (message.useractivestatus == '1')
+                                          Positioned(
+                                            right: 9,
+                                            bottom: 2,
+                                            child: Container(
+                                              width: 14,
+                                              height: 12,
+                                              decoration: BoxDecoration(
+                                                color: AppColors.activeColor,
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color: AppColors.cursorColor,
+                                                  width: 1.5,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -178,12 +218,15 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          message.username,
-                                          style: AppTextStyles.bodyText.copyWith(
-                                            fontSize: getResponsiveFontSize(0.04),
+                                          message.username, 
+                                          style:
+                                              AppTextStyles.bodyText.copyWith(
+                                            fontSize:
+                                                getResponsiveFontSize(0.04),
                                           ),
                                         ),
                                       ],
@@ -208,7 +251,6 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
               ],
             ),
           ),
-
           if (isLoading)
             Center(
               child: SpinKitCircle(

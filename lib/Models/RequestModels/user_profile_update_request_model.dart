@@ -16,6 +16,7 @@ class UserProfileUpdateRequest {
   String bio;
   String visibility;
   String emailAlerts;
+  String lookingFor;
   List<dynamic> preferences;
   List<dynamic> desires;
 
@@ -35,6 +36,7 @@ class UserProfileUpdateRequest {
     required this.visibility,
     required this.lang,
     required this.emailAlerts,
+    required this.lookingFor,
     required this.preferences,
     required this.desires,
   });
@@ -56,6 +58,7 @@ class UserProfileUpdateRequest {
       visibility: json["visibility_status"],
       lang: json['lang'] != null ? List<int>.from(json['lang']) : [],
       emailAlerts: json['emailalerts'],
+      lookingFor: json['looking_for'],
       preferences: json['preferences'] ?? [],
       desires: json['desires'] ?? [],
     );
@@ -79,6 +82,7 @@ class UserProfileUpdateRequest {
       'visibility_status': visibility,
       'lang': lang,
       'email_alerts': emailAlerts,
+      'looking_for':lookingFor,
       'preferences': preferences,
       'desires': desires,
     };
