@@ -17,7 +17,8 @@ class NavigationController extends GetxController {
   final List<Widget> screens = [
     HomePage(),
     LikesPage(),
-    ChatHistoryPage(),
+   // ChatHistoryPage(),
+   ContactListScreen(),
     UserProfilePage(),
   ];
 

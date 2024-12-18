@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../Controllers/controller.dart';
+import '../../Models/RequestModels/estabish_connection_request_model.dart';
 import '../../constants.dart';
 
 class MessageRequestPage extends StatefulWidget {
@@ -9,21 +12,8 @@ class MessageRequestPage extends StatefulWidget {
 }
 
 class MessageRequestPageState extends State<MessageRequestPage> {
-  final List<MessageRequest> messageRequests = [
-    MessageRequest(
-      senderName: "Trump America",
-      senderProfileImage: "https://example.com/image1.jpg",
-      lastMessage: "Hey, how are you?",
-      senderId: "user1",
-    ),
-    MessageRequest(
-      senderName: "Johnson Nework",
-      senderProfileImage: "https://example.com/image2.jpg",
-      lastMessage: "Are you free to chat?",
-      senderId: "user2",
-    ),
-  ];
-
+  Controller controller = Get.put(Controller());
+  bool isLoading = false;
   void showImageDialog(String imageUrl) {
     showDialog(
       context: context,
@@ -47,6 +37,22 @@ class MessageRequestPageState extends State<MessageRequestPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    fetchpingrequest();
+  }
+
+  fetchpingrequest() async {
+    setState(() {
+      isLoading = true;
+    });
+    await controller.fetchallpingrequestmessage();
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -60,9 +66,9 @@ class MessageRequestPageState extends State<MessageRequestPage> {
             double screenWidth = constraints.maxWidth;
 
             return ListView.builder(
-              itemCount: messageRequests.length,
+              itemCount: controller.messageRequest.length,
               itemBuilder: (context, index) {
-                final messageRequest = messageRequests[index];
+                final messageRequest = controller.messageRequest[index];
 
                 return Card(
                   margin: EdgeInsets.only(bottom: 10),
@@ -73,21 +79,22 @@ class MessageRequestPageState extends State<MessageRequestPage> {
                   child: ListTile(
                     contentPadding: EdgeInsets.all(10),
                     leading: GestureDetector(
-                      onTap: () => showImageDialog(messageRequest.senderProfileImage),
+                      onTap: () => showImageDialog(messageRequest.profileImage),
                       child: CircleAvatar(
-                        backgroundImage: NetworkImage(messageRequest.senderProfileImage),
+                        backgroundImage:
+                            NetworkImage(messageRequest.profileImage),
                         radius: screenWidth < 600 ? 30 : 40,
                       ),
                     ),
                     title: Text(
-                      messageRequest.senderName,
+                      messageRequest.name,
                       style: AppTextStyles.bodyText.copyWith(
                         fontSize: screenWidth < 600 ? 16 : 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     subtitle: Text(
-                      messageRequest.lastMessage,
+                      messageRequest.message,
                       style: AppTextStyles.bodyText.copyWith(
                         color: AppColors.disabled,
                         fontSize: screenWidth < 600 ? 14 : 16,
@@ -102,8 +109,9 @@ class MessageRequestPageState extends State<MessageRequestPage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => ReplyMessagePage(
-                              senderName: messageRequest.senderName,
-                              senderId: messageRequest.senderId,
+                              senderName: messageRequest.name,
+                              senderId: messageRequest.id,
+                              lastMessage: messageRequest.message,
                             ),
                           ),
                         );
@@ -123,8 +131,14 @@ class MessageRequestPageState extends State<MessageRequestPage> {
 class ReplyMessagePage extends StatefulWidget {
   final String senderName;
   final String senderId;
+  final String lastMessage;
 
-  const ReplyMessagePage({super.key, required this.senderName, required this.senderId});
+  const ReplyMessagePage({
+    super.key,
+    required this.senderName,
+    required this.senderId,
+    required this.lastMessage,
+  });
 
   @override
   ReplyMessagePageState createState() => ReplyMessagePageState();
@@ -132,18 +146,48 @@ class ReplyMessagePage extends StatefulWidget {
 
 class ReplyMessagePageState extends State<ReplyMessagePage> {
   TextEditingController messageController = TextEditingController();
-
+  Controller controller = Controller();
+  EstablishConnectionMessageRequest establishConnectionMessageRequest =
+      EstablishConnectionMessageRequest(
+          message: '', receiverId: '', messagetype: textMessage);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Reply to ${widget.senderName}", style: AppTextStyles.headingText),
+        title: Text("Reply to ${widget.senderName}",
+            style: AppTextStyles.headingText),
         backgroundColor: AppColors.primaryColor,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.lastMessage,
+                          style: AppTextStyles.bodyText
+                              .copyWith(color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
             TextField(
               controller: messageController,
               decoration: InputDecoration(
@@ -154,6 +198,7 @@ class ReplyMessagePageState extends State<ReplyMessagePage> {
                   icon: Icon(Icons.send, color: AppColors.textColor),
                   onPressed: () {
                     sendMessage(widget.senderId, messageController.text);
+
                     messageController.clear();
                   },
                 ),
@@ -168,21 +213,9 @@ class ReplyMessagePageState extends State<ReplyMessagePage> {
   }
 
   void sendMessage(String senderId, String message) {
-    print('Message sent to $senderId: $message');
+    establishConnectionMessageRequest.message = message;
+    establishConnectionMessageRequest.receiverId = senderId;
+
+    controller.sendConnectionMessage(establishConnectionMessageRequest);
   }
 }
-
-class MessageRequest {
-  final String senderName;
-  final String senderProfileImage;
-  final String lastMessage;
-  final String senderId;
-
-  MessageRequest({
-    required this.senderName,
-    required this.senderProfileImage,
-    required this.lastMessage,
-    required this.senderId,
-  });
-}
-

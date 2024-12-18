@@ -41,7 +41,6 @@ class Payload {
     );
   }
 
-  // Method to convert a Payload instance to JSON
   Map<String, dynamic> toJson() {
     return {
       'message': message,
@@ -73,7 +72,6 @@ class Connection {
     this.profileImage,
   });
 
-  // Factory method to create a UserData instance from JSON
   factory Connection.fromJson(Map<String, dynamic> json) {
     return Connection(
       id: json['id'],

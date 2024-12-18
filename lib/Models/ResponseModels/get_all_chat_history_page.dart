@@ -37,18 +37,18 @@ class ErrorDetails {
 }
 
 class ChatHistoryPayload {
-  final List<ChatHistoryItem> data;
+  final List<UserConnections> data;
 
   ChatHistoryPayload({required this.data});
   factory ChatHistoryPayload.fromJson(Map<String, dynamic> json) {
     return ChatHistoryPayload(
-      data: List<ChatHistoryItem>.from(
-          json['data'].map((x) => ChatHistoryItem.fromJson(x))),
+      data: List<UserConnections>.from(
+          json['data'].map((x) => UserConnections.fromJson(x))),
     );
   }
 }
 
-class ChatHistoryItem {
+class UserConnections {
   final String id;
   final String userId;
   final String conectionId;
@@ -62,7 +62,7 @@ class ChatHistoryItem {
   final String lastSeen;
   final String useractivestatus;
 
-  ChatHistoryItem({
+  UserConnections({
     required this.id,
     required this.userId,
     required this.conectionId,
@@ -77,8 +77,8 @@ class ChatHistoryItem {
     required this.useractivestatus,
   });
 
-  factory ChatHistoryItem.fromJson(Map<String, dynamic> json) {
-    return ChatHistoryItem(
+  factory UserConnections.fromJson(Map<String, dynamic> json) {
+    return UserConnections(
       id: json['id'],
       userId: json['user_id'],
       conectionId: json['conection_id'],
