@@ -148,7 +148,8 @@ class HomePageState extends State<HomePage> {
       },
     );
   }
- EstablishConnectionMessageRequest establishConnectionMessageRequest =
+
+  EstablishConnectionMessageRequest establishConnectionMessageRequest =
       EstablishConnectionMessageRequest(
           message: '', receiverId: '', messagetype: textMessage);
   void showmessageBottomSheet(String userid) {
@@ -188,13 +189,12 @@ class HomePageState extends State<HomePage> {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  if (
-                      establishConnectionMessageRequest.message.isEmpty) {
+                  if (establishConnectionMessageRequest.message.isEmpty) {
                     setState(() {
                       messageCount--;
                     });
                     controller.sendConnectionMessage(
-                       establishConnectionMessageRequest);
+                        establishConnectionMessageRequest);
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -240,7 +240,7 @@ class HomePageState extends State<HomePage> {
       ),
     );
   }
- 
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;

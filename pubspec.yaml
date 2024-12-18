@@ -42,8 +42,7 @@ dependencies:
   swipe_cards: ^2.0.0+1
   cached_network_image: ^3.2.0
   lightning_overlay: ^0.0.8
-  pusher_channels_flutter: ^2.4.0
-  pusher_client: ^2.0.0
+  liquid_swipe: ^3.1.0
 
 
 

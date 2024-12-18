@@ -198,7 +198,9 @@ class ReplyMessagePageState extends State<ReplyMessagePage> {
                   icon: Icon(Icons.send, color: AppColors.textColor),
                   onPressed: () {
                     sendMessage(widget.senderId, messageController.text);
-
+                    Get.snackbar('sender id', establishConnectionMessageRequest.receiverId.toString());
+                    Get.snackbar('message', establishConnectionMessageRequest.message.toString());
+                     Get.snackbar('message type', establishConnectionMessageRequest.messagetype.toString());
                     messageController.clear();
                   },
                 ),
