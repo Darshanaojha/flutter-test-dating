@@ -27,7 +27,9 @@ final routes = [
   GetPage(name: '/navigationbar', page: () => NavigationBottomBar()),
   GetPage(name: '/settings', page: () => SettingsPage()),
   GetPage(name: '/likes', page: () => LikesPage()),
-  GetPage(name: '/messages', page: () => ChatHistoryPage()),
+  GetPage(name: '/messages', page: () => ContactListScreen()),
+    //GetPage(name: '/messages', page: () => ChatHistoryPage()),
+
   GetPage(name: '/profile', page: () => UserProfilePage()),
   GetPage(name: '/editprofile', page: () => EditProfilePage()),
   GetPage(name: '/editphoto', page: () => EditPhotosPage()),

@@ -14,6 +14,7 @@ import 'package:dating_application/Models/ResponseModels/get_all_favourites_resp
 import 'package:dating_application/Models/ResponseModels/get_all_gender_from_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_headlines_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_packages_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/get_all_request_message_response.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_saftey_guidelines_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_whoareyoulookingfor_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/profile_like_response_model.dart';
@@ -107,7 +108,6 @@ import '../Models/ResponseModels/usernameupdate_response_model.dart';
 import '../Models/ResponseModels/verify_account_response_model.dart';
 import '../Providers/block_user_provider.dart';
 import '../Providers/chat_message_page_provider.dart';
-import '../Providers/connected_user_provider.dart';
 import '../Providers/delete_message_provider.dart';
 import '../Providers/deletefavourite_provider_model.dart';
 import '../Providers/edit_message_provider.dart';
@@ -117,6 +117,7 @@ import '../Providers/fetch_all_countries_provider.dart';
 import '../Providers/fetch_all_genders_provider.dart';
 import '../Providers/fetch_all_language_provider.dart';
 import '../Providers/fetch_all_packages_provider.dart';
+import '../Providers/fetch_all_request_message_provider.dart';
 import '../Providers/fetch_benefits_provider.dart';
 import '../Providers/fetch_likes_page_provider.dart';
 import '../Providers/fetch_sub_genders_provider.dart';
@@ -163,6 +164,21 @@ class Controller extends GetxController {
     } catch (e) {
       failure('Error', e.toString());
     }
+  }
+
+  bool isSeenUser = false;
+
+  Future<bool> saveIsSeenUser(bool value) async {
+    final prefs = await EncryptedSharedPreferences.getInstance();
+    await prefs.setString('isSeenUser', value.toString());
+    return true;
+  }
+
+  Future<bool?> getIsSeenUser() async {
+    EncryptedSharedPreferences prefs =
+        await EncryptedSharedPreferences.getInstance();
+    String? value = prefs.getString('isSeenUser');
+    return value == 'true';
   }
 
   UserRegistrationRequest userRegistrationRequest = UserRegistrationRequest(
@@ -633,9 +649,7 @@ class Controller extends GetxController {
     }
   }
 
-  EstablishConnectionMessageRequest establishConnectionMessageRequest =
-      EstablishConnectionMessageRequest(
-          message: '', receiverId: '', messagetype: '');
+
   Future<bool> sendConnectionMessage(
       EstablishConnectionMessageRequest
           establishConnectionMessageRequest) async {
@@ -1222,30 +1236,6 @@ class Controller extends GetxController {
     }
   }
 
-  RxList<Connection> connections = <Connection>[].obs;
-
-  Future<bool> connectedUser() async {
-    try {
-      connections.clear();
-      ConnectedUserResponseModel? response =
-          await ConnectedUserProvider().connectedUser();
-      if (response != null && response.payload != null) {
-        success('Success', response.payload!.message);
-        if (response.payload!.data != null &&
-            response.payload!.data!.isNotEmpty) {
-          connections.addAll(response.payload!.data!);
-          return true;
-        } else {
-          return true;
-        }
-      }
-      failure('Error', 'Failed to fetch the connections.');
-      return false;
-    } catch (e) {
-      failure('Error', e.toString());
-      return false;
-    }
-  }
 
   RxList<LikeData> likes = <LikeData>[].obs;
   Future<bool> likedHistory() async {
@@ -1524,48 +1514,48 @@ class Controller extends GetxController {
 
   SuggestedUser convertFavouriteToSuggestedUser(Favourite favourite) {
     return SuggestedUser(
-      id: favourite.id, // Favourite's id can be mapped to SuggestedUser's id
-      userId: favourite.userId, // Same here for userId
-      name: favourite.name, // Name can be copied directly
-      dob: favourite.dob, // Same for date of birth
-      username: favourite.username, // Username from Favourite to SuggestedUser
-      city: favourite.city, // City from Favourite to SuggestedUser
-      images: favourite.images, // List of images can be copied directly
+      id: favourite.id,
+      userId: favourite.userId,
+      name: favourite.name,
+      dob: favourite.dob,
+      username: favourite.username, 
+      city: favourite.city, 
+      images: favourite.images,
       status: favourite
-          .status, // Status from Favourite to SuggestedUser (if relevant)
+          .status, 
       created:
-          favourite.created, // Created date from Favourite to SuggestedUser
+          favourite.created,
       updated:
-          favourite.updated, // Updated date from Favourite to SuggestedUser
-      // Optional fields can be left null or set to a default value
-      email: null, // No email available in Favourite
-      mobile: null, // No mobile number available in Favourite
-      address: null, // No address available in Favourite
-      gender: null, // No gender available in Favourite
-      subGender: null, // No sub-gender available in Favourite
-      countryId: null, // No countryId available in Favourite
-      password: null, // No password available in Favourite
-      latitude: null, // No latitude available in Favourite
-      longitude: null, // No longitude available in Favourite
-      otp: null, // No OTP available in Favourite
-      type: null, // No type available in Favourite
-      nickname: null, // No nickname available in Favourite
-      interest: null, // No interest available in Favourite
-      bio: null, // No bio available in Favourite
-      emailAlerts: null, // No email alerts available in Favourite
-      lookingFor: null, // No lookingFor field in Favourite
-      profileImage: null, // No profileImage available in Favourite
-      userActiveStatus: null, // No active status available in Favourite
-      statusSetting: null, // No status setting available in Favourite
+          favourite.updated, 
+   
+      email: null, 
+      mobile: null, 
+      address: null, 
+      gender: null, 
+      subGender: null, 
+      countryId: null, 
+      password: null, 
+      latitude: null, 
+      longitude: null,
+      otp: null, 
+      type: null, 
+      nickname: null, 
+      interest: null, 
+      bio: null, 
+      emailAlerts: null,
+      lookingFor: null, 
+      profileImage: null, 
+      userActiveStatus: null,
+      statusSetting: null, 
       accountVerificationStatus:
-          null, // No account verification status in Favourite
-      accountHighlightStatus: null, // No highlight status in Favourite
-      genderName: null, // No gender name in Favourite
-      subGenderName: null, // No sub-gender name in Favourite
-      countryName: null, // No country name in Favourite
-      preferenceId: null, // No preferenceId in Favourite
-      desiresId: null, // No desiresId in Favourite
-      langId: null, // No languageId in Favourite
+          null, 
+      accountHighlightStatus: null,
+      genderName: null, 
+      subGenderName: null, 
+      countryName: null, 
+      preferenceId: null,
+      desiresId: null, 
+      langId: null,
     );
   }
 
@@ -1683,15 +1673,15 @@ class Controller extends GetxController {
     }
   }
 
-  RxList<ChatHistoryItem> chatHistoryItem = <ChatHistoryItem>[].obs;
+  RxList<UserConnections> userConnections = <UserConnections>[].obs;
 
-  Future<bool> fetchallchathistory() async {
+  Future<bool> fetchalluserconnections() async {
     try {
-      chatHistoryItem.clear();
+      userConnections.clear();
       GetAllChatHistoryPageResponse? response =
-          await FetchAllChatHistoryPage().fetchallchathistorypage();
+          await FetchAllUserConnectionsProvider().fetchalluserconnectionsprovider();
       if (response != null) {
-        chatHistoryItem.addAll(response.payload.data);
+        userConnections.addAll(response.payload.data);
         success('Success', 'Successfully fetched all the chat history page');
         return true;
       } else {
@@ -1703,4 +1693,30 @@ class Controller extends GetxController {
       return false;
     }
   }
+
+    RxList<MessageRequest> messageRequest = <MessageRequest>[].obs;
+  Future<bool> fetchallpingrequestmessage() async {
+    try {
+      messageRequest.clear();
+      GetAllRequestPingMessageResponse? response =
+          await FetchAllRequestMessageProvider().fetchallrequestmessageprovider();
+      if (response != null && response.payload != null) {
+        success('Success', response.payload.message);
+        if (response.payload.data != null && response.payload.data.isNotEmpty) {
+          messageRequest.addAll(response.payload.data);
+
+          return true;
+        } else {
+          return true;
+        }
+      } else {
+        failure('Error', 'Failed to fetch the Ping Messages Request');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
 }

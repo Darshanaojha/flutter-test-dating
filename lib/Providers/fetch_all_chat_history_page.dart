@@ -2,8 +2,8 @@ import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 import '../Models/ResponseModels/get_all_chat_history_page.dart';
 import '../constants.dart';
-class FetchAllChatHistoryPage extends GetConnect {
-  Future<GetAllChatHistoryPageResponse?> fetchallchathistorypage() async {
+class FetchAllUserConnectionsProvider extends GetConnect {
+  Future<GetAllChatHistoryPageResponse?> fetchalluserconnectionsprovider() async {
     try {
       EncryptedSharedPreferences preferences = await EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
