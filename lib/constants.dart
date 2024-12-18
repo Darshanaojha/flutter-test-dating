@@ -10,6 +10,10 @@ const registerUrl = "Authentication/register";
 const loginUrl = "Authentication/login";
 const profileUrl = "Authentication/profile";
 
+const int textMessage = 1;
+const int imageMessage = 2;
+const int emogiMessage = 3;
+
 class AppColors {
   static Color primaryColor = Colors.black;
   static Color disabled = Colors.grey;
@@ -34,12 +38,12 @@ class AppColors {
   static Color errorColor = Colors.red.withOpacity(0.3);
   static Color errorBorderColor = Colors.red;
   //static Color navigationColor =  Color.fromARGB(255, 63, 62, 62);
-  static Color navigationColor =  Color.fromARGB(255, 123, 83, 83);
+  static Color navigationColor = Color.fromARGB(255, 123, 83, 83);
   static Color navigationColorleft = Color.fromARGB(255, 47, 27, 27);
-  static Color navigationright =         Color.fromARGB(255, 115, 111, 111);
+  static Color navigationright = Color.fromARGB(255, 115, 111, 111);
   static Color progressColor = Color(0xFFD3D3D3);
   static var primaryTextColor;
-  // 
+  //
 }
 
 class AppTextStyles {
@@ -172,7 +176,7 @@ void success(title, message) {
     backgroundColor: Colors.green.withOpacity(0.85),
     borderColor: Colors.green.shade700,
     borderWidth: 2,
-    borderRadius: 8.0, 
+    borderRadius: 8.0,
     snackPosition: SnackPosition.TOP,
     margin: EdgeInsets.all(16),
     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -181,7 +185,7 @@ void success(title, message) {
   );
 }
 
-void failure( title,  message) {
+void failure(title, message) {
   Get.snackbar(
     '',
     '',
@@ -220,7 +224,7 @@ void failure( title,  message) {
     backgroundColor: Colors.red.withOpacity(0.85),
     borderColor: Colors.red.shade700,
     borderWidth: 2,
-    borderRadius: 8.0, 
+    borderRadius: 8.0,
     snackPosition: SnackPosition.TOP,
     margin: EdgeInsets.all(16),
     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -228,9 +232,6 @@ void failure( title,  message) {
     animationDuration: Duration(milliseconds: 250),
   );
 }
-
-
-
 
 class FirebaseConstants {
   static const String apiKey = 'AIzaSyC3ROuYfPMzBPPtA4f_5HsxfVilIUuxgbc';
@@ -247,4 +248,11 @@ class FirebaseConstants {
     projectId: projectId,
     storageBucket: storageBucket,
   );
+}
+
+class PusherConstants {
+  static const String appId = "1912870";
+  static const String key = "462873f11046bfe1fce0";
+  static const String secret = "b20f2092482a6c3720ab";
+  static const String cluster = "ap2";
 }
