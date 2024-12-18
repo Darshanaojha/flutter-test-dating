@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/RequestModels/update_activity_status_request_model.dart';
 import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
@@ -13,6 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../Models/RequestModels/update_lat_long_request_model.dart';
 import '../constants.dart';
+import 'introsliderpages/introsliderswipepage.dart';
 import 'login.dart';
 
 class Splash extends StatefulWidget {
@@ -28,6 +28,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
   late Animation<double> scaleAnimation;
   Controller controller = Get.put(Controller());
   bool _isLoading = true;
+  bool isSeenUser = false;
   StreamSubscription? _linkSubscription;
 
   @override
@@ -48,10 +49,28 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
     );
 
     intialize();
+    checkIntroSeenAndNavigate();
+  }
+
+  void checkIntroSeenAndNavigate() async {
+    bool? isSeenUser = await controller.getIsSeenUser();
+
+    if (isSeenUser == null || isSeenUser == false) {
+      await controller.saveIsSeenUser(true);
+      Get.offAll(() => IntroSlidingPages());
+    } else {
+      Get.offAll(() => Login());
+    }
   }
 
   intialize() async {
     try {
+      // bool? isSeenUser = await controller.getIsSeenUser();
+      // if (isSeenUser == null || isSeenUser == false) {
+      //   controller.saveIsSeenUser(true);
+      //   Get.offAll(IntroSliderPage);
+      //   return;
+      // }
       await controller.fetchAllHeadlines();
       await controller.fetchSafetyGuidelines();
       await controller.fetchAllPackages();
@@ -73,14 +92,14 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
         await controller.userSuggestions();
         await controller.fetchallfavourites();
         await controller.reportReason();
-        await controller.fetchallchathistory();
+        await controller.fetchalluserconnections();
         await controller.fetchAllverificationtype();
         await controller.fetchProfileUserPhotos();
         await controller.fetchAllFaq();
         await controller.userSuggestions();
         await controller.fetchAllsubscripted();
         await controller.likesuserpage();
-        
+        await controller.fetchallpingrequestmessage();
 
         if (packageStatus != null && packageStatus.isNotEmpty) {
           if (packageStatus == "1") {
@@ -116,18 +135,15 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
     }
   }
 
-  // Function to get user's location
   Future<Position> _getUserLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // Check if location services are enabled
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       throw 'Location services are disabled.';
     }
 
-    // Check location permission
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -137,7 +153,6 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
       }
     }
 
-    // Get current position
     return await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
   }

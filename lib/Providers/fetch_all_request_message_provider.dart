@@ -1,11 +1,12 @@
-import 'package:encrypt_shared_preferences/provider.dart';
-import 'package:get/get_connect.dart';
 
-import '../Models/ResponseModels/connected_user_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/get_all_request_message_response.dart';
+import 'package:encrypt_shared_preferences/provider.dart';
+import 'package:get/get.dart';
+
 import '../constants.dart';
 
-class ConnectedUserProvider extends GetConnect {
-  Future<ConnectedUserResponseModel?> connectedUser() async {
+class FetchAllRequestMessageProvider extends GetConnect {
+  Future<GetAllRequestPingMessageResponse?> fetchallrequestmessageprovider() async {
     try {
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
@@ -17,7 +18,7 @@ class ConnectedUserProvider extends GetConnect {
       }
 
       Response response = await post(
-        '$baseurl/Chats/user_suggestions',
+        '$baseurl/Profile/pings',
         null,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -27,7 +28,7 @@ class ConnectedUserProvider extends GetConnect {
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
-          return ConnectedUserResponseModel.fromJson(response.body);
+          return GetAllRequestPingMessageResponse.fromJson(response.body);
         } else {
           failure('Error', response.body['error']['message']);
           return null;

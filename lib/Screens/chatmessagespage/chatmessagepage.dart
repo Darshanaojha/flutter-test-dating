@@ -1,52 +1,41 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:dating_application/Controllers/controller.dart';
+
+import 'package:dating_application/Models/ResponseModels/get_all_chat_history_page.dart';
+import 'package:dating_application/Screens/chatmessagespage/pinrequestpage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import '../../Models/ResponseModels/get_all_chat_history_page.dart';
+import '../../Controllers/controller.dart';
 import '../../constants.dart';
 import '../chatpage/userchatpage.dart';
-import 'package:timeago/timeago.dart' as timeago;
-import 'pinrequestpage.dart';
-
-class ChatHistoryPage extends StatefulWidget {
-  const ChatHistoryPage({super.key});
+class ContactListScreen extends StatefulWidget {
+  const ContactListScreen({super.key});
 
   @override
-  ChatHistoryPageState createState() => ChatHistoryPageState();
+  ContactListScreenState createState() => ContactListScreenState();
 }
 
-class ChatHistoryPageState extends State<ChatHistoryPage> {
+class ContactListScreenState extends State<ContactListScreen> {
   Controller controller = Get.put(Controller());
   String searchQuery = '';
-  bool isLoading = true;
-
-  List<ChatHistoryItem> getFilteredChatUsers() {
-    return controller.chatHistoryItem
-        .where((user) =>
-            user.username.toLowerCase().contains(searchQuery.toLowerCase()))
-        .toList();
-  }
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    fetchChatUserList();
+    initialize();
   }
 
-  fetchChatUserList() async {
-    setState(() {
-      isLoading = true;
-    });
-    await controller.fetchallchathistory();
+  initialize() async {
+    await controller.fetchalluserconnections();
     setState(() {
       isLoading = false;
     });
   }
 
-  double getResponsiveFontSize(double scale) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    return screenWidth * scale;
+  List<UserConnections> getFilteredUsers() {
+    return controller.userConnections
+        .where((user) =>
+            user.name!.toLowerCase().contains(searchQuery.toLowerCase()))
+        .toList();
   }
 
   @override
@@ -56,10 +45,11 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
       body: Stack(
         children: [
           Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Search TextField
                 TextField(
                   cursorColor: AppColors.cursorColor,
                   onChanged: (query) {
@@ -68,9 +58,8 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                     });
                   },
                   decoration: InputDecoration(
-                    hintText: 'Search Chat Users...',
-                    hintStyle:
-                        AppTextStyles.customTextStyle(color: Colors.grey),
+                    hintText: 'Search Contacts...',
+                    hintStyle: AppTextStyles.customTextStyle(color: Colors.grey),
                     prefixIcon: Icon(Icons.search, color: AppColors.iconColor),
                     filled: true,
                     fillColor: AppColors.formFieldColor,
@@ -81,19 +70,20 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                   ),
                 ),
                 SizedBox(height: 20),
+
+                // Row with number of members and Ping button
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${getFilteredChatUsers().length} members',
+                      '${getFilteredUsers().length} members',
                       style: AppTextStyles.customTextStyle(color: Colors.grey),
                     ),
                     ElevatedButton(
                       onPressed: () {
                         Get.to(MessageRequestPage());
-                        Get.snackbar('count',
-                            controller.chatHistoryItem.length.toString());
-                        print("Request button pressed");
+                        Get.snackbar('count', controller.userConnections.length.toString());
+                        print("Ping button pressed");
                       },
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
@@ -101,162 +91,77 @@ class ChatHistoryPageState extends State<ChatHistoryPage> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       ),
-                      child: Text('Pin'),
+                      child: Text('Ping'),
                     ),
                   ],
                 ),
                 SizedBox(height: 20),
+
+                // ListView of contacts
                 Expanded(
-                  child: Obx(() {
-                    final chatMessages = controller.chatHistoryItem;
+                  child: ListView.builder(
+                    itemCount: getFilteredUsers().length,
+                    itemBuilder: (context, index) {
+                      final connection = getFilteredUsers()[index];
 
-                    if (chatMessages.isEmpty) {
-                      return Center(
-                        child: Text(
-                          'No chats available.',
-                          style: AppTextStyles.bodyText,
-                        ),
-                      );
-                    }
-
-                    return ListView.builder(
-                      itemCount: getFilteredChatUsers().length,
-                      itemBuilder: (context, index) {
-                        final message = getFilteredChatUsers()[index];
-                        final lastMessageTime = message.created;
-                        String timeAgoText = (lastMessageTime.isNotEmpty)
-                            ? timeago.format(DateTime.parse(lastMessageTime))
-                            : 'No messages yet';
-
-                        return GestureDetector(
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ChatPage(
-                                  user: {
-                                    'id': message.id,
-                                    'userName': message.username,
-                                  },
-                                ),
-                              ),
-                            );
+                            Get.to(() => ChatScreen(connection: connection));
                           },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            child: Row(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            FullScreenImagePage(
-                                          imageUrl: controller
-                                                  .chatHistoryItem[index]
-                                                  .profileImage, // fallback URL
-                                        ),
+                          child: Row(
+                            children: [
+                              // GestureDetector for profile image
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => FullScreenImagePage(
+                                        imageUrl: connection.profileImage!, // image URL
                                       ),
-                                    );
-                                  },
-                                  child: Hero(
-                                    tag: controller.chatHistoryItem[index]
-                                            .profileImage,
-                                    child: Stack(
-                                      clipBehavior: Clip.none,
-                                      children: [
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: message.useractivestatus ==
-                                                      '1'
-                                                  ? Colors.green
-                                                  : Colors.transparent,
-                                              width: 3.0,
-                                            ),
-                                          ),
-                                          child: CircleAvatar(
-                                            radius: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.08,
-                                            backgroundImage:
-                                                CachedNetworkImageProvider(
-                                              message.profileImage,
-                                            ),
-                                          ),
-                                        ),
-                                      
-                                        if (message.useractivestatus == '1')
-                                          Positioned(
-                                            right: 9,
-                                            bottom: 2,
-                                            child: Container(
-                                              width: 14,
-                                              height: 12,
-                                              decoration: BoxDecoration(
-                                                color: AppColors.activeColor,
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color: AppColors.cursorColor,
-                                                  width: 1.5,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                      ],
                                     ),
+                                  );
+                                },
+                                child: Hero(
+                                  tag: connection.profileImage!,
+                                  child: CircleAvatar(
+                                    radius: 30.0,
+                                    backgroundImage: NetworkImage(connection.profileImage!),
                                   ),
                                 ),
-                                SizedBox(width: 16),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          message.username, 
-                                          style:
-                                              AppTextStyles.bodyText.copyWith(
-                                            fontSize:
-                                                getResponsiveFontSize(0.04),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      timeAgoText,
-                                      style: AppTextStyles.bodyText.copyWith(
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                              ),
+                              SizedBox(width: 16),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    connection.name!,
+                                    style: AppTextStyles.customTextStyle(color: Colors.black),
+                                  ),
+                                  Text(
+                                    'Hi there!',
+                                    style: AppTextStyles.customTextStyle(color: Colors.grey),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                    );
-                  }),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
           ),
+          // Loading spinner when the data is being fetched
           if (isLoading)
             Center(
-              child: SpinKitCircle(
-                size: 150.0,
-                color: AppColors.progressColor,
-              ),
+              child: CircularProgressIndicator(),
             ),
         ],
       ),

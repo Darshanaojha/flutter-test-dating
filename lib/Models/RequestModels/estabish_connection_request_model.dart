@@ -1,7 +1,7 @@
 class EstablishConnectionMessageRequest {
    String receiverId;
    String message;
-   String messagetype;
+   int messagetype;
 
   EstablishConnectionMessageRequest({
     required this.receiverId,

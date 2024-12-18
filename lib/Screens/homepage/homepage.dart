@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dating_application/Controllers/controller.dart';
+import 'package:dating_application/Models/RequestModels/estabish_connection_request_model.dart';
 import 'package:dating_application/Screens/homepage/swaping.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -147,7 +148,9 @@ class HomePageState extends State<HomePage> {
       },
     );
   }
-
+ EstablishConnectionMessageRequest establishConnectionMessageRequest =
+      EstablishConnectionMessageRequest(
+          message: '', receiverId: '', messagetype: textMessage);
   void showmessageBottomSheet(String userid) {
     Get.bottomSheet(
       Padding(
@@ -178,25 +181,20 @@ class HomePageState extends State<HomePage> {
                   hintText: 'Type your message here...',
                 ),
                 onChanged: (value) {
-                  controller.establishConnectionMessageRequest.message = value;
-                  controller.establishConnectionMessageRequest.messagetype =
-                      MessageType.toString();
+                  establishConnectionMessageRequest.message = value;
                 },
                 maxLines: 3,
               ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  if (controller
-                      .establishConnectionMessageRequest.message.isEmpty) {
+                  if (
+                      establishConnectionMessageRequest.message.isEmpty) {
                     setState(() {
                       messageCount--;
                     });
                     controller.sendConnectionMessage(
-                        controller.establishConnectionMessageRequest);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Message sent')),
-                    );
+                       establishConnectionMessageRequest);
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -242,7 +240,7 @@ class HomePageState extends State<HomePage> {
       ),
     );
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
