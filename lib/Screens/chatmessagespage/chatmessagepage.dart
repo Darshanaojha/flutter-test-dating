@@ -1,11 +1,11 @@
 
 import 'package:dating_application/Models/ResponseModels/get_all_chat_history_page.dart';
-import 'package:dating_application/Screens/chatmessagespage/pinrequestpage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Controllers/controller.dart';
 import '../../constants.dart';
 import '../chatpage/userchatpage.dart';
+import '../introsliderpages/introsliderswipepage.dart';
 class ContactListScreen extends StatefulWidget {
   const ContactListScreen({super.key});
 
@@ -70,8 +70,6 @@ class ContactListScreenState extends State<ContactListScreen> {
                   ),
                 ),
                 SizedBox(height: 20),
-
-                // Row with number of members and Ping button
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -81,9 +79,10 @@ class ContactListScreenState extends State<ContactListScreen> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        Get.to(MessageRequestPage());
-                        Get.snackbar('count', controller.userConnections.length.toString());
-                        print("Ping button pressed");
+                        // Get.to(MessageRequestPage());
+                        // Get.snackbar('count', controller.userConnections.length.toString());
+                        // print("Ping button pressed");
+                       Get.to(IntroSlidingPages());
                       },
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
@@ -140,7 +139,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                 children: [
                                   Text(
                                     connection.name!,
-                                    style: AppTextStyles.customTextStyle(color: Colors.black),
+                                    style: AppTextStyles.customTextStyle(color: Colors.white),
                                   ),
                                   Text(
                                     'Hi there!',

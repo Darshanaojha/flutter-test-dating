@@ -21,7 +21,7 @@ class EstablishConnectionMessageRequest {
     return {
       'receiver_id': receiverId,
       'message': message,
-      'message_type':message
+      'message_type':messagetype,
     };
   }
 }

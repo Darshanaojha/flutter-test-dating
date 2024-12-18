@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
+import 'dart:ui';
 import 'package:dating_application/Models/RequestModels/change_password_request.dart';
 import 'package:dating_application/Models/RequestModels/profile_like_request_model.dart';
 import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
@@ -13,6 +15,7 @@ import 'package:dating_application/Models/ResponseModels/get_all_faq_response_mo
 import 'package:dating_application/Models/ResponseModels/get_all_favourites_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_gender_from_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_headlines_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/get_all_introslider_response.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_packages_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_request_message_response.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_saftey_guidelines_response_model.dart';
@@ -29,6 +32,7 @@ import 'package:dating_application/Providers/fetch_all_desires_provider.dart';
 import 'package:dating_application/Providers/fetch_all_faq_provider.dart';
 import 'package:dating_application/Providers/fetch_all_favourites_provider.dart';
 import 'package:dating_application/Providers/fetch_all_headlines_provider.dart';
+import 'package:dating_application/Providers/fetch_all_introslider_provider.dart';
 import 'package:dating_application/Providers/fetch_all_preferences_provider.dart';
 import 'package:dating_application/Providers/fetch_all_safety_guildlines_provider.dart';
 import 'package:dating_application/Providers/fetch_subscripted_package_provider.dart';
@@ -649,7 +653,6 @@ class Controller extends GetxController {
     }
   }
 
-
   Future<bool> sendConnectionMessage(
       EstablishConnectionMessageRequest
           establishConnectionMessageRequest) async {
@@ -1236,7 +1239,6 @@ class Controller extends GetxController {
     }
   }
 
-
   RxList<LikeData> likes = <LikeData>[].obs;
   Future<bool> likedHistory() async {
     try {
@@ -1518,43 +1520,38 @@ class Controller extends GetxController {
       userId: favourite.userId,
       name: favourite.name,
       dob: favourite.dob,
-      username: favourite.username, 
-      city: favourite.city, 
+      username: favourite.username,
+      city: favourite.city,
       images: favourite.images,
-      status: favourite
-          .status, 
-      created:
-          favourite.created,
-      updated:
-          favourite.updated, 
-   
-      email: null, 
-      mobile: null, 
-      address: null, 
-      gender: null, 
-      subGender: null, 
-      countryId: null, 
-      password: null, 
-      latitude: null, 
+      status: favourite.status,
+      created: favourite.created,
+      updated: favourite.updated,
+      email: null,
+      mobile: null,
+      address: null,
+      gender: null,
+      subGender: null,
+      countryId: null,
+      password: null,
+      latitude: null,
       longitude: null,
-      otp: null, 
-      type: null, 
-      nickname: null, 
-      interest: null, 
-      bio: null, 
+      otp: null,
+      type: null,
+      nickname: null,
+      interest: null,
+      bio: null,
       emailAlerts: null,
-      lookingFor: null, 
-      profileImage: null, 
+      lookingFor: null,
+      profileImage: null,
       userActiveStatus: null,
-      statusSetting: null, 
-      accountVerificationStatus:
-          null, 
+      statusSetting: null,
+      accountVerificationStatus: null,
       accountHighlightStatus: null,
-      genderName: null, 
-      subGenderName: null, 
-      countryName: null, 
+      genderName: null,
+      subGenderName: null,
+      countryName: null,
       preferenceId: null,
-      desiresId: null, 
+      desiresId: null,
       langId: null,
     );
   }
@@ -1679,7 +1676,8 @@ class Controller extends GetxController {
     try {
       userConnections.clear();
       GetAllChatHistoryPageResponse? response =
-          await FetchAllUserConnectionsProvider().fetchalluserconnectionsprovider();
+          await FetchAllUserConnectionsProvider()
+              .fetchalluserconnectionsprovider();
       if (response != null) {
         userConnections.addAll(response.payload.data);
         success('Success', 'Successfully fetched all the chat history page');
@@ -1694,12 +1692,13 @@ class Controller extends GetxController {
     }
   }
 
-    RxList<MessageRequest> messageRequest = <MessageRequest>[].obs;
+  RxList<MessageRequest> messageRequest = <MessageRequest>[].obs;
   Future<bool> fetchallpingrequestmessage() async {
     try {
       messageRequest.clear();
       GetAllRequestPingMessageResponse? response =
-          await FetchAllRequestMessageProvider().fetchallrequestmessageprovider();
+          await FetchAllRequestMessageProvider()
+              .fetchallrequestmessageprovider();
       if (response != null && response.payload != null) {
         success('Success', response.payload.message);
         if (response.payload.data != null && response.payload.data.isNotEmpty) {
@@ -1719,4 +1718,41 @@ class Controller extends GetxController {
     }
   }
 
+  RxList<SliderData> sliderData = <SliderData>[].obs;
+  Future<bool> fetchAllIntroSlider() async {
+    try {
+      sliderData.clear();
+      IntroSliderResponse? response =
+          await FetchAllIntroSliderProvider().fetchAllIntroSliderProvider();
+
+      if (response != null) {
+        success('Success', response.payload!.msg!);
+
+        if (response.payload!.data!.isNotEmpty) {
+          sliderData.addAll(response.payload!.data!);
+
+          return true;
+        } else {
+          failure('No Data', 'No intro slider data found');
+          return false;
+        }
+      } else {
+        failure('Error', 'Failed to fetch the Intro Slider');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  Color getRandomColor() {
+    Random random = Random();
+    return Color.fromRGBO(
+      random.nextInt(256),
+      random.nextInt(256),
+      random.nextInt(256),
+      1.0,
+    );
+  }
 }
