@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Models/RequestModels/update_activity_status_request_model.dart';
 import '../../constants.dart';
-import '../chatmessagespage/chatmessagepage.dart';
+import '../chatmessagespage/ContactListScreen.dart';
 import '../homepage/homepage.dart';
 import '../likespages/userlikespage.dart';
 import '../settings/setting.dart';

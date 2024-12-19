@@ -1,11 +1,12 @@
-
 import 'package:dating_application/Models/ResponseModels/get_all_chat_history_page.dart';
+import 'package:dating_application/Screens/chatmessagespage/pinrequestpage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Controllers/controller.dart';
+import '../../Models/RequestModels/chat_history_request_model.dart';
 import '../../constants.dart';
-import '../chatpage/userchatpage.dart';
-import '../introsliderpages/introsliderswipepage.dart';
+import '../chatpage/ChatScreen.dart';
+
 class ContactListScreen extends StatefulWidget {
   const ContactListScreen({super.key});
 
@@ -59,7 +60,8 @@ class ContactListScreenState extends State<ContactListScreen> {
                   },
                   decoration: InputDecoration(
                     hintText: 'Search Contacts...',
-                    hintStyle: AppTextStyles.customTextStyle(color: Colors.grey),
+                    hintStyle:
+                        AppTextStyles.customTextStyle(color: Colors.grey),
                     prefixIcon: Icon(Icons.search, color: AppColors.iconColor),
                     filled: true,
                     fillColor: AppColors.formFieldColor,
@@ -70,6 +72,8 @@ class ContactListScreenState extends State<ContactListScreen> {
                   ),
                 ),
                 SizedBox(height: 20),
+
+                // Row with number of members and Ping button
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -79,10 +83,10 @@ class ContactListScreenState extends State<ContactListScreen> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        // Get.to(MessageRequestPage());
-                        // Get.snackbar('count', controller.userConnections.length.toString());
-                        // print("Ping button pressed");
-                       Get.to(IntroSlidingPages());
+                        Get.to(MessageRequestPage());
+                        Get.snackbar('count',
+                            controller.userConnections.length.toString());
+                        print("Ping button pressed");
                       },
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
@@ -90,7 +94,8 @@ class ContactListScreenState extends State<ContactListScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
-                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       ),
                       child: Text('Ping'),
                     ),
@@ -109,7 +114,25 @@ class ContactListScreenState extends State<ContactListScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         child: GestureDetector(
                           onTap: () {
-                            Get.to(() => ChatScreen(connection: connection));
+                            debugPrint(
+                                'User ID: ${controller.userData.first.id}');
+                            debugPrint(
+                                'Connection ID: ${connection.conectionId}');
+
+                            ChatHistoryRequestModel chatHistoryRequestModel =
+                                ChatHistoryRequestModel(
+                                    userId: connection.conectionId);
+                            controller
+                                .chatHistory(chatHistoryRequestModel)
+                                .then((value) {
+                              if (value == true) {
+                                Get.to(() => ChatScreen(
+                                      senderId: controller.userData.first.id,
+                                      receiverId: connection.conectionId,
+                                      receiverName: connection.name,
+                                    ));
+                              }
+                            });
                           },
                           child: Row(
                             children: [
@@ -120,7 +143,8 @@ class ContactListScreenState extends State<ContactListScreen> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => FullScreenImagePage(
-                                        imageUrl: connection.profileImage!, // image URL
+                                        imageUrl: connection
+                                            .profileImage!, // image URL
                                       ),
                                     ),
                                   );
@@ -129,7 +153,8 @@ class ContactListScreenState extends State<ContactListScreen> {
                                   tag: connection.profileImage!,
                                   child: CircleAvatar(
                                     radius: 30.0,
-                                    backgroundImage: NetworkImage(connection.profileImage!),
+                                    backgroundImage:
+                                        NetworkImage(connection.profileImage!),
                                   ),
                                 ),
                               ),
@@ -139,11 +164,13 @@ class ContactListScreenState extends State<ContactListScreen> {
                                 children: [
                                   Text(
                                     connection.name!,
-                                    style: AppTextStyles.customTextStyle(color: Colors.white),
+                                    style: AppTextStyles.customTextStyle(
+                                        color: Colors.black),
                                   ),
                                   Text(
                                     'Hi there!',
-                                    style: AppTextStyles.customTextStyle(color: Colors.grey),
+                                    style: AppTextStyles.customTextStyle(
+                                        color: Colors.grey),
                                   ),
                                 ],
                               ),

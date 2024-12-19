@@ -47,6 +47,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import '../Models/RequestModels/app_setting_request_model.dart';
 import '../Models/RequestModels/block_User_request_model.dart';
+import '../Models/RequestModels/chat_history_request_model.dart';
 import '../Models/RequestModels/delete_message_request_model.dart';
 import '../Models/RequestModels/deletefavourite_request_model.dart';
 import '../Models/RequestModels/edit_message_request_model.dart';
@@ -362,17 +363,14 @@ class Controller extends GetxController {
   }
 
   RxList<Message> messages = <Message>[].obs;
-  Future<bool> chatHistory() async {
+  Future<bool> chatHistory(
+      ChatHistoryRequestModel chatHistoryRequestModel) async {
     try {
       messages.clear();
       final ChatHistoryResponse? response =
-          await ChatMessagePageProvider().chatHistory();
+          await ChatMessagePageProvider().chatHistory(chatHistoryRequestModel);
       if (response != null) {
         messages.addAll(response.payload.data);
-        for (var m in messages) {
-          print(m.toJson().toString());
-        }
-
         success('success', 'chat history fetched successfully');
         return true;
       } else {
