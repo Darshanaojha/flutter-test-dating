@@ -444,6 +444,25 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     double titleFontSize = screenSize.width * 0.05;
     double optionFontSize = screenSize.width * 0.03;
 
+    double scrollableHeight = screenSize.height * 0.5;
+
+    late ScrollController _scrollController;
+    double scrollPercentage = 0.0;
+
+    @override
+    void initState() {
+      super.initState();
+      _scrollController = ScrollController();
+      _scrollController.addListener(() {
+        setState(() {
+          // Calculate the scroll position as a percentage
+          double maxScroll = _scrollController.position.maxScrollExtent;
+          double currentScroll = _scrollController.position.pixels;
+          scrollPercentage = currentScroll / maxScroll;
+        });
+      });
+    }
+
     return Card(
       elevation: 8,
       shape: RoundedRectangleBorder(
@@ -455,9 +474,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           child: Column(
             children: [
               Text(
-                controller.headlines.isNotEmpty
-                    ? controller.headlines[2].title
-                    : "Loading Title...",
+                "Gender Selection",
                 style: AppTextStyles.titleText.copyWith(
                   fontSize: titleFontSize,
                   fontWeight: FontWeight.bold,
@@ -475,41 +492,72 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   );
                 }
 
-                return Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: controller.genders.map((gender) {
-                        return RadioListTile<Gender?>(
-                          title: Text(
-                            gender.title,
-                            style: AppTextStyles.bodyText.copyWith(
-                              fontSize: optionFontSize,
-                              color: AppColors.textColor,
+                // Container with fixed height for scrollable area
+                return Container(
+                  height: scrollableHeight, // Limiting scrollable area size
+                  child: Stack(
+                    children: [
+                      SingleChildScrollView(
+                        child: Column(
+                          children: controller.genders.map((gender) {
+                            return RadioListTile<Gender?>(
+                              title: Text(
+                                gender.title,
+                                style: AppTextStyles.bodyText.copyWith(
+                                  fontSize: optionFontSize,
+                                  color: AppColors.textColor,
+                                ),
+                              ),
+                              value: gender,
+                              groupValue: selectedGender.value,
+                              onChanged: (Gender? value) {
+                                selectedGender.value = value;
+
+                                // Safe parsing using tryParse
+                                final parsedGenderId =
+                                    int.tryParse(value?.id ?? '');
+
+                                if (parsedGenderId != null) {
+                                  controller.userRegistrationRequest.gender =
+                                      parsedGenderId.toString();
+                                } else {
+                                  controller.userRegistrationRequest.gender =
+                                      '';
+                                }
+                                controller.fetchSubGender(SubGenderRequest(
+                                    genderId: parsedGenderId.toString()));
+                              },
+                              activeColor: AppColors.buttonColor,
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                      Positioned(
+                        right: 10,
+                        top: 0,
+                        bottom: 0,
+                        child: Container(
+                          width: 8,
+                          height: scrollableHeight,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Align(
+                            alignment: Alignment.topCenter,
+                            child: AnimatedContainer(
+                              duration: Duration(milliseconds: 300),
+                              width: 8,
+                              height: scrollPercentage * scrollableHeight,
+                              decoration: BoxDecoration(
+                                color: AppColors.buttonColor,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
                           ),
-                          value: gender,
-                          groupValue: selectedGender.value,
-                          onChanged: (Gender? value) {
-                            // Update selected gender using reactive Rx
-                            selectedGender.value = value;
-
-                            // Safe parsing using tryParse
-                            final parsedGenderId =
-                                int.tryParse(value?.id ?? '');
-
-                            if (parsedGenderId != null) {
-                              controller.userRegistrationRequest.gender =
-                                  parsedGenderId.toString();
-                            } else {
-                              controller.userRegistrationRequest.gender = '';
-                            }
-                            controller.fetchSubGender(SubGenderRequest(
-                                genderId: parsedGenderId.toString()));
-                          },
-                          activeColor: AppColors.buttonColor,
-                        );
-                      }).toList(),
-                    ),
+                        ),
+                      ),
+                    ],
                   ),
                 );
               }),
@@ -551,7 +599,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               }),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: onBackPressed, // Call the onBackPressed method
+                onPressed: onBackPressed,
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                   backgroundColor: AppColors.buttonColor,
@@ -832,21 +880,14 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 // Step 6: Gender Identity Selection
   Widget buildRelationshipStatusInterestStep(
       BuildContext context, Size screenSize) {
-    final relationshipCategory = controller.categories.firstWhere(
-      (category) => category.category == 'Relationship',
-      orElse: () => Category(category: 'Relationship', desires: []),
-    );
+    List<String> options = controller.categories
+        .expand((category) => category.desires.map((desire) => desire.title))
+        .toList();
 
-    final kinksCategory = controller.categories.firstWhere(
-      (category) => category.category == 'Kinks',
-      orElse: () => Category(category: 'Kinks', desires: []),
-    );
+    print(options.map((elem) => elem));
 
-    List<String> options = [
-      ...relationshipCategory.desires.map((desire) => desire.title),
-      ...kinksCategory.desires.map((desire) => desire.title)
-    ];
-
+    List<String> categories =
+        controller.categories.map((category) => category.category).toList();
     RxList<bool> selectedOptions = List.filled(options.length, false).obs;
 
     RxList<String> selectedStatus = <String>[].obs;
@@ -856,14 +897,15 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     void updateSelectedStatus() {
       selectedStatus.clear();
       selectedDesireIds.clear();
+      int globalIndex = 0;
 
-      for (int i = 0; i < selectedOptions.length; i++) {
-        if (selectedOptions[i]) {
-          selectedStatus.add(options[i]);
-          selectedDesireIds.add(int.parse(controller.categories
-              .firstWhere((category) => category.category == 'Relationship')
-              .desires[i]
-              .id));
+      for (var category in controller.categories) {
+        for (int j = 0; j < category.desires.length; j++) {
+          if (selectedOptions[globalIndex]) {
+            selectedStatus.add(category.desires[j].title);
+            selectedDesireIds.add(int.parse(category.desires[j].id));
+          }
+          globalIndex++;
         }
       }
 
@@ -942,7 +984,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                     onDeleted: () {
                                       int index = options.indexOf(status);
                                       selectedOptions[index] = false;
-                                      updateSelectedStatus(); // Update after deletion
+                                      updateSelectedStatus();
                                     },
                                   ),
                                 );
@@ -975,18 +1017,18 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Chip(
-                          label: Text(options[index]),
-                          backgroundColor: selectedOptions[index]
-                              ? AppColors.buttonColor
-                              : AppColors.formFieldColor,
-                          labelStyle: TextStyle(
-                            color: selectedOptions[index]
-                                ? Colors.white
-                                : AppColors.textColor,
-                            fontSize: chipFontSize,
-                          ),
-                        ),
+                        child: Obx(() => Chip(
+                              label: Text(options[index]),
+                              backgroundColor: selectedOptions[index]
+                                  ? AppColors.buttonColor
+                                  : AppColors.formFieldColor,
+                              labelStyle: TextStyle(
+                                color: selectedOptions[index]
+                                    ? Colors.white
+                                    : AppColors.textColor,
+                                fontSize: chipFontSize,
+                              ),
+                            )),
                       ),
                     );
                   }),
@@ -1000,7 +1042,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           onPressed: () {
                             selectedOptions.value =
                                 List.filled(options.length, false);
-                            updateSelectedStatus(); // Reset selections
+                            updateSelectedStatus();
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.deniedColor,
@@ -1024,13 +1066,11 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                         alignment: Alignment.centerRight,
                         child: ElevatedButton(
                           onPressed: () {
-                            // Mark the current step as completed
                             markStepAsCompleted(6);
                             Get.snackbar(
                                 'desries',
                                 controller.userRegistrationRequest.desires
                                     .toString());
-                            // Move to the next page in the PageView
                             pageController.nextPage(
                               duration: Duration(milliseconds: 300),
                               curve: Curves.ease,
@@ -1053,7 +1093,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     : Container();
               }),
               ElevatedButton(
-                onPressed: onBackPressed, // Call the onBackPressed method
+                onPressed: onBackPressed,
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                   backgroundColor: AppColors.buttonColor,
@@ -1076,18 +1116,19 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       return selectedInterests.isNotEmpty && selectedInterests.length <= 6;
     }
 
+    void updateUserInterests() {
+      controller.userRegistrationRequest.interest =
+          selectedInterests.join(', ');
+    }
+
     void addInterest() {
       String newInterest = interestController.text.trim();
       if (newInterest.isNotEmpty && !selectedInterests.contains(newInterest)) {
         selectedInterests.add(newInterest);
-        interestController.clear();
+        interestController.clear(); // Clear after adding to the list
         interestFocusNode.unfocus();
+        updateUserInterests(); // Update the interests after adding the new one
       }
-    }
-
-    void updateUserInterests() {
-      controller.userRegistrationRequest.interest =
-          selectedInterests.join(', ');
     }
 
     void onInterestChanged(String value) {
@@ -1168,19 +1209,19 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   addInterest();
                 },
               ),
-              SizedBox(height: 20),
+              // SizedBox(height: 20),
 
-              // Show the entered interest immediately (Text below TextField)
-              Text(
-                interestController.text.isNotEmpty
-                    ? "You are adding: ${interestController.text}"
-                    : "",
-                style: AppTextStyles.bodyText.copyWith(
-                  fontSize: bodyFontSize,
-                  fontStyle: FontStyle.italic,
-                  color: AppColors.textColor.withOpacity(0.7),
-                ),
-              ),
+              // // Show the entered interest immediately (Text below TextField)
+              // Text(
+              //   interestController.text.isNotEmpty
+              //       ? "You are adding: ${interestController.text}"
+              //       : "",
+              //   style: AppTextStyles.bodyText.copyWith(
+              //     fontSize: bodyFontSize,
+              //     fontStyle: FontStyle.italic,
+              //     color: AppColors.textColor.withOpacity(0.7),
+              //   ),
+              // ),
               SizedBox(height: 20),
 
               // Add Interest button
@@ -1230,7 +1271,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                   ),
                                   onDeleted: () {
                                     selectedInterests.remove(interest);
-                                    updateUserInterests(); // Update interests when an item is deleted
+                                    updateUserInterests(); 
                                   },
                                 );
                               }).toList(),
@@ -1247,13 +1288,11 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                         alignment: Alignment.centerRight,
                         child: ElevatedButton(
                           onPressed: () {
-                            // Mark the current step as completed
                             markStepAsCompleted(7);
                             Get.snackbar(
                                 'intrest',
                                 controller.userRegistrationRequest.interest
                                     .toString());
-                            // Move to the next page in the PageView
                             pageController.nextPage(
                               duration: Duration(milliseconds: 300),
                               curve: Curves.ease,
@@ -1278,7 +1317,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     : Container();
               }),
               ElevatedButton(
-                onPressed: onBackPressed, // Call the onBackPressed method
+                onPressed: onBackPressed,
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                   backgroundColor: AppColors.buttonColor,
@@ -2369,7 +2408,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
           // Acknowledge Button
           ElevatedButton(
-            onPressed:nextStep,
+            onPressed: nextStep,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.buttonColor,
               foregroundColor: AppColors.textColor,

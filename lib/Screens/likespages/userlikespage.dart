@@ -455,8 +455,9 @@ class LikesPageState extends State<LikesPage> {
                                     IconButton(
                                       onPressed: () {
                                         setState(() {
-                                          isLiked = !isLiked;
-                                          user.likedByMe = isLiked ? 1 : 0;
+                                          user.likedByMe = user.likedByMe == 0
+                                              ? 1
+                                              : 0;
                                           controller.profileLikeRequest
                                               .likedBy = user.userId.toString();
                                           controller.profileLike(
@@ -464,14 +465,15 @@ class LikesPageState extends State<LikesPage> {
                                         });
                                       },
                                       icon: Icon(
-                                        isLiked
+                                        user.likedByMe == 1
                                             ? Icons.favorite
                                             : Icons.favorite_border,
                                         size: 30,
-                                        color:
-                                            isLiked ? Colors.red : Colors.white,
+                                        color: user.likedByMe == 1
+                                            ? Colors.red
+                                            : Colors.white,
                                       ),
-                                    ),
+                                    )
                                   ],
                                 ),
                               ],

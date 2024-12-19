@@ -3,12 +3,14 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 import 'package:dating_application/Models/RequestModels/change_password_request.dart';
+import 'package:dating_application/Models/RequestModels/delete_chat_history_request_model.dart';
 import 'package:dating_application/Models/RequestModels/profile_like_request_model.dart';
 import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
 import 'package:dating_application/Models/RequestModels/update_activity_status_request_model.dart';
 import 'package:dating_application/Models/RequestModels/updating_package_request_model.dart';
 import 'package:dating_application/Models/ResponseModels/activity_status_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/change_password_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/delete_chat_history_response.dart';
 import 'package:dating_application/Models/ResponseModels/deletefavourite_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_benifites_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_faq_response_model.dart';
@@ -27,6 +29,7 @@ import 'package:dating_application/Models/ResponseModels/user_upload_images_resp
 import 'package:dating_application/Providers/activity_status_provider.dart';
 import 'package:dating_application/Providers/app_setting_provider.dart';
 import 'package:dating_application/Providers/change_password_provider.dart';
+import 'package:dating_application/Providers/delete_chat_history_provider.dart';
 import 'package:dating_application/Providers/fetch_all_chat_history_page.dart';
 import 'package:dating_application/Providers/fetch_all_desires_provider.dart';
 import 'package:dating_application/Providers/fetch_all_faq_provider.dart';
@@ -173,18 +176,7 @@ class Controller extends GetxController {
 
   bool isSeenUser = false;
 
-  Future<bool> saveIsSeenUser(bool value) async {
-    final prefs = await EncryptedSharedPreferences.getInstance();
-    await prefs.setString('isSeenUser', value.toString());
-    return true;
-  }
-
-  Future<bool?> getIsSeenUser() async {
-    EncryptedSharedPreferences prefs =
-        await EncryptedSharedPreferences.getInstance();
-    String? value = prefs.getString('isSeenUser');
-    return value == 'true';
-  }
+ 
 
   UserRegistrationRequest userRegistrationRequest = UserRegistrationRequest(
     name: '',
@@ -1752,5 +1744,24 @@ class Controller extends GetxController {
       random.nextInt(256),
       1.0,
     );
+  }
+
+  DeleteChatRequest deleteChatRequest = DeleteChatRequest(deleteChatWith: '');
+
+  Future<bool> deletechathistory(DeleteChatRequest deleteChatRequest) async {
+    try {
+      DeleteChatResponse? response = await DeleteChatHistoryProvider()
+          .deletechathistoryprovider(deleteChatRequest);
+      if (response != null) {
+        success('success', response.payload.message);
+        return true;
+      } else {
+        failure('Error', 'Failed to delete the Chat History');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
   }
 }
