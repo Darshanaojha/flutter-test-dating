@@ -72,8 +72,6 @@ class ContactListScreenState extends State<ContactListScreen> {
                   ),
                 ),
                 SizedBox(height: 20),
-
-                // Row with number of members and Ping button
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -165,7 +163,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                   Text(
                                     connection.name!,
                                     style: AppTextStyles.customTextStyle(
-                                        color: Colors.black),
+                                        color: AppColors.textColor),
                                   ),
                                   Text(
                                     'Hi there!',

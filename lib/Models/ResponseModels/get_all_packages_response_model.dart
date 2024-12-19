@@ -56,6 +56,8 @@ class Payload {
 
 class Package {
   String id;
+  String packageTitle;
+  String packageCategoryId;
   String days;
   String actualAmount;
   String offerAmount;
@@ -66,6 +68,8 @@ class Package {
 
   Package({
     required this.id,
+    required this.packageTitle,
+    required this.packageCategoryId,
     required this.days,
     required this.actualAmount,
     required this.offerAmount,
@@ -78,6 +82,8 @@ class Package {
   factory Package.fromJson(Map<String, dynamic> json) {
     return Package(
       id: json['id'],
+      packageTitle: json['package_title'] ?? '',
+      packageCategoryId: json['package_category_id'] ?? '',
       days: json['days'],
       actualAmount: json['actual_amount'],
       offerAmount: json['offer_amount'],
@@ -91,6 +97,8 @@ class Package {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'package_title': packageTitle,
+      'package_category_id': packageCategoryId,
       'days': days,
       'actual_amount': actualAmount,
       'offer_amount': offerAmount,
