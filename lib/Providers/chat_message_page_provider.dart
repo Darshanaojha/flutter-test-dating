@@ -20,7 +20,10 @@ class ChatMessagePageProvider extends GetConnect {
             'Authorization': 'Bearer $token',
           },
         );
-
+        if (response.statusCode == null || response.body == null) {
+          failure('Error', 'Internal server error');
+          return null;
+        }
         if (response.statusCode == 200) {
           if (response.body['error']['code'] == 0) {
             return ChatHistoryResponse.fromJson(response.body);

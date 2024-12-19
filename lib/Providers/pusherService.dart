@@ -10,9 +10,49 @@ class PusherService extends GetConnect {
   late PusherChannel _channel;
   Function(String)? onServerMessageReceived;
   Future<void> initPusher(String senderId, String receiverId) async {
-    String channelName = 'chat-$senderId-$receiverId';
+    String channelName = 'private-chat-$senderId-$receiverId';
 
     pusher = PusherChannelsFlutter();
+    dynamic onAuthorizer(
+        String channelName, String socketId, dynamic options) async {
+      try {
+        EncryptedSharedPreferences preferences =
+            await EncryptedSharedPreferences.getInstance();
+        String? token = preferences.getString('token');
+
+        if (token == null || token.isEmpty) {
+          failure('Error', 'Token not found');
+          return false;
+        }
+        final response = await post(
+          '$baseurl/Chats/getAuthorizationForChannel',
+          {
+            'channel_name': channelName,
+            'socket_id': socketId,
+            'sender_id': senderId,
+          },
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+        );
+        if (response.statusCode == null || response.body == null) {
+          failure('Error', 'Internal Server Error');
+          return null;
+        }
+        if (response.statusCode == 200) {
+          var payload = json.decode(response.body['payload']);
+          String authToken = payload['auth'];
+          print(authToken);
+          return {'auth': authToken};
+        } else {
+          throw Exception('Failed to authorize');
+        }
+      } catch (e) {
+        print('Authorization error: $e');
+        return {'error': 'Authorization failed'};
+      }
+    }
 
     await pusher.init(
       apiKey: PusherConstants.key,
@@ -37,6 +77,7 @@ class PusherService extends GetConnect {
           print("Event is null");
         }
       },
+      onAuthorizer: onAuthorizer,
     );
 
     await pusher.connect();
@@ -64,13 +105,13 @@ class PusherService extends GetConnect {
 
   void sendMessageToChannel(
       String senderId, String receiverId, String message) {
-    String channelName = 'chat-$senderId-$receiverId';
+    String channelName = 'private-chat-$senderId-$receiverId';
     PusherEvent event = PusherEvent(
-      channelName: channelName,
-      eventName: 'client-message',
-      data: json.encode({'message': message}),
-    );
-
+        channelName: channelName,
+        eventName: 'client-message',
+        data: json.encode({'message': message}),
+        userId: senderId);
+    print(event.toString());
     pusher.trigger(event).catchError((error) {
       print('Error sending message: $error');
     });
@@ -103,6 +144,7 @@ class PusherService extends GetConnect {
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
+          print('message sent to backend successfully');
           return true;
         } else {
           failure('Error', response.body['error']['message']);

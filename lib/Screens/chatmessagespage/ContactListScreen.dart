@@ -27,6 +27,7 @@ class ContactListScreenState extends State<ContactListScreen> {
 
   initialize() async {
     await controller.fetchalluserconnections();
+    await controller.fetchProfile();
     setState(() {
       isLoading = false;
     });
@@ -114,6 +115,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         child: GestureDetector(
                           onTap: () {
+                            if (controller.userData.isEmpty) {}
                             debugPrint(
                                 'User ID: ${controller.userData.first.id}');
                             debugPrint(
@@ -165,7 +167,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                   Text(
                                     connection.name!,
                                     style: AppTextStyles.customTextStyle(
-                                        color: Colors.black),
+                                        color: Colors.white),
                                   ),
                                   Text(
                                     'Hi there!',
