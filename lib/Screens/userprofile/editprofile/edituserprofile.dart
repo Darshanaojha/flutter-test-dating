@@ -21,7 +21,7 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class EditProfilePageState extends State<EditProfilePage> {
-  final Controller controller = Get.put(Controller());
+  // final Controller controller = Get.put(Controller());
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   RxBool isLatLongFetched = false.obs;
   RxList<String> genderIds = <String>[].obs;
@@ -39,6 +39,7 @@ class EditProfilePageState extends State<EditProfilePage> {
 
   TextEditingController latitudeController = TextEditingController();
   TextEditingController longitudeController = TextEditingController();
+  DateTime selectedDate = DateTime.now();
   bool isLoading = false;
 
   Country? selectedCountry;
@@ -50,14 +51,16 @@ class EditProfilePageState extends State<EditProfilePage> {
   RxList<bool> preferencesSelectedOptions = <bool>[].obs;
 
   TextEditingController interestController = TextEditingController();
-  RxList<String> UpdatedselectedInterests = <String>[].obs;
+  RxList<String> updatedSelectedInterests = <String>[].obs;
+
   void addInterest() {
-    Get.snackbar('intrest', UpdatedselectedInterests.toString());
     String newInterest = interestController.text.trim();
     if (newInterest.isNotEmpty) {
-      if (!UpdatedselectedInterests.contains(newInterest)) {
-        UpdatedselectedInterests.add(newInterest);
-        interestsList.add(newInterest);
+      if (!updatedSelectedInterests.contains(newInterest)) {
+        updatedSelectedInterests.add(newInterest);
+
+        controller.userData.first.interest = updatedSelectedInterests.join(',');
+
         Get.snackbar('Interest Added', newInterest);
         interestController.clear();
       } else {
@@ -69,19 +72,29 @@ class EditProfilePageState extends State<EditProfilePage> {
 
   void updateUserInterests() {
     controller.userProfileUpdateRequest.interest =
-        UpdatedselectedInterests.join(', ');
+        updatedSelectedInterests.join(', ');
   }
 
   void deleteInterest(int index) {
-    UpdatedselectedInterests.removeAt(index);
+    updatedSelectedInterests.removeAt(index);
+
+    controller.userData.first.interest = updatedSelectedInterests.join(',');
+
+    print("Updated backend interest: ${controller.userData.first.interest}");
   }
 
   late Future<bool> _fetchProfileFuture;
   @override
   void initState() {
     super.initState();
-    intialize();
     _fetchProfileFuture = fetchAllData();
+    _fetchProfileFuture.then((success) {
+      if (success) {
+        initialize();
+      } else {
+        failure('Error', 'Failed to fetch all data.');
+      }
+    });
   }
 
   Future<bool> fetchAllData() async {
@@ -103,7 +116,7 @@ class EditProfilePageState extends State<EditProfilePage> {
     return true;
   }
 
-  intialize() async {
+  initialize() async {
     try {
       debounce?.cancel();
       isLatLongFetched.value = false;
@@ -124,6 +137,12 @@ class EditProfilePageState extends State<EditProfilePage> {
           preferencesSelectedOptions[index] = true;
         }
       }
+      print("Matching indexes: $matchingIndexes");
+
+      selectedDate = DateFormat('dd/MM/yyyy')
+          .parse(controller.userProfileUpdateRequest.dob);
+      print("SelectedDate: $selectedDate");
+
       latitudeController.text = controller.userData.first.latitude.isNotEmpty
           ? controller.userData.first.latitude
           : controller.userProfileUpdateRequest.latitude;
@@ -131,7 +150,6 @@ class EditProfilePageState extends State<EditProfilePage> {
       longitudeController.text = controller.userData.first.longitude.isNotEmpty
           ? controller.userData.first.longitude
           : controller.userProfileUpdateRequest.longitude;
-      print("Matching indexes: $matchingIndexes");
     } catch (e) {
       failure('Error', e.toString());
     }
@@ -260,14 +278,6 @@ class EditProfilePageState extends State<EditProfilePage> {
     return null;
   }
 
-  String? validateDob(String value) {
-    if (value.isEmpty) {
-      return 'Date of birth cannot be empty';
-    }
-    // Optionally check for valid date format if needed
-    return null;
-  }
-
   String? validateNickname(String value) {
     if (value.isEmpty) {
       return 'Nickname cannot be empty';
@@ -341,6 +351,28 @@ class EditProfilePageState extends State<EditProfilePage> {
     return null;
   }
 
+  String? validateDob(String value) {
+    if (value.isEmpty) {
+      return 'Date of birth cannot be empty';
+    }
+
+    DateTime dob = DateFormat('dd/MM/yyyy').parse(value);
+    DateTime now = DateTime.now();
+    // selectedDate = dob;
+    int age = now.year - dob.year;
+
+    if (now.month < dob.month ||
+        (now.month == dob.month && now.day < dob.day)) {
+      age--;
+    }
+
+    if (age < 18) {
+      return 'You must be at least 18 years old to proceed.';
+    }
+
+    return '';
+  }
+
   Future<void> fetchLatLong() async {
     try {
       print(controller.userRegistrationRequest.city);
@@ -375,28 +407,31 @@ class EditProfilePageState extends State<EditProfilePage> {
         TextEditingController(text: initialValue);
     String? _errorText;
 
+    // Method to validate the input DOB
     void validateInput(String value) {
       if (validator != null) {
-        String? error = validator!(value);
+        String? error = validator(value);
         _errorText = error;
       }
     }
 
-    Future<void> _selectDate() async {
+    Future<void> selectDate() async {
       DateTime? pickedDate = await showDatePicker(
         context: context,
-        initialDate: DateTime.now(),
+        initialDate: initialValue.isNotEmpty
+            ? DateFormat('dd/MM/yyyy')
+                .parse(initialValue) // Parse the initial DOB if available
+            : DateTime.now(),
         firstDate: DateTime(1900),
         lastDate: DateTime.now(),
       );
 
       if (pickedDate != null) {
-        // Format the picked date to dd/MM/yyyy
         String formattedDate = DateFormat('dd/MM/yyyy').format(pickedDate);
         controller.text = formattedDate;
+        selectedDate = pickedDate;
         onChanged(formattedDate);
-        _errorText =
-            null; // Clear any existing error after selecting a valid date
+        _errorText = null;
       }
     }
 
@@ -422,7 +457,7 @@ class EditProfilePageState extends State<EditProfilePage> {
             ),
             SizedBox(height: 10),
             GestureDetector(
-              onTap: _selectDate, // Open the date picker on tap
+              onTap: selectDate, // Open the date picker on tap
               child: AbsorbPointer(
                 child: TextField(
                   cursorColor: AppColors.cursorColor,
@@ -437,7 +472,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide.none,
                     ),
-                    errorText: _errorText,
+                    errorText: _errorText, // Show error here after validation
                     hintText: "Select your Date of Birth", // Optional hint
                   ),
                   onChanged: (value) {
@@ -603,7 +638,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                       onTap: () =>
                                                           showFullImageDialog(
                                                               context,
-                                                              imageUrl),
+                                                              imageUrl), // show full image on tap
                                                       child: ClipRRect(
                                                         borderRadius:
                                                             BorderRadius
@@ -720,6 +755,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     onChanged: (value) {
                                       controller.userProfileUpdateRequest.dob =
                                           value;
+
                                       print("Date of Birth: $value");
                                     },
                                     validator: (value) {
@@ -912,7 +948,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                         selectedGender.value =
                                                             value;
 
-                                                        // Safe parsing using tryParse
                                                         final parsedGenderId =
                                                             int.tryParse(
                                                                 value?.id ??
@@ -950,6 +985,9 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     ),
                                   ),
                                   Obx(() {
+                                    String? initialLookingForValue =
+                                        controller.userData.first.lookingFor;
+
                                     return Card(
                                       color: AppColors.primaryColor,
                                       elevation: 8,
@@ -965,15 +1003,10 @@ class EditProfilePageState extends State<EditProfilePage> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             DropdownButtonFormField<String>(
-                                              value: controller
-                                                      .userProfileUpdateRequest
-                                                      .lookingFor
-                                                      .isNotEmpty
-                                                  ? controller
-                                                      .userProfileUpdateRequest
-                                                      .lookingFor
-                                                  : controller.userData.first
-                                                      .lookingFor,
+                                              value:
+                                                  initialLookingForValue.isEmpty
+                                                      ? null
+                                                      : initialLookingForValue,
                                               decoration: InputDecoration(
                                                 labelText: 'Relationship Type',
                                                 labelStyle: AppTextStyles
@@ -1025,21 +1058,9 @@ class EditProfilePageState extends State<EditProfilePage> {
                                               ],
                                               onChanged: (value) {
                                                 if (value != null) {
-                                                  setState(() {
-                                                    controller
-                                                        .userProfileUpdateRequest
-                                                        .lookingFor = value;
-                                                  });
-                                                  Get.snackbar(
-                                                    'Selected',
-                                                    controller.userProfileUpdateRequest
-                                                                .lookingFor ==
-                                                            '1'
-                                                        ? 'Serious Relationship'
-                                                        : 'Hookup',
-                                                  );
-                                                  print(
-                                                      'Selected Relationship Type: $value');
+                                                  controller
+                                                      .userRegistrationRequest
+                                                      .lookingFor = value;
                                                 }
                                               },
                                               iconEnabledColor:
@@ -1047,54 +1068,78 @@ class EditProfilePageState extends State<EditProfilePage> {
                                               iconDisabledColor:
                                                   AppColors.inactiveColor,
                                             ),
-                                            SizedBox(height: 5),
-                                            Column(
-                                              children: List.generate(
-                                                  controller.subGenders.length,
-                                                  (index) {
-                                                if (selectedOption.value ==
-                                                        '' &&
-                                                    controller
-                                                        .userData.isNotEmpty) {
-                                                  String?
-                                                      subGenderFromUserData =
-                                                      controller.userData.first
-                                                          .subGender;
-                                                  if (subGenderFromUserData
-                                                      .isNotEmpty) {
-                                                    selectedOption.value =
-                                                        subGenderFromUserData;
-                                                  }
-                                                }
-                                                return RadioListTile<String>(
-                                                  title: Text(
-                                                    controller.subGenders[index]
-                                                        .title,
-                                                    style: AppTextStyles
-                                                        .bodyText
-                                                        .copyWith(
-                                                      fontSize: bodyFontSize,
-                                                      color:
-                                                          AppColors.textColor,
-                                                    ),
+                                            SizedBox(height: 20),
+                                            Center(
+                                              child: Text(
+                                                'Sub Gender',
+                                              ),
+                                            ),
+                                            SizedBox(height: 10),
+                                            SizedBox(
+                                              height: 200,
+                                              child: Scrollbar(
+                                                child: SingleChildScrollView(
+                                                  child: Column(
+                                                    children: List.generate(
+                                                        controller.subGenders
+                                                            .length, (index) {
+                                                      if (selectedOption
+                                                                  .value ==
+                                                              '' &&
+                                                          controller.userData
+                                                              .isNotEmpty) {
+                                                        String?
+                                                            subGenderFromUserData =
+                                                            controller
+                                                                .userData
+                                                                .first
+                                                                .subGender;
+                                                        if (subGenderFromUserData
+                                                            .isNotEmpty) {
+                                                          selectedOption.value =
+                                                              subGenderFromUserData;
+                                                        }
+                                                      }
+
+                                                      return RadioListTile<
+                                                          String>(
+                                                        title: Text(
+                                                          controller
+                                                              .subGenders[index]
+                                                              .title,
+                                                          style: AppTextStyles
+                                                              .bodyText
+                                                              .copyWith(
+                                                            fontSize:
+                                                                bodyFontSize,
+                                                            color: AppColors
+                                                                .textColor,
+                                                          ),
+                                                        ),
+                                                        value: controller
+                                                            .subGenders[index]
+                                                            .id,
+                                                        groupValue:
+                                                            selectedOption
+                                                                .value,
+                                                        onChanged:
+                                                            (String? value) {
+                                                          selectedOption.value =
+                                                              value ?? '';
+                                                          controller
+                                                                  .userProfileUpdateRequest
+                                                                  .subGender =
+                                                              value ?? '';
+                                                        },
+                                                        activeColor: AppColors
+                                                            .buttonColor,
+                                                        contentPadding:
+                                                            EdgeInsets.zero,
+                                                      );
+                                                    }),
                                                   ),
-                                                  value: controller
-                                                      .subGenders[index].id,
-                                                  groupValue:
-                                                      selectedOption.value,
-                                                  onChanged: (String? value) {
-                                                    selectedOption.value =
-                                                        value ?? '';
-                                                    controller
-                                                        .userProfileUpdateRequest
-                                                        .subGender = value ?? '';
-                                                  },
-                                                  activeColor:
-                                                      AppColors.buttonColor,
-                                                  contentPadding:
-                                                      EdgeInsets.zero,
-                                                );
-                                              }),
+                                                ),
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -1197,25 +1242,24 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                             0.03))),
                                           SizedBox(height: 10),
                                           Obx(() {
-                                            interestsList = controller.userData
-                                                    .first.interest.isNotEmpty
-                                                ? controller
-                                                    .userData.first.interest
-                                                    .split(',')
-                                                : [];
-                                            if (UpdatedselectedInterests
-                                                .isEmpty) {
-                                              UpdatedselectedInterests.addAll(
-                                                  interestsList);
+                                            if (updatedSelectedInterests
+                                                    .isEmpty &&
+                                                controller.userData.first
+                                                    .interest.isNotEmpty) {
+                                              updatedSelectedInterests.addAll(
+                                                  controller
+                                                      .userData.first.interest
+                                                      .split(',')
+                                                      .toSet());
                                             }
                                             return Wrap(
                                               spacing: 8.0,
                                               children: List.generate(
-                                                  UpdatedselectedInterests
+                                                  updatedSelectedInterests
                                                       .length, (index) {
                                                 return Chip(
                                                   label: Text(
-                                                    UpdatedselectedInterests[
+                                                    updatedSelectedInterests[
                                                         index],
                                                     style:
                                                         TextStyle(fontSize: 16),
@@ -1225,8 +1269,10 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                   deleteIcon: Icon(Icons.delete,
                                                       color: AppColors
                                                           .inactiveColor),
-                                                  onDeleted: () =>
-                                                      deleteInterest(index),
+                                                  onDeleted: () {
+                                                    deleteInterest(index);
+                                                    updateUserInterests();
+                                                  },
                                                 );
                                               }),
                                             );
@@ -1307,26 +1353,26 @@ class EditProfilePageState extends State<EditProfilePage> {
                                   visibility_status.value = val;
                                 }),
                               ),
-                              // PrivacyToggle(
-                              //   label: "Hide me on Flame",
-                              //   value: hideMeOnFlame,
-                              //   onChanged: (val) =>
-                              //       setState(() => hideMeOnFlame = val),
-                              // ),
-                              // SizedBox(height: 10),
-                              // PrivacyToggle(
-                              //   label: "Incognito Mode",
-                              //   value: incognitoMode,
-                              //   onChanged: (val) =>
-                              //       setState(() => incognitoMode = val),
-                              // ),
-                              // SizedBox(height: 10),
-                              // PrivacyToggle(
-                              //   label: "Opt out of Ping + Note",
-                              //   value: optOutOfPingNote,
-                              //   onChanged: (val) =>
-                              //       setState(() => optOutOfPingNote = val),
-                              // ),
+                              PrivacyToggle(
+                                label: "Hide me on Flame",
+                                value: hideMeOnFlame,
+                                onChanged: (val) =>
+                                    setState(() => hideMeOnFlame = val),
+                              ),
+                              SizedBox(height: 10),
+                              PrivacyToggle(
+                                label: "Incognito Mode",
+                                value: incognitoMode,
+                                onChanged: (val) =>
+                                    setState(() => incognitoMode = val),
+                              ),
+                              SizedBox(height: 10),
+                              PrivacyToggle(
+                                label: "Opt out of Ping + Note",
+                                value: optOutOfPingNote,
+                                onChanged: (val) =>
+                                    setState(() => optOutOfPingNote = val),
+                              ),
                             ],
                           ),
                         ),
@@ -1338,7 +1384,34 @@ class EditProfilePageState extends State<EditProfilePage> {
                           onPressed: () async {
                             print(
                                 'desires are : ${controller.userProfileUpdateRequest.desires}');
-                            if (_formKey.currentState!.validate()) {
+                            if (_formKey.currentState?.validate() ?? false) {
+                              if (!preferencesSelectedOptions.contains(true)) {
+                                print("select preference");
+                                return;
+                              }
+                              if (selectedLanguages.isEmpty) {
+                                print("select language");
+                                return;
+                              }
+                              // if (controller.userData.first.nickname.isEmpty) {
+                              //   print("Nick name must not be empty");
+                              //   return;
+                              // }
+                              // if (controller
+                              // .userProfileUpdateRequest.name.isEmpty) {
+                              //   print("Name must not be empty");
+                              //   return;
+                              // }
+                              print(selectedDate);
+                              var validDob = validateDob(
+                                  DateFormat('dd/MM/yyyy')
+                                      .format(selectedDate));
+
+                              if (validDob?.isNotEmpty ?? false) {
+                                failure(
+                                    "Invalid DOB", "Please select valid DOB");
+                                return;
+                              }
                               UserProfileUpdateRequest
                                   userProfileUpdateRequest =
                                   UserProfileUpdateRequest(
@@ -1412,8 +1485,11 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     : controller.userData.first.lookingFor,
                                 preferences: controller
                                     .userProfileUpdateRequest.preferences,
-                                desires:
-                                    controller.userProfileUpdateRequest.desires,
+                                desires: controller.userProfileUpdateRequest
+                                        .desires.isNotEmpty
+                                    ? controller
+                                        .userProfileUpdateRequest.desires
+                                    : controller.userDesire,
                               );
 
                               List<int> selectedPreferences = [];
@@ -1532,6 +1608,7 @@ Widget buildRelationshipStatusInterestStep(
   RxList<UserDesire> selectedDesires = controller.userDesire;
   controller.userProfileUpdateRequest.desires =
       selectedDesires.map((userDesire) => userDesire.desiresId).toList();
+  // Populate selectedOptions based on controller.userDesire
   for (var userDesire in controller.userDesire) {
     int index =
         controller.desires.indexWhere((d) => d.id == userDesire.desiresId);
@@ -1539,6 +1616,8 @@ Widget buildRelationshipStatusInterestStep(
       selectedOptions[index] = true;
     }
   }
+
+  // Handle chip selection
   double screenWidth = screenSize.width;
   double bodyFontSize = screenWidth * 0.03;
   double chipFontSize = screenWidth * 0.03;
@@ -1587,12 +1666,17 @@ Widget buildRelationshipStatusInterestStep(
                                     color: AppColors.deniedColor,
                                   ),
                                   onDeleted: () {
+                                    // Remove the selected desire
                                     selectedDesires.remove(desire);
+
+                                    // Update selectedOptions for the corresponding index
                                     int index = controller.desires.indexWhere(
                                         (d) => d.id == desire.desiresId);
                                     if (index != -1) {
                                       selectedOptions[index] = false;
                                     }
+
+                                    // Update user profile desires
                                     controller
                                             .userProfileUpdateRequest.desires =
                                         selectedDesires
@@ -1610,6 +1694,7 @@ Widget buildRelationshipStatusInterestStep(
                     )
                   : Container();
             }),
+
             Text(
               "Select your Desires: ${controller.desires.length}",
               style: AppTextStyles.bodyText.copyWith(
@@ -1630,19 +1715,24 @@ Widget buildRelationshipStatusInterestStep(
                             List.generate(controller.desires.length, (index) {
                           return GestureDetector(
                             onTap: () {
+                              // Add desire to selected list
                               UserDesire userDesire = UserDesire(
-                                  desiresId: controller.desires[index].id,
-                                  title: controller.desires[index].title);
+                                desiresId: controller.desires[index].id,
+                                title: controller.desires[index].title,
+                              );
 
-                              if (!selectedDesires.contains(userDesire)) {
+                              // Ensure only unique desires are added based on ID
+                              if (!selectedDesires.any((desire) =>
+                                  desire.desiresId == userDesire.desiresId)) {
                                 selectedDesires.add(userDesire);
                                 selectedOptions[index] = true;
+
+                                // Update user profile desires
                                 controller.userProfileUpdateRequest.desires =
                                     selectedDesires
                                         .map((userDesire) =>
                                             userDesire.desiresId)
                                         .toList();
-                                return;
                               }
                             },
                             child: Padding(
@@ -1666,7 +1756,9 @@ Widget buildRelationshipStatusInterestStep(
                     )
                   : Container();
             }),
+
             SizedBox(height: 20),
+            // Reset and Cancel Button
             Align(
               alignment: Alignment.centerRight,
               child: ElevatedButton(
@@ -1746,16 +1838,19 @@ Widget buildRelationshipStatusInterestStep(
   );
 }
 
+final Controller controller = Get.put(Controller());
+
 RxList<String> selectedLanguages = <String>[].obs;
 RxList<int> selectedLanguagesId = <int>[].obs;
-
 RxString searchQuery = ''.obs;
 
 Widget languages(BuildContext context) {
   if (selectedLanguages.isEmpty) {
     selectedLanguages.addAll(controller.userLang.map((lang) => lang.title));
   }
+  updateSelectedLanguageIds();
   controller.userProfileUpdateRequest.lang = selectedLanguagesId;
+
   return Card(
     color: AppColors.primaryColor,
     elevation: 8,
@@ -1833,7 +1928,6 @@ Widget languages(BuildContext context) {
   );
 }
 
-final Controller controller = Get.put(Controller());
 void updateSelectedLanguageIds() {
   selectedLanguagesId.clear();
   for (int i = 0; i < controller.language.length; i++) {
@@ -1842,6 +1936,7 @@ void updateSelectedLanguageIds() {
     }
   }
   controller.userProfileUpdateRequest.lang = selectedLanguagesId;
+  print("Selected Lang Id : ${selectedLanguagesId.toList()}");
 }
 
 void showLanguageSelectionBottomSheet(BuildContext context) {
@@ -1902,13 +1997,9 @@ void showLanguageSelectionBottomSheet(BuildContext context) {
                         fontSize: 14,
                       ),
                       onSelected: (bool selected) {
-                        print('in the on selected');
                         if (selected) {
                           if (!selectedLanguages.contains(language)) {
                             selectedLanguages.add(language);
-
-                            // selectedLanguages
-                            //     .add(controller.userLang.first.title);
                           }
                         } else {
                           selectedLanguages.remove(language);
@@ -1921,28 +2012,6 @@ void showLanguageSelectionBottomSheet(BuildContext context) {
               );
             }),
             SizedBox(height: 10),
-            Obx(() {
-              return SingleChildScrollView(
-                scrollDirection:
-                    Axis.horizontal, // Make it horizontal scrollable
-                child: Wrap(
-                  spacing: 8, // Horizontal space between chips
-                  runSpacing: 8, // Vertical space between chips
-                  children: selectedLanguages.map((language) {
-                    return Chip(
-                      label: Text(language),
-                      deleteIcon: Icon(Icons.cancel, size: 18), // Delete icon
-                      onDeleted: () {
-                        selectedLanguages.remove(language);
-                        updateSelectedLanguageIds(); // Update IDs
-                      },
-                      backgroundColor: Colors.blue.withOpacity(0.1),
-                      labelStyle: TextStyle(fontSize: 14),
-                    );
-                  }).toList(),
-                ),
-              );
-            }),
 
             // Done Button
             Padding(
@@ -1951,9 +2020,7 @@ void showLanguageSelectionBottomSheet(BuildContext context) {
                 onPressed: () {
                   updateSelectedLanguageIds();
                   Navigator.pop(context);
-                  for (int i in selectedLanguagesId) {
-                    print(i.toString());
-                  }
+                  print("Language: ${selectedLanguages.toList()}");
                 },
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
@@ -2030,13 +2097,14 @@ class InfoFieldState extends State<InfoField> {
     if (widget.validator != null) {
       String? error = widget.validator!(value);
       setState(() {
-        _errorText = error;
+        _errorText = error; // Update error text on each validation
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Helper function to make font size responsive
     double getResponsiveFontSize(double scale) {
       double screenWidth = MediaQuery.of(context).size.width;
       return screenWidth * scale;
