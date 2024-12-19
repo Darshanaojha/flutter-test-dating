@@ -27,6 +27,7 @@ class ContactListScreenState extends State<ContactListScreen> {
 
   initialize() async {
     await controller.fetchalluserconnections();
+    await controller.fetchProfile();
     setState(() {
       isLoading = false;
     });
@@ -72,6 +73,8 @@ class ContactListScreenState extends State<ContactListScreen> {
                   ),
                 ),
                 SizedBox(height: 20),
+
+                // Row with number of members and Ping button
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -112,6 +115,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         child: GestureDetector(
                           onTap: () {
+                            if (controller.userData.isEmpty) {}
                             debugPrint(
                                 'User ID: ${controller.userData.first.id}');
                             debugPrint(
@@ -163,7 +167,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                   Text(
                                     connection.name!,
                                     style: AppTextStyles.customTextStyle(
-                                        color: AppColors.textColor),
+                                        color: Colors.white),
                                   ),
                                   Text(
                                     'Hi there!',
