@@ -34,7 +34,7 @@ class LikesPageState extends State<LikesPage> {
   final PageController imagePageController = PageController();
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
-    return screenWidth * scale; 
+    return screenWidth * scale;
   }
 
   void showFullImageDialog(BuildContext context, String imagePath) {
@@ -89,9 +89,9 @@ class LikesPageState extends State<LikesPage> {
       Padding(
         padding: const EdgeInsets.all(0.0),
         child: Container(
-          color: Colors.black, 
+          color: Colors.black,
           child: Column(
-            mainAxisSize: MainAxisSize.min, 
+            mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -99,7 +99,7 @@ class LikesPageState extends State<LikesPage> {
                   'Found Uplift',
                   style: AppTextStyles.titleText.copyWith(
                     fontSize: getResponsiveFontSize(0.03),
-                    color: Colors.white, 
+                    color: Colors.white,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -112,7 +112,7 @@ class LikesPageState extends State<LikesPage> {
                   'and you can access earlier with premium benefits.',
                   style: AppTextStyles.bodyText.copyWith(
                     fontSize: getResponsiveFontSize(0.03),
-                    color: Colors.white, 
+                    color: Colors.white,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -125,25 +125,23 @@ class LikesPageState extends State<LikesPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    color: Colors.orange, 
+                    color: Colors.orange,
                     child: Padding(
-                      padding: const EdgeInsets.all(24.0), 
+                      padding: const EdgeInsets.all(24.0),
                       child: Row(
                         children: [
                           Icon(
                             Icons.calendar_today,
-                            color: Colors
-                                .white, 
-                            size: 24, 
+                            color: Colors.white,
+                            size: 24,
                           ),
                           SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              "24-hour Premium Plan - ₹299", 
+                              "24-hour Premium Plan - ₹299",
                               style: AppTextStyles.bodyText.copyWith(
                                 fontSize: getResponsiveFontSize(0.03),
-                                color:
-                                    Colors.white, 
+                                color: Colors.white,
                               ),
                             ),
                           ),
@@ -151,8 +149,7 @@ class LikesPageState extends State<LikesPage> {
                             'Selected',
                             style: AppTextStyles.bodyText.copyWith(
                               fontSize: getResponsiveFontSize(0.03),
-                              color: AppColors
-                                  .buttonColor, 
+                              color: AppColors.buttonColor,
                             ),
                           ),
                         ],
@@ -160,22 +157,20 @@ class LikesPageState extends State<LikesPage> {
                     ),
                   ),
                   Positioned(
-                    top: 4, 
-                    right: 2, 
+                    top: 4,
+                    right: 2,
                     child: Container(
                       padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
                       decoration: BoxDecoration(
                         color: Colors.red,
-                        borderRadius:
-                            BorderRadius.circular(12), 
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         '20% OFF',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize:
-                              getResponsiveFontSize(0.03), 
+                          fontSize: getResponsiveFontSize(0.03),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -183,7 +178,6 @@ class LikesPageState extends State<LikesPage> {
                   ),
                 ],
               ),
-
               SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -210,9 +204,8 @@ class LikesPageState extends State<LikesPage> {
           ),
         ),
       ),
-      isScrollControlled: true, 
-      backgroundColor: Colors
-          .transparent,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
     );
   }
 
@@ -463,6 +456,15 @@ class LikesPageState extends State<LikesPage> {
                                       onPressed: () {
                                         setState(() {
                                           isLiked = !isLiked;
+                                             user.likedByMe = isLiked ? 1 : 0;
+                                          controller
+                                                  .profileLikeRequest.likedBy =
+                                              controller
+                                                  .userSuggestionsList[index]
+                                                  .userId
+                                                  .toString();
+                                          controller.profileLike(
+                                              controller.profileLikeRequest);
                                         });
                                       },
                                       icon: Icon(
@@ -474,7 +476,6 @@ class LikesPageState extends State<LikesPage> {
                                             isLiked ? Colors.red : Colors.white,
                                       ),
                                     ),
-                                    
                                   ],
                                 ),
                               ],
@@ -500,7 +501,7 @@ class LikesPageState extends State<LikesPage> {
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Text(
-                  "Upgrade",
+                  "Add On",
                   style: AppTextStyles.buttonText,
                   textAlign: TextAlign.center,
                 ),
@@ -510,8 +511,8 @@ class LikesPageState extends State<LikesPage> {
           if (isLoading)
             Center(
               child: SpinKitCircle(
-                size: 150.0, 
-                color: AppColors.progressColor, 
+                size: 150.0,
+                color: AppColors.progressColor,
               ),
             ),
         ],
@@ -642,5 +643,3 @@ class LikesPageState extends State<LikesPage> {
     );
   }
 }
-
-

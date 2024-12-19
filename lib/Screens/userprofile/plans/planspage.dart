@@ -20,13 +20,16 @@ class PricingPageState extends State<PricingPage> {
   @override
   void initState() {
     super.initState();
-    controller.fetchAllHeadlines();
-    controller.fetchAllPackages();
+    initializeData();
+  }
+
+  Future<void> initializeData() async {
+    await controller.fetchAllHeadlines();
+    await controller.fetchAllPackages();
   }
 
   @override
   Widget build(BuildContext context) {
-    // double fontSize = MediaQuery.of(context).size.width * 0.05;
     double responsiveheight = MediaQuery.of(context).size.height * 0.07;
 
     return Scaffold(
@@ -60,39 +63,41 @@ class PricingPageState extends State<PricingPage> {
 
     return Column(
       children: [
-        Card(
-          elevation: 8,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                Text(
-                  controller.headlines.isNotEmpty
-                      ? controller.headlines[10].title
-                      : "Loading Title...",
-                  style: AppTextStyles.titleText.copyWith(
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textColor,
-                  ),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  controller.headlines.isNotEmpty
-                      ? controller.headlines[10].description
-                      : "Loading Title...",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: fontSize - 2,
-                    color: AppColors.textColor,
-                  ),
-                ),
-              ],
+        Obx(() {
+          return Card(
+            elevation: 8,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-          ),
-        ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Text(
+                    controller.headlines.isNotEmpty
+                        ? controller.headlines[10].title
+                        : "Loading Title...",
+                    style: AppTextStyles.titleText.copyWith(
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textColor,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    controller.headlines.isNotEmpty
+                        ? controller.headlines[10].description
+                        : "Loading Title...",
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: fontSize - 2,
+                      color: AppColors.textColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
         Obx(() {
           return ListView.builder(
             shrinkWrap: true,

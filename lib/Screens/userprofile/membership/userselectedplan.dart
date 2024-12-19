@@ -22,7 +22,6 @@ class PlanPageState extends State<PlanPage> {
   void initState() {
     super.initState();
 
-    // Check if the data has already been fetched before calling the fetch method
     if (controller.subscripted.isEmpty) {
       controller.fetchAllsubscripted();
     }
@@ -41,7 +40,6 @@ class PlanPageState extends State<PlanPage> {
         backgroundColor: AppColors.primaryColor,
       ),
       body: Obx(() {
-        // Observe subscripted list, will rebuild on changes
         if (controller.subscripted.isEmpty) {
           return Center(child: CircularProgressIndicator());
         }
