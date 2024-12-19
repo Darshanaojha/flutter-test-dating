@@ -1,10 +1,12 @@
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
+import '../Models/RequestModels/chat_history_request_model.dart';
 import '../Models/ResponseModels/chat_history_response_model.dart';
 import '../constants.dart';
 
 class ChatMessagePageProvider extends GetConnect {
-  Future<ChatHistoryResponse?> chatHistory() async {
+  Future<ChatHistoryResponse?> chatHistory(
+      ChatHistoryRequestModel chatHistoryRequestModel) async {
     try {
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
@@ -12,7 +14,7 @@ class ChatMessagePageProvider extends GetConnect {
       if (token != null && token.isNotEmpty) {
         Response response = await post(
           '$baseurl/Chats/chat_history',
-          {},
+          chatHistoryRequestModel.toJson(),
           headers: {
             'content-Type': 'application/json',
             'Authorization': 'Bearer $token',
