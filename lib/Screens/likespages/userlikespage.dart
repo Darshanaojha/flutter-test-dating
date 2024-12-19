@@ -456,13 +456,9 @@ class LikesPageState extends State<LikesPage> {
                                       onPressed: () {
                                         setState(() {
                                           isLiked = !isLiked;
-                                             user.likedByMe = isLiked ? 1 : 0;
-                                          controller
-                                                  .profileLikeRequest.likedBy =
-                                              controller
-                                                  .userSuggestionsList[index]
-                                                  .userId
-                                                  .toString();
+                                          user.likedByMe = isLiked ? 1 : 0;
+                                          controller.profileLikeRequest
+                                              .likedBy = user.userId.toString();
                                           controller.profileLike(
                                               controller.profileLikeRequest);
                                         });
