@@ -36,12 +36,12 @@ class Payload {
   });
 
   factory Payload.fromJson(Map<String, dynamic> json) {
-    var list = json['data'] as List;
+    var list = json['data'] as List? ?? [];
     List<Message> messageList = list.map((i) => Message.fromJson(i)).toList();
 
     return Payload(
       data: messageList,
-      message: json['message'],
+      message: json['message'] ?? '',
     );
   }
 
@@ -82,17 +82,18 @@ class Message {
 
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
-        id: json['id'],
-        senderId: json['sender_id'],
-        receiverId: json['receiver_id'],
-        message: json['message'],
-        messageType: json['message_type'],
-        created: json['created'],
-        updated: json['updated'],
-        status: json['status'],
-        deletedBySender: json['deleted_by_sender'],
-        deletedByReceiver: json['deleted_by_receiver'],
-        isEdited: json['is_edited']);
+      id: json['id'] ?? '',
+      senderId: json['sender_id'] ?? '',
+      receiverId: json['receiver_id'] ?? '',
+      message: json['message'] ?? '',
+      messageType: json['message_type'] ?? '',
+      created: json['created'] ?? '',
+      updated: json['updated'] ?? '',
+      status: json['status'] ?? '',
+      deletedBySender: json['deleted_by_sender'] ?? '',
+      deletedByReceiver: json['deleted_by_receiver'] ?? '',
+      isEdited: json['is_edited'] ?? '',
+    );
   }
 
   Map<String, dynamic> toJson() {
@@ -107,7 +108,7 @@ class Message {
       'status': status,
       'deleted_by_sender': deletedBySender,
       'deleted_by_receiver': deletedByReceiver,
-      'is_edited': isEdited
+      'is_edited': isEdited,
     };
   }
 }
@@ -123,8 +124,8 @@ class Error {
 
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
-      code: json['code'],
-      message: json['message'],
+      code: json['code'] ?? 0,
+      message: json['message'] ?? '',
     );
   }
 
