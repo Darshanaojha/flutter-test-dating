@@ -36,14 +36,14 @@ class ChatScreenState extends State<ChatScreen> {
     pusherService.initPusher(widget.senderId, widget.receiverId);
 
     // Listening for the server-message event
-    pusherService.onServerMessageReceived = (message) {
+    pusherService.onServerMessageReceived = (receivedMessage) {
       setState(() {
         controller.messages.add(Message(
           id: 'someId', // You can replace with actual message ID
           senderId:
               widget.receiverId, // Assuming the other person sends this message
           receiverId: widget.senderId,
-          message: message,
+          message: receivedMessage,
           messageType: textMessage.toString(),
           created: DateTime.now().toString(),
           updated: DateTime.now().toString(),
@@ -59,7 +59,6 @@ class ChatScreenState extends State<ChatScreen> {
   void _sendMessage() {
     String message = messageController.text.trim();
     if (message.isNotEmpty) {
-      // Send message to channel (Pusher)
       pusherService.sendMessageToChannel(
         widget.senderId,
         widget.receiverId,
@@ -101,13 +100,7 @@ class ChatScreenState extends State<ChatScreen> {
     );
 
     if (requestModel.validate()) {
-      bool success = await pusherService.sendMessageApi(requestModel);
-
-      if (success) {
-        print("Message sent to backend successfully.");
-      } else {
-        print("Failed to send message to backend.");
-      }
+      await pusherService.sendMessageApi(requestModel);
     }
   }
 
@@ -124,7 +117,7 @@ class ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            "Chat with ${widget.receiverId}"), // Replace with actual receiver name if available
+            "Chat with ${widget.receiverName}"), // Replace with actual receiver name if available
       ),
       body: Column(
         children: [
@@ -134,7 +127,7 @@ class ChatScreenState extends State<ChatScreen> {
               if (controller.messages.isEmpty) {
                 return Text("No chats available".toUpperCase(),
                     style: GoogleFonts.lato(
-                        fontSize: size.width * 0.06,
+                        fontSize: size.width * 0.04,
                         fontWeight: FontWeight.bold,
                         color: Colors.white));
               }
