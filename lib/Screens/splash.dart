@@ -49,28 +49,28 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
     );
 
     intialize();
-    checkIntroSeenAndNavigate();
-  }
-
-  void checkIntroSeenAndNavigate() async {
-    bool? isSeenUser = await controller.getIsSeenUser();
-
-    if (isSeenUser == null || isSeenUser == false) {
-      await controller.saveIsSeenUser(true);
-      Get.offAll(() => IntroSlidingPages());
-    } else {
-      Get.offAll(() => Login());
-    }
   }
 
   intialize() async {
     try {
-      // bool? isSeenUser = await controller.getIsSeenUser();
-      // if (isSeenUser == null || isSeenUser == false) {
-      //   controller.saveIsSeenUser(true);
-      //   Get.offAll(IntroSliderPage);
-      //   return;
-      // }
+      EncryptedSharedPreferences preferences =
+          EncryptedSharedPreferences.getInstance();
+
+      String? token = preferences.getString('token');
+      String? packageStatus = preferences.getString('package_status');
+      bool? value = preferences.getBoolean('isSeenUser');
+      if (value == null || value == false) {
+        controller.fetchAllIntroSlider().then((value) {
+          if (value == true) {
+            preferences.setBoolean('isSeenUser', true);
+
+            Get.offAll(() => IntroSlidingPages());
+          } else {
+            failure('Error', 'Failed to fetch the intro slider');
+          }
+        });
+        return;
+      }
       await controller.fetchAllHeadlines();
       await controller.fetchSafetyGuidelines();
       await controller.fetchAllPackages();
@@ -78,13 +78,6 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
       await controller.fetchDesires();
       await controller.fetchGenders();
       await controller.fetchCountries();
-      await controller.fetchAllIntroSlider();
-
-      EncryptedSharedPreferences preferences =
-          EncryptedSharedPreferences.getInstance();
-
-      String? token = preferences.getString('token');
-      String? packageStatus = preferences.getString('package_status');
 
       if (token == null || token.isEmpty) {
         Get.offAll(() => Login());

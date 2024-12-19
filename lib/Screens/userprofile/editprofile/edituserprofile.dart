@@ -985,9 +985,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     ),
                                   ),
                                   Obx(() {
-                                    String? initialLookingForValue =
-                                        controller.userData.first.lookingFor;
-
                                     return Card(
                                       color: AppColors.primaryColor,
                                       elevation: 8,
@@ -1003,10 +1000,15 @@ class EditProfilePageState extends State<EditProfilePage> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             DropdownButtonFormField<String>(
-                                              value:
-                                                  initialLookingForValue.isEmpty
-                                                      ? null
-                                                      : initialLookingForValue,
+                                              value: controller
+                                                      .userProfileUpdateRequest
+                                                      .lookingFor
+                                                      .isNotEmpty
+                                                  ? controller
+                                                      .userProfileUpdateRequest
+                                                      .lookingFor
+                                                  : controller.userData.first
+                                                      .lookingFor,
                                               decoration: InputDecoration(
                                                 labelText: 'Relationship Type',
                                                 labelStyle: AppTextStyles
@@ -1058,9 +1060,11 @@ class EditProfilePageState extends State<EditProfilePage> {
                                               ],
                                               onChanged: (value) {
                                                 if (value != null) {
-                                                  controller
-                                                      .userRegistrationRequest
-                                                      .lookingFor = value;
+                                                  setState(() {
+                                                    controller
+                                                        .userRegistrationRequest
+                                                        .lookingFor = value;
+                                                  });
                                                 }
                                               },
                                               iconEnabledColor:
@@ -1351,6 +1355,10 @@ class EditProfilePageState extends State<EditProfilePage> {
                                 value: visibility_status.value,
                                 onChanged: (val) => setState(() {
                                   visibility_status.value = val;
+                                  visibility_status.value == true
+                                  ? controller
+                                      .userProfileUpdateRequest.visibility = '1'
+                                  : '0';
                                 }),
                               ),
                               PrivacyToggle(
@@ -1391,25 +1399,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                               }
                               if (selectedLanguages.isEmpty) {
                                 print("select language");
-                                return;
-                              }
-                              // if (controller.userData.first.nickname.isEmpty) {
-                              //   print("Nick name must not be empty");
-                              //   return;
-                              // }
-                              // if (controller
-                              // .userProfileUpdateRequest.name.isEmpty) {
-                              //   print("Name must not be empty");
-                              //   return;
-                              // }
-                              print(selectedDate);
-                              var validDob = validateDob(
-                                  DateFormat('dd/MM/yyyy')
-                                      .format(selectedDate));
-
-                              if (validDob?.isNotEmpty ?? false) {
-                                failure(
-                                    "Invalid DOB", "Please select valid DOB");
                                 return;
                               }
                               UserProfileUpdateRequest
