@@ -42,6 +42,7 @@ import 'package:dating_application/Providers/fetch_subscripted_package_provider.
 import 'package:dating_application/Providers/login_provider.dart';
 import 'package:dating_application/Providers/share_profile_provider.dart';
 import 'package:dating_application/Providers/user_profile_provider.dart';
+import 'package:dating_application/Screens/loginforgotpassword/forgotpasswordotp.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
@@ -153,6 +154,9 @@ import '../Providers/user_suggestions_provider.dart';
 import '../Providers/usernameupdate_provider.dart';
 import '../Providers/verify_account_provider.dart';
 import '../Screens/login.dart';
+import '../Screens/loginforgotpassword/forgotpaswordenter.dart';
+import '../Screens/register_subpag/registerdetails.dart';
+import '../Screens/register_subpag/registrationotp.dart';
 import '../Screens/settings/updateemailid/updateemailotpverification.dart';
 import '../constants.dart';
 
@@ -175,8 +179,6 @@ class Controller extends GetxController {
   }
 
   bool isSeenUser = false;
-
- 
 
   UserRegistrationRequest userRegistrationRequest = UserRegistrationRequest(
     name: '',
@@ -267,6 +269,7 @@ class Controller extends GetxController {
               EncryptedSharedPreferences.getInstance();
           await prefs.setString('registrationotp', otp);
           success('OTP Received', 'Your OTP is: $otp');
+          Get.to(OTPVerificationPage());
           success('success', response.payload.message);
           return true;
         } else {
@@ -290,6 +293,7 @@ class Controller extends GetxController {
               registrationOtpVerificationRequest);
       if (response != null) {
         success('success', response.payload.message);
+        Get.offAll(RegisterProfilePage());
         return true;
       }
       return false;
@@ -310,7 +314,7 @@ class Controller extends GetxController {
 
       if (response != null && response.payload.data.isNotEmpty) {
         countries.addAll(response.payload.data);
-        success('Success', 'Countries fetched successfully');
+        print('Countries fetched successfully');
         return true;
       } else {
         failure('Error', 'No countries found in the response');
@@ -342,7 +346,7 @@ class Controller extends GetxController {
 
       if (response != null && response.payload.data.isNotEmpty) {
         language.addAll(response.payload.data);
-        success('Success', 'Languages fetched successfully');
+        print('Languages fetched successfully');
         return true;
       } else {
         failure('Error', 'No Languages found in the response');
@@ -363,7 +367,7 @@ class Controller extends GetxController {
           await ChatMessagePageProvider().chatHistory(chatHistoryRequestModel);
       if (response != null) {
         messages.addAll(response.payload.data);
-        success('success', 'chat history fetched successfully');
+        print('chat history fetched successfully');
         return true;
       } else {
         failure('Error', 'Error fetching the chat history');
@@ -388,7 +392,7 @@ class Controller extends GetxController {
         for (var c in categories) {
           desires.addAll(c.desires);
         }
-        success('success', 'successfully fetched all the desires');
+        print('successfully fetched all the desires');
         return true;
       } else {
         failure('Error', 'Error fetching the desires');
@@ -416,7 +420,7 @@ class Controller extends GetxController {
         userDesire.addAll(response.payload.desires);
         userPreferences.addAll(response.payload.preferences);
         userLang.addAll(response.payload.lang);
-        success('success', 'successfully fetched the user profile');
+        print('successfully fetched the user profile');
         return true;
       } else {
         failure('Error', 'Error fetching the user profile');
@@ -435,7 +439,7 @@ class Controller extends GetxController {
           await HomePageProvider().fetchAllActiveUsers();
       if (response != null) {
         userDetails.addAll(response.payload.data);
-        success('success', 'successfully fetched all the active users');
+        print('successfully fetched all the active users');
         return true;
       } else {
         failure('Error', 'Error fetching all active users');
@@ -455,7 +459,7 @@ class Controller extends GetxController {
       GenderResponse? response = await FetchAllGendersProvider().fetchGenders();
       if (response != null) {
         genders.addAll(response.payload.data);
-        success('success', 'Genders fetched successfully');
+        print('Genders fetched successfully');
         return true;
       } else {
         failure('Error', 'Error fetching the genders');
@@ -475,7 +479,7 @@ class Controller extends GetxController {
           await FetchAllPreferencesProvider().fetchPreferences();
       if (response != null) {
         preferences.addAll(response.payload.data);
-        success('success', 'User preferences fetched successfully');
+        print('User preferences fetched successfully');
         return true;
       } else {
         failure('Error', 'Error fetching the preferences');
@@ -495,7 +499,7 @@ class Controller extends GetxController {
           await FetchBenefitsProvider().fetchBenefits();
       if (response != null) {
         benefits.addAll(response.payload.data);
-        success('success', 'Successfully fetched the benefits');
+        print('Successfully fetched the benefits');
         return true;
       } else {
         failure('Error', 'Failed to fetch the benefits');
@@ -518,7 +522,7 @@ class Controller extends GetxController {
 
       if (response != null && response.success) {
         packages.addAll(response.payload.data);
-        success('Success', 'Successfully fetched all the packages');
+        print('Successfully fetched all the packages');
         return true;
       } else {
         failure('Error', response?.error.message ?? 'Unknown error');
@@ -539,7 +543,7 @@ class Controller extends GetxController {
           await FetchAllSafetyGuildlinesProvider().fetchAllSafetyGuidelines();
       if (response != null) {
         safetyGuidelines.addAll(response.payload.data);
-        success('success', 'successfully fetched the safety guidelines');
+        print('successfully fetched the safety guidelines');
         return true;
       } else {
         failure('Error', 'Failed to fetch the safety guidelines');
@@ -559,7 +563,7 @@ class Controller extends GetxController {
           await FetchSubGendersProvider().getSubGenders(subGenderRequest);
       if (response != null) {
         subGenders.addAll(response.payload.data);
-        success('success', 'successfully fetched the sub genders');
+        print('successfully fetched the sub genders');
         return true;
       } else {
         failure('Error', 'Failed to fetch the sub genders');
@@ -578,7 +582,7 @@ class Controller extends GetxController {
           await UserProfileProvider().fetchProfileUserPhotos();
       if (response != null && response.payload != null) {
         userPhotos = response.payload!.data;
-        success('success', 'successfully fetched the user profile photos');
+        print('successfully fetched the user profile photos');
         return true;
       } else {
         failure('Error', 'Failed to fetch the  user profile photos');
@@ -598,6 +602,7 @@ class Controller extends GetxController {
           await ChangePasswordProvider().changePassword(request);
       if (response != null) {
         success('success', response.payload.message);
+        Get.to(Login());
         return true;
       } else {
         failure('Error', 'Failed to change the password');
@@ -704,7 +709,7 @@ class Controller extends GetxController {
           await FetchAllHeadlinesProvider().fetchAllHeadlines();
       if (response != null) {
         headlines.addAll(response.payload.data);
-        success('success', 'successfully fetched all the headlines');
+        print('successfully fetched all the headlines');
         return true;
       } else {
         failure('Error', 'Failed to fetch the headlines');
@@ -730,39 +735,35 @@ class Controller extends GetxController {
     await prefs.setString('forgetpassword', forgetPasswordRequest.newPassword);
 
     try {
-      // Call the API to get OTP
       ForgetPasswordResponse? response =
           await LoginProvider().getOtpForgetPassword(forgetPasswordRequest);
 
       if (response != null) {
-        // Extract OTP from the message
         String message = response.payload.message;
         print(message);
 
-        // Regex to match the OTP in the message
-        RegExp otpRegExp = RegExp(r'(\d{6})'); // 6-digit OTP
+        RegExp otpRegExp = RegExp(r'(\d{6})');
         Match? otpMatch = otpRegExp.firstMatch(message);
 
         if (otpMatch != null) {
-          // Extract OTP
           String otp = otpMatch.group(0)!;
           success('Success', 'OTP sent successfully: $otp');
+          Get.to(OTPInputPage());
 
-          // Optionally, store the OTP for future use (if needed)
           await storeOtp(otp);
 
-          return true; // OTP extraction succeeded
+          return true;
         } else {
           failure('Error', 'OTP not found in the message');
-          return false; // OTP extraction failed
+          return false;
         }
       } else {
         failure('Error', 'Failed to get the OTP');
-        return false; // API response was null
+        return false;
       }
     } catch (e) {
       failure('Error', e.toString());
-      return false; // Handle exception
+      return false;
     }
   }
 
@@ -776,6 +777,7 @@ class Controller extends GetxController {
           .otpVerificationForgetPassword(forgetPasswordVerificationRequest);
       if (response != null) {
         success('success', response.payload.message);
+        Get.to(Login());
         return true;
       } else {
         failure('Error', 'Failed to verify otp for forget password');
@@ -872,7 +874,6 @@ class Controller extends GetxController {
 
   Future<String?> addOrUpdateImage(int photos) async {
     try {
-      // Request necessary permissions
       if (!await requestCameraPermission()) {
         return 'Camera permission denied';
       }
@@ -880,22 +881,18 @@ class Controller extends GetxController {
         return 'Location permission denied';
       }
 
-      // Pick image from the camera
       final ImagePicker picker = ImagePicker();
       final XFile? image = await picker.pickImage(source: ImageSource.camera);
 
       if (image != null) {
-        // Compress the image
         final compressedImage = await FlutterImageCompress.compressWithFile(
-          image.path, // Correctly pass the image path here
-          quality: 50, // Compression quality (adjust as needed)
+          image.path,
+          quality: 50,
         );
 
         if (compressedImage != null) {
-          // Convert the compressed image to base64
           String base64Image = base64Encode(compressedImage);
 
-          // Save the image path and base64 data based on the page
           if (photos == 1) {
             userRegistrationRequest.photos.add(base64Image);
           } else if (photos == 2) {
@@ -930,7 +927,6 @@ class Controller extends GetxController {
       if (image != null) {
         final File galleryImage = File(image.path);
 
-        // Compress the image
         final compressedImage = await FlutterImageCompress.compressWithFile(
           galleryImage.path,
           quality: 50,
@@ -938,8 +934,6 @@ class Controller extends GetxController {
 
         if (compressedImage != null) {
           final String base64Image = base64Encode(compressedImage);
-
-          // Add the image to the photos list for the respective page
           switch (page) {
             case 1:
               userRegistrationRequest.photos.add(base64Image);
@@ -976,11 +970,11 @@ class Controller extends GetxController {
 
     if (ch == "C") {
       await addOrUpdateImage(page).then((value) {
-        base64EncodedImage = value; // Get base64 image data from camera
+        base64EncodedImage = value;
       });
     } else if (ch == "G") {
       await addOrUpdateGalleryImage(page).then((value) {
-        base64EncodedImage = value; // Get base64 image data from gallery
+        base64EncodedImage = value;
       });
     }
     return base64EncodedImage;
@@ -999,12 +993,9 @@ class Controller extends GetxController {
   Future<bool> requestStoragePermission() async {
     final status = await Permission.storage.request();
 
-    // Check if the permission is granted
     if (status.isGranted) {
       return true;
     } else if (status.isDenied) {
-      // You can show a dialog or snackbar to inform the user why the permission is needed
-      // and prompt them to allow it.
       return false;
     } else if (status.isPermanentlyDenied) {
       openAppSettings();
@@ -1012,7 +1003,7 @@ class Controller extends GetxController {
       return false;
     }
     failure("Manually Open Setting ", "Allow all to open camera");
-    return false; // Handle other cases as needed
+    return false;
   }
 
   Future<bool> requestCameraPermission() async {
@@ -1156,7 +1147,7 @@ class Controller extends GetxController {
       UserSuggestionsResponseModel? response =
           await UserSuggestionsProvider().userSuggestions();
       if (response != null && response.payload != null) {
-        success('Success', 'user fetched successfully');
+        print('user fetched successfully');
 
         if (response.payload!.desireBase != null &&
             response.payload!.desireBase!.isNotEmpty) {
@@ -1341,7 +1332,7 @@ class Controller extends GetxController {
       final FAQResponseModel? response = await FetchAllFaqProvider().fetchFaq();
       if (response != null && response.payload.data.isNotEmpty) {
         faq.addAll(response.payload.data);
-        success('Success', 'FAQs fetched successfully');
+        print('FAQs fetched successfully');
         return response;
       } else {
         failure('Error', 'No FAQs found in the response');
@@ -1382,7 +1373,7 @@ class Controller extends GetxController {
           await FetchSubscriptedPackageProvider().fetchAllSubscriptedPackage();
       if (response != null) {
         subscripted.addAll(response.payload.data);
-        success('success', 'successfully fetched all the subscripted');
+        print('successfully fetched all the subscripted');
         return true;
       } else {
         failure('Error', 'Failed to fetch the subscripted');
@@ -1447,7 +1438,7 @@ class Controller extends GetxController {
           await FetchVerificationtypeProvider().fetchAllVerificationProvider();
       if (response != null) {
         verificationtype = response.payload.data;
-        success('success', 'successfully fetched all the verification');
+        print('successfully fetched all the verification');
         return true;
       } else {
         failure('Error', 'Failed to fetch the verification');
@@ -1492,7 +1483,7 @@ class Controller extends GetxController {
           await FetchAllFavouritesProvider().fetchallfavouritesprovider();
       if (response != null) {
         favourite.addAll(response.payload.data);
-        success('success', 'successfully fetched all the favourites');
+        print('successfully fetched all the favourites');
         return true;
       } else {
         failure('Error', 'Failed to fetch the favourites');
@@ -1670,7 +1661,7 @@ class Controller extends GetxController {
               .fetchalluserconnectionsprovider();
       if (response != null) {
         userConnections.addAll(response.payload.data);
-        success('Success', 'Successfully fetched all the chat history page');
+        print('Successfully fetched all the chat history page');
         return true;
       } else {
         failure('Error', 'Failed to fetch the chat history page');

@@ -244,12 +244,6 @@ class UserProfilePageState extends State<UserProfilePage> {
                                             );
                                             controller.updateusername(
                                                 usernameUpdateRequest);
-
-                                            // Show confirmation
-                                            Get.snackbar('Success',
-                                                'Username updated successfully!');
-
-                                            // Close the dialog
                                             Navigator.of(context).pop();
                                           },
                                           child: Text('Save'),
@@ -264,7 +258,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 22.0),
                         child: Row(
                           children: [
                             Text(
@@ -278,99 +272,112 @@ class UserProfilePageState extends State<UserProfilePage> {
                           ],
                         ),
                       ),
-                      Card(
-                        elevation: 5,
-                        color: controller.userData.isNotEmpty &&
-                                controller.userData.first
-                                        .accountVerificationStatus ==
-                                    '1'
-                            ? Colors.green[50]
-                            : Colors.red[50],
-                        child: InkWell(
-                          onTap: () {
-                            showVerificationDialog(context);
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Account Verification',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: controller.userData.isNotEmpty &&
-                                            controller.userData.first
-                                                    .accountVerificationStatus ==
-                                                '1'
-                                        ? Colors.green
-                                        : Colors.red,
-                                  ),
-                                ),
-                                controller.userData.isNotEmpty &&
-                                        controller.userData.first
-                                                .accountVerificationStatus ==
-                                            '1'
-                                    ? Icon(Icons.verified_user_outlined,
-                                        color: Colors.green)
-                                    : Icon(Icons.cancel_outlined,
-                                        color: Colors.red),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
                       Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: EdgeInsets.symmetric(horizontal: 10),
                         child: Card(
                           elevation: 5,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                    'Profile Completion: $userProfileCompletion',
-                                    style: AppTextStyles.labelText.copyWith(
-                                        fontSize: getResponsiveFontSize(0.03))),
-                                SizedBox(height: 10),
-                                Text(
-                                    'Complete your profile to unlock more features!',
-                                    style: AppTextStyles.labelText.copyWith(
-                                        fontSize: getResponsiveFontSize(0.03))),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Card(
-                          color: Color.fromARGB(255, 11, 122, 67),
-                          elevation: 5,
+                          color: controller.userData.isNotEmpty &&
+                                  controller.userData.first
+                                          .accountVerificationStatus ==
+                                      '1'
+                              ? Colors.green[50]
+                              : Colors.red[50],
                           child: InkWell(
                             onTap: () {
-                              Get.to(PlanPage());
+                              showVerificationDialog(context);
                             },
-                            child: Container(
-                              padding: EdgeInsets.all(16),
-                              width: double.infinity,
-                              height: 100,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 22),
                               child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Icon(
-                                    Icons.card_membership,
-                                    size: 40,
-                                    color: Colors.white,
-                                  ),
-                                  SizedBox(width: 56),
                                   Text(
-                                    'Membership',
-                                    style: AppTextStyles.titleText.copyWith(
-                                        fontSize: getResponsiveFontSize(0.03)),
+                                    'Account Verification',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: controller.userData.isNotEmpty &&
+                                              controller.userData.first
+                                                      .accountVerificationStatus ==
+                                                  '1'
+                                          ? Colors.green
+                                          : Colors.red,
+                                    ),
                                   ),
+                                  controller.userData.isNotEmpty &&
+                                          controller.userData.first
+                                                  .accountVerificationStatus ==
+                                              '1'
+                                      ? Icon(Icons.verified_user_outlined,
+                                          color: Colors.green)
+                                      : Icon(Icons.cancel_outlined,
+                                          color: Colors.red),
                                 ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 22),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          child: Card(
+                            elevation: 5,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 22),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                      'Profile Completion: $userProfileCompletion',
+                                      style: AppTextStyles.labelText.copyWith(
+                                          fontSize:
+                                              getResponsiveFontSize(0.03))),
+                                  SizedBox(height: 10),
+                                  Text(
+                                      'Complete your profile to unlock more features!',
+                                      style: AppTextStyles.labelText.copyWith(
+                                          fontSize:
+                                              getResponsiveFontSize(0.03))),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          child: Card(
+                            color: Color.fromARGB(255, 11, 122, 67),
+                            elevation: 5,
+                            child: InkWell(
+                              onTap: () {
+                                Get.to(PlanPage());
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(16),
+                                width: double.infinity,
+                                height: 100,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.card_membership,
+                                      size: 40,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(width: 56),
+                                    Text(
+                                      'Membership',
+                                      style: AppTextStyles.titleText.copyWith(
+                                          fontSize:
+                                              getResponsiveFontSize(0.03)),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -439,73 +446,76 @@ class UserProfilePageState extends State<UserProfilePage> {
                       //   ),
                       // ),
                       Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Column(
-                          children: [
-                            // SettingCard(
-                            //   title: 'My Constellation',
-                            //   subtitle: 'Add partners to your constellation',
-                            //   icon: Icons.arrow_forward,
-                            //   onTap: () {
-                            //     Get.to(AddPartnerPage());
-                            //   },
-                            // ),
-                            SettingCard(
-                              title: 'Edit Profile',
-                              subtitle: 'Edit your profile details',
-                              icon: Icons.edit,
-                              onTap: () {
-                                Get.to(EditProfilePage());
-                                if (controller.userLang.isNotEmpty) {
-                                  Get.snackbar(
-                                      '', controller.userLang.first.title);
-                                } else {
-                                  Get.snackbar('', 'No language available');
-                                }
-                              },
-                            ),
-                            // SettingCard(
-                            //   title: 'Search Settings',
-                            //   subtitle: 'Customize your search settings',
-                            //   icon: Icons.search,
-                            //   onTap: () {
-                            //     Get.to(ShareProfilePage(
-                            //       id: '1',
-                            //     ));
-                            //   },
-                            // ),
-                            SettingCard(
-                              title: 'App Settings',
-                              subtitle: 'Manage app preferences',
-                              icon: Icons.settings,
-                              onTap: () {
-                                Get.to(SettingsPage());
-                              },
-                            ),
-                            SettingCard(
-                              title: 'Share The Application',
-                              subtitle: 'Share our Application with others',
-                              icon: Icons.share,
-                              onTap: showShareProfileBottomSheet,
-                            ),
-                            // SettingCard(
-                            //     title: 'Magazine',
-                            //     subtitle: 'abc',
-                            //     icon: Icons.bolt,
-                            //     onTap: () {}),
-                            // SettingCard(
-                            //     title: 'Our Community',
-                            //     subtitle: 'community support',
-                            //     icon: Icons.support,
-                            //     onTap: () {}),
-                            SettingCard(
-                                title: 'Help',
-                                subtitle: 'helpline',
-                                icon: Icons.help,
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          child: Column(
+                            children: [
+                              // SettingCard(
+                              //   title: 'My Constellation',
+                              //   subtitle: 'Add partners to your constellation',
+                              //   icon: Icons.arrow_forward,
+                              //   onTap: () {
+                              //     Get.to(AddPartnerPage());
+                              //   },
+                              // ),
+                              SettingCard(
+                                title: 'Edit Profile',
+                                subtitle: 'Edit your profile details',
+                                icon: Icons.edit,
                                 onTap: () {
-                                  showHelpBottomSheet(context);
-                                }),
-                          ],
+                                  Get.to(EditProfilePage());
+                                  if (controller.userLang.isNotEmpty) {
+                                    Get.snackbar(
+                                        '', controller.userLang.first.title);
+                                  } else {
+                                    Get.snackbar('', 'No language available');
+                                  }
+                                },
+                              ),
+                              // SettingCard(
+                              //   title: 'Search Settings',
+                              //   subtitle: 'Customize your search settings',
+                              //   icon: Icons.search,
+                              //   onTap: () {
+                              //     Get.to(ShareProfilePage(
+                              //       id: '1',
+                              //     ));
+                              //   },
+                              // ),
+                              SettingCard(
+                                title: 'App Settings',
+                                subtitle: 'Manage app preferences',
+                                icon: Icons.settings,
+                                onTap: () {
+                                  Get.to(SettingsPage());
+                                },
+                              ),
+                              SettingCard(
+                                title: 'Share The Application',
+                                subtitle: 'Share our Application with others',
+                                icon: Icons.share,
+                                onTap: showShareProfileBottomSheet,
+                              ),
+                              // SettingCard(
+                              //     title: 'Magazine',
+                              //     subtitle: 'abc',
+                              //     icon: Icons.bolt,
+                              //     onTap: () {}),
+                              // SettingCard(
+                              //     title: 'Our Community',
+                              //     subtitle: 'community support',
+                              //     icon: Icons.support,
+                              //     onTap: () {}),
+                              SettingCard(
+                                  title: 'Help',
+                                  subtitle: 'helpline',
+                                  icon: Icons.help,
+                                  onTap: () {
+                                    showHelpBottomSheet(context);
+                                  }),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -594,30 +604,6 @@ class UserProfilePageState extends State<UserProfilePage> {
       ),
     );
   }
-
-  Widget buildSettingCard(
-      String title, String subtitle, IconData icon, VoidCallback onTap) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Card(
-        elevation: 5,
-        child: ListTile(
-          title: Text(title),
-          subtitle: Text(subtitle),
-          trailing: Icon(icon),
-          onTap: onTap,
-        ),
-      ),
-    );
-  }
-
-  Widget buildSettingItem(String title) {
-    return ListTile(
-      title: Text(title),
-      onTap: () {},
-    );
-  }
-
   void showShareProfileBottomSheet() {
     showModalBottomSheet(
       context: context,
@@ -950,21 +936,24 @@ class SettingCard extends StatelessWidget {
     double cardWidth = screenWidth * 0.85;
 
     return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: SizedBox(
-        width: cardWidth,
-        child: Card(
-          elevation: 10,
-          child: ListTile(
-            title: Text(
-              title,
-              style: AppTextStyles.titleText
-                  .copyWith(fontSize: screenWidth * 0.04),
+      padding: EdgeInsets.symmetric(vertical: 16),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8),
+        child: SizedBox(
+          child: Card(
+             color: Color.fromARGB(255, 11, 122, 67),
+            elevation: 5,
+            child: ListTile(
+              title: Text(
+                title,
+                style: AppTextStyles.titleText
+                    .copyWith(fontSize: screenWidth * 0.04),
+              ),
+              subtitle: Text(subtitle,
+                  style: TextStyle(fontSize: screenWidth * 0.03)),
+              trailing: Icon(icon),
+              onTap: onTap,
             ),
-            subtitle:
-                Text(subtitle, style: TextStyle(fontSize: screenWidth * 0.03)),
-            trailing: Icon(icon),
-            onTap: onTap,
           ),
         ),
       ),

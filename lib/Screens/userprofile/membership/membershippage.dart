@@ -94,7 +94,6 @@ class MembershipPageState extends State<MembershipPage> {
           width: MediaQuery.of(context).size.width * 0.9,
           child: FloatingActionButton.extended(
             onPressed: () {
-              // Handle membership purchase logic here
               Get.to(PricingPage());
             },
             label: Text(

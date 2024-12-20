@@ -1,3 +1,4 @@
+import 'package:dating_application/Models/RequestModels/update_emailid_request_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -35,8 +36,8 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
       appBar: AppBar(
         title: Text(
           "Update Email",
-          style: AppTextStyles.headingText.copyWith(
-              fontSize: getResponsiveFontSize(0.03)),
+          style: AppTextStyles.headingText
+              .copyWith(fontSize: getResponsiveFontSize(0.03)),
         ),
         backgroundColor: AppColors.primaryColor,
       ),
@@ -48,8 +49,8 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
             children: [
               Text(
                 "Enter your password and new email address to update your email.",
-                style: AppTextStyles.bodyText.copyWith(
-                    fontSize: getResponsiveFontSize(0.03)),
+                style: AppTextStyles.bodyText
+                    .copyWith(fontSize: getResponsiveFontSize(0.03)),
               ),
               SizedBox(height: 32),
               Form(
@@ -59,12 +60,12 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
                     // Password Field
                     TextFormField(
                       obscureText: true,
-                      style: AppTextStyles.inputFieldText.copyWith(
-                          fontSize: getResponsiveFontSize(0.03)),
+                      style: AppTextStyles.inputFieldText
+                          .copyWith(fontSize: getResponsiveFontSize(0.03)),
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        labelStyle: AppTextStyles.labelText.copyWith(
-                            fontSize: getResponsiveFontSize(0.03)),
+                        labelStyle: AppTextStyles.labelText
+                            .copyWith(fontSize: getResponsiveFontSize(0.03)),
                         fillColor: AppColors.formFieldColor,
                         filled: true,
                         focusedBorder: OutlineInputBorder(
@@ -91,12 +92,12 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
 
                     // New Email Field
                     TextFormField(
-                      style: AppTextStyles.inputFieldText.copyWith(
-                          fontSize: getResponsiveFontSize(0.03)),
+                      style: AppTextStyles.inputFieldText
+                          .copyWith(fontSize: getResponsiveFontSize(0.03)),
                       decoration: InputDecoration(
                         labelText: 'New Email ID',
-                        labelStyle: AppTextStyles.labelText.copyWith(
-                            fontSize: getResponsiveFontSize(0.03)),
+                        labelStyle: AppTextStyles.labelText
+                            .copyWith(fontSize: getResponsiveFontSize(0.03)),
                         fillColor: AppColors.formFieldColor,
                         filled: true,
                         focusedBorder: OutlineInputBorder(
@@ -126,41 +127,27 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
                       },
                     ),
                     SizedBox(height: 32),
-
-                    // Update Button
                     SizedBox(
                       width: 200,
                       child: ElevatedButton(
                         onPressed: () async {
                           if (formKey.currentState?.validate() ?? false) {
-                            // Save form data
                             formKey.currentState?.save();
-
-                            // Call the update method
                             try {
-                              
-                              await controller.updateEmailId(
-                                  controller.updateEmailIdRequest);
-                              // Show success message
-                             success(
-                                "Success",
-                                "Email has been updated successfully!",
-                             
-                              );
+                              if (controller.updateEmailIdRequest.validate()) {
+                                await controller.updateEmailId(
+                                    controller.updateEmailIdRequest);
+                              }
                             } catch (e) {
-                              // Handle error
-                             failure(
+                              failure(
                                 "Error",
                                 "Failed to update email: ${e.toString()}",
-                               
                               );
                             }
                           } else {
-                            
                             failure(
                               "Error",
                               "Please fix the errors in the form.",
-                             
                             );
                           }
                         },
@@ -173,8 +160,8 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
                         ),
                         child: Text(
                           "Update Email",
-                          style: AppTextStyles.buttonText.copyWith(
-                              fontSize: getResponsiveFontSize(0.03)),
+                          style: AppTextStyles.buttonText
+                              .copyWith(fontSize: getResponsiveFontSize(0.03)),
                         ),
                       ),
                     ),

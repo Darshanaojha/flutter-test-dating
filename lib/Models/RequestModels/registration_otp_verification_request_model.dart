@@ -38,15 +38,11 @@ class RegistrationOtpVerificationRequest {
     }
 
     final emailRegExp =
-        RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$');
+        RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
     if (!emailRegExp.hasMatch(email)) {
-      failure("Invalid Email", "Invalid email format.");
-      return false;
+      failure("Error", "Invalid email format");
     }
-
-    // Validate OTP
     if (otp.isEmpty) {
-      // Show custom error using snackbar
       failure("Invalid OTP", "OTP cannot be empty.");
       return false;
     }
@@ -56,8 +52,6 @@ class RegistrationOtpVerificationRequest {
       failure("Invalid OTP", "OTP must be a 6-digit number.");
       return false;
     }
-
-    // If both validations pass, return true
     return true;
   }
 }

@@ -204,15 +204,15 @@ class UserRegistrationRequest {
     }
   }
 
-  void validatePhotos(List<String> photos) {
+   validatePhotos(List<String> photos) {
     if (photos.isEmpty) {
-      throw ArgumentError("Photos list cannot be empty for field: Photos.");
+      failure('Photo', "Photos list cannot be empty for field: Photos.");
     }
     final urlPattern =
         RegExp(r'^(http|https):\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}\/[^\s]*$');
     for (var photo in photos) {
       if (!urlPattern.hasMatch(photo)) {
-        throw ArgumentError("Invalid photo URL for field: $photo.");
+        failure("Photo", "Invalid photo URL for field: $photo.");
       }
     }
   }

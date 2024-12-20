@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:dating_application/Models/ResponseModels/get_all_desires_model_response.dart';
 import 'package:dating_application/Screens/login.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
@@ -144,9 +143,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           ),
           child: Text('Submit', style: AppTextStyles.buttonText),
         ),
-        // Back button
         ElevatedButton(
-          onPressed: onBackPressed, // Call the onBackPressed method
+          onPressed: onBackPressed,
           style: ElevatedButton.styleFrom(
             padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
             backgroundColor: AppColors.buttonColor,
@@ -212,8 +210,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     double subHeadingFontSize = screenSize.width * 0.045;
     double datePickerFontSize = screenSize.width * 0.03;
 
-    // Variable to store selected date
-
     return Card(
       elevation: 12,
       shape: RoundedRectangleBorder(
@@ -247,11 +243,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               );
             }),
             SizedBox(height: screenSize.height * 0.05),
-
-            // Date Picker Button
             GestureDetector(
               onTap: () async {
-                // Show the date picker and let the user select a date
                 DateTime? pickedDate = await showDatePicker(
                   context: context,
                   initialDate: selectedDate,
@@ -263,8 +256,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   setState(() {
                     selectedDate = pickedDate;
                     date.value = selectedDate.toString();
-
-                    // Update the selected date
                   });
                 }
               },
@@ -276,7 +267,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       border: Border.all(color: AppColors.textColor),
                     ),
                     child: Text(
-                      'Select Date of Birth: ${date.value.split(' ')[0]}', // Display the selected date
+                      'Select Date of Birth: ${date.value.split(' ')[0]}',
                       style: AppTextStyles.bodyText.copyWith(
                         fontSize: datePickerFontSize,
                         color: AppColors.textColor,
@@ -284,10 +275,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     ),
                   )),
             ),
-
             SizedBox(height: screenSize.height * 0.02),
-
-            // Next Button
             ElevatedButton(
               onPressed: () {
                 DateTime now = DateTime.now();
@@ -389,9 +377,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               ),
               cursorColor: AppColors.cursorColor,
             ),
-            SizedBox(
-                height: 40), // Adds space between the text field and button
-
+            SizedBox(height: 40),
             ElevatedButton(
               onPressed: controller.userRegistrationRequest.nickname.isEmpty
                   ? null
@@ -425,7 +411,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: onBackPressed, // Call the onBackPressed method
+              onPressed: onBackPressed,
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                 backgroundColor: AppColors.buttonColor,
@@ -443,25 +429,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   Widget buildGenderStep(Size screenSize) {
     double titleFontSize = screenSize.width * 0.05;
     double optionFontSize = screenSize.width * 0.03;
-
-    double scrollableHeight = screenSize.height * 0.5;
-
-    late ScrollController _scrollController;
-    double scrollPercentage = 0.0;
-
-    @override
-    void initState() {
-      super.initState();
-      _scrollController = ScrollController();
-      _scrollController.addListener(() {
-        setState(() {
-          // Calculate the scroll position as a percentage
-          double maxScroll = _scrollController.position.maxScrollExtent;
-          double currentScroll = _scrollController.position.pixels;
-          scrollPercentage = currentScroll / maxScroll;
-        });
-      });
-    }
 
     return Card(
       elevation: 8,
@@ -491,74 +458,47 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     ),
                   );
                 }
-
-                // Container with fixed height for scrollable area
-                return Container(
-                  height: scrollableHeight, // Limiting scrollable area size
-                  child: Stack(
-                    children: [
-                      SingleChildScrollView(
-                        child: Column(
-                          children: controller.genders.map((gender) {
-                            return RadioListTile<Gender?>(
-                              title: Text(
-                                gender.title,
-                                style: AppTextStyles.bodyText.copyWith(
-                                  fontSize: optionFontSize,
-                                  color: AppColors.textColor,
+                return Stack(
+                  children: [
+                    SizedBox(
+                      height: 400,
+                      child: Scrollbar(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: controller.genders.map((gender) {
+                              return RadioListTile<Gender?>(
+                                title: Text(
+                                  gender.title,
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    fontSize: optionFontSize,
+                                    color: AppColors.textColor,
+                                  ),
                                 ),
-                              ),
-                              value: gender,
-                              groupValue: selectedGender.value,
-                              onChanged: (Gender? value) {
-                                selectedGender.value = value;
+                                value: gender,
+                                groupValue: selectedGender.value,
+                                onChanged: (Gender? value) {
+                                  selectedGender.value = value;
+                                  final parsedGenderId =
+                                      int.tryParse(value?.id ?? '');
 
-                                // Safe parsing using tryParse
-                                final parsedGenderId =
-                                    int.tryParse(value?.id ?? '');
-
-                                if (parsedGenderId != null) {
-                                  controller.userRegistrationRequest.gender =
-                                      parsedGenderId.toString();
-                                } else {
-                                  controller.userRegistrationRequest.gender =
-                                      '';
-                                }
-                                controller.fetchSubGender(SubGenderRequest(
-                                    genderId: parsedGenderId.toString()));
-                              },
-                              activeColor: AppColors.buttonColor,
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                      Positioned(
-                        right: 10,
-                        top: 0,
-                        bottom: 0,
-                        child: Container(
-                          width: 8,
-                          height: scrollableHeight,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Align(
-                            alignment: Alignment.topCenter,
-                            child: AnimatedContainer(
-                              duration: Duration(milliseconds: 300),
-                              width: 8,
-                              height: scrollPercentage * scrollableHeight,
-                              decoration: BoxDecoration(
-                                color: AppColors.buttonColor,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
+                                  if (parsedGenderId != null) {
+                                    controller.userRegistrationRequest.gender =
+                                        parsedGenderId.toString();
+                                  } else {
+                                    controller.userRegistrationRequest.gender =
+                                        '';
+                                  }
+                                  controller.fetchSubGender(SubGenderRequest(
+                                      genderId: parsedGenderId.toString()));
+                                },
+                                activeColor: AppColors.buttonColor,
+                              );
+                            }).toList(),
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 );
               }),
               SizedBox(height: 40),
@@ -662,38 +602,39 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               ),
               SizedBox(height: 20),
               Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children:
-                        List.generate(controller.subGenders.length, (index) {
-                      return RadioListTile<String>(
-                        title: Text(
-                          controller.subGenders[index].title,
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: optionFontSize,
-                            color: AppColors.textColor,
+                child: Scrollbar(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children:
+                          List.generate(controller.subGenders.length, (index) {
+                        return RadioListTile<String>(
+                          title: Text(
+                            controller.subGenders[index].title,
+                            style: AppTextStyles.bodyText.copyWith(
+                              fontSize: optionFontSize,
+                              color: AppColors.textColor,
+                            ),
                           ),
-                        ),
-                        value: controller.subGenders[index].id,
-                        groupValue: selectedOption.value,
-                        onChanged: (String? value) {
-                          selectedOption.value = value ?? '';
-                          controller.userRegistrationRequest.subGender =
-                              value ?? '';
-                        },
-                        activeColor: AppColors.buttonColor,
-                        contentPadding: EdgeInsets.zero,
-                      );
-                    }),
+                          value: controller.subGenders[index].id,
+                          groupValue: selectedOption.value,
+                          onChanged: (String? value) {
+                            selectedOption.value = value ?? '';
+                            controller.userRegistrationRequest.subGender =
+                                value ?? '';
+                          },
+                          activeColor: AppColors.buttonColor,
+                          contentPadding: EdgeInsets.zero,
+                        );
+                      }),
+                    ),
                   ),
                 ),
               ),
               SizedBox(height: 30),
               ElevatedButton(
                 onPressed: selectedOption.value.isEmpty
-                    ? null // Disable button if no option is selected
+                    ? null
                     : () {
-                        // Proceed to the next step if a valid option is selected
                         markStepAsCompleted(4);
                         Get.snackbar(
                             'Sub-gender',
@@ -707,8 +648,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                   backgroundColor: selectedOption.value.isEmpty
-                      ? AppColors.disabled // If no preference is selected
-                      : AppColors.buttonColor, // If preference is selected
+                      ? AppColors.disabled
+                      : AppColors.buttonColor,
                   foregroundColor: AppColors.textColor,
                 ),
                 child: Text(
@@ -720,7 +661,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               ),
               SizedBox(height: 10),
               ElevatedButton(
-                onPressed: onBackPressed, // Call the onBackPressed method
+                onPressed: onBackPressed,
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                   backgroundColor: AppColors.buttonColor,
@@ -740,8 +681,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     double titleFontSize = screenSize.width * 0.05;
     double descriptionFontSize = screenSize.width * 0.03;
     double optionFontSize = screenSize.width * 0.03;
-
-    // Ensure preferencesSelectedOptions is properly initialized
     if (preferencesSelectedOptions.isEmpty) {
       preferencesSelectedOptions.value =
           List<bool>.filled(controller.preferences.length, false);
@@ -821,7 +760,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  // Collect selected preferences as List<int>
                   List<int> selectedPreferences = [];
                   for (int i = 0; i < preferencesSelectedOptions.length; i++) {
                     if (preferencesSelectedOptions[i]) {
@@ -836,13 +774,11 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   if (selectedPreferences.isEmpty) {
                     failure('Failed', 'Please select at least one preference.');
                   } else {
-                    markStepAsCompleted(
-                        5); // Mark the current step as completed
+                    markStepAsCompleted(5);
                     Get.snackbar(
                         'pref',
                         controller.userRegistrationRequest.preferences
                             .toString());
-                    // Move to the next page in the PageView
                     pageController.nextPage(
                       duration: Duration(milliseconds: 300),
                       curve: Curves.ease,
@@ -852,8 +788,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                   backgroundColor: preferencesSelectedOptions.isNotEmpty
-                      ? AppColors.inactiveColor // If no preference is selected
-                      : AppColors.buttonColor, // If preference is selected
+                      ? AppColors.inactiveColor
+                      : AppColors.buttonColor,
                   foregroundColor: AppColors.textColor,
                 ),
                 child: Text(
@@ -862,7 +798,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 ),
               ),
               ElevatedButton(
-                onPressed: onBackPressed, // Call the onBackPressed method
+                onPressed: onBackPressed,
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                   backgroundColor: AppColors.buttonColor,
@@ -878,6 +814,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
 // Step 6: Gender Identity Selection
+  RxList<int> selectedDesireIds = <int>[].obs;
   Widget buildRelationshipStatusInterestStep(
       BuildContext context, Size screenSize) {
     List<String> options = controller.categories
@@ -886,13 +823,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
     print(options.map((elem) => elem));
 
-    List<String> categories =
-        controller.categories.map((category) => category.category).toList();
+    controller.categories.map((category) => category.category).toList();
     RxList<bool> selectedOptions = List.filled(options.length, false).obs;
-
-    RxList<String> selectedStatus = <String>[].obs;
-
-    RxList<int> selectedDesireIds = <int>[].obs;
 
     void updateSelectedStatus() {
       selectedStatus.clear();
@@ -1125,9 +1057,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       String newInterest = interestController.text.trim();
       if (newInterest.isNotEmpty && !selectedInterests.contains(newInterest)) {
         selectedInterests.add(newInterest);
-        interestController.clear(); // Clear after adding to the list
+        interestController.clear();
         interestFocusNode.unfocus();
-        updateUserInterests(); // Update the interests after adding the new one
+        updateUserInterests();
       }
     }
 
@@ -1154,7 +1086,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Title
               Text(
                 controller.headlines.isNotEmpty
                     ? controller.headlines[6].title
@@ -1166,8 +1097,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 ),
               ),
               SizedBox(height: 20),
-
-              // Description
               Text(
                 controller.headlines.isNotEmpty
                     ? controller.headlines[6].description
@@ -1178,8 +1107,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 ),
               ),
               SizedBox(height: 20),
-
-              // Interest input field
               TextField(
                 controller: interestController,
                 focusNode: interestFocusNode,
@@ -1210,7 +1137,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 },
               ),
               // SizedBox(height: 20),
-
               // // Show the entered interest immediately (Text below TextField)
               // Text(
               //   interestController.text.isNotEmpty
@@ -1271,7 +1197,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                   ),
                                   onDeleted: () {
                                     selectedInterests.remove(interest);
-                                    updateUserInterests(); 
+                                    updateUserInterests();
                                   },
                                 );
                               }).toList(),
@@ -1341,7 +1267,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           selectedLanguagesId.add(int.parse(controller.language[i].id));
         }
       }
-      // Update the controller with the new language IDs
       controller.userRegistrationRequest.lang = selectedLanguagesId;
     }
 
@@ -1516,7 +1441,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   Widget buildUserDescriptionStep(Size screenSize) {
     RxString userDescription = ''.obs;
     bool isInputValid = true;
-    // Function to track text changes
     void onDescriptionChanged(String value) {
       userDescription.value = value;
       controller.userRegistrationRequest.bio = value;
@@ -1562,12 +1486,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 ),
               ),
               SizedBox(height: 20),
-
-              // TextField for user description input
               TextField(
                 onChanged: onDescriptionChanged,
-                maxLength: 250, // Limit the input to 250 characters
-                maxLines: 6, // Allow multiple lines for description
+                maxLength: 250,
+                maxLines: 6,
                 decoration: InputDecoration(
                   labelText: "Your Description",
                   labelStyle: TextStyle(color: AppColors.textColor),
@@ -1593,29 +1515,24 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   fontSize: inputFontSize,
                 ),
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(
-                      RegExp(r'[a-zA-Z\s]')), // Only allow alphabets and spaces
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
                 ],
                 cursorColor: AppColors.cursorColor,
                 textInputAction: TextInputAction.done,
               ),
               SizedBox(height: 20),
-
-              // Character count display
               Obx(() {
                 return Text(
                   '${userDescription.value.length} / 250 characters',
                   style: AppTextStyles.bodyText.copyWith(
                     fontSize: bodyFontSize,
                     color: userDescription.value.length > 250
-                        ? Colors.red // Show red when over 250 characters
+                        ? Colors.red
                         : AppColors.textColor,
                   ),
                 );
               }),
               SizedBox(height: 20),
-
-              // Submit button (enabled only when description is valid)
               Obx(() {
                 return ElevatedButton(
                   onPressed: userDescription.value.isNotEmpty &&
@@ -1632,40 +1549,36 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                               'Description cannot exceed 250 characters.',
                             );
                           }
-                          // Mark the current step as completed
                           markStepAsCompleted(9);
                           Get.snackbar(
                               'bio',
                               controller.userRegistrationRequest.bio
                                   .toString());
-                          // Move to the next page in the PageView
                           pageController.nextPage(
                             duration: Duration(milliseconds: 300),
                             curve: Curves.ease,
                           );
-
-                          // Handle the description submission here
                           // controller.register(controller.userRegistrationRequest);
                           print("User Description: ${userDescription.value}");
                         }
-                      : null, // Disable button if description is empty or too long
+                      : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: userDescription.value.isNotEmpty &&
                             userDescription.value.length <= 250
                         ? AppColors.buttonColor
-                        : Colors.grey, // Button color based on validity
+                        : Colors.grey,
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   ),
                   child: Text(
                     'Next',
                     style: AppTextStyles.buttonText.copyWith(
-                      fontSize: buttonFontSize, // Responsive button font size
+                      fontSize: buttonFontSize,
                     ),
                   ),
                 );
               }),
               ElevatedButton(
-                onPressed: onBackPressed, // Call the onBackPressed method
+                onPressed: onBackPressed,
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
                   backgroundColor: AppColors.buttonColor,
@@ -1685,12 +1598,11 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
   // step 10
   Widget buildPermissionRequestStep(Size screenSize) {
-    // Function to show the permission request dialog
     Future<void> showPermissionDialog(
         BuildContext context, String permissionType) async {
       return showDialog<void>(
         context: context,
-        barrierDismissible: false, // Prevent dismissing the dialog
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text(
@@ -1716,8 +1628,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 onPressed: () {
                   if (permissionType == 'notification') {
                     notificationGranted.value = false;
-                    controller.userRegistrationRequest.emailAlerts =
-                        '0'; // Deny
+                    controller.userRegistrationRequest.emailAlerts = '0';
                   } else if (permissionType == 'location') {
                     locationGranted.value = false;
                   }
@@ -1894,30 +1805,26 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           ),
         ),
         SizedBox(height: 20),
-
-        // Optional Next Button (Enabled only if both permissions are granted)
         Obx(() {
           return ElevatedButton(
             onPressed: notificationGranted.value && locationGranted.value
                 ? () {
-                    // Mark the current step as completed
                     markStepAsCompleted(10);
                     Get.snackbar(
                         'permission',
                         controller.userRegistrationRequest.emailAlerts
                             .toString());
-                    // Move to the next page in the PageView
                     pageController.nextPage(
                       duration: Duration(milliseconds: 300),
                       curve: Curves.ease,
                     );
                   }
-                : null, // Disable button if permissions are not granted
+                : null,
             style: ElevatedButton.styleFrom(
               backgroundColor:
                   notificationGranted.value && locationGranted.value
                       ? AppColors.buttonColor
-                      : Colors.grey, // Button color based on permissions
+                      : Colors.grey,
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             ),
             child: Text(
@@ -1930,7 +1837,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
         }),
         SizedBox(height: 20),
         ElevatedButton(
-          onPressed: onBackPressed, // Call the onBackPressed method
+          onPressed: onBackPressed,
           style: ElevatedButton.styleFrom(
             padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
             backgroundColor: AppColors.buttonColor,
@@ -1998,6 +1905,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
     void onNextButtonPressed() {
       if (controller.userRegistrationRequest.photos.length >= 3) {
+        
         controller.userRegistrationRequest.imgcount =
             controller.userRegistrationRequest.photos.length.toString();
         markStepAsCompleted(11);
@@ -2331,7 +2239,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           ),
           SizedBox(height: 20),
 
-          // Second Card: Safety Guidelines List
           Card(
             elevation: 8,
             shape: RoundedRectangleBorder(
@@ -2423,7 +2330,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           ),
           SizedBox(height: 10),
 
-          // Back Button
           ElevatedButton(
             onPressed: onBackPressed,
             style: ElevatedButton.styleFrom(

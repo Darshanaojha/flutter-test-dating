@@ -57,7 +57,6 @@ class Error {
     required this.message,
   });
 
-  // Convert Error object to JSON string
   Map<String, dynamic> toJson() {
     return {
       'code': code,
@@ -65,7 +64,6 @@ class Error {
     };
   }
 
-  // Create Error object from JSON string
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
       code: json['code'] ?? 0,

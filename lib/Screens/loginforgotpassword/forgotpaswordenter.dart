@@ -154,9 +154,11 @@ class PasswordInputPageState extends State<PasswordInputPage> {
                       onPressed: () async {
                         if (formKey.currentState?.validate() ?? false) {
                           formKey.currentState?.save();
-                          await controller.getOtpForgetPassword(
+                        if(controller.forgetPasswordRequest.validate()){
+                            await controller.getOtpForgetPassword(
                               controller.forgetPasswordRequest);
-                          Get.to(OTPInputPage());
+                        }
+                        
                         } else {
                           failure('password', '');
                         }

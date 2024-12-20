@@ -19,7 +19,6 @@ class GetAllLanguagesResponse {
     );
   }
 
-  // Method to convert the object to JSON
   Map<String, dynamic> toJson() {
     return {
       'success': success,
@@ -38,7 +37,6 @@ class Payload {
     required this.data,
   });
 
-  // Factory method to create the object from JSON
   factory Payload.fromJson(Map<String, dynamic> json) {
     var list = json['data'] as List;
     List<Language> languages = list.map((e) => Language.fromJson(e)).toList();
@@ -49,7 +47,6 @@ class Payload {
     );
   }
 
-  // Method to convert the object to JSON
   Map<String, dynamic> toJson() {
     return {
       'msg': msg,
@@ -107,7 +104,6 @@ class ErrorResponse {
     required this.message,
   });
 
-  // Factory method to create the object from JSON
   factory ErrorResponse.fromJson(Map<String, dynamic> json) {
     return ErrorResponse(
       code: json['code'],
@@ -115,7 +111,6 @@ class ErrorResponse {
     );
   }
 
-  // Method to convert the object to JSON
   Map<String, dynamic> toJson() {
     return {
       'code': code,

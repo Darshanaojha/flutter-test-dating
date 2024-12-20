@@ -139,6 +139,7 @@ class EditProfilePageState extends State<EditProfilePage> {
       }
       print("Matching indexes: $matchingIndexes");
 
+      print("DOB : ${controller.userProfileUpdateRequest.dob}");
       selectedDate = DateFormat('dd/MM/yyyy')
           .parse(controller.userProfileUpdateRequest.dob);
       print("SelectedDate: $selectedDate");
@@ -367,6 +368,7 @@ class EditProfilePageState extends State<EditProfilePage> {
     }
 
     if (age < 18) {
+      failure("Invalid DOB", 'You must be at least 18 years old to proceed.');
       return 'You must be at least 18 years old to proceed.';
     }
 
@@ -405,13 +407,13 @@ class EditProfilePageState extends State<EditProfilePage> {
   }) {
     TextEditingController controller =
         TextEditingController(text: initialValue);
-    String? _errorText;
+    String? errorText;
 
     // Method to validate the input DOB
     void validateInput(String value) {
       if (validator != null) {
         String? error = validator(value);
-        _errorText = error;
+        errorText = error;
       }
     }
 
@@ -423,7 +425,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                 .parse(initialValue) // Parse the initial DOB if available
             : DateTime.now(),
         firstDate: DateTime(1900),
-        lastDate: DateTime.now(),
+        lastDate: DateTime.now().subtract(Duration(days: 18 * 365)),
       );
 
       if (pickedDate != null) {
@@ -431,7 +433,7 @@ class EditProfilePageState extends State<EditProfilePage> {
         controller.text = formattedDate;
         selectedDate = pickedDate;
         onChanged(formattedDate);
-        _errorText = null;
+        errorText = null;
       }
     }
 
@@ -472,7 +474,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide.none,
                     ),
-                    errorText: _errorText, // Show error here after validation
+                    errorText: errorText, // Show error here after validation
                     hintText: "Select your Date of Birth", // Optional hint
                   ),
                   onChanged: (value) {
@@ -923,59 +925,66 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                                   .first);
                                                 }
                                               }
-                                              return SingleChildScrollView(
-                                                child: Column(
-                                                  children: controller.genders
-                                                      .map((gender) {
-                                                    return RadioListTile<
-                                                        Gender?>(
-                                                      title: Text(
-                                                        gender.title,
-                                                        style: AppTextStyles
-                                                            .bodyText
-                                                            .copyWith(
-                                                          fontSize:
-                                                              bodyFontSize,
-                                                          color: AppColors
-                                                              .textColor,
-                                                        ),
-                                                      ),
-                                                      value: gender,
-                                                      groupValue:
-                                                          selectedGender.value,
-                                                      onChanged:
-                                                          (Gender? value) {
-                                                        selectedGender.value =
-                                                            value;
+                                              return SizedBox(
+                                                height: 200,
+                                                child: Scrollbar(
+                                                  child: SingleChildScrollView(
+                                                    child: Column(
+                                                      children: controller
+                                                          .genders
+                                                          .map((gender) {
+                                                        return RadioListTile<
+                                                            Gender?>(
+                                                          title: Text(
+                                                            gender.title,
+                                                            style: AppTextStyles
+                                                                .bodyText
+                                                                .copyWith(
+                                                              fontSize:
+                                                                  bodyFontSize,
+                                                              color: AppColors
+                                                                  .textColor,
+                                                            ),
+                                                          ),
+                                                          value: gender,
+                                                          groupValue:
+                                                              selectedGender
+                                                                  .value,
+                                                          onChanged:
+                                                              (Gender? value) {
+                                                            selectedGender
+                                                                .value = value;
 
-                                                        final parsedGenderId =
-                                                            int.tryParse(
-                                                                value?.id ??
-                                                                    '');
+                                                            final parsedGenderId =
+                                                                int.tryParse(
+                                                                    value?.id ??
+                                                                        '');
 
-                                                        if (parsedGenderId !=
-                                                            null) {
-                                                          controller
+                                                            if (parsedGenderId !=
+                                                                null) {
+                                                              controller
+                                                                      .userProfileUpdateRequest
+                                                                      .gender =
+                                                                  parsedGenderId
+                                                                      .toString();
+                                                            } else {
+                                                              controller
                                                                   .userProfileUpdateRequest
-                                                                  .gender =
-                                                              parsedGenderId
-                                                                  .toString();
-                                                        } else {
-                                                          controller
-                                                              .userProfileUpdateRequest
-                                                              .gender = '';
-                                                        }
+                                                                  .gender = '';
+                                                            }
 
-                                                        controller.fetchSubGender(
-                                                            SubGenderRequest(
-                                                                genderId:
-                                                                    parsedGenderId
-                                                                        .toString()));
-                                                      },
-                                                      activeColor:
-                                                          AppColors.buttonColor,
-                                                    );
-                                                  }).toList(),
+                                                            controller.fetchSubGender(
+                                                                SubGenderRequest(
+                                                                    genderId:
+                                                                        parsedGenderId
+                                                                            .toString()));
+                                                          },
+                                                          activeColor: AppColors
+                                                              .buttonColor,
+                                                        );
+                                                      }).toList(),
+                                                    ),
+                                                  ),
                                                 ),
                                               );
                                             }),
@@ -1356,9 +1365,9 @@ class EditProfilePageState extends State<EditProfilePage> {
                                 onChanged: (val) => setState(() {
                                   visibility_status.value = val;
                                   visibility_status.value == true
-                                  ? controller
-                                      .userProfileUpdateRequest.visibility = '1'
-                                  : '0';
+                                      ? controller.userProfileUpdateRequest
+                                          .visibility = '1'
+                                      : '0';
                                 }),
                               ),
                               PrivacyToggle(
@@ -1401,6 +1410,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                 print("select language");
                                 return;
                               }
+
                               UserProfileUpdateRequest
                                   userProfileUpdateRequest =
                                   UserProfileUpdateRequest(
@@ -1460,8 +1470,10 @@ class EditProfilePageState extends State<EditProfilePage> {
                                         .userProfileUpdateRequest.bio.isNotEmpty
                                     ? controller.userProfileUpdateRequest.bio
                                     : controller.userData.first.bio,
-                                visibility: controller
-                                    .userProfileUpdateRequest.visibility,
+                                visibility: visibility_status.value == true
+                                    ? controller.userProfileUpdateRequest
+                                        .visibility = '1'
+                                    : '0',
                                 emailAlerts: controller.userProfileUpdateRequest
                                         .emailAlerts.isNotEmpty
                                     ? controller
@@ -1890,25 +1902,24 @@ Widget languages(BuildContext context) {
             ],
           ),
           SizedBox(height: 10),
+
+          // Dynamic display of selected languages
           Obx(() {
-            return SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: selectedLanguages.map((language) {
-                  return Chip(
-                    label: Text(language),
-                    deleteIcon: Icon(Icons.cancel, size: 18),
-                    onDeleted: () {
-                      selectedLanguages.remove(language);
-                      updateSelectedLanguageIds();
-                    },
-                    backgroundColor: Colors.blue.withOpacity(0.1),
-                    labelStyle: TextStyle(fontSize: 14),
-                  );
-                }).toList(),
-              ),
+            return Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: selectedLanguages.map((language) {
+                return Chip(
+                  label: Text(language),
+                  deleteIcon: Icon(Icons.cancel, size: 18),
+                  onDeleted: () {
+                    selectedLanguages.remove(language);
+                    updateSelectedLanguageIds();
+                  },
+                  backgroundColor: Colors.blue.withOpacity(0.1),
+                  labelStyle: TextStyle(fontSize: 14),
+                );
+              }).toList(),
             );
           }),
         ],
@@ -1957,15 +1968,16 @@ void showLanguageSelectionBottomSheet(BuildContext context) {
             ),
             SizedBox(height: 10),
 
-            Obx(() {
-              // Filter languages based on the search query
-              var filteredLanguages = controller.language
-                  .where((language) => language.title
-                      .toLowerCase()
-                      .contains(searchQuery.value.toLowerCase()))
-                  .toList();
-              return Expanded(
-                child: GridView.builder(
+            // Display filtered languages as toggle buttons (ChoiceChip)
+            Expanded(
+              child: Obx(() {
+                var filteredLanguages = controller.language
+                    .where((language) => language.title
+                        .toLowerCase()
+                        .contains(searchQuery.value.toLowerCase()))
+                    .toList();
+
+                return GridView.builder(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
                     crossAxisSpacing: 10,
@@ -1974,32 +1986,35 @@ void showLanguageSelectionBottomSheet(BuildContext context) {
                   itemCount: filteredLanguages.length,
                   itemBuilder: (context, index) {
                     String language = filteredLanguages[index].title;
-                    bool isSelected = selectedLanguages.contains(language);
 
-                    return ChoiceChip(
-                      label: Text(language),
-                      selected: isSelected,
-                      selectedColor: Colors.blue,
-                      backgroundColor: Colors.grey[200],
-                      labelStyle: TextStyle(
-                        color: isSelected ? Colors.white : Colors.black,
-                        fontSize: 14,
-                      ),
-                      onSelected: (bool selected) {
-                        if (selected) {
-                          if (!selectedLanguages.contains(language)) {
-                            selectedLanguages.add(language);
+                    return Obx(() {
+                      bool isSelected = selectedLanguages
+                          .contains(language); // Reactive check
+                      return ChoiceChip(
+                        label: Text(language),
+                        selected: isSelected,
+                        selectedColor: Colors.blue,
+                        backgroundColor: Colors.grey[200],
+                        labelStyle: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black,
+                          fontSize: 14,
+                        ),
+                        onSelected: (bool selected) {
+                          if (selected) {
+                            if (!selectedLanguages.contains(language)) {
+                              selectedLanguages.add(language);
+                            }
+                          } else {
+                            selectedLanguages.remove(language);
                           }
-                        } else {
-                          selectedLanguages.remove(language);
-                        }
-                        updateSelectedLanguageIds(); // Update IDs
-                      },
-                    );
+                          updateSelectedLanguageIds(); // Update IDs
+                        },
+                      );
+                    });
                   },
-                ),
-              );
-            }),
+                );
+              }),
+            ),
             SizedBox(height: 10),
 
             // Done Button
@@ -2009,7 +2024,7 @@ void showLanguageSelectionBottomSheet(BuildContext context) {
                 onPressed: () {
                   updateSelectedLanguageIds();
                   Navigator.pop(context);
-                  print("Language: ${selectedLanguages.toList()}");
+                  print("Languages: ${selectedLanguages.toList()}");
                 },
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
@@ -2158,8 +2173,7 @@ class PrivacyToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     double getResponsiveFontSize(double scale) {
       double screenWidth = MediaQuery.of(context).size.width;
-      return screenWidth *
-          scale; // Adjust this scale for different text elements
+      return screenWidth * scale;
     }
 
     return Row(

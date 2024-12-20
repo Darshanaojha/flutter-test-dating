@@ -1,23 +1,24 @@
+import 'package:dating_application/Models/ResponseModels/update_emailid_otp_verification_response_model.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../Controllers/controller.dart';
 import '../../../constants.dart';
 
-
 class EmailOtpVerificationPage extends StatefulWidget {
   const EmailOtpVerificationPage({super.key});
 
   @override
-  EmailOtpVerificationPageState createState() => EmailOtpVerificationPageState();
+  EmailOtpVerificationPageState createState() =>
+      EmailOtpVerificationPageState();
 }
+
 class EmailOtpVerificationPageState extends State<EmailOtpVerificationPage> {
-    Controller controller = Get.find();
+  Controller controller = Get.find();
   final formKey = GlobalKey<FormState>();
   String? otpError;
 
-   
-    @override
+  @override
   void initState() {
     super.initState();
     initialize();
@@ -25,8 +26,10 @@ class EmailOtpVerificationPageState extends State<EmailOtpVerificationPage> {
 
   initialize() async {
     EncryptedSharedPreferences prefs = EncryptedSharedPreferences.getInstance();
-     controller.updateEmailVerificationRequest.newEmail =prefs.getString('update_email').toString();
+    controller.updateEmailVerificationRequest.newEmail =
+        prefs.getString('update_email').toString();
   }
+
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
@@ -38,7 +41,8 @@ class EmailOtpVerificationPageState extends State<EmailOtpVerificationPage> {
       appBar: AppBar(
         title: Text(
           "Enter OTP",
-          style: AppTextStyles.headingText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+          style: AppTextStyles.headingText
+              .copyWith(fontSize: getResponsiveFontSize(0.03)),
         ),
         backgroundColor: AppColors.primaryColor,
       ),
@@ -50,7 +54,8 @@ class EmailOtpVerificationPageState extends State<EmailOtpVerificationPage> {
             children: [
               Text(
                 "Please enter the OTP sent to your email address.",
-                style: AppTextStyles.bodyText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                style: AppTextStyles.bodyText
+                    .copyWith(fontSize: getResponsiveFontSize(0.03)),
               ),
               SizedBox(height: 32),
               Form(
@@ -59,10 +64,12 @@ class EmailOtpVerificationPageState extends State<EmailOtpVerificationPage> {
                   children: [
                     // OTP field
                     TextFormField(
-                      style: AppTextStyles.inputFieldText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                      style: AppTextStyles.inputFieldText
+                          .copyWith(fontSize: getResponsiveFontSize(0.03)),
                       decoration: InputDecoration(
                         labelText: 'OTP',
-                        labelStyle: AppTextStyles.labelText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                        labelStyle: AppTextStyles.labelText
+                            .copyWith(fontSize: getResponsiveFontSize(0.03)),
                         fillColor: AppColors.formFieldColor,
                         filled: true,
                         focusedBorder: OutlineInputBorder(
@@ -74,7 +81,7 @@ class EmailOtpVerificationPageState extends State<EmailOtpVerificationPage> {
                         errorText: otpError,
                       ),
                       keyboardType: TextInputType.number,
-                      maxLength: 6,  
+                      maxLength: 6,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "OTP is required";
@@ -84,8 +91,8 @@ class EmailOtpVerificationPageState extends State<EmailOtpVerificationPage> {
                         }
                         return null;
                       },
-                      onChanged: (value){
-                        controller.updateEmailVerificationRequest.otp=value;
+                      onChanged: (value) {
+                        controller.updateEmailVerificationRequest.otp = value;
                       },
                     ),
                     SizedBox(height: 32),
@@ -93,8 +100,12 @@ class EmailOtpVerificationPageState extends State<EmailOtpVerificationPage> {
                     SizedBox(
                       width: 200,
                       child: ElevatedButton(
-                        onPressed: (){
-                          controller.verifyEmailOtp(controller.updateEmailVerificationRequest);
+                        onPressed: () {
+                          if (controller.updateEmailVerificationRequest
+                              .validate()) {
+                            controller.verifyEmailOtp(
+                                controller.updateEmailVerificationRequest);
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.buttonColor,
@@ -105,7 +116,8 @@ class EmailOtpVerificationPageState extends State<EmailOtpVerificationPage> {
                         ),
                         child: Text(
                           "Verify OTP",
-                          style: AppTextStyles.buttonText.copyWith(fontSize: getResponsiveFontSize(0.03)),
+                          style: AppTextStyles.buttonText
+                              .copyWith(fontSize: getResponsiveFontSize(0.03)),
                         ),
                       ),
                     ),

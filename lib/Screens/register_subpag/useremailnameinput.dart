@@ -48,7 +48,7 @@ class UserInputPageState extends State<UserInputPage> {
 
     RegExp regExp = RegExp(pattern);
 
-    if (!regExp.hasMatch(value)) {
+    if (!regExp.hasMatch(value.trim())) {
       return 'Please enter a valid Gmail address';
     }
     return null;
@@ -189,18 +189,19 @@ class UserInputPageState extends State<UserInputPage> {
                     controller.userRegistrationRequest.mobile = value;
                   },
                   onSaved: (value) {
-                    controller.registrationOTPRequest.mobile =
-                        value ?? '';
+                    controller.registrationOTPRequest.mobile = value ?? '';
                   },
                 ),
-                     SizedBox(height: 40),
+                SizedBox(height: 40),
                 // Submit Button
                 ElevatedButton(
                   onPressed: () {
                     if (formKey.currentState?.validate() ?? false) {
-                      Get.to(OTPVerificationPage());
-                      controller.getOtpForRegistration(
-                          controller.registrationOTPRequest);
+                      if (controller.registrationOTPRequest.validate()) {
+                        controller.getOtpForRegistration(
+                            controller.registrationOTPRequest);
+                      }
+
                       Get.snackbar('Email is',
                           controller.registrationOTPRequest.email.toString());
                     } else {

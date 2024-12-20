@@ -26,11 +26,10 @@ class UserLoginRequest {
   // Validation method
   bool validate() {
     try {
-      // Validate email and password
       validateEmail(email);
       validatePassword(password);
 
-      return true;  // All validations passed
+      return true;
     } catch (e) {
       // Show snackbar on validation failure
       failure("Validation Error", e.toString());
@@ -38,7 +37,6 @@ class UserLoginRequest {
     }
   }
 
-  // Validate if email is not empty and has the correct format
   void validateEmail(String email) {
     if (email.isEmpty) {
       throw ArgumentError("Email cannot be empty.");

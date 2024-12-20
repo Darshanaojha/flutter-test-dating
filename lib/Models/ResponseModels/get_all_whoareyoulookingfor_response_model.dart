@@ -1,4 +1,4 @@
-// UserPreference Model
+
 class UserPreference {
   final String id;
   final String title;
@@ -23,7 +23,6 @@ class UserPreference {
   }
 }
 
-// Payload Model
 class Payload {
   final String msg;
   final List<UserPreference> data;
@@ -50,7 +49,7 @@ class Payload {
   }
 }
 
-// Error Model
+
 class Error {
   final int code;
   final String message;
@@ -75,7 +74,7 @@ class Error {
   }
 }
 
-// Full Response Model
+
 class UserPreferencesResponse {
   final bool success;
   final Payload payload;

@@ -2,7 +2,6 @@ import 'package:dating_application/Controllers/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import '../../Models/ResponseModels/get_all_desires_model_response.dart';
 import '../../Models/ResponseModels/get_all_likes_pages_response.dart';
 import '../../constants.dart';
 
@@ -234,21 +233,7 @@ class LikesPageState extends State<LikesPage> {
             .addAll(controller.genders.map((gender) => gender.title).toSet());
         print(genders);
       }
-
-      final relationshipCategory = controller.categories.firstWhere(
-        (category) => category.category == 'Relationship',
-        orElse: () => Category(category: 'Relationship', desires: []),
-      );
-
-      final kinksCategory = controller.categories.firstWhere(
-        (category) => category.category == 'Kinks',
-        orElse: () => Category(category: 'Kinks', desires: []),
-      );
-
-      desires.addAll([
-        ...relationshipCategory.desires.map((desire) => desire.title),
-        ...kinksCategory.desires.map((desire) => desire.title),
-      ]);
+      desires = controller.categories.expand((category)=> category.desires.map((desires)=>desires.title)).toList();
 
       await controller.fetchPreferences();
       preferences.addAll(controller.preferences
