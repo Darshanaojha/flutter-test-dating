@@ -30,27 +30,23 @@ class ForgetPasswordRequest {
     return emailPattern.hasMatch(email);
   }
 
-  // Password validation method
   bool isValidPassword(String password) {
     final passwordPattern = RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$');
     return passwordPattern.hasMatch(password);
   }
 
-  // Validate email and password
   bool validate() {
-    // Validate email
     if (!isValidEmail(email)) {
       failure("Invalid Email", "Please enter a valid email address.");
       return false;
     }
 
-    // Validate password
     if (!isValidPassword(newPassword)) {
       failure("Invalid Password", "Password must contain at least one uppercase letter, one number, and one special character.");
       return false;
     }
 
-    return true; // All validations passed
+    return true; 
   }
 }
 

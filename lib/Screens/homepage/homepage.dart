@@ -461,6 +461,7 @@ class HomePageState extends State<HomePage> {
                     children: [
                       SafeArea(
                         child: ListView.builder(
+                          controller: _imagePageController,
                           itemCount: user.images.length,
                           itemBuilder: (BuildContext context, int index) {
                             if (images.isEmpty) {
@@ -506,7 +507,7 @@ class HomePageState extends State<HomePage> {
                               children: [
                                 SmoothPageIndicator(
                                   controller: _imagePageController,
-                                  count: images.length,
+                                  count: user.images.length,
                                   effect: ExpandingDotsEffect(
                                     dotHeight: 10,
                                     dotWidth: 10,

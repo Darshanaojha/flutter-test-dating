@@ -707,6 +707,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
         }).toList(),
         onChanged: onChanged,
         validator: validateSelection,
+        menuMaxHeight: 200,
         decoration: InputDecoration(
           labelText: label,
           labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),

@@ -1,4 +1,4 @@
-// Headline Model
+
 class Headline {
   final String id;
   final String title;
@@ -31,7 +31,6 @@ class Headline {
   }
 }
 
-// Payload Model
 class Payload {
   final String msg;
   final List<Headline> data;
@@ -58,7 +57,6 @@ class Payload {
   }
 }
 
-// Error Model
 class Error {
   final int code;
   final String message;

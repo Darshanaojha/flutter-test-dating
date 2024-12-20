@@ -125,7 +125,7 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                         .then((value) {
                       if (value) {
                         success("Success", "OTP verified!");
-                        Get.offAll(RegisterProfilePage());
+                        
                      
                       } else {
                         setState(() {

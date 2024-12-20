@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 class IntroSliderResponse {
   bool? success;
@@ -7,7 +6,6 @@ class IntroSliderResponse {
 
   IntroSliderResponse({this.success, this.payload, this.error});
 
-  // From JSON constructor
   factory IntroSliderResponse.fromJson(Map<String, dynamic> json) {
     return IntroSliderResponse(
       success: json['success'],
@@ -17,7 +15,6 @@ class IntroSliderResponse {
     );
   }
 
-  // To JSON method
   Map<String, dynamic> toJson() {
     return {
       'success': success,
@@ -33,7 +30,6 @@ class Payload {
 
   Payload({this.msg, this.data});
 
-  // From JSON constructor
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
       msg: json['msg'],
@@ -44,7 +40,6 @@ class Payload {
     );
   }
 
-  // To JSON method
   Map<String, dynamic> toJson() {
     return {
       'msg': msg,
@@ -70,7 +65,6 @@ class SliderData {
     this.updated,
   });
 
-  // From JSON constructor
   factory SliderData.fromJson(Map<String, dynamic> json) {
     return SliderData(
       id: json['id'],
@@ -82,7 +76,6 @@ class SliderData {
     );
   }
 
-  // To JSON method
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -101,7 +94,6 @@ class Error {
 
   Error({this.code, this.message});
 
-  // From JSON constructor
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
       code: json['code'],
@@ -109,7 +101,6 @@ class Error {
     );
   }
 
-  // To JSON method
   Map<String, dynamic> toJson() {
     return {
       'code': code,

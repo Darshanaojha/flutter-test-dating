@@ -35,13 +35,11 @@ class Payload {
     required this.data,
   });
 
-  // Factory constructor to create an instance from a Map
   factory Payload.fromMap(Map<String, dynamic> json) => Payload(
-        message: json["message"] ?? "", // Default empty string if null
+        message: json["message"] ?? "", 
         data: VerificationType.fromMap(json["data"]),
       );
 
-  // Convert the instance to a Map
   Map<String, dynamic> toMap() => {
         "message": message,
         "data": data.toMap(),
@@ -68,7 +66,7 @@ class VerificationType {
 
   factory VerificationType.fromMap(Map<String, dynamic> json) =>
       VerificationType(
-        id: json["id"]?.toString() ?? "", // Ensure it is a string
+        id: json["id"]?.toString() ?? "", 
         title: json["title"]?.toString() ?? "",
         description: json["description"]?.toString() ?? "",
         status: json["status"]?.toString() ?? "",
@@ -76,7 +74,6 @@ class VerificationType {
         updated: json["updated"]?.toString() ?? "",
       );
 
-  // Convert the instance to a Map
   Map<String, dynamic> toMap() => {
         "id": id,
         "title": title,
@@ -96,13 +93,11 @@ class Error {
     required this.message,
   });
 
-  // Factory constructor to create an instance from a Map
   factory Error.fromMap(Map<String, dynamic> json) => Error(
-        code: json["code"] ?? 0, // Default to 0 if null
-        message: json["message"]?.toString() ?? "", // Handle missing or non-string message
+        code: json["code"] ?? 0, 
+        message: json["message"]?.toString() ?? "",
       );
 
-  // Convert the instance to a Map
   Map<String, dynamic> toMap() => {
         "code": code,
         "message": message,
