@@ -2,6 +2,7 @@ import 'package:dating_application/Controllers/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import '../../Models/ResponseModels/get_all_addon_response_model.dart';
 import '../../Models/ResponseModels/get_all_likes_pages_response.dart';
 import '../../constants.dart';
 
@@ -16,7 +17,9 @@ class LikesPageState extends State<LikesPage> {
   List<String> selectedGender = [];
   String selectedLocation = 'All';
   bool isLoading = true;
+ 
   Controller controller = Get.put(Controller());
+  
   List<String> genders = [];
   List<String> desires = [];
   List<String> preferences = [];
@@ -25,7 +28,6 @@ class LikesPageState extends State<LikesPage> {
   List<String> selectedPreferenceFilters = [];
   List<String> selectedDesireFilters = [];
   List<LikeRequestPages> filteredLikesPage = [];
-
   bool isLiked = false;
   bool isShare = false;
   bool isSms = false;
@@ -82,132 +84,213 @@ class LikesPageState extends State<LikesPage> {
       },
     );
   }
-
+  RxBool isSelected = false.obs;
   Future<void> showUpgradeBottomSheet() async {
-    Get.bottomSheet(
-      Padding(
-        padding: const EdgeInsets.all(0.0),
-        child: Container(
-          color: Colors.black,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  'Found Uplift',
-                  style: AppTextStyles.titleText.copyWith(
-                    fontSize: getResponsiveFontSize(0.03),
-                    color: Colors.white,
-                  ),
-                  textAlign: TextAlign.center,
+  Get.bottomSheet(
+    Padding(
+      padding: const EdgeInsets.all(0.0),
+      child: Container(
+        color: Colors.black,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Found Add ON',
+                style: AppTextStyles.titleText.copyWith(
+                  fontSize: getResponsiveFontSize(0.03),
+                  color: Colors.white,
                 ),
+                textAlign: TextAlign.center,
               ),
-              SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text(
-                  'You can use 24 hours and enjoy the features, '
-                  'and you can access earlier with premium benefits.',
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: getResponsiveFontSize(0.03),
-                    color: Colors.white,
-                  ),
-                  textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                'You can use 24 hours and enjoy the features, '
+                'and you can access earlier with premium benefits.',
+                style: AppTextStyles.bodyText.copyWith(
+                  fontSize: getResponsiveFontSize(0.03),
+                  color: Colors.white,
                 ),
+                textAlign: TextAlign.center,
               ),
-              SizedBox(height: 20),
-              Stack(
-                children: [
-                  Card(
-                    elevation: 8,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    color: Colors.orange,
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.calendar_today,
-                            color: Colors.white,
-                            size: 24,
+            ),
+            SizedBox(height: 20),
+            Expanded(
+              child: Obx(() {
+                if (controller.addon.isEmpty) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                return ListView.builder(
+                  itemCount: controller.addon.length,
+                  itemBuilder: (context, index) {
+                    Addon currentAddon = controller.addon[index];
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          // Deselect the previously selected addon and select the new one
+                          controller.addon.forEach((addon) {
+                         isSelected.value = false;
+                          });
+                         isSelected.value = true;  
+                        },
+                        child: Card(
+                          elevation: 8,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              "24-hour Premium Plan - ₹299",
-                              style: AppTextStyles.bodyText.copyWith(
-                                fontSize: getResponsiveFontSize(0.03),
-                                color: Colors.white,
-                              ),
+                          color: isSelected.value
+                              ? Colors.green
+                              : Colors.orange, 
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.calendar_today,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                                SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    "${currentAddon.title}/${currentAddon.duration} - ₹${currentAddon.amount}",
+                                    style: AppTextStyles.bodyText.copyWith(
+                                      fontSize: getResponsiveFontSize(0.03),
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                // Downward arrow icon for addon points
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.white,
+                                  ),
+                                  onPressed: () {
+                                    showAddonPointsButton(currentAddon.addonPoints);
+                                  },
+                                ),
+                              ],
                             ),
                           ),
-                          Text(
-                            'Selected',
-                            style: AppTextStyles.bodyText.copyWith(
-                              fontSize: getResponsiveFontSize(0.03),
-                              color: AppColors.buttonColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 4,
-                    right: 2,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '20% OFF',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: getResponsiveFontSize(0.03),
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Get.back();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text(
-                              'Profile upgraded! Enjoy your 24 hours of premium access.')),
                     );
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.buttonColor,
-                    padding: EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                );
+              }),
+            ),
+            SizedBox(height: 20),
+            Obx(() {
+              // Check if any card is selected
+              bool isAnyAddonSelected = controller.addon.any((addon) => isSelected.value);
+
+              return Visibility(
+                visible: isAnyAddonSelected, // Only show button if at least one card is selected
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Get.back(); // Close the bottom sheet when button is pressed
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Profile upgraded! Enjoy your 24 hours of premium access.')),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.buttonColor,
+                      padding: EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
+                    child: Text('Purchase Now', style: AppTextStyles.buttonText),
                   ),
-                  child: Text('Purchase Now', style: AppTextStyles.buttonText),
                 ),
-              ),
-            ],
-          ),
+              );
+            }),
+          ],
         ),
       ),
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-    );
-  }
+    ),
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+  );
+}
 
+
+// Function to show the Add-On Points button
+void showAddonPointsButton(List<AddonPoint> addonPoints) {
+  Get.bottomSheet(
+    Padding(
+      padding: const EdgeInsets.all(0.0),
+      child: Container(
+        color: Colors.black,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Add-On Points',
+                style: AppTextStyles.titleText.copyWith(
+                  fontSize: getResponsiveFontSize(0.03),
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            SizedBox(height: 20),
+
+            // Display the list of addon points
+            Expanded(
+              child: ListView.builder(
+                itemCount: addonPoints.length,
+                itemBuilder: (context, index) {
+                  AddonPoint point = addonPoints[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: ListTile(
+                      title: Text(
+                        point.title,
+                        style: AppTextStyles.bodyText.copyWith(color: Colors.white),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  Get.back();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.buttonColor,
+                  padding: EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text('Close', style: AppTextStyles.buttonText),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+  );
+}
   Future<bool> fetchData() async {
     try {
       setState(() {

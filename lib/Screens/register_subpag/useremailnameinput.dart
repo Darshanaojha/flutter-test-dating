@@ -141,6 +141,8 @@ class UserInputPageState extends State<UserInputPage> {
                   onChanged: (value) {
                     controller.registrationOTPRequest.email = value;
                     controller.userRegistrationRequest.email = value;
+                    controller.registrationOTPRequest.email = controller.registrationOTPRequest.email.trim();
+                    controller.userRegistrationRequest.email =  controller.userRegistrationRequest.email.trim();
                   },
                   onSaved: (value) {
                     controller.registrationOTPRequest.email = value ?? '';

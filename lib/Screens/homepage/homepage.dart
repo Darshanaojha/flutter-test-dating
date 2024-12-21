@@ -460,38 +460,43 @@ class HomePageState extends State<HomePage> {
                   child: Stack(
                     children: [
                       SafeArea(
-                        child: ListView.builder(
-                          controller: _imagePageController,
-                          itemCount: user.images.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            if (images.isEmpty) {
-                              return Center(child: Text('No Images Available'));
-                            }
-                            return GestureDetector(
-                              onTap: () =>
-                                  showFullImageDialog(context, images[index]),
-                              child: Container(
-                                margin: EdgeInsets.only(bottom: 12),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(15),
-                                  child: CachedNetworkImage(
-                                    imageUrl: images[index],
-                                    placeholder: (context, url) => Center(
-                                        child: CircularProgressIndicator()),
-                                    errorWidget: (context, url, error) {
-                                      print(
-                                          "Failed to load image from URL: $url");
-                                      return Icon(Icons.error,
-                                          color: Colors.red);
-                                    },
-                                    fit: BoxFit.cover,
-                                    width: size.width * 0.9,
-                                    height: size.height * 0.45,
+                        child: SizedBox(
+                          height: 400,
+                          child: Scrollbar(
+                            child: ListView.builder(
+                              controller: _imagePageController,
+                              itemCount: user.images.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                if (images.isEmpty) {
+                                  return Center(child: Text('No Images Available'));
+                                }
+                                return GestureDetector(
+                                  onTap: () =>
+                                      showFullImageDialog(context, images[index]),
+                                  child: Container(
+                                    margin: EdgeInsets.only(bottom: 12),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(15),
+                                      child: CachedNetworkImage(
+                                        imageUrl: images[index],
+                                        placeholder: (context, url) => Center(
+                                            child: CircularProgressIndicator()),
+                                        errorWidget: (context, url, error) {
+                                          print(
+                                              "Failed to load image from URL: $url");
+                                          return Icon(Icons.error,
+                                              color: Colors.red);
+                                        },
+                                        fit: BoxFit.cover,
+                                        width: size.width * 0.9,
+                                        height: size.height * 0.45,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            );
-                          },
+                                );
+                              },
+                            ),
+                          ),
                         ),
                       ),
                       Positioned(

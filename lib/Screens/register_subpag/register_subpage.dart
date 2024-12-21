@@ -609,13 +609,13 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           List.generate(controller.subGenders.length, (index) {
                         return RadioListTile<String>(
                           title: Text(
-                            controller.subGenders[index].title,
+                            controller.subGenders[index].title.toString(),
                             style: AppTextStyles.bodyText.copyWith(
                               fontSize: optionFontSize,
                               color: AppColors.textColor,
                             ),
                           ),
-                          value: controller.subGenders[index].id,
+                          value: controller.subGenders[index].id.toString(),
                           groupValue: selectedOption.value,
                           onChanged: (String? value) {
                             selectedOption.value = value ?? '';
@@ -814,7 +814,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
 // Step 6: Gender Identity Selection
+  RxList<bool> selectedOptions = <bool>[].obs;
   RxList<int> selectedDesireIds = <int>[].obs;
+
   Widget buildRelationshipStatusInterestStep(
       BuildContext context, Size screenSize) {
     List<String> options = controller.categories
@@ -824,7 +826,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     print(options.map((elem) => elem));
 
     controller.categories.map((category) => category.category).toList();
-    RxList<bool> selectedOptions = List.filled(options.length, false).obs;
+    selectedOptions = List.filled(options.length, false).obs;
 
     void updateSelectedStatus() {
       selectedStatus.clear();
@@ -844,6 +846,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       controller.userRegistrationRequest.desires = selectedDesireIds;
     }
 
+    // Handle chip selection
     void handleChipSelection(int index) {
       selectedOptions[index] = !selectedOptions[index];
       updateSelectedStatus();
@@ -945,7 +948,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   children: List.generate(options.length, (index) {
                     return GestureDetector(
                       onTap: () {
-                        handleChipSelection(index);
+                        handleChipSelection(index); // Toggle selection
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
@@ -1000,7 +1003,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           onPressed: () {
                             markStepAsCompleted(6);
                             Get.snackbar(
-                                'desries',
+                                'desires',
                                 controller.userRegistrationRequest.desires
                                     .toString());
                             pageController.nextPage(
@@ -1872,6 +1875,15 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     }
 
     Future<void> pickImage(int index, ImageSource source) async {
+      // Ensure that user can only pick photos in sequence
+      if (index > 0 &&
+          images[index - 1] == null &&
+          controller.userRegistrationRequest.photos.length <= index) {
+        Get.snackbar(
+            "Error", "Please take a photo for the previous position first.");
+        return;
+      }
+
       if (source == ImageSource.camera) {
         await requestCameraPermission();
       } else if (source == ImageSource.gallery) {
@@ -1904,8 +1916,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     }
 
     void onNextButtonPressed() {
-      if (controller.userRegistrationRequest.photos.length >= 3) {
-        
+      if (controller.userRegistrationRequest.photos
+              .where((photo) => photo.isNotEmpty)
+              .length >=
+          3) {
         controller.userRegistrationRequest.imgcount =
             controller.userRegistrationRequest.photos.length.toString();
         markStepAsCompleted(11);
@@ -1966,6 +1980,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                         (controller.userRegistrationRequest.photos.length >
                             index);
 
+                    // Check if the index can be used for uploading photo (sequential logic)
+                    bool isIndexEditable = (index == 0 ||
+                        (index > 0 && images[index - 1] != null));
+
                     return Center(
                       child: isPhotoUploaded
                           ? Stack(
@@ -1978,49 +1996,60 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: GestureDetector(
-                                    onTap: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: const Text('Pick an image'),
-                                            content: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                ElevatedButton(
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                    pickImage(index,
-                                                        ImageSource.camera);
-                                                  },
-                                                  child: const Row(
+                                    onTap: isIndexEditable
+                                        ? () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: const Text(
+                                                      'Pick an image'),
+                                                  content: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
                                                     children: [
-                                                      Icon(Icons.camera_alt),
-                                                      SizedBox(width: 8),
-                                                      Text("Camera"),
+                                                      ElevatedButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                          pickImage(
+                                                              index,
+                                                              ImageSource
+                                                                  .camera);
+                                                        },
+                                                        child: const Row(
+                                                          children: [
+                                                            Icon(Icons
+                                                                .camera_alt),
+                                                            SizedBox(width: 8),
+                                                            Text("Camera"),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      ElevatedButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                          pickImage(
+                                                              index,
+                                                              ImageSource
+                                                                  .gallery);
+                                                        },
+                                                        child: const Row(
+                                                          children: [
+                                                            Icon(Icons.photo),
+                                                            SizedBox(width: 8),
+                                                            Text("Gallery"),
+                                                          ],
+                                                        ),
+                                                      ),
                                                     ],
                                                   ),
-                                                ),
-                                                ElevatedButton(
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                    pickImage(index,
-                                                        ImageSource.gallery);
-                                                  },
-                                                  child: const Row(
-                                                    children: [
-                                                      Icon(Icons.photo),
-                                                      SizedBox(width: 8),
-                                                      Text("Gallery"),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                      );
-                                    },
+                                                );
+                                              },
+                                            );
+                                          }
+                                        : null,
                                     child: images[index] != null
                                         ? Image.file(
                                             images[index]!,
@@ -2062,6 +2091,70 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 ElevatedButton(
+                                                  onPressed: isIndexEditable
+                                                      ? () {
+                                                          Navigator.pop(
+                                                              context);
+                                                          pickImage(
+                                                              index,
+                                                              ImageSource
+                                                                  .camera);
+                                                        }
+                                                      : null,
+                                                  child: const Row(
+                                                    children: [
+                                                      Icon(Icons.camera_alt),
+                                                      SizedBox(width: 8),
+                                                      Text("Camera"),
+                                                    ],
+                                                  ),
+                                                ),
+                                                ElevatedButton(
+                                                  onPressed: isIndexEditable
+                                                      ? () {
+                                                          Navigator.pop(
+                                                              context);
+                                                          pickImage(
+                                                              index,
+                                                              ImageSource
+                                                                  .gallery);
+                                                        }
+                                                      : null,
+                                                  child: const Row(
+                                                    children: [
+                                                      Icon(Icons.photo),
+                                                      SizedBox(width: 8),
+                                                      Text("Gallery"),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Icon(
+                                      Icons.more_vert,
+                                      size: 20,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : ElevatedButton(
+                              onPressed: isIndexEditable
+                                  ? () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: const Text('Pick an image'),
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                ElevatedButton(
                                                   onPressed: () {
                                                     Navigator.pop(context);
                                                     pickImage(index,
@@ -2094,60 +2187,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                           );
                                         },
                                       );
-                                    },
-                                    child: Icon(
-                                      Icons.more_vert,
-                                      size: 20,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
-                          : ElevatedButton(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Text('Pick an image'),
-                                      content: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                              pickImage(
-                                                  index, ImageSource.camera);
-                                            },
-                                            child: const Row(
-                                              children: [
-                                                Icon(Icons.camera_alt),
-                                                SizedBox(width: 8),
-                                                Text("Camera"),
-                                              ],
-                                            ),
-                                          ),
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                              pickImage(
-                                                  index, ImageSource.gallery);
-                                            },
-                                            child: const Row(
-                                              children: [
-                                                Icon(Icons.photo),
-                                                SizedBox(width: 8),
-                                                Text("Gallery"),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
+                                    }
+                                  : null,
                               style: ElevatedButton.styleFrom(
                                 shape: CircleBorder(),
                                 padding: EdgeInsets.all(12),
@@ -2203,7 +2244,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // First Card: Safety Guidelines Header
           Card(
             elevation: 8,
             shape: RoundedRectangleBorder(
@@ -2249,7 +2289,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Loading state handling for safety guidelines
                   controller.safetyGuidelines.isEmpty
                       ? Center(
                           child: SpinKitCircle(

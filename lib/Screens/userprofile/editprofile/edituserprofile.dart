@@ -21,7 +21,7 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class EditProfilePageState extends State<EditProfilePage> {
-  // final Controller controller = Get.put(Controller());
+  Controller controller = Get.put(Controller());
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   RxBool isLatLongFetched = false.obs;
   RxList<String> genderIds = <String>[].obs;
@@ -621,58 +621,60 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     child: controller.userPhotos!.images.isEmpty
                                         ? Center(
                                             child: Text("No images available"))
-                                        : ListView.builder(
-                                            scrollDirection: Axis.vertical,
-                                            itemCount: controller
-                                                .userPhotos!.images.length,
-                                            itemBuilder: (context, index) {
-                                              String imageUrl = controller
-                                                  .userPhotos!.images[index];
+                                        : Scrollbar(
+                                            child: ListView.builder(
+                                              scrollDirection: Axis.vertical,
+                                              itemCount: controller
+                                                  .userPhotos!.images.length,
+                                              itemBuilder: (context, index) {
+                                                String imageUrl = controller
+                                                    .userPhotos!.images[index];
 
-                                              return Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 8.0),
-                                                child: Stack(
-                                                  alignment: Alignment.center,
-                                                  children: [
-                                                    GestureDetector(
-                                                      onTap: () =>
-                                                          showFullImageDialog(
-                                                              context,
-                                                              imageUrl), // show full image on tap
-                                                      child: ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                        child: Image.network(
-                                                          imageUrl,
-                                                          fit: BoxFit.cover,
-                                                          width: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .width *
-                                                              0.9,
-                                                          height: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .height *
-                                                              0.45,
-                                                          errorBuilder:
-                                                              (context, error,
-                                                                  stackTrace) {
-                                                            return Center(
-                                                              child: Icon(
-                                                                  Icons.error),
-                                                            );
-                                                          },
+                                                return Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(vertical: 8.0),
+                                                  child: Stack(
+                                                    alignment: Alignment.center,
+                                                    children: [
+                                                      GestureDetector(
+                                                        onTap: () =>
+                                                            showFullImageDialog(
+                                                                context,
+                                                                imageUrl), // show full image on tap
+                                                        child: ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                          child: Image.network(
+                                                            imageUrl,
+                                                            fit: BoxFit.cover,
+                                                            width: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width *
+                                                                0.9,
+                                                            height: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .height *
+                                                                0.45,
+                                                            errorBuilder:
+                                                                (context, error,
+                                                                    stackTrace) {
+                                                              return Center(
+                                                                child: Icon(
+                                                                    Icons
+                                                                        .error),
+                                                              );
+                                                            },
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              );
-                                            },
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                            ),
                                           ),
                                   ),
                                   TextButton.icon(
@@ -846,8 +848,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     label: 'City',
                                     onChanged: onCityChanged,
                                     validator: (value) {
-                                      return validateCity(
-                                          value); // Use the validateCity function
+                                      return validateCity(value);
                                     },
                                   ),
                                   Obx(() {
@@ -1160,6 +1161,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     );
                                   }),
                                   Obx(() {
+                                    // Show loading indicator if preferences are empty
                                     if (controller.preferences.isEmpty) {
                                       return Center(
                                         child: CircularProgressIndicator(
@@ -1167,6 +1169,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                                         ),
                                       );
                                     }
+
+                                    // Initialize preferencesSelectedOptions if not already set
                                     if (preferencesSelectedOptions.length !=
                                         controller.preferences.length) {
                                       preferencesSelectedOptions.value =
@@ -1174,6 +1178,21 @@ class EditProfilePageState extends State<EditProfilePage> {
                                               controller.preferences.length,
                                               false);
                                     }
+
+                                    // Sync preferencesSelectedOptions with userPreferences
+                                    List<int> selectedPreferences = [];
+                                    for (var p in controller.userPreferences) {
+                                      int index = controller.preferences
+                                          .indexWhere((preference) =>
+                                              preference.id == p.preferenceId);
+                                      if (index != -1) {
+                                        selectedPreferences.add(index);
+                                        preferencesSelectedOptions[index] =
+                                            true; // Mark as selected
+                                      }
+                                    }
+
+                                    // Return the UI with the list of preferences
                                     return Card(
                                       color: AppColors.primaryColor,
                                       elevation: 8,
@@ -1223,6 +1242,21 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                   onChanged: (bool? value) {
                                                     preferencesSelectedOptions[
                                                         index] = value ?? false;
+                                                    if (preferencesSelectedOptions[
+                                                        index]) {
+                                                      selectedPreferences.add(
+                                                          int.parse(controller
+                                                              .preferences[
+                                                                  index]
+                                                              .id));
+                                                    } else {
+                                                      selectedPreferences
+                                                          .remove(int.parse(
+                                                              controller
+                                                                  .preferences[
+                                                                      index]
+                                                                  .id));
+                                                    }
                                                   },
                                                   activeColor:
                                                       AppColors.buttonColor,
