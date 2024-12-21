@@ -1,5 +1,3 @@
-
-
 class UpdateProfilePhotoRequest {
   String? img1;
   String? img2;
@@ -8,7 +6,6 @@ class UpdateProfilePhotoRequest {
   String? img5;
   String? img6;
 
-  // Constructor
   UpdateProfilePhotoRequest({
     this.img1,
     this.img2,
@@ -18,7 +15,6 @@ class UpdateProfilePhotoRequest {
     this.img6,
   });
 
-  // Validation method for each field
   String? validateImg(String? value, String fieldName) {
     if (value == null || value.isEmpty) {
       return '$fieldName is required';
@@ -26,7 +22,19 @@ class UpdateProfilePhotoRequest {
     return null;
   }
 
-  // To convert object to JSON format (if needed for API requests)
+  bool validate() {
+    if (validateImg(img1, 'Image 1') != null ||
+        validateImg(img2, 'Image 2') != null ||
+        validateImg(img3, 'Image 3') != null ||
+        validateImg(img4, 'Image 4') != null ||
+        validateImg(img5, 'Image 5') != null ||
+        validateImg(img6, 'Image 6') != null) {
+      return false;
+    }
+    return true; // All images are valid
+  }
+
+  // Convert to JSON
   Map<String, dynamic> toJson() {
     return {
       'img1': img1,
@@ -38,7 +46,7 @@ class UpdateProfilePhotoRequest {
     };
   }
 
-  // To create the object from JSON response (if needed for API responses)
+  // Convert from JSON
   factory UpdateProfilePhotoRequest.fromJson(Map<String, dynamic> json) {
     return UpdateProfilePhotoRequest(
       img1: json['img1'],

@@ -30,6 +30,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
   void initState() {
     super.initState();
     intialize();
+
   }
 
   intialize() async {
@@ -41,6 +42,12 @@ class EditPhotosPageState extends State<EditPhotosPage> {
           List.generate(updatedImages.length, (index) => File('')).obs;
     } catch (e) {
       failure('Error', e.toString());
+    }
+  }
+
+  void updatedImagesLength() {
+    for (int i = updatedImages.length; i < 6; i++) {
+      updatedImages.add("".obs);
     }
   }
 
@@ -314,14 +321,17 @@ class EditPhotosPageState extends State<EditPhotosPage> {
     print('four image is ${updateProfilePhotoRequest.img4}');
     print('fifth image is ${updateProfilePhotoRequest.img5}');
     print('sixth image is ${updateProfilePhotoRequest.img6}');
-
-    controller.updateprofilephoto(updateProfilePhotoRequest);
-    Get.to(UserProfilePage());
+    if (updateProfilePhotoRequest.validate()) {
+      controller.updateprofilephoto(updateProfilePhotoRequest);
+    } else {
+      failure("FAILED","Please fill in all required fields.");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
+    double fontSize = screenSize.width * 0.03;
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
@@ -414,18 +424,115 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                       )),
             ),
             SizedBox(height: screenSize.height * 0.03),
-            Text(
-              "Guidelines and Ground Rules:",
-              style: AppTextStyles.subheadingText,
+            Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Text(
+                      controller.headlines.isNotEmpty
+                          ? controller.headlines[11].title
+                          : "Loading Title...",
+                      style: AppTextStyles.titleText.copyWith(
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textColor,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      controller.headlines.isNotEmpty
+                          ? controller.headlines[11].description
+                          : "Loading Description...",
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: fontSize,
+                        color: AppColors.textColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            SizedBox(height: screenSize.height * 0.05),
-            Text(
-              "1. Upload only your own photos.\n"
-              "2. Avoid offensive or inappropriate images.\n"
-              "3. Maintain good quality photos for better impression.\n"
-              "4. Be respectful to others in your photos.\n",
-              style: AppTextStyles.bodyText.copyWith(
-                  color: Colors.grey, fontSize: getResponsiveFontSize(0.03)),
+            SizedBox(height: 10),
+            Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    controller.safetyGuidelines.isEmpty
+                        ? Center(
+                            child: SpinKitCircle(
+                              size: 35.0,
+                              color: AppColors.progressColor,
+                            ),
+                          )
+                        : SizedBox(
+                            height: 200,
+                            child: Scrollbar(
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: controller.safetyGuidelines.length,
+                                itemBuilder: (context, index) {
+                                  var guideline =
+                                      controller.safetyGuidelines[index];
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(height: 15),
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.warning,
+                                            color: AppColors.iconColor,
+                                            size: fontSize,
+                                          ),
+                                          SizedBox(width: 10),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  guideline.title,
+                                                  style: AppTextStyles.bodyText
+                                                      .copyWith(
+                                                    fontSize: fontSize - 2,
+                                                    color: AppColors.textColor,
+                                                  ),
+                                                ),
+                                                SizedBox(height: 5),
+                                                Text(
+                                                  guideline.description,
+                                                  style: AppTextStyles.bodyText
+                                                      .copyWith(
+                                                    fontSize: fontSize - 2,
+                                                    color: AppColors.textColor,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                  ],
+                ),
+              ),
             ),
             SizedBox(height: screenSize.height * 0.06),
             Center(

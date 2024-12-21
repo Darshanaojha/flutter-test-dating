@@ -30,6 +30,7 @@ import 'package:dating_application/Providers/activity_status_provider.dart';
 import 'package:dating_application/Providers/app_setting_provider.dart';
 import 'package:dating_application/Providers/change_password_provider.dart';
 import 'package:dating_application/Providers/delete_chat_history_provider.dart';
+import 'package:dating_application/Providers/fetch_all_add_on_provider.dart';
 import 'package:dating_application/Providers/fetch_all_chat_history_page.dart';
 import 'package:dating_application/Providers/fetch_all_desires_provider.dart';
 import 'package:dating_application/Providers/fetch_all_faq_provider.dart';
@@ -87,6 +88,7 @@ import '../Models/ResponseModels/edit_message_response_model.dart';
 import '../Models/ResponseModels/establish_connection_response_model.dart';
 import '../Models/ResponseModels/forget_password_response_model.dart';
 import '../Models/ResponseModels/forget_password_verification_response_model.dart';
+import '../Models/ResponseModels/get_all_addon_response_model.dart';
 import '../Models/ResponseModels/get_all_chat_history_page.dart';
 import '../Models/ResponseModels/get_all_country_response_model.dart';
 import '../Models/ResponseModels/get_all_desires_model_response.dart';
@@ -1082,6 +1084,7 @@ class Controller extends GetxController {
               .updateprofilephoto(updateProfilePhotoRequest);
       if (response != null) {
         success('success', response.payload.message);
+        Get.close(2);
         return true;
       } else {
         failure('Error', 'Failed to report the user');
@@ -1755,4 +1758,32 @@ class Controller extends GetxController {
       return false;
     }
   }
+
+  RxList<Addon> addon = <Addon>[].obs;
+
+Future<bool> fetchAllAddOn() async {
+  try {
+    addon.clear(); 
+    GetAllAddonsResponse? response = await FetchAllAddOnProvider().getalladdonprovider();
+    
+    if (response != null && response.success) {
+      if (response.payload.data.isNotEmpty) {
+        addon.addAll(response.payload.data);  
+        print('Successfully fetched all the add-ons.');
+        success('Response', "Successfully fetched all the add-ons.");
+        return true;
+      } else {
+        failure('Error', 'No add-ons available.');
+        return false;
+      }
+    } else {
+      failure('Error', 'Failed to fetch add-ons.');
+      return false;
+    }
+  } catch (e) {
+    failure('Error', e.toString());
+    return false;
+  }
+}
+
 }

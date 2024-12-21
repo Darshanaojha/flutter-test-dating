@@ -264,7 +264,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                             Text(
                               controller.userData.isNotEmpty
                                   ? '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userData.first.dob).year} '
-                                      ' years old | ${controller.userData.first.gender}'
+                                      ' years old | ${controller.userData.first.genderName}'
                                   : 'NA',
                               style: AppTextStyles.labelText.copyWith(
                                   fontSize: getResponsiveFontSize(0.03)),
