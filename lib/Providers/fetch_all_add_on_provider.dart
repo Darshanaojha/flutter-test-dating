@@ -17,8 +17,6 @@ class FetchAllAddOnProvider extends GetConnect {
             'Authorization': 'Bearer $token',
           },
         );
-
-        Get.snackbar('Response', response.body.toString());
         if (response.statusCode == 200) {
           if (response.body['error']['code'] == 0) {
             return GetAllAddonsResponse.fromJson(response.body);

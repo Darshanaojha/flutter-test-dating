@@ -1,10 +1,12 @@
 import 'package:dating_application/Models/ResponseModels/get_all_chat_history_page.dart';
 import 'package:dating_application/Screens/chatmessagespage/pinrequestpage.dart';
+import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/chat_history_request_model.dart';
 import '../../constants.dart';
+import '../chatpage/ChatScreenpusher.dart';
 
 class ContactListScreen extends StatefulWidget {
   const ContactListScreen({super.key});
@@ -130,13 +132,20 @@ class ContactListScreenState extends State<ContactListScreen> {
                                     userId: connection.conectionId);
                             controller
                                 .chatHistory(chatHistoryRequestModel)
-                                .then((value) {
+                                .then((value) async {
                               if (value == true) {
-                                // Get.to(() => ChatScreen(
-                                //       senderId: controller.userData.first.id,
-                                //       receiverId: connection.conectionId,
-                                //       receiverName: connection.name,
-                                //     ));
+                                EncryptedSharedPreferences preferences =
+                                    await EncryptedSharedPreferences
+                                        .getInstance();
+                                String? token = preferences.getString('token');
+                                if (token != null && token.isNotEmpty) {
+                                  controller.token.value = token;
+                                  Get.to(() => ChatScreen(
+                                        senderId: controller.userData.first.id,
+                                        receiverId: connection.conectionId,
+                                        receiverName: connection.name,
+                                      ));
+                                }
                               }
                             });
                           },

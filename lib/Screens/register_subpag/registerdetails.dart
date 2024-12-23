@@ -76,7 +76,6 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     }
   }
 
-  // Show error dialog
   void showErrorDialog(String message) {
     showDialog(
       context: context,
@@ -132,7 +131,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           "Name",
                           controller.userRegistrationRequest.name.isNotEmpty
                               ? controller.userRegistrationRequest.name
-                              : null, // Pass null if empty
+                              : null,
                           (value) {
                             controller.userRegistrationRequest.name = value;
                           },
@@ -147,7 +146,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           "Email",
                           controller.userRegistrationRequest.email.isNotEmpty
                               ? controller.userRegistrationRequest.email
-                              : null, // Pass null if empty
+                              : null,
                           (value) {
                             controller.userRegistrationRequest.email = value;
                           },
@@ -157,7 +156,6 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           fontSize,
                           enabled: false,
                         ),
-                        // Mobile Field
                         buildTextFieldNameEmailMobile(
                           "Mobile",
                           controller.userRegistrationRequest.mobile.isNotEmpty
@@ -185,8 +183,6 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                         }, (value) {
                           controller.userRegistrationRequest.address = value;
                         }, fontSize),
-
-                        // Password Field
                         buildPasswordField(
                           "Password",
                           null,
@@ -201,15 +197,11 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           fontSize,
                           obscureText: true,
                         ),
-
-                        // Confirm Password Field
                         buildTextField("Confirm Password", null, (value) {
                           confirmPassword.text = value;
                         }, (value) {
                           confirmPassword.text = value;
                         }, fontSize, obscureText: true),
-
-                        // Country Dropdown
                         Obx(() {
                           if (controller.countries.isEmpty) {
                             return Center(
@@ -292,17 +284,22 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           "City",
                           null,
                           (value) {
-                            controller.userRegistrationRequest.city = value;
-                            if (debounce?.isActive ?? false) {
-                              debounce?.cancel();
-                            }
+                            setState(() {
+                              controller.userRegistrationRequest.city = value;
+                              if (debounce?.isActive ?? false) {
+                                debounce?.cancel();
+                              }
 
-                            debounce = Timer(Duration(milliseconds: 1000), () {
-                              fetchLatLong();
+                              debounce =
+                                  Timer(Duration(milliseconds: 1000), () {
+                                fetchLatLong();
+                              });
                             });
                           },
                           (value) {
-                            controller.userRegistrationRequest.city = value;
+                            setState(() {
+                              controller.userRegistrationRequest.city = value;
+                            });
                           },
                           fontSize,
                           isCityField: true,

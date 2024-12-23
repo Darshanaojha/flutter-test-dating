@@ -44,6 +44,8 @@ dependencies:
   lightning_overlay: ^0.0.8
   liquid_swipe: ^3.1.0
   pusher_channels_flutter: ^2.4.0
+  web_socket_channel: ^3.0.1
+  stomp_dart_client: ^2.1.0
 
 
 

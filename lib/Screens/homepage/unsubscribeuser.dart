@@ -111,7 +111,7 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
                             child: GestureDetector(
                               onTap: () => showFullImageDialog(
                                 context,
-                                controller.userPhotos!.images[index],
+                                controller.userPhotos!.images[index].toString(),
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(15),
@@ -128,8 +128,6 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
                       ),
                     ),
                     SizedBox(height: 16),
-
-                    // Display the user's name
                     Text(
                       controller.userData.first.name,
                       style: AppTextStyles.headingText.copyWith(
@@ -171,8 +169,6 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
                           itemCount: controller.packages.length,
                           itemBuilder: (context, index) {
                             final package = controller.packages[index];
-
-                            // You can safely access properties of the package now
                             return GestureDetector(
                               onTap: () {
                                 showPaymentConfirmationDialog(
@@ -183,7 +179,7 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
                                 );
                                 controller.updateNewPackageRequestModel
                                     .packageId = package.id;
-                                    Get.snackbar('', package.id.toString());
+                                  
                               },
                               child: Stack(
                                 clipBehavior: Clip.none,

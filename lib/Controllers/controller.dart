@@ -163,6 +163,8 @@ import '../Screens/settings/updateemailid/updateemailotpverification.dart';
 import '../constants.dart';
 
 class Controller extends GetxController {
+  RxString token = ''.obs;
+
   Future<void> storeUserData(UserLoginResponse userLoginResponse) async {
     try {
       EncryptedSharedPreferences preferences =
@@ -1761,29 +1763,28 @@ class Controller extends GetxController {
 
   RxList<Addon> addon = <Addon>[].obs;
 
-Future<bool> fetchAllAddOn() async {
-  try {
-    addon.clear(); 
-    GetAllAddonsResponse? response = await FetchAllAddOnProvider().getalladdonprovider();
-    
-    if (response != null && response.success) {
-      if (response.payload.data.isNotEmpty) {
-        addon.addAll(response.payload.data);  
-        print('Successfully fetched all the add-ons.');
-        success('Response', "Successfully fetched all the add-ons.");
-        return true;
+  Future<bool> fetchAllAddOn() async {
+    try {
+      addon.clear();
+      GetAllAddonsResponse? response =
+          await FetchAllAddOnProvider().getalladdonprovider();
+
+      if (response != null && response.success) {
+        if (response.payload.data.isNotEmpty) {
+          addon.addAll(response.payload.data);
+          print('Successfully fetched all the add-ons.');
+          return true;
+        } else {
+          failure('Error', 'No add-ons available.');
+          return false;
+        }
       } else {
-        failure('Error', 'No add-ons available.');
+        failure('Error', 'Failed to fetch add-ons.');
         return false;
       }
-    } else {
-      failure('Error', 'Failed to fetch add-ons.');
+    } catch (e) {
+      failure('Error', e.toString());
       return false;
     }
-  } catch (e) {
-    failure('Error', e.toString());
-    return false;
   }
-}
-
 }

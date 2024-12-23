@@ -29,7 +29,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   String description = '';
   RxString selectedOption = ''.obs;
   RxList<String> selectedLanguages = <String>[].obs;
-  RxList<int> selectedLanguagesId = <int>[].obs;
+  RxList<String> selectedLanguagesId = <String>[].obs;
   RxString searchQuery = ''.obs;
   final selectedGender = Rx<Gender?>(null);
   int currentPage = 1;
@@ -349,6 +349,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               controller: nicknameController,
               onChanged: (value) {
                 controller.userRegistrationRequest.nickname = value;
+                controller.userRegistrationRequest.nickname =
+                    controller.userRegistrationRequest.nickname.trim();
               },
               decoration: InputDecoration(
                 labelText: "Your Name",
@@ -478,8 +480,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                 groupValue: selectedGender.value,
                                 onChanged: (Gender? value) {
                                   selectedGender.value = value;
-                                  final parsedGenderId =
-                                      int.tryParse(value?.id ?? '');
+                                  final parsedGenderId = value?.id ?? '';
 
                                   if (parsedGenderId != null) {
                                     controller.userRegistrationRequest.gender =
@@ -489,7 +490,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                         '';
                                   }
                                   controller.fetchSubGender(SubGenderRequest(
-                                      genderId: parsedGenderId.toString()));
+                                      genderId: parsedGenderId));
                                 },
                                 activeColor: AppColors.buttonColor,
                               );
@@ -609,13 +610,13 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           List.generate(controller.subGenders.length, (index) {
                         return RadioListTile<String>(
                           title: Text(
-                            controller.subGenders[index].title.toString(),
+                            controller.subGenders[index].title,
                             style: AppTextStyles.bodyText.copyWith(
                               fontSize: optionFontSize,
                               color: AppColors.textColor,
                             ),
                           ),
-                          value: controller.subGenders[index].id.toString(),
+                          value: controller.subGenders[index].id,
                           groupValue: selectedOption.value,
                           onChanged: (String? value) {
                             selectedOption.value = value ?? '';
@@ -760,11 +761,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  List<int> selectedPreferences = [];
+                  List<String> selectedPreferences = [];
                   for (int i = 0; i < preferencesSelectedOptions.length; i++) {
                     if (preferencesSelectedOptions[i]) {
-                      selectedPreferences
-                          .add(int.parse(controller.preferences[i].id));
+                      selectedPreferences.add(controller.preferences[i].id);
                     }
                   }
 
@@ -815,7 +815,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
 // Step 6: Gender Identity Selection
   RxList<bool> selectedOptions = <bool>[].obs;
-  RxList<int> selectedDesireIds = <int>[].obs;
+  RxList<String> selectedDesireIds = <String>[].obs;
 
   Widget buildRelationshipStatusInterestStep(
       BuildContext context, Size screenSize) {
@@ -837,7 +837,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
         for (int j = 0; j < category.desires.length; j++) {
           if (selectedOptions[globalIndex]) {
             selectedStatus.add(category.desires[j].title);
-            selectedDesireIds.add(int.parse(category.desires[j].id));
+            selectedDesireIds.add(category.desires[j].id);
           }
           globalIndex++;
         }
@@ -1267,7 +1267,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       selectedLanguagesId.clear();
       for (int i = 0; i < controller.language.length; i++) {
         if (selectedLanguages.contains(controller.language[i].title)) {
-          selectedLanguagesId.add(int.parse(controller.language[i].id));
+          selectedLanguagesId.add(controller.language[i].id);
         }
       }
       controller.userRegistrationRequest.lang = selectedLanguagesId;

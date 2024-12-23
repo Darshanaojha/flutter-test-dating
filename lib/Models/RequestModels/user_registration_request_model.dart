@@ -14,10 +14,10 @@ class UserRegistrationRequest {
   String nickname;
   String gender;
   String subGender;
-  List<int> preferences;
-  List<int> desires;
+  List<String> preferences;
+  List<String> desires;
   String interest;
-  List<int> lang;
+  List<String> lang;
   String bio;
   List<String> photos;
   String imgcount;
@@ -66,12 +66,12 @@ class UserRegistrationRequest {
       nickname: json['nickname'],
       gender: json['gender'],
       subGender: json['sub_gender'],
-      preferences: List<int>.from(json['preferences'] ?? []),
-      desires: List<int>.from(json['desires'] ?? []),
+      preferences: List<String>.from(json['preferences'] ?? []),
+      desires: List<String>.from(json['desires'] ?? []),
       interest: json['interest'],
       bio: json['bio'],
       imgcount: json['img_count'],
-      lang: List<int>.from(json['lang']),
+      lang: List<String>.from(json['lang']),
       photos: List<String>.from(json['photos'] ?? []),
       emailAlerts: json['email_alerts'],
       username: json['username'],
@@ -195,7 +195,7 @@ class UserRegistrationRequest {
     }
   }
 
-  void validateList(List<int> list, String fieldName) {
+  void validateList(List<String> list, String fieldName) {
     if (list.isEmpty) {
       throw ArgumentError("$fieldName cannot be empty.");
     }

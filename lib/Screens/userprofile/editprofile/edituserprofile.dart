@@ -46,6 +46,8 @@ class EditProfilePageState extends State<EditProfilePage> {
   RxList<Gender> genders = <Gender>[].obs;
   RxList<SubGenderRequest> subGenders = <SubGenderRequest>[].obs;
   Rx<String> selectedOption = ''.obs;
+  Rx<Gender?> selectedGender = Rx<Gender?>(null);
+  RxString selectedSubGender = ''.obs;
 
   List<String> interestsList = [];
   RxList<bool> preferencesSelectedOptions = <bool>[].obs;
@@ -121,9 +123,22 @@ class EditProfilePageState extends State<EditProfilePage> {
       debounce?.cancel();
       isLatLongFetched.value = false;
 
-      genderIds.addAll(controller.genders.map((gender) => gender.id));
-      for (String genderId in genderIds) {
-        controller.fetchSubGender(SubGenderRequest(genderId: genderId));
+      if (controller.userData.isNotEmpty) {
+        String? genderFromUserData = controller.userData.first.gender;
+        if (genderFromUserData.isNotEmpty) {
+          selectedGender.value = controller.genders.firstWhere(
+            (gender) => gender.id == genderFromUserData,
+            orElse: () => controller.genders.first,
+          );
+          controller.fetchSubGender(SubGenderRequest(
+            genderId: genderFromUserData,
+          ));
+        }
+      } else if (controller.genders.isNotEmpty) {
+        selectedGender.value = controller.genders.first;
+        controller.fetchSubGender(SubGenderRequest(
+          genderId: controller.genders.first.id,
+        ));
       }
 
       preferencesSelectedOptions.value =
@@ -1072,7 +1087,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                 if (value != null) {
                                                   setState(() {
                                                     controller
-                                                        .userRegistrationRequest
+                                                        .userProfileUpdateRequest
                                                         .lookingFor = value;
                                                   });
                                                 }
@@ -1097,7 +1112,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                     children: List.generate(
                                                         controller.subGenders
                                                             .length, (index) {
-                                                      if (selectedOption
+                                                      if (selectedSubGender
                                                                   .value ==
                                                               '' &&
                                                           controller.userData
@@ -1110,7 +1125,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                                 .subGender;
                                                         if (subGenderFromUserData
                                                             .isNotEmpty) {
-                                                          selectedOption.value =
+                                                          selectedSubGender
+                                                                  .value =
                                                               subGenderFromUserData;
                                                         }
                                                       }
@@ -1134,11 +1150,12 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                             .subGenders[index]
                                                             .id,
                                                         groupValue:
-                                                            selectedOption
+                                                            selectedSubGender
                                                                 .value,
                                                         onChanged:
                                                             (String? value) {
-                                                          selectedOption.value =
+                                                          selectedSubGender
+                                                                  .value =
                                                               value ?? '';
                                                           controller
                                                                   .userProfileUpdateRequest
@@ -1161,7 +1178,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     );
                                   }),
                                   Obx(() {
-                                    // Show loading indicator if preferences are empty
                                     if (controller.preferences.isEmpty) {
                                       return Center(
                                         child: CircularProgressIndicator(
@@ -1169,8 +1185,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                                         ),
                                       );
                                     }
-
-                                    // Initialize preferencesSelectedOptions if not already set
                                     if (preferencesSelectedOptions.length !=
                                         controller.preferences.length) {
                                       preferencesSelectedOptions.value =
@@ -1179,7 +1193,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                                               false);
                                     }
 
-                                    // Sync preferencesSelectedOptions with userPreferences
                                     List<int> selectedPreferences = [];
                                     for (var p in controller.userPreferences) {
                                       int index = controller.preferences
@@ -1188,11 +1201,9 @@ class EditProfilePageState extends State<EditProfilePage> {
                                       if (index != -1) {
                                         selectedPreferences.add(index);
                                         preferencesSelectedOptions[index] =
-                                            true; // Mark as selected
+                                            true;
                                       }
                                     }
-
-                                    // Return the UI with the list of preferences
                                     return Card(
                                       color: AppColors.primaryColor,
                                       elevation: 8,
@@ -1444,7 +1455,17 @@ class EditProfilePageState extends State<EditProfilePage> {
                                 print("select language");
                                 return;
                               }
-
+                              List<int> selectedPreferences = [];
+                              for (int i = 0;
+                                  i < preferencesSelectedOptions.length;
+                                  i++) {
+                                if (preferencesSelectedOptions[i]) {
+                                  selectedPreferences.add(
+                                      int.parse(controller.preferences[i].id));
+                                }
+                              }
+                              controller.userProfileUpdateRequest.preferences =
+                                  selectedPreferences;
                               UserProfileUpdateRequest
                                   userProfileUpdateRequest =
                                   UserProfileUpdateRequest(
@@ -1527,17 +1548,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     : controller.userDesire,
                               );
 
-                              List<int> selectedPreferences = [];
-                              for (int i = 0;
-                                  i < preferencesSelectedOptions.length;
-                                  i++) {
-                                if (preferencesSelectedOptions[i]) {
-                                  selectedPreferences.add(
-                                      int.parse(controller.preferences[i].id));
-                                }
-                              }
-                              controller.userProfileUpdateRequest.preferences =
-                                  selectedPreferences;
                               emailAlerts.value == true
                                   ? controller.userProfileUpdateRequest
                                       .emailAlerts = "1"

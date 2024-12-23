@@ -1,0 +1,120 @@
+import 'dart:convert';
+import 'package:encrypt_shared_preferences/provider.dart';
+import 'package:get/get.dart';
+import 'package:stomp_dart_client/stomp_dart_client.dart';
+
+import '../Controllers/controller.dart';
+import '../Models/ResponseModels/chat_history_response_model.dart';
+
+class WebSocketService {
+  Controller controller = Get.put(Controller());
+  static final WebSocketService _instance = WebSocketService._internal();
+  late StompClient _stompClient;
+  bool _isConnected = false;
+
+  /// External callbacks for message handling and other events.
+  Function(Map<String, dynamic>)? onMessageReceived;
+
+  factory WebSocketService() => _instance;
+
+  WebSocketService._internal();
+
+  /// Initialize and connect to the WebSocket server.
+  Future<void> connect(String token) async {
+    if (_isConnected) {
+      print("Already connected to WebSocket.");
+      return;
+    }
+
+    _stompClient = StompClient(
+      config: StompConfig.sockJS(
+        url: 'http://192.168.1.5:8080/chat',
+        onConnect: _onConnect,
+        beforeConnect: () async {
+          print('Connecting...');
+          await Future.delayed(Duration(milliseconds: 200));
+        },
+        stompConnectHeaders: {
+          'Authorization': 'Bearer $token',
+        },
+        webSocketConnectHeaders: {
+          'Authorization': 'Bearer $token',
+        },
+        onWebSocketError: (error) => print('WebSocket Error: $error'),
+        onDisconnect: (_) {
+          print('Disconnected from WebSocket.');
+          _isConnected = false;
+        },
+      ),
+    );
+
+    _stompClient.activate();
+  }
+
+  void _onConnect(StompFrame frame) {
+    print('WebSocket connected!');
+
+    _isConnected = true;
+    print(
+        'subscribed to the topic ${'/user/${controller.userData.first.id}/queue/messages'}');
+    subscribeToTopic('/user/${controller.userData.first.id}/queue/messages',
+        (data) {
+      try {
+        final parsedData = jsonDecode(data) as Map<String, dynamic>;
+
+        controller.messages.add(Message.fromJson(parsedData));
+      } catch (e) {
+        print('Error parsing received message: $e');
+      }
+    });
+  }
+
+  /// Subscribe to a topic for receiving messages.
+  void subscribeToTopic(String topic, Function(String) onMessage) {
+    if (!_isConnected) {
+      print('Cannot subscribe. Not connected to WebSocket.');
+      return;
+    }
+
+    _stompClient.subscribe(
+      destination: topic,
+      callback: (frame) {
+        if (frame.body != null) {
+          try {
+            onMessage(frame.body!);
+          } catch (e) {
+            print('Error in subscription callback: $e');
+          }
+        }
+      },
+    );
+  }
+
+  /// Send a message to the WebSocket server.
+  void sendMessage(String destination, Map<String, dynamic> message) async {
+    if (!_isConnected) {
+      print('Cannot send message. Not connected to WebSocket.');
+      return;
+    }
+
+    _stompClient.send(
+      destination: destination,
+      headers: {
+        'Authorization': 'Bearer ${controller.token.value}',
+      },
+      body: jsonEncode(message),
+    );
+  }
+
+  /// Disconnect from the WebSocket server.
+  void disconnect() {
+    if (_isConnected) {
+      _stompClient.deactivate();
+      _isConnected = false;
+      print('Disconnected from WebSocket.');
+    }
+  }
+
+  /// Check connection status.
+  bool isConnected() => _isConnected;
+}
