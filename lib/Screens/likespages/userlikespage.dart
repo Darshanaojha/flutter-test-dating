@@ -17,9 +17,9 @@ class LikesPageState extends State<LikesPage> {
   List<String> selectedGender = [];
   String selectedLocation = 'All';
   bool isLoading = true;
- 
+
   Controller controller = Get.put(Controller());
-  
+
   List<String> genders = [];
   List<String> desires = [];
   List<String> preferences = [];
@@ -36,6 +36,88 @@ class LikesPageState extends State<LikesPage> {
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<bool> fetchData() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      await Future.delayed(Duration(seconds: 2));
+
+      filteredLikesPage = controller.likespage;
+
+      await controller.likesuserpage();
+      if (controller.likespage.isEmpty) {
+        print("No likes in the list");
+      } else {
+        print(controller.likespage.map((item) => item));
+      }
+
+      await controller.fetchGenders();
+      if (controller.genders.isEmpty) {
+        print("No genders in the list");
+      } else {
+        genders
+            .addAll(controller.genders.map((gender) => gender.title).toSet());
+        print(genders);
+      }
+      desires = controller.categories
+          .expand(
+              (category) => category.desires.map((desires) => desires.title))
+          .toList();
+
+      await controller.fetchPreferences();
+      preferences.addAll(controller.preferences
+          .map((preference) => preference.title)
+          .toSet()
+          .toList());
+      print(preferences);
+
+      return true;
+    } catch (e) {
+      print("Error during data fetching: $e");
+      return false;
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  void applyFilters() {
+    setState(() {
+      filteredLikesPage = controller.likespage;
+
+      if (selectedGenderFilters.isNotEmpty) {
+        filteredLikesPage = filteredLikesPage
+            .where((user) => selectedGenderFilters.contains(user.gender))
+            .toList();
+      }
+
+      if (selectedDesireFilters.isNotEmpty) {
+        filteredLikesPage = filteredLikesPage
+            .where((user) => user.desires
+                .any((desire) => selectedDesireFilters.contains(desire)))
+            .toList();
+      }
+
+      if (selectedPreferenceFilters.isNotEmpty) {
+        filteredLikesPage = filteredLikesPage
+            .where((user) => user.preferences.any(
+                (preference) => selectedPreferenceFilters.contains(preference)))
+            .toList();
+      }
+    });
   }
 
   void showFullImageDialog(BuildContext context, String imagePath) {
@@ -84,290 +166,264 @@ class LikesPageState extends State<LikesPage> {
       },
     );
   }
-  RxBool isSelected = false.obs;
+
+  RxInt selectedIndex = (-1).obs;
+  RxBool selectedcard = false.obs;
   Future<void> showUpgradeBottomSheet() async {
-  Get.bottomSheet(
-    Padding(
-      padding: const EdgeInsets.all(0.0),
-      child: Container(
-        color: Colors.black,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'Found Add ON',
-                style: AppTextStyles.titleText.copyWith(
-                  fontSize: getResponsiveFontSize(0.03),
-                  color: Colors.white,
+    Get.bottomSheet(
+      Padding(
+        padding: const EdgeInsets.all(0.0),
+        child: Container(
+          color: Colors.black,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Found Add ON',
+                  style: AppTextStyles.titleText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
-            ),
-            SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'You can use 24 hours and enjoy the features, '
-                'and you can access earlier with premium benefits.',
-                style: AppTextStyles.bodyText.copyWith(
-                  fontSize: getResponsiveFontSize(0.03),
-                  color: Colors.white,
+              SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  'You can use 24 hours and enjoy the features, '
+                  'and you can access earlier with premium benefits.',
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
-            ),
-            SizedBox(height: 20),
-            Expanded(
-              child: Obx(() {
-                if (controller.addon.isEmpty) {
-                  return Center(child: CircularProgressIndicator());
-                }
+              SizedBox(height: 20),
+              Expanded(
+                child: Obx(() {
+                  if (controller.addon.isEmpty) {
+                    return Center(child: CircularProgressIndicator());
+                  }
 
-                return ListView.builder(
-                  itemCount: controller.addon.length,
-                  itemBuilder: (context, index) {
-                    Addon currentAddon = controller.addon[index];
+                  return ListView.builder(
+                    itemCount: controller.addon.length,
+                    itemBuilder: (context, index) {
+                      Addon currentAddon = controller.addon[index];
 
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                      child: GestureDetector(
-                        onTap: () {
-                          // Deselect the previously selected addon and select the new one
-                          controller.addon.forEach((addon) {
-                         isSelected.value = false;
-                          });
-                         isSelected.value = true;  
-                        },
-                        child: Card(
-                          elevation: 8,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          color: isSelected.value
-                              ? Colors.green
-                              : Colors.orange, 
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.calendar_today,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                                SizedBox(width: 10),
-                                Expanded(
-                                  child: Text(
-                                    "${currentAddon.title}/${currentAddon.duration} - ₹${currentAddon.amount}",
-                                    style: AppTextStyles.bodyText.copyWith(
-                                      fontSize: getResponsiveFontSize(0.03),
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 8.0),
+                        child: GestureDetector(
+                          onTap: () {
+                            selectedIndex.value = index;
+                            showAddonDialog(currentAddon);
+                            selectedcard = true.obs;
+                          },
+                          child: Obx(() {
+                            return Card(
+                              elevation: selectedIndex.value == index ? 12 : 8,
+                              color: selectedIndex.value == index
+                                  ? Colors.blueAccent
+                                  : Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_today,
                                       color: Colors.white,
+                                      size: 24,
                                     ),
-                                  ),
+                                    SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        "${currentAddon.title}/${currentAddon.duration} - ₹${currentAddon.amount}",
+                                        style: AppTextStyles.bodyText.copyWith(
+                                          fontSize: getResponsiveFontSize(0.03),
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.arrow_drop_down,
+                                        color: Colors.white,
+                                      ),
+                                      onPressed: () {
+                                        showAddonPointsButton(
+                                            currentAddon.addonPoints);
+                                      },
+                                    ),
+                                  ],
                                 ),
-                                // Downward arrow icon for addon points
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.arrow_drop_down,
-                                    color: Colors.white,
-                                  ),
-                                  onPressed: () {
-                                    showAddonPointsButton(currentAddon.addonPoints);
-                                  },
-                                ),
-                              ],
+                              ),
+                            );
+                          }),
+                        ),
+                      );
+                    },
+                  );
+                }),
+              ),
+              SizedBox(height: 20),
+              Obx(() {
+                bool isAnyAddonSelected = selectedIndex.value != -1;
+
+                return Visibility(
+                  visible: isAnyAddonSelected,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.back();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Profile upgraded! Enjoy your 24 hours of premium access.',
                             ),
                           ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.buttonColor,
+                        padding: EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child:
+                          Text('Purchase Now', style: AppTextStyles.buttonText),
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+    );
+  }
+
+// Dialog box to show on selected card tap
+  void showAddonDialog(Addon currentAddon) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.black,
+          title: Text(
+            'Confirm Add-On Subscription',
+            style: AppTextStyles.titleText.copyWith(color: Colors.white),
+          ),
+          content: Text(
+            'Do you want to subscribe to the "${currentAddon.title}" add-on for ₹${currentAddon.amount}?',
+            style: AppTextStyles.bodyText.copyWith(color: Colors.white),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Get.back();
+              },
+              child: Text(
+                'Cancel',
+                style: AppTextStyles.bodyText.copyWith(color: Colors.red),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                // Handle subscription logic here
+                Get.back();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content: Text('Subscribed to ${currentAddon.title}')),
+                );
+              },
+              child: Text(
+                'Subscribe',
+                style: AppTextStyles.bodyText.copyWith(color: Colors.green),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+// Function to show the Add-On Points button
+  void showAddonPointsButton(List<AddonPoint> addonPoints) {
+    Get.bottomSheet(
+      Padding(
+        padding: const EdgeInsets.all(0.0),
+        child: Container(
+          color: Colors.black,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Add-On Points',
+                  style: AppTextStyles.titleText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              SizedBox(height: 20),
+
+              // Display the list of addon points
+              Expanded(
+                child: ListView.builder(
+                  itemCount: addonPoints.length,
+                  itemBuilder: (context, index) {
+                    AddonPoint point = addonPoints[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: ListTile(
+                        title: Text(
+                          point.title,
+                          style: AppTextStyles.bodyText
+                              .copyWith(color: Colors.white),
                         ),
                       ),
                     );
                   },
-                );
-              }),
-            ),
-            SizedBox(height: 20),
-            Obx(() {
-              // Check if any card is selected
-              bool isAnyAddonSelected = controller.addon.any((addon) => isSelected.value);
-
-              return Visibility(
-                visible: isAnyAddonSelected, // Only show button if at least one card is selected
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Get.back(); // Close the bottom sheet when button is pressed
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Profile upgraded! Enjoy your 24 hours of premium access.')),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.buttonColor,
-                      padding: EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: Text('Purchase Now', style: AppTextStyles.buttonText),
-                  ),
                 ),
-              );
-            }),
-          ],
+              ),
+              SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.buttonColor,
+                    padding: EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text('Close', style: AppTextStyles.buttonText),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-  );
-}
-
-
-// Function to show the Add-On Points button
-void showAddonPointsButton(List<AddonPoint> addonPoints) {
-  Get.bottomSheet(
-    Padding(
-      padding: const EdgeInsets.all(0.0),
-      child: Container(
-        color: Colors.black,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'Add-On Points',
-                style: AppTextStyles.titleText.copyWith(
-                  fontSize: getResponsiveFontSize(0.03),
-                  color: Colors.white,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            SizedBox(height: 20),
-
-            // Display the list of addon points
-            Expanded(
-              child: ListView.builder(
-                itemCount: addonPoints.length,
-                itemBuilder: (context, index) {
-                  AddonPoint point = addonPoints[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: ListTile(
-                      title: Text(
-                        point.title,
-                        style: AppTextStyles.bodyText.copyWith(color: Colors.white),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  Get.back();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.buttonColor,
-                  padding: EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: Text('Close', style: AppTextStyles.buttonText),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-  );
-}
-  Future<bool> fetchData() async {
-    try {
-      setState(() {
-        isLoading = true;
-      });
-
-      await Future.delayed(Duration(seconds: 2));
-
-      filteredLikesPage = controller.likespage;
-
-      await controller.likesuserpage();
-      if (controller.likespage.isEmpty) {
-        print("No likes in the list");
-      } else {
-        print(controller.likespage.map((item) => item));
-      }
-
-      await controller.fetchGenders();
-      if (controller.genders.isEmpty) {
-        print("No genders in the list");
-      } else {
-        genders
-            .addAll(controller.genders.map((gender) => gender.title).toSet());
-        print(genders);
-      }
-      desires = controller.categories.expand((category)=> category.desires.map((desires)=>desires.title)).toList();
-
-      await controller.fetchPreferences();
-      preferences.addAll(controller.preferences
-          .map((preference) => preference.title)
-          .toSet()
-          .toList());
-      print(preferences);
-
-      return true;
-    } catch (e) {
-      print("Error during data fetching: $e");
-      return false;
-    } finally {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-    }
-  }
-
-  void applyFilters() {
-    setState(() {
-      filteredLikesPage = controller.likespage;
-
-      if (selectedGenderFilters.isNotEmpty) {
-        filteredLikesPage = filteredLikesPage
-            .where((user) => selectedGenderFilters.contains(user.gender))
-            .toList();
-      }
-
-      if (selectedDesireFilters.isNotEmpty) {
-        filteredLikesPage = filteredLikesPage
-            .where((user) => user.desires
-                .any((desire) => selectedDesireFilters.contains(desire)))
-            .toList();
-      }
-
-      if (selectedPreferenceFilters.isNotEmpty) {
-        filteredLikesPage = filteredLikesPage
-            .where((user) => user.preferences.any(
-                (preference) => selectedPreferenceFilters.contains(preference)))
-            .toList();
-      }
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    fetchData();
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+    );
   }
 
   @override
@@ -400,12 +456,6 @@ void showAddonPointsButton(List<AddonPoint> addonPoints) {
                       });
                       applyFilters();
                     }),
-                    // buildFilterChip('Location',
-                    //     ['All', 'New York', 'Los Angeles', 'Chicago'], (value) {
-                    //   setState(() {
-                    //     selectedLocation = value!;
-                    //   });
-                    // }),
                     buildFilterChip('Desires', desires, selectedDesireFilters,
                         (value) {
                       setState(() {
@@ -508,9 +558,6 @@ void showAddonPointsButton(List<AddonPoint> addonPoints) {
                                         style: AppTextStyles.bodyText.copyWith(
                                             fontSize:
                                                 getResponsiveFontSize(0.03))),
-                                    // Text('${user['km']} km away',
-                                    //     style: AppTextStyles.bodyText.copyWith(
-                                    //         fontSize: getResponsiveFontSize(0.03))),
                                   ],
                                 ),
                                 SizedBox(height: 4),
@@ -523,9 +570,8 @@ void showAddonPointsButton(List<AddonPoint> addonPoints) {
                                     IconButton(
                                       onPressed: () {
                                         setState(() {
-                                          user.likedByMe = user.likedByMe == 0
-                                              ? 1
-                                              : 0;
+                                          user.likedByMe =
+                                              user.likedByMe == 0 ? 1 : 0;
                                           controller.profileLikeRequest
                                               .likedBy = user.userId.toString();
                                           controller.profileLike(

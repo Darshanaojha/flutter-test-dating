@@ -349,6 +349,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               controller: nicknameController,
               onChanged: (value) {
                 controller.userRegistrationRequest.nickname = value;
+                controller.userRegistrationRequest.nickname =
+                    controller.userRegistrationRequest.nickname.trim();
               },
               decoration: InputDecoration(
                 labelText: "Your Name",

@@ -64,6 +64,8 @@ class Message {
   final String status;
   final String deletedBySender;
   final String deletedByReceiver;
+  final String deletedAtSender;
+  final String deletedAtReceiver;
   final String isEdited;
 
   Message({
@@ -77,6 +79,8 @@ class Message {
     required this.status,
     required this.deletedBySender,
     required this.deletedByReceiver,
+    required this.deletedAtSender,
+    required this.deletedAtReceiver,
     required this.isEdited,
   });
 
@@ -92,6 +96,8 @@ class Message {
       status: json['status'] ?? '',
       deletedBySender: json['deleted_by_sender'] ?? '',
       deletedByReceiver: json['deleted_by_receiver'] ?? '',
+      deletedAtSender: json['deleted_at_sender'] ?? '',
+      deletedAtReceiver: json['deleted_at_receiver'] ?? '',
       isEdited: json['is_edited'] ?? '',
     );
   }
@@ -108,6 +114,8 @@ class Message {
       'status': status,
       'deleted_by_sender': deletedBySender,
       'deleted_by_receiver': deletedByReceiver,
+      'deleted_at_sender': deletedAtSender,
+      'deleted_at_receiver': deletedAtReceiver,
       'is_edited': isEdited,
     };
   }
