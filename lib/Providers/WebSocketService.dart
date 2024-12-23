@@ -51,12 +51,14 @@ class WebSocketService {
     _stompClient.activate();
   }
 
-  /// Callback triggered when WebSocket connection is established.
   void _onConnect(StompFrame frame) {
     print('WebSocket connected!');
 
     _isConnected = true;
-    subscribeToTopic('/user/queue/messages', (data) {
+    print(
+        'subscribed to the topic ${'/user/${controller.userData.first.id}/queue/messages'}');
+    subscribeToTopic('/user/${controller.userData.first.id}/queue/messages',
+        (data) {
       try {
         final parsedData = jsonDecode(data) as Map<String, dynamic>;
 
