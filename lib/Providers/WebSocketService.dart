@@ -1,10 +1,9 @@
 import 'dart:convert';
-import 'package:encrypt_shared_preferences/provider.dart';
+import 'package:dating_application/Models/ResponseModels/chat_history_response_model.dart';
 import 'package:get/get.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 import '../Controllers/controller.dart';
-import '../Models/ResponseModels/chat_history_response_model.dart';
 
 class WebSocketService {
   Controller controller = Get.put(Controller());
@@ -32,7 +31,6 @@ class WebSocketService {
         onConnect: _onConnect,
         beforeConnect: () async {
           print('Connecting...');
-          await Future.delayed(Duration(milliseconds: 200));
         },
         stompConnectHeaders: {
           'Authorization': 'Bearer $token',
@@ -51,43 +49,30 @@ class WebSocketService {
     _stompClient.activate();
   }
 
+  /// Callback triggered when WebSocket connection is established.
   void _onConnect(StompFrame frame) {
     print('WebSocket connected!');
 
     _isConnected = true;
-    print(
-        'subscribed to the topic ${'/user/${controller.userData.first.id}/queue/messages'}');
-    subscribeToTopic('/user/${controller.userData.first.id}/queue/messages',
-        (data) {
-      try {
-        final parsedData = jsonDecode(data) as Map<String, dynamic>;
-
-        controller.messages.add(Message.fromJson(parsedData));
-      } catch (e) {
-        print('Error parsing received message: $e');
-      }
-    });
-  }
-
-  /// Subscribe to a topic for receiving messages.
-  void subscribeToTopic(String topic, Function(String) onMessage) {
-    if (!_isConnected) {
-      print('Cannot subscribe. Not connected to WebSocket.');
-      return;
-    }
+    String topic = '/topic/${controller.userData.first.id}';
 
     _stompClient.subscribe(
+      headers: {
+        'Authorization': 'Bearer ${controller.token.value}',
+      },
       destination: topic,
       callback: (frame) {
         if (frame.body != null) {
           try {
-            onMessage(frame.body!);
+            print(frame.body);
+            controller.messages.add(Message.fromJson(jsonDecode(frame.body!)));
           } catch (e) {
             print('Error in subscription callback: $e');
           }
         }
       },
     );
+    print('subscribed to the topic : $topic');
   }
 
   /// Send a message to the WebSocket server.

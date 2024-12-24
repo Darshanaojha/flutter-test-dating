@@ -234,21 +234,7 @@ class ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-
-    // Connect to WebSocket
     websocketService.connect(controller.token.value);
-
-    // Subscribe to private topic
-    // websocketService.subscribeToTopic('/user/queue/messages', (data) {
-    //   try {
-    //     final parsedData = jsonDecode(data) as Map<String,dynamic>;
-    //     setState(() {
-    //       controller.messages.add(Message.fromJson(parsedData));
-    //     });
-    //   } catch (e) {
-    //     print('Error parsing received message: $e');
-    //   }
-    // });
   }
 
   void _sendMessage() {

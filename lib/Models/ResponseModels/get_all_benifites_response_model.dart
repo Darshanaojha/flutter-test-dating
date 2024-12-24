@@ -23,7 +23,6 @@ class Benefit {
   }
 }
 
-// Payload Model
 class Payload {
   final String msg;
   final List<Benefit> data;
@@ -50,7 +49,6 @@ class Payload {
   }
 }
 
-// Error Model
 class Error {
   final int code;
   final String message;
@@ -75,7 +73,6 @@ class Error {
   }
 }
 
-// Top-level BenefitsResponse Model
 class BenefitsResponse {
   final bool success;
   final Payload payload;

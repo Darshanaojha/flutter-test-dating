@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../Controllers/controller.dart';
 import '../../navigationbar/navigationpage.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class PricingPage extends StatefulWidget {
   const PricingPage({super.key});
@@ -39,7 +37,7 @@ class PricingPageState extends State<PricingPage> {
   @override
   Widget build(BuildContext context) {
     double responsiveHeight = MediaQuery.of(context).size.height * 0.07;
-    double responsiveWidth = MediaQuery.of(context).size.width;
+    // double responsiveWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       appBar: AppBar(

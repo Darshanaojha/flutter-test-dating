@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/chat_history_request_model.dart';
 import '../../constants.dart';
+
 import '../chatpage/ChatScreenpusher.dart';
 
 class ContactListScreen extends StatefulWidget {
@@ -126,7 +127,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                 'User ID: ${controller.userData.first.id}');
                             debugPrint(
                                 'Connection ID: ${connection.conectionId}');
-
+                            debugPrint('Connection Name: ${connection.name}');
                             ChatHistoryRequestModel chatHistoryRequestModel =
                                 ChatHistoryRequestModel(
                                     userId: connection.conectionId);
@@ -140,6 +141,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                 String? token = preferences.getString('token');
                                 if (token != null && token.isNotEmpty) {
                                   controller.token.value = token;
+
                                   Get.to(() => ChatScreen(
                                         senderId: controller.userData.first.id,
                                         receiverId: connection.conectionId,

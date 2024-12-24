@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/forget_password_request_model.dart';
-import 'forgotpasswordotp.dart';
 
 class PasswordInputPage extends StatefulWidget {
   const PasswordInputPage({super.key});

@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/registration_otp_verification_request_model.dart';
-import 'registerdetails.dart';
 class OTPVerificationPage extends StatefulWidget {
   const OTPVerificationPage({super.key});
 

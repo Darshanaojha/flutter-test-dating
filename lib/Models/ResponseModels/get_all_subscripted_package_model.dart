@@ -129,7 +129,6 @@ class Error {
     required this.message,
   });
 
-  // Factory method to create an instance from JSON
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
       code: json['code'],
@@ -137,7 +136,6 @@ class Error {
     );
   }
 
-  // Convert the model back to a JSON map
   Map<String, dynamic> toJson() {
     return {
       'code': code,

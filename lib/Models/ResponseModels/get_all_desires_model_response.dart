@@ -1,4 +1,4 @@
-// Desire Model
+
 class Desires {
   final String id;
   final String desiresCategoryId;
@@ -43,7 +43,6 @@ class Desires {
   }
 }
 
-// Category Model
 class Category {
   String category;
   List<Desires> desires;
@@ -70,7 +69,6 @@ class Category {
   }
 }
 
-// Payload Model
 class Payload {
   final String msg;
   final List<Category> data;
@@ -97,7 +95,6 @@ class Payload {
   }
 }
 
-// Error Model
 class Error {
   final int code;
   final String message;
@@ -122,7 +119,6 @@ class Error {
   }
 }
 
-// Top-level Response Model
 class DesiresResponse {
   final bool success;
   final Payload payload;

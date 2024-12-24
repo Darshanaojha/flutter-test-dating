@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-// BlockUserResponseModel
+
 class BlockUserResponseModel {
   bool success;
   Payload payload;
@@ -37,7 +37,6 @@ class BlockUserResponseModel {
   }
 }
 
-// Payload Model
 class Payload {
   String message;
 
@@ -56,7 +55,6 @@ class Payload {
   }
 }
 
-// Error Model
 class Error {
   int code;
   String message;

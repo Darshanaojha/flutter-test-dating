@@ -1,4 +1,4 @@
-// Country Model
+
 class Country {
   final String id;
   final String name;
@@ -39,7 +39,6 @@ class Country {
   }
 }
 
-// Payload Model
 class Payload {
   final String msg;
   final List<Country> data;
@@ -91,7 +90,6 @@ class Error {
   }
 }
 
-// Full Response Model
 class CountryResponse {
   final bool success;
   final Payload payload;

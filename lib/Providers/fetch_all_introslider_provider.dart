@@ -1,5 +1,4 @@
 import 'package:dating_application/Models/ResponseModels/get_all_introslider_response.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../constants.dart';

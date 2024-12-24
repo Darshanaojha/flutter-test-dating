@@ -933,7 +933,7 @@ class SettingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double cardWidth = screenWidth * 0.85;
+    // double cardWidth = screenWidth * 0.85;
 
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 16),

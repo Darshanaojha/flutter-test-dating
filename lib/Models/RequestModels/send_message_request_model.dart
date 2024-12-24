@@ -1,10 +1,10 @@
 import '../../constants.dart';
 
 class SendMessageRequestModel {
-  final String senderId;
-  final String receiverId;
-  final dynamic message;
-  final int messageType;
+   String senderId;
+   String receiverId;
+   dynamic message;
+   int messageType;
   SendMessageRequestModel({
     required this.senderId,
     required this.receiverId,
