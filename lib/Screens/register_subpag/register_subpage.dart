@@ -38,6 +38,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
   RxList<bool> desireSelectedOptions = <bool>[].obs;
   RxList<String> selectedStatus = <String>[].obs;
+  RxList<bool> selectedOptions = <bool>[].obs;
+  RxList<String> selectedDesireIds = <String>[].obs;
   RxList<String> genderIds = <String>[].obs;
   RxList<String> selectedInterests = <String>[].obs;
   RxString selectedPlan = 'None'.obs;
@@ -484,7 +486,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
                                   controller.userRegistrationRequest.gender =
                                       parsedGenderId;
-                                                                  controller.fetchSubGender(SubGenderRequest(
+                                  controller.fetchSubGender(SubGenderRequest(
                                       genderId: parsedGenderId));
                                 },
                                 activeColor: AppColors.buttonColor,
@@ -809,8 +811,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
 // Step 6: Gender Identity Selection
-  RxList<bool> selectedOptions = <bool>[].obs;
-  RxList<String> selectedDesireIds = <String>[].obs;
 
   Widget buildRelationshipStatusInterestStep(
       BuildContext context, Size screenSize) {
@@ -821,7 +821,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     print(options.map((elem) => elem));
 
     controller.categories.map((category) => category.category).toList();
-    selectedOptions = List.filled(options.length, false).obs;
+    if (selectedOptions.isEmpty || selectedOptions.length != options.length) {
+      selectedOptions = List.filled(options.length, false).obs;
+    }
 
     void updateSelectedStatus() {
       selectedStatus.clear();
@@ -841,7 +843,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       controller.userRegistrationRequest.desires = selectedDesireIds;
     }
 
-    // Handle chip selection
     void handleChipSelection(int index) {
       selectedOptions[index] = !selectedOptions[index];
       updateSelectedStatus();
@@ -906,7 +907,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                   padding: const EdgeInsets.only(right: 8.0),
                                   child: Chip(
                                     label: Text(status),
-                                    backgroundColor: AppColors.buttonColor,
+                                    backgroundColor: AppColors.chipColor,
                                     labelStyle: TextStyle(
                                       color: Colors.white,
                                       fontSize: chipFontSize,
@@ -950,8 +951,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                         child: Obx(() => Chip(
                               label: Text(options[index]),
                               backgroundColor: selectedOptions[index]
-                                  ? AppColors.buttonColor
-                                  : AppColors.formFieldColor,
+                                  ? AppColors.chipColor
+                                  : AppColors.buttonColor,
                               labelStyle: TextStyle(
                                 color: selectedOptions[index]
                                     ? Colors.white
@@ -1285,11 +1286,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           children: [
             Obx(() {
               return selectedLanguages.isEmpty
-                  ? Center(
-                      child: SpinKitCircle(
-                      size: 30,
-                      color: AppColors.progressColor,
-                    ))
+                  ? Center(child: Text("Please Select the Languages!!!!!!"))
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -1436,8 +1433,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
 // step 9
+  RxString userDescription = ''.obs;
+  final TextEditingController descriptionController = TextEditingController();
   Widget buildUserDescriptionStep(Size screenSize) {
-    RxString userDescription = ''.obs;
     bool isInputValid = true;
     void onDescriptionChanged(String value) {
       userDescription.value = value;
@@ -1462,7 +1460,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Title
               Text(
                 controller.headlines.isNotEmpty
                     ? controller.headlines[7].title
@@ -1485,6 +1482,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               ),
               SizedBox(height: 20),
               TextField(
+                controller: descriptionController,
                 onChanged: onDescriptionChanged,
                 maxLength: 250,
                 maxLines: 6,
@@ -1564,7 +1562,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     backgroundColor: userDescription.value.isNotEmpty &&
                             userDescription.value.length <= 250
                         ? AppColors.buttonColor
-                        : Colors.grey,
+                        : Colors.red,
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   ),
                   child: Text(
@@ -1664,7 +1662,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
         },
       );
     }
-
 
     double fontSize = screenSize.width * 0.03;
 
@@ -1965,8 +1962,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     bool isPhotoUploaded = images[index] != null ||
                         (controller.userRegistrationRequest.photos.length >
                             index);
-
-                    // Check if the index can be used for uploading photo (sequential logic)
                     bool isIndexEditable = (index == 0 ||
                         (index > 0 && images[index - 1] != null));
 
@@ -1995,6 +1990,15 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                                         MainAxisSize.min,
                                                     children: [
                                                       ElevatedButton(
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          backgroundColor:
+                                                              AppColors
+                                                                  .FavouriteColor,
+                                                          foregroundColor:
+                                                              AppColors
+                                                                  .textColor,
+                                                        ),
                                                         onPressed: () {
                                                           Navigator.pop(
                                                               context);
@@ -2003,16 +2007,42 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                                               ImageSource
                                                                   .camera);
                                                         },
-                                                        child: const Row(
+                                                        child: Row(
                                                           children: [
-                                                            Icon(Icons
-                                                                .camera_alt),
+                                                            Icon(
+                                                                Icons
+                                                                    .camera_alt,
+                                                                color: AppColors
+                                                                    .FavouriteColor),
                                                             SizedBox(width: 8),
-                                                            Text("Camera"),
+                                                            Text(
+                                                              "Camera",
+                                                              style: TextStyle(
+                                                                fontSize: 16,
+                                                                fontStyle:
+                                                                    AppTextStyles
+                                                                        .bodyText
+                                                                        .fontStyle,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                            ),
                                                           ],
                                                         ),
                                                       ),
                                                       ElevatedButton(
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          backgroundColor:
+                                                              AppColors
+                                                                  .FavouriteColor,
+                                                          foregroundColor:
+                                                              AppColors
+                                                                  .textColor,
+                                                        ),
                                                         onPressed: () {
                                                           Navigator.pop(
                                                               context);
@@ -2021,11 +2051,28 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                                               ImageSource
                                                                   .gallery);
                                                         },
-                                                        child: const Row(
+                                                        child: Row(
                                                           children: [
-                                                            Icon(Icons.photo),
-                                                            SizedBox(width: 8),
-                                                            Text("Gallery"),
+                                                            Icon(Icons.photo,
+                                                                color: AppColors
+                                                                    .FavouriteColor),
+                                                            const SizedBox(
+                                                                width: 8),
+                                                            Text(
+                                                              "Gallery",
+                                                              style: TextStyle(
+                                                                fontSize: 16,
+                                                                fontStyle:
+                                                                    AppTextStyles
+                                                                        .bodyText
+                                                                        .fontStyle,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                            ),
                                                           ],
                                                         ),
                                                       ),

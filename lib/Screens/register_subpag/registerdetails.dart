@@ -335,7 +335,6 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                                 failure('Failed', 'Passwords do not match!');
                                 return;
                               }
-
                               Get.to(MultiStepFormPage());
                               success(
                                   'Success', 'Form submitted successfully!');
@@ -565,11 +564,13 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           if (value.length < 8) {
             return '$label must be at least 8 characters long.';
           }
-
-          try {
-            validatePassword(value);
-          } catch (e) {
-            return e.toString();
+          final hasDigit = RegExp(r'[0-9]').hasMatch(value);
+          final hasSpecialChar =
+              RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value);
+          if (!hasDigit || !hasSpecialChar) {
+            failure("Password",
+                "Password must contain at least one digit and one special character.");
+            return "$label Password must contain at least one digit and one special character.";
           }
 
           return null;

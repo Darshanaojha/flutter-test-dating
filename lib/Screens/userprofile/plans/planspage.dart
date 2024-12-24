@@ -2,6 +2,7 @@ import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../Controllers/controller.dart';
+import '../../../Controllers/razorpaycontroller.dart';
 import '../../navigationbar/navigationpage.dart';
 
 class PricingPage extends StatefulWidget {
@@ -13,6 +14,7 @@ class PricingPage extends StatefulWidget {
 
 class PricingPageState extends State<PricingPage> {
   Controller controller = Get.put(Controller());
+  RazorpayController razorpaycontroller = Get.put(RazorpayController());
   RxString selectedPlan = ''.obs; // Only store selected plan's ID
   RxString planId = ''.obs;
 
@@ -112,7 +114,7 @@ class PricingPageState extends State<PricingPage> {
                         planId.value = package.id;
                         selectedPlan.value = package.id;
                       });
-                      showPaymentConfirmationDialog(context, planId.value);
+                      showPaymentConfirmationDialog(context, planId.value,offerPercentage,);
                     },
                     child: Obx(() {
                       bool isSelected = selectedPlan.value == package.id;
@@ -177,7 +179,7 @@ class PricingPageState extends State<PricingPage> {
   }
 
   Future<void> showPaymentConfirmationDialog(
-      BuildContext context, String planId) async {
+      BuildContext context, String planId, double amount)async {
     double fontSize = MediaQuery.of(context).size.width * 0.05;
 
     return showDialog<void>(
@@ -215,9 +217,12 @@ class PricingPageState extends State<PricingPage> {
             ),
             TextButton(
               onPressed: () {
-                Get.offAll(NavigationBottomBar());
-                controller.updatinguserpackage(
-                    controller.updateNewPackageRequestModel);
+                razorpaycontroller.initRazorpay();
+                razorpaycontroller.openPayment( amount, planId,  planId,
+       planId,  planId);
+                // Get.offAll(NavigationBottomBar());
+                // controller.updatinguserpackage(
+                //     controller.updateNewPackageRequestModel);
 
                 print("Subscribed to plan id ${planId.toString()}");
                 print("Subscribed to the selected plan");
