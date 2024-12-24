@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import '../constants.dart';
 import 'controller.dart';
 
 class RazorpayController extends GetxController {
@@ -33,18 +34,13 @@ class RazorpayController extends GetxController {
   void openPayment(double totalAmount, String name, String description,
       String contact, String email) {
     var options = {
-      // 'key': RAZORPAYKEYID,
+       'key': RazorpayKeys.RAZORPAYKEYID,
       'amount': (totalAmount * 100).toInt(), // Amount in paise
       'name': name,
       'description': description,
       'prefill': {
         'contact': contact,
         'email': email,
-      },
-      'method': {
-        'upi': {
-          'flow': 'qr', 
-        }
       },
     };
 

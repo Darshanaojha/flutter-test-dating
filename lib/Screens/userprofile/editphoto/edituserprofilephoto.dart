@@ -21,7 +21,7 @@ class EditPhotosPage extends StatefulWidget {
 
 class EditPhotosPageState extends State<EditPhotosPage> {
   Controller controller = Get.put(Controller());
-  RxList<RxString> updatedImages = <RxString>[].obs;
+  RxList<RxString> updatedImages = List.filled(6, "".obs).obs;
   RxList<File> filePaths = <File>[].obs;
   RxList<int> indexUpdated = <int>[].obs;
 
@@ -33,21 +33,26 @@ class EditPhotosPageState extends State<EditPhotosPage> {
 
   intialize() async {
     try {
-      updatedImages.value = controller.userPhotos!.images
+      List<RxString> fetchedImages = controller.userPhotos!.images
           .map((image) => RxString(image))
           .toList();
-      filePaths.value =
-          List.generate(updatedImages.length, (index) => File('')).obs;
+
+      updatedImages.value = List.generate(
+        6,
+        (index) => index < fetchedImages.length ? fetchedImages[index] : "".obs,
+      );
+
+      filePaths.value = List.generate(6, (index) => File('')).obs;
     } catch (e) {
       failure('Error', e.toString());
     }
   }
 
-  void updatedImagesLength() {
-    for (int i = updatedImages.length; i < 6; i++) {
-      updatedImages.add("".obs);
-    }
-  }
+  // void updatedImagesLength() {
+  //   for (int i = updatedImages.length; i < 6; i++) {
+  //     updatedImages.add("".obs);
+  //   }
+  // }
 
   bool isLoading = false;
   final picker = ImagePicker();
@@ -147,18 +152,18 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                       style: AppTextStyles.buttonText
                           .copyWith(fontSize: getResponsiveFontSize(0.03))),
                 ),
-                SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    deletePhoto(index);
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.inactiveColor),
-                  child: Text("Delete",
-                      style: AppTextStyles.buttonText
-                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                ),
+                // SizedBox(width: 16),
+                // ElevatedButton(
+                //   onPressed: () {
+                //     Navigator.pop(context);
+                //     deletePhoto(index);
+                //   },
+                //   style: ElevatedButton.styleFrom(
+                //       backgroundColor: AppColors.inactiveColor),
+                //   child: Text("Delete",
+                //       style: AppTextStyles.buttonText
+                //           .copyWith(fontSize: getResponsiveFontSize(0.03))),
+                // ),
                 SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: () {
@@ -192,35 +197,37 @@ class EditPhotosPageState extends State<EditPhotosPage> {
               style: AppTextStyles.bodyText.copyWith(
                   color: Colors.grey, fontSize: getResponsiveFontSize(0.03)),
             ),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    pickImage(index, ImageSource.camera);
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.buttonColor),
-                  child: Text("Camera",
-                      style: AppTextStyles.buttonText
-                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                ),
-                SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    pickImage(
-                      index,
-                      ImageSource.gallery,
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.buttonColor),
-                  child: Text("Gallery",
-                      style: AppTextStyles.buttonText
-                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                ),
-              ],
+            Center(
+              child: Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      pickImage(index, ImageSource.camera);
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.buttonColor),
+                    child: Text("Camera",
+                        style: AppTextStyles.buttonText
+                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
+                  ),
+                  SizedBox(width: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      pickImage(
+                        index,
+                        ImageSource.gallery,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.buttonColor),
+                    child: Text("Gallery",
+                        style: AppTextStyles.buttonText
+                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -360,14 +367,17 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                         ),
                         itemCount: updatedImages.length,
                         itemBuilder: (context, index) {
-                          RxString? imageUrl = updatedImages[index];
-                          print('photo index is $index and url is $imageUrl');
+                          RxString imageUrl = updatedImages[index];
+                          print('Photo index is $index and URL is $imageUrl');
+
                           if (indexUpdated.contains(index)) {
-                            print('file path at $index is ${filePaths[index]}');
+                            print('File path at $index is ${filePaths[index]}');
                           } else {
-                            print('file path not at $index');
+                            print('File path not at $index');
                           }
-                          if (index < updatedImages.length) {
+
+                          if (imageUrl.value.isNotEmpty ||
+                              indexUpdated.contains(index)) {
                             return Padding(
                               padding: const EdgeInsets.all(4.0),
                               child: GestureDetector(

@@ -51,6 +51,7 @@ class EditProfilePageState extends State<EditProfilePage> {
 
   List<String> interestsList = [];
   RxList<bool> preferencesSelectedOptions = <bool>[].obs;
+  RxList<String> selectedPreferences = <String>[].obs;
 
   TextEditingController interestController = TextEditingController();
   RxList<String> updatedSelectedInterests = <String>[].obs;
@@ -154,7 +155,8 @@ class EditProfilePageState extends State<EditProfilePage> {
       }
       print("Matching indexes: $matchingIndexes");
 
-      print("DOB : ${controller.userProfileUpdateRequest.dob}");
+      print(
+          "DOB : ${controller.userProfileUpdateRequest.dob} and previous ${controller.userData.first.dob}");
       selectedDate = DateFormat('dd/MM/yyyy')
           .parse(controller.userProfileUpdateRequest.dob);
       print("SelectedDate: $selectedDate");
@@ -709,33 +711,33 @@ class EditProfilePageState extends State<EditProfilePage> {
                               ),
                             ),
                           ),
-                          Positioned(
-                            top: 0,
-                            right: 16,
-                            child: Row(
-                              children: [
-                                SizedBox(
-                                  height: 40,
-                                  child: FloatingActionButton.extended(
-                                    onPressed: () {},
-                                    backgroundColor: AppColors.buttonColor,
-                                    icon: Icon(Icons.visibility,
-                                        color: AppColors.textColor, size: 18),
-                                    label: Text(
-                                      'Preview',
-                                      style: AppTextStyles.textStyle.copyWith(
-                                          fontSize:
-                                              getResponsiveFontSize(0.03)),
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: 16),
-                              ],
-                            ),
-                          ),
+                          // Positioned(
+                          //   top: 0,
+                          //   right: 16,
+                          //   child: Row(
+                          //     children: [
+                          //       SizedBox(
+                          //         height: 40,
+                          //         child: FloatingActionButton.extended(
+                          //           onPressed: () {},
+                          //           backgroundColor: AppColors.buttonColor,
+                          //           icon: Icon(Icons.visibility,
+                          //               color: AppColors.textColor, size: 18),
+                          //           label: Text(
+                          //             'Preview',
+                          //             style: AppTextStyles.textStyle.copyWith(
+                          //                 fontSize:
+                          //                     getResponsiveFontSize(0.03)),
+                          //           ),
+                          //           shape: RoundedRectangleBorder(
+                          //             borderRadius: BorderRadius.circular(20),
+                          //           ),
+                          //         ),
+                          //       ),
+                          //       SizedBox(width: 16),
+                          //     ],
+                          //   ),
+                          // ),
                         ],
                       ),
                       SizedBox(height: 16),
@@ -857,7 +859,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                         : controller
                                             .userProfileUpdateRequest.city,
                                     label: 'City',
-                                    onChanged: (value){
+                                    onChanged: (value) {
                                       onCityChanged(value);
                                     },
                                     validator: (value) {
@@ -874,9 +876,9 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                 .userProfileUpdateRequest
                                                 .latitude,
                                             onChanged: (value) {
-                                             setState(() {
+                                              setState(() {
                                                 onLatitudeChnage(value);
-                                             });
+                                              });
                                             },
                                             isDisabled: true,
                                           ),
@@ -1189,19 +1191,22 @@ class EditProfilePageState extends State<EditProfilePage> {
                                               controller.preferences.length,
                                               false);
                                     }
-
-                                    List<String> selectedPreferences = [];
                                     for (var p in controller.userPreferences) {
-                                      int index = controller.preferences
-                                          .indexWhere((preference) =>
-                                              preference.id == p.preferenceId);
-                                      if (index != -1) {
+                                      int index =
+                                          controller.preferences.indexWhere(
+                                        (preference) =>
+                                            preference.id == p.preferenceId,
+                                      );
+                                      if (index != -1 &&
+                                          !selectedPreferences
+                                              .contains(index.toString())) {
                                         selectedPreferences
                                             .add(index.toString());
                                         preferencesSelectedOptions[index] =
                                             true;
                                       }
                                     }
+
                                     return Card(
                                       color: AppColors.primaryColor,
                                       elevation: 8,
@@ -1687,7 +1692,7 @@ Widget buildRelationshipStatusInterestStep(
                                 padding: const EdgeInsets.only(right: 8.0),
                                 child: Chip(
                                   label: Text(desire.title),
-                                  backgroundColor: AppColors.buttonColor,
+                                  backgroundColor: AppColors.chipColor,
                                   labelStyle: TextStyle(
                                     color: Colors.white,
                                     fontSize: chipFontSize,
@@ -1703,8 +1708,6 @@ Widget buildRelationshipStatusInterestStep(
                                     if (index != -1) {
                                       selectedOptions[index] = false;
                                     }
-
-                                    // Update user profile desires
                                     controller
                                             .userProfileUpdateRequest.desires =
                                         selectedDesires
@@ -1743,19 +1746,14 @@ Widget buildRelationshipStatusInterestStep(
                             List.generate(controller.desires.length, (index) {
                           return GestureDetector(
                             onTap: () {
-                              // Add desire to selected list
                               UserDesire userDesire = UserDesire(
                                 desiresId: controller.desires[index].id,
                                 title: controller.desires[index].title,
                               );
-
-                              // Ensure only unique desires are added based on ID
                               if (!selectedDesires.any((desire) =>
                                   desire.desiresId == userDesire.desiresId)) {
                                 selectedDesires.add(userDesire);
                                 selectedOptions[index] = true;
-
-                                // Update user profile desires
                                 controller.userProfileUpdateRequest.desires =
                                     selectedDesires
                                         .map((userDesire) =>

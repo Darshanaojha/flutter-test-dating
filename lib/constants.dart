@@ -256,3 +256,7 @@ class PusherConstants {
   static const String secret = "b20f2092482a6c3720ab";
   static const String cluster = "ap2";
 }
+
+class RazorpayKeys {
+  static const String RAZORPAYKEYID = "rzp_test_cR8X4jkGEnx1zo";
+}

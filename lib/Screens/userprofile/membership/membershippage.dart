@@ -114,7 +114,6 @@ class MembershipPageState extends State<MembershipPage> {
     );
   }
 
-  // Function to build membership service item
   Widget buildMembershipServiceItem({
     required String title,
     required bool free,
@@ -136,7 +135,6 @@ class MembershipPageState extends State<MembershipPage> {
               ),
               Row(
                 children: [
-                  // Free service mark
                   if (free)
                     Icon(
                       Icons.check,
@@ -150,7 +148,6 @@ class MembershipPageState extends State<MembershipPage> {
                       size: 20,
                     ),
                   SizedBox(width: 10),
-                  // Paid service mark
                   if (paid)
                     Icon(
                       Icons.check,
