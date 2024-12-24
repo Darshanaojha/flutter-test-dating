@@ -206,13 +206,12 @@ class EditProfilePageState extends State<EditProfilePage> {
 
   void onCityChanged(String value) {
     controller.userProfileUpdateRequest.city = value;
-
     isLatLongFetched.value = false;
 
     if (debounce?.isActive ?? false) {
       debounce?.cancel();
     }
-    debounce = Timer(Duration(milliseconds: 1000), () {
+    debounce = Timer(Duration(milliseconds: 100), () {
       fetchLatLong();
     });
   }
@@ -396,6 +395,7 @@ class EditProfilePageState extends State<EditProfilePage> {
       List<Location> locations =
           await locationFromAddress(controller.userProfileUpdateRequest.city);
       print(locations.first.toString());
+
       if (locations.isNotEmpty) {
         print('not empty');
         controller.userProfileUpdateRequest.latitude =
@@ -408,8 +408,9 @@ class EditProfilePageState extends State<EditProfilePage> {
         failure('correct ', 'No location found for the provided address..');
       }
     } catch (e) {
-      print('location error -> ${e.toString()}');
-      failure('', 'Error fetching location: ${e.toString()}');
+      print('location error -> ${e.toString()}'); // Log the error
+      failure('',
+          'Error fetching location: ${e.toString()}'); // Show the error message
     }
   }
 
@@ -424,7 +425,6 @@ class EditProfilePageState extends State<EditProfilePage> {
         TextEditingController(text: initialValue);
     String? errorText;
 
-    // Method to validate the input DOB
     void validateInput(String value) {
       if (validator != null) {
         String? error = validator(value);
@@ -507,18 +507,19 @@ class EditProfilePageState extends State<EditProfilePage> {
   }
 
   Widget buildTextFieldForLatLong({
-    required TextEditingController controller,
     required String label,
+    required String value,
     required Function(String) onChanged,
     double fontSize = 16.0,
-    bool isDisabled = false, // Add the disabled flag
+    bool isDisabled = false,
   }) {
+    TextEditingController controller = TextEditingController(text: value);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
         controller: controller,
         obscureText: false,
-        enabled: !isDisabled, // Disable interaction
+        enabled: !isDisabled,
         onChanged: onChanged,
         validator: (value) {
           if (value == null || value.isEmpty) {
@@ -552,14 +553,11 @@ class EditProfilePageState extends State<EditProfilePage> {
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(
-              color: isDisabled
-                  ? Colors.grey
-                  : AppColors.textColor, // Change enabled border color
+              color: isDisabled ? Colors.grey : AppColors.textColor,
             ),
           ),
-          fillColor: isDisabled
-              ? AppColors.primaryColor
-              : AppColors.formFieldColor, // Change background color
+          fillColor:
+              isDisabled ? AppColors.primaryColor : AppColors.formFieldColor,
           filled: true,
         ),
       ),
@@ -760,8 +758,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     label: 'Name',
                                     onChanged: onUserNameChanged,
                                     validator: (value) {
-                                      return validateName(
-                                          value); 
+                                      return validateName(value);
                                     },
                                   ),
                                   dobPicker(
@@ -850,8 +847,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     label: 'Address',
                                     onChanged: onAddressChnaged,
                                     validator: (value) {
-                                      return validateAddress(
-                                          value); // Use the validateAddress function
+                                      return validateAddress(value);
                                     },
                                   ),
                                   InfoField(
@@ -861,7 +857,9 @@ class EditProfilePageState extends State<EditProfilePage> {
                                         : controller
                                             .userProfileUpdateRequest.city,
                                     label: 'City',
-                                    onChanged: onCityChanged,
+                                    onChanged: (value){
+                                      onCityChanged(value);
+                                    },
                                     validator: (value) {
                                       return validateCity(value);
                                     },
@@ -871,18 +869,26 @@ class EditProfilePageState extends State<EditProfilePage> {
                                       return Column(
                                         children: [
                                           buildTextFieldForLatLong(
-                                            controller: latitudeController,
                                             label: 'Latitude',
+                                            value: controller
+                                                .userProfileUpdateRequest
+                                                .latitude,
                                             onChanged: (value) {
-                                              onLatitudeChnage(value);
+                                             setState(() {
+                                                onLatitudeChnage(value);
+                                             });
                                             },
                                             isDisabled: true,
                                           ),
                                           buildTextFieldForLatLong(
-                                            controller: longitudeController,
                                             label: 'Longitude',
+                                            value: controller
+                                                .userProfileUpdateRequest
+                                                .longitude,
                                             onChanged: (value) {
-                                              onLongitudeChnage(value);
+                                              setState(() {
+                                                onLongitudeChnage(value);
+                                              });
                                             },
                                             isDisabled: true,
                                           ),
@@ -972,16 +978,14 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                                 .value = value;
 
                                                             final parsedGenderId =
-                                                              
-                                                                    value?.id ??
-                                                                        '';
+                                                                value?.id ?? '';
 
                                                             controller
                                                                     .userProfileUpdateRequest
                                                                     .gender =
                                                                 parsedGenderId
                                                                     .toString();
-                                                          
+
                                                             controller.fetchSubGender(
                                                                 SubGenderRequest(
                                                                     genderId:
@@ -1192,7 +1196,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                                           .indexWhere((preference) =>
                                               preference.id == p.preferenceId);
                                       if (index != -1) {
-                                        selectedPreferences.add(index.toString());
+                                        selectedPreferences
+                                            .add(index.toString());
                                         preferencesSelectedOptions[index] =
                                             true;
                                       }
@@ -1249,17 +1254,16 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                     if (preferencesSelectedOptions[
                                                         index]) {
                                                       selectedPreferences.add(
-                                                        controller
+                                                          controller
                                                               .preferences[
                                                                   index]
                                                               .id);
                                                     } else {
                                                       selectedPreferences
-                                                          .remove(
-                                                              controller
-                                                                  .preferences[
-                                                                      index]
-                                                                  .id);
+                                                          .remove(controller
+                                                              .preferences[
+                                                                  index]
+                                                              .id);
                                                     }
                                                   },
                                                   activeColor:
@@ -1453,8 +1457,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                                   i < preferencesSelectedOptions.length;
                                   i++) {
                                 if (preferencesSelectedOptions[i]) {
-                                  selectedPreferences.add(
-                                      controller.preferences[i].id);
+                                  selectedPreferences
+                                      .add(controller.preferences[i].id);
                                 }
                               }
                               controller.userProfileUpdateRequest.preferences =

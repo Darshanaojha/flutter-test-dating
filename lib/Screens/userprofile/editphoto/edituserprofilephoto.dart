@@ -29,7 +29,6 @@ class EditPhotosPageState extends State<EditPhotosPage> {
   void initState() {
     super.initState();
     intialize();
-
   }
 
   intialize() async {
@@ -323,7 +322,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
     if (updateProfilePhotoRequest.validate()) {
       controller.updateprofilephoto(updateProfilePhotoRequest);
     } else {
-      failure("FAILED","Please fill in all required fields.");
+      failure("FAILED", "Please fill in all required fields.");
     }
   }
 

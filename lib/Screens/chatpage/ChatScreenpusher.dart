@@ -196,12 +196,19 @@
 
 // ignore_for_file: unnecessary_null_comparison, unnecessary_type_check
 
+import 'dart:convert';
+import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/constants.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart'; // Add this for WebSocket support
+
+import '../../Models/RequestModels/send_message_request_model.dart';
 import '../../Models/ResponseModels/chat_history_response_model.dart';
+import '../../Models/ResponseModels/get_all_chat_history_page.dart';
 import '../../Providers/WebsocketService.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -227,21 +234,7 @@ class ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-
-    // Connect to WebSocket
     websocketService.connect(controller.token.value);
-
-    // Subscribe to private topic
-    // websocketService.subscribeToTopic('/user/queue/messages', (data) {
-    //   try {
-    //     final parsedData = jsonDecode(data) as Map<String,dynamic>;
-    //     setState(() {
-    //       controller.messages.add(Message.fromJson(parsedData));
-    //     });
-    //   } catch (e) {
-    //     print('Error parsing received message: $e');
-    //   }
-    // });
   }
 
   void _sendMessage() {

@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/chat_history_request_model.dart';
 import '../../constants.dart';
+
 import '../chatpage/ChatScreenpusher.dart';
 
 class ContactListScreen extends StatefulWidget {
@@ -42,7 +43,7 @@ class ContactListScreenState extends State<ContactListScreen> {
   List<UserConnections> getFilteredUsers() {
     return controller.userConnections
         .where((user) =>
-            user.name.toLowerCase().contains(searchQuery.toLowerCase()))
+            user.name!.toLowerCase().contains(searchQuery.toLowerCase()))
         .toList();
   }
 
@@ -126,7 +127,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                 'User ID: ${controller.userData.first.id}');
                             debugPrint(
                                 'Connection ID: ${connection.conectionId}');
-
+                            debugPrint('Connection Name: ${connection.name}');
                             ChatHistoryRequestModel chatHistoryRequestModel =
                                 ChatHistoryRequestModel(
                                     userId: connection.conectionId);
@@ -140,6 +141,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                 String? token = preferences.getString('token');
                                 if (token != null && token.isNotEmpty) {
                                   controller.token.value = token;
+
                                   Get.to(() => ChatScreen(
                                         senderId: controller.userData.first.id,
                                         receiverId: connection.conectionId,
@@ -159,17 +161,17 @@ class ContactListScreenState extends State<ContactListScreen> {
                                     MaterialPageRoute(
                                       builder: (context) => FullScreenImagePage(
                                         imageUrl: connection
-                                            .profileImage, // image URL
+                                            .profileImage!, // image URL
                                       ),
                                     ),
                                   );
                                 },
                                 child: Hero(
-                                  tag: connection.profileImage,
+                                  tag: connection.profileImage!,
                                   child: CircleAvatar(
                                     radius: 30.0,
                                     backgroundImage:
-                                        NetworkImage(connection.profileImage),
+                                        NetworkImage(connection.profileImage!),
                                   ),
                                 ),
                               ),
@@ -178,7 +180,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    connection.name,
+                                    connection.name!,
                                     style: AppTextStyles.customTextStyle(
                                         color: Colors.white),
                                   ),

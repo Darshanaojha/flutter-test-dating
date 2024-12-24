@@ -86,19 +86,19 @@ class Message {
 
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
-      id: json['id'] ?? '',
-      senderId: json['sender_id'] ?? '',
-      receiverId: json['receiver_id'] ?? '',
-      message: json['message'] ?? '',
-      messageType: json['message_type'] ?? '',
-      created: json['created'] ?? '',
-      updated: json['updated'] ?? '',
-      status: json['status'] ?? '',
-      deletedBySender: json['deleted_by_sender'] ?? '',
-      deletedByReceiver: json['deleted_by_receiver'] ?? '',
-      deletedAtSender: json['deleted_at_sender'] ?? '',
-      deletedAtReceiver: json['deleted_at_receiver'] ?? '',
-      isEdited: json['is_edited'] ?? '',
+      id: json['id'].toString(),
+      senderId: json['sender_id'].toString(),
+      receiverId: json['receiver_id'].toString(),
+      message: json['message'].toString(),
+      messageType: json['message_type'].toString(),
+      created: json['created'].toString(),
+      updated: json['updated'].toString(),
+      status: json['status'].toString(),
+      deletedBySender: json['deleted_by_sender'].toString(),
+      deletedByReceiver: json['deleted_by_receiver'].toString(),
+      deletedAtSender: json['deleted_at_sender'].toString(),
+      deletedAtReceiver: json['deleted_at_receiver'].toString(),
+      isEdited: json['is_edited'].toString(),
     );
   }
 
