@@ -143,12 +143,12 @@ class EditProfilePageState extends State<EditProfilePage> {
 
       preferencesSelectedOptions.value =
           List<bool>.filled(controller.preferences.length, false);
-      List<int> matchingIndexes = [];
+      List<String> matchingIndexes = [];
       for (var p in controller.userPreferences) {
         int index = controller.preferences
             .indexWhere((preference) => preference.id == p.preferenceId);
         if (index != -1) {
-          matchingIndexes.add(index);
+          matchingIndexes.add(index.toString());
           preferencesSelectedOptions[index] = true;
         }
       }
@@ -761,7 +761,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     onChanged: onUserNameChanged,
                                     validator: (value) {
                                       return validateName(
-                                          value); // Use the validateName function
+                                          value); 
                                     },
                                   ),
                                   dobPicker(
@@ -972,23 +972,16 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                                 .value = value;
 
                                                             final parsedGenderId =
-                                                                int.tryParse(
+                                                              
                                                                     value?.id ??
-                                                                        '');
+                                                                        '';
 
-                                                            if (parsedGenderId !=
-                                                                null) {
-                                                              controller
-                                                                      .userProfileUpdateRequest
-                                                                      .gender =
-                                                                  parsedGenderId
-                                                                      .toString();
-                                                            } else {
-                                                              controller
-                                                                  .userProfileUpdateRequest
-                                                                  .gender = '';
-                                                            }
-
+                                                            controller
+                                                                    .userProfileUpdateRequest
+                                                                    .gender =
+                                                                parsedGenderId
+                                                                    .toString();
+                                                          
                                                             controller.fetchSubGender(
                                                                 SubGenderRequest(
                                                                     genderId:
@@ -1193,13 +1186,13 @@ class EditProfilePageState extends State<EditProfilePage> {
                                               false);
                                     }
 
-                                    List<int> selectedPreferences = [];
+                                    List<String> selectedPreferences = [];
                                     for (var p in controller.userPreferences) {
                                       int index = controller.preferences
                                           .indexWhere((preference) =>
                                               preference.id == p.preferenceId);
                                       if (index != -1) {
-                                        selectedPreferences.add(index);
+                                        selectedPreferences.add(index.toString());
                                         preferencesSelectedOptions[index] =
                                             true;
                                       }
@@ -1256,17 +1249,17 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                     if (preferencesSelectedOptions[
                                                         index]) {
                                                       selectedPreferences.add(
-                                                          int.parse(controller
+                                                        controller
                                                               .preferences[
                                                                   index]
-                                                              .id));
+                                                              .id);
                                                     } else {
                                                       selectedPreferences
-                                                          .remove(int.parse(
+                                                          .remove(
                                                               controller
                                                                   .preferences[
                                                                       index]
-                                                                  .id));
+                                                                  .id);
                                                     }
                                                   },
                                                   activeColor:
@@ -1455,13 +1448,13 @@ class EditProfilePageState extends State<EditProfilePage> {
                                 print("select language");
                                 return;
                               }
-                              List<int> selectedPreferences = [];
+                              List<String> selectedPreferences = [];
                               for (int i = 0;
                                   i < preferencesSelectedOptions.length;
                                   i++) {
                                 if (preferencesSelectedOptions[i]) {
                                   selectedPreferences.add(
-                                      int.parse(controller.preferences[i].id));
+                                      controller.preferences[i].id);
                                 }
                               }
                               controller.userProfileUpdateRequest.preferences =
@@ -1599,17 +1592,6 @@ Widget buildDropdown<T>(
   String? Function(T?)? validator,
 }) {
   String? errorText;
-  void validateInput(T? value) {
-    if (validator != null) {
-      String? error = validator(value); // Run the validator
-      if (error != null) {
-        errorText = error; // If there's an error, update the error text
-      } else {
-        errorText = null; // Clear the error if valid
-      }
-    }
-  }
-
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8.0),
     child: DropdownButtonFormField<T>(
@@ -1711,10 +1693,7 @@ Widget buildRelationshipStatusInterestStep(
                                     color: AppColors.deniedColor,
                                   ),
                                   onDeleted: () {
-                                    // Remove the selected desire
                                     selectedDesires.remove(desire);
-
-                                    // Update selectedOptions for the corresponding index
                                     int index = controller.desires.indexWhere(
                                         (d) => d.id == desire.desiresId);
                                     if (index != -1) {
@@ -1886,7 +1865,7 @@ Widget buildRelationshipStatusInterestStep(
 final Controller controller = Get.put(Controller());
 
 RxList<String> selectedLanguages = <String>[].obs;
-RxList<int> selectedLanguagesId = <int>[].obs;
+RxList<String> selectedLanguagesId = <String>[].obs;
 RxString searchQuery = ''.obs;
 
 Widget languages(BuildContext context) {
@@ -1976,7 +1955,7 @@ void updateSelectedLanguageIds() {
   selectedLanguagesId.clear();
   for (int i = 0; i < controller.language.length; i++) {
     if (selectedLanguages.contains(controller.language[i].title)) {
-      selectedLanguagesId.add(int.parse(controller.language[i].id));
+      selectedLanguagesId.add(controller.language[i].id);
     }
   }
   controller.userProfileUpdateRequest.lang = selectedLanguagesId;

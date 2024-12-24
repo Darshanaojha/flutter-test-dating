@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import '../../constants.dart';
 import '../navigationbar/navigationpage.dart';
 
-
 class Unsubscribeuser extends StatefulWidget {
   const Unsubscribeuser({super.key});
 
@@ -90,8 +89,6 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
               ),
             );
           }
-
-          // If the data is successfully loaded
           if (snapshot.hasData && snapshot.data!) {
             return SingleChildScrollView(
               child: Padding(
@@ -102,29 +99,32 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
                   children: [
                     SizedBox(
                       height: 600,
-                      child: ListView.builder(
-                        scrollDirection: Axis.vertical,
-                        itemCount: controller.userPhotos!.images.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: GestureDetector(
-                              onTap: () => showFullImageDialog(
-                                context,
-                                controller.userPhotos!.images[index].toString(),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: Image.network(
-                                  controller.userPhotos!.images[index],
-                                  fit: BoxFit.cover,
-                                  width: 150,
-                                  height: 350,
+                      child: Scrollbar(
+                        child: ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          itemCount: controller.userPhotos!.images.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: GestureDetector(
+                                onTap: () => showFullImageDialog(
+                                  context,
+                                  controller.userPhotos!.images[index]
+                                      .toString(),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: Image.network(
+                                    controller.userPhotos!.images[index],
+                                    fit: BoxFit.cover,
+                                    width: 150,
+                                    height: 350,
+                                  ),
                                 ),
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
                     ),
                     SizedBox(height: 16),
@@ -134,7 +134,6 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
                         fontSize: fontSize,
                       ),
                     ),
-                    // Display the user's age and city
                     Row(
                       children: [
                         Text(
@@ -164,98 +163,105 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
                           ),
                         );
                       } else {
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: controller.packages.length,
-                          itemBuilder: (context, index) {
-                            final package = controller.packages[index];
-                            return GestureDetector(
-                              onTap: () {
-                                showPaymentConfirmationDialog(
-                                  context,
-                                  package.unit,
-                                  package.id,
-                                  '₹${package.offerAmount}',
-                                );
-                                controller.updateNewPackageRequestModel
-                                    .packageId = package.id;
-                                  
-                              },
-                              child: Stack(
-                                clipBehavior: Clip.none,
-                                children: [
-                                  Card(
-                                    elevation: 8,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    color: Colors.orange,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(24.0),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.calendar_today,
-                                            color: AppColors.iconColor,
-                                            size: fontSize,
-                                          ),
-                                          SizedBox(width: 10),
-                                          Expanded(
-                                            child: Text(
-                                              "${package.unit} Plan - ₹${package.offerAmount}",
-                                              style: AppTextStyles.bodyText
-                                                  .copyWith(
-                                                fontSize: fontSize - 2,
-                                                color: AppColors.textColor,
+                        return SizedBox(
+                          height: 200,
+                          child: Scrollbar(
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: controller.packages.length,
+                              itemBuilder: (context, index) {
+                                final package = controller.packages[index];
+                                return GestureDetector(
+                                  onTap: () {
+                                    showPaymentConfirmationDialog(
+                                      context,
+                                      package.unit,
+                                      package.id,
+                                      '₹${package.offerAmount}',
+                                    );
+                                    controller.updateNewPackageRequestModel
+                                        .packageId = package.id;
+                                  },
+                                  child: Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      Card(
+                                        elevation: 8,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        color: Colors.orange,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(24.0),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.calendar_today,
+                                                color: AppColors.iconColor,
+                                                size: fontSize,
                                               ),
-                                            ),
-                                          ),
-                                          Obx(() {
-                                            return Text(
-                                              selectedPlan.value == package.unit
-                                                  ? 'Selected'
-                                                  : 'Select',
-                                              style: AppTextStyles.bodyText
-                                                  .copyWith(
-                                                fontSize: fontSize - 2,
-                                                color: selectedPlan.value ==
-                                                        package.unit
-                                                    ? AppColors.buttonColor
-                                                    : AppColors.formFieldColor,
+                                              SizedBox(width: 10),
+                                              Expanded(
+                                                child: Text(
+                                                  "${package.unit} Plan - ₹${package.offerAmount}",
+                                                  style: AppTextStyles.bodyText
+                                                      .copyWith(
+                                                    fontSize: fontSize - 2,
+                                                    color: AppColors.textColor,
+                                                  ),
+                                                ),
                                               ),
-                                            );
-                                          }),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    top: 4,
-                                    right: 2,
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                          vertical: 4, horizontal: 6),
-                                      decoration: BoxDecoration(
-                                        color: Colors.red,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        '20% OFF',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: fontSize - 6,
-                                          fontWeight: FontWeight.bold,
+                                              Obx(() {
+                                                return Text(
+                                                  selectedPlan.value ==
+                                                          package.unit
+                                                      ? 'Selected'
+                                                      : 'Select',
+                                                  style: AppTextStyles.bodyText
+                                                      .copyWith(
+                                                    fontSize: fontSize - 2,
+                                                    color: selectedPlan.value ==
+                                                            package.unit
+                                                        ? AppColors.buttonColor
+                                                        : AppColors
+                                                            .formFieldColor,
+                                                  ),
+                                                );
+                                              }),
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ),
+                                      Positioned(
+                                        top: 4,
+                                        right: 2,
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 4, horizontal: 6),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          child: Text(
+                                            '20% OFF',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: fontSize - 6,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            );
-                          },
+                                );
+                              },
+                            ),
+                          ),
                         );
-                        
                       }
                     }),
                   ],
@@ -276,13 +282,11 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
 
   Future<void> showPaymentConfirmationDialog(BuildContext context,
       String planType, String planId, String amount) async {
-        controller.updateNewPackageRequestModel
-                                    .packageId = planId;
-    double fontSize = MediaQuery.of(context).size.width *
-        0.03; // Adjust font size based on screen size
+    controller.updateNewPackageRequestModel.packageId = planId;
+    double fontSize = MediaQuery.of(context).size.width * 0.03;
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // Prevent dismissal by tapping outside
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
@@ -292,59 +296,60 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
               color: AppColors.textColor,
             ),
           ),
-          content: SingleChildScrollView(
-            // Make the content scrollable
-            child: Column(
-              mainAxisSize: MainAxisSize
-                  .min, // Ensure the column size adjusts to the content
-              children: [
-                Text(
-                  "Do you want to subscribe to the $planType plan for $amount?",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: fontSize - 2,
-                    color: AppColors.textColor,
-                  ),
+          content: SizedBox(
+            height: 200,
+            child: Scrollbar(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Do you want to subscribe to the $planType plan for $amount?",
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: fontSize - 2,
+                        color: AppColors.textColor,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      controller.headlines.isNotEmpty
+                          ? controller.headlines[10].title
+                          : "Loading Title...",
+                      style: AppTextStyles.titleText.copyWith(
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textColor,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      controller.headlines.isNotEmpty
+                          ? controller.headlines[10].description
+                          : "Loading Title...",
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: fontSize - 2,
+                        color: AppColors.textColor,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      "Additional information about the plan can go here.",
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: fontSize - 2,
+                        color: AppColors.textColor,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      "Terms and conditions for the plan can also be shown here.",
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: fontSize - 2,
+                        color: AppColors.textColor,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 16),
-                Text(
-                  controller.headlines.isNotEmpty
-                      ? controller.headlines[10].title
-                      : "Loading Title...",
-                  style: AppTextStyles.titleText.copyWith(
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textColor,
-                  ),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  controller.headlines.isNotEmpty
-                      ? controller.headlines[10].description
-                      : "Loading Title...",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: fontSize - 2,
-                    color: AppColors.textColor,
-                  ),
-                ),
-                SizedBox(height: 10),
-                // Add other widgets or content here as per your requirements
-                Text(
-                  "Additional information about the plan can go here.",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: fontSize - 2,
-                    color: AppColors.textColor,
-                  ),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  "Terms and conditions for the plan can also be shown here.",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: fontSize - 2,
-                    color: AppColors.textColor,
-                  ),
-                ),
-                // Add more widgets or content as necessary
-              ],
+              ),
             ),
           ),
           actions: <Widget>[

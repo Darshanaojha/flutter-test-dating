@@ -323,7 +323,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     double labelfontSize = screenSize.width * 0.03;
     double inputTextFontSize = screenSize.width * 0.045;
     TextEditingController nicknameController = TextEditingController(
-      text: controller.userRegistrationRequest.nickname ?? '',
+      text: controller.userRegistrationRequest.nickname,
     );
     return Card(
       elevation: 8,
@@ -482,14 +482,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                   selectedGender.value = value;
                                   final parsedGenderId = value?.id ?? '';
 
-                                  if (parsedGenderId != null) {
-                                    controller.userRegistrationRequest.gender =
-                                        parsedGenderId.toString();
-                                  } else {
-                                    controller.userRegistrationRequest.gender =
-                                        '';
-                                  }
-                                  controller.fetchSubGender(SubGenderRequest(
+                                  controller.userRegistrationRequest.gender =
+                                      parsedGenderId;
+                                                                  controller.fetchSubGender(SubGenderRequest(
                                       genderId: parsedGenderId));
                                 },
                                 activeColor: AppColors.buttonColor,
@@ -1670,15 +1665,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       );
     }
 
-    // onChange callback function
-    void onChange(String permissionType, bool granted) {
-      if (permissionType == 'notification') {
-        print(
-            "Notification permission changed: ${granted ? 'Granted' : 'Denied'}");
-      } else if (permissionType == 'location') {
-        print("Location permission changed: ${granted ? 'Granted' : 'Denied'}");
-      }
-    }
 
     double fontSize = screenSize.width * 0.03;
 

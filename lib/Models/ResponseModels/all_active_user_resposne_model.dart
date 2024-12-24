@@ -9,7 +9,6 @@ class AllActiveUsersResponse {
     required this.error,
   });
 
-  // Factory constructor to create AllActiveUsersResponse from JSON
   factory AllActiveUsersResponse.fromJson(Map<String, dynamic> json) {
     return AllActiveUsersResponse(
       success: json['success'],
@@ -18,7 +17,6 @@ class AllActiveUsersResponse {
     );
   }
 
-  // Method to convert AllActiveUsersResponse object to JSON
   Map<String, dynamic> toJson() {
     return {
       'success': success,
@@ -46,7 +44,6 @@ class AllActiveUsersPayload {
     );
   }
 
-  // Method to convert AllActiveUsersPayload object to JSON
   Map<String, dynamic> toJson() {
     return {
       'message': message,
@@ -72,7 +69,6 @@ class UserDetails {
     required this.subGenderNm,
   });
 
-  // Factory constructor to create UserDetails from JSON
   factory UserDetails.fromJson(Map<String, dynamic> json) {
     return UserDetails(
       id: json['id'],
@@ -84,7 +80,6 @@ class UserDetails {
     );
   }
 
-  // Method to convert UserDetails object to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -106,15 +101,13 @@ class ApiError {
     required this.message,
   });
 
-  // Factory constructor to create ApiError from JSON
   factory ApiError.fromJson(Map<String, dynamic> json) {
     return ApiError(
       code: json['code'],
-      message: json['message'] ?? '', // Default to an empty string if message is null
+      message: json['message'] ?? '', 
     );
   }
 
-  // Method to convert ApiError object to JSON
   Map<String, dynamic> toJson() {
     return {
       'code': code,

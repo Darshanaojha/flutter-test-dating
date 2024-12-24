@@ -11,7 +11,6 @@ import 'package:http/http.dart' as http;
 import '../../../Controllers/controller.dart';
 import '../../../Models/RequestModels/update_profile_photo_request_model.dart';
 import '../../../constants.dart';
-import '../userprofilepage.dart';
 
 class EditPhotosPage extends StatefulWidget {
   const EditPhotosPage({super.key});

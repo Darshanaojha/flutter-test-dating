@@ -1,4 +1,3 @@
-import 'package:dating_application/Models/ResponseModels/update_emailid_otp_verification_response_model.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

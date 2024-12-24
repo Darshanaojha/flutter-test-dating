@@ -89,73 +89,73 @@ class UserProfileUpdateRequest {
   }
 
   bool validate() {
-    if (name.isEmpty || name == null) {
+    if (name.isEmpty) {
       failure('Name is required', 'Please provide your name.');
       return false;
     }
-    if (latitude.isEmpty || latitude == null) {
+    if (latitude.isEmpty) {
       failure('Latitude is required', 'Please provide your latitude.');
       return false;
     }
-    if (longitude.isEmpty || longitude == null) {
+    if (longitude.isEmpty) {
       failure('Longitude is required', 'Please provide your longitude.');
       return false;
     }
-    if (address.isEmpty || address == null) {
+    if (address.isEmpty) {
       failure('Address is required', 'Please provide your address.');
       return false;
     }
-    if (countryId.isEmpty || countryId == null) {
+    if (countryId.isEmpty) {
       failure('Country is required', 'Please select your country.');
       return false;
     }
-    if (city.isEmpty || city == null) {
+    if (city.isEmpty) {
       failure('City is required', 'Please provide your city.');
       return false;
     }
-    if (dob.isEmpty || dob == null) {
+    if (dob.isEmpty) {
       failure(
           'Date of Birth is required', 'Please provide your date of birth.');
       return false;
     }
-    if (nickname.isEmpty || nickname == null) {
+    if (nickname.isEmpty) {
       failure('Nickname is required', 'Please provide a nickname.');
       return false;
     }
-    if (gender.isEmpty || gender == null) {
+    if (gender.isEmpty) {
       failure('Gender is required', 'Please select your gender.');
       return false;
     }
-    if (subGender.isEmpty || subGender == null) {
+    if (subGender.isEmpty) {
       failure('Sub-Gender is required', 'Please provide your sub-gender.');
       return false;
     }
-    if (lang.isEmpty || lang == null) {
+    if (lang.isEmpty) {
       failure('Language is required', 'Please select your languages.');
       return false;
     }
-    if (interest.isEmpty || interest == null) {
+    if (interest.isEmpty) {
       failure('Interest is required', 'Please provide your interest.');
       return false;
     }
-    if (bio.isEmpty || bio == null) {
+    if (bio.isEmpty) {
       failure('Bio is required', 'Please provide a short bio.');
       return false;
     }
-    if (visibility.isEmpty || visibility == null) {
+    if (visibility.isEmpty) {
       failure('Visibility is required', 'Please choose your visibility.');
       return false;
     }
-    if (emailAlerts.isEmpty || emailAlerts == null) {
+    if (emailAlerts.isEmpty) {
       failure('Email Alerts is required',
           'Please select your email alert preferences.');
       return false;
     }
-    if (preferences.isEmpty || preferences == null) {
+    if (preferences.isEmpty) {
       failure('Preferences are required', 'Please set your preferences.');
       return false;
     }
-    if (desires.isEmpty || desires == null) {
+    if (desires.isEmpty) {
       failure('Desires are required', 'Please set your desires.');
       return false;
     }

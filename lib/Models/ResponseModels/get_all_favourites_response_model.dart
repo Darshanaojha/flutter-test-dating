@@ -103,7 +103,7 @@ class Favourite {
       name: json['name'],
       username: json['username'],
       city : json['city'],
-      images: images,  // Add images list to the object
+      images: images,  
     );
   }
 

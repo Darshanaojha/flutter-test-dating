@@ -1,8 +1,6 @@
 import 'dart:convert';
-import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
-
 import '../Controllers/controller.dart';
 import '../Models/ResponseModels/chat_history_response_model.dart';
 
@@ -12,14 +10,12 @@ class WebSocketService {
   late StompClient _stompClient;
   bool _isConnected = false;
 
-  /// External callbacks for message handling and other events.
   Function(Map<String, dynamic>)? onMessageReceived;
 
   factory WebSocketService() => _instance;
 
   WebSocketService._internal();
 
-  /// Initialize and connect to the WebSocket server.
   Future<void> connect(String token) async {
     if (_isConnected) {
       print("Already connected to WebSocket.");
@@ -56,8 +52,8 @@ class WebSocketService {
 
     _isConnected = true;
     print(
-        'subscribed to the topic ${'/user/${controller.userData.first.id}/queue/messages'}');
-    subscribeToTopic('/user/${controller.userData.first.id}/queue/messages',
+        'subscribed to the topic ${'/topic/test'}');
+    subscribeToTopic('/topic/${controller.userData.first.id}',
         (data) {
       try {
         final parsedData = jsonDecode(data) as Map<String, dynamic>;
@@ -69,7 +65,6 @@ class WebSocketService {
     });
   }
 
-  /// Subscribe to a topic for receiving messages.
   void subscribeToTopic(String topic, Function(String) onMessage) {
     if (!_isConnected) {
       print('Cannot subscribe. Not connected to WebSocket.');
@@ -90,7 +85,6 @@ class WebSocketService {
     );
   }
 
-  /// Send a message to the WebSocket server.
   void sendMessage(String destination, Map<String, dynamic> message) async {
     if (!_isConnected) {
       print('Cannot send message. Not connected to WebSocket.');
@@ -106,7 +100,6 @@ class WebSocketService {
     );
   }
 
-  /// Disconnect from the WebSocket server.
   void disconnect() {
     if (_isConnected) {
       _stompClient.deactivate();
@@ -115,6 +108,5 @@ class WebSocketService {
     }
   }
 
-  /// Check connection status.
   bool isConnected() => _isConnected;
 }

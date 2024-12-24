@@ -23,7 +23,6 @@ class Gender {
   }
 }
 
-// Payload Model
 class Payload {
   final String msg;
   final List<Gender> data;
@@ -50,7 +49,6 @@ class Payload {
   }
 }
 
-// Error Model
 class Error {
   final int code;
   final String message;
@@ -75,7 +73,6 @@ class Error {
   }
 }
 
-// Full Response Model
 class GenderResponse {
   final bool success;
   final Payload payload;

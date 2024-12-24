@@ -336,33 +336,6 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                                 return;
                               }
 
-                              String? validateSelection(dynamic value) {
-                                if (value == null) {
-                                  failure('', 'Country cannot be empty');
-                                  return 'Please select a value';
-                                }
-                                return null;
-                              }
-
-                              void validatePassword(String password) {
-                                if (password.length < 8) {
-                                  failure("Password",
-                                      "Password must be at least 8 characters long.");
-                                  return;
-                                }
-
-                                final hasDigit =
-                                    RegExp(r'[0-9]').hasMatch(password);
-                                final hasSpecialChar =
-                                    RegExp(r'[!@#$%^&*(),.?":{}|<>]')
-                                        .hasMatch(password);
-                                if (!hasDigit || !hasSpecialChar) {
-                                  failure("Password",
-                                      "Password must contain at least one digit and one special character.");
-                                  return;
-                                }
-                              }
-
                               Get.to(MultiStepFormPage());
                               success(
                                   'Success', 'Form submitted successfully!');

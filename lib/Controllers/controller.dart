@@ -82,7 +82,6 @@ import '../Models/ResponseModels/app_details_response_model.dart';
 import '../Models/ResponseModels/app_setting_response_model.dart';
 import '../Models/ResponseModels/block_user_response_model.dart';
 import '../Models/ResponseModels/chat_history_response_model.dart';
-import '../Models/ResponseModels/connected_user_response_model.dart';
 import '../Models/ResponseModels/delete_message_response_model.dart';
 import '../Models/ResponseModels/edit_message_response_model.dart';
 import '../Models/ResponseModels/establish_connection_response_model.dart';
@@ -156,7 +155,6 @@ import '../Providers/user_suggestions_provider.dart';
 import '../Providers/usernameupdate_provider.dart';
 import '../Providers/verify_account_provider.dart';
 import '../Screens/login.dart';
-import '../Screens/loginforgotpassword/forgotpaswordenter.dart';
 import '../Screens/register_subpag/registerdetails.dart';
 import '../Screens/register_subpag/registrationotp.dart';
 import '../Screens/settings/updateemailid/updateemailotpverification.dart';
@@ -1637,9 +1635,9 @@ class Controller extends GetxController {
       likespage.clear();
       GetAllLikesResponse? response =
           await FetchLikesPageProvider().likespageprovider();
-      if (response != null && response.payload != null) {
+      if (response != null) {
         success('Success', response.payload.message);
-        if (response.payload.data != null && response.payload.data.isNotEmpty) {
+        if (response.payload.data.isNotEmpty) {
           likespage.addAll(response.payload.data);
 
           return true;
@@ -1685,9 +1683,9 @@ class Controller extends GetxController {
       GetAllRequestPingMessageResponse? response =
           await FetchAllRequestMessageProvider()
               .fetchallrequestmessageprovider();
-      if (response != null && response.payload != null) {
+      if (response != null) {
         success('Success', response.payload.message);
-        if (response.payload.data != null && response.payload.data.isNotEmpty) {
+        if (response.payload.data.isNotEmpty) {
           messageRequest.addAll(response.payload.data);
 
           return true;

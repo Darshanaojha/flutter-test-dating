@@ -5,7 +5,6 @@ class ConnectedUserResponseModel {
 
   ConnectedUserResponseModel({this.success, this.payload, this.error});
 
-  // Factory method to create an ApiResponse instance from JSON
   factory ConnectedUserResponseModel.fromJson(Map<String, dynamic> json) {
     return ConnectedUserResponseModel(
       success: json['success'],
@@ -15,7 +14,7 @@ class ConnectedUserResponseModel {
     );
   }
 
-  // Method to convert an ApiResponse instance to JSON
+ 
   Map<String, dynamic> toJson() {
     return {
       'success': success,
@@ -31,7 +30,6 @@ class Payload {
 
   Payload({this.message, this.data});
 
-  // Factory method to create a Payload instance from JSON
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
       message: json['message'],
@@ -86,7 +84,6 @@ class Connection {
     );
   }
 
-  // Method to convert a UserData instance to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -108,7 +105,6 @@ class Error {
 
   Error({this.code, this.message});
 
-  // Factory method to create an ErrorDetails instance from JSON
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
       code: json['code'],
@@ -116,7 +112,6 @@ class Error {
     );
   }
 
-  // Method to convert an ErrorDetails instance to JSON
   Map<String, dynamic> toJson() {
     return {
       'code': code,
