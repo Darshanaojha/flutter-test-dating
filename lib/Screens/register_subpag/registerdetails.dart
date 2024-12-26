@@ -18,6 +18,7 @@ class RegisterProfilePage extends StatefulWidget {
 
 class RegisterProfilePageState extends State<RegisterProfilePage>
     with TickerProviderStateMixin {
+  final controller = Get.find<Controller>();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   String? selectedState;
   RxBool isLatLongFetched = false.obs;
@@ -26,8 +27,8 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
   late AnimationController animationController;
   late Animation<double> fadeInAnimation;
 
-  Country? selectedCountry;
-  final controller = Get.find<Controller>();
+  Country selectedCountry = Country(
+      id: '', name: '', countryCode: '', status: '', created: '', updated: '');
   TextEditingController confirmPassword = TextEditingController();
   Timer? debounce;
   @override
@@ -212,73 +213,44 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                             );
                           }
 
-                          return buildDropdown<Country>(
+                          return buildSelectableFieldCountry<Country>(
                             "Country",
                             controller.countries,
                             selectedCountry,
                             16.0,
                             (Country? value) {
-                              controller.userRegistrationRequest.countryId =
-                                  value?.id ?? '';
+                              setState(() {
+                                controller.userRegistrationRequest.countryId =
+                                    value?.id ?? '';
+                              });
                             },
                             displayValue: (Country country) => country.name,
                           );
                         }),
 
-                        DropdownButtonFormField<String>(
-                          value: controller
-                                  .userRegistrationRequest.lookingFor.isEmpty
+                        buildSelectableFieldRelationship<String>(
+                          "Relationship Type",
+                          ['1', '2'],
+                          controller.userRegistrationRequest.lookingFor.isEmpty
                               ? null
                               : controller.userRegistrationRequest.lookingFor,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please select a relationship type';
-                            }
-                            return null;
-                          },
-                          decoration: InputDecoration(
-                            labelText: 'Relationship Type',
-                            labelStyle: AppTextStyles.labelText
-                                .copyWith(fontSize: fontSize),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(color: AppColors.textColor),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
-                            ),
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: '1',
-                              child: Text(
-                                'Serious Relationship',
-                                style: AppTextStyles.bodyText
-                                    .copyWith(fontSize: fontSize),
-                              ),
-                            ),
-                            DropdownMenuItem(
-                              value: '2',
-                              child: Text(
-                                'Hookup',
-                                style: AppTextStyles.bodyText
-                                    .copyWith(fontSize: fontSize),
-                              ),
-                            ),
-                          ],
-                          onChanged: (value) {
-                            if (value != null) {
+                          fontSize,
+                          (String? value) {
+                            setState(() {
                               controller.userRegistrationRequest.lookingFor =
-                                  value;
-                            }
+                                  value ?? '';
+                            });
                           },
-                          iconEnabledColor: AppColors.textColor,
-                          iconDisabledColor: AppColors.disabled,
+                          displayValue: (String value) {
+                            if (value == '1') {
+                              return 'Serious Relationship';
+                            } else if (value == '2') {
+                              return 'Hookup';
+                            }
+                            return '';
+                          },
                         ),
+
                         // City Field
                         buildTextField(
                           "City",
@@ -655,7 +627,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     return null;
   }
 
-  Widget buildDropdown<T>(
+  Widget buildSelectableFieldCountry<T>(
     String label,
     List<T> items,
     T? selectedValue,
@@ -665,37 +637,159 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: DropdownButtonFormField<T>(
-        value: selectedValue,
-        items: items.map((T value) {
-          return DropdownMenuItem<T>(
-            value: value,
-            child: Text(
-              displayValue != null ? displayValue(value) : value.toString(),
-              style: AppTextStyles.textStyle.copyWith(fontSize: fontSize),
+      child: GestureDetector(
+        onTap: () =>
+            showBottomSheet<T>(items, selectedValue, onChanged, displayValue),
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: AppColors.formFieldColor),
+              borderRadius: BorderRadius.circular(8),
             ),
-          );
-        }).toList(),
-        onChanged: onChanged,
-        validator: validateSelection,
-        menuMaxHeight: 200,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
-          border: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColors.formFieldColor),
-            borderRadius: BorderRadius.circular(8),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.white),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.white),
+            ),
           ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white),
+          child: Text(
+             "Select $label",
+            style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
           ),
         ),
-        style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
-        dropdownColor: AppColors.secondaryColor,
       ),
+    );
+  }
+
+  void showBottomSheet<T>(
+    List<T> items,
+    T? selectedValue,
+    Function(T?) onChanged,
+    String Function(T)? displayValue,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Text("Select Country",
+                  style: Theme.of(context).textTheme.bodySmall),
+              SizedBox(height: 8.0),
+              Expanded(
+                child: SizedBox(
+                  height: 400,
+                  child: Scrollbar(
+                    child: ListView.builder(
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        T item = items[index];
+                        return ListTile(
+                          title: Text(displayValue != null
+                              ? displayValue(item)
+                              : item.toString()),
+                          onTap: () {
+                            setState(() {
+                              selectedCountry = item as Country;
+                              onChanged(item);
+                            });
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget buildSelectableFieldRelationship<T>(
+    String label,
+    List<T> items,
+    T? selectedValue,
+    double fontSize,
+    Function(T?) onChanged, {
+    String Function(T)? displayValue,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: GestureDetector(
+        onTap: () =>
+            _showBottomSheet<T>(items, selectedValue, onChanged, displayValue),
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: AppColors.textColor),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.white),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.white),
+            ),
+          ),
+          child: Text(
+            selectedValue != null
+                ? displayValue!(selectedValue)
+                : "Select $label",
+            style: AppTextStyles.bodyText.copyWith(fontSize: fontSize),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Method to show the bottom sheet
+  void _showBottomSheet<T>(
+    List<T> items,
+    T? selectedValue,
+    Function(T?) onChanged,
+    String Function(T)? displayValue,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Text("Select $selectedValue",
+                  style: Theme.of(context).textTheme.bodySmall),
+              SizedBox(height: 8.0),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    T item = items[index];
+                    return ListTile(
+                      title: Text(displayValue != null
+                          ? displayValue(item)
+                          : item.toString()),
+                      onTap: () {
+                        onChanged(item);
+                        Navigator.pop(
+                            context); // Close the bottom sheet after selection
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

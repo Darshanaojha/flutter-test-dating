@@ -34,13 +34,18 @@ class RazorpayController extends GetxController {
   void openPayment(double totalAmount, String name, String description,
       String contact, String email) {
     var options = {
-       'key': RazorpayKeys.RAZORPAYKEYID,
+      'key': RazorpayKeys.RAZORPAYKEYID,
       'amount': (totalAmount * 100).toInt(), // Amount in paise
       'name': name,
       'description': description,
       'prefill': {
         'contact': contact,
         'email': email,
+      },
+      'method': {
+        'upi': {
+          'flow': 'qr',
+        }
       },
     };
 

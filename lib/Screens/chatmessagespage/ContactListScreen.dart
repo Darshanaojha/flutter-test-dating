@@ -43,7 +43,7 @@ class ContactListScreenState extends State<ContactListScreen> {
   List<UserConnections> getFilteredUsers() {
     return controller.userConnections
         .where((user) =>
-            user.name!.toLowerCase().contains(searchQuery.toLowerCase()))
+            user.name.toLowerCase().contains(searchQuery.toLowerCase()))
         .toList();
   }
 
@@ -80,8 +80,6 @@ class ContactListScreenState extends State<ContactListScreen> {
                   ),
                 ),
                 SizedBox(height: 20),
-
-                // Row with number of members and Ping button
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -110,8 +108,6 @@ class ContactListScreenState extends State<ContactListScreen> {
                   ],
                 ),
                 SizedBox(height: 20),
-
-                // ListView of contacts
                 Expanded(
                   child: ListView.builder(
                     itemCount: getFilteredUsers().length,
@@ -153,7 +149,6 @@ class ContactListScreenState extends State<ContactListScreen> {
                           },
                           child: Row(
                             children: [
-                              // GestureDetector for profile image
                               GestureDetector(
                                 onTap: () {
                                   Navigator.push(
@@ -161,17 +156,17 @@ class ContactListScreenState extends State<ContactListScreen> {
                                     MaterialPageRoute(
                                       builder: (context) => FullScreenImagePage(
                                         imageUrl: connection
-                                            .profileImage!, // image URL
+                                            .profileImage, // image URL
                                       ),
                                     ),
                                   );
                                 },
                                 child: Hero(
-                                  tag: connection.profileImage!,
+                                  tag: connection.profileImage,
                                   child: CircleAvatar(
                                     radius: 30.0,
                                     backgroundImage:
-                                        NetworkImage(connection.profileImage!),
+                                        NetworkImage(connection.profileImage),
                                   ),
                                 ),
                               ),
@@ -180,7 +175,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    connection.name!,
+                                    connection.name,
                                     style: AppTextStyles.customTextStyle(
                                         color: Colors.white),
                                   ),

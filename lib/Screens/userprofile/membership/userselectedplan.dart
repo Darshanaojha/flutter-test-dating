@@ -108,17 +108,10 @@ class PlanPageState extends State<PlanPage> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      "User ID:",
-                                      style: AppTextStyles.textStyle.copyWith(
-                                        fontSize: getResponsiveFontSize(context, 0.03),
-                                        color: Colors.white70,  // Slightly faded white
-                                      ),
-                                    ),
-                                    Text(
                                       controller.subscripted[index].userId,
                                       style: AppTextStyles.textStyle.copyWith(
                                         fontSize: getResponsiveFontSize(context, 0.03),
-                                        color: Colors.white,  // White text
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ],
@@ -131,14 +124,14 @@ class PlanPageState extends State<PlanPage> {
                                       "Days:",
                                       style: AppTextStyles.textStyle.copyWith(
                                         fontSize: getResponsiveFontSize(context, 0.03),
-                                        color: Colors.white70,  // Slightly faded white
+                                        color: Colors.white70, 
                                       ),
                                     ),
                                     Text(
                                       controller.subscripted[index].days.toString(),
                                       style: AppTextStyles.textStyle.copyWith(
                                         fontSize: getResponsiveFontSize(context, 0.03),
-                                        color: Colors.white,  // White text
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ],
@@ -151,14 +144,14 @@ class PlanPageState extends State<PlanPage> {
                                       "Actual Amount:",
                                       style: AppTextStyles.textStyle.copyWith(
                                         fontSize: getResponsiveFontSize(context, 0.03),
-                                        color: Colors.white70,  // Slightly faded white
+                                        color: Colors.white70, 
                                       ),
                                     ),
                                     Text(
                                       "₹${controller.subscripted[index].actualAmount}",
                                       style: AppTextStyles.subheadingText.copyWith(
                                         fontSize: getResponsiveFontSize(context, 0.03),
-                                        color: Colors.white,  // White text
+                                        color: Colors.white,  
                                       ),
                                     ),
                                   ],
@@ -171,14 +164,14 @@ class PlanPageState extends State<PlanPage> {
                                       "Offer Amount:",
                                       style: AppTextStyles.textStyle.copyWith(
                                         fontSize: getResponsiveFontSize(context, 0.03),
-                                        color: Colors.white70,  // Slightly faded white
+                                        color: Colors.white70,  
                                       ),
                                     ),
                                     Text(
                                       "₹${controller.subscripted[index].offerAmount}",
                                       style: AppTextStyles.subheadingText.copyWith(
                                         fontSize: getResponsiveFontSize(context, 0.03),
-                                        color: Colors.white,  // White text
+                                        color: Colors.white,  
                                       ),
                                     ),
                                   ],
@@ -192,7 +185,7 @@ class PlanPageState extends State<PlanPage> {
                                       fontSize: getResponsiveFontSize(context, 0.03),
                                       color: controller.subscripted[index].status == '1' 
                                         ? Colors.greenAccent 
-                                        : Colors.redAccent,  // Green for active, red for inactive
+                                        : Colors.redAccent, 
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -221,7 +214,7 @@ class PlanPageState extends State<PlanPage> {
                         print("Upgrade Package button pressed");
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,  // Blue color for the button
+                        backgroundColor: Colors.blue,
                         padding: EdgeInsets.symmetric(vertical: 14.0),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
@@ -232,7 +225,7 @@ class PlanPageState extends State<PlanPage> {
                         'Click to Upgrade Your Package',
                         style: AppTextStyles.headingText.copyWith(
                           fontSize: getResponsiveFontSize(context, 0.04),
-                          color: Colors.white,  // White text color on the button
+                          color: Colors.white,  
                         ),
                       ),
                     ),

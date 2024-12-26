@@ -75,7 +75,19 @@ class PricingPageState extends State<PricingPage> {
                       onPressed: () {
                         showBenefitsBottomSheet(context);
                       },
-                      child: Text('Click Benefits'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        padding: EdgeInsets.symmetric(
+                            vertical: 14.0, horizontal: 14.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        elevation: 5,
+                      ),
+                      child: Text(
+                        'Click Benefits',
+                        selectionColor: AppColors.FavouriteColor,
+                      ),
                     ),
                   ),
                   SizedBox(height: 50),
@@ -93,84 +105,99 @@ class PricingPageState extends State<PricingPage> {
     double cardWidth = MediaQuery.of(context).size.width * 0.4;
 
     return Padding(
-      padding:
-          EdgeInsets.symmetric(vertical: 22), // Vertical padding to add space
+      padding: EdgeInsets.symmetric(vertical: 22),
       child: Column(
         children: [
           Obx(() {
-            return ListView.builder(
-              shrinkWrap: true,
-              itemCount: controller.packages.length,
-              itemBuilder: (context, index) {
-                final package = controller.packages[index];
-                double offerPercentage = calculateOfferPercentage(
-                    package.actualAmount, package.offerAmount);
+            return SizedBox(
+              height: 500,
+              child: Scrollbar(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: controller.packages.length,
+                  itemBuilder: (context, index) {
+                    final package = controller.packages[index];
+                    double offerPercentage = calculateOfferPercentage(
+                        package.actualAmount, package.offerAmount);
 
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        planId.value = package.id;
-                        selectedPlan.value = package.id;
-                      });
-                      showPaymentConfirmationDialog(context, planId.value,offerPercentage,);
-                    },
-                    child: Obx(() {
-                      bool isSelected = selectedPlan.value == package.id;
-                      return Container(
-                        width: cardWidth,
-                        margin: EdgeInsets.only(bottom: 16),
-                        child: Card(
-                          elevation:
-                              6, // Reduced elevation for a flatter card appearance
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                10), // Smaller border radius
-                          ),
-                          color: isSelected
-                              ? Colors.green.shade500
-                              : Colors.grey,
-                          child: Padding(
-                            padding: const EdgeInsets.all(
-                                10.0), // Reduced padding inside the card
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.calendar_today,
-                                  color: AppColors.iconColor,
-                                  size: fontSize * 1.5, // Adjusted icon size
-                                ),
-                                SizedBox(
-                                    width:
-                                        8), // Reduced spacing between icon and text
-                                Expanded(
-                                  child: Text(
-                                    "${package.unit} Plan - ₹${package.offerAmount}",
-                                    style: AppTextStyles.bodyText.copyWith(
-                                      fontSize:
-                                          fontSize - 4, // Reduced font size
-                                      color: AppColors.textColor,
+                    return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            planId.value = package.id;
+                            selectedPlan.value = package.id;
+                          });
+                          showPaymentConfirmationDialog(
+                            context,
+                            planId.value,
+                            offerPercentage,
+                          );
+                        },
+                        child: Obx(() {
+                          bool isSelected = selectedPlan.value == package.id;
+                          return Container(
+                            width: cardWidth,
+                            margin: EdgeInsets.only(bottom: 16),
+                            child: Card(
+                              elevation:
+                                  6, // Reduced elevation for a flatter card appearance
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    10), // Smaller border radius
+                              ),
+                              color: isSelected
+                                  ? Colors.green.shade500
+                                  : Colors.grey,
+                              child: Padding(
+                                padding: const EdgeInsets.all(
+                                    10.0), // Reduced padding inside the card
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_today,
+                                      color: AppColors.iconColor,
+                                      size:
+                                          fontSize * 1.5, // Adjusted icon size
                                     ),
-                                  ),
+                                    SizedBox(
+                                        width:
+                                            8), // Reduced spacing between icon and text
+                                    Expanded(
+                                      child: Text(
+                                        "${package.unit} Plan  ₹${package.offerAmount}",
+                                        style: AppTextStyles.bodyText.copyWith(
+                                          fontSize:
+                                              fontSize - 4, // Reduced font size
+                                          color: AppColors.textColor,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      "${offerPercentage.toStringAsFixed(0)}% OFF",
+                                      style: AppTextStyles.bodyText.copyWith(
+                                        fontSize: fontSize -
+                                            2, // Reduced font size for offer
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                    IconButton(
+                                        onPressed: () {
+                                          showBenefitsBottomSheet(context);
+                                        },
+                                        icon: Icon(Icons
+                                            .arrow_drop_down_circle_outlined))
+                                  ],
                                 ),
-                                Text(
-                                  "${offerPercentage.toStringAsFixed(0)}% OFF",
-                                  style: AppTextStyles.bodyText.copyWith(
-                                    fontSize: fontSize -
-                                        2, // Reduced font size for offer
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                );
-              },
+                          );
+                        }),
+                      ),
+                    );
+                  },
+                ),
+              ),
             );
           }),
         ],
@@ -179,7 +206,7 @@ class PricingPageState extends State<PricingPage> {
   }
 
   Future<void> showPaymentConfirmationDialog(
-      BuildContext context, String planId, double amount)async {
+      BuildContext context, String planId, double amount) async {
     double fontSize = MediaQuery.of(context).size.width * 0.05;
 
     return showDialog<void>(
@@ -218,8 +245,8 @@ class PricingPageState extends State<PricingPage> {
             TextButton(
               onPressed: () {
                 razorpaycontroller.initRazorpay();
-                razorpaycontroller.openPayment( amount, planId,  planId,
-       planId,  planId);
+                razorpaycontroller.openPayment(
+                    amount, planId, planId, planId, planId);
                 // Get.offAll(NavigationBottomBar());
                 // controller.updatinguserpackage(
                 //     controller.updateNewPackageRequestModel);
