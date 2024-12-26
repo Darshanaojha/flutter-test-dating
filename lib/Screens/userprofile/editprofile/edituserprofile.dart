@@ -42,7 +42,6 @@ class EditProfilePageState extends State<EditProfilePage> {
   DateTime selectedDate = DateTime.now();
   bool isLoading = false;
 
-  Country? selectedCountry;
   RxList<Gender> genders = <Gender>[].obs;
   RxList<SubGenderRequest> subGenders = <SubGenderRequest>[].obs;
   Rx<String> selectedOption = ''.obs;
@@ -807,39 +806,76 @@ class EditProfilePageState extends State<EditProfilePage> {
                                           value); // Use the validateBio function
                                     },
                                   ),
-                                  Obx(() {
-                                    if (controller.countries.isEmpty) {
-                                      return Center(
-                                        child: CircularProgressIndicator(
-                                          color: AppColors.progressColor,
-                                        ),
-                                      );
-                                    }
-                                    Country? initialCountry =
-                                        controller.countries.firstWhere(
-                                      (country) =>
-                                          country.id ==
-                                          controller.userData.first.countryId,
-                                    );
+                                  SizedBox(height: 10),
+                                  Card(
+                                    elevation: 5,
+                                    color: AppColors.primaryColor,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text("Country"),
+                                          SizedBox(height: 10),
+                                          Obx(() {
+                                            if (controller.countries.isEmpty) {
+                                              return Center(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  color:
+                                                      AppColors.progressColor,
+                                                ),
+                                              );
+                                            }
 
-                                    return buildDropdown<Country>(
-                                      "Country",
-                                      controller.countries,
-                                      initialCountry,
-                                      selectedCountry,
-                                      16.0,
-                                      (Country? value) {
-                                        controller.userProfileUpdateRequest
-                                            .countryId = value?.id ?? '';
-                                      },
-                                      validator: (value) {
-                                        return validateCountryId(value
-                                            as String); // Use the validateCountryId function
-                                      },
-                                      displayValue: (Country country) =>
-                                          country.name,
-                                    );
-                                  }),
+                                            Country? initialCountry =
+                                                controller.countries.firstWhere(
+                                              (country) =>
+                                                  country.id ==
+                                                  controller
+                                                      .userData.first.countryId,
+                                              orElse: () =>
+                                                  controller.countries.first,
+                                            );
+                                            return buildDropdownWithBottomSheet<
+                                                Country>(
+                                              context,
+                                              "Country",
+                                              controller.countries,
+                                              initialCountry,
+                                              selectedCountry,
+                                              16.0,
+                                              (Country? value) {
+                                                setState(() {
+                                                  selectedCountry =
+                                                      value ?? selectedCountry;
+                                                  controller
+                                                      .userProfileUpdateRequest
+                                                      .countryId = value
+                                                          ?.id ??
+                                                      '';
+                                                  print(
+                                                      'Selected Country: ${selectedCountry.name}');
+                                                  Get.snackbar(
+                                                      'Selected',
+                                                      selectedCountry.name
+                                                          .toString());
+                                                });
+                                              },
+                                              validator: (value) {
+                                                return validateCountryId(
+                                                    value as String);
+                                              },
+                                              displayValue: (Country country) =>
+                                                  country.name,
+                                            );
+                                          }),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
                                   InfoField(
                                     initialValue: controller
                                             .userData.first.address.isNotEmpty
@@ -1009,6 +1045,13 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     ),
                                   ),
                                   Obx(() {
+                                    String initialLookingFor = controller
+                                            .userProfileUpdateRequest
+                                            .lookingFor
+                                            .isNotEmpty
+                                        ? controller
+                                            .userProfileUpdateRequest.lookingFor
+                                        : controller.userData.first.lookingFor;
                                     return Card(
                                       color: AppColors.primaryColor,
                                       elevation: 8,
@@ -1023,78 +1066,31 @@ class EditProfilePageState extends State<EditProfilePage> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            DropdownButtonFormField<String>(
-                                              value: controller
+                                            buildSelectableFieldRelationship<
+                                                String>(
+                                              "Relationship Type",
+                                              ['1', '2'],
+                                              initialLookingFor.isEmpty
+                                                  ? null
+                                                  : initialLookingFor,
+                                              bodyFontSize,
+                                              (String? value) {
+                                                setState(() {
+                                                  controller
                                                       .userProfileUpdateRequest
-                                                      .lookingFor
-                                                      .isNotEmpty
-                                                  ? controller
-                                                      .userProfileUpdateRequest
-                                                      .lookingFor
-                                                  : controller.userData.first
-                                                      .lookingFor,
-                                              decoration: InputDecoration(
-                                                labelText: 'Relationship Type',
-                                                labelStyle: AppTextStyles
-                                                    .labelText
-                                                    .copyWith(
-                                                  fontSize: titleFontSize,
-                                                ),
-                                                border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  borderSide: BorderSide(
-                                                      color:
-                                                          AppColors.textColor),
-                                                ),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                      color: Colors.white),
-                                                ),
-                                                enabledBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                      color: Colors.white),
-                                                ),
-                                              ),
-                                              items: [
-                                                DropdownMenuItem(
-                                                  value: '1',
-                                                  child: Text(
-                                                    'Serious Relationship',
-                                                    style: AppTextStyles
-                                                        .bodyText
-                                                        .copyWith(
-                                                      fontSize: bodyFontSize,
-                                                    ),
-                                                  ),
-                                                ),
-                                                DropdownMenuItem(
-                                                  value: '2',
-                                                  child: Text(
-                                                    'Hookup',
-                                                    style: AppTextStyles
-                                                        .bodyText
-                                                        .copyWith(
-                                                      fontSize: bodyFontSize,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                              onChanged: (value) {
-                                                if (value != null) {
-                                                  setState(() {
-                                                    controller
-                                                        .userProfileUpdateRequest
-                                                        .lookingFor = value;
-                                                  });
-                                                }
+                                                      .lookingFor = value ?? '';
+                                                });
                                               },
-                                              iconEnabledColor:
-                                                  AppColors.textColor,
-                                              iconDisabledColor:
-                                                  AppColors.inactiveColor,
+                                              displayValue: (String value) {
+                                                if (value == '1') {
+                                                  return 'Serious Relationship';
+                                                } else if (value == '2') {
+                                                  return 'Hookup';
+                                                }
+                                                return '';
+                                              },
+                                              context:
+                                                  context, // Pass context here
                                             ),
                                             SizedBox(height: 20),
                                             Center(
@@ -1590,61 +1586,201 @@ class EditProfilePageState extends State<EditProfilePage> {
   }
 }
 
-Widget buildDropdown<T>(
+Country selectedCountry = Country(
+    id: '', name: '', countryCode: '', status: '', created: '', updated: '');
+Widget buildDropdownWithBottomSheet<T>(
+  BuildContext context,
   String label,
   List<T> items,
+  T? initialCountry,
   T? selectedValue,
-  initialCountry,
   double fontSize,
   Function(T?) onChanged, {
   String Function(T)? displayValue,
   String? Function(T?)? validator,
 }) {
   String? errorText;
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8.0),
-    child: DropdownButtonFormField<T>(
-      value: selectedValue,
-      items: items.map((T value) {
-        return DropdownMenuItem<T>(
-          value: value,
-          child: Text(
-            displayValue != null ? displayValue(value) : value.toString(),
-            style: AppTextStyles.textStyle.copyWith(fontSize: fontSize),
+
+  if (selectedValue == null && initialCountry != null) {
+    selectedValue = initialCountry;
+  }
+
+  return InkWell(
+    onTap: () => showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Container(
+          height: 300,
+          padding: const EdgeInsets.symmetric(vertical: 10.0),
+          child: Column(
+            children: [
+              Text(
+                label,
+                style: AppTextStyles.labelText.copyWith(fontSize: fontSize),
+              ),
+              Expanded(
+                child: SizedBox(
+                  height: 200,
+                  child: Scrollbar(
+                    child: ListView.builder(
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        T item = items[index];
+                        return ListTile(
+                          title: Text(
+                            displayValue != null
+                                ? displayValue(item)
+                                : item.toString(),
+                            style: AppTextStyles.textStyle
+                                .copyWith(fontSize: fontSize),
+                          ),
+                          onTap: () {
+                            selectedCountry = item as Country;
+
+                            onChanged(item);
+
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
-      }).toList(),
-      onChanged: onChanged,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
-        border: OutlineInputBorder(
-          borderSide: BorderSide(color: AppColors.formFieldColor),
-          borderRadius: BorderRadius.circular(8),
+      },
+    ),
+    child: SizedBox(
+      width: 350,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 14.0, horizontal: 18.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8.0),
+          border: Border.all(color: AppColors.formFieldColor),
+          color: AppColors.formFieldColor,
         ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                selectedValue != null
+                    ? displayValue!(selectedValue)
+                    : 'Select $label',
+                style:
+                    AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, color: AppColors.activeColor),
+          ],
         ),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
-        ),
-        errorText: errorText,
       ),
-      style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
-      dropdownColor: AppColors.secondaryColor,
     ),
   );
 }
 
+Widget buildSelectableFieldRelationship<T>(
+  String label,
+  List<T> items,
+  T? selectedValue,
+  double fontSize,
+  Function(T?) onChanged, {
+  String Function(T)? displayValue,
+  required BuildContext context, // Add context as a parameter here
+}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8.0),
+    child: GestureDetector(
+      onTap: () => _showBottomSheet<T>(context, items, selectedValue, onChanged,
+          displayValue), // Pass context
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.white),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.white),
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                selectedValue != null
+                    ? displayValue!(selectedValue)
+                    : 'Select $label',
+                style:
+                    AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, color: AppColors.activeColor),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+// Method to show the bottom sheet
+void _showBottomSheet<T>(
+  BuildContext context, // Add context as a parameter here
+  List<T> items,
+  T? selectedValue,
+  Function(T?) onChanged,
+  String Function(T)? displayValue,
+) {
+  showModalBottomSheet(
+    context: context, // Use the context passed as a parameter
+    builder: (BuildContext context) {
+      return Container(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Text("Select $selectedValue",
+                style: Theme.of(context).textTheme.bodySmall),
+            SizedBox(height: 8.0),
+            Expanded(
+              child: ListView.builder(
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  T item = items[index];
+                  return ListTile(
+                    title: Text(displayValue != null
+                        ? displayValue(item)
+                        : item.toString()),
+                    onTap: () {
+                      onChanged(item);
+                      Navigator.pop(
+                          context); // Close the bottom sheet after selection
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+RxList<bool> selectedOptions =
+    List.filled(controller.desires.length, false).obs;
+RxList<UserDesire> selectedDesires = controller.userDesire;
 Widget buildRelationshipStatusInterestStep(
     BuildContext context, Size screenSize) {
   Controller controller = Get.put(Controller());
-  RxList<bool> selectedOptions =
-      List.filled(controller.desires.length, false).obs;
-  RxList<UserDesire> selectedDesires = controller.userDesire;
+
   controller.userProfileUpdateRequest.desires =
       selectedDesires.map((userDesire) => userDesire.desiresId).toList();
-  // Populate selectedOptions based on controller.userDesire
   for (var userDesire in controller.userDesire) {
     int index =
         controller.desires.indexWhere((d) => d.id == userDesire.desiresId);
@@ -1653,7 +1789,6 @@ Widget buildRelationshipStatusInterestStep(
     }
   }
 
-  // Handle chip selection
   double screenWidth = screenSize.width;
   double bodyFontSize = screenWidth * 0.03;
   double chipFontSize = screenWidth * 0.03;

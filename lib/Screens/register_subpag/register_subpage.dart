@@ -1858,7 +1858,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     }
 
     Future<void> pickImage(int index, ImageSource source) async {
-      // Ensure that user can only pick photos in sequence
       if (index > 0 &&
           images[index - 1] == null &&
           controller.userRegistrationRequest.photos.length <= index) {
@@ -1923,35 +1922,41 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     double iconSize = screenWidth * 0.12;
     double imageContainerSize = screenWidth * 0.39;
     resetImagesForNewUser();
+
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              controller.headlines.isNotEmpty
-                  ? controller.headlines[8].title
-                  : "Loading Title...",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+        child: SingleChildScrollView(
+          // Wrap the entire Column with SingleChildScrollView
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                controller.headlines.isNotEmpty
+                    ? controller.headlines[8].title
+                    : "Loading Title...",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              controller.headlines.isNotEmpty
-                  ? controller.headlines[8].description
-                  : "",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey.shade600,
+              SizedBox(height: 8),
+              Text(
+                controller.headlines.isNotEmpty
+                    ? controller.headlines[8].description
+                    : "",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey.shade600,
+                ),
               ),
-            ),
-            SizedBox(height: 20),
-            Expanded(
-              child: Obx(() {
+              SizedBox(height: 20),
+              Obx(() {
                 return GridView.builder(
+                  shrinkWrap:
+                      true, // Use shrinkWrap to make the GridView take only the space it needs
+                  physics:
+                      NeverScrollableScrollPhysics(), // Disable GridView scrolling when inside SingleChildScrollView
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 20.0,
@@ -2236,35 +2241,35 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   },
                 );
               }),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: onNextButtonPressed,
-              style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 24),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  backgroundColor:
-                      controller.userRegistrationRequest.photos.isNotEmpty
-                          ? AppColors.activeColor
-                          : AppColors.inactiveColor),
-              child: Text("Next",
-                  style: AppTextStyles.buttonText.copyWith(
-                    color: AppColors.primaryColor,
-                  )),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: onBackPressed,
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                backgroundColor: AppColors.buttonColor,
-                foregroundColor: AppColors.textColor,
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: onNextButtonPressed,
+                style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    backgroundColor:
+                        controller.userRegistrationRequest.photos.isNotEmpty
+                            ? AppColors.activeColor
+                            : AppColors.inactiveColor),
+                child: Text("Next",
+                    style: AppTextStyles.buttonText.copyWith(
+                      color: AppColors.primaryColor,
+                    )),
               ),
-              child: Text('Back', style: AppTextStyles.buttonText),
-            ),
-          ],
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: onBackPressed,
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                  backgroundColor: AppColors.buttonColor,
+                  foregroundColor: AppColors.textColor,
+                ),
+                child: Text('Back', style: AppTextStyles.buttonText),
+              ),
+            ],
+          ),
         ),
       ),
     );
