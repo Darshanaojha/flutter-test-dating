@@ -184,18 +184,18 @@ class ContactListScreenState extends State<ContactListScreen> {
                                     style: AppTextStyles.customTextStyle(
                                         color: Colors.grey),
                                   ),
-                                  IconButton(
-                                      onPressed: () {
-                                        controller.reportReason().then((value) {
-                                          if (value == true) {
-                                            showUserOptionsDialog();
-                                          }
-                                        });
-                                      },
-                                      icon: Icon(
-                                        Icons.info,
-                                        color: AppColors.inactiveColor,
-                                      )),
+                                  // IconButton(
+                                  //     onPressed: () {
+                                  //       controller.reportReason().then((value) {
+                                  //         if (value == true) {
+                                  //           showUserOptionsDialog();
+                                  //         }
+                                  //       });
+                                  //     },
+                                  //     icon: Icon(
+                                  //       Icons.info,
+                                  //       color: AppColors.inactiveColor,
+                                  //     )),
                                 ],
                               ),
                             ],
@@ -218,208 +218,209 @@ class ContactListScreenState extends State<ContactListScreen> {
   }
 
 //// report user dailog box started.....................................................===========-------------------
-  void showUserOptionsDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('User Options'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Text('Block User'),
-                onTap: () {
-                  controller.blockUser(controller.blockToRequestModel);
-                  Navigator.pop(context);
-                  success('User Blocked', 'The user has been blocked.');
-                },
-              ),
-              ListTile(
-                title: Text('Report User'),
-                onTap: () {
-                  Navigator.pop(context);
-                  showReportUserDialog();
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  // void showUserOptionsDialog() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text('User Options'),
+  //         content: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             ListTile(
+  //               title: Text('Block User'),
+  //               onTap: () {
+  //                 controller.blockUser(controller.blockToRequestModel);
+  //                 Navigator.pop(context);
+  //                 success('User Blocked', 'The user has been blocked.');
+  //               },
+  //             ),
+  //             ListTile(
+  //               title: Text('Report User'),
+  //               onTap: () {
+  //                 Navigator.pop(context);
+  //                 showReportUserDialog();
+  //               },
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
-  RxBool isselected = false.obs;
-  RxBool iswriting = false.obs;
+  // RxBool isselected = false.obs;
+  // RxBool iswriting = false.obs;
 
-  void showReportUserDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        String displayText =
-            controller.reportUserReasonFeedbackRequestModel.reasonId.isEmpty
-                ? 'Select Reason'
-                : controller.reportUserReasonFeedbackRequestModel.reasonId;
-        String truncatedText = displayText.length > 30
-            ? '${displayText.substring(0, 30)}...'
-            : displayText;
-        return Obx(() {
-          return AlertDialog(
-            title: Text('Report User'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.black,
-                    backgroundColor: Colors.transparent,
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      side: BorderSide(color: AppColors.activeColor, width: 2),
-                    ),
-                  ),
-                  onPressed: () {
-                    showBottomSheet(
-                      context: context,
-                      label: "Select Reason",
-                      options: controller.reportReasons
-                          .map((reason) => reason.title)
-                          .toList(),
-                      onSelected: (String? value) {
-                        if (value != null && value.isNotEmpty) {
-                          controller.reportUserReasonFeedbackRequestModel
-                              .reasonId = value;
-                          isselected.value = true;
-                        } else {
-                          isselected.value = false;
-                        }
-                      },
-                    );
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          truncatedText,
-                          style: AppTextStyles.bodyText,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      Icon(
-                        Icons.arrow_drop_down,
-                        color: AppColors.activeColor,
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 10),
-                if (isselected.value)
-                  TextField(
-                    cursorColor: AppColors.cursorColor,
-                    maxLength: 60,
-                    decoration: InputDecoration(
-                      hintText: 'Describe the issue...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: AppColors.textColor),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
-                    ),
-                    onChanged: (value) {
-                      controller.reportUserReasonFeedbackRequestModel.reason =
-                          value;
-                      iswriting.value = value.isNotEmpty;
-                    },
-                  ),
-              ],
-            ),
-            actions: [
-              ElevatedButton(
-                onPressed: iswriting.value
-                    ? () {
-                        if (controller.reportUserReasonFeedbackRequestModel
-                                .reasonId.isNotEmpty &&
-                            controller.reportUserReasonFeedbackRequestModel
-                                .reason.isNotEmpty) {
-                          controller.reportAgainstUser(
-                              controller.reportUserReasonFeedbackRequestModel);
-                          Navigator.pop(context);
-                          success('Report Submitted',
-                              'The user has been reported.');
-                        } else {
-                          failure('Error',
-                              'Please select a reason and provide a description.');
-                        }
-                      }
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                  backgroundColor: AppColors.buttonColor,
-                  foregroundColor: AppColors.textColor,
-                ),
-                child: Text('Submit Report'),
-              ),
-            ],
-          );
-        });
-      },
-    );
-  }
+  // void showReportUserDialog() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       String displayText =
+  //           controller.reportUserReasonFeedbackRequestModel.reasonId.isEmpty
+  //               ? 'Select Reason'
+  //               : controller.reportUserReasonFeedbackRequestModel.reasonId;
+  //       String truncatedText = displayText.length > 30
+  //           ? '${displayText.substring(0, 30)}...'
+  //           : displayText;
+  //       return Obx(() {
+  //         return AlertDialog(
+  //           title: Text('Report User'),
+  //           content: Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               ElevatedButton(
+  //                 style: ElevatedButton.styleFrom(
+  //                   foregroundColor: Colors.black,
+  //                   backgroundColor: Colors.transparent,
+  //                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+  //                   shape: RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.circular(8),
+  //                     side: BorderSide(color: AppColors.activeColor, width: 2),
+  //                   ),
+  //                 ),
+  //                 onPressed: () {
+  //                   showBottomSheet(
+  //                     context: context,
+  //                     label: "Select Reason",
+  //                     options: controller.reportReasons
+  //                         .map((reason) => reason.title)
+  //                         .toList(),
+  //                     onSelected: (String? value) {
+  //                       if (value != null && value.isNotEmpty) {
+  //                         controller.reportUserReasonFeedbackRequestModel
+  //                             .reasonId = value;
+  //                         isselected.value = true;
+  //                       } else {
+  //                         isselected.value = false;
+  //                       }
+  //                     },
+  //                   );
+  //                 },
+  //                 child: Row(
+  //                   mainAxisSize: MainAxisSize.min,
+  //                   children: [
+  //                     Expanded(
+  //                       child: Text(
+  //                         truncatedText,
+  //                         style: AppTextStyles.bodyText,
+  //                         overflow: TextOverflow.ellipsis,
+  //                         maxLines: 1,
+  //                       ),
+  //                     ),
+  //                     SizedBox(width: 8),
+  //                     Icon(
+  //                       Icons.arrow_drop_down,
+  //                       color: AppColors.activeColor,
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //               SizedBox(height: 10),
+  //               if (isselected.value)
+  //                 TextField(
+  //                   cursorColor: AppColors.cursorColor,
+  //                   maxLength: 60,
+  //                   decoration: InputDecoration(
+  //                     hintText: 'Describe the issue...',
+  //                     border: OutlineInputBorder(
+  //                       borderRadius: BorderRadius.circular(10),
+  //                       borderSide: BorderSide(color: AppColors.textColor),
+  //                     ),
+  //                     focusedBorder: OutlineInputBorder(
+  //                       borderSide: BorderSide(color: Colors.white),
+  //                     ),
+  //                     enabledBorder: OutlineInputBorder(
+  //                       borderSide: BorderSide(color: Colors.white),
+  //                     ),
+  //                   ),
+  //                   onChanged: (value) {
+  //                     controller.reportUserReasonFeedbackRequestModel.reason =
+  //                         value;
+  //                     iswriting.value = value.isNotEmpty;
+  //                   },
+  //                 ),
+  //             ],
+  //           ),
+  //           actions: [
+  //             ElevatedButton(
+  //               onPressed: iswriting.value
+  //                   ? () {
+  //                       if (controller.reportUserReasonFeedbackRequestModel
+  //                               .reasonId.isNotEmpty &&
+  //                           controller.reportUserReasonFeedbackRequestModel
+  //                               .reason.isNotEmpty) {
+  //                         controller.reportAgainstUser(
+  //                             controller.reportUserReasonFeedbackRequestModel);
+  //                         Navigator.pop(context);
+  //                         success('Report Submitted',
+  //                             'The user has been reported.');
+  //                       } else {
+  //                         failure('Error',
+  //                             'Please select a reason and provide a description.');
+  //                       }
+  //                     }
+  //                   : null,
+  //               style: ElevatedButton.styleFrom(
+  //                 padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+  //                 backgroundColor: AppColors.buttonColor,
+  //                 foregroundColor: AppColors.textColor,
+  //               ),
+  //               child: Text('Submit Report'),
+  //             ),
+  //           ],
+  //         );
+  //       });
+  //     },
+  //   );
+  // }
 
-  void showBottomSheet({
-    required BuildContext context,
-    required String label,
-    required List<String> options,
-    required Function(String?) onSelected,
-  }) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                label,
-                style: AppTextStyles.bodyText.copyWith(fontSize: 18),
-              ),
-              SizedBox(height: 10),
-              Expanded(
-                child: ListView(
-                  children: List.generate(options.length, (index) {
-                    return RadioListTile<String>(
-                      title:
-                          Text(options[index], style: AppTextStyles.bodyText),
-                      value: options[index],
-                      groupValue: controller
-                          .reportUserReasonFeedbackRequestModel.reasonId,
-                      onChanged: (String? value) {
-                        onSelected(value);
-                        Navigator.pop(context);
-                      },
-                      activeColor: AppColors.activeColor,
-                    );
-                  }),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  // void showBottomSheet({
+  //   required BuildContext context,
+  //   required String label,
+  //   required List<String> options,
+  //   required Function(String?) onSelected,
+  // }) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return Padding(
+  //         padding: const EdgeInsets.all(16.0),
+  //         child: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             Text(
+  //               label,
+  //               style: AppTextStyles.bodyText.copyWith(fontSize: 18),
+  //             ),
+  //             SizedBox(height: 10),
+  //             Expanded(
+  //               child: ListView(
+  //                 children: List.generate(options.length, (index) {
+  //                   return RadioListTile<String>(
+  //                     title:
+  //                         Text(options[index], style: AppTextStyles.bodyText),
+  //                     value: options[index],
+  //                     groupValue: controller
+  //                         .reportUserReasonFeedbackRequestModel.reasonId,
+  //                     onChanged: (String? value) {
+  //                       onSelected(value);
+  //                       Navigator.pop(context);
+  //                     },
+  //                     activeColor: AppColors.activeColor,
+  //                   );
+  //                 }),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+  // reportt dailog box ended.....................................................=================--------------------------------------------------
 }
-// reportt dailog box ended.....................................................=================--------------------------------------------------
+
 
 class FullScreenImagePage extends StatelessWidget {
   final String imageUrl;

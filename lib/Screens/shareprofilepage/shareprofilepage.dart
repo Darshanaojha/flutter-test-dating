@@ -22,7 +22,6 @@ class ShareProfilePageState extends State<ShareProfilePage>
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
-  // Initialize late variables with nullable types and handle them safely
   AnimationController? _borderController;
   Animation<Color?>? _borderAnimation;
 
@@ -41,7 +40,6 @@ class ShareProfilePageState extends State<ShareProfilePage>
     ));
     _fadeController.forward();
 
-    // Border color animation controller
     _borderController = AnimationController(
       duration: const Duration(seconds: 4),
       vsync: this,
@@ -49,7 +47,7 @@ class ShareProfilePageState extends State<ShareProfilePage>
     _borderAnimation = ColorTween(begin: Colors.red, end: Colors.white).animate(
         CurvedAnimation(parent: _borderController!, curve: Curves.linear));
 
-    _borderController?.repeat(reverse: true); // Repeat the border animation
+    _borderController?.repeat(reverse: true); 
   }
 
 
@@ -64,7 +62,7 @@ class ShareProfilePageState extends State<ShareProfilePage>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Image.asset(profileImage,
-                    fit: BoxFit.cover), // Show local image
+                    fit: BoxFit.cover),
                 SizedBox(height: 40),
                 Text('Full Profile Image', style: AppTextStyles.titleText),
               ],
@@ -79,7 +77,7 @@ class ShareProfilePageState extends State<ShareProfilePage>
   void dispose() {
     _fadeController.dispose();
     _borderController
-        ?.dispose(); // Dispose the border animation controller safely
+        ?.dispose();
     super.dispose();
   }
 
@@ -96,17 +94,14 @@ class ShareProfilePageState extends State<ShareProfilePage>
       ),
       body: FutureBuilder<ShareProfileResponseModel?>(
         future: controller.shareProfileUser(ShareProfileRequestModel(
-            userId: widget.id)), // Fetch the user profile data
+            userId: widget.id)),
         builder: (context, AsyncSnapshot<ShareProfileResponseModel?> snapshot) {
-          // Handle the different states of the future:
           if (snapshot.connectionState == ConnectionState.waiting) {
-            // Show a loading indicator while waiting for the data
             return Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
-              // Handle errors by showing an error message
               return Center(
                 child: Text(
                   'Error: ${snapshot.error}',
@@ -116,11 +111,8 @@ class ShareProfilePageState extends State<ShareProfilePage>
             }
 
             if (!snapshot.hasData) {
-              // Handle the case when there's no data (null)
               return Center(child: Text('No data available.'));
             }
-
-            // If we have data, build the UI with the profile information
             ShareProfileResponseModel sharedUser = snapshot.data!;
 
             return SingleChildScrollView(
@@ -142,14 +134,12 @@ class ShareProfilePageState extends State<ShareProfilePage>
                       ),
                     ),
                     SizedBox(height: 20),
-
-                    // Name and Age
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           sharedUser.payload?.data.first.name ??
-                              'N/A', // Safely access data
+                              'N/A', 
                           style: AppTextStyles.headingText,
                         ),
                       ],
@@ -168,7 +158,6 @@ class ShareProfilePageState extends State<ShareProfilePage>
                       ],
                     ),
                     SizedBox(height: 10),
-                    // Gender
                     Row(
                       children: [
                         Icon(Icons.person,
@@ -182,8 +171,6 @@ class ShareProfilePageState extends State<ShareProfilePage>
                       ],
                     ),
                     SizedBox(height: 10),
-
-                    // Bio
                     Row(
                       children: [
                         Icon(Icons.info_outline,
@@ -202,8 +189,6 @@ class ShareProfilePageState extends State<ShareProfilePage>
                       ],
                     ),
                     SizedBox(height: 20),
-
-                    // Address Information
                     Row(
                       children: [
                         Icon(Icons.location_on,
@@ -221,8 +206,6 @@ class ShareProfilePageState extends State<ShareProfilePage>
                       ],
                     ),
                     SizedBox(height: 20),
-
-                    // Preferences in Card Style with Animated Border
                     if (sharedUser.payload?.preferences.isNotEmpty ?? false)
                       AnimatedBuilder(
                         animation: _borderController!,
@@ -264,8 +247,6 @@ class ShareProfilePageState extends State<ShareProfilePage>
                         },
                       ),
                     SizedBox(height: 20),
-
-                    // Languages in Card Style with Animated Border
                     if (sharedUser.payload?.lang.isNotEmpty ?? false)
                       AnimatedBuilder(
                         animation: _borderController!,
@@ -307,8 +288,6 @@ class ShareProfilePageState extends State<ShareProfilePage>
                         },
                       ),
                     SizedBox(height: 20),
-
-                    // Desires in Card Style with Animated Border
                     if (sharedUser.payload?.desires.isNotEmpty ?? false)
                       AnimatedBuilder(
                         animation: _borderController!,
@@ -354,8 +333,6 @@ class ShareProfilePageState extends State<ShareProfilePage>
               ),
             );
           }
-
-          // If the connection state is anything other than waiting or done
           return Center(child: Text('Unexpected error'));
         },
       ),

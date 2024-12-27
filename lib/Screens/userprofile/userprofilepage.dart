@@ -83,28 +83,32 @@ class UserProfilePageState extends State<UserProfilePage> {
                   child: Column(
                     children: [
                       SizedBox(
-                        height: 200,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: controller.userPhotos?.images.length ?? 0,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: GestureDetector(
-                                onTap: () => showFullImageDialog(context,
-                                    controller.userPhotos!.images[index]),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(15),
-                                  child: Image.network(
-                                    controller.userPhotos?.images[index] ?? '',
-                                    fit: BoxFit.cover,
-                                    width: 150,
-                                    height: 200,
+                        height: 250,
+                        child: Scrollbar(
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount:
+                                controller.userPhotos?.images.length ?? 0,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: GestureDetector(
+                                  onTap: () => showFullImageDialog(context,
+                                      controller.userPhotos!.images[index]),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(15),
+                                    child: Image.network(
+                                      controller.userPhotos?.images[index] ??
+                                          '',
+                                      fit: BoxFit.cover,
+                                      width: 150,
+                                      height: 200,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
                         ),
                       ),
                       Padding(
@@ -150,56 +154,64 @@ class UserProfilePageState extends State<UserProfilePage> {
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      content: SingleChildScrollView(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              TextField(
-                                                cursorColor:
-                                                    AppColors.cursorColor,
-                                                controller:
-                                                    TextEditingController(
-                                                  text: controller
-                                                          .usernameUpdateRequest
-                                                          .username
-                                                          .isNotEmpty
-                                                      ? controller
-                                                          .usernameUpdateRequest
-                                                          .username
-                                                      : controller.userData
-                                                          .first.username,
-                                                ),
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    controller
-                                                        .usernameUpdateRequest
-                                                        .username = value;
-                                                  });
-                                                },
-                                                decoration: InputDecoration(
-                                                  labelText: 'Username',
-                                                  labelStyle: AppTextStyles
-                                                      .labelText
-                                                      .copyWith(
-                                                          fontSize:
-                                                              getResponsiveFontSize(
-                                                                  0.03)),
-                                                  filled: true,
-                                                  fillColor:
-                                                      AppColors.formFieldColor,
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    borderSide: BorderSide.none,
+                                      content: SizedBox(
+                                        height: 400,
+                                        child: Scrollbar(
+                                          child: SingleChildScrollView(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  TextField(
+                                                    cursorColor:
+                                                        AppColors.cursorColor,
+                                                    controller:
+                                                        TextEditingController(
+                                                      text: controller
+                                                              .usernameUpdateRequest
+                                                              .username
+                                                              .isNotEmpty
+                                                          ? controller
+                                                              .usernameUpdateRequest
+                                                              .username
+                                                          : controller.userData
+                                                              .first.username,
+                                                    ),
+                                                    onChanged: (value) {
+                                                      setState(() {
+                                                        controller
+                                                            .usernameUpdateRequest
+                                                            .username = value;
+                                                      });
+                                                    },
+                                                    decoration: InputDecoration(
+                                                      labelText: 'Username',
+                                                      labelStyle: AppTextStyles
+                                                          .labelText
+                                                          .copyWith(
+                                                              fontSize:
+                                                                  getResponsiveFontSize(
+                                                                      0.03)),
+                                                      filled: true,
+                                                      fillColor: AppColors
+                                                          .formFieldColor,
+                                                      border:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10),
+                                                        borderSide:
+                                                            BorderSide.none,
+                                                      ),
+                                                    ),
                                                   ),
-                                                ),
+                                                  SizedBox(height: 20),
+                                                ],
                                               ),
-                                              SizedBox(height: 20),
-                                            ],
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -604,6 +616,7 @@ class UserProfilePageState extends State<UserProfilePage> {
       ),
     );
   }
+
   void showShareProfileBottomSheet() {
     showModalBottomSheet(
       context: context,
@@ -941,7 +954,7 @@ class SettingCard extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 8),
         child: SizedBox(
           child: Card(
-             color: Color.fromARGB(255, 11, 122, 67),
+            color: Color.fromARGB(255, 11, 122, 67),
             elevation: 5,
             child: ListTile(
               title: Text(

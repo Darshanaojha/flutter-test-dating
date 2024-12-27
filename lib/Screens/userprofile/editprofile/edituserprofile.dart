@@ -409,9 +409,9 @@ class EditProfilePageState extends State<EditProfilePage> {
         failure('correct ', 'No location found for the provided address..');
       }
     } catch (e) {
-      print('location error -> ${e.toString()}'); // Log the error
+      print('location error -> ${e.toString()}');
       failure('',
-          'Error fetching location: ${e.toString()}'); // Show the error message
+          'Error fetching location: ${e.toString()}'); 
     }
   }
 
@@ -438,7 +438,7 @@ class EditProfilePageState extends State<EditProfilePage> {
         context: context,
         initialDate: initialValue.isNotEmpty
             ? DateFormat('dd/MM/yyyy')
-                .parse(initialValue) // Parse the initial DOB if available
+                .parse(initialValue) 
             : DateTime.now(),
         firstDate: DateTime(1900),
         lastDate: DateTime.now().subtract(Duration(days: 18 * 365)),
@@ -466,7 +466,6 @@ class EditProfilePageState extends State<EditProfilePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Displaying the label of the input field
             Text(
               label,
               style: AppTextStyles.buttonText.copyWith(
@@ -475,7 +474,7 @@ class EditProfilePageState extends State<EditProfilePage> {
             ),
             SizedBox(height: 10),
             GestureDetector(
-              onTap: selectDate, // Open the date picker on tap
+              onTap: selectDate,
               child: AbsorbPointer(
                 child: TextField(
                   cursorColor: AppColors.cursorColor,
@@ -490,12 +489,12 @@ class EditProfilePageState extends State<EditProfilePage> {
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide.none,
                     ),
-                    errorText: errorText, // Show error here after validation
-                    hintText: "Select your Date of Birth", // Optional hint
+                    errorText: errorText, 
+                    hintText: "Select your Date of Birth",
                   ),
                   onChanged: (value) {
                     onChanged(value);
-                    validateInput(value); // Validate on input change
+                    validateInput(value);
                   },
                 ),
               ),
@@ -790,7 +789,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     onChanged: onNickNameChanged,
                                     validator: (value) {
                                       return validateNickname(
-                                          value); // Use the validateNickname function
+                                          value); 
                                     },
                                   ),
                                   InfoField(
@@ -803,7 +802,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     onChanged: onAboutChanged,
                                     validator: (value) {
                                       return validateBio(
-                                          value); // Use the validateBio function
+                                          value); 
                                     },
                                   ),
                                   SizedBox(height: 10),
@@ -843,8 +842,8 @@ class EditProfilePageState extends State<EditProfilePage> {
                                               context,
                                               "Country",
                                               controller.countries,
-                                              initialCountry,
                                               selectedCountry,
+                                              initialCountry,
                                               16.0,
                                               (Country? value) {
                                                 setState(() {
@@ -937,9 +936,9 @@ class EditProfilePageState extends State<EditProfilePage> {
                                           ? Center(
                                               child: CircularProgressIndicator(
                                                 color: AppColors.progressColor,
-                                              ), // Show loading spinner while fetching
+                                              ), 
                                             )
-                                          : Container(); // Empty container if lat-long is not fetched
+                                          : Container(); 
                                     }
                                   }),
                                   languages(context),
