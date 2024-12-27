@@ -43,6 +43,12 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
     super.dispose();
   }
 
+  double calculateOfferPercentage(String actualAmount, String offerAmount) {
+    double actual = double.parse(actualAmount);
+    double offer = double.parse(offerAmount);
+    return ((actual - offer) / actual) * 100;
+  }
+
   void showFullImageDialog(BuildContext context, String imagePath) {
     showDialog(
       context: context,
@@ -171,8 +177,15 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
                               itemCount: controller.packages.length,
                               itemBuilder: (context, index) {
                                 final package = controller.packages[index];
+                                double offerPercentage =
+                                    calculateOfferPercentage(
+                                        package.actualAmount,
+                                        package.offerAmount);
                                 return GestureDetector(
                                   onTap: () {
+                                    setState(() {
+                                      selectedPlan.value = package.id;
+                                    });
                                     showPaymentConfirmationDialog(
                                       context,
                                       package.unit,
@@ -185,76 +198,59 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
                                   child: Stack(
                                     clipBehavior: Clip.none,
                                     children: [
-                                      Card(
-                                        elevation: 8,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                        color: Colors.orange,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(24.0),
-                                          child: Row(
-                                            children: [
-                                              Icon(
-                                                Icons.calendar_today,
-                                                color: AppColors.iconColor,
-                                                size: fontSize,
-                                              ),
-                                              SizedBox(width: 10),
-                                              Expanded(
-                                                child: Text(
-                                                  "${package.unit} Plan - ₹${package.offerAmount}",
-                                                  style: AppTextStyles.bodyText
-                                                      .copyWith(
-                                                    fontSize: fontSize - 2,
-                                                    color: AppColors.textColor,
+                                      Obx(() {
+                                        bool isSelected =
+                                            selectedPlan.value == package.id;
+                                        return Card(
+                                          elevation: 6,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          color: isSelected
+                                              ? Colors.green.shade500
+                                              : Colors.grey,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(10.0),
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.calendar_today,
+                                                  color: AppColors.iconColor,
+                                                  size: fontSize * 1.5,
+                                                ),
+                                                SizedBox(width: 8),
+                                                Expanded(
+                                                  child: Text(
+                                                    "${package.unit} Plan  ₹${package.offerAmount}",
+                                                    style: AppTextStyles
+                                                        .bodyText
+                                                        .copyWith(
+                                                      fontSize: fontSize - 4,
+                                                      color:
+                                                          AppColors.textColor,
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                              Obx(() {
-                                                return Text(
-                                                  selectedPlan.value ==
-                                                          package.unit
-                                                      ? 'Selected'
-                                                      : 'Select',
+                                                Text(
+                                                  "${offerPercentage.toStringAsFixed(0)}% OFF",
                                                   style: AppTextStyles.bodyText
                                                       .copyWith(
                                                     fontSize: fontSize - 2,
-                                                    color: selectedPlan.value ==
-                                                            package.unit
-                                                        ? AppColors.buttonColor
-                                                        : AppColors
-                                                            .formFieldColor,
+                                                    color: Colors.red,
                                                   ),
-                                                );
-                                              }),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      Positioned(
-                                        top: 4,
-                                        right: 2,
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: 4, horizontal: 6),
-                                          decoration: BoxDecoration(
-                                            color: Colors.red,
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                          child: Text(
-                                            '20% OFF',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: fontSize - 6,
-                                              fontWeight: FontWeight.bold,
+                                                ),
+                                                IconButton(
+                                                    onPressed: () {
+                                                      // showBenefitsBottomSheet(context);
+                                                    },
+                                                    icon: Icon(Icons
+                                                        .arrow_drop_down_circle_outlined))
+                                              ],
                                             ),
                                           ),
-                                        ),
-                                      ),
+                                        );
+                                      }),
                                     ],
                                   ),
                                 );

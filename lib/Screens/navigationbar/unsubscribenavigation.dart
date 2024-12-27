@@ -218,7 +218,7 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation> {
           Icon(Icons.home, size: 30, color: Colors.white),
           Icon(Icons.account_circle, size: 30, color: Colors.white),
         ],
-        color: AppColors.primaryColor,
+        color: AppColors.navigationColor,
         buttonBackgroundColor: AppColors.acceptColor,
         backgroundColor: Colors.transparent,
         animationCurve: Curves.easeInOut,

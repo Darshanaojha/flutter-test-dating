@@ -224,10 +224,10 @@ class HomePageState extends State<HomePage> {
           });
           onTap(label);
         },
-        icon: Icon(icon, size: 20),
+        icon: Icon(icon, size: 20, color: AppColors.textColor,),
         label: Text(
           label,
-          style: TextStyle(fontSize: 14, color: Colors.white),
+          style: TextStyle(fontSize: 14, color: AppColors.textColor),
         ),
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.white,
@@ -495,34 +495,6 @@ class HomePageState extends State<HomePage> {
                                   ),
                                 );
                               },
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 10,
-                        right: 0,
-                        child: Padding(
-                          padding:
-                              EdgeInsets.symmetric(vertical: size.height * 0.1),
-                          child: Transform.rotate(
-                            angle: -1.5708,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SmoothPageIndicator(
-                                  controller: _imagePageController,
-                                  count: user.images.length,
-                                  effect: ExpandingDotsEffect(
-                                    dotHeight: 10,
-                                    dotWidth: 10,
-                                    spacing: 10,
-                                    radius: 5,
-                                    dotColor: Colors.grey.withOpacity(0.5),
-                                    activeDotColor: Colors.green,
-                                  ),
-                                ),
-                              ],
                             ),
                           ),
                         ),

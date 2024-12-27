@@ -655,9 +655,19 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
               borderSide: BorderSide(color: Colors.white),
             ),
           ),
-          child: Text(
-             "Select $label",
-            style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  selectedValue != null
+                      ? displayValue!(selectedValue)
+                      : 'Select $label',
+                  style:
+                      AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
+                ),
+              ),
+              Icon(Icons.arrow_drop_down, color: AppColors.activeColor),
+            ],
           ),
         ),
       ),
@@ -740,11 +750,18 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
               borderSide: BorderSide(color: Colors.white),
             ),
           ),
-          child: Text(
-            selectedValue != null
-                ? displayValue!(selectedValue)
-                : "Select $label",
-            style: AppTextStyles.bodyText.copyWith(fontSize: fontSize),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  selectedValue != null
+                      ? displayValue!(selectedValue)
+                      : "Select $label",
+                  style: AppTextStyles.bodyText.copyWith(fontSize: fontSize),
+                ),
+              ),
+              Icon(Icons.arrow_drop_down, color: AppColors.activeColor),
+            ],
           ),
         ),
       ),

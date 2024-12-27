@@ -53,7 +53,7 @@ class LikesPageState extends State<LikesPage> {
       await Future.delayed(Duration(seconds: 2));
 
       filteredLikesPage = controller.likespage;
-
+       await controller.fetchAllAddOn();
       await controller.likesuserpage();
       if (controller.likespage.isEmpty) {
         print("No likes in the list");
@@ -490,44 +490,45 @@ class LikesPageState extends State<LikesPage> {
                               children: [
                                 SizedBox(
                                     height: 200,
-                                    child: ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      itemCount: user.images.length,
-                                      itemBuilder: (context, imgIndex) {
-                                        return Container(
-                                          margin: EdgeInsets.only(right: 12),
-                                          child: GestureDetector(
-                                            onTap: () => showFullImageDialog(
-                                                context, user.images[imgIndex]),
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
-                                              child: Image.network(
-                                                user.images[imgIndex],
-                                                fit: BoxFit.cover,
-                                                width: 150,
-                                                height: 200,
-                                                errorBuilder: (context, error,
-                                                    stackTrace) {
-                                                  return Container(
-                                                    width: 150,
-                                                    height: 200,
-                                                    alignment: Alignment.center,
-                                                    color: Colors.grey.shade200,
-                                                    child: Icon(
-                                                      Icons.broken_image,
-                                                      size: 48,
-                                                      color: Colors.grey,
-                                                    ),
-                                                  );
-                                                },
+                                    child: Scrollbar(
+                                      child: ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: user.images.length,
+                                        itemBuilder: (context, imgIndex) {
+                                          return Container(
+                                            margin: EdgeInsets.only(right: 12),
+                                            child: GestureDetector(
+                                              onTap: () => showFullImageDialog(
+                                                  context, user.images[imgIndex]),
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                                child: Image.network(
+                                                  user.images[imgIndex],
+                                                  fit: BoxFit.cover,
+                                                  width: 150,
+                                                  height: 200,
+                                                  errorBuilder: (context, error,
+                                                      stackTrace) {
+                                                    return Container(
+                                                      width: 150,
+                                                      height: 200,
+                                                      alignment: Alignment.center,
+                                                      color: Colors.grey.shade200,
+                                                      child: Icon(
+                                                        Icons.broken_image,
+                                                        size: 48,
+                                                        color: Colors.grey,
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        );
-                                      },
+                                          );
+                                        },
+                                      ),
                                     )),
-                                // User Information
                                 SizedBox(height: 8),
                                 Row(
                                   children: [

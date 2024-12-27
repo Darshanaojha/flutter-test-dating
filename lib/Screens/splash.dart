@@ -182,7 +182,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
                           "FlamR",
                           style: GoogleFonts.raleway(
                             fontSize: mQuery.width * 0.08,
-                            color: Colors.orange,
+                            color: AppColors.textColor,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -197,7 +197,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
                           "Application",
                           style: GoogleFonts.raleway(
                             fontSize: mQuery.width * 0.04,
-                            color: Colors.orange,
+                            color: AppColors.textColor,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

@@ -35,7 +35,7 @@ class RazorpayController extends GetxController {
       String contact, String email) {
     var options = {
       'key': RazorpayKeys.RAZORPAYKEYID,
-      'amount': (totalAmount * 100).toInt(), // Amount in paise
+      'amount': (totalAmount * 100).toInt(), 
       'name': name,
       'description': description,
       'prefill': {
@@ -61,15 +61,6 @@ class RazorpayController extends GetxController {
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     print("Payment Success: ${response.paymentId}");
-    // controller.bookingUpdateController(
-    //     startGarageKm: '',
-    //     endGarageKm: '',
-    //     startKm: '',
-    //     endKm: '',
-    //     toll: '',
-    //     parking: '',
-    //     status: ENDTRIP,
-    //     notes: 'Payment successfull, Payment ID: ${response.paymentId}');
     _paymentCompleter.complete(true);
   }
 
@@ -109,33 +100,11 @@ class RazorpayController extends GetxController {
 
     print(
         "Error Details: Code: ${response.code}, Message: ${response.message}");
-
-    // controller.bookingUpdateController(
-    //   startGarageKm: '',
-    //   endGarageKm: '',
-    //   startKm: '',
-    //   endKm: '',
-    //   toll: '',
-    //   parking: '',
-    //   status: '',
-    //   notes:
-    //       'Payment Failed, Error Code: ${response.code}, Message: $errorMessage',
-    // );
-
     _paymentCompleter.complete(false);
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
     print("External Wallet Selected: ${response.walletName}");
-    // controller.bookingUpdateController(
-    //     startGarageKm: '',
-    //     endGarageKm: '',
-    //     startKm: '',
-    //     endKm: '',
-    //     toll: '',
-    //     parking: '',
-    //     status: ENDTRIP,
-    //     notes: 'Payment via external wallet: ${response.walletName}');
     _paymentCompleter.complete(false);
   }
 }
