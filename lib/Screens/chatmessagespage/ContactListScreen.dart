@@ -3,6 +3,7 @@ import 'package:dating_application/Screens/chatmessagespage/pinrequestpage.dart'
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/chat_history_request_model.dart';
 import '../../constants.dart';
@@ -109,100 +110,118 @@ class ContactListScreenState extends State<ContactListScreen> {
                 ),
                 SizedBox(height: 20),
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: getFilteredUsers().length,
-                    itemBuilder: (context, index) {
-                      final connection = getFilteredUsers()[index];
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: GestureDetector(
-                          onTap: () {
-                            if (controller.userData.isEmpty) {}
-                            debugPrint(
-                                'User ID: ${controller.userData.first.id}');
-                            debugPrint(
-                                'Connection ID: ${connection.conectionId}');
-                            debugPrint('Connection Name: ${connection.name}');
-                            ChatHistoryRequestModel chatHistoryRequestModel =
-                                ChatHistoryRequestModel(
-                                    userId: connection.conectionId);
-                            controller
-                                .chatHistory(chatHistoryRequestModel)
-                                .then((value) async {
-                              if (value == true) {
-                                EncryptedSharedPreferences preferences =
-                                    await EncryptedSharedPreferences
-                                        .getInstance();
-                                String? token = preferences.getString('token');
-                                if (token != null && token.isNotEmpty) {
-                                  controller.token.value = token;
-
-                                  Get.to(() => ChatScreen(
-                                        senderId: controller.userData.first.id,
-                                        receiverId: connection.conectionId,
-                                        receiverName: connection.name,
-                                      ));
-                                }
-                              }
-                            });
-                          },
-                          child: Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => FullScreenImagePage(
-                                        imageUrl: connection
-                                            .profileImage, // image URL
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Hero(
-                                  tag: connection.profileImage,
-                                  child: CircleAvatar(
-                                    radius: 30.0,
-                                    backgroundImage:
-                                        NetworkImage(connection.profileImage),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    connection.name,
-                                    style: AppTextStyles.customTextStyle(
-                                        color: Colors.white),
-                                  ),
-                                  Text(
-                                    'Hi there!',
-                                    style: AppTextStyles.customTextStyle(
-                                        color: Colors.grey),
-                                  ),
-                                  // IconButton(
-                                  //     onPressed: () {
-                                  //       controller.reportReason().then((value) {
-                                  //         if (value == true) {
-                                  //           showUserOptionsDialog();
-                                  //         }
-                                  //       });
-                                  //     },
-                                  //     icon: Icon(
-                                  //       Icons.info,
-                                  //       color: AppColors.inactiveColor,
-                                  //     )),
-                                ],
-                              ),
-                            ],
-                          ),
+                  child: FutureBuilder(
+                    future: controller.fetchalluserconnections(),  // Make sure to return future here
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting || controller.userConnections.isEmpty) {
+                      // Show the loading animation if the connections are still empty or loading
+                      return Center(
+                        child: Lottie.asset(
+                          "assets/animations/chatpageanimation.json",
+                          repeat: true,
+                          reverse: true,
                         ),
                       );
-                    },
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error loading contacts'));
+                    } else {
+                    return ListView.builder(
+                      itemCount: getFilteredUsers().length,
+                      itemBuilder: (context, index) {
+                        final connection = getFilteredUsers()[index];
+                    
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: GestureDetector(
+                            onTap: () {
+                              if (controller.userData.isEmpty) {}
+                              debugPrint(
+                                  'User ID: ${controller.userData.first.id}');
+                              debugPrint(
+                                  'Connection ID: ${connection.conectionId}');
+                              debugPrint('Connection Name: ${connection.name}');
+                              ChatHistoryRequestModel chatHistoryRequestModel =
+                                  ChatHistoryRequestModel(
+                                      userId: connection.conectionId);
+                              controller
+                                  .chatHistory(chatHistoryRequestModel)
+                                  .then((value) async {
+                                if (value == true) {
+                                  EncryptedSharedPreferences preferences =
+                                      await EncryptedSharedPreferences
+                                          .getInstance();
+                                  String? token = preferences.getString('token');
+                                  if (token != null && token.isNotEmpty) {
+                                    controller.token.value = token;
+                    
+                                    Get.to(() => ChatScreen(
+                                          senderId: controller.userData.first.id,
+                                          receiverId: connection.conectionId,
+                                          receiverName: connection.name,
+                                        ));
+                                  }
+                                }
+                              });
+                            },
+                            child: Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => FullScreenImagePage(
+                                          imageUrl: connection
+                                              .profileImage, // image URL
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Hero(
+                                    tag: connection.profileImage,
+                                    child: CircleAvatar(
+                                      radius: 30.0,
+                                      backgroundImage:
+                                          NetworkImage(connection.profileImage),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 16),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      connection.name,
+                                      style: AppTextStyles.customTextStyle(
+                                          color: Colors.white),
+                                    ),
+                                    Text(
+                                      'Hi there!',
+                                      style: AppTextStyles.customTextStyle(
+                                          color: Colors.grey),
+                                    ),
+                                    // IconButton(
+                                    //     onPressed: () {
+                                    //       controller.reportReason().then((value) {
+                                    //         if (value == true) {
+                                    //           showUserOptionsDialog();
+                                    //         }
+                                    //       });
+                                    //     },
+                                    //     icon: Icon(
+                                    //       Icons.info,
+                                    //       color: AppColors.inactiveColor,
+                                    //     )),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                    }
+                  },
                   ),
                 ),
               ],
@@ -210,7 +229,9 @@ class ContactListScreenState extends State<ContactListScreen> {
           ),
           if (isLoading)
             Center(
-              child: CircularProgressIndicator(),
+              // child: CircularProgressIndicator(),
+              child: Lottie.asset("assets/animations/chatpageanimation.json",
+                  repeat: true, reverse: true),
             ),
         ],
       ),
@@ -420,7 +441,6 @@ class ContactListScreenState extends State<ContactListScreen> {
   // }
   // reportt dailog box ended.....................................................=================--------------------------------------------------
 }
-
 
 class FullScreenImagePage extends StatelessWidget {
   final String imageUrl;

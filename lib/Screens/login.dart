@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../Controllers/controller.dart';
 import '../Models/RequestModels/user_login_request_model.dart';
+import '../Providers/fcmService.dart';
 import '../constants.dart';
 import 'loginforgotpassword/forgotpasswordemail.dart';
 import 'register_subpag/useremailnameinput.dart';
@@ -90,15 +91,13 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                             formKey.currentState!.save();
 
                             setState(() {
-                              isLoading = true; // Start loading
+                              isLoading = true;
                             });
-
-                            // Perform login request
                             UserLoginResponse? response =
                                 await controller.login(loginRequest);
 
                             setState(() {
-                              isLoading = false; // End loading
+                              isLoading = false;
                             });
 
                             if (response != null) {
@@ -106,8 +105,16 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                                 String packagestatus =
                                     response.payload.packagestatus;
                                 if (packagestatus == '0') {
+                                  FCMService().subscribeToTopic("unsubscribed");
+                                  FCMService()
+                                      .subscribeToTopic(response.payload.userId);
+                                  FCMService().subscribeToTopic("alluser");
                                   Get.offAll(Unsubscribenavigation());
                                 } else if (packagestatus == '1') {
+                                  FCMService().subscribeToTopic("subscribed");
+                                  FCMService()
+                                      .subscribeToTopic(response.payload.userId);
+                                  FCMService().subscribeToTopic("alluser");
                                   Get.offAll(NavigationBottomBar());
                                 }
                               } else {
@@ -241,7 +248,6 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
         SizedBox(height: size.height * 0.02),
         TextButton(
           onPressed: () {
-            
             Get.to(UserInputPage());
             // Get.to(OTPVerificationPage());
             // Get.to(RegisterProfilePage());

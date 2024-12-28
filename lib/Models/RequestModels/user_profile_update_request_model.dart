@@ -82,7 +82,7 @@ class UserProfileUpdateRequest {
       'visibility_status': visibility,
       'lang': lang,
       'email_alerts': emailAlerts,
-      'looking_for':lookingFor,
+      'looking_for': lookingFor,
       'preferences': preferences,
       'desires': desires,
     };
@@ -91,6 +91,10 @@ class UserProfileUpdateRequest {
   bool validate() {
     if (name.isEmpty) {
       failure('Name is required', 'Please provide your name.');
+      return false;
+    }
+    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(name)) {
+      failure('RE-Enter', 'Name must contain only alphabets');
       return false;
     }
     if (latitude.isEmpty) {
