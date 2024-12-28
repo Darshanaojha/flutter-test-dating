@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/estabish_connection_request_model.dart';
 import '../../constants.dart';
@@ -61,68 +62,87 @@ class MessageRequestPageState extends State<MessageRequestPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            double screenWidth = constraints.maxWidth;
-
-            return ListView.builder(
-              itemCount: controller.messageRequest.length,
-              itemBuilder: (context, index) {
-                final messageRequest = controller.messageRequest[index];
-
-                return Card(
-                  margin: EdgeInsets.only(bottom: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  elevation: 4,
-                  child: ListTile(
-                    contentPadding: EdgeInsets.all(10),
-                    leading: GestureDetector(
-                      onTap: () => showImageDialog(messageRequest.profileImage),
-                      child: CircleAvatar(
-                        backgroundImage:
-                            NetworkImage(messageRequest.profileImage),
-                        radius: screenWidth < 600 ? 30 : 40,
-                      ),
-                    ),
-                    title: Text(
-                      messageRequest.name,
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: screenWidth < 600 ? 16 : 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    subtitle: Text(
-                      messageRequest.message,
-                      style: AppTextStyles.bodyText.copyWith(
-                        color: AppColors.disabled,
-                        fontSize: screenWidth < 600 ? 14 : 16,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    trailing: IconButton(
-                      icon: Icon(Icons.reply, color: AppColors.iconColor),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ReplyMessagePage(
-                              senderName: messageRequest.name,
-                              senderId: messageRequest.id,
-                              lastMessage: messageRequest.message,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+        child: FutureBuilder(
+            future: controller.fetchallpingrequestmessage(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting ||
+                  controller.messageRequest.isEmpty) {
+                return Center(
+                  child: Lottie.asset(
+                    "assets/animations/requestmessageanimation.json",
+                    repeat: true,
+                    reverse: true,
                   ),
                 );
-              },
-            );
-          },
-        ),
+              }
+              if (snapshot.hasError) {
+                return Center(child: Text('Error loading message requests'));
+              }
+
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  double screenWidth = constraints.maxWidth;
+
+                  return ListView.builder(
+                    itemCount: controller.messageRequest.length,
+                    itemBuilder: (context, index) {
+                      final messageRequest = controller.messageRequest[index];
+
+                      return Card(
+                        margin: EdgeInsets.only(bottom: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 4,
+                        child: ListTile(
+                          contentPadding: EdgeInsets.all(10),
+                          leading: GestureDetector(
+                            onTap: () =>
+                                showImageDialog(messageRequest.profileImage),
+                            child: CircleAvatar(
+                              backgroundImage:
+                                  NetworkImage(messageRequest.profileImage),
+                              radius: screenWidth < 600 ? 30 : 40,
+                            ),
+                          ),
+                          title: Text(
+                            messageRequest.name,
+                            style: AppTextStyles.bodyText.copyWith(
+                              fontSize: screenWidth < 600 ? 16 : 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          subtitle: Text(
+                            messageRequest.message,
+                            style: AppTextStyles.bodyText.copyWith(
+                              color: AppColors.disabled,
+                              fontSize: screenWidth < 600 ? 14 : 16,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          trailing: IconButton(
+                            icon: Icon(Icons.reply, color: AppColors.iconColor),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ReplyMessagePage(
+                                    senderName: messageRequest.name,
+                                    senderId: messageRequest.id,
+                                    lastMessage: messageRequest.message,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              );
+            }),
       ),
     );
   }
@@ -198,9 +218,16 @@ class ReplyMessagePageState extends State<ReplyMessagePage> {
                   icon: Icon(Icons.send, color: AppColors.textColor),
                   onPressed: () {
                     sendMessage(widget.senderId, messageController.text);
-                    Get.snackbar('sender id', establishConnectionMessageRequest.receiverId.toString());
-                    Get.snackbar('message', establishConnectionMessageRequest.message.toString());
-                     Get.snackbar('message type', establishConnectionMessageRequest.messagetype.toString());
+                    Get.snackbar(
+                        'sender id',
+                        establishConnectionMessageRequest.receiverId
+                            .toString());
+                    Get.snackbar('message',
+                        establishConnectionMessageRequest.message.toString());
+                    Get.snackbar(
+                        'message type',
+                        establishConnectionMessageRequest.messagetype
+                            .toString());
                     messageController.clear();
                   },
                 ),

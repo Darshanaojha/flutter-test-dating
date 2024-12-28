@@ -11,6 +11,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../Models/RequestModels/update_lat_long_request_model.dart';
+import '../Providers/fcmService.dart';
 import '../constants.dart';
 import 'introsliderpages/introsliderswipepage.dart';
 import 'login.dart';
@@ -98,8 +99,14 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
 
         if (packageStatus != null && packageStatus.isNotEmpty) {
           if (packageStatus == "1") {
+            FCMService().subscribeToTopic("subscribed");
+            FCMService().subscribeToTopic(controller.userData.first.id);
+            FCMService().subscribeToTopic("alluser");
             Get.offAll(() => NavigationBottomBar());
           } else {
+            FCMService().subscribeToTopic("unsubscribed");
+            FCMService().subscribeToTopic(controller.userData.first.id);
+            FCMService().subscribeToTopic("alluser");
             Get.offAll(() => Unsubscribenavigation());
           }
         }

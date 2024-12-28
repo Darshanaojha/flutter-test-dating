@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/usernameupdate_request_model.dart';
@@ -54,10 +55,11 @@ class UserProfilePageState extends State<UserProfilePage> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
-                    child: SpinKitCircle(
-                      size: 150.0,
-                      color: AppColors.progressColor,
-                    ),
+                    // child: SpinKitCircle(
+                    //   size: 150.0,
+                    //   color: AppColors.progressColor,
+                    // ),
+                    child: Lottie.asset("assets/animations/loadinganimation.json",repeat: true,reverse: true),
                   );
                 }
                 if (snapshot.hasError) {
@@ -155,7 +157,7 @@ class UserProfilePageState extends State<UserProfilePage> {
                                         ),
                                       ),
                                       content: SizedBox(
-                                        height: 400,
+                                        height: 80,
                                         child: Scrollbar(
                                           child: SingleChildScrollView(
                                             child: Padding(

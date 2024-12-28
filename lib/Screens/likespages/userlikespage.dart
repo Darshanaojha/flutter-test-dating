@@ -2,6 +2,7 @@ import 'package:dating_application/Controllers/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import '../../Models/ResponseModels/get_all_addon_response_model.dart';
 import '../../Models/ResponseModels/get_all_likes_pages_response.dart';
 import '../../constants.dart';
@@ -53,7 +54,7 @@ class LikesPageState extends State<LikesPage> {
       await Future.delayed(Duration(seconds: 2));
 
       filteredLikesPage = controller.likespage;
-       await controller.fetchAllAddOn();
+      await controller.fetchAllAddOn();
       await controller.likesuserpage();
       if (controller.likespage.isEmpty) {
         print("No likes in the list");
@@ -477,7 +478,10 @@ class LikesPageState extends State<LikesPage> {
               Expanded(
                 child: filteredLikesPage.isEmpty
                     ? Center(
-                        child: Text("No Likes in History."),
+                        child: Lottie.asset(
+                            "assets/animations/likepageanimation.json",
+                            repeat: true,
+                            reverse: true),
                       )
                     : ListView.builder(
                         itemCount: filteredLikesPage.length,
@@ -499,7 +503,8 @@ class LikesPageState extends State<LikesPage> {
                                             margin: EdgeInsets.only(right: 12),
                                             child: GestureDetector(
                                               onTap: () => showFullImageDialog(
-                                                  context, user.images[imgIndex]),
+                                                  context,
+                                                  user.images[imgIndex]),
                                               child: ClipRRect(
                                                 borderRadius:
                                                     BorderRadius.circular(15),
@@ -513,8 +518,10 @@ class LikesPageState extends State<LikesPage> {
                                                     return Container(
                                                       width: 150,
                                                       height: 200,
-                                                      alignment: Alignment.center,
-                                                      color: Colors.grey.shade200,
+                                                      alignment:
+                                                          Alignment.center,
+                                                      color:
+                                                          Colors.grey.shade200,
                                                       child: Icon(
                                                         Icons.broken_image,
                                                         size: 48,

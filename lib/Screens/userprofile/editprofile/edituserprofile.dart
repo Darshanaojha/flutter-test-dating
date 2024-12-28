@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import '../../../Models/RequestModels/user_profile_update_request_model.dart';
 import '../../../Models/ResponseModels/ProfileResponse.dart';
 import '../../../Models/ResponseModels/get_all_gender_from_response_model.dart';
@@ -98,7 +99,7 @@ class EditProfilePageState extends State<EditProfilePage> {
       }
     });
   }
-
+  
   Future<bool> fetchAllData() async {
     controller.fetchProfile().then((value) {
       if (value == true) {
@@ -236,6 +237,10 @@ class EditProfilePageState extends State<EditProfilePage> {
     }
     if (value.length < 3) {
       return 'Name should be at least 3 characters long';
+    }
+    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
+      failure('RE-Enter', 'Name must contain only alphabets');
+      return 'Name must contain only alphabets';
     }
     return null;
   }
@@ -410,8 +415,7 @@ class EditProfilePageState extends State<EditProfilePage> {
       }
     } catch (e) {
       print('location error -> ${e.toString()}');
-      failure('',
-          'Error fetching location: ${e.toString()}'); 
+      failure('', 'Error fetching location: ${e.toString()}');
     }
   }
 
@@ -437,8 +441,7 @@ class EditProfilePageState extends State<EditProfilePage> {
       DateTime? pickedDate = await showDatePicker(
         context: context,
         initialDate: initialValue.isNotEmpty
-            ? DateFormat('dd/MM/yyyy')
-                .parse(initialValue) 
+            ? DateFormat('dd/MM/yyyy').parse(initialValue)
             : DateTime.now(),
         firstDate: DateTime(1900),
         lastDate: DateTime.now().subtract(Duration(days: 18 * 365)),
@@ -489,7 +492,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide.none,
                     ),
-                    errorText: errorText, 
+                    errorText: errorText,
                     hintText: "Select your Date of Birth",
                   ),
                   onChanged: (value) {
@@ -606,6 +609,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                   ),
                 );
               }
+              
               return SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -788,8 +792,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     label: 'Nick name',
                                     onChanged: onNickNameChanged,
                                     validator: (value) {
-                                      return validateNickname(
-                                          value); 
+                                      return validateNickname(value);
                                     },
                                   ),
                                   InfoField(
@@ -801,8 +804,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                     label: 'About',
                                     onChanged: onAboutChanged,
                                     validator: (value) {
-                                      return validateBio(
-                                          value); 
+                                      return validateBio(value);
                                     },
                                   ),
                                   SizedBox(height: 10),
@@ -936,9 +938,9 @@ class EditProfilePageState extends State<EditProfilePage> {
                                           ? Center(
                                               child: CircularProgressIndicator(
                                                 color: AppColors.progressColor,
-                                              ), 
+                                              ),
                                             )
-                                          : Container(); 
+                                          : Container();
                                     }
                                   }),
                                   languages(context),
@@ -1557,7 +1559,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                                 controller
                                     .updateProfile(userProfileUpdateRequest);
                               }
-
                               return;
                             } else {
                               failure("Invalid", 'Form is invalid');
@@ -2061,8 +2062,6 @@ Widget languages(BuildContext context) {
             ],
           ),
           SizedBox(height: 10),
-
-          // Dynamic display of selected languages
           Obx(() {
             return Wrap(
               spacing: 8,
@@ -2112,8 +2111,6 @@ void showLanguageSelectionBottomSheet(BuildContext context) {
               style: TextStyle(fontSize: 18),
             ),
             SizedBox(height: 10),
-
-            // Search input field
             TextField(
               onChanged: (query) {
                 searchQuery.value = query;
@@ -2126,8 +2123,6 @@ void showLanguageSelectionBottomSheet(BuildContext context) {
               ),
             ),
             SizedBox(height: 10),
-
-            // Display filtered languages as toggle buttons (ChoiceChip)
             Expanded(
               child: Obx(() {
                 var filteredLanguages = controller.language
@@ -2175,8 +2170,6 @@ void showLanguageSelectionBottomSheet(BuildContext context) {
               }),
             ),
             SizedBox(height: 10),
-
-            // Done Button
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: ElevatedButton(

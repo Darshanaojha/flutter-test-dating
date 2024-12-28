@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:swipe_cards/draggable_card.dart';
 import 'package:swipe_cards/swipe_cards.dart';
@@ -255,10 +256,11 @@ class HomePageState extends State<HomePage> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
-                    child: SpinKitCircle(
-                      size: 150.0,
-                      color: Colors.blue,
-                    ),
+                    // child: SpinKitCircle(
+                    //   size: 150.0,
+                    //   color: Colors.blue,
+                    // ),
+                    child: Lottie.asset("assets/animations/loadinganimation.json")
                   );
                 }
 
