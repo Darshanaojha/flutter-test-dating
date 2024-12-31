@@ -314,7 +314,6 @@ class LikesPageState extends State<LikesPage> {
     );
   }
 
-// Dialog box to show on selected card tap
   void showAddonDialog(Addon currentAddon) {
     showDialog(
       context: context,
@@ -341,7 +340,6 @@ class LikesPageState extends State<LikesPage> {
             ),
             TextButton(
               onPressed: () {
-                // Handle subscription logic here
                 Get.back();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -359,7 +357,6 @@ class LikesPageState extends State<LikesPage> {
     );
   }
 
-// Function to show the Add-On Points button
   void showAddonPointsButton(List<AddonPoint> addonPoints) {
     Get.bottomSheet(
       Padding(
@@ -381,8 +378,6 @@ class LikesPageState extends State<LikesPage> {
                 ),
               ),
               SizedBox(height: 20),
-
-              // Display the list of addon points
               Expanded(
                 child: ListView.builder(
                   itemCount: addonPoints.length,

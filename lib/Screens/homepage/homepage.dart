@@ -194,6 +194,7 @@ class HomePageState extends State<HomePage> {
                     setState(() {
                       messageCount--;
                     });
+                    Get.snackbar("ndknwif", establishConnectionMessageRequest.message.toString());
                     controller.sendConnectionMessage(
                         establishConnectionMessageRequest);
                   }
