@@ -2,7 +2,6 @@ import 'package:dating_application/Screens/settings/appinfopages/faqpage.dart';
 import 'package:dating_application/Screens/userprofile/accountverification/useraccountverification.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
@@ -59,7 +58,10 @@ class UserProfilePageState extends State<UserProfilePage> {
                     //   size: 150.0,
                     //   color: AppColors.progressColor,
                     // ),
-                    child: Lottie.asset("assets/animations/loadinganimation.json",repeat: true,reverse: true),
+                    child: Lottie.asset(
+                        "assets/animations/loadinganimation.json",
+                        repeat: true,
+                        reverse: true),
                   );
                 }
                 if (snapshot.hasError) {
@@ -70,7 +72,6 @@ class UserProfilePageState extends State<UserProfilePage> {
                     ),
                   );
                 }
-
                 if (!snapshot.hasData ||
                     controller.userPhotos == null ||
                     controller.userPhotos!.images.isEmpty) {

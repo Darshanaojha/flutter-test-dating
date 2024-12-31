@@ -2,10 +2,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 const encryptionkey = "flamrpisyst2024!";
-const baseurl = "http://192.168.1.7/dating_backend_springboot/admin";
-const ip = "http://192.168.1.7/dating_backend_springboot/";
+const baseurl = "http://192.168.1.11/dating_backend_springboot/admin";
+const ip = "http://192.168.1.11/dating_backend_springboot/";
 const registerUrl = "Authentication/register";
 const loginUrl = "Authentication/login";
 const profileUrl = "Authentication/profile";
@@ -43,7 +42,6 @@ class AppColors {
   static Color navigationright = Color.fromARGB(255, 115, 111, 111);
   static Color progressColor = Color(0xFFD3D3D3);
   static var primaryTextColor;
-  //
 }
 
 class AppTextStyles {

@@ -1,8 +1,5 @@
-import '../constants.dart';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class FCMService {
@@ -35,7 +32,6 @@ class FCMService {
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       print('Notification clicked: ${message.messageId}');
-      // Navigate to a specific screen or perform an action based on the notification data
     });
   }
 
@@ -44,13 +40,13 @@ class FCMService {
       RemoteNotification notification) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
-      'default_channel_id', // Replace with your channel ID
-      'Default Channel', // Replace with your channel name
+      'default_channel_id', 
+      'Default Channel', 
       channelDescription:
-          'Default notification channel', // Replace with your channel description
+          'Default notification channel',
       importance: Importance.max,
       priority: Priority.high,
-      autoCancel: false, // Ensure the notification is not auto-cancelled
+      autoCancel: false,
     );
     const NotificationDetails platformChannelSpecifics =
         NotificationDetails(android: androidPlatformChannelSpecifics);
@@ -63,10 +59,8 @@ class FCMService {
     );
   }
 
-  // Background message handler
   Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     print('Handling a background message: ${message.messageId}');
-    // Process the message here, e.g., show a local notification
   }
 
   Future<void> subscribeToTopic(String topic) async {
@@ -77,8 +71,6 @@ class FCMService {
       print('Error subscribing to topic: $e');
     }
   }
-
-  // Unsubscribe from a topic
   Future<void> unsubscribeFromTopic(String topic) async {
     try {
       await _firebaseMessaging.unsubscribeFromTopic(topic);

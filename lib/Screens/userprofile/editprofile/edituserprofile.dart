@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:lottie/lottie.dart';
 import '../../../Models/RequestModels/user_profile_update_request_model.dart';
 import '../../../Models/ResponseModels/ProfileResponse.dart';
 import '../../../Models/ResponseModels/get_all_gender_from_response_model.dart';
@@ -99,7 +98,7 @@ class EditProfilePageState extends State<EditProfilePage> {
       }
     });
   }
-  
+
   Future<bool> fetchAllData() async {
     controller.fetchProfile().then((value) {
       if (value == true) {
@@ -609,7 +608,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                   ),
                 );
               }
-              
+
               return SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -2253,14 +2252,13 @@ class InfoFieldState extends State<InfoField> {
     if (widget.validator != null) {
       String? error = widget.validator!(value);
       setState(() {
-        _errorText = error; // Update error text on each validation
+        _errorText = error;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Helper function to make font size responsive
     double getResponsiveFontSize(double scale) {
       double screenWidth = MediaQuery.of(context).size.width;
       return screenWidth * scale;
@@ -2274,7 +2272,6 @@ class InfoFieldState extends State<InfoField> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Displaying the label of the input field
             Text(
               widget.label,
               style: AppTextStyles.buttonText.copyWith(
@@ -2299,7 +2296,7 @@ class InfoFieldState extends State<InfoField> {
               ),
               onChanged: (value) {
                 widget.onChanged(value);
-                validateInput(value); // Validate on input change
+                validateInput(value); 
               },
             ),
             Divider(color: AppColors.textColor),

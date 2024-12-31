@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../Controllers/controller.dart';
 import '../../../Controllers/razorpaycontroller.dart';
-import '../../navigationbar/navigationpage.dart';
 
 class PricingPage extends StatefulWidget {
   const PricingPage({super.key});
