@@ -22,9 +22,8 @@ class FaqPageState extends State<FaqPage> {
   }
 
   Future<bool> initializeApp() async {
-    // Clear the previous list of FAQs to avoid duplication
     controller.faq.clear();
-    await controller.fetchAllFaq(); // Fetch the new list
+    await controller.fetchAllFaq();
     return true;
   }
 

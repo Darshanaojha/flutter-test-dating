@@ -3,7 +3,6 @@ import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/RequestModels/estabish_connection_request_model.dart';
 import 'package:dating_application/Screens/homepage/swaping.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
@@ -184,20 +183,20 @@ class HomePageState extends State<HomePage> {
                 ),
                 onChanged: (value) {
                   establishConnectionMessageRequest.message = value;
+                  establishConnectionMessageRequest.receiverId = userid;
                 },
                 maxLines: 3,
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
-                  if (establishConnectionMessageRequest.message.isEmpty) {
-                    setState(() {
-                      messageCount--;
-                    });
-                    Get.snackbar("ndknwif", establishConnectionMessageRequest.message.toString());
-                    controller.sendConnectionMessage(
-                        establishConnectionMessageRequest);
+                onPressed: () async {
+                   if (establishConnectionMessageRequest.message.isEmpty) {
+                    Get.snackbar("Error", "Message cannot be empty!");
+                    return;
                   }
+                  await controller
+                      .sendConnectionMessage(establishConnectionMessageRequest);
+                 
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.buttonColor,
@@ -226,7 +225,11 @@ class HomePageState extends State<HomePage> {
           });
           onTap(label);
         },
-        icon: Icon(icon, size: 20, color: AppColors.textColor,),
+        icon: Icon(
+          icon,
+          size: 20,
+          color: AppColors.textColor,
+        ),
         label: Text(
           label,
           style: TextStyle(fontSize: 14, color: AppColors.textColor),
@@ -257,12 +260,12 @@ class HomePageState extends State<HomePage> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
-                    // child: SpinKitCircle(
-                    //   size: 150.0,
-                    //   color: Colors.blue,
-                    // ),
-                    child: Lottie.asset("assets/animations/loadinganimation.json")
-                  );
+                      // child: SpinKitCircle(
+                      //   size: 150.0,
+                      //   color: Colors.blue,
+                      // ),
+                      child: Lottie.asset(
+                          "assets/animations/loadinganimation.json"));
                 }
 
                 if (snapshot.hasError) {
@@ -471,11 +474,12 @@ class HomePageState extends State<HomePage> {
                               itemCount: user.images.length,
                               itemBuilder: (BuildContext context, int index) {
                                 if (images.isEmpty) {
-                                  return Center(child: Text('No Images Available'));
+                                  return Center(
+                                      child: Text('No Images Available'));
                                 }
                                 return GestureDetector(
-                                  onTap: () =>
-                                      showFullImageDialog(context, images[index]),
+                                  onTap: () => showFullImageDialog(
+                                      context, images[index]),
                                   child: Container(
                                     margin: EdgeInsets.only(bottom: 12),
                                     child: ClipRRect(
@@ -510,7 +514,7 @@ class HomePageState extends State<HomePage> {
                     SizedBox(width: 16),
                     IconButton(
                       onPressed: () {
-                        showmessageBottomSheet(user.id.toString());
+                        showmessageBottomSheet(user.userId.toString());
                       },
                       icon: Icon(Icons.messenger_outline, size: 40),
                     ),

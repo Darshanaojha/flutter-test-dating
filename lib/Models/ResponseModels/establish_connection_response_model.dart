@@ -1,45 +1,41 @@
 class EstablishConnectionResponse {
   final bool success;
-  final Payload? payload;
-  final Error error;
+  final Payload payload;
+  final ErrorDetails error;
 
   EstablishConnectionResponse({
     required this.success,
-    this.payload,
+    required this.payload,
     required this.error,
   });
 
   factory EstablishConnectionResponse.fromJson(Map<String, dynamic> json) {
     return EstablishConnectionResponse(
-      success: json['success'],
-      payload: json['payload'] != null ? Payload.fromJson(json['payload']) : null,
-      error: Error.fromJson(json['error']),
+      success: json['success'] ?? false,
+      payload: Payload.fromJson(json['payload'] ?? {}),
+      error: ErrorDetails.fromJson(json['error'] ?? {}),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'success': success,
-      'payload': payload?.toJson() ?? {}, 
+      'payload': payload.toJson(),
       'error': error.toJson(),
     };
   }
 }
 
-
 class Payload {
   final String message;
 
-  Payload({
-    required this.message,
-  });
+  Payload({required this.message});
 
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
-      message: json['message'] ?? '', 
+      message: json['message'] ?? '',
     );
   }
-
 
   Map<String, dynamic> toJson() {
     return {
@@ -48,20 +44,16 @@ class Payload {
   }
 }
 
-class Error {
+class ErrorDetails {
   final int code;
   final String message;
 
-  Error({
-    required this.code,
-    required this.message,
-  });
+  ErrorDetails({required this.code, required this.message});
 
-  
-  factory Error.fromJson(Map<String, dynamic> json) {
-    return Error(
-      code: json['code'],
-      message: json['message'],
+  factory ErrorDetails.fromJson(Map<String, dynamic> json) {
+    return ErrorDetails(
+      code: json['code'] ?? 0,
+      message: json['message'] ?? '',
     );
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import '../../Models/ResponseModels/get_all_addon_response_model.dart';
 import '../../Models/ResponseModels/get_all_likes_pages_response.dart';
 import '../../constants.dart';
@@ -534,7 +535,7 @@ class LikesPageState extends State<LikesPage> {
                                 SizedBox(height: 8),
                                 Row(
                                   children: [
-                                    Text(user.name,
+                                    Text(user.name.toString(),
                                         style: AppTextStyles.titleText.copyWith(
                                             fontSize:
                                                 getResponsiveFontSize(0.04))),
