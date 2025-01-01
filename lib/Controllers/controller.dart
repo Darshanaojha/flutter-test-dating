@@ -656,20 +656,20 @@ class Controller extends GetxController {
     try {
       EstablishConnectionResponse? response =
           await EstablishConnectionProvider()
-              .sendConnectionMessage(establishConnectionMessageRequest);
+              .sendConnectionMessageprovider(establishConnectionMessageRequest);
 
       if (response != null) {
         if (!response.success) {
           failure('Error', response.error.message);
           return false;
         }
-        if (response.payload != null && response.payload!.message.isNotEmpty) {
-          success('Success', response.payload!.message);
+        if (response.payload.message.isNotEmpty) {
+          success('Success', response.payload.message);
+          Get.close(1);
           return true;
         } else {
           success('Success', 'Connection message sent successfully');
         }
-        Get.close(1);
         return true;
       } else {
         failure('Error', 'Failed to send the connection message');

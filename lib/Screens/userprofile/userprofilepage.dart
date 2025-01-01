@@ -334,34 +334,34 @@ class UserProfilePageState extends State<UserProfilePage> {
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: 22),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          child: Card(
-                            elevation: 5,
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 22),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                      'Profile Completion: $userProfileCompletion',
-                                      style: AppTextStyles.labelText.copyWith(
-                                          fontSize:
-                                              getResponsiveFontSize(0.03))),
-                                  SizedBox(height: 10),
-                                  Text(
-                                      'Complete your profile to unlock more features!',
-                                      style: AppTextStyles.labelText.copyWith(
-                                          fontSize:
-                                              getResponsiveFontSize(0.03))),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      // Padding(
+                      //   padding: EdgeInsets.symmetric(vertical: 22),
+                      //   child: Padding(
+                      //     padding: EdgeInsets.symmetric(horizontal: 10),
+                      //     child: Card(
+                      //       elevation: 5,
+                      //       child: Padding(
+                      //         padding: EdgeInsets.symmetric(horizontal: 22),
+                      //         child: Column(
+                      //           crossAxisAlignment: CrossAxisAlignment.start,
+                      //           children: [
+                      //             Text(
+                      //                 'Profile Completion: $userProfileCompletion',
+                      //                 style: AppTextStyles.labelText.copyWith(
+                      //                     fontSize:
+                      //                         getResponsiveFontSize(0.03))),
+                      //             SizedBox(height: 10),
+                      //             Text(
+                      //                 'Complete your profile to unlock more features!',
+                      //                 style: AppTextStyles.labelText.copyWith(
+                      //                     fontSize:
+                      //                         getResponsiveFontSize(0.03))),
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                       Padding(
                         padding: EdgeInsets.symmetric(vertical: 16),
                         child: Padding(
