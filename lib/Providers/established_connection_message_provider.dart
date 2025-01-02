@@ -3,9 +3,11 @@ import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 import '../Models/ResponseModels/establish_connection_response_model.dart';
 import '../constants.dart';
+
 class EstablishConnectionProvider extends GetConnect {
   Future<EstablishConnectionResponse?> sendConnectionMessageprovider(
-      EstablishConnectionMessageRequest establishConnectionMessageRequest) async {
+      EstablishConnectionMessageRequest
+          establishConnectionMessageRequest) async {
     try {
       EncryptedSharedPreferences preferences =
           await EncryptedSharedPreferences.getInstance();
@@ -16,7 +18,8 @@ class EstablishConnectionProvider extends GetConnect {
         return null;
       }
 
-      Get.snackbar('Request', establishConnectionMessageRequest.toJson().toString());
+      Get.snackbar(
+          'Request', establishConnectionMessageRequest.toJson().toString());
 
       Response response = await post(
         '$baseurl/Chats/establish_connections',

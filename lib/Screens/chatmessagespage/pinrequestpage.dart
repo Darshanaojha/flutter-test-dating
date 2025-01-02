@@ -129,7 +129,7 @@ class MessageRequestPageState extends State<MessageRequestPage> {
                                 MaterialPageRoute(
                                   builder: (context) => ReplyMessagePage(
                                     senderName: messageRequest.name,
-                                    senderId: messageRequest.id,
+                                    senderId: messageRequest.userId,
                                     lastMessage: messageRequest.message,
                                   ),
                                 ),

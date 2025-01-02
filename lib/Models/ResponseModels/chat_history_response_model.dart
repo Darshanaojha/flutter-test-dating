@@ -119,6 +119,28 @@ class Message {
       'is_edited': isEdited,
     };
   }
+
+  Message copyWith({
+    String? message,
+    String? updated,
+    String? isEdited,
+  }) {
+    return Message(
+      id: this.id,
+      senderId: this.senderId,
+      receiverId: this.receiverId,
+      message: message ?? this.message,
+      messageType: this.messageType,
+      created: this.created,
+      updated: updated ?? this.updated,
+      status: this.status,
+      deletedBySender: this.deletedBySender,
+      deletedByReceiver: this.deletedByReceiver,
+      deletedAtSender: this.deletedAtSender,
+      deletedAtReceiver: this.deletedAtReceiver,
+      isEdited: isEdited ?? this.isEdited,
+    );
+  }
 }
 
 class Error {

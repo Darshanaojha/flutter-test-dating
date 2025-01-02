@@ -368,7 +368,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 fillColor: AppColors.formFieldColor,
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: AppColors.textColor),
+                  borderSide: BorderSide(color: AppColors.activeColor),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -1120,7 +1120,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   fillColor: AppColors.formFieldColor,
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: AppColors.textColor),
+                    borderSide: BorderSide(color: AppColors.activeColor),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -1351,6 +1351,19 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                               borderSide:
                                   BorderSide(color: AppColors.textColor),
                             ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Colors.green,
+                                  width: 2.0), // Green border when focused
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            // Enabled border (default border color)
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Colors.white,
+                                  width: 1.5), // Green border when not focused
+                              borderRadius: BorderRadius.circular(20),
+                            ),
                             contentPadding: EdgeInsets.symmetric(
                                 vertical: 10, horizontal: 16),
                           ),
@@ -1395,12 +1408,14 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 onPressed: () {
                   if (selectedLanguages.isEmpty) {
                     failure('Error', 'Please select at least one language');
+                    Get.snackbar("lang", controller.language.length.toString());
                     return;
                   } else {
                     print('Next button pressed');
                     print(
                         'Selected Language IDs: ${controller.userRegistrationRequest.lang}');
                     markStepAsCompleted(8);
+
                     Get.snackbar('lang',
                         controller.userRegistrationRequest.lang.toString());
                     pageController.nextPage(
@@ -1497,7 +1512,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   fillColor: AppColors.formFieldColor,
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: AppColors.textColor),
+                    borderSide: BorderSide(color: AppColors.activeColor),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
