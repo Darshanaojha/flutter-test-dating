@@ -58,15 +58,15 @@ class ChatScreenState extends State<ChatScreen> {
           senderId: widget.senderId,
           receiverId: widget.receiverId,
           message: messageText,
-          messageType: '1',
+          messageType: 1,
           created: DateTime.now().toString(),
           updated: DateTime.now().toString(),
-          status: '1',
-          deletedBySender: '0',
-          deletedByReceiver: '0',
+          status: 1,
+          deletedBySender: 0,
+          deletedByReceiver: 0,
           deletedAtReceiver: '0',
           deletedAtSender: '0',
-          isEdited: '0',
+          isEdited: 0,
         ));
       });
 
@@ -262,9 +262,25 @@ class ChatScreenState extends State<ChatScreen> {
       controller.messages[index] =
           controller.messages[index].copyWith(message: newMessage);
     }
+    controller.messages[index].deletedAtReceiver = null;
+    controller.messages[index].deletedAtSender = null;
+    controller.updateChats(controller.messages[index]);
   }
 
   void _deleteMessage(int index) {
+    Message message = controller.messages[index];
+    if (message.senderId == controller.userData.first.id) {
+      message.deletedBySender = 1;
+      message.deletedAtSender = DateTime.now().toIso8601String();
+      message.deletedAtReceiver = null;
+    } else if (message.receiverId == controller.userData.first.id) {
+      message.deletedByReceiver = 1;
+      message.deletedAtReceiver = DateTime.now().toIso8601String();
+      message.deletedAtSender = null;
+    } else {
+      failure("Error", "Not authorized to delete the message");
+    }
+    controller.updateChats(message);
     controller.messages.removeAt(index);
   }
 

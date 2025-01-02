@@ -42,6 +42,7 @@ import 'package:dating_application/Providers/fetch_all_safety_guildlines_provide
 import 'package:dating_application/Providers/fetch_subscripted_package_provider.dart';
 import 'package:dating_application/Providers/login_provider.dart';
 import 'package:dating_application/Providers/share_profile_provider.dart';
+import 'package:dating_application/Providers/chat_provider.dart';
 import 'package:dating_application/Providers/user_profile_provider.dart';
 import 'package:dating_application/Screens/loginforgotpassword/forgotpasswordotp.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
@@ -82,6 +83,7 @@ import '../Models/ResponseModels/app_details_response_model.dart';
 import '../Models/ResponseModels/app_setting_response_model.dart';
 import '../Models/ResponseModels/block_user_response_model.dart';
 import '../Models/ResponseModels/chat_history_response_model.dart';
+import '../Models/ResponseModels/chat_response.dart';
 import '../Models/ResponseModels/delete_message_response_model.dart';
 import '../Models/ResponseModels/edit_message_response_model.dart';
 import '../Models/ResponseModels/establish_connection_response_model.dart';
@@ -360,19 +362,33 @@ class Controller extends GetxController {
     }
   }
 
-  RxList<Message> messages = <Message>[].obs;
-  Future<bool> chatHistory(
-      ChatHistoryRequestModel chatHistoryRequestModel) async {
+  Future<bool> updateChats(Message message) async {
     try {
-      messages.clear();
-      final ChatHistoryResponse? response =
-          await ChatMessagePageProvider().chatHistory(chatHistoryRequestModel);
+      final ChatResponse? response = await ChatProvider().updateChats(message);
       if (response != null) {
-        messages.addAll(response.payload.data);
-        print('chat history fetched successfully');
         return true;
       } else {
-        failure('Error', 'Error fetching the chat history');
+        failure('Error', 'Error updating the chat');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<Message> messages = <Message>[].obs;
+
+  Future<bool> fetchChats(String connectionId) async {
+    try {
+      messages.clear();
+      final ChatResponse? response =
+          await ChatProvider().fetchChats(connectionId);
+      if (response != null) {
+        messages.addAll(response.chats);
+        return true;
+      } else {
+        failure('Error', 'Error updating the chat');
         return false;
       }
     } catch (e) {
