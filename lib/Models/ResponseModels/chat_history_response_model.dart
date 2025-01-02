@@ -54,19 +54,19 @@ class Payload {
 }
 
 class Message {
-  final String id;
-  final String senderId;
-  final String receiverId;
-  final String message;
-  final String messageType;
-  final String created;
-  final String updated;
-  final String status;
-  final String deletedBySender;
-  final String deletedByReceiver;
-  final String deletedAtSender;
-  final String deletedAtReceiver;
-  final String isEdited;
+  String id;
+  String senderId;
+  String receiverId;
+  String message;
+  int messageType;
+  String created;
+  String updated;
+  int status;
+  int deletedBySender;
+  int deletedByReceiver;
+  String? deletedAtSender;
+  String? deletedAtReceiver;
+  int isEdited;
 
   Message({
     required this.id,
@@ -90,15 +90,15 @@ class Message {
       senderId: json['sender_id'].toString(),
       receiverId: json['receiver_id'].toString(),
       message: json['message'].toString(),
-      messageType: json['message_type'].toString(),
+      messageType: json['message_type'],
       created: json['created'].toString(),
       updated: json['updated'].toString(),
-      status: json['status'].toString(),
-      deletedBySender: json['deleted_by_sender'].toString(),
-      deletedByReceiver: json['deleted_by_receiver'].toString(),
+      status: json['status'],
+      deletedBySender: json['deleted_by_sender'],
+      deletedByReceiver: json['deleted_by_receiver'],
       deletedAtSender: json['deleted_at_sender'].toString(),
       deletedAtReceiver: json['deleted_at_receiver'].toString(),
-      isEdited: json['is_edited'].toString(),
+      isEdited: json['is_edited'],
     );
   }
 
@@ -121,23 +121,33 @@ class Message {
   }
 
   Message copyWith({
+    String? id,
+    String? senderId,
+    String? receiverId,
     String? message,
+    int? messageType,
+    String? created,
     String? updated,
-    String? isEdited,
+    int? status,
+    int? deletedBySender,
+    int? deletedByReceiver,
+    String? deletedAtSender,
+    String? deletedAtReceiver,
+    int? isEdited,
   }) {
     return Message(
-      id: this.id,
-      senderId: this.senderId,
-      receiverId: this.receiverId,
+      id: id ?? this.id,
+      senderId: senderId ?? this.senderId,
+      receiverId: receiverId ?? this.receiverId,
       message: message ?? this.message,
-      messageType: this.messageType,
-      created: this.created,
+      messageType: messageType ?? this.messageType,
+      created: created ?? this.created,
       updated: updated ?? this.updated,
-      status: this.status,
-      deletedBySender: this.deletedBySender,
-      deletedByReceiver: this.deletedByReceiver,
-      deletedAtSender: this.deletedAtSender,
-      deletedAtReceiver: this.deletedAtReceiver,
+      status: status ?? this.status,
+      deletedBySender: deletedBySender ?? this.deletedBySender,
+      deletedByReceiver: deletedByReceiver ?? this.deletedByReceiver,
+      deletedAtSender: deletedAtSender ?? this.deletedAtSender,
+      deletedAtReceiver: deletedAtReceiver ?? this.deletedAtReceiver,
       isEdited: isEdited ?? this.isEdited,
     );
   }
