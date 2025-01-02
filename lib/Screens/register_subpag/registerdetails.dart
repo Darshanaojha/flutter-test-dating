@@ -184,6 +184,53 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                         }, (value) {
                           controller.userRegistrationRequest.address = value;
                         }, fontSize),
+                        // City Field
+                        buildTextField(
+                          "City",
+                          null,
+                          (value) {
+                            setState(() {
+                              controller.userRegistrationRequest.city = value;
+                              if (debounce?.isActive ?? false) {
+                                debounce?.cancel();
+                              }
+
+                              debounce =
+                                  Timer(Duration(milliseconds: 1000), () {
+                                fetchLatLong();
+                              });
+                            });
+                          },
+                          (value) {
+                            setState(() {
+                              controller.userRegistrationRequest.city = value;
+                            });
+                          },
+                          fontSize,
+                          isCityField: true,
+                        ),
+                        Obx(() {
+                          if (isLatLongFetched.value) {
+                            return Column(
+                              children: [
+                                buildTextFieldForLatLong(
+                                  "Latitude",
+                                  controller.userRegistrationRequest.latitude,
+                                  fontSize,
+                                  enabled: false,
+                                ),
+                                buildTextFieldForLatLong(
+                                  "Longitude",
+                                  controller.userRegistrationRequest.longitude,
+                                  fontSize,
+                                  enabled: false,
+                                ),
+                              ],
+                            );
+                          } else {
+                            return Container();
+                          }
+                        }),
                         buildPasswordField(
                           "Password",
                           null,
@@ -251,53 +298,6 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           },
                         ),
 
-                        // City Field
-                        buildTextField(
-                          "City",
-                          null,
-                          (value) {
-                            setState(() {
-                              controller.userRegistrationRequest.city = value;
-                              if (debounce?.isActive ?? false) {
-                                debounce?.cancel();
-                              }
-
-                              debounce =
-                                  Timer(Duration(milliseconds: 1000), () {
-                                fetchLatLong();
-                              });
-                            });
-                          },
-                          (value) {
-                            setState(() {
-                              controller.userRegistrationRequest.city = value;
-                            });
-                          },
-                          fontSize,
-                          isCityField: true,
-                        ),
-                        Obx(() {
-                          if (isLatLongFetched.value) {
-                            return Column(
-                              children: [
-                                buildTextFieldForLatLong(
-                                  "Latitude",
-                                  controller.userRegistrationRequest.latitude,
-                                  fontSize,
-                                  enabled: false,
-                                ),
-                                buildTextFieldForLatLong(
-                                  "Longitude",
-                                  controller.userRegistrationRequest.longitude,
-                                  fontSize,
-                                  enabled: false,
-                                ),
-                              ],
-                            );
-                          } else {
-                            return Container();
-                          }
-                        }),
                         SizedBox(height: 20),
                         ElevatedButton(
                           onPressed: () {
@@ -424,7 +424,8 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(
-                color: enabled ? AppColors.primaryColor : Colors.grey),
+                color:
+                    enabled ? AppColors.primaryColor : AppColors.activeColor),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
@@ -483,7 +484,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: AppColors.textColor),
+            borderSide: BorderSide(color: AppColors.activeColor),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
@@ -606,7 +607,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: AppColors.textColor),
+            borderSide: BorderSide(color: AppColors.activeColor),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
@@ -649,7 +650,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
               borderRadius: BorderRadius.circular(8),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.white),
+              borderSide: BorderSide(color: AppColors.activeColor),
             ),
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: Colors.white),
@@ -744,7 +745,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
               borderSide: BorderSide(color: AppColors.textColor),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.white),
+              borderSide: BorderSide(color: Colors.green),
             ),
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: Colors.white),

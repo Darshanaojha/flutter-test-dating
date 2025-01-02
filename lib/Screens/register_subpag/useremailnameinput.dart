@@ -99,8 +99,12 @@ class UserInputPageState extends State<UserInputPage> {
                       borderSide: BorderSide.none,
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: AppColors.primaryColor),
+                      borderSide: BorderSide(color: Colors.green, width: 2.0),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white, width: 1.5),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                   ),
                   style: TextStyle(
@@ -131,7 +135,11 @@ class UserInputPageState extends State<UserInputPage> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: AppColors.primaryColor),
+                      borderSide: BorderSide(color: Colors.green, width: 2.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white, width: 1.5),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                   ),
                   style: TextStyle(
@@ -140,8 +148,10 @@ class UserInputPageState extends State<UserInputPage> {
                   onChanged: (value) {
                     controller.registrationOTPRequest.email = value;
                     controller.userRegistrationRequest.email = value;
-                    controller.registrationOTPRequest.email = controller.registrationOTPRequest.email.trim();
-                    controller.userRegistrationRequest.email =  controller.userRegistrationRequest.email.trim();
+                    controller.registrationOTPRequest.email =
+                        controller.registrationOTPRequest.email.trim();
+                    controller.userRegistrationRequest.email =
+                        controller.userRegistrationRequest.email.trim();
                   },
                   onSaved: (value) {
                     controller.registrationOTPRequest.email = value ?? '';
@@ -165,7 +175,11 @@ class UserInputPageState extends State<UserInputPage> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: AppColors.primaryColor),
+                      borderSide: BorderSide(color: Colors.green, width: 2.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white, width: 1.5),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                   ),
                   style: TextStyle(

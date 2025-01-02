@@ -35,7 +35,7 @@ class RazorpayController extends GetxController {
       String contact, String email) {
     var options = {
       'key': RazorpayKeys.RAZORPAYKEYID,
-      'amount': (totalAmount * 100).toInt(), 
+      'amount': (totalAmount * 100).toInt(),
       'name': name,
       'description': description,
       'prefill': {

@@ -491,6 +491,15 @@ class EditProfilePageState extends State<EditProfilePage> {
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide.none,
                     ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.green, width: 2.0),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: AppColors.textColor, width: 1.5),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                     errorText: errorText,
                     hintText: "Select your Date of Birth",
                   ),
@@ -1360,6 +1369,25 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                               10),
                                                       borderSide:
                                                           BorderSide.none,
+                                                    ),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                          color: Colors.green,
+                                                          width: 2.0),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                    ),
+                                                    enabledBorder:
+                                                        OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                          color: AppColors
+                                                              .textColor,
+                                                          width: 1.5),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
                                                     ),
                                                   ),
                                                 ),
@@ -2292,11 +2320,20 @@ class InfoFieldState extends State<InfoField> {
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
                 ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.green, width: 2.0),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide:
+                      BorderSide(color: AppColors.textColor, width: 1.5),
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 errorText: _errorText,
               ),
               onChanged: (value) {
                 widget.onChanged(value);
-                validateInput(value); 
+                validateInput(value);
               },
             ),
             Divider(color: AppColors.textColor),
