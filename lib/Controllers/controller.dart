@@ -388,7 +388,22 @@ class Controller extends GetxController {
         messages.addAll(response.chats);
         return true;
       } else {
-        failure('Error', 'Error updating the chat');
+        failure('Error', 'Error fetching the chat');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> deleteChats(List<Message> chats) async {
+    try {
+      final ChatResponse? response = await ChatProvider().deleteChats(chats);
+      if (response != null) {
+        return true;
+      } else {
+        failure('Error', 'Error deleting the chat');
         return false;
       }
     } catch (e) {

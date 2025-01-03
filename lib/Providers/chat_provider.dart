@@ -1,3 +1,4 @@
+import 'dart:convert';
 
 import 'package:dating_application/Models/ResponseModels/chat_history_response_model.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
@@ -49,6 +50,40 @@ class ChatProvider extends GetConnect {
         Response response = await post(
           'http://192.168.1.11:8080/fetchChats',
           {'connectionId': connectionId},
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+        );
+
+        if (response.statusCode == 200) {
+          return ChatResponse.fromJson(response.body);
+        } else {
+          failure('Error', response.body.toString());
+          return null;
+        }
+      } else {
+        failure('Error', 'Token not found');
+        return null;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return null;
+    }
+  }
+
+  Future<ChatResponse?> deleteChats(List<Message> chats) async {
+    try {
+      EncryptedSharedPreferences preferences =
+          EncryptedSharedPreferences.getInstance();
+      String? token = preferences.getString('token');
+
+      if (token != null && token.isNotEmpty) {
+        List<Map<String, dynamic>> jsonChats =
+            chats.map((message) => message.toJson()).toList();
+        Response response = await post(
+          'http://192.168.1.11:8080/deleteChats',
+          jsonChats,
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token',
