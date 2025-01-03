@@ -34,10 +34,10 @@ class NavigationBottomBar extends StatefulWidget {
   const NavigationBottomBar({super.key});
 
   @override
-  _NavigationBottomBarState createState() => _NavigationBottomBarState();
+  NavigationBottomBarState createState() => NavigationBottomBarState();
 }
 
-class _NavigationBottomBarState extends State<NavigationBottomBar>
+class NavigationBottomBarState extends State<NavigationBottomBar>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _rotationAnimation;
@@ -204,21 +204,20 @@ class _NavigationBottomBarState extends State<NavigationBottomBar>
             index: navigationcontroller.selectedIndex.value,
             onTap: (index) {
               navigationcontroller.navigateTo(index);
-              _animationController.forward(from: 0); 
+              _animationController.forward(from: 0);
             },
             backgroundColor: Colors.transparent,
             color: AppColors.navigationColor,
             height: 60,
             animationDuration: Duration(milliseconds: 300),
             items: <Widget>[
-              // Home Icon
               AnimatedBuilder(
                 animation: _animationController,
                 builder: (context, child) {
                   return Transform.rotate(
                     angle: navigationcontroller.selectedIndex.value == 0
                         ? _rotationAnimation.value
-                        : 0.0, 
+                        : 0.0,
                     child: Icon(
                       Icons.home,
                       size: 30,
@@ -229,14 +228,13 @@ class _NavigationBottomBarState extends State<NavigationBottomBar>
                   );
                 },
               ),
-              // Favorite Icon
               AnimatedBuilder(
                 animation: _animationController,
                 builder: (context, child) {
                   return Transform.rotate(
                     angle: navigationcontroller.selectedIndex.value == 1
                         ? _rotationAnimation.value
-                        : 0.0, // Rotate only selected icon
+                        : 0.0,
                     child: Icon(
                       Icons.favorite,
                       size: 30,
@@ -247,7 +245,6 @@ class _NavigationBottomBarState extends State<NavigationBottomBar>
                   );
                 },
               ),
-              // Messenger Icon
               AnimatedBuilder(
                 animation: _animationController,
                 builder: (context, child) {
@@ -271,7 +268,7 @@ class _NavigationBottomBarState extends State<NavigationBottomBar>
                   return Transform.rotate(
                     angle: navigationcontroller.selectedIndex.value == 3
                         ? _rotationAnimation.value
-                        : 0.0, 
+                        : 0.0,
                     child: Icon(
                       Icons.account_circle,
                       size: 30,

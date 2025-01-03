@@ -24,7 +24,7 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
   late AnimationController animationController;
   late Animation<double> fadeInAnimation;
 
-  bool isLoading = false; // Variable to manage the loading state
+  bool isLoading = false;
 
   @override
   void initState() {
