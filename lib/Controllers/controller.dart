@@ -1173,56 +1173,68 @@ class Controller extends GetxController {
   RxList<SuggestedUser> userSuggestionsList = <SuggestedUser>[].obs;
   RxList<SuggestedUser> userHighlightedList = <SuggestedUser>[].obs;
   RxList<SuggestedUser> userNearByList = <SuggestedUser>[].obs;
+  Set<String?> seenUserIds = {};
   Future<bool> userSuggestions() async {
     try {
       userSuggestionsList.clear();
       userHighlightedList.clear();
       userNearByList.clear();
+      seenUserIds.clear();
       UserSuggestionsResponseModel? response =
           await UserSuggestionsProvider().userSuggestions();
+
       if (response != null && response.payload != null) {
-        print('user fetched successfully');
+        print('User fetched successfully');
+        void addUniqueUsers(
+            List<SuggestedUser> users, RxList<SuggestedUser> targetList) {
+          for (var user in users) {
+            if (user.userId != null && !seenUserIds.contains(user.userId)) {
+              targetList.add(user);
+              seenUserIds.add(user.userId);
+            }
+          }
+        }
 
         if (response.payload!.desireBase != null &&
             response.payload!.desireBase!.isNotEmpty) {
-          print('desire base : ${response.payload!.desireBase!.length}');
-          userSuggestionsList.addAll(response.payload!.desireBase!);
-          print(userSuggestionsList.length);
+          print('Desire base: ${response.payload!.desireBase!.length}');
+          addUniqueUsers(response.payload!.desireBase!, userSuggestionsList);
+          print('userSuggestionsList length: ${userSuggestionsList.length}');
         }
 
         if (response.payload!.locationBase != null &&
             response.payload!.locationBase!.isNotEmpty) {
-          print('location base : ${response.payload!.locationBase!.length}');
-
-          userNearByList.addAll(response.payload!.locationBase!);
-          print(userNearByList.length);
-          userSuggestionsList.addAll(response.payload!.locationBase!);
+          print('Location base: ${response.payload!.locationBase!.length}');
+          addUniqueUsers(response.payload!.locationBase!, userNearByList);
+          addUniqueUsers(response.payload!.locationBase!, userSuggestionsList);
+          print('userSuggestionsList length: ${userSuggestionsList.length}');
         }
 
         if (response.payload!.preferenceBase != null &&
             response.payload!.preferenceBase!.isNotEmpty) {
-          print(
-              'preference base : ${response.payload!.preferenceBase!.length}');
-
-          userSuggestionsList.addAll(response.payload!.preferenceBase!);
-          print(userSuggestionsList.length);
+          print('Preference base: ${response.payload!.preferenceBase!.length}');
+          addUniqueUsers(
+              response.payload!.preferenceBase!, userSuggestionsList);
+          print('userSuggestionsList length: ${userSuggestionsList.length}');
         }
 
         if (response.payload!.languageBase != null &&
             response.payload!.languageBase!.isNotEmpty) {
-          print('language base : ${response.payload!.languageBase!.length}');
-
-          userSuggestionsList.addAll(response.payload!.languageBase!);
-          print(userSuggestionsList.length);
+          print('Language base: ${response.payload!.languageBase!.length}');
+          addUniqueUsers(response.payload!.languageBase!, userSuggestionsList);
+          print('userSuggestionsList length: ${userSuggestionsList.length}');
         }
+
         if (response.payload!.highlightedAccount != null &&
             response.payload!.highlightedAccount!.isNotEmpty) {
           print(
-              'highlighted base : ${response.payload!.highlightedAccount!.length}');
-
-          userHighlightedList.addAll(response.payload!.highlightedAccount!);
-          print(userHighlightedList.length);
-          userSuggestionsList.addAll(response.payload!.highlightedAccount!);
+              'Highlighted account base: ${response.payload!.highlightedAccount!.length}');
+          addUniqueUsers(
+              response.payload!.highlightedAccount!, userHighlightedList);
+          addUniqueUsers(
+              response.payload!.highlightedAccount!, userSuggestionsList);
+          print('userHighlightedList length: ${userHighlightedList.length}');
+          print('userSuggestionsList length: ${userSuggestionsList.length}');
         }
 
         return true;
