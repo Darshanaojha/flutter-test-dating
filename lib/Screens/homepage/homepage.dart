@@ -1,12 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/RequestModels/estabish_connection_request_model.dart';
-import 'package:dating_application/Screens/homepage/swaping.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:swipe_cards/draggable_card.dart';
 import 'package:swipe_cards/swipe_cards.dart';
 import '../../Models/ResponseModels/user_suggestions_response_model.dart';
@@ -19,7 +17,8 @@ class HomePage extends StatefulWidget {
   HomePageState createState() => HomePageState();
 }
 
-class HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   Controller controller = Get.put(Controller());
 
   double getResponsiveFontSize(double scale) {
@@ -38,6 +37,8 @@ class HomePageState extends State<HomePage> {
   bool isLoading = false;
   int messageCount = 0;
   int MessageType = 1;
+  late AnimationController _animationController;
+  late Animation<double> _rotationAnimation;
   final TextEditingController messageController = TextEditingController();
   final FocusNode messageFocusNode = FocusNode();
   final PageController _imagePageController = PageController();
@@ -46,6 +47,14 @@ class HomePageState extends State<HomePage> {
   late Future<bool> _fetchSuggestion;
   @override
   void initState() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300),
+    );
+
+    _rotationAnimation = Tween<double>(begin: 0, end: 2 * 3.1415927).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
     super.initState();
     matchEngine = MatchEngine();
 
@@ -117,6 +126,7 @@ class HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
+    _animationController.dispose();
     messageFocusNode.dispose();
     super.dispose();
   }
@@ -190,13 +200,12 @@ class HomePageState extends State<HomePage> {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
-                   if (establishConnectionMessageRequest.message.isEmpty) {
+                  if (establishConnectionMessageRequest.message.isEmpty) {
                     Get.snackbar("Error", "Message cannot be empty!");
                     return;
                   }
                   await controller
                       .sendConnectionMessage(establishConnectionMessageRequest);
-                 
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.buttonColor,
@@ -223,12 +232,22 @@ class HomePageState extends State<HomePage> {
           setState(() {
             selectedFilter.value = button;
           });
+          _animationController.forward(from: 0);
           onTap(label);
         },
-        icon: Icon(
-          icon,
-          size: 20,
-          color: AppColors.textColor,
+        icon: AnimatedBuilder(
+          animation: _animationController,
+          builder: (context, child) {
+            return Transform.rotate(
+              angle:
+                  selectedFilter.value == button ? _rotationAnimation.value : 0,
+              child: Icon(
+                icon,
+                size: 20,
+                color: AppColors.textColor,
+              ),
+            );
+          },
         ),
         label: Text(
           label,
@@ -267,7 +286,6 @@ class HomePageState extends State<HomePage> {
                       child: Lottie.asset(
                           "assets/animations/loadinganimation.json"));
                 }
-
                 if (snapshot.hasError) {
                   return Center(
                     child: Column(
@@ -292,7 +310,6 @@ class HomePageState extends State<HomePage> {
                     ),
                   );
                 }
-
                 if (!snapshot.hasData || snapshot.data == null) {
                   return Center(
                     child: Text(
@@ -352,26 +369,6 @@ class HomePageState extends State<HomePage> {
                               Get.snackbar('userfavourite',
                                   controller.favourite.length.toString());
                             }),
-                            ElevatedButton(
-                              onPressed: () {
-                                Get.to(MySwipePage());
-                                Get.snackbar(
-                                    'usersuggestion',
-                                    controller.userSuggestionsList.length
-                                        .toString());
-                                Get.snackbar(
-                                    'highlighted',
-                                    controller.userHighlightedList.length
-                                        .toString());
-                                Get.snackbar(
-                                    'usernearbylist',
-                                    controller.userNearByList.length
-                                        .toString());
-                                Get.snackbar('userfavourite',
-                                    controller.favourite.length.toString());
-                              },
-                              child: Text('Demo'),
-                            ),
                           ],
                         ),
                       ),

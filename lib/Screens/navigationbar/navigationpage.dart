@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:dating_application/Screens/login.dart';
 import 'package:dating_application/Screens/userprofile/editprofile/edituserprofile.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/update_activity_status_request_model.dart';
 import '../../constants.dart';
 import '../chatmessagespage/ContactListScreen.dart';
@@ -17,8 +20,8 @@ class NavigationController extends GetxController {
   final List<Widget> screens = [
     HomePage(),
     LikesPage(),
-   // ChatHistoryPage(),
-   ContactListScreen(),
+    // ChatHistoryPage(),
+    ContactListScreen(),
     UserProfilePage(),
   ];
 
@@ -27,8 +30,39 @@ class NavigationController extends GetxController {
   }
 }
 
-class NavigationBottomBar extends StatelessWidget {
+class NavigationBottomBar extends StatefulWidget {
   const NavigationBottomBar({super.key});
+
+  @override
+  _NavigationBottomBarState createState() => _NavigationBottomBarState();
+}
+
+class _NavigationBottomBarState extends State<NavigationBottomBar>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _rotationAnimation;
+  final controller = Get.put(Controller());
+
+  final navigationcontroller = Get.put(NavigationController());
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 500),
+    );
+    _rotationAnimation = Tween<double>(begin: 0, end: 2 * pi).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   double getResponsiveFontSize(BuildContext context, double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -86,8 +120,6 @@ class NavigationBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(NavigationController());
-
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(60),
@@ -103,9 +135,8 @@ class NavigationBottomBar extends StatelessWidget {
               stops: [0.0, 1.0],
             ),
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(30), // Optional: Rounded top-left corner
-              topRight:
-                  Radius.circular(30), // Optional: Rounded top-right corner
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
             ),
           ),
           child: AppBar(
@@ -121,7 +152,6 @@ class NavigationBottomBar extends StatelessWidget {
                 ),
               ),
             ),
-            // backgroundColor: AppColors.navigationColor,
             backgroundColor: Colors.transparent,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.only(
@@ -150,7 +180,8 @@ class NavigationBottomBar extends StatelessWidget {
         ),
       ),
       body: Obx(() {
-        return controller.screens[controller.selectedIndex.value];
+        return navigationcontroller
+            .screens[navigationcontroller.selectedIndex.value];
       }),
       bottomNavigationBar: Obx(() {
         return Container(
@@ -165,50 +196,91 @@ class NavigationBottomBar extends StatelessWidget {
               stops: [0.0, 1.0],
             ),
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(30), // Optional: Rounded top-left corner
-              topRight:
-                  Radius.circular(30), // Optional: Rounded top-right corner
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
             ),
           ),
           child: CurvedNavigationBar(
-            index: controller.selectedIndex.value,
+            index: navigationcontroller.selectedIndex.value,
             onTap: (index) {
-              controller.navigateTo(index);
+              navigationcontroller.navigateTo(index);
+              _animationController.forward(from: 0); 
             },
-            // backgroundColor:AppColors.primaryColor,
-            // color: AppColors.navigationColor,
             backgroundColor: Colors.transparent,
             color: AppColors.navigationColor,
             height: 60,
             animationDuration: Duration(milliseconds: 300),
             items: <Widget>[
-              Icon(
-                Icons.home,
-                size: 30,
-                color: controller.selectedIndex.value == 0
-                    ? AppColors.primaryColor
-                    : AppColors.textColor,
+              // Home Icon
+              AnimatedBuilder(
+                animation: _animationController,
+                builder: (context, child) {
+                  return Transform.rotate(
+                    angle: navigationcontroller.selectedIndex.value == 0
+                        ? _rotationAnimation.value
+                        : 0.0, 
+                    child: Icon(
+                      Icons.home,
+                      size: 30,
+                      color: navigationcontroller.selectedIndex.value == 0
+                          ? AppColors.primaryColor
+                          : AppColors.textColor,
+                    ),
+                  );
+                },
               ),
-              Icon(
-                Icons.favorite,
-                size: 30,
-                color: controller.selectedIndex.value == 1
-                    ? AppColors.primaryColor
-                    : AppColors.textColor,
+              // Favorite Icon
+              AnimatedBuilder(
+                animation: _animationController,
+                builder: (context, child) {
+                  return Transform.rotate(
+                    angle: navigationcontroller.selectedIndex.value == 1
+                        ? _rotationAnimation.value
+                        : 0.0, // Rotate only selected icon
+                    child: Icon(
+                      Icons.favorite,
+                      size: 30,
+                      color: navigationcontroller.selectedIndex.value == 1
+                          ? AppColors.primaryColor
+                          : AppColors.textColor,
+                    ),
+                  );
+                },
               ),
-              Icon(
-                Icons.messenger,
-                size: 30,
-                color: controller.selectedIndex.value == 2
-                    ? AppColors.primaryColor
-                    : AppColors.textColor,
+              // Messenger Icon
+              AnimatedBuilder(
+                animation: _animationController,
+                builder: (context, child) {
+                  return Transform.rotate(
+                    angle: navigationcontroller.selectedIndex.value == 2
+                        ? _rotationAnimation.value
+                        : 0.0,
+                    child: Icon(
+                      Icons.messenger,
+                      size: 30,
+                      color: navigationcontroller.selectedIndex.value == 2
+                          ? AppColors.primaryColor
+                          : AppColors.textColor,
+                    ),
+                  );
+                },
               ),
-              Icon(
-                Icons.account_circle,
-                size: 30,
-                color: controller.selectedIndex.value == 3
-                    ? AppColors.primaryColor
-                    : AppColors.textColor,
+              AnimatedBuilder(
+                animation: _animationController,
+                builder: (context, child) {
+                  return Transform.rotate(
+                    angle: navigationcontroller.selectedIndex.value == 3
+                        ? _rotationAnimation.value
+                        : 0.0, 
+                    child: Icon(
+                      Icons.account_circle,
+                      size: 30,
+                      color: navigationcontroller.selectedIndex.value == 3
+                          ? AppColors.primaryColor
+                          : AppColors.textColor,
+                    ),
+                  );
+                },
               ),
             ],
           ),

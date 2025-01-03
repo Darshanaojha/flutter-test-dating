@@ -665,7 +665,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                         onTap: () =>
                                                             showFullImageDialog(
                                                                 context,
-                                                                imageUrl), // show full image on tap
+                                                                imageUrl), // Show full image on tap
                                                         child: ClipRRect(
                                                           borderRadius:
                                                               BorderRadius
@@ -683,13 +683,45 @@ class EditProfilePageState extends State<EditProfilePage> {
                                                                     .size
                                                                     .height *
                                                                 0.45,
+                                                            loadingBuilder:
+                                                                (context, child,
+                                                                    loadingProgress) {
+                                                              if (loadingProgress ==
+                                                                  null) {
+                                                                return child;
+                                                              } else {
+                                                                return Center(
+                                                                  child:
+                                                                      CircularProgressIndicator(
+                                                                    value: loadingProgress.expectedTotalBytes !=
+                                                                            null
+                                                                        ? loadingProgress.cumulativeBytesLoaded /
+                                                                            (loadingProgress.expectedTotalBytes ??
+                                                                                1)
+                                                                        : null,
+                                                                  ),
+                                                                );
+                                                              }
+                                                            },
                                                             errorBuilder:
                                                                 (context, error,
                                                                     stackTrace) {
-                                                              return Center(
+                                                              return Container(
+                                                                width: 150,
+                                                                height: 200,
+                                                                alignment:
+                                                                    Alignment
+                                                                        .center,
+                                                                color: Colors
+                                                                    .grey
+                                                                    .shade200,
                                                                 child: Icon(
-                                                                    Icons
-                                                                        .error),
+                                                                  Icons
+                                                                      .broken_image,
+                                                                  size: 48,
+                                                                  color: Colors
+                                                                      .grey,
+                                                                ),
                                                               );
                                                             },
                                                           ),

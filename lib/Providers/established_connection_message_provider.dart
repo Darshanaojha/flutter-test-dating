@@ -18,9 +18,6 @@ class EstablishConnectionProvider extends GetConnect {
         return null;
       }
 
-      Get.snackbar(
-          'Request', establishConnectionMessageRequest.toJson().toString());
-
       Response response = await post(
         '$baseurl/Chats/establish_connections',
         establishConnectionMessageRequest.toJson(),
@@ -29,8 +26,6 @@ class EstablishConnectionProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
-      Get.snackbar('Response', response.body.toString());
-
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return EstablishConnectionResponse.fromJson(response.body);

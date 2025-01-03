@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:dating_application/Screens/homepage/unsubscribeuser.dart';
 import 'package:dating_application/Screens/login.dart';
@@ -16,17 +18,15 @@ class UnSubscribeNavigationController extends GetxController {
   final RxString selectedPlan = 'None'.obs;
 
   final List<Widget> screens = [
-    Unsubscribeuser(), // Screen for unsubscribing
-    UserProfilePage(), // Profile page
+    Unsubscribeuser(), 
+    UserProfilePage(),
   ];
 
-  // Method to navigate to the respective screen
   void navigateTo(int index) {
     selectedIndex.value = index;
     showPackagesDialog();
   }
 
-  // Show the packages dialog
   void showPackagesDialog() {
     Get.defaultDialog(
       title: 'Subscribe to Enjoy',
@@ -52,10 +52,9 @@ class UnSubscribeNavigationController extends GetxController {
         ],
       ),
       actions: [
-        // Cancel Button
         TextButton(
           onPressed: () {
-            Get.back(); // Close the dialog
+            Get.back(); 
           },
           child: Text(
             'Cancel',
@@ -71,7 +70,7 @@ class UnSubscribeNavigationController extends GetxController {
             Get.to(MembershipPage());
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.buttonColor, // Button color
+            backgroundColor: AppColors.buttonColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30),
             ),
@@ -99,9 +98,13 @@ class Unsubscribenavigation extends StatefulWidget {
   UnsubscribenavigationState createState() => UnsubscribenavigationState();
 }
 
-class UnsubscribenavigationState extends State<Unsubscribenavigation> {
+class UnsubscribenavigationState extends State<Unsubscribenavigation> with SingleTickerProviderStateMixin {
   int selectedIndex = 0;
   Controller controller = Get.put(Controller());
+
+  late AnimationController _animationController;
+  late Animation<double> _rotationAnimation;
+
   double getResponsiveFontSize(BuildContext context, double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
@@ -110,6 +113,20 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation> {
   @override
   void initState() {
     super.initState();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 500),
+    );
+    _rotationAnimation = Tween<double>(begin: 0, end: 2 * pi).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose(); 
+    super.dispose();
   }
 
   void showLogoutDialog(BuildContext context) {
@@ -143,11 +160,10 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation> {
                 backgroundColor: AppColors.inactiveColor,
               ),
               onPressed: () {
-                // Clear preferences and navigate to login
                 EncryptedSharedPreferences preferences =
                     EncryptedSharedPreferences.getInstance();
                 preferences.clear();
-                Get.offAll(() => Login()); // Make sure Login() is defined
+                Get.offAll(() => Login());
                  UpdateActivityStatusRequest updateActivityStatusRequest =
                     UpdateActivityStatusRequest(status: '0');
                 controller.updateactivitystatus(updateActivityStatusRequest);
@@ -164,7 +180,7 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(UnSubscribeNavigationController());
+    final navigationcontroller = Get.put(UnSubscribeNavigationController());
 
     return Scaffold(
       appBar: PreferredSize(
@@ -209,14 +225,38 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation> {
         ),
       ),
       body: Obx(() {
-        return controller.screens[controller.selectedIndex.value];
+        return navigationcontroller.screens[navigationcontroller.selectedIndex.value];
       }),
       bottomNavigationBar: CurvedNavigationBar(
-        index: selectedIndex, // Use local state for selected index
+        index: selectedIndex,
         height: 60.0,
-        items: const <Widget>[
-          Icon(Icons.home, size: 30, color: Colors.white),
-          Icon(Icons.account_circle, size: 30, color: Colors.white),
+        items: <Widget>[
+          AnimatedBuilder(
+            animation: _animationController,
+            builder: (context, child) {
+              return Transform.rotate(
+                angle: selectedIndex == 0 ? _rotationAnimation.value : 0.0, 
+                child: Icon(
+                  Icons.home,
+                  size: 30,
+                  color: selectedIndex == 0 ? AppColors.primaryColor : Colors.white,
+                ),
+              );
+            },
+          ),
+          AnimatedBuilder(
+            animation: _animationController,
+            builder: (context, child) {
+              return Transform.rotate(
+                angle: selectedIndex == 1 ? _rotationAnimation.value : 0.0,
+                child: Icon(
+                  Icons.account_circle,
+                  size: 30,
+                  color: selectedIndex == 1 ? AppColors.primaryColor : Colors.white,
+                ),
+              );
+            },
+          ),
         ],
         color: AppColors.navigationColor,
         buttonBackgroundColor: AppColors.acceptColor,
@@ -225,9 +265,10 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation> {
         animationDuration: Duration(milliseconds: 300),
         onTap: (index) {
           setState(() {
-            selectedIndex = index; // Update the selected index
+            selectedIndex = index;
+            _animationController.forward(from: 0);
           });
-          controller.navigateTo(index); // Call controller's navigateTo method
+          navigationcontroller.navigateTo(index);
         },
       ),
     );

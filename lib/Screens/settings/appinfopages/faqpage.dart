@@ -2,7 +2,9 @@ import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import '../../../Controllers/controller.dart';
+
 class FaqPage extends StatefulWidget {
   const FaqPage({super.key});
 
@@ -40,10 +42,10 @@ class FaqPageState extends State<FaqPage> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
-                child: SpinKitCircle(
-                  size: 90,
-                  color: AppColors.progressColor,
-                ),
+                child: Lottie.asset(
+                    "assets/animations/notificationanimation.json",
+                    repeat: true,
+                    reverse: true),
               );
             }
             if (snapshot.hasError) {

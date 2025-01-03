@@ -185,11 +185,11 @@ class UserInputPageState extends State<UserInputPage> {
                   style: TextStyle(
                       fontSize: fontSize, color: AppColors.primaryColor),
                   keyboardType:
-                      TextInputType.phone, // Ensure the input is numeric
+                      TextInputType.phone, 
                   inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly, // Allow only digits
+                    FilteringTextInputFormatter.digitsOnly,
                     LengthLimitingTextInputFormatter(
-                        10), // Limit input to 10 digits
+                        10), 
                   ],
                   validator: (value) {
                     if (value == null || value.isEmpty) {

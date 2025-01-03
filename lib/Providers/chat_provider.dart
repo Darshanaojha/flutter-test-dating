@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:dating_application/Models/ResponseModels/chat_history_response_model.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
