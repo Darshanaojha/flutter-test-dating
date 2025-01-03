@@ -110,8 +110,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                 SizedBox(height: 20),
                 Expanded(
                   child: FutureBuilder(
-                    future: controller
-                        .fetchalluserconnections(), // Make sure to return future here
+                    future: controller.fetchalluserconnections(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting ||
                           controller.userConnections.isEmpty) {
@@ -142,7 +141,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                   padding: const EdgeInsets.only(right: 16),
                                   child: Icon(
                                     Icons.more_horiz,
-                                    color: Colors.black,
+                                    color: Colors.white,
                                   ),
                                 ),
                                 confirmDismiss: (direction) async {
@@ -163,11 +162,16 @@ class ContactListScreenState extends State<ContactListScreen> {
                                         'Connection ID: ${connection.conectionId}');
                                     debugPrint(
                                         'Connection Name: ${connection.name}');
-
+                                    if (controller.userData.first.id ==
+                                        connection.conectionId) {
+                                      connection.conectionId =
+                                          connection.userId;
+                                      connection.userId =
+                                          controller.userData.first.id;
+                                    }
                                     controller
                                         .fetchChats(connection.conectionId)
                                         .then((value) async {
-                                     
                                       if (value == true) {
                                         EncryptedSharedPreferences preferences =
                                             await EncryptedSharedPreferences
