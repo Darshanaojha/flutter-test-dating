@@ -381,11 +381,16 @@ class Controller extends GetxController {
 
   Future<bool> fetchChats(String connectionId) async {
     try {
-      messages.clear();
       final ChatResponse? response =
           await ChatProvider().fetchChats(connectionId);
       if (response != null) {
-        messages.addAll(response.chats);
+        final fetchedMessages = response.chats;
+        final existingIds = messages.map((msg) => msg.id).toSet();
+
+        // Add only new messages
+        final newMessages =
+            fetchedMessages.where((msg) => !existingIds.contains(msg.id));
+        messages.addAll(newMessages);
         return true;
       } else {
         failure('Error', 'Error fetching the chat');
