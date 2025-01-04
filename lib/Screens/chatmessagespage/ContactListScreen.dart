@@ -163,11 +163,17 @@ class ContactListScreenState extends State<ContactListScreen> {
                                         'Connection ID: ${connection.conectionId}');
                                     debugPrint(
                                         'Connection Name: ${connection.name}');
-
+                                    if (controller.userData.first.id ==
+                                        connection.conectionId) {
+                                      connection.conectionId =
+                                          connection.userId;
+                                      connection.userId =
+                                          controller.userData.first.id;
+                                    }
                                     controller
                                         .fetchChats(connection.conectionId)
                                         .then((value) async {
-                                     
+                                          value = true;
                                       if (value == true) {
                                         EncryptedSharedPreferences preferences =
                                             await EncryptedSharedPreferences

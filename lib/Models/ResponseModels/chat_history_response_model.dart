@@ -59,8 +59,8 @@ class Message {
   String receiverId;
   String message;
   int messageType;
-  String created;
-  String updated;
+  String? created;
+  String? updated;
   int status;
   int deletedBySender;
   int deletedByReceiver;
@@ -109,13 +109,19 @@ class Message {
       'receiver_id': receiverId,
       'message': message,
       'message_type': messageType,
-      'created': created,
-      'updated': updated,
+      'created':
+          created == null ? null : DateTime.parse(created!).toIso8601String(),
+      'updated':
+          updated == null ? null : DateTime.parse(updated!).toIso8601String(),
       'status': status,
       'deleted_by_sender': deletedBySender,
       'deleted_by_receiver': deletedByReceiver,
-      'deleted_at_sender': deletedAtSender,
-      'deleted_at_receiver': deletedAtReceiver,
+      'deleted_at_sender': deletedAtSender == null
+          ? null
+          : DateTime.parse(deletedAtSender!).toIso8601String(),
+      'deleted_at_receiver': deletedAtReceiver == null
+          ? null
+          : DateTime.parse(deletedAtReceiver!).toIso8601String(),
       'is_edited': isEdited,
     };
   }

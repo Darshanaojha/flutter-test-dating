@@ -11,7 +11,6 @@ class GetAllChatHistoryPageResponse {
     required this.error,
   });
 
-
   factory GetAllChatHistoryPageResponse.fromJson(Map<String, dynamic> json) {
     return GetAllChatHistoryPageResponse(
       success: json['success'],
@@ -49,18 +48,18 @@ class ChatHistoryPayload {
 }
 
 class UserConnections {
-  final String id;
-  final String userId;
-  final String conectionId;
-  final String type;
-  final String status;
-  final String created;
-  final String updated;
-  final String name;
-  final String username;
-  final String profileImage;
-  final String lastSeen;
-  final String useractivestatus;
+  String id;
+  String userId;
+  String conectionId;
+  String type;
+  String status;
+  String created;
+  String updated;
+  String name;
+  String username;
+  String profileImage;
+  String lastSeen;
+  String useractivestatus;
 
   UserConnections({
     required this.id,
@@ -90,7 +89,7 @@ class UserConnections {
       username: json['username'],
       profileImage: json['profile_image'],
       lastSeen: json['last_seen'],
-      useractivestatus:json['user_active_status'],
+      useractivestatus: json['user_active_status'],
     );
   }
 }
