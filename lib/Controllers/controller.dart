@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 import 'dart:ui';
 import 'package:dating_application/Models/RequestModels/change_password_request.dart';
 import 'package:dating_application/Models/RequestModels/delete_chat_history_request_model.dart';
@@ -161,6 +162,8 @@ import '../Screens/register_subpag/registerdetails.dart';
 import '../Screens/register_subpag/registrationotp.dart';
 import '../Screens/settings/updateemailid/updateemailotpverification.dart';
 import '../constants.dart';
+import 'package:crypto/crypto.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
 
 class Controller extends GetxController {
   RxString token = ''.obs;
@@ -362,6 +365,73 @@ class Controller extends GetxController {
     }
   }
 
+  /// Encrypts a message with the provided secret key.
+  String encryptMessage(String message, String secretKey) {
+    // Generate a random 16-byte IV
+    final ivBytes = Uint8List(16);
+    final random = Random.secure();
+    for (int i = 0; i < ivBytes.length; i++) {
+      ivBytes[i] = random.nextInt(256);
+    }
+    final iv = encrypt.IV(ivBytes);
+
+    // Get the AES key
+    final key = _getKey(secretKey);
+
+    // Initialize the AES CBC encrypter
+    final encrypter =
+        encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
+
+    // Encrypt the message
+    final encrypted = encrypter.encrypt(message, iv: iv);
+
+    // Encode the encrypted message and IV to Base64
+    final encodedEncryptedMessage = base64.encode(encrypted.bytes);
+    final encodedIv = base64.encode(iv.bytes);
+
+    // Combine the encoded parts
+    return '$encodedEncryptedMessage::$encodedIv';
+  }
+
+  /// Decrypts an encrypted message with the provided secret key.
+  String decryptMessage(String encryptedMessageWithIv, String secretKey) {
+    // Split the message and IV from the encoded string
+    final parts = encryptedMessageWithIv.split('::');
+    if (parts.length != 2) {
+      throw ArgumentError('Invalid encrypted message format.');
+    }
+
+    final encodedEncryptedMessage = parts[0];
+    final encodedIv = parts[1];
+
+    // Decode the encrypted message and IV from Base64
+    final encryptedMessage = base64.decode(encodedEncryptedMessage);
+    final ivBytes = base64.decode(encodedIv);
+
+    // Create an IV from the decoded bytes
+    final iv = encrypt.IV(ivBytes);
+
+    // Get the AES key
+    final key = _getKey(secretKey);
+
+    // Initialize the AES CBC decrypter
+    final encrypter =
+        encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
+
+    // Decrypt the message
+    final decrypted =
+        encrypter.decryptBytes(encrypt.Encrypted(encryptedMessage), iv: iv);
+
+    // Convert the decrypted bytes back to a string
+    return utf8.decode(decrypted);
+  }
+
+  /// Generates a 256-bit AES key using SHA-256 hash of the secret key.
+  encrypt.Key _getKey(String secretKey) {
+    final keyBytes = sha256.convert(utf8.encode(secretKey)).bytes;
+    return encrypt.Key(Uint8List.fromList(keyBytes));
+  }
+
   Future<bool> updateChats(Message message) async {
     try {
       final ChatResponse? response = await ChatProvider().updateChats(message);
@@ -384,6 +454,12 @@ class Controller extends GetxController {
       final ChatResponse? response =
           await ChatProvider().fetchChats(connectionId);
       if (response != null) {
+        for (var message in response.chats) {
+          print(message.message);
+        }
+        for (var message in response.chats) {
+          message.message = decryptMessage(message.message, secretkey);
+        }
         final fetchedMessages = response.chats;
         final existingIds = messages.map((msg) => msg.id).toSet();
 
@@ -397,6 +473,7 @@ class Controller extends GetxController {
         return false;
       }
     } catch (e) {
+      print(e.toString());
       failure('Error', e.toString());
       return false;
     }
