@@ -90,11 +90,15 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> deleteAllMessages() async {
-    bool success = await controller
-        .deleteChats(controller.messages); // Your method to delete
+    List<Message> selectedMessages = controller.messages
+        .where((m) => m.senderId == widget.senderId)
+        .toList();
+    bool success =
+        await controller.deleteChats(selectedMessages); // Your method to delete
     if (success) {
       setState(() {
-        controller.messages.clear();
+        controller.messages.removeWhere(
+            (m) => selectedMessages.any((selected) => selected.id == m.id));
         selectedMessages.clear();
       });
     } else {
@@ -177,9 +181,7 @@ class ChatScreenState extends State<ChatScreen> {
     );
   }
 
-
   void _editMessage(String newMessage, int index) async {
-
     if (newMessage.trim().isNotEmpty) {
       controller.messages[index] =
           controller.messages[index].copyWith(message: newMessage);
@@ -194,7 +196,6 @@ class ChatScreenState extends State<ChatScreen> {
     controller.updateChats(controller.messages[index]);
     controller.messages[index].message = controller.decryptMessage(
         controller.messages[index].message, secretkey);
-
   }
 
   @override
@@ -326,13 +327,17 @@ class ChatScreenState extends State<ChatScreen> {
                       child: GestureDetector(
                         onTap: () {
                           if (selectedMessages.isNotEmpty) {
-                            toggleSelection(message);
+                            if (isSentByUser) {
+                              toggleSelection(message);
+                            }
                           }
                         },
                         onLongPress: () {
                           if (selectedMessages.isEmpty) {
-                            Vibration.vibrate(duration: 100);
-                            toggleSelection(message);
+                            if (isSentByUser) {
+                              Vibration.vibrate(duration: 100);
+                              toggleSelection(message);
+                            }
                           }
                         },
                         child: Stack(
@@ -384,6 +389,9 @@ class ChatScreenState extends State<ChatScreen> {
                                       : CrossAxisAlignment.start,
                                   children: [
                                     BubbleSpecialThree(
+                                      sent: isSentByUser,
+                                      delivered: isSentByUser,
+                                      seen: isSentByUser,
                                       text: message.message ?? '',
                                       isSender: isSentByUser,
                                       color: isSentByUser
