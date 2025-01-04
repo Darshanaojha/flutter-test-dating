@@ -43,7 +43,7 @@ class ChatScreenState extends State<ChatScreen> {
                   id: null,
                   senderId: widget.senderId,
                   receiverId: widget.receiverId,
-                  message: messageText,
+                  message: controller.encryptMessage(messageText, secretkey),
                   messageType: 1,
                   created: DateTime.now().toIso8601String(),
                   updated: DateTime.now().toIso8601String(),
@@ -329,8 +329,8 @@ class ChatScreenState extends State<ChatScreen> {
                             // Wrap the message bubble in a container and conditionally change the background color
                             if (selectedMessages.contains(message))
                               Container(
-                                color: Color.fromARGB(255, 158, 158,
-                                    158), // Set background color to yellow when selected
+                                color: Colors
+                                    .red, // Set background color to yellow when selected
                                 margin: EdgeInsets.symmetric(
                                     vertical: 5,
                                     horizontal:
