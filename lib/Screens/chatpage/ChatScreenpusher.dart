@@ -177,7 +177,7 @@ class ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void _editMessage(String newMessage, int index) {
+  void _editMessage(String newMessage, int index) async{
     if (newMessage.trim().isNotEmpty) {
       controller.messages[index] =
           controller.messages[index].copyWith(message: newMessage);
@@ -186,7 +186,10 @@ class ChatScreenState extends State<ChatScreen> {
     controller.messages[index].deletedAtSender = null;
     controller.messages[index].deletedBySender = 0;
     controller.messages[index].deletedByReceiver = 0;
-    controller.updateChats(controller.messages[index]);
+    controller.messages[index].message = controller.encryptMessage(
+        controller.messages[index].message, secretkey);
+    await controller.updateChats(controller.messages[index]);
+    controller.fetchChats(widget.receiverId);
   }
 
   @override
