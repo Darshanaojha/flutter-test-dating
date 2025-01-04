@@ -59,7 +59,6 @@ class ContactListScreenState extends State<ContactListScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Search TextField
                 TextField(
                   cursorColor: AppColors.cursorColor,
                   onChanged: (query) {
@@ -129,7 +128,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                           itemCount: getFilteredUsers().length,
                           itemBuilder: (context, index) {
                             final connection = getFilteredUsers()[index];
-
+                        
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               child: Slidable(
@@ -137,8 +136,6 @@ class ContactListScreenState extends State<ContactListScreen> {
                                 direction: Axis.horizontal,
                                 endActionPane: ActionPane(
                                   motion: const StretchMotion(),
-                                  dismissible:
-                                      DismissiblePane(onDismissed: () {}),
                                   children: [
                                     SlidableAction(
                                       backgroundColor: Colors.red,

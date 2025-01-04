@@ -79,9 +79,19 @@ class WebSocketService {
             // Decrypt the message
             message.message =
                 controller.decryptMessage(message.message, secretkey);
+// Assuming message has an 'id' property
+            if (controller.messages.any((m) => m.id == message.id)) {
+              // Find the index of the message with the same ID
+              int index =
+                  controller.messages.indexWhere((m) => m.id == message.id);
+              // Update the message at that index
+              controller.messages[index] = message;
+            } else {
+              // If no message with the same ID exists, add the new message
+              controller.messages.add(message);
+            }
 
             // Add the message to the RxList
-            controller.messages.add(message);
 
             // Log the decrypted message
             print('Decrypted message: ${message.message}');
