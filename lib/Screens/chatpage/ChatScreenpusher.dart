@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/constants.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../Models/ResponseModels/chat_history_response_model.dart';
 import '../../Providers/WebsocketService.dart';
 import 'package:vibration/vibration.dart';
+import 'package:chat_bubbles/chat_bubbles.dart';
 
 class ChatScreen extends StatefulWidget {
   final String senderId;
@@ -36,41 +37,26 @@ class ChatScreenState extends State<ChatScreen> {
   void _sendMessage() {
     final messageText = messageController.text.trim();
     if (messageText.isNotEmpty) {
-      final messagePayload = {
-        'sender_id': widget.senderId,
-        'receiver_id': widget.receiverId,
-        'message': messageText,
-        'message_type': 1,
-        'created': DateTime.now().toIso8601String(),
-        'updated': DateTime.now().toIso8601String(),
-        'status': 1,
-        'is_edited': 0,
-        'deleted_by_sender': 0,
-        'deleted_by_receiver': 0,
-        'deleted_at_sender': null,
-        'deleted_at_receiver': null,
-      };
-      websocketService.sendMessage('/app/sendMessage', messagePayload);
-
-      setState(() {
-        controller.messages.add(Message(
-          id: '0',
-          senderId: widget.senderId,
-          receiverId: widget.receiverId,
-          message: messageText,
-          messageType: 1,
-          created: DateTime.now().toIso8601String(),
-          updated: DateTime.now().toIso8601String(),
-          status: 1,
-          deletedBySender: 0,
-          deletedByReceiver: 0,
-          deletedAtReceiver: null,
-          deletedAtSender: null,
-          isEdited: 0,
-        ));
-      });
+      websocketService.sendMessage(
+          '/app/sendMessage',
+          Message(
+                  id: null,
+                  senderId: widget.senderId,
+                  receiverId: widget.receiverId,
+                  message: messageText,
+                  messageType: 1,
+                  created: DateTime.now().toIso8601String(),
+                  updated: DateTime.now().toIso8601String(),
+                  status: 1,
+                  isEdited: 0,
+                  deletedBySender: 0,
+                  deletedByReceiver: 0,
+                  deletedAtReceiver: null,
+                  deletedAtSender: null)
+              .toJson());
 
       messageController.clear();
+      controller.fetchChats(widget.receiverId);
     }
   }
 
@@ -104,7 +90,6 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> deleteAllMessages() async {
-   
     bool success = await controller
         .deleteChats(controller.messages); // Your method to delete
     if (success) {
@@ -116,7 +101,6 @@ class ChatScreenState extends State<ChatScreen> {
       failure('Error', 'Error deleting the chat');
     }
   }
-
 
   Future<void> deleteSingleMessage(int index) async {
     selectedMessages.clear();
@@ -214,10 +198,11 @@ class ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-
+    final scrollController = ScrollController();
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.receiverName),
+        centerTitle: true,
         actions: [
           // Add a delete button on the app bar
           selectedMessages.isNotEmpty
@@ -259,112 +244,156 @@ class ChatScreenState extends State<ChatScreen> {
       body: Column(
         children: [
           Expanded(
-            child: Obx(() {
-              if (controller.messages.isEmpty) {
-                return Text(
-                  "No chats available".toUpperCase(),
-                  style: GoogleFonts.lato(
-                    fontSize: size.width * 0.04,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                );
-              }
+            child: Obx(() => ListView.builder(
+                  controller: scrollController,
+                  itemCount: controller.messages.length,
+                  itemBuilder: (context, index) {
+                    final message = controller.messages[index];
+                    bool isSentByUser = message.senderId == widget.senderId;
 
-              return ListView.builder(
-                itemCount: controller.messages.length,
-                itemBuilder: (context, index) {
-                  final message = controller.messages[index];
-                  bool isSentByUser = message.senderId == widget.senderId;
-                  return Dismissible(
+                    return Slidable(
                       key: Key(message.id ?? ''),
-                      direction: DismissDirection.horizontal,
-                      confirmDismiss: (direction) async {
-                        if (direction == DismissDirection.endToStart) {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text("Delete Message"),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      // Delete selected messages
-                                      deleteSingleMessage(index);
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text("Delete Message"),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(
-                                          context); // Close dialog without action
-                                    },
-                                    child: Text("Cancel"),
-                                  ),
-                                ],
+                      endActionPane: ActionPane(
+                        motion: DrawerMotion(),
+                        extentRatio: 0.25,
+                        children: [
+                          SlidableAction(
+                            onPressed: (context) {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text("Delete Message"),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          deleteSingleMessage(index);
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text("Delete"),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text("Cancel"),
+                                      ),
+                                    ],
+                                  );
+                                },
                               );
                             },
-                          );
-                          return false;
-                        } else if (direction == DismissDirection.startToEnd &&
-                            isSentByUser) {
-                          _showMessageDialog(context, message, index);
-                          return false;
-                        }
-                        return false;
-                      },
-                      background: Container(
-                        color: Colors.blue,
-                        alignment: Alignment.centerRight,
-                        padding: EdgeInsets.only(right: 20),
-                        child: Icon(Icons.edit, color: Colors.white),
-                      ),
-                      secondaryBackground: Container(
-                        color: Colors.red,
-                        alignment: Alignment.centerLeft,
-                        padding: EdgeInsets.only(left: 20),
-                        child: Icon(Icons.delete, color: Colors.white),
-                      ),
-                      child: GestureDetector(
-                        onLongPress: () {
-                          Vibration.vibrate(duration: 100);
-                          toggleSelection(message);
-                        },
-                        // Long press to select
-                        child: Align(
-                          alignment: isSentByUser
-                              ? Alignment.centerRight
-                              : Alignment.centerLeft,
-                          child: Container(
-                            margin: EdgeInsets.symmetric(
-                                vertical: 5, horizontal: 10),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 15),
-                            decoration: BoxDecoration(
-                              color: isSentByUser
-                                  ? Colors.blueAccent
-                                  : Colors.grey[300],
-                              borderRadius: BorderRadius.circular(10),
-                              border: selectedMessages.contains(message)
-                                  ? Border.all(
-                                      color: Colors.yellow,
-                                      width: 2) // Highlight selected messages
-                                  : Border.all(color: Colors.transparent),
-                            ),
-                            child: Text(
-                              message.message ?? '',
-                              style: TextStyle(
-                                color:
-                                    isSentByUser ? Colors.white : Colors.black,
-                              ),
-                            ),
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            icon: Icons.delete,
+
+                            // label: 'Delete',
                           ),
+                        ],
+                      ),
+                      // Specify the start-to-end action pane (Edit button)
+                      startActionPane: isSentByUser
+                          ? ActionPane(
+                              motion: DrawerMotion(),
+                              extentRatio: 0.25,
+                              children: [
+                                SlidableAction(
+                                  onPressed: isSentByUser
+                                      ? (context) {
+                                          _showMessageDialog(
+                                              context, message, index);
+                                        }
+                                      : null, // Disable edit for messages not sent by the user
+                                  backgroundColor: Colors.blue,
+                                  foregroundColor: Colors.white,
+                                  icon: Icons.edit,
+                                  //  label: 'Edit',
+                                ),
+                              ],
+                            )
+                          : null,
+                      child: GestureDetector(
+                        onTap: () {
+                          if (selectedMessages.isNotEmpty) {
+                            toggleSelection(message);
+                          }
+                        },
+                        onLongPress: () {
+                          if (selectedMessages.isEmpty) {
+                            Vibration.vibrate(duration: 100);
+                            toggleSelection(message);
+                          }
+                        },
+                        child: Stack(
+                          children: [
+                            // Wrap the message bubble in a container and conditionally change the background color
+                            if (selectedMessages.contains(message))
+                              Container(
+                                color: Color.fromARGB(255, 158, 158,
+                                    158), // Set background color to yellow when selected
+                                margin: EdgeInsets.symmetric(
+                                    vertical: 5,
+                                    horizontal:
+                                        10), // Adjust margin for spacing
+                                child: Align(
+                                  alignment: isSentByUser
+                                      ? Alignment.centerRight
+                                      : Alignment.centerLeft,
+                                  child: Column(
+                                    crossAxisAlignment: isSentByUser
+                                        ? CrossAxisAlignment.end
+                                        : CrossAxisAlignment.start,
+                                    children: [
+                                      BubbleSpecialThree(
+                                        text: message.message ?? '',
+                                        isSender: isSentByUser,
+                                        color: isSentByUser
+                                            ? Colors.blueAccent
+                                            : Colors.grey[300]!,
+                                        textStyle: TextStyle(
+                                          color: isSentByUser
+                                              ? Colors.white
+                                              : Colors.black,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            // If not selected, show the regular message bubble without background
+                            if (!selectedMessages.contains(message))
+                              Align(
+                                alignment: isSentByUser
+                                    ? Alignment.centerRight
+                                    : Alignment.centerLeft,
+                                child: Column(
+                                  crossAxisAlignment: isSentByUser
+                                      ? CrossAxisAlignment.end
+                                      : CrossAxisAlignment.start,
+                                  children: [
+                                    BubbleSpecialThree(
+                                      text: message.message ?? '',
+                                      isSender: isSentByUser,
+                                      color: isSentByUser
+                                          ? Colors.blueAccent
+                                          : Colors.grey[300]!,
+                                      textStyle: TextStyle(
+                                        color: isSentByUser
+                                            ? Colors.white
+                                            : Colors.black,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
                         ),
-                      ));
-                },
-              );
-            }),
+                      ),
+                    );
+                  },
+                )),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -388,6 +417,7 @@ class ChatScreenState extends State<ChatScreen> {
                 ),
                 IconButton(
                   icon: Icon(Icons.send),
+                  color: Colors.green,
                   onPressed: _sendMessage,
                 ),
               ],

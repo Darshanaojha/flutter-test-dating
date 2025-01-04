@@ -54,7 +54,7 @@ class Payload {
 }
 
 class Message {
-  String id;
+  String? id;
   String senderId;
   String receiverId;
   String message;
@@ -91,13 +91,13 @@ class Message {
       receiverId: json['receiver_id'].toString(),
       message: json['message'].toString(),
       messageType: json['message_type'],
-      created: json['created'].toString(),
-      updated: json['updated'].toString(),
+      created: json['created'],
+      updated: json['updated'],
       status: json['status'],
       deletedBySender: json['deleted_by_sender'],
       deletedByReceiver: json['deleted_by_receiver'],
-      deletedAtSender: json['deleted_at_sender'].toString(),
-      deletedAtReceiver: json['deleted_at_receiver'].toString(),
+      deletedAtSender: json['deleted_at_sender'],
+      deletedAtReceiver: json['deleted_at_receiver'],
       isEdited: json['is_edited'],
     );
   }
@@ -109,7 +109,6 @@ class Message {
       'receiver_id': receiverId,
       'message': message,
       'message_type': messageType,
-
       'created':
           created == null ? null : DateTime.parse(created!).toIso8601String(),
       'updated':
@@ -123,7 +122,6 @@ class Message {
       'deleted_at_receiver': deletedAtReceiver == null
           ? null
           : DateTime.parse(deletedAtReceiver!).toIso8601String(),
-
       'is_edited': isEdited,
     };
   }

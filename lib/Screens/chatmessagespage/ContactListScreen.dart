@@ -170,10 +170,10 @@ class ContactListScreenState extends State<ContactListScreen> {
                                       connection.userId =
                                           controller.userData.first.id;
                                     }
+                                    controller.messages.clear();
                                     controller
                                         .fetchChats(connection.conectionId)
                                         .then((value) async {
-
                                       if (value == true) {
                                         EncryptedSharedPreferences preferences =
                                             await EncryptedSharedPreferences
