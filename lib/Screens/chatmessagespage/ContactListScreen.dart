@@ -110,8 +110,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                 SizedBox(height: 20),
                 Expanded(
                   child: FutureBuilder(
-                    future: controller
-                        .fetchalluserconnections(), // Make sure to return future here
+                    future: controller.fetchalluserconnections(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting ||
                           controller.userConnections.isEmpty) {
@@ -142,7 +141,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                   padding: const EdgeInsets.only(right: 16),
                                   child: Icon(
                                     Icons.more_horiz,
-                                    color: Colors.black,
+                                    color: Colors.white,
                                   ),
                                 ),
                                 confirmDismiss: (direction) async {
@@ -173,7 +172,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                     controller
                                         .fetchChats(connection.conectionId)
                                         .then((value) async {
-                                          value = true;
+
                                       if (value == true) {
                                         EncryptedSharedPreferences preferences =
                                             await EncryptedSharedPreferences

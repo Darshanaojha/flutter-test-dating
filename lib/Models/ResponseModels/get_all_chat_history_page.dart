@@ -48,6 +48,7 @@ class ChatHistoryPayload {
 }
 
 class UserConnections {
+
   String id;
   String userId;
   String conectionId;
@@ -60,6 +61,7 @@ class UserConnections {
   String profileImage;
   String lastSeen;
   String useractivestatus;
+
 
   UserConnections({
     required this.id,

@@ -109,6 +109,7 @@ class Message {
       'receiver_id': receiverId,
       'message': message,
       'message_type': messageType,
+
       'created':
           created == null ? null : DateTime.parse(created!).toIso8601String(),
       'updated':
@@ -122,6 +123,7 @@ class Message {
       'deleted_at_receiver': deletedAtReceiver == null
           ? null
           : DateTime.parse(deletedAtReceiver!).toIso8601String(),
+
       'is_edited': isEdited,
     };
   }
