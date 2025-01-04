@@ -453,27 +453,41 @@ class Controller extends GetxController {
     try {
       final ChatResponse? response =
           await ChatProvider().fetchChats(connectionId);
-      if (response != null) {
-        for (var message in response.chats) {
-          print(message.message);
-        }
-        for (var message in response.chats) {
-          message.message = decryptMessage(message.message, secretkey);
-        }
-        final fetchedMessages = response.chats;
-        final existingIds = messages.map((msg) => msg.id).toSet();
 
-        // Add only new messages
-        final newMessages =
-            fetchedMessages.where((msg) => !existingIds.contains(msg.id));
-        messages.addAll(newMessages);
+      if (response == null ||
+          response.chats.isEmpty) {
+        print('No chats found.');
         return true;
-      } else {
-        failure('Error', 'Error fetching the chat');
-        return false;
       }
+
+      final fetchedMessages = response.chats;
+
+      // Filter out existing messages before processing
+      final existingIds = messages.map((msg) => msg.id).toSet();
+      final newMessages = fetchedMessages
+          .where((msg) => !existingIds.contains(msg.id))
+          .toList();
+
+      if (newMessages.isEmpty) {
+        print('No new messages to add.');
+        return true;
+      }
+
+      for (var message in newMessages) {
+        try {
+          // Decrypt the message
+          message.message = decryptMessage(message.message, secretkey);
+        } catch (e) {
+          print('Error decrypting message with ID: ${message.id}');
+          print(e.toString());
+        }
+      }
+
+      // Add new messages to the list
+      messages.addAll(newMessages);
+      return true;
     } catch (e) {
-      print(e.toString());
+      print('Error fetching chats: $e');
       failure('Error', e.toString());
       return false;
     }
