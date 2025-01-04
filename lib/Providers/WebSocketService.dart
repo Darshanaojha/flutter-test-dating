@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 import '../Controllers/controller.dart';
+import '../constants.dart';
 
 class WebSocketService {
   Controller controller = Get.put(Controller());
@@ -62,16 +63,38 @@ class WebSocketService {
       },
       destination: topic,
       callback: (frame) {
-        if (frame.body != null) {
+        if (frame.body != null && frame.body!.isNotEmpty) {
           try {
-            print(frame.body);
-            controller.messages.add(Message.fromJson(jsonDecode(frame.body!)));
+            print('Received frame: ${frame.body}');
+
+            // Parse the message
+            Message message = Message.fromJson(jsonDecode(frame.body!));
+
+            // Validate message format before decryption
+            if (!message.message.contains('::')) {
+              print('Invalid encrypted message format: ${message.message}');
+              return;
+            }
+
+            // Decrypt the message
+            message.message =
+                controller.decryptMessage(message.message, secretkey);
+
+            // Add the message to the RxList
+            controller.messages.add(message);
+
+            // Log the decrypted message
+            print('Decrypted message: ${message.message}');
           } catch (e) {
             print('Error in subscription callback: $e');
+            print('Frame body: ${frame.body}');
           }
+        } else {
+          print('Received empty or null frame body.');
         }
       },
     );
+
     print('subscribed to the topic : $topic');
   }
 
