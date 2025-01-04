@@ -79,7 +79,7 @@ class WebSocketService {
             // Decrypt the message
             message.message =
                 controller.decryptMessage(message.message, secretkey);
-// Assuming message has an 'id' property
+            // Assuming message has an 'id' property
             if (controller.messages.any((m) => m.id == message.id)) {
               // Find the index of the message with the same ID
               int index =
@@ -106,6 +106,50 @@ class WebSocketService {
     );
 
     print('subscribed to the topic : $topic');
+
+    String deleted = '/topic/${controller.userData.first.id}/deleted';
+    _stompClient.subscribe(
+      headers: {
+        'Authorization': 'Bearer ${controller.token.value}',
+      },
+      destination: deleted,
+      callback: (frame) {
+        if (frame.body != null && frame.body!.isNotEmpty) {
+          try {
+            print('Received frame: ${frame.body}');
+
+            // Parse the incoming list of messages from JSON
+            List<dynamic> messageListJson = jsonDecode(frame.body!);
+            List<Message> messageList = messageListJson
+                .map((messageJson) => Message.fromJson(messageJson))
+                .toList();
+
+            // Process each message in the list
+            for (var message in messageList) {
+              // Check if the message already exists in the list
+              int existingIndex =
+                  controller.messages.indexWhere((m) => m.id == message.id);
+
+              if (existingIndex != -1) {
+                // If a message with the same ID exists, update it
+                controller.messages.removeAt(existingIndex);
+                print(
+                    'Message updated at index $existingIndex: ${message.message}');
+              }
+            }
+          } catch (e) {
+            // Log any errors that occur during the process
+            print('Error processing incoming messages: $e');
+            print('Frame body: ${frame.body}');
+          }
+        } else {
+          // Log if the frame body is empty or null
+          print('Received empty or null frame body.');
+        }
+      },
+    );
+
+    print('subscribed to the topic : $deleted');
   }
 
   /// Send a message to the WebSocket server.
