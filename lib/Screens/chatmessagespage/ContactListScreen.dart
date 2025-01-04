@@ -2,6 +2,7 @@ import 'package:dating_application/Models/ResponseModels/get_all_chat_history_pa
 import 'package:dating_application/Screens/chatmessagespage/pinrequestpage.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import '../../Controllers/controller.dart';
@@ -131,28 +132,28 @@ class ContactListScreenState extends State<ContactListScreen> {
 
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Dismissible(
+                              child: Slidable(
                                 key: Key(connection.conectionId),
-                                direction: DismissDirection.endToStart,
-                                onDismissed: (direction) {},
-                                background: Container(
-                                  color: Colors.grey.withOpacity(0.2),
-                                  alignment: Alignment.centerRight,
-                                  padding: const EdgeInsets.only(right: 16),
-                                  child: Icon(
-                                    Icons.more_horiz,
-                                    color: Colors.white,
-                                  ),
+                                direction: Axis.horizontal,
+                                endActionPane: ActionPane(
+                                  motion: const StretchMotion(),
+                                  dismissible:
+                                      DismissiblePane(onDismissed: () {}),
+                                  children: [
+                                    SlidableAction(
+                                      backgroundColor: Colors.red,
+                                      icon: Icons.info,
+                                      onPressed: (BuildContext context) async {
+                                        showUserOptions(
+                                            context,
+                                            connection,
+                                            controller
+                                                .userConnections[index].userId);
+                                      },
+                                      label: 'More',
+                                    ),
+                                  ],
                                 ),
-                                confirmDismiss: (direction) async {
-                                  bool result = await controller.reportReason();
-                                  if (result == true) {
-                                    showUserOptionsDialog(controller
-                                        .userConnections[index].userId);
-                                    return false;
-                                  }
-                                  return false;
-                                },
                                 child: GestureDetector(
                                   onTap: () {
                                     if (controller.userData.isEmpty) {}
@@ -180,7 +181,6 @@ class ContactListScreenState extends State<ContactListScreen> {
                                             preferences.getString('token');
                                         if (token != null && token.isNotEmpty) {
                                           controller.token.value = token;
-
                                           Get.to(() => ChatScreen(
                                                 senderId: controller
                                                     .userData.first.id,
@@ -261,27 +261,30 @@ class ContactListScreenState extends State<ContactListScreen> {
   }
 
 //// report user dailog box started.....................................................===========-------------------
-  void showUserOptionsDialog(String selecteduser) {
-    showDialog(
+
+  void showUserOptions(
+      BuildContext context, UserConnections connection, String selecteduser) {
+    showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('User Options'),
-          content: Column(
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
+                leading: Icon(Icons.block, color: Colors.red),
                 title: Text('Block User'),
                 onTap: () {
                   controller.blockToRequestModel.blockto = selecteduser;
                   controller.blockUser(controller.blockToRequestModel);
                   Navigator.pop(context);
-                  success('User Blocked', 'The user has been blocked.');
                 },
               ),
               ListTile(
+                leading: Icon(Icons.report, color: Colors.orange),
                 title: Text('Report User'),
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(context);
                   showReportUserDialog();
                 },

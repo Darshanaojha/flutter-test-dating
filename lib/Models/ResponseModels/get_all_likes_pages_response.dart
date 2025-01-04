@@ -1,4 +1,3 @@
-
 class GetAllLikesResponse {
   bool success;
   Payload payload;
@@ -42,7 +41,7 @@ class Payload {
         list.map((i) => LikeRequestPages.fromJson(i)).toList();
 
     return Payload(
-      message: json['message'],
+      message: json['message'] ?? "", // Provide a default value if null
       data: dataList,
     );
   }
@@ -63,9 +62,9 @@ class LikeRequestPages {
   String status;
   String created;
   String updated;
-  String name;
-  String nickname;
-  String email;
+  String? name; // Nullable field
+  String? nickname; // Nullable field
+  String? email; // Nullable field
   String profileImage;
   String dob;
   int likedByMe;
@@ -75,25 +74,26 @@ class LikeRequestPages {
   List<String> desires;
   List<String> preferences;
 
-  LikeRequestPages(
-      {required this.id,
-      required this.userId,
-      required this.conectionId,
-      required this.type,
-      required this.status,
-      required this.created,
-      required this.updated,
-      required this.name,
-      required this.nickname,
-      required this.email,
-      required this.profileImage,
-      required this.dob,
-      required this.likedByMe,
-      required this.gender,
-      required this.countryName,
-      required this.images,
-      required this.desires,
-      required this.preferences});
+  LikeRequestPages({
+    required this.id,
+    required this.userId,
+    required this.conectionId,
+    required this.type,
+    required this.status,
+    required this.created,
+    required this.updated,
+    this.name,
+    this.nickname,
+    this.email,
+    required this.profileImage,
+    required this.dob,
+    required this.likedByMe,
+    required this.gender,
+    required this.countryName,
+    required this.images,
+    required this.desires,
+    required this.preferences,
+  });
 
   factory LikeRequestPages.fromJson(Map<String, dynamic> json) {
     List<String> imagesList = [];
@@ -126,14 +126,15 @@ class LikeRequestPages {
       status: json['status'],
       created: json['created'],
       updated: json['updated'],
-      name: json['name'],
-      nickname: json['nickname'],
-      email: json['email'],
-      profileImage: json['profile_image'],
-      dob: json['DOB'],
-      likedByMe: json['likeed_by_me'],
-      gender: json['gender'],
-      countryName: json['countryname'],
+      name: json['name'] ?? '', 
+      nickname: json['nickname'] ?? '', 
+      email: json['email'] ?? '', 
+      profileImage:
+          json['profile_image'] ?? '', 
+      dob: json['DOB'] ?? '', 
+      likedByMe: json['likeed_by_me'] ?? 0, 
+      gender: json['gender'] ?? '',
+      countryName: json['countryname'] ?? '', 
       images: imagesList,
       desires: desiresList,
       preferences: preferencesList,
@@ -176,7 +177,7 @@ class Error {
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
       code: json['code'],
-      message: json['message'],
+      message: json['message'] ?? '',
     );
   }
 
@@ -187,5 +188,3 @@ class Error {
     };
   }
 }
-
-

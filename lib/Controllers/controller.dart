@@ -1682,17 +1682,18 @@ class Controller extends GetxController {
         success('Success', response.payload.message);
         if (response.payload.data.isNotEmpty) {
           likespage.addAll(response.payload.data);
-
           return true;
         } else {
           return true;
         }
       } else {
         failure('Error', 'Failed to fetch the Likes Users');
+        print("Error${'Failed to fetch the Likes Users'}");
         return false;
       }
     } catch (e) {
       failure('Error', e.toString());
+      print("Error${e.toString()}");
       return false;
     }
   }
