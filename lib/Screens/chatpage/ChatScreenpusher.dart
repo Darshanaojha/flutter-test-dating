@@ -59,13 +59,13 @@ class ChatScreenState extends State<ChatScreen> {
           receiverId: widget.receiverId,
           message: messageText,
           messageType: 1,
-          created: DateTime.now().toString(),
-          updated: DateTime.now().toString(),
+          created: DateTime.now().toIso8601String(),
+          updated: DateTime.now().toIso8601String(),
           status: 1,
           deletedBySender: 0,
           deletedByReceiver: 0,
-          deletedAtReceiver: '0',
-          deletedAtSender: '0',
+          deletedAtReceiver: null,
+          deletedAtSender: null,
           isEdited: 0,
         ));
       });
@@ -104,6 +104,7 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> deleteAllMessages() async {
+   
     bool success = await controller
         .deleteChats(controller.messages); // Your method to delete
     if (success) {
@@ -115,6 +116,7 @@ class ChatScreenState extends State<ChatScreen> {
       failure('Error', 'Error deleting the chat');
     }
   }
+
 
   Future<void> deleteSingleMessage(int index) async {
     selectedMessages.clear();

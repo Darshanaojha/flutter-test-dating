@@ -12,6 +12,7 @@ class ChatMessagePageProvider extends GetConnect {
           EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
       if (token != null && token.isNotEmpty) {
+        
         Response response = await post(
           '$baseurl/Chats/chat_history',
           chatHistoryRequestModel.toJson(),
