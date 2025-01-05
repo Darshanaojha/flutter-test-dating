@@ -190,10 +190,12 @@ class ChatScreenState extends State<ChatScreen> {
     controller.messages[index].deletedAtSender = null;
     controller.messages[index].deletedBySender = 0;
     controller.messages[index].deletedByReceiver = 0;
+    controller.messages[index].isEdited = 1;
     controller.messages[index].message = controller.encryptMessage(
         controller.messages[index].message, secretkey);
 
     controller.updateChats(controller.messages[index]);
+
     controller.messages[index].message = controller.decryptMessage(
         controller.messages[index].message, secretkey);
   }
@@ -361,6 +363,9 @@ class ChatScreenState extends State<ChatScreen> {
                                         : CrossAxisAlignment.start,
                                     children: [
                                       BubbleSpecialThree(
+                                        sent: isSentByUser,
+                                        delivered: isSentByUser,
+                                        seen: isSentByUser,
                                         text: message.message ?? '',
                                         isSender: isSentByUser,
                                         color: isSentByUser
@@ -372,6 +377,18 @@ class ChatScreenState extends State<ChatScreen> {
                                               : Colors.black,
                                           fontSize: 16,
                                         ),
+                                      ),
+                                      Container(
+                                        padding: isSentByUser
+                                            ? EdgeInsets.fromLTRB(0, 0, 5, 0)
+                                            : EdgeInsets.fromLTRB(5, 0, 0, 0),
+                                        child: message.isEdited == 1
+                                            ? Text(
+                                                "(edited)",
+                                                style: TextStyle(
+                                                    color: Colors.grey),
+                                              )
+                                            : SizedBox.shrink(),
                                       ),
                                     ],
                                   ),
@@ -403,6 +420,18 @@ class ChatScreenState extends State<ChatScreen> {
                                             : Colors.black,
                                         fontSize: 16,
                                       ),
+                                    ),
+                                    Container(
+                                      padding: isSentByUser
+                                          ? EdgeInsets.fromLTRB(0, 0, 5, 0)
+                                          : EdgeInsets.fromLTRB(5, 0, 0, 0),
+                                      child: message.isEdited == 1
+                                          ? Text(
+                                              "(edited)",
+                                              style:
+                                                  TextStyle(color: Colors.grey),
+                                            )
+                                          : SizedBox.shrink(),
                                     ),
                                   ],
                                 ),
