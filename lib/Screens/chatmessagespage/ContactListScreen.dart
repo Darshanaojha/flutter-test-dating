@@ -20,8 +20,11 @@ class ContactListScreen extends StatefulWidget {
 class ContactListScreenState extends State<ContactListScreen> {
   Controller controller = Get.put(Controller());
   String searchQuery = '';
-  bool isLoading = false;
-
+  bool isLoading = true;
+  RxBool isselected = false.obs;
+  RxBool iswriting = false.obs;
+  RxString selectedReason = ''.obs;
+  RxString reportDescription = ''.obs;
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
@@ -33,7 +36,7 @@ class ContactListScreenState extends State<ContactListScreen> {
     initialize();
   }
 
-  initialize() async {
+  Future<void> initialize() async {
     await controller.fetchalluserconnections();
     await controller.fetchProfile();
     setState(() {
@@ -84,51 +87,73 @@ class ContactListScreenState extends State<ContactListScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${getFilteredUsers().length} members',
-                      style: AppTextStyles.customTextStyle(color: Colors.grey),
+                      '${getFilteredUsers().length} Member',
+                      style: AppTextStyles.customTextStyle(color: Colors.green),
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Get.to(MessageRequestPage());
-                        Get.snackbar('count',
-                            controller.userConnections.length.toString());
-                        print("Ping button pressed");
-                      },
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: Colors.blue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            Get.to(MessageRequestPage());
+                            print("Ping button pressed");
+                          },
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.red,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(40),
+                            ),
+                            side: BorderSide(
+                              color: Colors.red,
+                              width: 1,
+                            ),
+                          ),
+                          child: Text(
+                            'Request',
+                            style: TextStyle(color: Colors.red),
+                          ),
                         ),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      ),
-                      child: Text('Ping'),
-                    ),
+                        if (controller.messageRequest.isNotEmpty)
+                          Positioned(
+                            top: -4,
+                            right: -4,
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 2, horizontal: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Text(
+                                '${controller.messageRequest.length}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    )
                   ],
                 ),
                 SizedBox(height: 20),
                 Expanded(
-                  child: FutureBuilder(
-                    future: controller.fetchalluserconnections(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting ||
-                          controller.userConnections.isEmpty) {
-                        return Center(
+                  child: isLoading
+                      ? Center(
                           child: Lottie.asset(
                             "assets/animations/chatpageanimation.json",
                             repeat: true,
                             reverse: true,
                           ),
-                        );
-                      } else if (snapshot.hasError) {
-                        return Center(child: Text('Error loading contacts'));
-                      } else {
-                        return ListView.builder(
+                        )
+                      : ListView.builder(
                           itemCount: getFilteredUsers().length,
                           itemBuilder: (context, index) {
                             final connection = getFilteredUsers()[index];
-                        
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               child: Slidable(
@@ -142,10 +167,11 @@ class ContactListScreenState extends State<ContactListScreen> {
                                       icon: Icons.info,
                                       onPressed: (BuildContext context) async {
                                         showUserOptions(
-                                            context,
-                                            connection,
-                                            controller
-                                                .userConnections[index].userId);
+                                          context,
+                                          connection,
+                                          controller
+                                              .userConnections[index].userId,
+                                        );
                                       },
                                       label: 'More',
                                     ),
@@ -153,13 +179,15 @@ class ContactListScreenState extends State<ContactListScreen> {
                                 ),
                                 child: GestureDetector(
                                   onTap: () {
-                                    if (controller.userData.isEmpty) {}
+                                    if (controller.userData.isEmpty) return;
+
                                     debugPrint(
                                         'User ID: ${controller.userData.first.id}');
                                     debugPrint(
                                         'Connection ID: ${connection.conectionId}');
                                     debugPrint(
                                         'Connection Name: ${connection.name}');
+
                                     if (controller.userData.first.id ==
                                         connection.conectionId) {
                                       connection.conectionId =
@@ -167,6 +195,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                       connection.userId =
                                           controller.userData.first.id;
                                     }
+
                                     controller.messages.clear();
                                     controller
                                         .fetchChats(connection.conectionId)
@@ -192,6 +221,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                   },
                                   child: Row(
                                     children: [
+                                      // Profile image: Separate GestureDetector for full-screen image viewing
                                       GestureDetector(
                                         onTap: () {
                                           Navigator.push(
@@ -215,23 +245,103 @@ class ContactListScreenState extends State<ContactListScreen> {
                                         ),
                                       ),
                                       SizedBox(width: 16),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            connection.name,
-                                            style:
-                                                AppTextStyles.customTextStyle(
-                                                    color: Colors.white),
+
+                                      // Entire row clickable except the profile image
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            // Navigate to the chat screen when clicking anywhere in the row except the profile image
+                                            if (controller.userData.isEmpty)
+                                              return;
+
+                                            debugPrint(
+                                                'User ID: ${controller.userData.first.id}');
+                                            debugPrint(
+                                                'Connection ID: ${connection.conectionId}');
+                                            debugPrint(
+                                                'Connection Name: ${connection.name}');
+
+                                            if (controller.userData.first.id ==
+                                                connection.conectionId) {
+                                              connection.conectionId =
+                                                  connection.userId;
+                                              connection.userId =
+                                                  controller.userData.first.id;
+                                            }
+
+                                            controller.messages.clear();
+                                            controller
+                                                .fetchChats(
+                                                    connection.conectionId)
+                                                .then((value) async {
+                                              if (value == true) {
+                                                EncryptedSharedPreferences
+                                                    preferences =
+                                                    await EncryptedSharedPreferences
+                                                        .getInstance();
+                                                String? token = preferences
+                                                    .getString('token');
+                                                if (token != null &&
+                                                    token.isNotEmpty) {
+                                                  controller.token.value =
+                                                      token;
+                                                  Get.to(() => ChatScreen(
+                                                        senderId: controller
+                                                            .userData.first.id,
+                                                        receiverId: connection
+                                                            .conectionId,
+                                                        receiverName:
+                                                            connection.name,
+                                                      ));
+                                                }
+                                              }
+                                            });
+                                          },
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    connection.name,
+                                                    style: AppTextStyles
+                                                        .customTextStyle(
+                                                            color:
+                                                                Colors.white),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 4),
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    connection.lastSeen,
+                                                    style: AppTextStyles
+                                                        .customTextStyle(
+                                                            color: Colors.grey),
+                                                  ),
+                                                  if (controller.messageRequest
+                                                      .isNotEmpty)
+                                                    Container(
+                                                      margin: EdgeInsets.only(
+                                                          left: 196),
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              horizontal: 6,
+                                                              vertical: 6),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.green,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(12),
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                            ],
                                           ),
-                                          Text(
-                                            'Hi there!',
-                                            style:
-                                                AppTextStyles.customTextStyle(
-                                                    color: Colors.grey),
-                                          ),
-                                        ],
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -239,17 +349,13 @@ class ContactListScreenState extends State<ContactListScreen> {
                               ),
                             );
                           },
-                        );
-                      }
-                    },
-                  ),
+                        ),
                 ),
               ],
             ),
           ),
           if (isLoading)
             Center(
-              // child: CircularProgressIndicator(),
               child: Lottie.asset("assets/animations/chatpageanimation.json",
                   repeat: true, reverse: true),
             ),
@@ -284,7 +390,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                 title: Text('Report User'),
                 onTap: () async {
                   Navigator.pop(context);
-                  showReportUserDialog();
+                  showReportUserDialog(connection.conectionId);
                 },
               ),
             ],
@@ -294,21 +400,18 @@ class ContactListScreenState extends State<ContactListScreen> {
     );
   }
 
-  RxBool isselected = false.obs;
-  RxBool iswriting = false.obs;
-
-  void showReportUserDialog() {
+  void showReportUserDialog(reporttouserid) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        String displayText =
-            controller.reportUserReasonFeedbackRequestModel.reasonId.isEmpty
-                ? 'Select Reason'
-                : controller.reportUserReasonFeedbackRequestModel.reasonId;
-        String truncatedText = displayText.length > 30
-            ? '${displayText.substring(0, 30)}...'
-            : displayText;
         return Obx(() {
+          String displayText = selectedReason.value.isEmpty
+              ? 'Select Reason'
+              : selectedReason.value;
+          String truncatedText = displayText.length > 30
+              ? '${displayText.substring(0, 30)}...'
+              : displayText;
+
           return AlertDialog(
             title: Text('Report User'),
             content: Column(
@@ -332,9 +435,13 @@ class ContactListScreenState extends State<ContactListScreen> {
                           .map((reason) => reason.title)
                           .toList(),
                       onSelected: (String? value) {
+                        Get.snackbar(
+                            "selected reasonId",
+                            controller
+                                .reportUserReasonFeedbackRequestModel.reasonId
+                                .toString());
                         if (value != null && value.isNotEmpty) {
-                          controller.reportUserReasonFeedbackRequestModel
-                              .reasonId = value;
+                          selectedReason.value = value;
                           isselected.value = true;
                         } else {
                           isselected.value = false;
@@ -380,8 +487,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                       ),
                     ),
                     onChanged: (value) {
-                      controller.reportUserReasonFeedbackRequestModel.reason =
-                          value;
+                      reportDescription.value = value;
                       iswriting.value = value.isNotEmpty;
                     },
                   ),
@@ -391,13 +497,33 @@ class ContactListScreenState extends State<ContactListScreen> {
               ElevatedButton(
                 onPressed: iswriting.value
                     ? () {
-                        if (controller.reportUserReasonFeedbackRequestModel
-                                .reasonId.isNotEmpty &&
-                            controller.reportUserReasonFeedbackRequestModel
-                                .reason.isNotEmpty) {
+                        if (selectedReason.value.isNotEmpty &&
+                            reportDescription.value.isNotEmpty) {
+                          controller.reportUserReasonFeedbackRequestModel
+                              .reasonId = selectedReason.value;
+                          controller.reportUserReasonFeedbackRequestModel
+                              .reason = reportDescription.value;
+                          controller.reportUserReasonFeedbackRequestModel
+                              .reportAgainst = reporttouserid;
+                          Get.snackbar(
+                              "selected reason",
+                              controller
+                                  .reportUserReasonFeedbackRequestModel.reason
+                                  .toString());
+                          Get.snackbar(
+                              "selected reasonId",
+                              controller
+                                  .reportUserReasonFeedbackRequestModel.reasonId
+                                  .toString());
+                          Get.snackbar(
+                              "selected report against",
+                              controller.reportUserReasonFeedbackRequestModel
+                                  .reportAgainst
+                                  .toString());
                           controller.reportAgainstUser(
                               controller.reportUserReasonFeedbackRequestModel);
                           Navigator.pop(context);
+
                           success('Report Submitted',
                               'The user has been reported.');
                         } else {
@@ -446,8 +572,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                       title:
                           Text(options[index], style: AppTextStyles.bodyText),
                       value: options[index],
-                      groupValue: controller
-                          .reportUserReasonFeedbackRequestModel.reasonId,
+                      groupValue: selectedReason.value,
                       onChanged: (String? value) {
                         onSelected(value);
                         Navigator.pop(context);
@@ -463,6 +588,7 @@ class ContactListScreenState extends State<ContactListScreen> {
       },
     );
   }
+
   // reportt dailog box ended.....................................................=================--------------------------------------------------
 }
 

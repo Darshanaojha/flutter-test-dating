@@ -63,26 +63,34 @@ class HomePageState extends State<HomePage>
 
   Future<bool> initializeApp() async {
     await controller.userSuggestions();
-
     for (int i = 0; i < controller.userSuggestionsList.length; i++) {
       swipeItems.add(SwipeItem(
         content: controller.userSuggestionsList[i].userId,
         likeAction: () {
-          controller.profileLikeRequest.likedBy =
-              controller.userSuggestionsList[i].userId.toString();
-          controller.profileLike(controller.profileLikeRequest);
-          success('Hey Boy', "Liked ${controller.userSuggestionsList[i].name}");
+          if (controller.userSuggestionsList[i].userId != null) {
+            print(
+                "Pressed like button for user: ${controller.userSuggestionsList[i].userId}");
+            print("Current likedBy: ${controller.profileLikeRequest.likedBy}");
+
+            setState(() {
+              controller.profileLikeRequest.likedBy =
+                  controller.userSuggestionsList[i].userId.toString();
+            });
+
+            controller.profileLike(controller.profileLikeRequest);
+          } else {
+            print("User ID is null");
+            failure('Error', "Error: User ID is null.");
+          }
         },
         nopeAction: () {
-          success('OOPS', "Nope ${controller.userSuggestionsList[i].name}");
+          print("User ${controller.userSuggestionsList[i].userId} was 'nope'd");
         },
         superlikeAction: () {
           if (controller.userSuggestionsList[i].userId != null) {
             controller.markFavouriteRequestModel.favouriteId =
                 controller.userSuggestionsList[i].userId;
             controller.markasfavourite(controller.markFavouriteRequestModel);
-            success('Bravo',
-                "Superliked ${controller.userSuggestionsList[i].name}");
           } else {
             failure('Error', "Error: User ID is null.");
           }
@@ -92,6 +100,7 @@ class HomePageState extends State<HomePage>
         },
       ));
     }
+
     matchEngine = MatchEngine(swipeItems: swipeItems);
     if (matchEngine.currentItem != null) {
       matchEngine.currentItem?.nope();
@@ -318,7 +327,6 @@ class HomePageState extends State<HomePage>
                     ),
                   );
                 }
-
                 return Column(
                   children: [
                     Container(
@@ -414,12 +422,55 @@ class HomePageState extends State<HomePage>
                                       controller.userSuggestionsList[index];
                               break;
                           }
+                          if (index ==
+                              controller.userSuggestionsList.length - 1) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.blue,
+                                  width: 2,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.white.withOpacity(0.2),
+                                    spreadRadius: 2,
+                                    blurRadius: 5,
+                                    offset: Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: buildCardLayoutAll(context, user, size),
+                            );
+                          }
 
-                          return buildCardLayoutAll(context, user, size);
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.green,
+                                width: 2,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.white.withOpacity(0.2),
+                                  spreadRadius: 2,
+                                  blurRadius: 5,
+                                  offset: Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: buildCardLayoutAll(context, user, size),
+                          );
                         },
                         onStackFinished: () {
+                          
                           setState(() {
                             isSwipeFinished = true;
+                            buildCardLayoutAll(context,
+                              controller.userSuggestionsList.last, size);
                           });
                           failure('Finished', "Stack Finished");
                         },
@@ -427,6 +478,8 @@ class HomePageState extends State<HomePage>
                           print("Item: ${item.content}, Index: $index");
                         },
                         upSwipeAllowed: true,
+                        leftSwipeAllowed: true,
+                        rightSwipeAllowed: true,
                         fillSpace: true,
                       ),
                     )),
@@ -567,7 +620,10 @@ class HomePageState extends State<HomePage>
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          matchEngine.currentItem?.like();
+                          print('like pressed');
+                          setState(() {
+                            matchEngine.currentItem?.like();
+                          });
                         },
                         style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.LikeColor),
