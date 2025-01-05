@@ -454,8 +454,7 @@ class Controller extends GetxController {
       final ChatResponse? response =
           await ChatProvider().fetchChats(connectionId);
 
-      if (response == null ||
-          response.chats.isEmpty) {
+      if (response == null || response.chats.isEmpty) {
         print('No chats found.');
         return true;
       }
