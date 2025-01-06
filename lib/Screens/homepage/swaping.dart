@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:swipe_cards/draggable_card.dart';
 import 'package:swipe_cards/swipe_cards.dart'; 
 
-
 class MySwipePage extends StatefulWidget {
   const MySwipePage({super.key});
 
@@ -26,6 +25,7 @@ class MySwipePageState extends State<MySwipePage> {
   @override
   void initState() {
     super.initState();
+    // Initialize SwipeItems and MatchEngine
     for (int i = 0; i < _names.length; i++) {
       _swipeItems.add(SwipeItem(
         content: _names[i],
@@ -82,10 +82,19 @@ class MySwipePageState extends State<MySwipePage> {
                   );
                 },
                 onStackFinished: () {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text("Stack Finished"),
-                    duration: Duration(milliseconds: 500),
-                  ));
+                  setState(() {
+                    if (_swipeItems.isNotEmpty) {
+                      final lastItem = _swipeItems.last;
+                      _swipeItems.removeLast(); 
+                      _swipeItems.insert(0, lastItem); 
+                      _matchEngine = MatchEngine(swipeItems: _swipeItems);
+                    }
+
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text("Stack Finished, Last Card Reinserted"),
+                      duration: Duration(milliseconds: 500),
+                    ));
+                  });
                 },
                 itemChanged: (SwipeItem item, int index) {
                   print("Item: ${item.content}, Index: $index");
