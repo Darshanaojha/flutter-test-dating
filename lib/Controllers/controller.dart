@@ -120,7 +120,6 @@ import '../Models/ResponseModels/user_suggestions_response_model.dart';
 import '../Models/ResponseModels/usernameupdate_response_model.dart';
 import '../Models/ResponseModels/verify_account_response_model.dart';
 import '../Providers/block_user_provider.dart';
-import '../Providers/chat_message_page_provider.dart';
 import '../Providers/delete_message_provider.dart';
 import '../Providers/deletefavourite_provider_model.dart';
 import '../Providers/edit_message_provider.dart';
@@ -404,7 +403,6 @@ class Controller extends GetxController {
     final encodedEncryptedMessage = parts[0];
     final encodedIv = parts[1];
 
-    // Decode the encrypted message and IV from Base64
     final encryptedMessage = base64.decode(encodedEncryptedMessage);
     final ivBytes = base64.decode(encodedIv);
 
@@ -1269,6 +1267,7 @@ class Controller extends GetxController {
   RxList<SuggestedUser> userHighlightedList = <SuggestedUser>[].obs;
   RxList<SuggestedUser> userNearByList = <SuggestedUser>[].obs;
   Set<String?> seenUserIds = {};
+  SuggestedUser? lastUser;
   Future<bool> userSuggestions() async {
     try {
       userSuggestionsList.clear();
@@ -1331,7 +1330,6 @@ class Controller extends GetxController {
           print('userHighlightedList length: ${userHighlightedList.length}');
           print('userSuggestionsList length: ${userSuggestionsList.length}');
         }
-
         return true;
       } else {
         failure('Error', 'Failed to fetch the user suggestions');

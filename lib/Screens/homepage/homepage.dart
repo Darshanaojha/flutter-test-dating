@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/RequestModels/estabish_connection_request_model.dart';
+import 'package:dating_application/Screens/homepage/swaping.dart';
+import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -20,12 +24,13 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   Controller controller = Get.put(Controller());
-
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
   }
 
+  SuggestedUser? lastUser;
+  bool isLastCard = false;
   RxInt selectedFilter = 0.obs;
   bool isLiked = false;
   bool isDisliked = false;
@@ -61,22 +66,41 @@ class HomePageState extends State<HomePage>
     _fetchSuggestion = initializeApp();
   }
 
+  Future<void> _retrieveLastUser() async {
+    final preferences = await EncryptedSharedPreferences.getInstance();
+    String? lastUserString = await preferences.getString('last user');
+    Get.snackbar("Stored lastUser", lastUserString.toString());
+
+    if (lastUserString != null) {
+      print('Last User retrieved: $lastUserString');
+      Map<String, dynamic> lastUserMap = jsonDecode(lastUserString);
+
+      setState(() {
+        lastUser = SuggestedUser.fromJson(lastUserMap);
+      });
+      Get.snackbar("Last user retrieved", lastUser!.name.toString());
+    } else {
+      print('No last user found');
+      Get.snackbar("No User", 'No last user found');
+    }
+  }
+
   Future<bool> initializeApp() async {
+    await _retrieveLastUser();
+
     await controller.userSuggestions();
     for (int i = 0; i < controller.userSuggestionsList.length; i++) {
       swipeItems.add(SwipeItem(
         content: controller.userSuggestionsList[i].userId,
         likeAction: () {
+          matchEngine = MatchEngine(swipeItems: swipeItems);
           if (controller.userSuggestionsList[i].userId != null) {
             print(
-                "Pressed like button for user: ${controller.userSuggestionsList[i].userId}");
-            print("Current likedBy: ${controller.profileLikeRequest.likedBy}");
-
+                "Pressed like button for user: ${controller.userSuggestionsList[i].name}");
             setState(() {
               controller.profileLikeRequest.likedBy =
                   controller.userSuggestionsList[i].userId.toString();
             });
-
             controller.profileLike(controller.profileLikeRequest);
           } else {
             print("User ID is null");
@@ -84,9 +108,10 @@ class HomePageState extends State<HomePage>
           }
         },
         nopeAction: () {
-          print("User ${controller.userSuggestionsList[i].userId} was 'nope'd");
+          print("User ${controller.userSuggestionsList[i].name} was 'nope'd");
         },
         superlikeAction: () {
+          matchEngine = MatchEngine(swipeItems: swipeItems);
           if (controller.userSuggestionsList[i].userId != null) {
             controller.markFavouriteRequestModel.favouriteId =
                 controller.userSuggestionsList[i].userId;
@@ -96,17 +121,16 @@ class HomePageState extends State<HomePage>
           }
         },
         onSlideUpdate: (SlideRegion? region) async {
-          print("Region: $region");
+          if (region != null) {
+            print("Region: ${region.toString()}");
+          } else {
+            print("Region is null");
+          }
         },
       ));
     }
 
     matchEngine = MatchEngine(swipeItems: swipeItems);
-    if (matchEngine.currentItem != null) {
-      matchEngine.currentItem?.nope();
-    } else {
-      print('No current item to "nope"');
-    }
 
     return true;
   }
@@ -377,112 +401,155 @@ class HomePageState extends State<HomePage>
                               Get.snackbar('userfavourite',
                                   controller.favourite.length.toString());
                             }),
+                            ElevatedButton(
+                                onPressed: () {
+                                  Get.to(MySwipePage());
+                                },
+                                child: Text("Demo"))
                           ],
                         ),
                       ),
                     ),
                     SafeArea(
-                        child: SizedBox(
-                      height: size.height * 0.7 -
-                          MediaQuery.of(context).viewInsets.bottom,
-                      child: SwipeCards(
-                        matchEngine: matchEngine,
-                        itemBuilder: (BuildContext context, int index) {
-                          SuggestedUser user;
-
-                          switch (selectedFilter.value) {
-                            case 0:
-                              controller.userSuggestionsList.isEmpty
-                                  ? user = SuggestedUser()
-                                  : user =
-                                      controller.userSuggestionsList[index];
-                              break;
-                            case 1:
-                              controller.userNearByList.isEmpty
-                                  ? user = SuggestedUser()
-                                  : user = controller.userNearByList[index];
-                              break;
-                            case 2:
-                              controller.userHighlightedList.isEmpty
-                                  ? user = SuggestedUser()
-                                  : user =
-                                      controller.userHighlightedList[index];
-                              break;
-                            case 3:
-                              controller.favourite.isEmpty
-                                  ? user = SuggestedUser()
-                                  : user = controller
-                                      .convertFavouriteToSuggestedUser(
-                                          controller.favourite[index]);
-                              break;
-                            default:
-                              controller.userSuggestionsList.isEmpty
-                                  ? user = SuggestedUser()
-                                  : user =
-                                      controller.userSuggestionsList[index];
-                              break;
-                          }
-                          if (index ==
-                              controller.userSuggestionsList.length - 1) {
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: Colors.blue,
-                                  width: 2,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.white.withOpacity(0.2),
-                                    spreadRadius: 2,
-                                    blurRadius: 5,
-                                    offset: Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              child: buildCardLayoutAll(context, user, size),
-                            );
-                          }
-
-                          return Container(
-                            decoration: BoxDecoration(
-                              color: Colors.blue,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: Colors.green,
-                                width: 2,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.white.withOpacity(0.2),
-                                  spreadRadius: 2,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 3),
-                                ),
-                              ],
+                      child: Column(
+                        children: [
+                          if (lastUser != null)
+                            Text(
+                              'Last User: ${lastUser!.name}',
+                              style: TextStyle(fontSize: 18),
                             ),
-                            child: buildCardLayoutAll(context, user, size),
-                          );
-                        },
-                        onStackFinished: () {
-                          
-                          setState(() {
-                            isSwipeFinished = true;
-                            buildCardLayoutAll(context,
-                              controller.userSuggestionsList.last, size);
-                          });
-                          failure('Finished', "Stack Finished");
-                        },
-                        itemChanged: (SwipeItem item, int index) {
-                          print("Item: ${item.content}, Index: $index");
-                        },
-                        upSwipeAllowed: true,
-                        leftSwipeAllowed: true,
-                        rightSwipeAllowed: true,
-                        fillSpace: true,
+                          SizedBox(
+                            height: size.height * 0.7 -
+                                MediaQuery.of(context).viewInsets.bottom,
+                            child: controller.userSuggestionsList.isEmpty &&
+                                    lastUser != null
+                                ? buildCardLayoutAll(
+                                    context,
+                                    lastUser!,
+                                    size,
+                                    isLastCard,
+                                  )
+                                : SwipeCards(
+                                    matchEngine: matchEngine,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      SuggestedUser user;
+                                      isLastCard = index ==
+                                          controller
+                                                  .userSuggestionsList.length -
+                                              1;
+
+                                      switch (selectedFilter.value) {
+                                        case 0:
+                                          user = controller
+                                                  .userSuggestionsList.isEmpty
+                                              ? SuggestedUser()
+                                              : controller
+                                                  .userSuggestionsList[index];
+                                          break;
+                                        case 1:
+                                          user =
+                                              controller.userNearByList.isEmpty
+                                                  ? SuggestedUser()
+                                                  : controller
+                                                      .userNearByList[index];
+                                          break;
+                                        case 2:
+                                          user = controller
+                                                  .userHighlightedList.isEmpty
+                                              ? SuggestedUser()
+                                              : controller
+                                                  .userHighlightedList[index];
+                                          break;
+                                        case 3:
+                                          user = controller.favourite.isEmpty
+                                              ? SuggestedUser()
+                                              : controller
+                                                  .convertFavouriteToSuggestedUser(
+                                                      controller
+                                                          .favourite[index]);
+                                          break;
+                                        default:
+                                          user = controller
+                                                  .userSuggestionsList.isEmpty
+                                              ? SuggestedUser()
+                                              : controller
+                                                  .userSuggestionsList[index];
+                                          break;
+                                      }
+
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          color: isLastCard
+                                              ? Colors.grey[300]
+                                              : Colors.blue,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: isLastCard
+                                                ? Colors.grey
+                                                : Colors.green,
+                                            width: 2,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.white.withOpacity(0.2),
+                                              spreadRadius: 2,
+                                              blurRadius: 5,
+                                              offset: Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        child: buildCardLayoutAll(
+                                          context,
+                                          user,
+                                          size,
+                                          isLastCard,
+                                        ),
+                                      );
+                                    },
+                                    upSwipeAllowed: isLastCard ? false : true,
+                                    leftSwipeAllowed: isLastCard ? false : true,
+                                    rightSwipeAllowed:
+                                        isLastCard ? false : true,
+                                    fillSpace: isLastCard ? false : true,
+                                    onStackFinished: () async {
+                                      isSwipeFinished = true;
+                                      if (controller
+                                          .userSuggestionsList.isNotEmpty) {
+                                        lastUser =
+                                            controller.userSuggestionsList.last;
+                                        final preferences =
+                                            await EncryptedSharedPreferences
+                                                .getInstance();
+                                        String lastUserString =
+                                            jsonEncode(lastUser!.toJson());
+                                        await preferences.setString(
+                                            'last user', lastUserString);
+                                        Get.snackbar("Last user saved",
+                                            lastUser!.name.toString());
+                                        print(
+                                            'Last User saved: ${lastUser!.name}');
+                                        setState(() {
+                                          matchEngine = MatchEngine(
+                                              swipeItems: swipeItems);
+                                          print(
+                                              'Updated userSuggestionsList: ${controller.userSuggestionsList.length}');
+                                        });
+                                      }
+
+                                      failure('Finished', "Stack Finished");
+                                    },
+                                    itemChanged: (SwipeItem item, int index) {
+                                      print(
+                                          "Item: ${item.content}, Index: $index");
+                                    },
+                                  ),
+                          ),
+                        ],
                       ),
-                    )),
+                    )
                   ],
                 );
               },
@@ -494,10 +561,7 @@ class HomePageState extends State<HomePage>
   }
 
   Widget buildCardLayoutAll(
-    BuildContext context,
-    SuggestedUser user,
-    Size size,
-  ) {
+      BuildContext context, SuggestedUser user, Size size, bool isLastCard) {
     List<String> images = user.images;
 
     return user.id == ''
@@ -563,9 +627,11 @@ class HomePageState extends State<HomePage>
                   children: [
                     SizedBox(width: 16),
                     IconButton(
-                      onPressed: () {
-                        showmessageBottomSheet(user.userId.toString());
-                      },
+                      onPressed: lastUser != null
+                          ? null
+                          : () {
+                              showmessageBottomSheet(user.userId.toString());
+                            },
                       icon: Icon(Icons.messenger_outline, size: 40),
                     ),
                   ],
@@ -595,7 +661,9 @@ class HomePageState extends State<HomePage>
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          matchEngine.currentItem?.nope();
+                          matchEngine.currentItem!.nope();
+                          print("button pressed nope");
+                          Get.snackbar("title", "button pressed");
                         },
                         style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.NopeColor),
@@ -605,9 +673,8 @@ class HomePageState extends State<HomePage>
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          // matchEngine.currentItem?.superLike();
                           if (matchEngine.currentItem != null) {
-                            matchEngine.currentItem?.superLike();
+                            matchEngine.currentItem!.superLike();
                           } else {
                             print("No current item to super like");
                           }
@@ -622,7 +689,7 @@ class HomePageState extends State<HomePage>
                         onPressed: () {
                           print('like pressed');
                           setState(() {
-                            matchEngine.currentItem?.like();
+                            matchEngine.currentItem!.like();
                           });
                         },
                         style: ElevatedButton.styleFrom(
