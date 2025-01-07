@@ -82,7 +82,9 @@ class ContactListScreenState extends State<ContactListScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.02,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

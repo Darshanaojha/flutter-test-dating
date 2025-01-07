@@ -11,22 +11,62 @@ class PricingPage extends StatefulWidget {
   PricingPageState createState() => PricingPageState();
 }
 
-class PricingPageState extends State<PricingPage> {
+class PricingPageState extends State<PricingPage>
+    with TickerProviderStateMixin {
   Controller controller = Get.put(Controller());
   RazorpayController razorpaycontroller = Get.put(RazorpayController());
-  RxString selectedPlan = ''.obs; // Only store selected plan's ID
+  RxString selectedPlan = ''.obs;
   RxString planId = ''.obs;
-
+  late final AnimationController _animationController;
+  late final DecorationTween decorationTween;
   @override
   void initState() {
     super.initState();
     initializeData();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat(reverse: true);
+    decorationTween = DecorationTween(
+      begin: BoxDecoration(
+        color: const Color.fromARGB(255, 71, 67, 68),
+        border: Border.all(style: BorderStyle.none),
+        borderRadius: BorderRadius.circular(10.0),
+        boxShadow: const <BoxShadow>[
+          BoxShadow(
+            color: Color(0x66666666),
+            blurRadius: 10.0,
+            spreadRadius: 3.0,
+            offset: Offset(0, 6.0),
+          ),
+        ],
+      ),
+      end: BoxDecoration(
+        color: const Color.fromARGB(255, 210, 236, 212), // Final green color
+        border: Border.all(style: BorderStyle.none),
+        borderRadius: BorderRadius.circular(10.0),
+        boxShadow: const <BoxShadow>[
+          BoxShadow(
+            color: Color(0x66666666),
+            blurRadius: 10.0,
+            spreadRadius: 3.0,
+            offset: Offset(0, 6.0),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> initializeData() async {
     await controller.fetchAllHeadlines();
     await controller.fetchAllPackages();
-    await controller.fetchBenefits(); // Ensure benefits are fetched
+    await controller.fetchBenefits();
   }
 
   double calculateOfferPercentage(String actualAmount, String offerAmount) {
@@ -138,55 +178,52 @@ class PricingPageState extends State<PricingPage> {
                           return Container(
                             width: cardWidth,
                             margin: EdgeInsets.only(bottom: 16),
-                            child: Card(
-                              elevation:
-                                  6, // Reduced elevation for a flatter card appearance
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    10), // Smaller border radius
-                              ),
-                              color: isSelected
-                                  ? Colors.green.shade500
-                                  : Colors.grey,
-                              child: Padding(
-                                padding: const EdgeInsets.all(
-                                    10.0), // Reduced padding inside the card
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.calendar_today,
-                                      color: AppColors.iconColor,
-                                      size:
-                                          fontSize * 1.5, // Adjusted icon size
-                                    ),
-                                    SizedBox(
-                                        width:
-                                            8), // Reduced spacing between icon and text
-                                    Expanded(
-                                      child: Text(
-                                        "${package.unit} Plan  ₹${package.offerAmount}",
-                                        style: AppTextStyles.bodyText.copyWith(
-                                          fontSize:
-                                              fontSize - 4, // Reduced font size
-                                          color: AppColors.textColor,
+                            child: DecoratedBoxTransition(
+                              decoration:
+                                  decorationTween.animate(_animationController),
+                              child: Card(
+                                elevation: 6,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                color: isSelected
+                                    ? Colors.green.shade500
+                                    : Colors.black,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.calendar_today,
+                                        color: AppColors.iconColor,
+                                        size: fontSize * 1.5,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          "${package.unit} Plan  ₹${package.offerAmount}",
+                                          style:
+                                              AppTextStyles.bodyText.copyWith(
+                                            fontSize: fontSize - 4,
+                                            color: AppColors.textColor,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    Text(
-                                      "${offerPercentage.toStringAsFixed(0)}% OFF",
-                                      style: AppTextStyles.bodyText.copyWith(
-                                        fontSize: fontSize -
-                                            2, // Reduced font size for offer
-                                        color: Colors.red,
+                                      Text(
+                                        "${offerPercentage.toStringAsFixed(0)}% OFF",
+                                        style: AppTextStyles.bodyText.copyWith(
+                                          fontSize: fontSize - 2,
+                                          color: Colors.red,
+                                        ),
                                       ),
-                                    ),
-                                    IconButton(
-                                        onPressed: () {
-                                          showBenefitsBottomSheet(context);
-                                        },
-                                        icon: Icon(Icons
-                                            .arrow_drop_down_circle_outlined))
-                                  ],
+                                      IconButton(
+                                          onPressed: () {
+                                            showBenefitsBottomSheet(context);
+                                          },
+                                          icon: Icon(Icons
+                                              .arrow_drop_down_circle_outlined))
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),

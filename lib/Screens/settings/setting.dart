@@ -1,3 +1,4 @@
+import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Screens/settings/appinfopages/appinfopagestart.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -23,7 +24,7 @@ class SettingsPageState extends State<SettingsPage> {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
   }
-
+ Controller controller = Get.put(Controller());
   final TextEditingController desireController = TextEditingController();
   bool showOnlineUsers = false;
   RxBool spotlightUser = false.obs;

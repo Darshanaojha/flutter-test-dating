@@ -20,7 +20,8 @@ class UserProfilePage extends StatefulWidget {
   UserProfilePageState createState() => UserProfilePageState();
 }
 
-class UserProfilePageState extends State<UserProfilePage> {
+class UserProfilePageState extends State<UserProfilePage>
+    with TickerProviderStateMixin {
   Controller controller = Get.put(Controller());
   bool isLoading = true;
   String userProfileCompletion = '80% Complete';
@@ -30,10 +31,44 @@ class UserProfilePageState extends State<UserProfilePage> {
     return screenWidth * scale;
   }
 
+  late final AnimationController _animationController;
+  late final DecorationTween decorationTween;
   @override
   void initState() {
     super.initState();
     _fetchprofilepage = fetchAllData();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    )..repeat(reverse: true);
+    decorationTween = DecorationTween(
+      begin: BoxDecoration(
+        color: const Color.fromARGB(255, 71, 67, 68),
+        border: Border.all(style: BorderStyle.none),
+        borderRadius: BorderRadius.circular(10.0),
+        boxShadow: const <BoxShadow>[
+          BoxShadow(
+            color: Color(0x66666666),
+            blurRadius: 10.0,
+            spreadRadius: 3.0,
+            offset: Offset(0, 6.0),
+          ),
+        ],
+      ),
+      end: BoxDecoration(
+        color: const Color.fromARGB(255, 210, 236, 212), // Final green color
+        border: Border.all(style: BorderStyle.none),
+        borderRadius: BorderRadius.circular(10.0),
+        boxShadow: const <BoxShadow>[
+          BoxShadow(
+            color: Color(0x66666666),
+            blurRadius: 10.0,
+            spreadRadius: 3.0,
+            offset: Offset(0, 6.0),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<bool> fetchAllData() async {
@@ -287,48 +322,65 @@ class UserProfilePageState extends State<UserProfilePage> {
                           ],
                         ),
                       ),
+                      SizedBox(height: 20),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: Card(
-                          elevation: 5,
-                          color: controller.userData.isNotEmpty &&
-                                  controller.userData.first
-                                          .accountVerificationStatus ==
-                                      '1'
-                              ? Colors.green[50]
-                              : Colors.red[50],
-                          child: InkWell(
-                            onTap: () {
-                              showVerificationDialog(context);
-                            },
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(vertical: 22),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Account Verification',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: controller.userData.isNotEmpty &&
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: DecoratedBoxTransition(
+                          decoration:
+                              decorationTween.animate(_animationController),
+                          child: Card(
+                            elevation: 5,
+                            color: controller.userData.isNotEmpty &&
+                                    controller.userData.first
+                                            .accountVerificationStatus ==
+                                        '1'
+                                ? Colors.green[50]
+                                : const Color.fromARGB(255, 68, 63, 62),
+                            child: InkWell(
+                              onTap: () {
+                                showVerificationDialog(context);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 22, horizontal: 22),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Account Verification',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: controller.userData.isNotEmpty &&
+                                                controller.userData.first
+                                                        .accountVerificationStatus ==
+                                                    '1'
+                                            ? Colors.green
+                                            : Colors.red,
+                                      ),
+                                    ),
+                                    AnimatedSwitcher(
+                                      duration: const Duration(seconds: 1),
+                                      child: controller.userData.isNotEmpty &&
                                               controller.userData.first
                                                       .accountVerificationStatus ==
                                                   '1'
-                                          ? Colors.green
-                                          : Colors.red,
+                                          ? Icon(
+                                              Icons.verified_user_outlined,
+                                              color: Colors.green,
+                                              key: ValueKey<int>(
+                                                  1), // Ensure the animation triggers
+                                            )
+                                          : Icon(
+                                              Icons.cancel_outlined,
+                                              color: Colors.red,
+                                              key: ValueKey<int>(
+                                                  0), // Ensure the animation triggers
+                                            ),
                                     ),
-                                  ),
-                                  controller.userData.isNotEmpty &&
-                                          controller.userData.first
-                                                  .accountVerificationStatus ==
-                                              '1'
-                                      ? Icon(Icons.verified_user_outlined,
-                                          color: Colors.green)
-                                      : Icon(Icons.cancel_outlined,
-                                          color: Colors.red),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -366,32 +418,37 @@ class UserProfilePageState extends State<UserProfilePage> {
                         padding: EdgeInsets.symmetric(vertical: 16),
                         child: Padding(
                           padding: EdgeInsets.symmetric(horizontal: 10),
-                          child: Card(
-                            color: Color.fromARGB(255, 11, 122, 67),
-                            elevation: 5,
-                            child: InkWell(
-                              onTap: () {
-                                Get.to(PlanPage());
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(16),
-                                width: double.infinity,
-                                height: 100,
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.card_membership,
-                                      size: 40,
-                                      color: Colors.white,
-                                    ),
-                                    SizedBox(width: 56),
-                                    Text(
-                                      'Membership',
-                                      style: AppTextStyles.titleText.copyWith(
-                                          fontSize:
-                                              getResponsiveFontSize(0.03)),
-                                    ),
-                                  ],
+                          child: DecoratedBoxTransition(
+                            decoration:
+                                decorationTween.animate(_animationController),
+                            child: Card(
+                              color: Color.fromARGB(255, 68, 63, 62),
+                              elevation: 5,
+                              child: InkWell(
+                                onTap: () {
+                                  Get.to(PlanPage());
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 22, horizontal: 22),
+                                  width: double.infinity,
+                                  height: 100,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.card_membership,
+                                        size: 40,
+                                        color: Colors.white,
+                                      ),
+                                      SizedBox(width: 56),
+                                      Text(
+                                        'Membership',
+                                        style: AppTextStyles.titleText.copyWith(
+                                            fontSize:
+                                                getResponsiveFontSize(0.03)),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -933,11 +990,12 @@ Future<void> showUpgradeBottomSheet(BuildContext context) async {
   );
 }
 
-class SettingCard extends StatelessWidget {
+class SettingCard extends StatefulWidget {
   final String title;
   final String subtitle;
   final IconData icon;
   final VoidCallback onTap;
+
   const SettingCard({
     super.key,
     required this.title,
@@ -947,28 +1005,85 @@ class SettingCard extends StatelessWidget {
   });
 
   @override
+  SettingCardState createState() => SettingCardState();
+}
+
+class SettingCardState extends State<SettingCard>
+    with TickerProviderStateMixin {
+  late final AnimationController _animationController;
+  late final DecorationTween decorationTween;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    )..repeat(reverse: true);
+    decorationTween = DecorationTween(
+      begin: BoxDecoration(
+        color: const Color.fromARGB(255, 71, 67, 68),
+        border: Border.all(style: BorderStyle.none),
+        borderRadius: BorderRadius.circular(10.0),
+        boxShadow: const <BoxShadow>[
+          BoxShadow(
+            color: Color(0x66666666),
+            blurRadius: 10.0,
+            spreadRadius: 3.0,
+            offset: Offset(0, 6.0),
+          ),
+        ],
+      ),
+      end: BoxDecoration(
+        color: const Color.fromARGB(255, 210, 236, 212),
+        border: Border.all(style: BorderStyle.none),
+        borderRadius: BorderRadius.circular(10.0),
+        boxShadow: const <BoxShadow>[
+          BoxShadow(
+            color: Color(0x66666666),
+            blurRadius: 10.0,
+            spreadRadius: 3.0,
+            offset: Offset(0, 6.0),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    // double cardWidth = screenWidth * 0.85;
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 14),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 6),
         child: SizedBox(
-          child: Card(
-            color: Color.fromARGB(255, 11, 122, 67),
-            elevation: 5,
-            child: ListTile(
-              title: Text(
-                title,
-                style: AppTextStyles.titleText
-                    .copyWith(fontSize: screenWidth * 0.04),
+          child: DecoratedBoxTransition(
+            decoration: decorationTween.animate(_animationController),
+            child: Card(
+              elevation: 5,
+              child: ListTile(
+                title: Text(
+                  widget.title,
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.04,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                subtitle: Text(
+                  widget.subtitle,
+                  style: TextStyle(fontSize: screenWidth * 0.03),
+                ),
+                trailing: Icon(widget.icon),
+                onTap: widget.onTap,
               ),
-              subtitle: Text(subtitle,
-                  style: TextStyle(fontSize: screenWidth * 0.03)),
-              trailing: Icon(icon),
-              onTap: onTap,
             ),
           ),
         ),

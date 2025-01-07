@@ -2,6 +2,7 @@ import 'package:dating_application/Controllers/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import '../../constants.dart';
 import '../navigationbar/navigationpage.dart';
 
@@ -12,9 +13,11 @@ class Unsubscribeuser extends StatefulWidget {
   UnsubscribeuserState createState() => UnsubscribeuserState();
 }
 
-class UnsubscribeuserState extends State<Unsubscribeuser> {
+class UnsubscribeuserState extends State<Unsubscribeuser>
+    with TickerProviderStateMixin {
   Controller controller = Get.put(Controller());
-
+  late final AnimationController _animationController;
+  late final DecorationTween decorationTween;
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
@@ -27,6 +30,44 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
   void initState() {
     super.initState();
     _fetchProfileFuture = initializeData();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    )..repeat(reverse: true);
+    decorationTween = DecorationTween(
+      begin: BoxDecoration(
+        color: const Color.fromARGB(255, 71, 67, 68),
+        border: Border.all(style: BorderStyle.none),
+        borderRadius: BorderRadius.circular(10.0),
+        boxShadow: const <BoxShadow>[
+          BoxShadow(
+            color: Color(0x66666666),
+            blurRadius: 10.0,
+            spreadRadius: 3.0,
+            offset: Offset(0, 6.0),
+          ),
+        ],
+      ),
+      end: BoxDecoration(
+        color: const Color.fromARGB(255, 210, 236, 212),
+        border: Border.all(style: BorderStyle.none),
+        borderRadius: BorderRadius.circular(10.0),
+        boxShadow: const <BoxShadow>[
+          BoxShadow(
+            color: Color(0x66666666),
+            blurRadius: 10.0,
+            spreadRadius: 3.0,
+            offset: Offset(0, 6.0),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<bool> initializeData() async {
@@ -36,11 +77,6 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
     if (!await controller.fetchAllPackages()) return false;
     if (!await controller.fetchAllHeadlines()) return false;
     return true;
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   double calculateOfferPercentage(String actualAmount, String offerAmount) {
@@ -84,7 +120,9 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
-              child: CircularProgressIndicator(),
+              // child: CircularProgressIndicator(),
+              child: Lottie.asset("assets/animations/Buyanimation.json",
+                  repeat: true, reverse: true),
             );
           }
           if (snapshot.hasError) {
@@ -198,59 +236,69 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
                                   child: Stack(
                                     clipBehavior: Clip.none,
                                     children: [
-                                      Obx(() {
-                                        bool isSelected =
-                                            selectedPlan.value == package.id;
-                                        return Card(
-                                          elevation: 6,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          color: isSelected
-                                              ? Colors.green.shade500
-                                              : Colors.grey,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(10.0),
-                                            child: Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.calendar_today,
-                                                  color: AppColors.iconColor,
-                                                  size: fontSize * 1.5,
-                                                ),
-                                                SizedBox(width: 8),
-                                                Expanded(
-                                                  child: Text(
-                                                    "${package.unit} Plan  ₹${package.offerAmount}",
-                                                    style: AppTextStyles
-                                                        .bodyText
-                                                        .copyWith(
-                                                      fontSize: fontSize - 4,
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 10.0),
+                                        child: Obx(() {
+                                          bool isSelected =
+                                              selectedPlan.value == package.id;
+                                          return DecoratedBoxTransition(
+                                            decoration: decorationTween
+                                                .animate(_animationController),
+                                            child: Card(
+                                              elevation: 8,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              color: isSelected
+                                                  ? Colors.green.shade500
+                                                  : Colors.black,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(10.0),
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.calendar_today,
                                                       color:
-                                                          AppColors.textColor,
+                                                          AppColors.iconColor,
+                                                      size: fontSize * 1.5,
                                                     ),
-                                                  ),
+                                                    SizedBox(width: 8),
+                                                    Expanded(
+                                                      child: Text(
+                                                        "${package.unit} Plan  ₹${package.offerAmount}",
+                                                        style: AppTextStyles
+                                                            .bodyText
+                                                            .copyWith(
+                                                          fontSize:
+                                                              fontSize - 4,
+                                                          color: AppColors
+                                                              .textColor,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      "${offerPercentage.toStringAsFixed(0)}% OFF",
+                                                      style: AppTextStyles
+                                                          .bodyText
+                                                          .copyWith(
+                                                        fontSize: fontSize - 2,
+                                                        color: Colors.red,
+                                                      ),
+                                                    ),
+                                                    IconButton(
+                                                        onPressed: () {},
+                                                        icon: Icon(Icons
+                                                            .arrow_drop_down_circle_outlined))
+                                                  ],
                                                 ),
-                                                Text(
-                                                  "${offerPercentage.toStringAsFixed(0)}% OFF",
-                                                  style: AppTextStyles.bodyText
-                                                      .copyWith(
-                                                    fontSize: fontSize - 2,
-                                                    color: Colors.red,
-                                                  ),
-                                                ),
-                                                IconButton(
-                                                    onPressed: () {
-                                                      // showBenefitsBottomSheet(context);
-                                                    },
-                                                    icon: Icon(Icons
-                                                        .arrow_drop_down_circle_outlined))
-                                              ],
+                                              ),
                                             ),
-                                          ),
-                                        );
-                                      }),
+                                          );
+                                        }),
+                                      ),
                                     ],
                                   ),
                                 );
@@ -351,7 +399,6 @@ class UnsubscribeuserState extends State<Unsubscribeuser> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                // Handle cancellation or closing the dialog
                 Navigator.of(context).pop();
               },
               child: Text(

@@ -2,9 +2,9 @@ import 'package:dating_application/Screens/userprofile/plans/planspage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-
 import '../../../Controllers/controller.dart';
 import '../../../constants.dart';
+
 class MembershipPage extends StatefulWidget {
   const MembershipPage({super.key});
 
@@ -12,12 +12,52 @@ class MembershipPage extends StatefulWidget {
   MembershipPageState createState() => MembershipPageState();
 }
 
-class MembershipPageState extends State<MembershipPage> {
+class MembershipPageState extends State<MembershipPage>
+    with TickerProviderStateMixin {
   Controller controller = Get.put(Controller());
+  late final AnimationController _animationController;
+  late final DecorationTween decorationTween;
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat(reverse: true);
+    decorationTween = DecorationTween(
+      begin: BoxDecoration(
+        color: const Color.fromARGB(255, 71, 67, 68),
+        border: Border.all(style: BorderStyle.none),
+        borderRadius: BorderRadius.circular(10.0),
+        boxShadow: const <BoxShadow>[
+          BoxShadow(
+            color: Color(0x66666666),
+            blurRadius: 10.0,
+            spreadRadius: 3.0,
+            offset: Offset(0, 6.0),
+          ),
+        ],
+      ),
+      end: BoxDecoration(
+        color: const Color.fromARGB(255, 210, 236, 212),
+        border: Border.all(style: BorderStyle.none),
+        borderRadius: BorderRadius.circular(10.0),
+        boxShadow: const <BoxShadow>[
+          BoxShadow(
+            color: Color(0x66666666),
+            blurRadius: 10.0,
+            spreadRadius: 3.0,
+            offset: Offset(0, 6.0),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
-   // double screenWidth = MediaQuery.of(context).size.width;
+    // double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       appBar: AppBar(
@@ -79,15 +119,13 @@ class MembershipPageState extends State<MembershipPage> {
                     free: false,
                     paid: true,
                   ),
-                  SizedBox(height: 100), 
+                  SizedBox(height: 100),
                 ],
               ),
             ),
           ],
         ),
       ),
-
-   
       floatingActionButton: Padding(
         padding: EdgeInsets.all(16.0),
         child: SizedBox(
@@ -121,48 +159,51 @@ class MembershipPageState extends State<MembershipPage> {
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Card(
-        color: AppColors.secondaryColor,
-        elevation: 5,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: AppTextStyles.textStyle,
-              ),
-              Row(
-                children: [
-                  if (free)
-                    Icon(
-                      Icons.check,
-                      color: AppColors.acceptColor,
-                      size: 20,
-                    ),
-                  if (!free)
-                    Icon(
-                      Icons.close,
-                      color: AppColors.deniedColor,
-                      size: 20,
-                    ),
-                  SizedBox(width: 10),
-                  if (paid)
-                    Icon(
-                      Icons.check,
-                      color: AppColors.acceptColor,
-                      size: 20,
-                    ),
-                  if (!paid)
-                    Icon(
-                      Icons.close,
-                      color: AppColors.deniedColor,
-                      size: 20,
-                    ),
-                ],
-              ),
-            ],
+      child: DecoratedBoxTransition(
+        decoration: decorationTween.animate(_animationController),
+        child: Card(
+          color: AppColors.secondaryColor,
+          elevation: 5,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: AppTextStyles.textStyle,
+                ),
+                Row(
+                  children: [
+                    if (free)
+                      Icon(
+                        Icons.check,
+                        color: AppColors.acceptColor,
+                        size: 20,
+                      ),
+                    if (!free)
+                      Icon(
+                        Icons.close,
+                        color: AppColors.deniedColor,
+                        size: 20,
+                      ),
+                    SizedBox(width: 10),
+                    if (paid)
+                      Icon(
+                        Icons.check,
+                        color: AppColors.acceptColor,
+                        size: 20,
+                      ),
+                    if (!paid)
+                      Icon(
+                        Icons.close,
+                        color: AppColors.deniedColor,
+                        size: 20,
+                      ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
