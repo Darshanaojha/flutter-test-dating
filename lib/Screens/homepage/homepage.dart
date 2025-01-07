@@ -1,9 +1,7 @@
 import 'dart:convert';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/RequestModels/estabish_connection_request_model.dart';
-import 'package:dating_application/Screens/homepage/swaping.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -66,19 +64,26 @@ class HomePageState extends State<HomePage>
     _fetchSuggestion = initializeApp();
   }
 
+  Future<void> _storeLastUser(SuggestedUser lastUser) async {
+    final preferences = await EncryptedSharedPreferences.getInstance();
+    String lastUserString = jsonEncode(lastUser.toJson());
+    await preferences.setString('last user', lastUserString);
+    print("Saved last user: $lastUserString");
+    Get.snackbar("Last user saved", lastUser.name.toString());
+  }
+
   Future<void> _retrieveLastUser() async {
     final preferences = await EncryptedSharedPreferences.getInstance();
     String? lastUserString = await preferences.getString('last user');
-    Get.snackbar("Stored lastUser", lastUserString.toString());
+    Get.snackbar("Stored lastUser", lastUserString ?? "No data found");
 
     if (lastUserString != null) {
-      print('Last User retrieved: $lastUserString');
       Map<String, dynamic> lastUserMap = jsonDecode(lastUserString);
-
       setState(() {
         lastUser = SuggestedUser.fromJson(lastUserMap);
       });
       Get.snackbar("Last user retrieved", lastUser!.name.toString());
+      print("Last User retrieved: ${lastUser!.name}");
     } else {
       print('No last user found');
       Get.snackbar("No User", 'No last user found');
@@ -204,7 +209,9 @@ class HomePageState extends State<HomePage>
             mainAxisSize: MainAxisSize.min,
             children: [
               Text('Send a Message', style: AppTextStyles.inputFieldText),
-              SizedBox(height: 20),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.02,
+              ),
               TextField(
                 cursorColor: AppColors.cursorColor,
                 focusNode: messageFocusNode,
@@ -230,7 +237,9 @@ class HomePageState extends State<HomePage>
                 },
                 maxLines: 3,
               ),
-              SizedBox(height: 20),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.02,
+              ),
               ElevatedButton(
                 onPressed: () async {
                   if (establishConnectionMessageRequest.message.isEmpty) {
@@ -401,11 +410,6 @@ class HomePageState extends State<HomePage>
                               Get.snackbar('userfavourite',
                                   controller.favourite.length.toString());
                             }),
-                            ElevatedButton(
-                                onPressed: () {
-                                  Get.to(MySwipePage());
-                                },
-                                child: Text("Demo"))
                           ],
                         ),
                       ),
@@ -509,36 +513,18 @@ class HomePageState extends State<HomePage>
                                         ),
                                       );
                                     },
-                                    upSwipeAllowed: isLastCard ? false : true,
-                                    leftSwipeAllowed: isLastCard ? false : true,
-                                    rightSwipeAllowed:
-                                        isLastCard ? false : true,
-                                    fillSpace: isLastCard ? false : true,
+                                    upSwipeAllowed: true,
+                                    leftSwipeAllowed: true,
+                                    rightSwipeAllowed: true,
+                                    fillSpace: true,
                                     onStackFinished: () async {
                                       isSwipeFinished = true;
                                       if (controller
                                           .userSuggestionsList.isNotEmpty) {
                                         lastUser =
                                             controller.userSuggestionsList.last;
-                                        final preferences =
-                                            await EncryptedSharedPreferences
-                                                .getInstance();
-                                        String lastUserString =
-                                            jsonEncode(lastUser!.toJson());
-                                        await preferences.setString(
-                                            'last user', lastUserString);
-                                        Get.snackbar("Last user saved",
-                                            lastUser!.name.toString());
-                                        print(
-                                            'Last User saved: ${lastUser!.name}');
-                                        setState(() {
-                                          matchEngine = MatchEngine(
-                                              swipeItems: swipeItems);
-                                          print(
-                                              'Updated userSuggestionsList: ${controller.userSuggestionsList.length}');
-                                        });
+                                        await _storeLastUser(lastUser!);
                                       }
-
                                       failure('Finished', "Stack Finished");
                                     },
                                     itemChanged: (SwipeItem item, int index) {

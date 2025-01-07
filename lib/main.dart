@@ -54,6 +54,7 @@ class MainAppState extends State<MainApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  Controller controller = Get.put(Controller());
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {

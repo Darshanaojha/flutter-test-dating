@@ -14,13 +14,13 @@ class LikesPage extends StatefulWidget {
   LikesPageState createState() => LikesPageState();
 }
 
-class LikesPageState extends State<LikesPage> {
+class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
   List<String> selectedGender = [];
   String selectedLocation = 'All';
   bool isLoading = true;
-
+  late final AnimationController _animationController;
+  late final DecorationTween decorationTween;
   Controller controller = Get.put(Controller());
-
   List<String> genders = [];
   List<String> desires = [];
   List<String> preferences = [];
@@ -43,6 +43,38 @@ class LikesPageState extends State<LikesPage> {
   void initState() {
     super.initState();
     fetchData();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat(reverse: true);
+    decorationTween = DecorationTween(
+      begin: BoxDecoration(
+        color: const Color.fromARGB(255, 71, 67, 68),
+        border: Border.all(style: BorderStyle.none),
+        borderRadius: BorderRadius.circular(10.0),
+        boxShadow: const <BoxShadow>[
+          BoxShadow(
+            color: Color(0x66666666),
+            blurRadius: 10.0,
+            spreadRadius: 3.0,
+            offset: Offset(0, 6.0),
+          ),
+        ],
+      ),
+      end: BoxDecoration(
+        color: const Color.fromARGB(255, 210, 236, 212),
+        border: Border.all(style: BorderStyle.none),
+        borderRadius: BorderRadius.circular(10.0),
+        boxShadow: const <BoxShadow>[
+          BoxShadow(
+            color: Color(0x66666666),
+            blurRadius: 10.0,
+            spreadRadius: 3.0,
+            offset: Offset(0, 6.0),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<bool> fetchData() async {
@@ -225,44 +257,51 @@ class LikesPageState extends State<LikesPage> {
                             selectedcard = true.obs;
                           },
                           child: Obx(() {
-                            return Card(
-                              elevation: selectedIndex.value == index ? 12 : 8,
-                              color: selectedIndex.value == index
-                                  ? Colors.blueAccent
-                                  : Colors.black,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.calendar_today,
-                                      color: Colors.white,
-                                      size: 24,
-                                    ),
-                                    SizedBox(width: 10),
-                                    Expanded(
-                                      child: Text(
-                                        "${currentAddon.title}/${currentAddon.duration} - ₹${currentAddon.amount}",
-                                        style: AppTextStyles.bodyText.copyWith(
-                                          fontSize: getResponsiveFontSize(0.03),
-                                          color: Colors.white,
+                            return DecoratedBoxTransition(
+                              decoration:
+                                  decorationTween.animate(_animationController),
+                              child: Card(
+                                elevation:
+                                    selectedIndex.value == index ? 12 : 8,
+                                color: selectedIndex.value == index
+                                    ? Colors.blueAccent
+                                    : Colors.black,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.calendar_today,
+                                        color: Colors.white,
+                                        size: 24,
+                                      ),
+                                      SizedBox(width: 10),
+                                      Expanded(
+                                        child: Text(
+                                          "${currentAddon.title}/${currentAddon.duration} - ₹${currentAddon.amount}",
+                                          style:
+                                              AppTextStyles.bodyText.copyWith(
+                                            fontSize:
+                                                getResponsiveFontSize(0.03),
+                                            color: Colors.white,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.arrow_drop_down,
-                                        color: Colors.white,
+                                      IconButton(
+                                        icon: Icon(
+                                          Icons.arrow_drop_down,
+                                          color: Colors.white,
+                                        ),
+                                        onPressed: () {
+                                          showAddonPointsButton(
+                                              currentAddon.addonPoints);
+                                        },
                                       ),
-                                      onPressed: () {
-                                        showAddonPointsButton(
-                                            currentAddon.addonPoints);
-                                      },
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             );
@@ -384,12 +423,20 @@ class LikesPageState extends State<LikesPage> {
                   itemBuilder: (context, index) {
                     AddonPoint point = addonPoints[index];
                     return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: ListTile(
-                        title: Text(
-                          point.title,
-                          style: AppTextStyles.bodyText
-                              .copyWith(color: Colors.white),
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: DecoratedBoxTransition(
+                        decoration:
+                            decorationTween.animate(_animationController),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8.0, horizontal: 10.0),
+                          child: ListTile(
+                            title: Text(
+                              point.title,
+                              style: AppTextStyles.bodyText
+                                  .copyWith(color: Colors.white),
+                            ),
+                          ),
                         ),
                       ),
                     );
@@ -642,38 +689,36 @@ class LikesPageState extends State<LikesPage> {
     Function(List<String>) onSelected,
   ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Container(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              foregroundColor: AppColors.primaryColor,
-              backgroundColor: AppColors.secondaryColor,
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-                side: BorderSide(color: AppColors.activeColor, width: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 6.0),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6.0),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            foregroundColor: AppColors.primaryColor,
+            backgroundColor: AppColors.secondaryColor,
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: BorderSide(color: AppColors.activeColor, width: 2),
+            ),
+          ),
+          onPressed: () {
+            if (options.isEmpty) return;
+            showBottomSheet(label, options, initialSelection, onSelected);
+          },
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: AppTextStyles.bodyText,
               ),
-            ),
-            onPressed: () {
-              if (options.isEmpty) return;
-              showBottomSheet(label, options, initialSelection, onSelected);
-            },
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label,
-                  style: AppTextStyles.bodyText,
-                ),
-                SizedBox(width: 8),
-                Icon(
-                  Icons.arrow_drop_down,
-                  color: AppColors.activeColor,
-                ),
-              ],
-            ),
+              SizedBox(width: 8),
+              Icon(
+                Icons.arrow_drop_down,
+                color: AppColors.activeColor,
+              ),
+            ],
           ),
         ),
       ),
