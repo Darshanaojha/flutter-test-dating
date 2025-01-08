@@ -69,24 +69,24 @@ class HomePageState extends State<HomePage>
     String lastUserString = jsonEncode(lastUser.toJson());
     await preferences.setString('last user', lastUserString);
     print("Saved last user: $lastUserString");
-    Get.snackbar("Last user saved", lastUser.name.toString());
+    // Get.snackbar("Last user saved", lastUser.name.toString());
   }
 
   Future<void> _retrieveLastUser() async {
     final preferences = await EncryptedSharedPreferences.getInstance();
     String? lastUserString = await preferences.getString('last user');
-    Get.snackbar("Stored lastUser", lastUserString ?? "No data found");
+    // Get.snackbar("Stored lastUser", lastUserString ?? "No data found");
 
     if (lastUserString != null) {
       Map<String, dynamic> lastUserMap = jsonDecode(lastUserString);
       setState(() {
         lastUser = SuggestedUser.fromJson(lastUserMap);
       });
-      Get.snackbar("Last user retrieved", lastUser!.name.toString());
+      // Get.snackbar("Last user retrieved", lastUser!.name.toString());
       print("Last User retrieved: ${lastUser!.name}");
     } else {
       print('No last user found');
-      Get.snackbar("No User", 'No last user found');
+      // Get.snackbar("No User", 'No last user found');
     }
   }
 
@@ -113,6 +113,14 @@ class HomePageState extends State<HomePage>
           }
         },
         nopeAction: () {
+          print(
+              "Pressed dislike button for user: ${controller.userSuggestionsList[i].name}");
+          matchEngine = MatchEngine(swipeItems: swipeItems);
+          setState(() {
+            controller.dislikeProfileRequest.id =
+                controller.userSuggestionsList[i].id.toString();
+          });
+          controller.dislikeprofile(controller.dislikeProfileRequest);
           print("User ${controller.userSuggestionsList[i].name} was 'nope'd");
         },
         superlikeAction: () {
@@ -325,8 +333,9 @@ class HomePageState extends State<HomePage>
                       //   size: 150.0,
                       //   color: Colors.blue,
                       // ),
+                      // assets/animations/homeanimation.json
                       child: Lottie.asset(
-                          "assets/animations/loadinganimation.json"));
+                          "assets/animations/handloadinganimation.json"));
                 }
                 if (snapshot.hasError) {
                   return Center(
@@ -649,7 +658,6 @@ class HomePageState extends State<HomePage>
                         onPressed: () {
                           matchEngine.currentItem!.nope();
                           print("button pressed nope");
-                          Get.snackbar("title", "button pressed");
                         },
                         style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.NopeColor),

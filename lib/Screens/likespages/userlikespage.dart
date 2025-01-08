@@ -45,7 +45,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
     fetchData();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 1),
     )..repeat(reverse: true);
     decorationTween = DecorationTween(
       begin: BoxDecoration(
@@ -62,7 +62,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
         ],
       ),
       end: BoxDecoration(
-        color: const Color.fromARGB(255, 210, 236, 212),
+        color: const Color.fromRGBO(246, 242, 242, 0.71),
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
@@ -618,14 +618,23 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                 Row(
                                   children: [
                                     IconButton(
-                                      onPressed: () {
+                                      onPressed: () async {
                                         setState(() {
                                           user.likedByMe =
                                               user.likedByMe == 0 ? 1 : 0;
-                                          controller.profileLikeRequest
-                                              .likedBy = user.userId.toString();
-                                          controller.profileLike(
-                                              controller.profileLikeRequest);
+                                          if (user.likedByMe == 1) {
+                                            controller.profileLikeRequest
+                                                    .likedBy =
+                                                user.userId.toString();
+                                            controller.profileLike(
+                                                controller.profileLikeRequest);
+                                          } else {
+                                            controller.dislikeProfileRequest
+                                                .id = user.id.toString();
+                                            controller.dislikeprofile(controller
+                                                .dislikeProfileRequest);
+                                            controller.likesuserpage();
+                                          }
                                         });
                                       },
                                       icon: Icon(
@@ -637,7 +646,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                             ? Colors.red
                                             : Colors.white,
                                       ),
-                                    )
+                                    ),
                                   ],
                                 ),
                               ],

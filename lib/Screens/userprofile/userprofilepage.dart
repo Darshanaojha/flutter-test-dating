@@ -56,7 +56,7 @@ class UserProfilePageState extends State<UserProfilePage>
         ],
       ),
       end: BoxDecoration(
-        color: const Color.fromARGB(255, 210, 236, 212), // Final green color
+        color: const Color.fromARGB(77, 232, 232, 232), 
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
@@ -94,7 +94,7 @@ class UserProfilePageState extends State<UserProfilePage>
                     //   color: AppColors.progressColor,
                     // ),
                     child: Lottie.asset(
-                        "assets/animations/loadinganimation.json",
+                        "assets/animations/handloadinganimation.json",
                         repeat: true,
                         reverse: true),
                   );
@@ -1027,7 +1027,7 @@ class SettingCardState extends State<SettingCard>
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
           BoxShadow(
-            color: Color(0x66666666),
+            color: Color.fromARGB(255, 71, 67, 68),
             blurRadius: 10.0,
             spreadRadius: 3.0,
             offset: Offset(0, 6.0),
@@ -1035,12 +1035,12 @@ class SettingCardState extends State<SettingCard>
         ],
       ),
       end: BoxDecoration(
-        color: const Color.fromARGB(255, 210, 236, 212),
+        color: const Color.fromARGB(77, 232, 232, 232),
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
           BoxShadow(
-            color: Color(0x66666666),
+            color: Color.fromARGB(255, 71, 67, 68),
             blurRadius: 10.0,
             spreadRadius: 3.0,
             offset: Offset(0, 6.0),
@@ -1069,6 +1069,7 @@ class SettingCardState extends State<SettingCard>
             decoration: decorationTween.animate(_animationController),
             child: Card(
               elevation: 5,
+              color: const Color.fromARGB(255, 71, 67, 68),
               child: ListTile(
                 title: Text(
                   widget.title,
