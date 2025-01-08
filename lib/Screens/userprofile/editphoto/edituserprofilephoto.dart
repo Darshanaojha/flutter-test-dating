@@ -48,12 +48,6 @@ class EditPhotosPageState extends State<EditPhotosPage> {
     }
   }
 
-  // void updatedImagesLength() {
-  //   for (int i = updatedImages.length; i < 6; i++) {
-  //     updatedImages.add("".obs);
-  //   }
-  // }
-
   bool isLoading = false;
   final picker = ImagePicker();
 

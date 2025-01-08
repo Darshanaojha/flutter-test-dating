@@ -1,7 +1,7 @@
 import 'package:dating_application/Screens/userprofile/plans/planspage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animated_button/flutter_animated_button.dart';
 import 'package:get/get.dart';
-
 import '../../../Controllers/controller.dart';
 import '../../../constants.dart';
 
@@ -67,7 +67,6 @@ class MembershipPageState extends State<MembershipPage>
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Photo section taking up 40% of the screen height
             Container(
               height: screenHeight * 0.4,
               decoration: BoxDecoration(
@@ -77,8 +76,6 @@ class MembershipPageState extends State<MembershipPage>
                 ),
               ),
             ),
-
-            // Membership services section
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -130,22 +127,24 @@ class MembershipPageState extends State<MembershipPage>
         padding: EdgeInsets.all(16.0),
         child: SizedBox(
           width: MediaQuery.of(context).size.width * 0.9,
-          child: FloatingActionButton.extended(
-            onPressed: () {
-              Get.to(PricingPage());
+          child: AnimatedButton(
+            text: 'Starting from ₹99', 
+            onPress: () {
+              Get.to(PricingPage()); 
             },
-            label: Text(
-              'Starting from ₹99',
-              style: AppTextStyles.buttonText.copyWith(fontSize: 14),
-            ),
-            icon: Icon(
-              Icons.payment,
-              color: AppColors.textColor,
-            ),
-            backgroundColor: AppColors.buttonColor,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
+            transitionType: TransitionType.LEFT_TO_RIGHT,
+            textStyle: AppTextStyles.buttonText
+                .copyWith(fontSize: 14), 
+            backgroundColor: AppColors.FavouriteColor,
+            selectedBackgroundColor:
+                AppColors.activeColor, 
+            borderRadius: 16.0, 
+            height: 50, 
+            width: MediaQuery.of(context).size.width *
+                0.9,
+            animationDuration:
+                Duration(milliseconds: 300),
+            
           ),
         ),
       ),

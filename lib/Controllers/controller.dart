@@ -57,6 +57,7 @@ import '../Models/RequestModels/block_User_request_model.dart';
 import '../Models/RequestModels/chat_history_request_model.dart';
 import '../Models/RequestModels/delete_message_request_model.dart';
 import '../Models/RequestModels/deletefavourite_request_model.dart';
+import '../Models/RequestModels/dislike_profile_request_model.dart';
 import '../Models/RequestModels/edit_message_request_model.dart';
 import '../Models/RequestModels/estabish_connection_request_model.dart';
 import '../Models/RequestModels/forget_password_request_model.dart';
@@ -86,6 +87,7 @@ import '../Models/ResponseModels/block_user_response_model.dart';
 import '../Models/ResponseModels/chat_history_response_model.dart';
 import '../Models/ResponseModels/chat_response.dart';
 import '../Models/ResponseModels/delete_message_response_model.dart';
+import '../Models/ResponseModels/dislike_profile_response_model.dart';
 import '../Models/ResponseModels/edit_message_response_model.dart';
 import '../Models/ResponseModels/establish_connection_response_model.dart';
 import '../Models/ResponseModels/forget_password_response_model.dart';
@@ -122,6 +124,7 @@ import '../Models/ResponseModels/verify_account_response_model.dart';
 import '../Providers/block_user_provider.dart';
 import '../Providers/delete_message_provider.dart';
 import '../Providers/deletefavourite_provider_model.dart';
+import '../Providers/dislike_profile_provider.dart';
 import '../Providers/edit_message_provider.dart';
 import '../Providers/established_connection_message_provider.dart';
 import '../Providers/fetch_all_active_user_provider.dart';
@@ -1787,6 +1790,24 @@ class Controller extends GetxController {
     } catch (e) {
       failure('Error', e.toString());
       print("Error${e.toString()}");
+      return false;
+    }
+  }
+
+  DislikeProfileRequest dislikeProfileRequest = DislikeProfileRequest(id: '');
+  Future<bool> dislikeprofile(
+      DislikeProfileRequest dislikeProfileRequest) async {
+    try {
+      DislikeProfileResponse? response = await DislikeProfileProvider()
+          .dislikeProfileProvider(dislikeProfileRequest);
+      if (response != null) {
+        success('Success', response.payload.message);
+        return true;
+      }
+      failure('Error', 'Failed to process the dislike request.');
+      return false;
+    } catch (e) {
+      failure('Error', e.toString());
       return false;
     }
   }

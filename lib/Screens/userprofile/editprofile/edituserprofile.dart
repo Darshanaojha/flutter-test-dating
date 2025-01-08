@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import '../../../Models/RequestModels/user_profile_update_request_model.dart';
 import '../../../Models/ResponseModels/ProfileResponse.dart';
 import '../../../Models/ResponseModels/get_all_gender_from_response_model.dart';
@@ -550,7 +551,6 @@ class EditProfilePageState extends State<EditProfilePage>
                   ),
                 ),
               ),
-              Divider(color: AppColors.textColor),
             ],
           ),
         ),
@@ -640,11 +640,12 @@ class EditProfilePageState extends State<EditProfilePage>
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(
-                  child: SpinKitCircle(
-                    size: 150.0,
-                    color: AppColors.progressColor,
-                  ),
-                );
+                    // child: SpinKitCircle(
+                    //   size: 150.0,
+                    //   color: AppColors.progressColor,
+                    // ),
+                    child: Lottie.asset(
+                        "assets/animations/editprofileanimation.json"));
               }
               if (snapshot.hasError) {
                 return Center(
