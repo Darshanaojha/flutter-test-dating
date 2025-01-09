@@ -134,8 +134,7 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
                                         style: AppTextStyles.textStyle.copyWith(
                                           fontSize: getResponsiveFontSize(
                                               context, 0.03),
-                                          color: Colors
-                                              .white70, // Slightly faded white
+                                          color: Colors.white70,
                                         ),
                                       ),
                                       Text(
@@ -143,7 +142,7 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
                                         style: AppTextStyles.textStyle.copyWith(
                                           fontSize: getResponsiveFontSize(
                                               context, 0.03),
-                                          color: Colors.white, // White text
+                                          color: Colors.white,
                                         ),
                                       ),
                                     ],

@@ -1,7 +1,5 @@
 import 'dart:math';
-
 import 'package:dating_application/Screens/login.dart';
-import 'package:dating_application/Screens/userprofile/editprofile/edituserprofile.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -20,7 +18,6 @@ class NavigationController extends GetxController {
   final List<Widget> screens = [
     HomePage(),
     LikesPage(),
-    // ChatHistoryPage(),
     ContactListScreen(),
     UserProfilePage(),
   ];
@@ -42,7 +39,6 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
   late AnimationController _animationController;
   late Animation<double> _rotationAnimation;
   final controller = Get.put(Controller());
-
   final navigationcontroller = Get.put(NavigationController());
 
   @override

@@ -92,4 +92,6 @@ flutter:
     - assets/animations/editprofileanimation.json
     - assets/animations/handloadinganimation.json
     - assets/animations/new404animation.json
+    - assets/animations/likesbuttonpressanimation.json
+    
     

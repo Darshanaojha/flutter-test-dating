@@ -41,6 +41,7 @@ import 'package:dating_application/Providers/fetch_all_introslider_provider.dart
 import 'package:dating_application/Providers/fetch_all_preferences_provider.dart';
 import 'package:dating_application/Providers/fetch_all_safety_guildlines_provider.dart';
 import 'package:dating_application/Providers/fetch_subscripted_package_provider.dart';
+import 'package:dating_application/Providers/home_page_dislike_provider.dart';
 import 'package:dating_application/Providers/login_provider.dart';
 import 'package:dating_application/Providers/share_profile_provider.dart';
 import 'package:dating_application/Providers/chat_provider.dart';
@@ -63,6 +64,7 @@ import '../Models/RequestModels/estabish_connection_request_model.dart';
 import '../Models/RequestModels/forget_password_request_model.dart';
 import '../Models/RequestModels/forget_password_verification_request_model.dart';
 import '../Models/RequestModels/highlight_profile_status_request_model.dart';
+import '../Models/RequestModels/homepage_dislike_request_model.dart';
 import '../Models/RequestModels/liked_by_request_model.dart';
 import '../Models/RequestModels/marksasfavourite_request_model.dart';
 import '../Models/RequestModels/pin_profile_pic_request_model.dart';
@@ -103,6 +105,7 @@ import '../Models/ResponseModels/get_all_verification_response_model.dart';
 import '../Models/ResponseModels/get_report_user_options_response_model.dart';
 import '../Models/ResponseModels/highlight_profile_status_response_model.dart';
 import '../Models/ResponseModels/get_all_like_history_response_model.dart';
+import '../Models/ResponseModels/homepage_dislike_response_model.dart';
 import '../Models/ResponseModels/liked_by_response_model.dart';
 import '../Models/ResponseModels/marksasfavourite_response_model.dart';
 import '../Models/ResponseModels/pin_profile_pic_response_model.dart';
@@ -461,8 +464,6 @@ class Controller extends GetxController {
       }
 
       final fetchedMessages = response.chats;
-
-      // Filter out existing messages before processing
       final existingIds = messages.map((msg) => msg.id).toSet();
       final newMessages = fetchedMessages
           .where((msg) => !existingIds.contains(msg.id))
@@ -475,15 +476,12 @@ class Controller extends GetxController {
 
       for (var message in newMessages) {
         try {
-          // Decrypt the message
           message.message = decryptMessage(message.message, secretkey);
         } catch (e) {
           print('Error decrypting message with ID: ${message.id}');
           print(e.toString());
         }
       }
-
-      // Add new messages to the list
       messages.addAll(newMessages);
       return true;
     } catch (e) {
@@ -1805,6 +1803,26 @@ class Controller extends GetxController {
         return true;
       }
       failure('Error', 'Failed to process the dislike request.');
+      return false;
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  HomepageDislikeRequest homepageDislikeRequest =
+      HomepageDislikeRequest(userId: '', connectionId: '');
+  Future<bool> homepagedislikeprofile(
+      HomepageDislikeRequest homepageDislikeRequest) async {
+    try {
+      HomepageDislikeResponse? response = await HomePageDislikeProvider()
+          .homePageDislikeProvider(homepageDislikeRequest);
+      if (response != null) {
+        success('Success', response.payload.message);
+        return true;
+      }
+      failure(
+          'Error', 'Failed to process the user suggestion dislike request.');
       return false;
     } catch (e) {
       failure('Error', e.toString());
