@@ -1,4 +1,5 @@
 import 'package:encrypt_shared_preferences/provider.dart';
+import 'package:get/get.dart';
 import 'package:get/get_connect/connect.dart';
 
 import '../Models/ResponseModels/get_all_verification_response_model.dart';
