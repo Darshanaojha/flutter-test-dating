@@ -27,9 +27,10 @@ class PricingPageState extends State<PricingPage>
       vsync: this,
       duration: const Duration(seconds: 3),
     )..repeat(reverse: true);
+
     decorationTween = DecorationTween(
       begin: BoxDecoration(
-        color: const Color.fromARGB(255, 71, 67, 68),
+        color: Colors.transparent,
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
@@ -42,7 +43,7 @@ class PricingPageState extends State<PricingPage>
         ],
       ),
       end: BoxDecoration(
-        color: const Color.fromARGB(255, 210, 236, 212), // Final green color
+        color: Colors.transparent,
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pushable_button/pushable_button.dart';
 import '../../../Controllers/controller.dart';
 import '../../../constants.dart';
 
@@ -118,7 +119,7 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
                       SizedBox(height: 16),
                       Text(
                         'Description: ${controller.verificationtype.description}',
-                        style: AppTextStyles.bodyText,
+                        style: AppTextStyles.textStyle,
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 50),
@@ -149,16 +150,28 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
                         ),
                       SizedBox(height: 50),
                       Center(
-                        child: ElevatedButton(
-                          onPressed: submitVerification,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: controller.requestToVerifyAccount
-                                    .identifyImage.isNotEmpty
-                                ? AppColors.buttonColor
-                                : AppColors.activeColor,
+                        child: SizedBox(
+                          width: 160,
+                          child: PushableButton(
+                            onPressed: submitVerification,
+                            // style: ElevatedButton.styleFrom(
+                            //   backgroundColor: controller.requestToVerifyAccount
+                            //           .identifyImage.isNotEmpty
+                            //       ? AppColors.buttonColor
+                            //       : AppColors.activeColor,
+                            // ),
+                            hslColor: HSLColor.fromColor(Colors.green),
+                            height: 50.0,
+                            elevation: 8.0,
+                            shadow: BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 4.0,
+                              spreadRadius: 2.0,
+                              offset: Offset(0, 4),
+                            ),
+                            child: Text('Submit Verification',
+                                style: AppTextStyles.textStyle),
                           ),
-                          child: Text('Submit Verification',
-                              style: AppTextStyles.buttonText),
                         ),
                       ),
                     ],

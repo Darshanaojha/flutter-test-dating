@@ -1,6 +1,7 @@
 import 'package:dating_application/Screens/userprofile/membership/membershippage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pushable_button/pushable_button.dart';
 import '../../../Controllers/controller.dart';
 import '../../../constants.dart';
 
@@ -28,16 +29,17 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
     }
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 1),
     )..repeat(reverse: true);
+
     decorationTween = DecorationTween(
       begin: BoxDecoration(
-        color: const Color.fromARGB(255, 71, 67, 68),
+        color: Colors.transparent, // Transparent box
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
           BoxShadow(
-            color: Color(0x66666666),
+            color: Color(0x66666666), // Shadow color
             blurRadius: 10.0,
             spreadRadius: 3.0,
             offset: Offset(0, 6.0),
@@ -45,12 +47,12 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
         ],
       ),
       end: BoxDecoration(
-        color: const Color.fromARGB(255, 210, 236, 212),
+        color: Colors.transparent, // Transparent box
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
           BoxShadow(
-            color: Color(0x66666666),
+            color: Color(0x66666666), // Shadow color
             blurRadius: 10.0,
             spreadRadius: 3.0,
             offset: Offset(0, 6.0),
@@ -270,18 +272,19 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
                 builder: (context, double opacity, child) {
                   return Opacity(
                     opacity: opacity,
-                    child: ElevatedButton(
+                    child: PushableButton(
                       onPressed: () {
                         Get.to(MembershipPage());
                         print("Upgrade Package button pressed");
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        padding: EdgeInsets.symmetric(vertical: 14.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        elevation: 5,
+                      hslColor: HSLColor.fromColor(Colors.blue),
+                      height: 60.0,
+                      elevation: 8.0,
+                      shadow: BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 4.0,
+                        spreadRadius: 2.0,
+                        offset: Offset(0, 4),
                       ),
                       child: Text(
                         'Click to Upgrade Your Package',

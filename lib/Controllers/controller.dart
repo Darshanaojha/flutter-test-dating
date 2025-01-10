@@ -316,7 +316,6 @@ class Controller extends GetxController {
   }
 
   RxList<Country> countries = <Country>[].obs;
-
   Future<bool> fetchCountries() async {
     try {
       countries.clear();

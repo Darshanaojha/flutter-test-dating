@@ -1,6 +1,7 @@
 import 'package:dating_application/Screens/settings/appinfopages/licensepage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pushable_button/pushable_button.dart';
 import '../../../constants.dart';
 
 class AppInfoPage extends StatefulWidget {
@@ -70,18 +71,26 @@ class _AppInfoPageState extends State<AppInfoPage> {
               SizedBox(height: 20),
 
               // License Button
-              ElevatedButton(
-                onPressed: () {
-                  Get.to(LicenseDetailsPage());
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                  backgroundColor: AppColors.activeColor,
-                ),
-                child: Text(
-                  'View Licenses',
-                  style: AppTextStyles.headingText.copyWith(
-                    fontSize: getResponsiveFontSize(0.03),
+              SizedBox(
+                width: 160,
+                child: PushableButton(
+                  onPressed: () {
+                    Get.to(LicenseDetailsPage());
+                  },
+                   hslColor: HSLColor.fromColor(Colors.green),
+                              height: 50.0,
+                              elevation: 8.0,
+                              shadow: BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 4.0,
+                                spreadRadius: 2.0,
+                                offset: Offset(0, 4),
+                              ),
+                  child: Text(
+                    'View Licenses',
+                    style: AppTextStyles.headingText.copyWith(
+                      fontSize: getResponsiveFontSize(0.03),
+                    ),
                   ),
                 ),
               ),

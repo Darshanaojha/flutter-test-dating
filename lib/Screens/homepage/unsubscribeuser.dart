@@ -34,9 +34,10 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
       vsync: this,
       duration: const Duration(seconds: 1),
     )..repeat(reverse: true);
+
     decorationTween = DecorationTween(
       begin: BoxDecoration(
-        color: const Color.fromARGB(255, 71, 67, 68),
+        color: Colors.transparent,
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
@@ -49,7 +50,7 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
         ],
       ),
       end: BoxDecoration(
-        color: const Color.fromARGB(255, 210, 236, 212),
+        color: Colors.transparent,
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[

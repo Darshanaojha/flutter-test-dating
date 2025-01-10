@@ -22,7 +22,7 @@ class AppColors {
   static Color NopeColor = Color.fromARGB(255, 217, 37, 25);
   static Color FavouriteColor = Color.fromARGB(255, 49, 183, 190);
   static Color LikeColor = Color.fromARGB(255, 46, 212, 52);
-  static Color FilterChipColor = Color.fromARGB(255, 11, 122, 67);
+  static Color FilterChipColor = Colors.grey;
   static Color textColor = Colors.white;
   static Color accentColor = Colors.black;
   static Color cursorColor = Colors.white;
@@ -30,7 +30,7 @@ class AppColors {
   static Color deniedColor = Colors.red;
   static Color iconColor = Colors.blue;
   static Color buttonColor = Colors.blue;
-  static Color chipColor = Color.fromARGB(255, 11, 122, 67);
+  static Color chipColor = Colors.grey;
   static Color formFieldColor = Color.fromARGB(255, 85, 84, 84);
   static Color inactiveColor = Colors.red;
   static Color activeColor = Colors.green;
@@ -44,18 +44,20 @@ class AppColors {
   static Color navigationright = Color.fromARGB(255, 115, 111, 111);
   static Color progressColor = Color(0xFFD3D3D3);
   static var primaryTextColor;
+
+  static var shadowColor;
 }
 
 class AppTextStyles {
   static const String baseFontFamily = 'raleway';
   static const double headingSize = 32.0;
   static const double subheadingSize = 24.0;
-  static const double titleSize = 20.0;
+  static const double titleSize = 17.0;
   static const double bodySize = 16.0;
   static const double buttonSize = 14.0;
   static const double labelSize = 14.0;
   static const double inputFieldSize = 16.0;
-  static const double textSize = 12.0;
+  static const double textSize = 9.0;
 
   static TextStyle headingText = GoogleFonts.raleway(
     fontSize: headingSize,
@@ -109,7 +111,7 @@ class AppTextStyles {
     color: Colors.red,
   );
   static TextStyle customTextStyle(
-      {double fontSize = 16.0,
+      {double fontSize = 12.0,
       FontWeight fontWeight = FontWeight.normal,
       Color color = Colors.black}) {
     return GoogleFonts.raleway(

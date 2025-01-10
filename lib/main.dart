@@ -9,7 +9,6 @@ import 'package:get/get.dart';
 import 'Controllers/controller.dart';
 import 'Models/RequestModels/update_activity_status_request_model.dart';
 import 'Providers/fcmService.dart';
-import 'Screens/userprofile/editprofile/edituserprofile.dart';
 
 void main() async {
   try {
@@ -75,9 +74,15 @@ class MainAppState extends State<MainApp> with WidgetsBindingObserver {
       title: 'FlamR',
       theme: ThemeData(
         brightness: Brightness.dark,
+        useMaterial3: true,
+        colorScheme: ColorScheme.dark(
+          primary: Colors.teal,
+          secondary: Colors.orange,
+        ),
         appBarTheme: AppBarTheme(
+          backgroundColor: Colors.teal,
+          foregroundColor: Colors.white, // Text and icon colors
           systemOverlayStyle: SystemUiOverlayStyle.light,
-          toolbarHeight: MediaQuery.of(context).size.height * 0.1,
         ),
       ),
       initialRoute: '/',

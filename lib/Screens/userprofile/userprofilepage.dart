@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
+import 'package:pushable_button/pushable_button.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/usernameupdate_request_model.dart';
@@ -41,14 +42,15 @@ class UserProfilePageState extends State<UserProfilePage>
       vsync: this,
       duration: const Duration(seconds: 1),
     )..repeat(reverse: true);
+
     decorationTween = DecorationTween(
       begin: BoxDecoration(
-        color: const Color.fromARGB(255, 71, 67, 68),
+        color: Colors.transparent, // Transparent box
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
           BoxShadow(
-            color: Color(0x66666666),
+            color: Color(0x66666666), // Shadow color
             blurRadius: 10.0,
             spreadRadius: 3.0,
             offset: Offset(0, 6.0),
@@ -56,12 +58,12 @@ class UserProfilePageState extends State<UserProfilePage>
         ],
       ),
       end: BoxDecoration(
-        color: const Color.fromARGB(77, 232, 232, 232), 
+        color: Colors.transparent, // Transparent box
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
           BoxShadow(
-            color: Color(0x66666666),
+            color: Color(0x66666666), // Shadow color
             blurRadius: 10.0,
             spreadRadius: 3.0,
             offset: Offset(0, 6.0),
@@ -324,7 +326,7 @@ class UserProfilePageState extends State<UserProfilePage>
                       ),
                       SizedBox(height: 20),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
                         child: DecoratedBoxTransition(
                           decoration:
                               decorationTween.animate(_animationController),
@@ -342,7 +344,7 @@ class UserProfilePageState extends State<UserProfilePage>
                               },
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
-                                    vertical: 22, horizontal: 22),
+                                    vertical: 18, horizontal: 18),
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -350,7 +352,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                     Text(
                                       'Account Verification',
                                       style: TextStyle(
-                                        fontSize: 18,
+                                        fontSize: 12,
                                         fontWeight: FontWeight.bold,
                                         color: controller.userData.isNotEmpty &&
                                                 controller.userData.first
@@ -369,14 +371,12 @@ class UserProfilePageState extends State<UserProfilePage>
                                           ? Icon(
                                               Icons.verified_user_outlined,
                                               color: Colors.green,
-                                              key: ValueKey<int>(
-                                                  1), // Ensure the animation triggers
+                                              key: ValueKey<int>(1),
                                             )
                                           : Icon(
                                               Icons.cancel_outlined,
                                               color: Colors.red,
-                                              key: ValueKey<int>(
-                                                  0), // Ensure the animation triggers
+                                              key: ValueKey<int>(0),
                                             ),
                                     ),
                                   ],
@@ -386,208 +386,80 @@ class UserProfilePageState extends State<UserProfilePage>
                           ),
                         ),
                       ),
-                      // Padding(
-                      //   padding: EdgeInsets.symmetric(vertical: 22),
-                      //   child: Padding(
-                      //     padding: EdgeInsets.symmetric(horizontal: 10),
-                      //     child: Card(
-                      //       elevation: 5,
-                      //       child: Padding(
-                      //         padding: EdgeInsets.symmetric(horizontal: 22),
-                      //         child: Column(
-                      //           crossAxisAlignment: CrossAxisAlignment.start,
-                      //           children: [
-                      //             Text(
-                      //                 'Profile Completion: $userProfileCompletion',
-                      //                 style: AppTextStyles.labelText.copyWith(
-                      //                     fontSize:
-                      //                         getResponsiveFontSize(0.03))),
-                      //             SizedBox(height: 10),
-                      //             Text(
-                      //                 'Complete your profile to unlock more features!',
-                      //                 style: AppTextStyles.labelText.copyWith(
-                      //                     fontSize:
-                      //                         getResponsiveFontSize(0.03))),
-                      //           ],
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
                       Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          child: DecoratedBoxTransition(
-                            decoration:
-                                decorationTween.animate(_animationController),
-                            child: Card(
-                              color: Color.fromARGB(255, 68, 63, 62),
-                              elevation: 5,
-                              child: InkWell(
-                                onTap: () {
-                                  Get.to(PlanPage());
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 22, horizontal: 22),
-                                  width: double.infinity,
-                                  height: 100,
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.card_membership,
-                                        size: 40,
-                                        color: Colors.white,
-                                      ),
-                                      SizedBox(width: 56),
-                                      Text(
-                                        'Membership',
-                                        style: AppTextStyles.titleText.copyWith(
-                                            fontSize:
-                                                getResponsiveFontSize(0.03)),
-                                      ),
-                                    ],
-                                  ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 6),
+                        child: DecoratedBoxTransition(
+                          decoration:
+                              decorationTween.animate(_animationController),
+                          child: Card(
+                            color: Color.fromARGB(255, 68, 63, 62),
+                            elevation: 5,
+                            child: InkWell(
+                              onTap: () {
+                                Get.to(PlanPage());
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 18, horizontal: 18),
+                                width: double.infinity,
+                                height: 90,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.card_membership,
+                                      size: 40,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(width: 66),
+                                    Text(
+                                      'Membership',
+                                      style: AppTextStyles.titleText.copyWith(
+                                          fontSize:
+                                              getResponsiveFontSize(0.03)),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                      // Padding(
-                      //   padding: const EdgeInsets.all(16.0),
-                      //   child: Card(
-                      //     color: Colors.orange,
-                      //     elevation: 5,
-                      //     child: InkWell(
-                      //       onTap: showMessageBottomSheet,
-                      //       child: Container(
-                      //         padding: EdgeInsets.all(16),
-                      //         width: double.infinity,
-                      //         height: 100,
-                      //         child: Row(
-                      //           children: [
-                      //             Icon(
-                      //               Icons.notifications_active,
-                      //               size: 40,
-                      //               color: Colors.white,
-                      //             ),
-                      //             SizedBox(width: 76),
-                      //             Text(
-                      //               'Messages',
-                      //               style: AppTextStyles.titleText.copyWith(
-                      //                   fontSize: getResponsiveFontSize(0.03)),
-                      //             ),
-                      //           ],
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
-                      // Padding(
-                      //   padding: const EdgeInsets.all(16.0),
-                      //   child: Card(
-                      //     color: Colors.orange,
-                      //     elevation: 5,
-                      //     child: InkWell(
-                      //       onTap: () {
-                      //         showUpgradeBottomSheet(context);
-                      //       },
-                      //       child: Container(
-                      //         padding: EdgeInsets.all(16),
-                      //         width: double.infinity,
-                      //         height: 100,
-                      //         child: Row(
-                      //           children: [
-                      //             Icon(
-                      //               Icons.upload,
-                      //               size: 30,
-                      //               color: Colors.white,
-                      //             ),
-                      //             SizedBox(width: 66),
-                      //             Text(
-                      //               'Uplift Profile',
-                      //               style: AppTextStyles.titleText.copyWith(
-                      //                   fontSize: getResponsiveFontSize(0.03)),
-                      //             ),
-                      //           ],
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
                       Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          child: Column(
-                            children: [
-                              // SettingCard(
-                              //   title: 'My Constellation',
-                              //   subtitle: 'Add partners to your constellation',
-                              //   icon: Icons.arrow_forward,
-                              //   onTap: () {
-                              //     Get.to(AddPartnerPage());
-                              //   },
-                              // ),
-                              SettingCard(
-                                title: 'Edit Profile',
-                                subtitle: 'Edit your profile details',
-                                icon: Icons.edit,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 6),
+                        child: Column(
+                          children: [
+                            SettingCard(
+                              title: 'Edit Profile',
+                              subtitle: 'Edit your profile details',
+                              icon: Icons.edit,
+                              onTap: () {
+                                Get.to(EditProfilePage());
+                              },
+                            ),
+                            SettingCard(
+                              title: 'App Settings',
+                              subtitle: 'Manage app preferences',
+                              icon: Icons.settings,
+                              onTap: () {
+                                Get.to(SettingsPage());
+                              },
+                            ),
+                            SettingCard(
+                              title: 'Share The Application',
+                              subtitle: 'Share our Application with others',
+                              icon: Icons.share,
+                              onTap: showShareProfileBottomSheet,
+                            ),
+                            SettingCard(
+                                title: 'Help',
+                                subtitle: 'helpline',
+                                icon: Icons.help,
                                 onTap: () {
-                                  Get.to(EditProfilePage());
-                                  if (controller.userLang.isNotEmpty) {
-                                    Get.snackbar(
-                                        '', controller.userLang.first.title);
-                                  } else {
-                                    Get.snackbar('', 'No language available');
-                                  }
-                                },
-                              ),
-                              // SettingCard(
-                              //   title: 'Search Settings',
-                              //   subtitle: 'Customize your search settings',
-                              //   icon: Icons.search,
-                              //   onTap: () {
-                              //     Get.to(ShareProfilePage(
-                              //       id: '1',
-                              //     ));
-                              //   },
-                              // ),
-                              SettingCard(
-                                title: 'App Settings',
-                                subtitle: 'Manage app preferences',
-                                icon: Icons.settings,
-                                onTap: () {
-                                  Get.to(SettingsPage());
-                                },
-                              ),
-                              SettingCard(
-                                title: 'Share The Application',
-                                subtitle: 'Share our Application with others',
-                                icon: Icons.share,
-                                onTap: showShareProfileBottomSheet,
-                              ),
-                              // SettingCard(
-                              //     title: 'Magazine',
-                              //     subtitle: 'abc',
-                              //     icon: Icons.bolt,
-                              //     onTap: () {}),
-                              // SettingCard(
-                              //     title: 'Our Community',
-                              //     subtitle: 'community support',
-                              //     icon: Icons.support,
-                              //     onTap: () {}),
-                              SettingCard(
-                                  title: 'Help',
-                                  subtitle: 'helpline',
-                                  icon: Icons.help,
-                                  onTap: () {
-                                    showHelpBottomSheet(context);
-                                  }),
-                            ],
-                          ),
+                                  showHelpBottomSheet(context);
+                                }),
+                          ],
                         ),
                       ),
                     ],
@@ -771,36 +643,57 @@ class UserProfilePageState extends State<UserProfilePage>
           ),
           content: Text(
             'To verify your account, you need to submit a photo. Choose one of the following options for your photo submission.',
-            style: AppTextStyles.titleText,
+            style: AppTextStyles.textStyle,
             textAlign: TextAlign.center,
           ),
           actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.inactiveColor,
-              ),
-              child: Text(
-                'Cancel',
-                style: AppTextStyles.titleText,
-                textAlign: TextAlign.center,
+            SizedBox(
+              width: 70,
+              height: 60,
+              child: PushableButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                hslColor: HSLColor.fromColor(Colors.red),
+                height: 50.0,
+                elevation: 8.0,
+                shadow: BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 4.0,
+                  spreadRadius: 2.0,
+                  offset: Offset(0, 4),
+                ),
+                child: Text(
+                  'Cancel',
+                  style: AppTextStyles.textStyle,
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                controller.fetchAllverificationtype();
-                Navigator.of(context).pop();
-                Get.to(PhotoVerificationPage());
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.activeColor,
-              ),
-              child: Text(
-                'Confirm',
-                style: AppTextStyles.titleText,
-                textAlign: TextAlign.center,
+            SizedBox(width: 28),
+            SizedBox(
+              height: 60,
+              width: 70,
+              child: PushableButton(
+                onPressed: () {
+                  controller.fetchAllverificationtype();
+                  Navigator.of(context).pop();
+                  Get.to(PhotoVerificationPage());
+                },
+                hslColor: HSLColor.fromColor(Colors.green),
+                height: 50.0,
+                elevation: 8.0,
+                shadow: BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 4.0,
+                  spreadRadius: 2.0,
+                  offset: Offset(0, 4),
+                ),
+                child: Text(
+                  'Confirm',
+                  style: AppTextStyles.textStyle,
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           ],
@@ -1020,14 +913,15 @@ class SettingCardState extends State<SettingCard>
       vsync: this,
       duration: const Duration(seconds: 1),
     )..repeat(reverse: true);
+
     decorationTween = DecorationTween(
       begin: BoxDecoration(
-        color: const Color.fromARGB(255, 71, 67, 68),
+        color: Colors.transparent,
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
           BoxShadow(
-            color: Color.fromARGB(255, 71, 67, 68),
+            color: Color(0x66666666),
             blurRadius: 10.0,
             spreadRadius: 3.0,
             offset: Offset(0, 6.0),
@@ -1035,12 +929,12 @@ class SettingCardState extends State<SettingCard>
         ],
       ),
       end: BoxDecoration(
-        color: const Color.fromARGB(77, 232, 232, 232),
+        color: Colors.transparent,
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
           BoxShadow(
-            color: Color.fromARGB(255, 71, 67, 68),
+            color: Color(0x66666666),
             blurRadius: 10.0,
             spreadRadius: 3.0,
             offset: Offset(0, 6.0),
@@ -1061,7 +955,7 @@ class SettingCardState extends State<SettingCard>
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6),
         child: SizedBox(
@@ -1074,13 +968,13 @@ class SettingCardState extends State<SettingCard>
                 title: Text(
                   widget.title,
                   style: TextStyle(
-                    fontSize: screenWidth * 0.04,
+                    fontSize: screenWidth * 0.03,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 subtitle: Text(
                   widget.subtitle,
-                  style: TextStyle(fontSize: screenWidth * 0.03),
+                  style: TextStyle(fontSize: screenWidth * 0.02),
                 ),
                 trailing: Icon(widget.icon),
                 onTap: widget.onTap,
