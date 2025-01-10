@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:pushable_button/pushable_button.dart';
 import '../../Controllers/controller.dart';
 import '../../constants.dart';
 
@@ -88,33 +89,53 @@ class ContactListScreenState extends State<ContactListScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      '${getFilteredUsers().length} Member',
-                      style: AppTextStyles.customTextStyle(color: Colors.green),
+                    // Text(
+                    //   '${getFilteredUsers().length} Member',
+                    //   style: AppTextStyles.customTextStyle(color: Colors.green),
+                    // ),
+                    SizedBox(
+                      width: 90.0, // Set a fixed width
+                      height: 60,
+                      child: PushableButton(
+                        hslColor: HSLColor.fromColor(Colors.green),
+                        height: 50.0,
+                        elevation: 8.0,
+                        shadow: BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 4.0,
+                          spreadRadius: 2.0,
+                          offset: Offset(0, 4),
+                        ),
+                        child: Text(
+                          '${getFilteredUsers().length} Member',
+                          style: TextStyle(color: AppColors.textColor),
+                        ),
+                      ),
                     ),
                     Stack(
                       clipBehavior: Clip.none,
                       children: [
-                        TextButton(
-                          onPressed: () {
-                            Get.to(MessageRequestPage());
-                            print("Ping button pressed");
-                          },
-                          style: TextButton.styleFrom(
-                            foregroundColor: Colors.red,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(40),
+                        SizedBox(
+                          width: 70.0, // Set a fixed width
+                          height: 60,
+                          child: PushableButton(
+                            onPressed: () {
+                              Get.to(MessageRequestPage());
+                              print("Ping button pressed");
+                            },
+                            hslColor: HSLColor.fromColor(Colors.red),
+                            height: 50.0,
+                            elevation: 8.0,
+                            shadow: BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 4.0,
+                              spreadRadius: 2.0,
+                              offset: Offset(0, 4),
                             ),
-                            side: BorderSide(
-                              color: Colors.red,
-                              width: 1,
+                            child: Text(
+                              'Request',
+                              style: TextStyle(color: AppColors.textColor),
                             ),
-                          ),
-                          child: Text(
-                            'Request',
-                            style: TextStyle(color: Colors.red),
                           ),
                         ),
                         if (controller.messageRequest.isNotEmpty)
@@ -139,7 +160,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                             ),
                           ),
                       ],
-                    )
+                    ),
                   ],
                 ),
                 SizedBox(height: 20),
@@ -157,7 +178,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                           itemBuilder: (context, index) {
                             final connection = getFilteredUsers()[index];
                             return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              padding: const EdgeInsets.symmetric(vertical: 6),
                               child: Slidable(
                                 key: Key(connection.conectionId),
                                 direction: Axis.horizontal,
@@ -240,13 +261,13 @@ class ContactListScreenState extends State<ContactListScreen> {
                                         child: Hero(
                                           tag: connection.profileImage,
                                           child: CircleAvatar(
-                                            radius: 30.0,
+                                            radius: 20.0,
                                             backgroundImage: NetworkImage(
                                                 connection.profileImage),
                                           ),
                                         ),
                                       ),
-                                      SizedBox(width: 16),
+                                      SizedBox(width: 12),
 
                                       // Entire row clickable except the profile image
                                       Expanded(

@@ -22,11 +22,12 @@ class MembershipPageState extends State<MembershipPage>
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 1),
     )..repeat(reverse: true);
+
     decorationTween = DecorationTween(
       begin: BoxDecoration(
-        color: const Color.fromARGB(255, 71, 67, 68),
+        color: Colors.transparent,
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
@@ -39,7 +40,7 @@ class MembershipPageState extends State<MembershipPage>
         ],
       ),
       end: BoxDecoration(
-        color: const Color.fromARGB(255, 210, 236, 212),
+        color: Colors.transparent,
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
@@ -128,23 +129,18 @@ class MembershipPageState extends State<MembershipPage>
         child: SizedBox(
           width: MediaQuery.of(context).size.width * 0.9,
           child: AnimatedButton(
-            text: 'Starting from ₹99', 
+            text: 'Starting from ₹99',
             onPress: () {
-              Get.to(PricingPage()); 
+              Get.to(PricingPage());
             },
             transitionType: TransitionType.LEFT_TO_RIGHT,
-            textStyle: AppTextStyles.buttonText
-                .copyWith(fontSize: 14), 
+            textStyle: AppTextStyles.buttonText.copyWith(fontSize: 14),
             backgroundColor: AppColors.FavouriteColor,
-            selectedBackgroundColor:
-                AppColors.activeColor, 
-            borderRadius: 16.0, 
-            height: 50, 
-            width: MediaQuery.of(context).size.width *
-                0.9,
-            animationDuration:
-                Duration(milliseconds: 300),
-            
+            selectedBackgroundColor: AppColors.activeColor,
+            borderRadius: 16.0,
+            height: 50,
+            width: MediaQuery.of(context).size.width * 0.9,
+            animationDuration: Duration(milliseconds: 300),
           ),
         ),
       ),

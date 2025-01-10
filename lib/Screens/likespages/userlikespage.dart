@@ -47,14 +47,15 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(seconds: 1),
     )..repeat(reverse: true);
+
     decorationTween = DecorationTween(
       begin: BoxDecoration(
-        color: const Color.fromARGB(255, 71, 67, 68),
+        color: Colors.transparent, // Transparent box
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
           BoxShadow(
-            color: Color(0x66666666),
+            color: Color(0x66666666), // Shadow color
             blurRadius: 10.0,
             spreadRadius: 3.0,
             offset: Offset(0, 6.0),
@@ -62,12 +63,12 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
         ],
       ),
       end: BoxDecoration(
-        color: const Color.fromRGBO(246, 242, 242, 0.71),
+        color: Colors.transparent, // Transparent box
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
           BoxShadow(
-            color: Color(0x66666666),
+            color: Color(0x66666666), // Shadow color
             blurRadius: 10.0,
             spreadRadius: 3.0,
             offset: Offset(0, 6.0),
@@ -477,18 +478,18 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
           Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(12.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Likes: ${filteredLikesPage.length}',
-                        style: AppTextStyles.bodyText),
-                    Text('Pings: $pingCount', style: AppTextStyles.bodyText),
+                        style: AppTextStyles.textStyle),
+                    Text('Pings: $pingCount', style: AppTextStyles.textStyle),
                   ],
                 ),
               ),
               SizedBox(
-                height: 60,
+                height: 40,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
@@ -530,7 +531,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                         itemBuilder: (context, index) {
                           var user = filteredLikesPage[index];
                           return Padding(
-                            padding: const EdgeInsets.all(16.0),
+                            padding: const EdgeInsets.all(12.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -584,14 +585,14 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                     Text(user.name.toString(),
                                         style: AppTextStyles.titleText.copyWith(
                                             fontSize:
-                                                getResponsiveFontSize(0.04))),
+                                                getResponsiveFontSize(0.01))),
                                     Text(
                                         (user.likedByMe == 0)
                                             ? ' | Liked By ${user.name}'
                                             : " | Liked By You",
                                         style: AppTextStyles.bodyText.copyWith(
                                             fontSize:
-                                                getResponsiveFontSize(0.03))),
+                                                getResponsiveFontSize(0.02))),
                                   ],
                                 ),
                                 Row(
@@ -599,22 +600,22 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                     Text('${user.name} years old | ',
                                         style: AppTextStyles.bodyText.copyWith(
                                             fontSize:
-                                                getResponsiveFontSize(0.03))),
+                                                getResponsiveFontSize(0.02))),
                                     Text('${user.countryName} | ',
                                         style: AppTextStyles.bodyText.copyWith(
                                             fontSize:
-                                                getResponsiveFontSize(0.03))),
+                                                getResponsiveFontSize(0.02))),
                                     Text('${user.gender} | ',
                                         style: AppTextStyles.bodyText.copyWith(
                                             fontSize:
-                                                getResponsiveFontSize(0.03))),
+                                                getResponsiveFontSize(0.02))),
                                   ],
                                 ),
                                 SizedBox(height: 4),
                                 Text('Last Seen: ${user.updated}',
                                     style: AppTextStyles.bodyText.copyWith(
-                                        fontSize: getResponsiveFontSize(0.03))),
-                                SizedBox(height: 12),
+                                        fontSize: getResponsiveFontSize(0.02))),
+                                SizedBox(height: 4),
                                 Row(
                                   children: [
                                     IconButton(
@@ -661,8 +662,8 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
             bottom: 16,
             right: 16,
             child: SizedBox(
-              width: 160,
-              height: 60,
+              width: 120,
+              height: 40,
               child: FloatingActionButton(
                 onPressed: () {
                   showUpgradeBottomSheet();
@@ -673,7 +674,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                 ),
                 child: Text(
                   "Add On",
-                  style: AppTextStyles.buttonText,
+                  style: AppTextStyles.textStyle,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -700,12 +701,12 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6.0),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6.0),
+        padding: const EdgeInsets.symmetric(horizontal: 0.5),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             foregroundColor: AppColors.primaryColor,
             backgroundColor: AppColors.secondaryColor,
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            padding: EdgeInsets.symmetric(vertical: 6, horizontal: 6),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
               side: BorderSide(color: AppColors.activeColor, width: 2),
@@ -720,9 +721,9 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
             children: [
               Text(
                 label,
-                style: AppTextStyles.bodyText,
+                style: AppTextStyles.textStyle,
               ),
-              SizedBox(width: 8),
+              SizedBox(width: 2),
               Icon(
                 Icons.arrow_drop_down,
                 color: AppColors.activeColor,
@@ -749,18 +750,19 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Container(
-              padding: EdgeInsets.all(16),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 36.0, vertical: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     '$label Filter',
-                    style: AppTextStyles.headingText.copyWith(fontSize: 22),
+                    style: AppTextStyles.headingText.copyWith(fontSize: 12),
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: 9),
                   CheckboxListTile(
-                    title: Text('All', style: AppTextStyles.bodyText),
+                    title: Text('All', style: AppTextStyles.textStyle),
                     value: selectedOptions.length == options.length,
                     onChanged: (isChecked) {
                       setState(() {
@@ -775,7 +777,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                   ),
                   ...options.map((option) {
                     return CheckboxListTile(
-                      title: Text(option, style: AppTextStyles.bodyText),
+                      title: Text(option, style: AppTextStyles.textStyle),
                       value: selectedOptions.contains(option),
                       onChanged: (isChecked) {
                         setState(() {
@@ -789,19 +791,22 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                       activeColor: AppColors.buttonColor,
                     );
                   }),
-                  SizedBox(height: 16),
+                  SizedBox(height: 9),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.buttonColor,
                       foregroundColor: Colors.white,
                       padding:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                          EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                     ),
                     onPressed: () {
                       onSelected(selectedOptions);
                       Navigator.pop(context);
                     },
-                    child: Text("Apply"),
+                    child: Text(
+                      "Apply",
+                      style: TextStyle(fontSize: 9),
+                    ),
                   ),
                 ],
               ),

@@ -7,12 +7,12 @@ import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
+import 'package:pushable_button/pushable_button.dart';
 import '../../../Models/RequestModels/user_profile_update_request_model.dart';
 import '../../../Models/ResponseModels/ProfileResponse.dart';
 import '../../../Models/ResponseModels/get_all_gender_from_response_model.dart';
 import '../../../constants.dart';
 import '../editphoto/edituserprofilephoto.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -104,11 +104,12 @@ class EditProfilePageState extends State<EditProfilePage>
     });
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 1),
     )..repeat(reverse: true);
+
     decorationTween = DecorationTween(
       begin: BoxDecoration(
-        color: const Color.fromARGB(255, 71, 67, 68),
+        color: Colors.transparent,
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
@@ -121,7 +122,7 @@ class EditProfilePageState extends State<EditProfilePage>
         ],
       ),
       end: BoxDecoration(
-        color: const Color.fromARGB(255, 210, 236, 212),
+        color: Colors.transparent,
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
@@ -512,7 +513,7 @@ class EditProfilePageState extends State<EditProfilePage>
               Text(
                 label,
                 style: AppTextStyles.buttonText.copyWith(
-                  fontSize: getResponsiveFontSize(0.03),
+                  fontSize: getResponsiveFontSize(0.02),
                 ),
               ),
               SizedBox(height: 10),
@@ -523,7 +524,7 @@ class EditProfilePageState extends State<EditProfilePage>
                     cursorColor: AppColors.cursorColor,
                     controller: controller,
                     style: AppTextStyles.bodyText.copyWith(
-                      fontSize: getResponsiveFontSize(0.03),
+                      fontSize: getResponsiveFontSize(0.02),
                     ),
                     decoration: InputDecoration(
                       filled: true,
@@ -562,7 +563,7 @@ class EditProfilePageState extends State<EditProfilePage>
     required String label,
     required String value,
     required Function(String) onChanged,
-    double fontSize = 16.0,
+    double fontSize = 12.0,
     bool isDisabled = false,
   }) {
     TextEditingController controller = TextEditingController(text: value);
@@ -625,8 +626,8 @@ class EditProfilePageState extends State<EditProfilePage>
     final screenSize = MediaQuery.of(context).size;
     double screenWidth = screenSize.width;
     double screenheight = screenSize.height;
-    double titleFontSize = screenWidth * 0.05;
-    double bodyFontSize = screenWidth * 0.03;
+    double titleFontSize = screenWidth * 0.03;
+    double bodyFontSize = screenWidth * 0.02;
 
     // double chipFontSize = screenWidth * 0.03;
     final selectedGender = Rx<Gender?>(null);
@@ -686,7 +687,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                     Text(
                                       "Photos",
                                       style: AppTextStyles.textStyle.copyWith(
-                                        fontSize: getResponsiveFontSize(0.03),
+                                        fontSize: getResponsiveFontSize(0.02),
                                       ),
                                     ),
                                     SizedBox(height: 5),
@@ -843,7 +844,7 @@ class EditProfilePageState extends State<EditProfilePage>
                         ],
                       ),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.02,
+                        height: MediaQuery.of(context).size.height * 0.001,
                       ),
                       isLoading
                           ? Center(
@@ -869,7 +870,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                   ),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.02, // 2% of screen height
+                                        0.001,
                                   ),
                                   dobPicker(
                                     context: context,
@@ -891,7 +892,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                   ),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.02, // 2% of screen height
+                                        0.001,
                                   ),
                                   InfoField(
                                     initialValue: controller
@@ -907,7 +908,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                   ),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.02, // 2% of screen height
+                                        0.001,
                                   ),
                                   InfoField(
                                     initialValue:
@@ -923,7 +924,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                   ),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.02, // 2% of screen height
+                                        0.001,
                                   ),
                                   DecoratedBoxTransition(
                                     decoration: decorationTween
@@ -932,13 +933,24 @@ class EditProfilePageState extends State<EditProfilePage>
                                       elevation: 5,
                                       color: AppColors.primaryColor,
                                       child: Padding(
-                                        padding: const EdgeInsets.all(16.0),
+                                        padding: const EdgeInsets.all(12.0),
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Text("Country"),
-                                            SizedBox(height: 10),
+                                            Text(
+                                              "Country",
+                                              style: TextStyle(
+                                                fontSize:
+                                                    10.0, // Set a smaller font size
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.001,
+                                            ),
                                             Obx(() {
                                               if (controller
                                                   .countries.isEmpty) {
@@ -968,7 +980,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                                 controller.countries,
                                                 selectedCountry,
                                                 initialCountry,
-                                                16.0,
+                                                12.0,
                                                 (Country? value) {
                                                   setState(() {
                                                     selectedCountry = value ??
@@ -1002,7 +1014,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                   ),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.02, // 2% of screen height
+                                        0.01,
                                   ),
                                   InfoField(
                                     initialValue: controller
@@ -1018,7 +1030,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                   ),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.02, // 2% of screen height
+                                        0.001,
                                   ),
                                   InfoField(
                                     initialValue: controller
@@ -1036,7 +1048,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                   ),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.02, // 2% of screen height
+                                        0.001,
                                   ),
                                   Obx(() {
                                     if (isLatLongFetched.value) {
@@ -1080,12 +1092,12 @@ class EditProfilePageState extends State<EditProfilePage>
                                   }),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.02, // 2% of screen height
+                                        0.001,
                                   ),
                                   languages(context),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.02, // 2% of screen height
+                                        0.001,
                                   ),
                                   DecoratedBoxTransition(
                                     decoration: decorationTween
@@ -1201,7 +1213,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                   ),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.02, // 2% of screen height
+                                        0.001,
                                   ),
                                   Obx(() {
                                     String initialLookingFor = controller
@@ -1252,8 +1264,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                                   }
                                                   return '';
                                                 },
-                                                context:
-                                                    context, // Pass context here
+                                                context: context,
                                               ),
                                               SizedBox(height: 20),
                                               Center(
@@ -1339,7 +1350,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                   }),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.02, // 2% of screen height
+                                        0.001,
                                   ),
                                   Obx(() {
                                     if (controller.preferences.isEmpty) {
@@ -1383,7 +1394,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                               BorderRadius.circular(12),
                                         ),
                                         child: Padding(
-                                          padding: const EdgeInsets.all(16.0),
+                                          padding: const EdgeInsets.all(12.0),
                                           child: Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
@@ -1393,7 +1404,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                                 style: AppTextStyles
                                                     .subheadingText
                                                     .copyWith(
-                                                  fontSize: 18,
+                                                  fontSize: 14,
                                                   color: AppColors.textColor,
                                                 ),
                                                 textAlign: TextAlign.left,
@@ -1457,7 +1468,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                   }),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.02, // 2% of screen height
+                                        0.001,
                                   ),
                                   DecoratedBoxTransition(
                                     decoration: decorationTween
@@ -1466,18 +1477,17 @@ class EditProfilePageState extends State<EditProfilePage>
                                       color: AppColors.primaryColor,
                                       elevation: 5,
                                       child: Padding(
-                                        padding: const EdgeInsets.all(16.0),
+                                        padding: const EdgeInsets.all(10.0),
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text("Interests",
-                                                style: AppTextStyles
-                                                    .subheadingText
+                                                style: AppTextStyles.textStyle
                                                   ..copyWith(
                                                       fontSize:
                                                           getResponsiveFontSize(
-                                                              0.03))),
+                                                              0.02))),
                                             SizedBox(height: 10),
                                             Obx(() {
                                               if (updatedSelectedInterests
@@ -1500,7 +1510,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                                       updatedSelectedInterests[
                                                           index],
                                                       style: TextStyle(
-                                                          fontSize: 16),
+                                                          fontSize: 9),
                                                     ),
                                                     backgroundColor:
                                                         AppColors.chipColor,
@@ -1533,7 +1543,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                                           .copyWith(
                                                               fontSize:
                                                                   getResponsiveFontSize(
-                                                                      0.03)),
+                                                                      0.02)),
                                                       filled: true,
                                                       fillColor: AppColors
                                                           .formFieldColor,
@@ -1582,29 +1592,28 @@ class EditProfilePageState extends State<EditProfilePage>
                                   ),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.02, // 2% of screen height
+                                        0.001,
                                   ),
                                   buildRelationshipStatusInterestStep(
                                       context, MediaQuery.of(context).size),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.02, // 2% of screen height
+                                        0.01,
                                   ),
                                 ],
                               ),
                             ),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height *
-                            0.02, // 2% of screen height
+                        height: MediaQuery.of(context).size.height * 0.001,
                       ),
                       DecoratedBoxTransition(
                         decoration:
                             decorationTween.animate(_animationController),
                         child: Card(
                           color: AppColors.primaryColor,
-                          elevation: 5,
+                          elevation: 2,
                           child: Padding(
-                            padding: const EdgeInsets.all(16.0),
+                            padding: const EdgeInsets.all(4.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -1612,13 +1621,20 @@ class EditProfilePageState extends State<EditProfilePage>
                                     style: AppTextStyles.subheadingText
                                         .copyWith(
                                             fontSize:
-                                                getResponsiveFontSize(0.03))),
-                                SizedBox(height: 10),
+                                                getResponsiveFontSize(0.02))),
+                                SizedBox(
+                                  height: MediaQuery.of(context).size.height *
+                                      0.001,
+                                ),
                                 PrivacyToggle(
                                   label: "Email Alert",
                                   value: emailAlerts.value,
                                   onChanged: (val) =>
                                       setState(() => emailAlerts.value = val),
+                                ),
+                                SizedBox(
+                                  height: MediaQuery.of(context).size.height *
+                                      0.001,
                                 ),
                                 PrivacyToggle(
                                   label: visibility_status.value
@@ -1633,34 +1649,33 @@ class EditProfilePageState extends State<EditProfilePage>
                                         : '0';
                                   }),
                                 ),
-                                PrivacyToggle(
-                                  label: "Hide me on Flame",
-                                  value: hideMeOnFlame,
-                                  onChanged: (val) =>
-                                      setState(() => hideMeOnFlame = val),
-                                ),
-                                SizedBox(height: 10),
-                                PrivacyToggle(
-                                  label: "Incognito Mode",
-                                  value: incognitoMode,
-                                  onChanged: (val) =>
-                                      setState(() => incognitoMode = val),
-                                ),
-                                SizedBox(height: 10),
-                                PrivacyToggle(
-                                  label: "Opt out of Ping + Note",
-                                  value: optOutOfPingNote,
-                                  onChanged: (val) =>
-                                      setState(() => optOutOfPingNote = val),
-                                ),
+                                // PrivacyToggle(
+                                //   label: "Hide me on Flame",
+                                //   value: hideMeOnFlame,
+                                //   onChanged: (val) =>
+                                //       setState(() => hideMeOnFlame = val),
+                                // ),
+                                // SizedBox(height: 10),
+                                // PrivacyToggle(
+                                //   label: "Incognito Mode",
+                                //   value: incognitoMode,
+                                //   onChanged: (val) =>
+                                //       setState(() => incognitoMode = val),
+                                // ),
+                                // SizedBox(height: 10),
+                                // PrivacyToggle(
+                                //   label: "Opt out of Ping + Note",
+                                //   value: optOutOfPingNote,
+                                //   onChanged: (val) =>
+                                //       setState(() => optOutOfPingNote = val),
+                                // ),
                               ],
                             ),
                           ),
                         ),
                       ),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height *
-                            0.02, // 2% of screen height
+                        height: MediaQuery.of(context).size.height * 0.001,
                       ),
                       DecoratedBoxTransition(
                         decoration:
@@ -1668,7 +1683,7 @@ class EditProfilePageState extends State<EditProfilePage>
                         child: SizedBox(
                           height: screenheight * 0.08,
                           width: screenWidth * 2,
-                          child: FloatingActionButton.extended(
+                          child: PushableButton(
                             onPressed: () async {
                               print(
                                   'desires are : ${controller.userProfileUpdateRequest.desires}');
@@ -1799,23 +1814,38 @@ class EditProfilePageState extends State<EditProfilePage>
                                 return;
                               }
                             },
-                            backgroundColor: AppColors.acceptColor,
-                            icon: Icon(Icons.save,
-                                color: AppColors.textColor, size: 18),
-                            label: Text(
-                              'Save',
-                              style: AppTextStyles.textStyle.copyWith(
-                                  fontSize: getResponsiveFontSize(0.04)),
+                            hslColor: HSLColor.fromColor(Colors.green),
+                            height: 60.0,
+                            elevation: 8.0,
+                            shadow: BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 4.0,
+                              spreadRadius: 2.0,
+                              offset: Offset(0, 4),
                             ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.save,
+                                  color: Colors.white,
+                                  size: 24.0,
+                                ),
+                                SizedBox(width: 8.0),
+                                Text(
+                                  'Save',
+                                  style: AppTextStyles.headingText.copyWith(
+                                    fontSize: getResponsiveFontSize(0.04),
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height *
-                            0.02, // 2% of screen height
+                        height: MediaQuery.of(context).size.height * 0.02,
                       ),
                     ],
                   ),
@@ -1826,6 +1856,7 @@ class EditProfilePageState extends State<EditProfilePage>
 
   Country selectedCountry = Country(
       id: '', name: '', countryCode: '', status: '', created: '', updated: '');
+
   Widget buildDropdownWithBottomSheet<T>(
     BuildContext context,
     String label,
@@ -1874,9 +1905,11 @@ class EditProfilePageState extends State<EditProfilePage>
                                   .copyWith(fontSize: fontSize),
                             ),
                             onTap: () {
-                              selectedCountry = item as Country;
+                              setState(() {
+                                selectedCountry = item as Country;
 
-                              onChanged(item);
+                                onChanged(item);
+                              });
 
                               Navigator.pop(context);
                             },
@@ -1926,7 +1959,7 @@ class EditProfilePageState extends State<EditProfilePage>
     double fontSize,
     Function(T?) onChanged, {
     String Function(T)? displayValue,
-    required BuildContext context, // Add context as a parameter here
+    required BuildContext context,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -2028,8 +2061,8 @@ class EditProfilePageState extends State<EditProfilePage>
     }
 
     double screenWidth = screenSize.width;
-    double bodyFontSize = screenWidth * 0.03;
-    double chipFontSize = screenWidth * 0.03;
+    double bodyFontSize = screenWidth * 0.02;
+    double chipFontSize = screenWidth * 0.02;
 
     return DecoratedBoxTransition(
       decoration: decorationTween.animate(_animationController),
@@ -2058,7 +2091,10 @@ class EditProfilePageState extends State<EditProfilePage>
                                 color: AppColors.textColor,
                               ),
                             ),
-                            SizedBox(height: 10),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height *
+                                  0.02, // 2% of screen height
+                            ),
                             SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child: Row(
@@ -2096,12 +2132,14 @@ class EditProfilePageState extends State<EditProfilePage>
                                 }).toList(),
                               ),
                             ),
-                            SizedBox(height: 20),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height *
+                                  0.02, // 2% of screen height
+                            ),
                           ],
                         )
                       : Container();
                 }),
-
                 Text(
                   "Select your Desires: ${controller.desires.length}",
                   style: AppTextStyles.bodyText.copyWith(
@@ -2110,7 +2148,10 @@ class EditProfilePageState extends State<EditProfilePage>
                     color: AppColors.textColor,
                   ),
                 ),
-                SizedBox(height: 10),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height *
+                      0.02, // 2% of screen height
+                ),
                 Obx(() {
                   return controller.desires.isNotEmpty
                       ? SingleChildScrollView(
@@ -2161,78 +2202,86 @@ class EditProfilePageState extends State<EditProfilePage>
                         )
                       : Container();
                 }),
-
-                SizedBox(height: 20),
-                // Reset and Cancel Button
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.01,
+                ),
                 Align(
                   alignment: Alignment.centerRight,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text(
-                              'Confirm Reset',
-                              style: AppTextStyles.bodyText.copyWith(
-                                fontSize: bodyFontSize,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textColor,
-                              ),
-                            ),
-                            content: Text(
-                              'Are you sure you want to clear your selections?',
-                              style: AppTextStyles.bodyText.copyWith(
-                                fontSize: bodyFontSize,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textColor,
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Text(
-                                  'Cancel',
-                                  style: AppTextStyles.bodyText.copyWith(
-                                    fontSize: bodyFontSize,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.textColor,
-                                  ),
+                  child: SizedBox(
+                    width: 60.0,
+                    height: 60.0,
+                    child: PushableButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text(
+                                'Confirm Reset',
+                                style: AppTextStyles.bodyText.copyWith(
+                                  fontSize: bodyFontSize,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textColor,
                                 ),
                               ),
-                              TextButton(
-                                onPressed: () {
-                                  selectedOptions.value = List.filled(
-                                      selectedOptions.length, false);
-                                  selectedDesires.clear();
-                                  Navigator.pop(context);
-                                },
-                                child: Text(
-                                  'Confirm',
-                                  style: AppTextStyles.bodyText.copyWith(
-                                    fontSize: bodyFontSize,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.textColor,
-                                  ),
+                              content: Text(
+                                'Are you sure you want to clear your selections?',
+                                style: AppTextStyles.bodyText.copyWith(
+                                  fontSize: bodyFontSize,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textColor,
                                 ),
                               ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.deniedColor,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    ),
-                    child: Text(
-                      'Cancel',
-                      style: AppTextStyles.buttonText.copyWith(
-                        fontSize: AppTextStyles.buttonSize,
-                        color: AppColors.textColor,
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text(
+                                    'Cancel',
+                                    style: AppTextStyles.bodyText.copyWith(
+                                      fontSize: bodyFontSize,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.textColor,
+                                    ),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    selectedOptions.value = List.filled(
+                                        selectedOptions.length, false);
+                                    selectedDesires.clear();
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text(
+                                    'Confirm',
+                                    style: AppTextStyles.bodyText.copyWith(
+                                      fontSize: bodyFontSize,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.textColor,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      hslColor: HSLColor.fromColor(Colors.red), // HSL color
+                      height: 50.0,
+                      elevation: 8.0,
+                      shadow: BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 4.0,
+                        spreadRadius: 2.0,
+                        offset: Offset(0, 4),
+                      ),
+                      child: Text(
+                        'Cancel',
+                        style: AppTextStyles.buttonText.copyWith(
+                          fontSize: bodyFontSize,
+                          color: AppColors.textColor,
+                        ),
                       ),
                     ),
                   ),
@@ -2275,7 +2324,7 @@ class EditProfilePageState extends State<EditProfilePage>
                   Expanded(
                     child: Text(
                       'Select Languages',
-                      style: TextStyle(fontSize: 16),
+                      style: TextStyle(fontSize: 9),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -2285,7 +2334,8 @@ class EditProfilePageState extends State<EditProfilePage>
                           EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
-                        side: BorderSide(color: Colors.blue, width: 2),
+                        side: BorderSide(
+                            color: Colors.blue.withOpacity(0.3), width: 2),
                       ),
                     ),
                     onPressed: () {
@@ -2296,35 +2346,42 @@ class EditProfilePageState extends State<EditProfilePage>
                       children: [
                         Text(
                           'Select Languages',
-                          style: TextStyle(fontSize: 14),
+                          style: TextStyle(fontSize: 9),
                         ),
                         SizedBox(width: 8),
                         Icon(
                           Icons.arrow_drop_down,
-                          color: Colors.blue,
+                          color: Colors.blue.withOpacity(0.3),
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 10),
+              SizedBox(
+                height: MediaQuery.of(context).size.height *
+                    0.01, // 2% of screen height
+              ),
               Obx(() {
-                return Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: selectedLanguages.map((language) {
-                    return Chip(
-                      label: Text(language),
-                      deleteIcon: Icon(Icons.cancel, size: 18),
-                      onDeleted: () {
-                        selectedLanguages.remove(language);
-                        updateSelectedLanguageIds();
-                      },
-                      backgroundColor: Colors.blue.withOpacity(0.1),
-                      labelStyle: TextStyle(fontSize: 14),
-                    );
-                  }).toList(),
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: selectedLanguages.map((language) {
+                      return Chip(
+                        label: Text(language),
+                        deleteIcon:
+                            Icon(Icons.delete_forever_outlined, size: 18),
+                        onDeleted: () {
+                          selectedLanguages.remove(language);
+                          updateSelectedLanguageIds();
+                        },
+                        backgroundColor: Colors.blue.withOpacity(0.3),
+                        labelStyle: TextStyle(fontSize: 9),
+                      );
+                    }).toList(),
+                  ),
                 );
               }),
             ],
@@ -2356,9 +2413,11 @@ class EditProfilePageState extends State<EditProfilePage>
             children: [
               Text(
                 'Select Languages',
-                style: TextStyle(fontSize: 18),
+                style: TextStyle(fontSize: 12),
               ),
-              SizedBox(height: 10),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.01,
+              ),
               TextField(
                 onChanged: (query) {
                   searchQuery.value = query;
@@ -2390,12 +2449,11 @@ class EditProfilePageState extends State<EditProfilePage>
                       String language = filteredLanguages[index].title;
 
                       return Obx(() {
-                        bool isSelected = selectedLanguages
-                            .contains(language); // Reactive check
+                        bool isSelected = selectedLanguages.contains(language);
                         return ChoiceChip(
                           label: Text(language),
                           selected: isSelected,
-                          selectedColor: Colors.blue,
+                          selectedColor: Colors.blue.withOpacity(0.3),
                           backgroundColor: Colors.grey[200],
                           labelStyle: TextStyle(
                             color: isSelected ? Colors.white : Colors.black,
@@ -2409,7 +2467,7 @@ class EditProfilePageState extends State<EditProfilePage>
                             } else {
                               selectedLanguages.remove(language);
                             }
-                            updateSelectedLanguageIds(); // Update IDs
+                            updateSelectedLanguageIds();
                           },
                         );
                       });
@@ -2420,18 +2478,26 @@ class EditProfilePageState extends State<EditProfilePage>
               SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    updateSelectedLanguageIds();
-                    Navigator.pop(context);
-                    print("Languages: ${selectedLanguages.toList()}");
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
+                child: SizedBox(
+                  width: 90.0, // Set your desired button width here
+                  height: 60.0,
+                  child: PushableButton(
+                    onPressed: () {
+                      updateSelectedLanguageIds();
+                      Navigator.pop(context);
+                      print("Languages: ${selectedLanguages.toList()}");
+                    },
+                    hslColor: HSLColor.fromColor(Colors.blue.withOpacity(0.3)),
+                    height: 50.0,
+                    elevation: 8.0,
+                    shadow: BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 4.0,
+                      spreadRadius: 2.0,
+                      offset: Offset(0, 4),
+                    ),
+                    child: Text('Done'),
                   ),
-                  child: Text('Done'),
                 ),
               ),
             ],
@@ -2494,16 +2560,17 @@ class InfoFieldState extends State<InfoField> with TickerProviderStateMixin {
     controller = TextEditingController(text: widget.initialValue);
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 1),
     )..repeat(reverse: true);
+
     decorationTween = DecorationTween(
       begin: BoxDecoration(
-        color: const Color.fromARGB(255, 71, 67, 68),
+        color: Colors.transparent, // Transparent box
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
           BoxShadow(
-            color: Color(0x66666666),
+            color: Color(0x66666666), // Shadow color
             blurRadius: 10.0,
             spreadRadius: 3.0,
             offset: Offset(0, 6.0),
@@ -2511,12 +2578,12 @@ class InfoFieldState extends State<InfoField> with TickerProviderStateMixin {
         ],
       ),
       end: BoxDecoration(
-        color: const Color.fromARGB(255, 210, 236, 212),
+        color: Colors.transparent, // Transparent box
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
           BoxShadow(
-            color: Color(0x66666666),
+            color: Color(0x66666666), // Shadow color
             blurRadius: 10.0,
             spreadRadius: 3.0,
             offset: Offset(0, 6.0),
@@ -2555,14 +2622,14 @@ class InfoFieldState extends State<InfoField> with TickerProviderStateMixin {
         color: AppColors.primaryColor,
         elevation: 5,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(10.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 widget.label,
                 style: AppTextStyles.buttonText.copyWith(
-                  fontSize: getResponsiveFontSize(0.03),
+                  fontSize: getResponsiveFontSize(0.02),
                 ),
               ),
               SizedBox(height: 10),
@@ -2570,7 +2637,7 @@ class InfoFieldState extends State<InfoField> with TickerProviderStateMixin {
                 cursorColor: AppColors.cursorColor,
                 controller: controller,
                 style: AppTextStyles.bodyText.copyWith(
-                  fontSize: getResponsiveFontSize(0.03),
+                  fontSize: getResponsiveFontSize(0.02),
                 ),
                 decoration: InputDecoration(
                   filled: true,
@@ -2621,19 +2688,25 @@ class PrivacyToggle extends StatelessWidget {
       return screenWidth * scale;
     }
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label,
-            style: AppTextStyles.bodyText
-                .copyWith(fontSize: getResponsiveFontSize(0.03))),
-        Switch(
-          value: value,
-          onChanged: onChanged,
-          activeColor: AppColors.activeColor,
-          inactiveThumbColor: AppColors.inactiveColor,
-        ),
-      ],
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 0.5),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label,
+              style: AppTextStyles.bodyText
+                  .copyWith(fontSize: getResponsiveFontSize(0.02))),
+          Transform.scale(
+            scale: 0.6,
+            child: Switch(
+              value: value,
+              onChanged: onChanged,
+              activeColor: AppColors.activeColor,
+              inactiveThumbColor: AppColors.inactiveColor,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
