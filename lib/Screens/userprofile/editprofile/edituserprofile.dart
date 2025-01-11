@@ -503,7 +503,7 @@ class EditProfilePageState extends State<EditProfilePage>
     return DecoratedBoxTransition(
       decoration: decorationTween.animate(_animationController),
       child: Card(
-        color: AppColors.primaryColor,
+        color: Colors.transparent,
         elevation: 5,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -667,7 +667,7 @@ class EditProfilePageState extends State<EditProfilePage>
 
               return SingleChildScrollView(
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(18.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -677,22 +677,19 @@ class EditProfilePageState extends State<EditProfilePage>
                             decoration:
                                 decorationTween.animate(_animationController),
                             child: Card(
-                              color: AppColors.primaryColor,
+                              color: Colors.transparent,
                               elevation: 5,
                               child: Padding(
                                 padding: const EdgeInsets.all(12.0),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      "Photos",
-                                      style: AppTextStyles.textStyle.copyWith(
-                                        fontSize: getResponsiveFontSize(0.02),
-                                      ),
-                                    ),
-                                    SizedBox(height: 5),
                                     SizedBox(
-                                      height: 350,
+                                      width: MediaQuery.of(context).size.width *
+                                          0.9,
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.25,
                                       child: controller
                                               .userPhotos!.images.isEmpty
                                           ? Center(
@@ -711,7 +708,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                                   return Padding(
                                                     padding: const EdgeInsets
                                                         .symmetric(
-                                                        vertical: 8.0),
+                                                        vertical: 6.0),
                                                     child: Stack(
                                                       alignment:
                                                           Alignment.center,
@@ -739,7 +736,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                                                           context)
                                                                       .size
                                                                       .height *
-                                                                  0.45,
+                                                                  0.35,
                                                               loadingBuilder:
                                                                   (context,
                                                                       child,
@@ -765,8 +762,16 @@ class EditProfilePageState extends State<EditProfilePage>
                                                                       error,
                                                                       stackTrace) {
                                                                 return Container(
-                                                                  width: 150,
-                                                                  height: 200,
+                                                                  width: MediaQuery.of(
+                                                                              context)
+                                                                          .size
+                                                                          .width *
+                                                                      0.55,
+                                                                  height: MediaQuery.of(
+                                                                              context)
+                                                                          .size
+                                                                          .height *
+                                                                      0.25,
                                                                   alignment:
                                                                       Alignment
                                                                           .center,
@@ -805,7 +810,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                         style:
                                             AppTextStyles.buttonText.copyWith(
                                           color: AppColors.iconColor,
-                                          fontSize: getResponsiveFontSize(0.04),
+                                          fontSize: getResponsiveFontSize(0.03),
                                         ),
                                       ),
                                     ),
@@ -814,33 +819,47 @@ class EditProfilePageState extends State<EditProfilePage>
                               ),
                             ),
                           ),
-                          // Positioned(
-                          //   top: 0,
-                          //   right: 16,
-                          //   child: Row(
-                          //     children: [
-                          //       SizedBox(
-                          //         height: 40,
-                          //         child: FloatingActionButton.extended(
-                          //           onPressed: () {},
-                          //           backgroundColor: AppColors.buttonColor,
-                          //           icon: Icon(Icons.visibility,
-                          //               color: AppColors.textColor, size: 18),
-                          //           label: Text(
-                          //             'Preview',
-                          //             style: AppTextStyles.textStyle.copyWith(
-                          //                 fontSize:
-                          //                     getResponsiveFontSize(0.03)),
-                          //           ),
-                          //           shape: RoundedRectangleBorder(
-                          //             borderRadius: BorderRadius.circular(20),
-                          //           ),
-                          //         ),
-                          //       ),
-                          //       SizedBox(width: 16),
-                          //     ],
-                          //   ),
-                          // ),
+                          Positioned(
+                            top: 14,
+                            right: 2,
+                            child: Transform.rotate(
+                              angle:
+                                  0.5,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 2, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.formFieldColor,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.2),
+                                      blurRadius: 4,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.photo_library,
+                                      color: AppColors.textColor,
+                                      size: 12,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Photos',
+                                      style: AppTextStyles.textStyle.copyWith(
+                                        fontSize: getResponsiveFontSize(0.02),
+                                        color: AppColors.textColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                       SizedBox(
@@ -931,7 +950,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                         .animate(_animationController),
                                     child: Card(
                                       elevation: 5,
-                                      color: AppColors.primaryColor,
+                                      color: Colors.transparent,
                                       child: Padding(
                                         padding: const EdgeInsets.all(12.0),
                                         child: Column(
@@ -1103,7 +1122,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                     decoration: decorationTween
                                         .animate(_animationController),
                                     child: Card(
-                                      color: AppColors.primaryColor,
+                                      color:Colors.transparent,
                                       elevation: 8,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12),
@@ -1227,7 +1246,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                       decoration: decorationTween
                                           .animate(_animationController),
                                       child: Card(
-                                        color: AppColors.primaryColor,
+                                        color: Colors.transparent,
                                         elevation: 8,
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
@@ -1387,7 +1406,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                       decoration: decorationTween
                                           .animate(_animationController),
                                       child: Card(
-                                        color: AppColors.primaryColor,
+                                        color: Colors.transparent,
                                         elevation: 8,
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
@@ -1474,7 +1493,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                     decoration: decorationTween
                                         .animate(_animationController),
                                     child: Card(
-                                      color: AppColors.primaryColor,
+                                      color: Colors.transparent,
                                       elevation: 5,
                                       child: Padding(
                                         padding: const EdgeInsets.all(10.0),
@@ -1610,7 +1629,7 @@ class EditProfilePageState extends State<EditProfilePage>
                         decoration:
                             decorationTween.animate(_animationController),
                         child: Card(
-                          color: AppColors.primaryColor,
+                          color: Colors.transparent,
                           elevation: 2,
                           child: Padding(
                             padding: const EdgeInsets.all(4.0),
@@ -2002,14 +2021,14 @@ class EditProfilePageState extends State<EditProfilePage>
 
 // Method to show the bottom sheet
   void _showBottomSheet<T>(
-    BuildContext context, // Add context as a parameter here
+    BuildContext context,
     List<T> items,
     T? selectedValue,
     Function(T?) onChanged,
     String Function(T)? displayValue,
   ) {
     showModalBottomSheet(
-      context: context, // Use the context passed as a parameter
+      context: context,
       builder: (BuildContext context) {
         return Container(
           padding: EdgeInsets.all(16.0),
@@ -2029,8 +2048,7 @@ class EditProfilePageState extends State<EditProfilePage>
                           : item.toString()),
                       onTap: () {
                         onChanged(item);
-                        Navigator.pop(
-                            context); // Close the bottom sheet after selection
+                        Navigator.pop(context);
                       },
                     );
                   },
@@ -2067,7 +2085,7 @@ class EditProfilePageState extends State<EditProfilePage>
     return DecoratedBoxTransition(
       decoration: decorationTween.animate(_animationController),
       child: Card(
-        color: AppColors.primaryColor,
+        color: Colors.transparent,
         elevation: 8,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -2133,8 +2151,7 @@ class EditProfilePageState extends State<EditProfilePage>
                               ),
                             ),
                             SizedBox(
-                              height: MediaQuery.of(context).size.height *
-                                  0.02, // 2% of screen height
+                              height: MediaQuery.of(context).size.height * 0.02,
                             ),
                           ],
                         )
@@ -2149,8 +2166,7 @@ class EditProfilePageState extends State<EditProfilePage>
                   ),
                 ),
                 SizedBox(
-                  height: MediaQuery.of(context).size.height *
-                      0.02, // 2% of screen height
+                  height: MediaQuery.of(context).size.height * 0.02,
                 ),
                 Obx(() {
                   return controller.desires.isNotEmpty
@@ -2308,7 +2324,7 @@ class EditProfilePageState extends State<EditProfilePage>
     return DecoratedBoxTransition(
       decoration: decorationTween.animate(_animationController),
       child: Card(
-        color: AppColors.primaryColor,
+        color: Colors.transparent,
         elevation: 8,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -2619,7 +2635,7 @@ class InfoFieldState extends State<InfoField> with TickerProviderStateMixin {
     return DecoratedBoxTransition(
       decoration: decorationTween.animate(_animationController),
       child: Card(
-        color: AppColors.primaryColor,
+        color: Colors.transparent,
         elevation: 5,
         child: Padding(
           padding: const EdgeInsets.all(10.0),

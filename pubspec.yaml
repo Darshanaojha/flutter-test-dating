@@ -58,6 +58,7 @@ dependencies:
   encrypt: ^5.0.3
   flutter_animated_button: ^2.0.4
   pushable_button: ^0.0.4
+  heart_overlay: ^1.4.1
 
 
 

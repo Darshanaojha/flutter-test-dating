@@ -2,6 +2,7 @@ import 'package:dating_application/Controllers/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:heart_overlay/heart_overlay.dart';
 import 'package:lottie/lottie.dart';
 import '../../Models/ResponseModels/get_all_addon_response_model.dart';
 import '../../Models/ResponseModels/get_all_likes_pages_response.dart';
@@ -39,6 +40,8 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
     return screenWidth * scale;
   }
 
+  final HeartOverlayController heartOverlayController =
+      HeartOverlayController();
   @override
   void initState() {
     super.initState();
@@ -57,7 +60,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
           BoxShadow(
             color: Color(0x66666666), // Shadow color
             blurRadius: 10.0,
-            spreadRadius: 3.0,
+            spreadRadius: 6.0,
             offset: Offset(0, 6.0),
           ),
         ],
@@ -424,17 +427,17 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                   itemBuilder: (context, index) {
                     AddonPoint point = addonPoints[index];
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
+                      padding: const EdgeInsets.only(bottom: 12.0),
                       child: DecoratedBoxTransition(
                         decoration:
                             decorationTween.animate(_animationController),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
-                              vertical: 8.0, horizontal: 10.0),
+                              vertical: 6.0, horizontal: 10.0),
                           child: ListTile(
                             title: Text(
                               point.title,
-                              style: AppTextStyles.bodyText
+                              style: AppTextStyles.textStyle
                                   .copyWith(color: Colors.white),
                             ),
                           ),
@@ -536,7 +539,10 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 SizedBox(
-                                    height: 200,
+                                   
+                                    height: MediaQuery.of(context).size.height *
+                                        0.1, 
+
                                     child: Scrollbar(
                                       child: ListView.builder(
                                         scrollDirection: Axis.horizontal,
@@ -554,13 +560,27 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                                 child: Image.network(
                                                   user.images[imgIndex],
                                                   fit: BoxFit.cover,
-                                                  width: 150,
-                                                  height: 200,
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.2,
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height *
+                                                      0.3,
                                                   errorBuilder: (context, error,
                                                       stackTrace) {
                                                     return Container(
-                                                      width: 150,
-                                                      height: 200,
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.2,
+                                                      height:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .height *
+                                                              0.3,
                                                       alignment:
                                                           Alignment.center,
                                                       color:
@@ -585,7 +605,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                     Text(user.name.toString(),
                                         style: AppTextStyles.titleText.copyWith(
                                             fontSize:
-                                                getResponsiveFontSize(0.01))),
+                                                getResponsiveFontSize(0.02))),
                                     Text(
                                         (user.likedByMe == 0)
                                             ? ' | Liked By ${user.name}'
