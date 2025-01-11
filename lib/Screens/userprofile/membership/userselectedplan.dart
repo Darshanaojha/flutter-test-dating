@@ -119,7 +119,7 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
                                     controller.subscripted[index].packageTitle,
                                     style: AppTextStyles.headingText.copyWith(
                                       fontSize:
-                                          getResponsiveFontSize(context, 0.04),
+                                          getResponsiveFontSize(context, 0.03),
                                       fontWeight: FontWeight.bold,
                                       color: Colors
                                           .white, // White text for contrast
@@ -135,7 +135,7 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
                                         "Package ID:",
                                         style: AppTextStyles.textStyle.copyWith(
                                           fontSize: getResponsiveFontSize(
-                                              context, 0.03),
+                                              context, 0.02),
                                           color: Colors.white70,
                                         ),
                                       ),
@@ -143,7 +143,7 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
                                         controller.subscripted[index].packageId,
                                         style: AppTextStyles.textStyle.copyWith(
                                           fontSize: getResponsiveFontSize(
-                                              context, 0.03),
+                                              context, 0.02),
                                           color: Colors.white,
                                         ),
                                       ),
@@ -158,7 +158,7 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
                                         controller.subscripted[index].userId,
                                         style: AppTextStyles.textStyle.copyWith(
                                           fontSize: getResponsiveFontSize(
-                                              context, 0.03),
+                                              context, 0.02),
                                           color: Colors.white,
                                         ),
                                       ),
@@ -173,7 +173,7 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
                                         "Days:",
                                         style: AppTextStyles.textStyle.copyWith(
                                           fontSize: getResponsiveFontSize(
-                                              context, 0.03),
+                                              context, 0.02),
                                           color: Colors.white70,
                                         ),
                                       ),
@@ -182,7 +182,7 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
                                             .toString(),
                                         style: AppTextStyles.textStyle.copyWith(
                                           fontSize: getResponsiveFontSize(
-                                              context, 0.03),
+                                              context, 0.02),
                                           color: Colors.white,
                                         ),
                                       ),
@@ -197,7 +197,7 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
                                         "Actual Amount:",
                                         style: AppTextStyles.textStyle.copyWith(
                                           fontSize: getResponsiveFontSize(
-                                              context, 0.03),
+                                              context, 0.02),
                                           color: Colors.white70,
                                         ),
                                       ),
@@ -206,7 +206,7 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
                                         style: AppTextStyles.subheadingText
                                             .copyWith(
                                           fontSize: getResponsiveFontSize(
-                                              context, 0.03),
+                                              context, 0.02),
                                           color: Colors.white,
                                         ),
                                       ),
@@ -221,7 +221,7 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
                                         "Offer Amount:",
                                         style: AppTextStyles.textStyle.copyWith(
                                           fontSize: getResponsiveFontSize(
-                                              context, 0.03),
+                                              context, 0.02),
                                           color: Colors.white70,
                                         ),
                                       ),
@@ -230,7 +230,7 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
                                         style: AppTextStyles.subheadingText
                                             .copyWith(
                                           fontSize: getResponsiveFontSize(
-                                              context, 0.03),
+                                              context, 0.02),
                                           color: Colors.white,
                                         ),
                                       ),
@@ -243,7 +243,7 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
                                       "Status: ${controller.subscripted[index].status == '1' ? 'Active' : 'Inactive'}",
                                       style: AppTextStyles.titleText.copyWith(
                                         fontSize: getResponsiveFontSize(
-                                            context, 0.03),
+                                            context, 0.02),
                                         color: controller.subscripted[index]
                                                     .status ==
                                                 '1'
@@ -289,7 +289,7 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
                       child: Text(
                         'Click to Upgrade Your Package',
                         style: AppTextStyles.headingText.copyWith(
-                          fontSize: getResponsiveFontSize(context, 0.04),
+                          fontSize: getResponsiveFontSize(context, 0.03),
                           color: Colors.white,
                         ),
                       ),

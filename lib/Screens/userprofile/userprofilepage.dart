@@ -123,7 +123,7 @@ class UserProfilePageState extends State<UserProfilePage>
                   child: Column(
                     children: [
                       SizedBox(
-                        height: 250,
+                        height: MediaQuery.of(context).size.height * 0.2,
                         child: Scrollbar(
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
@@ -141,8 +141,11 @@ class UserProfilePageState extends State<UserProfilePage>
                                       controller.userPhotos?.images[index] ??
                                           '',
                                       fit: BoxFit.cover,
-                                      width: 150,
-                                      height: 200,
+                                      width: MediaQuery.of(context).size.width *
+                                          0.2,
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.3,
                                     ),
                                   ),
                                 ),
@@ -326,7 +329,7 @@ class UserProfilePageState extends State<UserProfilePage>
                       ),
                       SizedBox(height: 20),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: DecoratedBoxTransition(
                           decoration:
                               decorationTween.animate(_animationController),
@@ -344,7 +347,7 @@ class UserProfilePageState extends State<UserProfilePage>
                               },
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
-                                    vertical: 18, horizontal: 18),
+                                    vertical: 16, horizontal: 20),
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -386,40 +389,35 @@ class UserProfilePageState extends State<UserProfilePage>
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 6),
-                        child: DecoratedBoxTransition(
-                          decoration:
-                              decorationTween.animate(_animationController),
-                          child: Card(
-                            color: Color.fromARGB(255, 68, 63, 62),
-                            elevation: 5,
-                            child: InkWell(
-                              onTap: () {
-                                Get.to(PlanPage());
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 18, horizontal: 18),
-                                width: double.infinity,
-                                height: 90,
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.card_membership,
-                                      size: 40,
-                                      color: Colors.white,
-                                    ),
-                                    SizedBox(width: 66),
-                                    Text(
-                                      'Membership',
-                                      style: AppTextStyles.titleText.copyWith(
-                                          fontSize:
-                                              getResponsiveFontSize(0.03)),
-                                    ),
-                                  ],
-                                ),
+                      DecoratedBoxTransition(
+                        decoration:
+                            decorationTween.animate(_animationController),
+                        child: Card(
+                          color: Color.fromARGB(255, 68, 63, 62),
+                          elevation: 5,
+                          child: InkWell(
+                            onTap: () {
+                              Get.to(PlanPage());
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 12, horizontal: 12),
+                              width: MediaQuery.of(context).size.height * 0.4,
+                              height: MediaQuery.of(context).size.height * 0.06,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.card_membership,
+                                    size: 40,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(width: 40),
+                                  Text(
+                                    'Membership',
+                                    style: AppTextStyles.titleText.copyWith(
+                                        fontSize: getResponsiveFontSize(0.03)),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -427,7 +425,8 @@ class UserProfilePageState extends State<UserProfilePage>
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 6),
+                          horizontal: 16, vertical: 4
+                        ),
                         child: Column(
                           children: [
                             SettingCard(
@@ -953,33 +952,30 @@ class SettingCardState extends State<SettingCard>
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+  double screenHeight = MediaQuery.of(context).size.height;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6),
-        child: SizedBox(
-          child: DecoratedBoxTransition(
-            decoration: decorationTween.animate(_animationController),
-            child: Card(
-              elevation: 5,
-              color: const Color.fromARGB(255, 71, 67, 68),
-              child: ListTile(
-                title: Text(
-                  widget.title,
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.03,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                subtitle: Text(
-                  widget.subtitle,
-                  style: TextStyle(fontSize: screenWidth * 0.02),
-                ),
-                trailing: Icon(widget.icon),
-                onTap: widget.onTap,
+    return SizedBox(
+      width: screenWidth * 0.9, // Decrease width to 80% of the screen width
+    height: screenHeight * 0.078,
+      child: DecoratedBoxTransition(
+        decoration: decorationTween.animate(_animationController),
+        child: Card(
+          elevation: 4,
+          color: const Color.fromARGB(255, 71, 67, 68),
+          child: ListTile(
+            title: Text(
+              widget.title,
+              style: TextStyle(
+                fontSize: screenWidth * 0.03,
+                fontWeight: FontWeight.bold,
               ),
             ),
+            subtitle: Text(
+              widget.subtitle,
+              style: TextStyle(fontSize: screenWidth * 0.02),
+            ),
+            trailing: Icon(widget.icon),
+            onTap: widget.onTap,
           ),
         ),
       ),

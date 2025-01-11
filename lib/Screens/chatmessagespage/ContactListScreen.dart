@@ -89,53 +89,75 @@ class ContactListScreenState extends State<ContactListScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Text(
-                    //   '${getFilteredUsers().length} Member',
-                    //   style: AppTextStyles.customTextStyle(color: Colors.green),
-                    // ),
-                    SizedBox(
-                      width: 90.0, // Set a fixed width
-                      height: 60,
-                      child: PushableButton(
-                        hslColor: HSLColor.fromColor(Colors.green),
-                        height: 50.0,
-                        elevation: 8.0,
-                        shadow: BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 4.0,
-                          spreadRadius: 2.0,
-                          offset: Offset(0, 4),
-                        ),
-                        child: Text(
-                          '${getFilteredUsers().length} Member',
-                          style: TextStyle(color: AppColors.textColor),
-                        ),
-                      ),
+                    Text(
+                      '${getFilteredUsers().length} Member',
+                      style: AppTextStyles.customTextStyle(color: Colors.green),
                     ),
+                    // SizedBox(
+                    //   width: 90.0, // Set a fixed width
+                    //   height: 60,
+                    //   child: PushableButton(
+                    //     hslColor: HSLColor.fromColor(Colors.green),
+                    //     height: 50.0,
+                    //     elevation: 8.0,
+                    //     shadow: BoxShadow(
+                    //       color: Colors.black.withOpacity(0.2),
+                    //       blurRadius: 4.0,
+                    //       spreadRadius: 2.0,
+                    //       offset: Offset(0, 4),
+                    //     ),
+                    //     child: Text(
+                    //       '${getFilteredUsers().length} Member',
+                    //       style: TextStyle(color: AppColors.textColor),
+                    //     ),
+                    //   ),
+                    // ),
                     Stack(
                       clipBehavior: Clip.none,
                       children: [
-                        SizedBox(
-                          width: 70.0, // Set a fixed width
-                          height: 60,
-                          child: PushableButton(
-                            onPressed: () {
-                              Get.to(MessageRequestPage());
-                              print("Ping button pressed");
-                            },
-                            hslColor: HSLColor.fromColor(Colors.red),
-                            height: 50.0,
-                            elevation: 8.0,
-                            shadow: BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 4.0,
-                              spreadRadius: 2.0,
-                              offset: Offset(0, 4),
+                        // SizedBox(
+                        //   width: 70.0, // Set a fixed width
+                        //   height: 60,
+                        //   child: PushableButton(
+                        //     onPressed: () {
+                        //       Get.to(MessageRequestPage());
+                        //       print("Ping button pressed");
+                        //     },
+                        //     hslColor: HSLColor.fromColor(Colors.red),
+                        //     height: 50.0,
+                        //     elevation: 8.0,
+                        //     shadow: BoxShadow(
+                        //       color: Colors.black.withOpacity(0.2),
+                        //       blurRadius: 4.0,
+                        //       spreadRadius: 2.0,
+                        //       offset: Offset(0, 4),
+                        //     ),
+                        //     child: Text(
+                        //       'Request',
+                        //       style: TextStyle(color: AppColors.textColor),
+                        //     ),
+                        //   ),
+                        // ),
+                        TextButton(
+                          onPressed: () {
+                            Get.to(MessageRequestPage());
+                            print("Ping button pressed");
+                          },
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.red,
+                            padding: EdgeInsets.symmetric(horizontal: 6),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(40),
                             ),
-                            child: Text(
-                              'Request',
-                              style: TextStyle(color: AppColors.textColor),
+                            side: BorderSide(
+                              color: Colors.red,
+                              width: 1,
                             ),
+                          ),
+                          child: Text(
+                            'Request',
+                            style: AppTextStyles.customTextStyle(
+                                color: Colors.red),
                           ),
                         ),
                         if (controller.messageRequest.isNotEmpty)

@@ -104,7 +104,7 @@ class PricingPageState extends State<PricingPage>
                       controller.headlines.isNotEmpty
                           ? controller.headlines[10].description
                           : "Loading Title...",
-                      style: AppTextStyles.labelText,
+                      style: AppTextStyles.textStyle,
                     );
                   }),
                   SizedBox(height: responsiveHeight),
@@ -161,7 +161,8 @@ class PricingPageState extends State<PricingPage>
                         package.actualAmount, package.offerAmount);
 
                     return Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 3),
                       child: GestureDetector(
                         onTap: () {
                           setState(() {
@@ -244,7 +245,7 @@ class PricingPageState extends State<PricingPage>
 
   Future<void> showPaymentConfirmationDialog(
       BuildContext context, String planId, double amount) async {
-    double fontSize = MediaQuery.of(context).size.width * 0.05;
+    double fontSize = MediaQuery.of(context).size.width * 0.03;
 
     return showDialog<void>(
       context: context,
@@ -331,7 +332,7 @@ class PricingPageState extends State<PricingPage>
                       return ListTile(
                         title: Text(
                           benefit.title,
-                          style: AppTextStyles.bodyText,
+                          style: AppTextStyles.textStyle,
                         ),
                       );
                     },

@@ -84,7 +84,7 @@ class MembershipPageState extends State<MembershipPage>
                 children: [
                   Text(
                     'Our Membership Services',
-                    style: AppTextStyles.subheadingText,
+                    style: AppTextStyles.titleText,
                   ),
                   SizedBox(height: 10),
                   buildMembershipServiceItem(
@@ -134,7 +134,7 @@ class MembershipPageState extends State<MembershipPage>
               Get.to(PricingPage());
             },
             transitionType: TransitionType.LEFT_TO_RIGHT,
-            textStyle: AppTextStyles.buttonText.copyWith(fontSize: 14),
+            textStyle: AppTextStyles.buttonText.copyWith(fontSize: 12),
             backgroundColor: AppColors.FavouriteColor,
             selectedBackgroundColor: AppColors.activeColor,
             borderRadius: 16.0,
@@ -153,14 +153,14 @@ class MembershipPageState extends State<MembershipPage>
     required bool paid,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: DecoratedBoxTransition(
         decoration: decorationTween.animate(_animationController),
         child: Card(
           color: AppColors.secondaryColor,
           elevation: 5,
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(12.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
