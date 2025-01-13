@@ -59,6 +59,7 @@ dependencies:
   flutter_animated_button: ^2.0.4
   pushable_button: ^0.0.4
   heart_overlay: ^1.4.1
+  intl_phone_number_input: ^0.7.4
 
 
 

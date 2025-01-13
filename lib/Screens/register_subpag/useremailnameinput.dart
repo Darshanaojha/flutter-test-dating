@@ -56,7 +56,7 @@ class UserInputPageState extends State<UserInputPage> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double fontSize = screenWidth * 0.04;
+    double fontSize = screenWidth * 0.02;
 
     return Scaffold(
       appBar: AppBar(
@@ -158,7 +158,7 @@ class UserInputPageState extends State<UserInputPage> {
                     controller.userRegistrationRequest.email = value ?? '';
                   },
                 ),
-                SizedBox(height: 40),
+                SizedBox(height: 20),
                 TextFormField(
                   cursorColor: AppColors.cursorColor,
                   decoration: InputDecoration(

@@ -208,8 +208,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
   Widget buildBirthdayStep(Size screenSize) {
-    double titleFontSize = screenSize.width * 0.05;
-    double subHeadingFontSize = screenSize.width * 0.045;
+    double titleFontSize = screenSize.width * 0.03;
+    double subHeadingFontSize = screenSize.width * 0.02;
     double datePickerFontSize = screenSize.width * 0.03;
 
     return Card(
@@ -321,9 +321,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
   // Step 2: Name Input
   Widget buildNameStep(Size screenSize) {
-    double titleFontSize = screenSize.width * 0.05;
+    double titleFontSize = screenSize.width * 0.03;
     double labelfontSize = screenSize.width * 0.03;
-    double inputTextFontSize = screenSize.width * 0.045;
+    double inputTextFontSize = screenSize.width * 0.02;
     TextEditingController nicknameController = TextEditingController(
       text: controller.userRegistrationRequest.nickname,
     );
@@ -409,7 +409,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               child: Text(
                 'Next',
                 style: AppTextStyles.buttonText.copyWith(
-                  fontSize: screenSize.width * 0.045,
+                  fontSize: screenSize.width * 0.02,
                 ),
               ),
             ),
@@ -431,8 +431,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
   // Step 3: Gender Selection
   Widget buildGenderStep(Size screenSize) {
-    double titleFontSize = screenSize.width * 0.05;
-    double optionFontSize = screenSize.width * 0.03;
+    double titleFontSize = screenSize.width * 0.03;
+    double optionFontSize = screenSize.width * 0.02;
 
     return Card(
       elevation: 8,
@@ -530,7 +530,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   child: Text(
                     'Next',
                     style: AppTextStyles.buttonText.copyWith(
-                      fontSize: screenSize.width * 0.045,
+                      fontSize: screenSize.width * 0.03,
                     ),
                   ),
                 );
@@ -554,9 +554,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
   // Step 4: Describe Yourself (New Step)
   Widget buildBestDescribeYouStep(Size screenSize) {
-    double titleFontSize = screenSize.width * 0.05;
-    double descriptionFontSize = screenSize.width * 0.03;
-    double optionFontSize = screenSize.width * 0.03;
+    double titleFontSize = screenSize.width * 0.03;
+    double descriptionFontSize = screenSize.width * 0.02;
+    double optionFontSize = screenSize.width * 0.02;
 
     return Obx(() {
       if (controller.subGenders.isEmpty) {
@@ -653,7 +653,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 child: Text(
                   'Next',
                   style: AppTextStyles.buttonText.copyWith(
-                    fontSize: screenSize.width * 0.045,
+                    fontSize: screenSize.width * 0.02,
                   ),
                 ),
               ),
@@ -676,9 +676,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
 // step 5 who are you looking for
   Widget buildLookingForStep(Size screenSize) {
-    double titleFontSize = screenSize.width * 0.05;
-    double descriptionFontSize = screenSize.width * 0.03;
-    double optionFontSize = screenSize.width * 0.03;
+    double titleFontSize = screenSize.width * 0.03;
+    double descriptionFontSize = screenSize.width * 0.02;
+    double optionFontSize = screenSize.width * 0.02;
     if (preferencesSelectedOptions.isEmpty) {
       preferencesSelectedOptions.value =
           List<bool>.filled(controller.preferences.length, false);
@@ -783,7 +783,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
                   backgroundColor: preferencesSelectedOptions.isNotEmpty
                       ? AppColors.inactiveColor
                       : AppColors.buttonColor,
@@ -791,17 +791,17 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 ),
                 child: Text(
                   'Next',
-                  style: AppTextStyles.buttonText,
+                  style: AppTextStyles.textStyle,
                 ),
               ),
               ElevatedButton(
                 onPressed: onBackPressed,
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
                   backgroundColor: AppColors.buttonColor,
                   foregroundColor: AppColors.textColor,
                 ),
-                child: Text('Back', style: AppTextStyles.buttonText),
+                child: Text('Back', style: AppTextStyles.textStyle),
               ),
             ],
           ),
@@ -849,9 +849,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     }
 
     double screenWidth = screenSize.width;
-    double titleFontSize = screenWidth * 0.05;
-    double bodyFontSize = screenWidth * 0.03;
-    double chipFontSize = screenWidth * 0.03;
+    double titleFontSize = screenWidth * 0.03;
+    double bodyFontSize = screenWidth * 0.02;
+    double chipFontSize = screenWidth * 0.02;
 
     return Card(
       elevation: 8,
@@ -978,12 +978,12 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.deniedColor,
                             padding: EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
+                                horizontal: 22, vertical: 12),
                           ),
                           child: Text(
                             'Cancel',
                             style: AppTextStyles.buttonText.copyWith(
-                              fontSize: AppTextStyles.buttonSize,
+                              fontSize: AppTextStyles.textSize,
                               color: AppColors.textColor,
                             ),
                           ),
@@ -1026,11 +1026,11 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               ElevatedButton(
                 onPressed: onBackPressed,
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
                   backgroundColor: AppColors.buttonColor,
                   foregroundColor: AppColors.textColor,
                 ),
-                child: Text('Back', style: AppTextStyles.buttonText),
+                child: Text('Back', style: AppTextStyles.textStyle),
               ),
             ],
           ),
@@ -1067,11 +1067,11 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     }
 
     double screenWidth = screenSize.width;
-    double titleFontSize = screenWidth * 0.05;
-    double bodyFontSize = screenWidth * 0.03;
-    double chipFontSize = screenWidth * 0.045;
-    double inputFontSize = screenWidth * 0.045;
-    double buttonFontSize = screenWidth * 0.045;
+    double titleFontSize = screenWidth * 0.03;
+    double bodyFontSize = screenWidth * 0.02;
+    double chipFontSize = screenWidth * 0.02;
+    double inputFontSize = screenWidth * 0.02;
+    double buttonFontSize = screenWidth * 0.02;
 
     return Card(
       elevation: 8,
@@ -1244,11 +1244,11 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               ElevatedButton(
                 onPressed: onBackPressed,
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
                   backgroundColor: AppColors.buttonColor,
                   foregroundColor: AppColors.textColor,
                 ),
-                child: Text('Back', style: AppTextStyles.buttonText),
+                child: Text('Back', style: AppTextStyles.textStyle),
               ),
             ],
           ),
@@ -1291,7 +1291,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Selected Languages',
-                            style: TextStyle(fontSize: 16)),
+                            style: TextStyle(fontSize: 12)),
                         SizedBox(height: 10),
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
@@ -1312,7 +1312,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                     updateSelectedStatus();
                                   },
                                   backgroundColor: Colors.blue.withOpacity(0.1),
-                                  labelStyle: TextStyle(fontSize: 14),
+                                  labelStyle: TextStyle(fontSize: 12),
                                 ),
                               );
                             }).toList(),
@@ -1322,7 +1322,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     );
             }),
             SizedBox(height: 20),
-            Text('Languages List', style: TextStyle(fontSize: 16)),
+            Text('Languages List', style: TextStyle(fontSize: 12)),
             SizedBox(height: 10),
             Obx(() {
               var filteredLanguages = controller.language
@@ -1352,12 +1352,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                   BorderSide(color: AppColors.textColor),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: Colors.green,
-                                  width: 2.0), // Green border when focused
+                              borderSide:
+                                  BorderSide(color: Colors.green, width: 2.0),
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            // Enabled border (default border color)
                             enabledBorder: OutlineInputBorder(
                               borderSide: BorderSide(
                                   color: Colors.white,
@@ -1425,7 +1423,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
                 ),
@@ -1435,7 +1433,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             ElevatedButton(
               onPressed: onBackPressed,
               style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
                 backgroundColor: AppColors.buttonColor,
                 foregroundColor: AppColors.textColor,
               ),
@@ -1459,10 +1457,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     }
 
     double screenWidth = screenSize.width;
-    double titleFontSize = screenWidth * 0.05;
-    double bodyFontSize = screenWidth * 0.03;
-    double inputFontSize = screenWidth * 0.025;
-    double buttonFontSize = screenWidth * 0.045;
+    double titleFontSize = screenWidth * 0.03;
+    double bodyFontSize = screenWidth * 0.02;
+    double inputFontSize = screenWidth * 0.02;
+    double buttonFontSize = screenWidth * 0.02;
 
     return Card(
       elevation: 8,
@@ -1621,7 +1619,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   ? "Notification Permission"
                   : "Location Permission",
               style: AppTextStyles.titleText.copyWith(
-                fontSize: screenSize.width * 0.05,
+                fontSize: screenSize.width * 0.03,
                 color: AppColors.textColor,
               ),
             ),
@@ -1630,7 +1628,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   ? "Do you allow the app to send notifications?"
                   : "Do you allow the app to access your location?",
               style: AppTextStyles.bodyText.copyWith(
-                fontSize: screenSize.width * 0.04,
+                fontSize: screenSize.width * 0.03,
                 color: AppColors.textColor,
               ),
             ),
@@ -1649,7 +1647,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   'Deny',
                   style: AppTextStyles.bodyText.copyWith(
                     color: Colors.red,
-                    fontSize: screenSize.width * 0.04,
+                    fontSize: screenSize.width * 0.02,
                   ),
                 ),
               ),
@@ -1668,7 +1666,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   'Accept',
                   style: AppTextStyles.bodyText.copyWith(
                     color: Colors.green,
-                    fontSize: screenSize.width * 0.04,
+                    fontSize: screenSize.width * 0.02,
                   ),
                 ),
               ),
@@ -1678,7 +1676,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       );
     }
 
-    double fontSize = screenSize.width * 0.03;
+    double fontSize = screenSize.width * 0.02;
 
     return Column(
       children: [
@@ -1840,7 +1838,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
         ElevatedButton(
           onPressed: onBackPressed,
           style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
             backgroundColor: AppColors.buttonColor,
             foregroundColor: AppColors.textColor,
           ),
@@ -1861,14 +1859,14 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     Future<void> requestCameraPermission() async {
       var status = await Permission.camera.request();
       if (status.isDenied) {
-        Get.snackbar('Permission Denied', "Camera permission denied");
+        // Get.snackbar('Permission Denied', "Camera permission denied");
       }
     }
 
     Future<void> requestGalleryPermission() async {
       var status = await Permission.photos.request();
       if (status.isDenied) {
-        Get.snackbar('Permission Denied', "Gallery permission denied");
+        // Get.snackbar('Permission Denied', "Gallery permission denied");
       }
     }
 
@@ -1876,8 +1874,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       if (index > 0 &&
           images[index - 1] == null &&
           controller.userRegistrationRequest.photos.length <= index) {
-        Get.snackbar(
-            "Error", "Please take a photo for the previous position first.");
+        // Get.snackbar(
+        //     "Error", "Please take a photo for the previous position first.");
         return;
       }
 
@@ -1907,7 +1905,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
           images[index] = imageFile;
         } else {
-          Get.snackbar("Error", "Image compression failed");
+          // Get.snackbar("Error", "Image compression failed");
         }
       }
     }
@@ -1934,7 +1932,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     }
 
     double screenWidth = screenSize.width;
-    double iconSize = screenWidth * 0.12;
+    double iconSize = screenWidth * 0.10;
     double imageContainerSize = screenWidth * 0.39;
     resetImagesForNewUser();
 
@@ -2260,7 +2258,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               ElevatedButton(
                 onPressed: onNextButtonPressed,
                 style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -2277,7 +2275,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               ElevatedButton(
                 onPressed: onBackPressed,
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
                   backgroundColor: AppColors.buttonColor,
                   foregroundColor: AppColors.textColor,
                 ),
@@ -2292,7 +2290,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
 // step 12
   Widget buildSafetyGuidelinesWidget(Size screenSize) {
-    double fontSize = screenSize.width * 0.03;
+    double fontSize = screenSize.width * 0.02;
 
     return SingleChildScrollView(
       child: Column(
@@ -2425,7 +2423,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           ElevatedButton(
             onPressed: onBackPressed,
             style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
               backgroundColor: AppColors.buttonColor,
               foregroundColor: AppColors.textColor,
             ),

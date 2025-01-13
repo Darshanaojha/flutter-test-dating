@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dating_application/Controllers/controller.dart';
@@ -5,6 +6,7 @@ import 'package:dating_application/Models/RequestModels/estabish_connection_requ
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:heart_overlay/heart_overlay.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:swipe_cards/draggable_card.dart';
@@ -48,6 +50,7 @@ class HomePageState extends State<HomePage>
   List<SwipeItem> swipeItems = [];
   late MatchEngine matchEngine;
   late Future<bool> _fetchSuggestion;
+  late HeartOverlayController heartOverlayController;
   @override
   void initState() {
     _animationController = AnimationController(
@@ -58,6 +61,7 @@ class HomePageState extends State<HomePage>
     _rotationAnimation = Tween<double>(begin: 0, end: 2 * 3.1415927).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
+    heartOverlayController = HeartOverlayController();
     super.initState();
     matchEngine = MatchEngine();
 
@@ -131,13 +135,6 @@ class HomePageState extends State<HomePage>
             controller.markasfavourite(controller.markFavouriteRequestModel);
           } else {
             failure('Error', "Error: User ID is null.");
-          }
-        },
-        onSlideUpdate: (SlideRegion? region) async {
-          if (region != null) {
-            print("Region: ${region.toString()}");
-          } else {
-            print("Region is null");
           }
         },
       ));
@@ -293,7 +290,7 @@ class HomePageState extends State<HomePage>
                   selectedFilter.value == button ? _rotationAnimation.value : 0,
               child: Icon(
                 icon,
-                size: 20,
+                size: 30,
                 color: AppColors.textColor,
               ),
             );
@@ -301,7 +298,7 @@ class HomePageState extends State<HomePage>
         ),
         label: Text(
           label,
-          style: TextStyle(fontSize: 14, color: AppColors.textColor),
+          style: TextStyle(fontSize: 10, color: AppColors.textColor),
         ),
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.white,
@@ -311,7 +308,6 @@ class HomePageState extends State<HomePage>
           shape: StadiumBorder(),
           minimumSize: Size(100, 45),
         ),
-        
       ),
     );
   }
@@ -430,7 +426,7 @@ class HomePageState extends State<HomePage>
                           if (lastUser != null)
                             Text(
                               'Last User: ${lastUser!.name}',
-                              style: TextStyle(fontSize: 18),
+                              style: TextStyle(fontSize: 12),
                             ),
                           SizedBox(
                             height: size.height * 0.7 -
@@ -621,37 +617,44 @@ class HomePageState extends State<HomePage>
                 ),
                 Row(
                   children: [
-                    SizedBox(width: 16),
+                    SizedBox(width: 12),
                     IconButton(
                       onPressed: lastUser != null
                           ? null
                           : () {
                               showmessageBottomSheet(user.userId.toString());
                             },
-                      icon: Icon(Icons.messenger_outline, size: 40),
+                      icon: Icon(Icons.messenger_outline, size: 30),
                     ),
                   ],
                 ),
                 SizedBox(height: 16),
-                Text(
-                  user.name ?? 'NA',
-                  style: TextStyle(
-                      fontSize: size.width * 0.04, fontWeight: FontWeight.bold),
-                ),
-                Row(
-                  children: [
-                    Text(
-                      calculateAge(user.dob ?? 'Unknown Date'),
-                      style: TextStyle(fontSize: size.width * 0.04),
-                    ),
-                    Text(
-                      '${user.city}',
-                      style: TextStyle(fontSize: size.width * 0.04),
-                    ),
-                  ],
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
+                    user.name ?? 'NA',
+                    style: TextStyle(
+                        fontSize: size.width * 0.03,
+                        fontWeight: FontWeight.bold),
+                  ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    children: [
+                      Text(
+                        calculateAge(user.dob ?? 'Unknown Date'),
+                        style: TextStyle(fontSize: size.width * 0.03),
+                      ),
+                      Text(
+                        '${user.city}',
+                        style: TextStyle(fontSize: size.width * 0.03),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 30.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -664,12 +667,13 @@ class HomePageState extends State<HomePage>
                             backgroundColor: AppColors.NopeColor),
                         child: Text("Nope",
                             style: AppTextStyles.buttonText.copyWith(
-                                fontSize: getResponsiveFontSize(0.03))),
+                                fontSize: getResponsiveFontSize(0.015))),
                       ),
                       ElevatedButton(
                         onPressed: () {
                           if (matchEngine.currentItem != null) {
-                            matchEngine.currentItem!.superLike();
+                           matchEngine.currentItem!.superLike();
+                            
                           } else {
                             print("No current item to super like");
                           }
@@ -678,20 +682,22 @@ class HomePageState extends State<HomePage>
                             backgroundColor: AppColors.FavouriteColor),
                         child: Text("Favourite",
                             style: AppTextStyles.buttonText.copyWith(
-                                fontSize: getResponsiveFontSize(0.03))),
+                                fontSize: getResponsiveFontSize(0.015))),
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          print('like pressed');
+                          print('Like pressed');
                           setState(() {
                             matchEngine.currentItem!.like();
                           });
                         },
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.LikeColor),
-                        child: Text("Like",
-                            style: AppTextStyles.buttonText.copyWith(
-                                fontSize: getResponsiveFontSize(0.03))),
+                          backgroundColor: Colors.blue,
+                        ),
+                        child: Text(
+                          "Like",
+                          style: TextStyle(fontSize: getResponsiveFontSize(0.015), color: Colors.white),
+                        ),
                       ),
                     ],
                   ),
