@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -19,6 +21,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
   List<String> selectedGender = [];
   String selectedLocation = 'All';
   bool isLoading = true;
+  bool isAnimationVisible = false;
   late final AnimationController _animationController;
   late final DecorationTween decorationTween;
   Controller controller = Get.put(Controller());
@@ -129,6 +132,19 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
         });
       }
     }
+  }
+
+  void showAnimation() {
+    setState(() {
+      isAnimationVisible = true;
+    });
+
+    // Hide the animation after 2 seconds
+    Timer(Duration(seconds: 2), () {
+      setState(() {
+        isAnimationVisible = false;
+      });
+    });
   }
 
   void applyFilters() {
@@ -539,10 +555,8 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 SizedBox(
-                                   
                                     height: MediaQuery.of(context).size.height *
-                                        0.1, 
-
+                                        0.1,
                                     child: Scrollbar(
                                       child: ListView.builder(
                                         scrollDirection: Axis.horizontal,
@@ -640,9 +654,11 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                   children: [
                                     IconButton(
                                       onPressed: () async {
+                                        showAnimation(); // Trigger the heart animation
                                         setState(() {
                                           user.likedByMe =
                                               user.likedByMe == 0 ? 1 : 0;
+
                                           if (user.likedByMe == 1) {
                                             controller.profileLikeRequest
                                                     .likedBy =
@@ -668,6 +684,29 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                             : Colors.white,
                                       ),
                                     ),
+
+                                    // Heart Animation
+                                    if (isAnimationVisible)
+                                      Positioned(
+                                        top:
+                                            200, // Adjust for desired vertical position
+                                        child: AnimatedOpacity(
+                                          duration: Duration(milliseconds: 500),
+                                          opacity:
+                                              isAnimationVisible ? 1.0 : 0.0,
+                                          child: AnimatedScale(
+                                            duration:
+                                                Duration(milliseconds: 500),
+                                            scale:
+                                                isAnimationVisible ? 1.5 : 0.0,
+                                            child: Icon(
+                                              Icons.favorite,
+                                              color: Colors.red,
+                                              size: 100, // Size of the heart
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                   ],
                                 ),
                               ],

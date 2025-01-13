@@ -425,8 +425,7 @@ class UserProfilePageState extends State<UserProfilePage>
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 4
-                        ),
+                            horizontal: 16, vertical: 4),
                         child: Column(
                           children: [
                             SettingCard(
@@ -479,12 +478,28 @@ class UserProfilePageState extends State<UserProfilePage>
           child: GestureDetector(
             onTap: () => Navigator.of(context).pop(),
             child: Center(
-              child: Image.network(
-                imagePath,
-                fit: BoxFit.contain,
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-              ),
+              child: imagePath.startsWith('http')
+                  ? Image.network(
+                      imagePath,
+                      fit: BoxFit.contain,
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Center(
+                          child: Icon(
+                            Icons.broken_image,
+                            size: 100,
+                            color: Colors.grey,
+                          ),
+                        );
+                      },
+                    )
+                  : Image.network(
+                      imagePath,
+                      fit: BoxFit.contain,
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                    ),
             ),
           ),
         );
@@ -952,11 +967,11 @@ class SettingCardState extends State<SettingCard>
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-  double screenHeight = MediaQuery.of(context).size.height;
+    double screenHeight = MediaQuery.of(context).size.height;
 
     return SizedBox(
       width: screenWidth * 0.9, // Decrease width to 80% of the screen width
-    height: screenHeight * 0.078,
+      height: screenHeight * 0.078,
       child: DecoratedBoxTransition(
         decoration: decorationTween.animate(_animationController),
         child: Card(

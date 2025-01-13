@@ -823,8 +823,7 @@ class EditProfilePageState extends State<EditProfilePage>
                             top: 14,
                             right: 2,
                             child: Transform.rotate(
-                              angle:
-                                  0.5,
+                              angle: 0.5,
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 2, vertical: 2),
@@ -958,18 +957,11 @@ class EditProfilePageState extends State<EditProfilePage>
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              "Country",
-                                              style: TextStyle(
-                                                fontSize:
-                                                    10.0, // Set a smaller font size
-                                              ),
+                                              "Country: ${controller.selectedCountry.value?.name ?? 'None'}",
+                                              style: const TextStyle(
+                                                  fontSize: 10.0),
                                             ),
-                                            SizedBox(
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .height *
-                                                  0.001,
-                                            ),
+                                            const SizedBox(height: 8.0),
                                             Obx(() {
                                               if (controller
                                                   .countries.isEmpty) {
@@ -981,45 +973,22 @@ class EditProfilePageState extends State<EditProfilePage>
                                                   ),
                                                 );
                                               }
-
-                                              Country? initialCountry =
-                                                  controller.countries
-                                                      .firstWhere(
-                                                (country) =>
-                                                    country.id ==
-                                                    controller.userData.first
-                                                        .countryId,
-                                                orElse: () =>
-                                                    controller.countries.first,
-                                              );
                                               return buildDropdownWithBottomSheet<
                                                   Country>(
                                                 context,
                                                 "Country",
                                                 controller.countries,
-                                                selectedCountry,
-                                                initialCountry,
+                                                controller.initialCountry,
+                                                controller.selectedCountry,
                                                 12.0,
                                                 (Country? value) {
-                                                  setState(() {
-                                                    selectedCountry = value ??
-                                                        selectedCountry;
+                                                  if (value != null) {
                                                     controller
                                                         .userProfileUpdateRequest
-                                                        .countryId = value
-                                                            ?.id ??
-                                                        '';
-                                                    print(
-                                                        'Selected Country: ${selectedCountry.name}');
+                                                        .countryId = value.id;
                                                     Get.snackbar(
-                                                        'Selected',
-                                                        selectedCountry.name
-                                                            .toString());
-                                                  });
-                                                },
-                                                validator: (value) {
-                                                  return validateCountryId(
-                                                      value as String);
+                                                        'Selected', value.name);
+                                                  }
                                                 },
                                                 displayValue:
                                                     (Country country) =>
@@ -1122,7 +1091,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                     decoration: decorationTween
                                         .animate(_animationController),
                                     child: Card(
-                                      color:Colors.transparent,
+                                      color: Colors.transparent,
                                       elevation: 8,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12),
@@ -1875,24 +1844,17 @@ class EditProfilePageState extends State<EditProfilePage>
 
   Country selectedCountry = Country(
       id: '', name: '', countryCode: '', status: '', created: '', updated: '');
-
   Widget buildDropdownWithBottomSheet<T>(
     BuildContext context,
     String label,
     List<T> items,
-    T? initialCountry,
-    T? selectedValue,
+    T? initialValue,
+    Rx<T?> selectedValue,
     double fontSize,
     Function(T?) onChanged, {
-    String Function(T)? displayValue,
     String? Function(T?)? validator,
+    String Function(T)? displayValue,
   }) {
-    String? errorText;
-
-    if (selectedValue == null && initialCountry != null) {
-      selectedValue = initialCountry;
-    }
-
     return InkWell(
       onTap: () => showModalBottomSheet(
         context: context,
@@ -1904,37 +1866,30 @@ class EditProfilePageState extends State<EditProfilePage>
             child: Column(
               children: [
                 Text(
-                  label,
+                  "Select $label",
                   style: AppTextStyles.labelText.copyWith(fontSize: fontSize),
                 ),
                 Expanded(
-                  child: SizedBox(
-                    height: 200,
-                    child: Scrollbar(
-                      child: ListView.builder(
-                        itemCount: items.length,
-                        itemBuilder: (context, index) {
-                          T item = items[index];
-                          return ListTile(
-                            title: Text(
-                              displayValue != null
-                                  ? displayValue(item)
-                                  : item.toString(),
-                              style: AppTextStyles.textStyle
-                                  .copyWith(fontSize: fontSize),
-                            ),
-                            onTap: () {
-                              setState(() {
-                                selectedCountry = item as Country;
-
-                                onChanged(item);
-                              });
-
-                              Navigator.pop(context);
-                            },
-                          );
-                        },
-                      ),
+                  child: Scrollbar(
+                    child: ListView.builder(
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        T item = items[index];
+                        return ListTile(
+                          title: Text(
+                            displayValue != null
+                                ? displayValue(item)
+                                : item.toString(),
+                            style: AppTextStyles.textStyle
+                                .copyWith(fontSize: fontSize),
+                          ),
+                          onTap: () {
+                            selectedValue.value = item;
+                            onChanged(item);
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -1943,29 +1898,30 @@ class EditProfilePageState extends State<EditProfilePage>
           );
         },
       ),
-      child: SizedBox(
-        width: 350,
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 14.0, horizontal: 18.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8.0),
-            border: Border.all(color: AppColors.formFieldColor),
-            color: AppColors.formFieldColor,
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  selectedValue != null
-                      ? displayValue!(selectedValue)
-                      : 'Select $label',
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 18.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8.0),
+          border: Border.all(color: AppColors.formFieldColor),
+          color: AppColors.formFieldColor,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Obx(() {
+                return Text(
+                  selectedValue.value != null
+                      ? (displayValue != null
+                          ? displayValue(selectedValue.value!)
+                          : selectedValue.value.toString())
+                      : controller.initialCountry!.name.toString(),
                   style:
                       AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
-                ),
-              ),
-              Icon(Icons.arrow_drop_down, color: AppColors.activeColor),
-            ],
-          ),
+                );
+              }),
+            ),
+            Icon(Icons.arrow_drop_down, color: AppColors.activeColor),
+          ],
         ),
       ),
     );
@@ -1983,8 +1939,8 @@ class EditProfilePageState extends State<EditProfilePage>
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: GestureDetector(
-        onTap: () => _showBottomSheet<T>(context, items, selectedValue,
-            onChanged, displayValue), // Pass context
+        onTap: () => _showBottomSheet<T>(
+            context, items, selectedValue, onChanged, displayValue),
         child: InputDecorator(
           decoration: InputDecoration(
             labelText: label,

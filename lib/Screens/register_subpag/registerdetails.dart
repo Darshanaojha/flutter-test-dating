@@ -100,7 +100,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     final screenSize = MediaQuery.of(context).size;
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
-    double fontSize = screenSize.width * 0.03;
+    double fontSize = screenSize.width * 0.02;
 
     return Scaffold(
       body: Container(
@@ -798,7 +798,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                       onTap: () {
                         onChanged(item);
                         Navigator.pop(
-                            context); // Close the bottom sheet after selection
+                            context);
                       },
                     );
                   },

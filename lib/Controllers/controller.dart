@@ -316,6 +316,13 @@ class Controller extends GetxController {
   }
 
   RxList<Country> countries = <Country>[].obs;
+  Rx<Country?> selectedCountry = Rx<Country?>(null);
+
+  Country? get initialCountry => countries.firstWhere(
+        (country) => country.id == userData.first.countryId,
+        orElse: () => countries.first,
+      );
+  
   Future<bool> fetchCountries() async {
     try {
       countries.clear();

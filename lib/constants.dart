@@ -19,8 +19,8 @@ class AppColors {
   static Color primaryColor = Colors.black;
   static Color disabled = Colors.grey;
   static Color secondaryColor = Color(0xFF1C1C1C);
-  static Color NopeColor = Color.fromARGB(255, 217, 37, 25);
-  static Color FavouriteColor = Color.fromARGB(255, 49, 183, 190);
+  static Color NopeColor = Color.fromARGB(255, 25, 147, 217);
+  static Color FavouriteColor = Color.fromARGB(255, 25, 147, 217);
   static Color LikeColor = Color.fromARGB(255, 46, 212, 52);
   static Color FilterChipColor = Colors.grey;
   static Color textColor = Colors.white;
@@ -54,7 +54,7 @@ class AppTextStyles {
   static const double subheadingSize = 24.0;
   static const double titleSize = 17.0;
   static const double bodySize = 12.0;
-  static const double buttonSize = 14.0;
+  static const double buttonSize = 12.0;
   static const double labelSize = 14.0;
   static const double inputFieldSize = 16.0;
   static const double textSize = 9.0;
