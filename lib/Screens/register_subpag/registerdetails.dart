@@ -173,14 +173,26 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           enabled: false,
                         ),
 
-                        buildTextField("UserName", null, (value) {
-                          controller.userRegistrationRequest.username = value;
-                        }, (value) {
-                          controller.userRegistrationRequest.username = value;
-                        }, fontSize),
+                        buildTextField(
+                          "UserName",
+                          null,
+                          (value) {
+                            controller.userRegistrationRequest.username = value;
+                          },
+                          (value) {
+                            controller.userRegistrationRequest.username = value;
+                          },
+                          fontSize,
+                          isusernameField: true,
+                        ),
 
                         buildTextField("Address", null, (value) {
-                          controller.userRegistrationRequest.address = value;
+                          if (_validateAddress(value)) {
+                            controller.userRegistrationRequest.address = value;
+                          } else {
+                            failure("Invalid Address",
+                                "Address must contain only letters and numbers.");
+                          }
                         }, (value) {
                           controller.userRegistrationRequest.address = value;
                         }, fontSize),
@@ -456,6 +468,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     bool obscureText = false,
     bool enabled = true,
     bool isCityField = false,
+    bool isusernameField = false,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -469,6 +482,10 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           if (isCityField && !RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
             failure('City', 'City name must only contain letters');
             return 'City name must only contain letters';
+          }
+          if (isusernameField && !RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
+            failure('UserName', 'User name must only contain letters');
+            return 'User name must only contain letters';
           }
 
           return null;
@@ -498,6 +515,19 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
         onSaved: onSaved,
       ),
     );
+  }
+
+  bool _validateAddress(String address) {
+    if (address.isEmpty) {
+      failure("Invalid Address", "Address cannot be empty.");
+      return false;
+    }
+    if (!RegExp(r'^[a-zA-Z0-9\s]+$').hasMatch(address)) {
+      failure(
+          "Invalid Address", "Address must contain only letters and numbers.");
+      return false;
+    }
+    return true;
   }
 
   void validatePassword(String password) {
@@ -797,8 +827,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           : item.toString()),
                       onTap: () {
                         onChanged(item);
-                        Navigator.pop(
-                            context);
+                        Navigator.pop(context);
                       },
                     );
                   },

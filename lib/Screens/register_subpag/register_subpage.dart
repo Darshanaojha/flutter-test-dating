@@ -319,6 +319,18 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
+  bool _validateNickname(String nickname) {
+    if (nickname.isEmpty) {
+      failure('Nickname', 'Enter Your Nickname');
+      return false;
+    }
+    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(nickname)) {
+      failure('Nickname', 'Nickname must only contain letters.');
+      return false;
+    }
+    return true;
+  }
+
   // Step 2: Name Input
   Widget buildNameStep(Size screenSize) {
     double titleFontSize = screenSize.width * 0.03;
@@ -390,15 +402,18 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                         failure('Nickname', 'Enter Your Nickname');
                         return;
                       } else {
-                        markStepAsCompleted(2);
-                        Get.snackbar(
-                            'nickname',
-                            controller.userRegistrationRequest.nickname
-                                .toString());
-                        pageController.nextPage(
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.ease,
-                        );
+                        if (_validateNickname(
+                            controller.userRegistrationRequest.nickname)) {
+                          markStepAsCompleted(2);
+                          Get.snackbar(
+                              'nickname',
+                              controller.userRegistrationRequest.nickname
+                                  .toString());
+                          pageController.nextPage(
+                            duration: Duration(milliseconds: 300),
+                            curve: Curves.ease,
+                          );
+                        }
                       }
                     },
               style: ElevatedButton.styleFrom(

@@ -9,7 +9,6 @@ import 'package:get/get.dart';
 import 'package:heart_overlay/heart_overlay.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
-import 'package:swipe_cards/draggable_card.dart';
 import 'package:swipe_cards/swipe_cards.dart';
 import '../../Models/ResponseModels/user_suggestions_response_model.dart';
 import '../../constants.dart';
@@ -660,7 +659,9 @@ class HomePageState extends State<HomePage>
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          matchEngine.currentItem!.nope();
+                          setState(() {
+                            matchEngine.currentItem?.nope();
+                          });
                           print("button pressed nope");
                         },
                         style: ElevatedButton.styleFrom(
@@ -671,12 +672,9 @@ class HomePageState extends State<HomePage>
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          if (matchEngine.currentItem != null) {
-                           matchEngine.currentItem!.superLike();
-                            
-                          } else {
-                            print("No current item to super like");
-                          }
+                          setState(() {
+                            matchEngine.currentItem?.superLike();
+                          });
                         },
                         style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.FavouriteColor),
@@ -688,7 +686,7 @@ class HomePageState extends State<HomePage>
                         onPressed: () {
                           print('Like pressed');
                           setState(() {
-                            matchEngine.currentItem!.like();
+                            matchEngine.currentItem?.like();
                           });
                         },
                         style: ElevatedButton.styleFrom(
@@ -696,7 +694,9 @@ class HomePageState extends State<HomePage>
                         ),
                         child: Text(
                           "Like",
-                          style: TextStyle(fontSize: getResponsiveFontSize(0.015), color: Colors.white),
+                          style: TextStyle(
+                              fontSize: getResponsiveFontSize(0.015),
+                              color: Colors.white),
                         ),
                       ),
                     ],
