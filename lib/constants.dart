@@ -260,5 +260,6 @@ class PusherConstants {
 }
 
 class RazorpayKeys {
-  static const String RAZORPAYKEYID = "rzp_test_cR8X4jkGEnx1zo";
+  static const String RAZORPAYKEYID = "rzp_test_27Thf113vIC8Np";
+  static const String RAZORPAYKEYSECRET = "XSyj935cHFhXwXF6JdmFK8QA";
 }

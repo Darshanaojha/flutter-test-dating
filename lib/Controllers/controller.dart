@@ -83,6 +83,8 @@ import '../Models/RequestModels/usernameupdate_request_model.dart';
 import '../Models/RequestModels/verify_account_request_model.dart';
 import '../Models/ResponseModels/ProfileResponse.dart';
 import '../Models/ResponseModels/all_active_user_resposne_model.dart';
+import '../Models/ResponseModels/all_orders_response_model.dart';
+import '../Models/ResponseModels/all_transactions_response_model.dart';
 import '../Models/ResponseModels/app_details_response_model.dart';
 import '../Models/ResponseModels/app_setting_response_model.dart';
 import '../Models/ResponseModels/block_user_response_model.dart';
@@ -145,6 +147,7 @@ import '../Providers/home_page_provider.dart';
 import '../Providers/fetch_all_likes_history_provider.dart';
 import '../Providers/markasfavourite_provider.dart';
 import '../Providers/master_setting_provider.dart';
+import '../Providers/order_provider.dart';
 import '../Providers/pin_profile_pic_provider.dart';
 import '../Providers/post_like_provider.dart';
 import '../Providers/profile_like_provider.dart';
@@ -322,7 +325,7 @@ class Controller extends GetxController {
         (country) => country.id == userData.first.countryId,
         orElse: () => countries.first,
       );
-  
+
   Future<bool> fetchCountries() async {
     try {
       countries.clear();
@@ -1960,6 +1963,39 @@ class Controller extends GetxController {
         }
       } else {
         failure('Error', 'Failed to fetch add-ons.');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<Transaction> transactions = <Transaction>[].obs;
+  Future<bool> allTransactions() async {
+    try {
+      AllTransactionsResponseModel? response =
+          await OrderProvider().allTransactions();
+      if (response != null) {
+        transactions.assignAll(response.payload.transactions);
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<Order> orders = <Order>[].obs;
+  Future<bool> allOrders() async {
+    try {
+      AllOrdersResponseModel? response = await OrderProvider().allOrders();
+      if (response != null) {
+        orders.assignAll(response.payload.orders);
+        return true;
+      } else {
         return false;
       }
     } catch (e) {
