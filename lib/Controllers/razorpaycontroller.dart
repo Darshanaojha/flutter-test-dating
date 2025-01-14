@@ -1,6 +1,11 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import '../Models/RequestModels/order_request_model.dart';
+import '../Models/RequestModels/transaction_request_model.dart';
+import '../Models/ResponseModels/order_response_model.dart';
+import '../Models/ResponseModels/transaction_response_model.dart';
+import '../Providers/order_provider.dart';
 import '../constants.dart';
 import 'controller.dart';
 
@@ -106,5 +111,36 @@ class RazorpayController extends GetxController {
   void _handleExternalWallet(ExternalWalletResponse response) {
     print("External Wallet Selected: ${response.walletName}");
     _paymentCompleter.complete(false);
+  }
+
+  Future<bool?> createOrder(OrderRequestModel orderRequestModel) async {
+    try {
+      OrderResponseModel? orderResponseModel =
+          await OrderProvider().createOrder(orderRequestModel);
+      if (orderResponseModel == null) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  Future<bool?> transaction(
+      TransactionRequestModel transactionRequestModel) async {
+    try {
+      TransactionResponseModel? transactionResponseModel =
+          await OrderProvider().transaction(transactionRequestModel);
+      if (transactionResponseModel == null) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
   }
 }
