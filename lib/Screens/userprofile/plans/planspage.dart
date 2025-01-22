@@ -171,9 +171,17 @@ class PricingPageState extends State<PricingPage>
                           });
                           showPaymentConfirmationDialog(
                             context,
-                            planId.value,
+                            package.days,
                             offerPercentage,
                           );
+                          razorpaycontroller.orderRequestModel.amount =
+                              offerPercentage.toString();
+                          razorpaycontroller.orderRequestModel.packageId =
+                              package.id;
+                          razorpaycontroller.orderRequestModel.type = '2';
+                          print(razorpaycontroller.orderRequestModel
+                              .toJson()
+                              .toString());
                         },
                         child: Obx(() {
                           bool isSelected = selectedPlan.value == package.id;
@@ -281,10 +289,16 @@ class PricingPageState extends State<PricingPage>
               ),
             ),
             TextButton(
-              onPressed: () {
-                razorpaycontroller.initRazorpay();
-                razorpaycontroller.openPayment(
-                    amount, planId, planId, planId, planId);
+              onPressed: () async {
+                bool? isOrderCreated = await razorpaycontroller
+                    .createOrder(razorpaycontroller.orderRequestModel);
+                if (isOrderCreated == true) {
+                  razorpaycontroller.initRazorpay();
+                  razorpaycontroller.openPayment(
+                      amount, controller.userData.first.name, planId,  controller.userData.first.mobile,  controller.userData.first.email);
+                } else {
+                  failure("Order", "Your Payment Order Is Not Created");
+                }
                 // Get.offAll(NavigationBottomBar());
                 // controller.updatinguserpackage(
                 //     controller.updateNewPackageRequestModel);

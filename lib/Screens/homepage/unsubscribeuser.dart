@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
+import '../../Controllers/razorpaycontroller.dart';
 import '../../constants.dart';
-import '../navigationbar/navigationpage.dart';
 
 class Unsubscribeuser extends StatefulWidget {
   const Unsubscribeuser({super.key});
@@ -16,6 +16,7 @@ class Unsubscribeuser extends StatefulWidget {
 class UnsubscribeuserState extends State<Unsubscribeuser>
     with TickerProviderStateMixin {
   Controller controller = Get.put(Controller());
+  RazorpayController razorpaycontroller = Get.put(RazorpayController());
   late final AnimationController _animationController;
   late final DecorationTween decorationTween;
   double getResponsiveFontSize(double scale) {
@@ -233,6 +234,15 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                                     );
                                     controller.updateNewPackageRequestModel
                                         .packageId = package.id;
+                                    razorpaycontroller.orderRequestModel
+                                        .amount = offerPercentage.toString();
+                                    razorpaycontroller.orderRequestModel
+                                        .packageId = package.id;
+                                    razorpaycontroller.orderRequestModel.type =
+                                        '2';
+                                    print(razorpaycontroller.orderRequestModel
+                                        .toJson()
+                                        .toString());
                                   },
                                   child: Stack(
                                     clipBehavior: Clip.none,
@@ -411,8 +421,20 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
               ),
             ),
             TextButton(
-              onPressed: () {
-                Get.offAll(NavigationBottomBar());
+              onPressed: () async {
+                bool? isOrderCreated = await razorpaycontroller
+                    .createOrder(razorpaycontroller.orderRequestModel);
+                if (isOrderCreated == true) {
+                  razorpaycontroller.initRazorpay();
+                  razorpaycontroller.openPayment(
+                      amount as double,
+                      controller.userData.first.name,
+                      planId,
+                      controller.userData.first.mobile,
+                      controller.userData.first.email);
+                } else {
+                  failure("Order", "Your Payment Order Is Not Created");
+                }
                 controller.updatinguserpackage(
                     controller.updateNewPackageRequestModel);
               },

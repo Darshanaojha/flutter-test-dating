@@ -6,6 +6,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:heart_overlay/heart_overlay.dart';
 import 'package:lottie/lottie.dart';
+import '../../Controllers/razorpaycontroller.dart';
 import '../../Models/ResponseModels/get_all_addon_response_model.dart';
 import '../../Models/ResponseModels/get_all_likes_pages_response.dart';
 import '../../constants.dart';
@@ -18,6 +19,7 @@ class LikesPage extends StatefulWidget {
 }
 
 class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
+   RazorpayController razorpaycontroller = Get.put(RazorpayController());
   List<String> selectedGender = [];
   String selectedLocation = 'All';
   bool isLoading = true;
@@ -275,6 +277,14 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                             selectedIndex.value = index;
                             showAddonDialog(currentAddon);
                             selectedcard = true.obs;
+                              razorpaycontroller.orderRequestModel.amount =
+                              currentAddon.amount.toString();
+                          razorpaycontroller.orderRequestModel.packageId =
+                              currentAddon.id;
+                          razorpaycontroller.orderRequestModel.type = '1';
+                          print(razorpaycontroller.orderRequestModel
+                              .toJson()
+                              .toString());
                           },
                           child: Obx(() {
                             return DecoratedBoxTransition(
@@ -318,6 +328,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                         onPressed: () {
                                           showAddonPointsButton(
                                               currentAddon.addonPoints);
+                                              
                                         },
                                       ),
                                     ],
@@ -398,12 +409,17 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
               ),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async{
                 Get.back();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text('Subscribed to ${currentAddon.title}')),
-                );
+                bool? isOrderCreated = await razorpaycontroller
+                    .createOrder(razorpaycontroller.orderRequestModel);
+                if (isOrderCreated == true) {
+                  razorpaycontroller.initRazorpay();
+                  razorpaycontroller.openPayment(
+                    currentAddon.amount as double, currentAddon.title, controller.userData.first.name,controller.userData.first.mobile,controller.userData.first.email);
+                } else {
+                  failure("Order", "Your Payment Order Is Not Created");
+                }
               },
               child: Text(
                 'Subscribe',
