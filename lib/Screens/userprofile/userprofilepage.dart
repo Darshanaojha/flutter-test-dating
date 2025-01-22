@@ -11,6 +11,8 @@ import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/usernameupdate_request_model.dart';
 import '../settings/appinfopages/appinfopagestart.dart';
 import '../settings/setting.dart';
+import 'Orders/OrdersViewScreen.dart';
+import 'Transactions/TransactionsViewScreen.dart';
 import 'editprofile/edituserprofile.dart';
 import 'membership/userselectedplan.dart';
 
@@ -137,16 +139,80 @@ class UserProfilePageState extends State<UserProfilePage>
                                       controller.userPhotos!.images[index]),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(15),
-                                    child: Image.network(
-                                      controller.userPhotos?.images[index] ??
-                                          '',
-                                      fit: BoxFit.cover,
-                                      width: MediaQuery.of(context).size.width *
-                                          0.2,
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.3,
-                                    ),
+                                    child: controller.userPhotos!.images[index]
+                                            .isNotEmpty
+                                        ? Image.network(
+                                            controller.userPhotos
+                                                    ?.images[index] ??
+                                                '',
+                                            fit: BoxFit.cover,
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.2,
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.3,
+                                            loadingBuilder: (context, child,
+                                                loadingProgress) {
+                                              if (loadingProgress == null) {
+                                                return child; // Image loaded, return the actual image
+                                              } else {
+                                                return Center(
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    value: loadingProgress
+                                                                .expectedTotalBytes !=
+                                                            null
+                                                        ? loadingProgress
+                                                                .cumulativeBytesLoaded /
+                                                            (loadingProgress
+                                                                    .expectedTotalBytes ??
+                                                                1)
+                                                        : null,
+                                                  ),
+                                                ); 
+                                              }
+                                            },
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return Container(
+                                               width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.2,
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.3,
+                                                color: Colors.grey[300],
+                                                alignment: Alignment.center,
+                                                child: Icon(
+                                                  Icons.co_present_rounded,
+                                                  size: 70,
+                                                  color: Colors.grey,
+                                                ),
+                                              );
+                                            },
+                                          )
+                                        : Container(
+                                           width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.2,
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.3,
+                                            color: Colors.grey[300],
+                                            alignment: Alignment.center,
+                                            child: Icon(
+                                              Icons.co_present_rounded,
+                                              size: 50,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
                                   ),
                                 ),
                               );
@@ -437,11 +503,19 @@ class UserProfilePageState extends State<UserProfilePage>
                               },
                             ),
                             SettingCard(
-                              title: 'App Settings',
-                              subtitle: 'Manage app preferences',
-                              icon: Icons.settings,
+                              title: 'Your Orders',
+                              subtitle: 'See Your All Orders',
+                              icon: Icons.plagiarism_outlined,
                               onTap: () {
-                                Get.to(SettingsPage());
+                                Get.to(AllOrdersPage());
+                              },
+                            ),
+                            SettingCard(
+                              title: 'Transactions',
+                              subtitle: 'See Your All Transactions',
+                              icon: Icons.monetization_on_outlined,
+                              onTap: () {
+                                Get.to(AllTransactionsPage());
                               },
                             ),
                             SettingCard(

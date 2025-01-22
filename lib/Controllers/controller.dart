@@ -166,6 +166,7 @@ import '../Providers/user_suggestions_provider.dart';
 import '../Providers/usernameupdate_provider.dart';
 import '../Providers/verify_account_provider.dart';
 import '../Screens/login.dart';
+import '../Screens/navigationbar/navigationpage.dart';
 import '../Screens/register_subpag/registerdetails.dart';
 import '../Screens/register_subpag/registrationotp.dart';
 import '../Screens/settings/updateemailid/updateemailotpverification.dart';
@@ -1543,6 +1544,7 @@ class Controller extends GetxController {
           .updatingpackage(updateNewPackageRequestModel);
       if (response != null && response.success == true) {
         success('success', response.payload.message);
+        Get.offAll(NavigationBottomBar());
         EncryptedSharedPreferences preferences =
             EncryptedSharedPreferences.getInstance();
         await preferences.setString('package_status', "1");
