@@ -3,23 +3,20 @@ class AllOrdersResponseModel {
   Payload payload;
   Error error;
 
-  // Constructor
   AllOrdersResponseModel({
     required this.success,
     required this.payload,
     required this.error,
   });
 
-  // Factory constructor to create an instance from JSON
   factory AllOrdersResponseModel.fromJson(Map<String, dynamic> json) {
     return AllOrdersResponseModel(
-      success: json['success'],
-      payload: Payload.fromJson(json['payload']),
-      error: Error.fromJson(json['error']),
+      success: json['success'] ?? false,
+      payload: Payload.fromJson(json['payload'] ?? {}),
+      error: Error.fromJson(json['error'] ?? {}),
     );
   }
 
-  // Method to convert AllOrdersResponseModel to JSON
   Map<String, dynamic> toJson() {
     return {
       'success': success,
@@ -37,9 +34,10 @@ class Payload {
 
   // Factory constructor to create Payload instance from JSON
   factory Payload.fromJson(Map<String, dynamic> json) {
-    var ordersList = (json['orders'] as List)
-        .map((orderJson) => Order.fromJson(orderJson))
-        .toList();
+    var ordersList = (json['orders'] as List?)
+            ?.map((orderJson) => Order.fromJson(orderJson))
+            .toList() ??
+        []; // Handle null 'orders' or empty list
 
     return Payload(orders: ordersList);
   }
@@ -98,29 +96,28 @@ class Order {
     required this.updated,
   });
 
-  // Factory constructor to create an Order instance from JSON
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
-      id: json['id'],
-      userId: json['user_id'],
-      packageId: json['package_id'],
-      type: json['type'],
-      amount: json['amount'],
-      packageTitle: json['package_title'],
-      packageCategoryId: json['package_category_id'],
-      packageCategoryTitle: json['package_category_title'],
-      packageCategoryDescription: json['package_category_description'],
-      days: json['days'],
-      actualAmount: json['actual_amount'],
-      offerAmount: json['offer_amount'],
-      unit: json['unit'],
-      addonTitle: json['addon_title'],
-      addonDuration: json['addon_duration'],
-      addonDurationUnit: json['addon_duration_unit'],
-      addonAmount: json['addon_amount'],
-      status: json['status'],
-      created: json['created'],
-      updated: json['updated'],
+      id: json['id'] ?? '', 
+      userId: json['user_id'] ?? '',
+      packageId: json['package_id'] ?? '',
+      type: json['type'] ?? '',
+      amount: _parseAmount(json['amount']), 
+      packageTitle: json['package_title'] ?? '',
+      packageCategoryId: json['package_category_id'] ?? '',
+      packageCategoryTitle: json['package_category_title'] ?? '',
+      packageCategoryDescription: json['package_category_description'] ?? '',
+      days: json['days'] ?? '',
+      actualAmount: json['actual_amount'] ?? '',
+      offerAmount: json['offer_amount'] ?? '',
+      unit: json['unit'] ?? '',
+      addonTitle: json['addon_title'] ?? '',
+      addonDuration: json['addon_duration'] ?? '',
+      addonDurationUnit: json['addon_duration_unit'] ?? '',
+      addonAmount: json['addon_amount'] ?? '',
+      status: json['status'] ?? '',
+      created: json['created'] ?? '', // Handle missing 'created'
+      updated: json['updated'] ?? '', // Handle missing 'updated'
     );
   }
 
@@ -149,20 +146,27 @@ class Order {
       'updated': updated,
     };
   }
+
+  static String _parseAmount(dynamic amount) {
+    if (amount == null) {
+      return '0'; 
+    } else if (amount is int) {
+      return amount.toString(); 
+    } else if (amount is String) {
+      return amount;
+    }
+    return '0'; 
+  }
 }
 
 class Error {
   String code;
   String message;
-
-  // Constructor
   Error({required this.code, required this.message});
-
-  // Factory constructor to create Error instance from JSON
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
-      code: json['code'],
-      message: json['message'],
+      code: json['code'] ?? '', 
+      message: json['message'] ?? '', 
     );
   }
 

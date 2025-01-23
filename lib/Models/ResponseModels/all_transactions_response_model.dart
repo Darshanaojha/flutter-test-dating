@@ -3,23 +3,20 @@ class AllTransactionsResponseModel {
   Payload payload;
   Error error;
 
-  // Constructor
   AllTransactionsResponseModel({
     required this.success,
     required this.payload,
     required this.error,
   });
 
-  // Factory constructor to create an instance from JSON
   factory AllTransactionsResponseModel.fromJson(Map<String, dynamic> json) {
     return AllTransactionsResponseModel(
-      success: json['success'],
+      success: json['success'] ?? false, 
       payload: Payload.fromJson(json['payload']),
-      error: Error.fromJson(json['error']),
+      error: Error.fromJson(json['error'] ?? {}), 
     );
   }
 
-  // Method to convert AllTransactionsResponseModel to JSON
   Map<String, dynamic> toJson() {
     return {
       'success': success,
@@ -32,26 +29,23 @@ class AllTransactionsResponseModel {
 class Payload {
   List<Transaction> transactions;
 
-  // Constructor
   Payload({required this.transactions});
 
-  // Factory constructor to create Payload instance from JSON
   factory Payload.fromJson(Map<String, dynamic> json) {
-    var transactionsList = (json['transactions'] as List)
-        .map((transactionJson) => Transaction.fromJson(transactionJson))
-        .toList();
+    var transactionsList = (json['transactions'] as List?)
+            ?.map((transactionJson) => Transaction.fromJson(transactionJson))
+            .toList() ??
+        [];
 
     return Payload(transactions: transactionsList);
   }
 
-  // Method to convert Payload to JSON
   Map<String, dynamic> toJson() {
     return {
       'transactions': transactions.map((transaction) => transaction.toJson()).toList(),
     };
   }
 }
-
 class Transaction {
   String id;
   String userId;
@@ -66,7 +60,7 @@ class Transaction {
   String created;
   String updated;
 
-  // Constructor
+
   Transaction({
     required this.id,
     required this.userId,
@@ -82,25 +76,24 @@ class Transaction {
     required this.updated,
   });
 
-  // Factory constructor to create Transaction instance from JSON
+
   factory Transaction.fromJson(Map<String, dynamic> json) {
     return Transaction(
-      id: json['id'],
-      userId: json['user_id'],
-      orderId: json['order_id'],
-      packageId: json['package_id'],
-      type: json['type'],
-      razorpayOrderId: json['razorpay_order_id'],
-      razorpayPaymentId: json['razorpay_payment_id'],
-      paymentStatus: json['payment_status'],
-      paymentMethod: json['payment_method'],
-      amount: json['amount'],
-      created: json['created'],
-      updated: json['updated'],
+      id: json['id'] ?? '',
+      userId: json['user_id'] ?? '',
+      orderId: json['order_id'] ?? '',
+      packageId: json['package_id'] ?? '',
+      type: json['type'] ?? '',
+      razorpayOrderId: json['razorpay_order_id'] ?? '',
+      razorpayPaymentId: json['razorpay_payment_id'] ?? '',
+      paymentStatus: json['payment_status'] ?? '',
+      paymentMethod: json['payment_method'] ?? '',
+      amount: _parseAmount(json['amount']),
+      created: json['created']?.toString() ?? '', 
+      updated: json['updated']?.toString() ?? '', 
     );
   }
 
-  // Method to convert Transaction to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -117,7 +110,21 @@ class Transaction {
       'updated': updated,
     };
   }
+
+  static String _parseAmount(dynamic amount) {
+    if (amount == null) {
+      return '0'; 
+    } else if (amount is int) {
+      return amount.toString();
+    } else if (amount is double) {
+      return amount.toStringAsFixed(2); 
+    } else if (amount is String) {
+      return amount; 
+    }
+    return '0'; 
+  }
 }
+
 
 class Error {
   String code;
@@ -129,8 +136,8 @@ class Error {
   // Factory constructor to create Error instance from JSON
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
-      code: json['code'],
-      message: json['message'],
+      code: json['code'] ?? '',
+      message: json['message'] ?? '',
     );
   }
 

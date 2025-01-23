@@ -1,5 +1,8 @@
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../../Controllers/controller.dart';
 
 class AllOrdersPage extends StatefulWidget {
   const AllOrdersPage({super.key});
@@ -9,39 +12,18 @@ class AllOrdersPage extends StatefulWidget {
 }
 
 class AllOrdersPageState extends State<AllOrdersPage> {
-  Future<Map<String, dynamic>> fetchOrders() async {
-    await Future.delayed(Duration(seconds: 2));
-    return {
-      "success": true,
-      "payload": {
-        "orders": [
-          {
-            "id": "1",
-            "user_id": "fb958dd6-2751-4341-914d-9c8bfc1ead8f",
-            "package_id": "232d53f3-8ef7-44c7-bacf-91e19e1eb31c",
-            "type": "2",
-            "amount": "100.00",
-            "package_title": "Package One",
-            "package_category_id": "a77e5350-fb9c-4b9f-ad8e-5b9af56718ef",
-            "package_category_title": "Category One",
-            "package_category_description":
-                "We are thrilled to announce our strategic partnership.",
-            "days": "30",
-            "actual_amount": "120",
-            "offer_amount": "100",
-            "unit": "days",
-            "addon_title": null,
-            "addon_duration": null,
-            "addon_duration_unit": null,
-            "addon_amount": null,
-            "status": "1",
-            "created": "2025-01-14 10:39:34",
-            "updated": "2025-01-14 10:39:34"
-          },
-        ]
-      },
-      "error": {"code": 0, "message": ""}
-    };
+  Controller controller = Get.put(Controller());
+  late Future<bool> _fetchallorders;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchallorders = initializeData();
+  }
+
+  Future<bool> initializeData() async {
+    if (!await controller.allOrders()) return false;
+    return true;
   }
 
   @override
@@ -52,8 +34,8 @@ class AllOrdersPageState extends State<AllOrdersPage> {
         backgroundColor: AppColors.accentColor,
         foregroundColor: AppColors.textColor,
       ),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: fetchOrders(),
+      body: FutureBuilder<bool>(
+        future: _fetchallorders,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -63,16 +45,16 @@ class AllOrdersPageState extends State<AllOrdersPage> {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
 
-          if (!snapshot.hasData || !snapshot.data!["success"]) {
+          if (!snapshot.hasData || !snapshot.data!) {
             return Center(child: Text('No Orders Found.'));
           }
-          List<dynamic> orders = snapshot.data!['payload']['orders'];
 
           return ListView.builder(
-            itemCount: orders.length,
+            itemCount: controller.orders.length,
             itemBuilder: (context, index) {
-              var order = orders[index];
+              var order = controller.orders[index];
 
+              // Handle null values using the null-aware operator ?? for each field
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Card(
@@ -87,7 +69,7 @@ class AllOrdersPageState extends State<AllOrdersPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          order['package_title'] ?? 'No Title',
+                          order.packageTitle ?? 'Unknown Package',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -95,7 +77,7 @@ class AllOrdersPageState extends State<AllOrdersPage> {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'Package Category: ${order['package_category_title'] ?? 'Unknown'}',
+                          'Package Category: ${order.packageCategoryTitle ?? 'Unknown'}',
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.grey[600],
@@ -103,7 +85,7 @@ class AllOrdersPageState extends State<AllOrdersPage> {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'Amount: \$${order['amount'] ?? '0.00'}',
+                          'Amount: \$${order.actualAmount ?? '0.00'}',
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.green,
@@ -111,7 +93,7 @@ class AllOrdersPageState extends State<AllOrdersPage> {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'Days: ${order['days'] ?? '0'} ${order['unit'] ?? ''}',
+                          'Days: ${order.days ?? '0'} ${order.unit ?? ''}',
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.blue,
@@ -119,12 +101,11 @@ class AllOrdersPageState extends State<AllOrdersPage> {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'Status: ${order['status'] == '1' ? 'Active' : 'Inactive'}',
+                          'Status: ${order.status == '1' ? 'Active' : 'Inactive'}',
                           style: TextStyle(
                             fontSize: 16,
-                            color: order['status'] == '1'
-                                ? Colors.green
-                                : Colors.red,
+                            color:
+                                order.status == '1' ? Colors.green : Colors.red,
                           ),
                         ),
                         SizedBox(height: 10),
@@ -132,7 +113,7 @@ class AllOrdersPageState extends State<AllOrdersPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Created: ${order['created'] ?? 'Unknown'}',
+                              'Created: ${order.created ?? 'N/A'}',
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey[500],
@@ -142,7 +123,7 @@ class AllOrdersPageState extends State<AllOrdersPage> {
                               icon: Icon(Icons.info_outline),
                               onPressed: () {
                                 print(
-                                    'View more details for order ${order['id']}');
+                                    'View more details for order ${order.id ?? 'Unknown'}');
                               },
                             ),
                           ],

@@ -15,6 +15,9 @@ class RazorpayController extends GetxController {
   late Razorpay razorpay;
   late Completer<bool> _paymentCompleter;
   Controller controller = Get.put(Controller());
+  RazorpayController() {
+    _paymentCompleter = Completer<bool>();
+  }
 
   void initRazorpay() {
     razorpay = Razorpay();
@@ -67,45 +70,43 @@ class RazorpayController extends GetxController {
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
-    try {
-      response.toString();
-      EncryptedSharedPreferences preferences =
-          await EncryptedSharedPreferences.getInstance();
-      String? orderid = preferences.getString('OrderId');
-      if (orderid != null) {
-        transactionRequestModel.orderId = orderid;
-      }
-      Map<dynamic, dynamic>? responseData = response.data;
-      if (responseData != null) {
-        transactionRequestModel.packageId = orderRequestModel.packageId;
-        transactionRequestModel.type = orderRequestModel.type;
-        transactionRequestModel.razorPayOrderId = response.orderId ?? '';
-        transactionRequestModel.razorPayPaymentId = response.paymentId ?? '';
-        transactionRequestModel.paymentStatus =
-            responseData['status'] ?? 'unknown';
-        transactionRequestModel.paymentMethod =
-            responseData['method'] ?? 'unknown';
-        transactionRequestModel.amount =
-            (double.tryParse(responseData['amount']?.toString() ?? '') ?? 0.0)
-                .toString();
-        transactionRequestModel.created =
-            responseData['created']?.toString() ?? '';
-        transactionRequestModel.updated =
-            responseData['updated']?.toString() ?? '';
-      }
-      transaction(transactionRequestModel);
-
-      print("Payment Success: ${response.paymentId}");
-      _paymentCompleter.complete(true);
-    } catch (e) {
-      print("Error handling payment success: $e");
-      _paymentCompleter.complete(false);
+  try {
+    print(response.toString());
+    
+    EncryptedSharedPreferences preferences = await EncryptedSharedPreferences.getInstance();
+    String? orderid = preferences.getString('OrderId');
+    if (orderid != null) {
+      transactionRequestModel.orderId = orderid;
     }
+
+    Map<dynamic, dynamic>? responseData = response.data;
+    if (responseData != null) {
+      transactionRequestModel.packageId = orderRequestModel.packageId;
+      transactionRequestModel.type = orderRequestModel.type;
+      transactionRequestModel.razorPayOrderId = response.orderId ?? '';
+      transactionRequestModel.razorPayPaymentId = response.paymentId ?? '';
+      transactionRequestModel.paymentStatus = responseData['status'] ?? 'unknown';
+      transactionRequestModel.paymentMethod = responseData['method'] ?? 'unknown';
+      double amount = (double.tryParse(responseData['amount']?.toString() ?? '0.0') ?? 0.0) / 100;  
+      print("Amount from response: ${responseData['amount']}");  
+      transactionRequestModel.amount = amount.toStringAsFixed(2); 
+      transactionRequestModel.created = DateTime.now().toIso8601String();  
+      transactionRequestModel.updated = responseData['updated']?.toString() ?? DateTime.now().toIso8601String();  
+    }
+
+    transaction(transactionRequestModel);
+    print("transaction details= ${transactionRequestModel.toJson().toString()}");
+    print("Payment Success: ${response.paymentId}");
+    _paymentCompleter.complete(true);
+  } catch (e) {
+    print("Error handling payment success: $e");
+    _paymentCompleter.complete(false);
   }
+}
+
 
   void _handlePaymentError(PaymentFailureResponse response) async {
-          response.toString();
-
+    print(response.toString());
     print(
         "Payment Failed: Code: ${response.code}, Message: ${response.message}");
     String errorMessage = 'Payment Failed. Please try again later.';
@@ -163,6 +164,8 @@ class RazorpayController extends GetxController {
     transactionRequestModel.updated = DateTime.now().toString();
     print("Transaction Failure Data: ${transactionRequestModel.toJson()}");
     transaction(transactionRequestModel);
+    print(
+        "transaction details= ${transactionRequestModel.toJson().toString()}");
 
     // Show the error dialog
     _showErrorDialog(errorMessage);
@@ -206,14 +209,13 @@ class RazorpayController extends GetxController {
       OrderResponseModel? orderResponseModel =
           await OrderProvider().createOrder(orderRequestModel);
       if (orderResponseModel == null) {
+        return false;
+      } else {
         EncryptedSharedPreferences preferences =
             EncryptedSharedPreferences.getInstance();
 
         await preferences.setString(
-            'OrderId', orderResponseModel!.payload.orderId);
-
-        return false;
-      } else {
+            'OrderId', orderResponseModel.payload.orderId);
         return true;
       }
     } catch (e) {
@@ -242,6 +244,7 @@ class RazorpayController extends GetxController {
       if (transactionResponseModel == null) {
         return false;
       } else {
+        Get.close(4);
         return true;
       }
     } catch (e) {

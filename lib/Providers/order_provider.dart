@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get_connect.dart';
 
@@ -19,7 +21,7 @@ class OrderProvider extends GetConnect {
       if (token == null || token == "") {
         return null;
       }
-
+      print(orderRequestModel.toJson().toString());
       Response response = await post(
         '$baseurl/RazorpayController/createOrder',
         orderRequestModel.toJson(),
@@ -28,6 +30,7 @@ class OrderProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+      print(response.body.toString());
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return OrderResponseModel.fromJson(response.body);
@@ -54,7 +57,7 @@ class OrderProvider extends GetConnect {
       if (token == null || token == "") {
         return null;
       }
-
+    print("transaction Request= ${transactionRequestModel.toJson().toString()}");
       Response response = await post(
         '$baseurl/RazorpayController/Transaction',
         transactionRequestModel.toJson(),
@@ -64,6 +67,7 @@ class OrderProvider extends GetConnect {
         },
       );
       if (response.statusCode == 200) {
+         print("transaction Response= ${response.body.toString()}");
         if (response.body['error']['code'] == 0) {
           return TransactionResponseModel.fromJson(response.body);
         } else {
@@ -98,6 +102,7 @@ class OrderProvider extends GetConnect {
         },
       );
       if (response.statusCode == 200) {
+        print("Rsponse of get all Transaction=${response.body.toString()}");
         if (response.body['error']['code'] == 0) {
           return AllTransactionsResponseModel.fromJson(response.body);
         } else {
@@ -124,7 +129,7 @@ class OrderProvider extends GetConnect {
       }
 
       Response response = await post(
-        '$baseurl/RazorpayController/Transaction',
+        '$baseurl/RazorpayController/allOrders',
         null,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -132,6 +137,7 @@ class OrderProvider extends GetConnect {
         },
       );
       if (response.statusCode == 200) {
+        print("Rsponse of get all Orders=${response.body.toString()}");
         if (response.body['error']['code'] == 0) {
           return AllOrdersResponseModel.fromJson(response.body);
         } else {

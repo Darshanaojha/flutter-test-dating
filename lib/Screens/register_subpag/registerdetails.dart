@@ -323,46 +323,46 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                               success(
                                   'Success', 'Form submitted successfully!');
                             }
-                            Get.snackbar(
-                                'name',
-                                controller.userRegistrationRequest.name
-                                    .toString());
-                            Get.snackbar(
-                                'email',
-                                controller.userRegistrationRequest.email
-                                    .toString());
-                            Get.snackbar(
-                                'email',
-                                controller.userRegistrationRequest.username
-                                    .toString());
-                            Get.snackbar(
-                                'mobile',
-                                controller.userRegistrationRequest.mobile
-                                    .toString());
-                            Get.snackbar(
-                                'address',
-                                controller.userRegistrationRequest.address
-                                    .toString());
-                            Get.snackbar(
-                                'password',
-                                controller.userRegistrationRequest.password
-                                    .toString());
-                            Get.snackbar(
-                                'country',
-                                controller.userRegistrationRequest.countryId
-                                    .toString());
-                            Get.snackbar(
-                                'city',
-                                controller.userRegistrationRequest.city
-                                    .toString());
-                            Get.snackbar(
-                                'latitude',
-                                controller.userRegistrationRequest.latitude
-                                    .toString());
-                            Get.snackbar(
-                                'longitude',
-                                controller.userRegistrationRequest.longitude
-                                    .toString());
+                            // Get.snackbar(
+                            //     'name',
+                            //     controller.userRegistrationRequest.name
+                            //         .toString());
+                            // Get.snackbar(
+                            //     'email',
+                            //     controller.userRegistrationRequest.email
+                            //         .toString());
+                            // Get.snackbar(
+                            //     'username',
+                            //     controller.userRegistrationRequest.username
+                            //         .toString());
+                            // Get.snackbar(
+                            //     'mobile',
+                            //     controller.userRegistrationRequest.mobile
+                            //         .toString());
+                            // Get.snackbar(
+                            //     'address',
+                            //     controller.userRegistrationRequest.address
+                            //         .toString());
+                            // Get.snackbar(
+                            //     'password',
+                            //     controller.userRegistrationRequest.password
+                            //         .toString());
+                            // Get.snackbar(
+                            //     'country',
+                            //     controller.userRegistrationRequest.countryId
+                            //         .toString());
+                            // Get.snackbar(
+                            //     'city',
+                            //     controller.userRegistrationRequest.city
+                            //         .toString());
+                            // Get.snackbar(
+                            //     'latitude',
+                            //     controller.userRegistrationRequest.latitude
+                            //         .toString());
+                            // Get.snackbar(
+                            //     'longitude',
+                            //     controller.userRegistrationRequest.longitude
+                            //         .toString());
                           },
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.symmetric(
@@ -522,11 +522,14 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
       failure("Invalid Address", "Address cannot be empty.");
       return false;
     }
-    if (!RegExp(r'^[a-zA-Z0-9\s]+$').hasMatch(address)) {
+    if (!RegExp(r'^[a-zA-Z0-9\s,.-_]+$').hasMatch(address)) {
       failure(
-          "Invalid Address", "Address must contain only letters and numbers.");
+        "Invalid Address",
+        "Address must contain only letters, numbers, and allowed special characters like commas, periods, hyphens, and underscores.",
+      );
       return false;
     }
+
     return true;
   }
 
