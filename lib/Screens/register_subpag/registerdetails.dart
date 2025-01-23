@@ -186,16 +186,22 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           isusernameField: true,
                         ),
 
-                        buildTextField("Address", null, (value) {
-                          if (_validateAddress(value)) {
+                        buildTextField(
+                          "Address",
+                          controller.userRegistrationRequest
+                              .address, // You can pass the initial value here
+                          (value) {
+                            // Handle onChanged
                             controller.userRegistrationRequest.address = value;
-                          } else {
-                            failure("Invalid Address",
-                                "Address must contain only letters and numbers.");
-                          }
-                        }, (value) {
-                          controller.userRegistrationRequest.address = value;
-                        }, fontSize),
+                          },
+                          (value) {
+                            // Handle onSaved (this is typically used for form submission)
+                            controller.userRegistrationRequest.address = value;
+                          },
+                          16.0, // fontSize
+                          isaddressfield:
+                              true, // Mark this field as the address field
+                        ),
                         // City Field
                         buildTextField(
                           "City",
@@ -469,6 +475,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     bool enabled = true,
     bool isCityField = false,
     bool isusernameField = false,
+    bool isaddressfield = false,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -486,6 +493,36 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           if (isusernameField && !RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
             failure('UserName', 'User name must only contain letters');
             return 'User name must only contain letters';
+          }
+          if (isaddressfield) {
+            if (value == null || value.isEmpty) {
+              failure("Invalid Address", "Address cannot be empty.");
+              return "Address cannot be empty";
+            }
+            if (RegExp(r'^[0-9]+$').hasMatch(value)) {
+              failure(
+                  "Invalid Address", "Address cannot contain only numbers.");
+              return "Address cannot contain only numbers.";
+            }
+            if (RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+              failure(
+                  "Invalid Address", "Address cannot contain only letters.");
+              return "Address cannot contain only letters.";
+            }
+            if (RegExp(r'^[^\w\s]+$').hasMatch(value)) {
+              failure("Invalid Address",
+                  "Address cannot contain only special characters.");
+              return "Address cannot contain only special characters.";
+            }
+            if (!RegExp(
+                    r'^(?=.*[a-zA-Z])(?=.*\d)(?=.*[,\.\-_])[a-zA-Z0-9,\.\-_]+$')
+                .hasMatch(value)) {
+              failure(
+                "Invalid Address",
+                "Address must contain a combination of letters, numbers, and special characters (e.g., commas, periods, hyphens, and underscores).",
+              );
+              return "Address must contain a combination of letters, numbers, and special characters";
+            }
           }
 
           return null;
@@ -517,22 +554,35 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     );
   }
 
- bool _validateAddress(String address) {
-  if (address.isEmpty) {
-    failure("Invalid Address", "Address cannot be empty.");
-    return false;
-  }
-  if (!RegExp(r'^(?=.*[a-zA-Z])(?=.*\d)(?=.*[,\.\-_])[a-zA-Z0-9,\.\-_]+$').hasMatch(address)) {
-    failure(
-      "Invalid Address",
-      "Address must contain a combination of letters, numbers, and special characters (e.g., commas, periods, hyphens, and underscores).",
-    );
-    return false;
-  }
+  bool _validateAddress(String address) {
+    if (address.isEmpty) {
+      failure("Invalid Address", "Address cannot be empty.");
+      return false;
+    }
+    if (RegExp(r'^[0-9]+$').hasMatch(address)) {
+      failure("Invalid Address", "Address cannot contain only numbers.");
+      return false;
+    }
+    if (RegExp(r'^[a-zA-Z]+$').hasMatch(address)) {
+      failure("Invalid Address", "Address cannot contain only letters.");
+      return false;
+    }
+    if (RegExp(r'^[^\w\s]+$').hasMatch(address)) {
+      failure(
+          "Invalid Address", "Address cannot contain only special characters.");
+      return false;
+    }
+    if (!RegExp(r'^(?=.*[a-zA-Z])(?=.*\d)(?=.*[,\.\-_])[a-zA-Z0-9,\.\-_]+$')
+        .hasMatch(address)) {
+      failure(
+        "Invalid Address",
+        "Address must contain a combination of letters, numbers, and special characters (e.g., commas, periods, hyphens, and underscores).",
+      );
+      return false;
+    }
 
-  return true;
-}
-
+    return true;
+  }
 
   void validatePassword(String password) {
     if (password.length < 8) {
