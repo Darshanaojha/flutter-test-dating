@@ -314,18 +314,22 @@ class EditProfilePageState extends State<EditProfilePage>
     return null;
   }
 
-  String? validateAddress(String value) {
-    if (value.isEmpty) {
-      return 'Address cannot be empty';
-    }
-    if (value.length < 5) {
-      return 'Address should be at least 5 characters long';
-    }
-    if (!RegExp(r'^[a-zA-Z0-9\s,.-_]+$').hasMatch(value)) {
-      return 'Address must contain only letters, numbers, and allowed special characters (spaces, commas, periods, hyphens, and underscores)';
-    }
-    return null;
+ String? validateAddress(String value) {
+  if (value.isEmpty) {
+    return 'Address cannot be empty';
   }
+  if (value.length < 5) {
+    return 'Address should be at least 5 characters long';
+  }
+
+  if (!RegExp(r'^(?=.*[a-zA-Z])(?=.*\d)(?=.*[,\.\-_])[a-zA-Z0-9,\.\-_]+$').hasMatch(value)) {
+    failure("Address", "Address must contain a combination of letters, numbers, and special characters (e.g., commas, periods, hyphens, and underscores).");
+    return 'Address must contain a combination of letters, numbers, and special characters (e.g., commas, periods, hyphens, and underscores).';
+  }
+
+  return null;  // No errors, validation is successful
+}
+
 
   String? validateCountryId(String value) {
     if (value.isEmpty) {

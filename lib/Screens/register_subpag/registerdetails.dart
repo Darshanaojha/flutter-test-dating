@@ -517,21 +517,22 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     );
   }
 
-  bool _validateAddress(String address) {
-    if (address.isEmpty) {
-      failure("Invalid Address", "Address cannot be empty.");
-      return false;
-    }
-    if (!RegExp(r'^[a-zA-Z0-9\s,.-_]+$').hasMatch(address)) {
-      failure(
-        "Invalid Address",
-        "Address must contain only letters, numbers, and allowed special characters like commas, periods, hyphens, and underscores.",
-      );
-      return false;
-    }
-
-    return true;
+ bool _validateAddress(String address) {
+  if (address.isEmpty) {
+    failure("Invalid Address", "Address cannot be empty.");
+    return false;
   }
+  if (!RegExp(r'^(?=.*[a-zA-Z])(?=.*\d)(?=.*[,\.\-_])[a-zA-Z0-9,\.\-_]+$').hasMatch(address)) {
+    failure(
+      "Invalid Address",
+      "Address must contain a combination of letters, numbers, and special characters (e.g., commas, periods, hyphens, and underscores).",
+    );
+    return false;
+  }
+
+  return true;
+}
+
 
   void validatePassword(String password) {
     if (password.length < 8) {
