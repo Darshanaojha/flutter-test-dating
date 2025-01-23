@@ -159,7 +159,7 @@ class PricingPageState extends State<PricingPage>
                     final package = controller.packages[index];
                     double offerPercentage = calculateOfferPercentage(
                         package.actualAmount, package.offerAmount);
-
+                    double amount = double.tryParse(package.offerAmount) ?? 0.0; 
                     return Padding(
                       padding:
                           EdgeInsets.symmetric(horizontal: 12, vertical: 3),
@@ -172,10 +172,10 @@ class PricingPageState extends State<PricingPage>
                           showPaymentConfirmationDialog(
                             context,
                             package.days,
-                            offerPercentage,
+                            amount
                           );
                           razorpaycontroller.orderRequestModel.amount =
-                              offerPercentage.toString();
+                              package.offerAmount.toString();
                           razorpaycontroller.orderRequestModel.packageId =
                               package.id;
                           razorpaycontroller.orderRequestModel.type = '2';

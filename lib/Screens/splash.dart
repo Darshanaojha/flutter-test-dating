@@ -96,6 +96,8 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
         await controller.likesuserpage();
         await controller.fetchallpingrequestmessage();
         await controller.fetchAllAddOn();
+        await controller.allOrders();
+        await controller.allTransactions();
 
         if (packageStatus != null && packageStatus.isNotEmpty) {
           if (packageStatus == "1") {

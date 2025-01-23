@@ -321,6 +321,9 @@ class EditProfilePageState extends State<EditProfilePage>
     if (value.length < 5) {
       return 'Address should be at least 5 characters long';
     }
+    if (!RegExp(r'^[a-zA-Z0-9\s,.-_]+$').hasMatch(value)) {
+      return 'Address must contain only letters, numbers, and allowed special characters (spaces, commas, periods, hyphens, and underscores)';
+    }
     return null;
   }
 
