@@ -152,6 +152,26 @@ class OTPInputPageState extends State<OTPInputPage> {
                         style: AppTextStyles.buttonText.copyWith(fontSize: fontSize),
                       ),
                     ),
+                    SizedBox(height: 20),
+                      ElevatedButton(
+                      onPressed: ()async{
+                         if(controller.forgetPasswordRequest.validate()){
+                            await controller.getOtpForgetPassword(
+                              controller.forgetPasswordRequest);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.buttonColor,
+                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        'Resend Otp',
+                        style: AppTextStyles.buttonText.copyWith(fontSize: fontSize),
+                      ),
+                    ),
                   ],
                 ),
               ),
