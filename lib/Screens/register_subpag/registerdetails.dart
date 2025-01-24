@@ -504,25 +504,12 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                   "Invalid Address", "Address cannot contain only numbers.");
               return "Address cannot contain only numbers.";
             }
-            if (RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-              failure(
-                  "Invalid Address", "Address cannot contain only letters.");
-              return "Address cannot contain only letters.";
-            }
             if (RegExp(r'^[^\w\s]+$').hasMatch(value)) {
               failure("Invalid Address",
                   "Address cannot contain only special characters.");
               return "Address cannot contain only special characters.";
             }
-            if (!RegExp(
-                    r'^(?=.*[a-zA-Z])(?=.*\d)(?=.*[,\.\-_])[a-zA-Z0-9,\.\-_]+$')
-                .hasMatch(value)) {
-              failure(
-                "Invalid Address",
-                "Address must contain a combination of letters, numbers, and special characters (e.g., commas, periods, hyphens, and underscores).",
-              );
-              return "Address must contain a combination of letters, numbers, and special characters";
-            }
+        
           }
 
           return null;
