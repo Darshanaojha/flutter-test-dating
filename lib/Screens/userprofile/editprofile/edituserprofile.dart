@@ -315,33 +315,25 @@ class EditProfilePageState extends State<EditProfilePage>
   }
 
   String? validateAddress(String value) {
-  if (value.isEmpty) {
-    failure("Invalid Address", "Address cannot be empty.");
-    return 'Address cannot be empty';
-  }
+    if (value.isEmpty) {
+      failure("Invalid Address", "Address cannot be empty.");
+      return 'Address cannot be empty';
+    }
 
-  if (RegExp(r'^[0-9]+$').hasMatch(value)) {
-    failure("Invalid Address", "Address cannot contain only numbers.");
-    return "Address cannot contain only numbers.";
-  }
-  if (RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-    failure("Invalid Address", "Address cannot contain only letters.");
-    return "Address cannot contain only letters.";
-  }
+    if (RegExp(r'^[0-9]+$').hasMatch(value)) {
+      failure("Invalid Address", "Address cannot contain only numbers.");
+      return "Address cannot contain only numbers.";
+    }
 
-  if (RegExp(r'^[^\w\s]+$').hasMatch(value)) {
-    failure("Invalid Address", "Address cannot contain only special characters.");
-    return "Address cannot contain only special characters.";
-  }
-  if (!RegExp(r'^(?=.*[a-zA-Z])(?=.*\d)(?=.*[,\.\-_])[a-zA-Z0-9,\.\-_]+$').hasMatch(value)) {
-    failure("Invalid Address",
-        "Address must contain a combination of letters, numbers, and special characters (e.g., commas, periods, hyphens, and underscores).");
-    return "Address must contain a combination of letters, numbers, and special characters (e.g., commas, periods, hyphens, and underscores).";
-  }
+    if (RegExp(r'^[^\w\s]+$').hasMatch(value)) {
+      failure(
+          "Invalid Address", "Address cannot contain only special characters.");
+      return "Address cannot contain only special characters.";
+    }
+   
 
-  return null; 
-}
-
+    return null;
+  }
 
   String? validateCountryId(String value) {
     if (value.isEmpty) {
@@ -1034,7 +1026,6 @@ class EditProfilePageState extends State<EditProfilePage>
                                     validator: (value) {
                                       return validateAddress(value);
                                     },
-                                    
                                   ),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
