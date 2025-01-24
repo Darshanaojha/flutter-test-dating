@@ -509,7 +509,12 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                   "Address cannot contain only special characters.");
               return "Address cannot contain only special characters.";
             }
-        
+            if (RegExp(r'(?=.*[0-9])(?=.*[^\w\s])').hasMatch(value)) {
+              failure("Invalid Address",
+                  "Address cannot contain only special characters and numbers.");
+
+              return "Address cannot contain only special characters and numbers.";
+            }
           }
 
           return null;
