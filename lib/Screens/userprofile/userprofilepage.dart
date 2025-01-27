@@ -171,20 +171,20 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                 1)
                                                         : null,
                                                   ),
-                                                ); 
+                                                );
                                               }
                                             },
                                             errorBuilder:
                                                 (context, error, stackTrace) {
                                               return Container(
-                                               width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.2,
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.3,
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.2,
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .height *
+                                                    0.3,
                                                 color: Colors.grey[300],
                                                 alignment: Alignment.center,
                                                 child: Icon(
@@ -196,7 +196,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                             },
                                           )
                                         : Container(
-                                           width: MediaQuery.of(context)
+                                            width: MediaQuery.of(context)
                                                     .size
                                                     .width *
                                                 0.2,
@@ -417,18 +417,47 @@ class UserProfilePageState extends State<UserProfilePage>
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                      'Account Verification',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        color: controller.userData.isNotEmpty &&
-                                                controller.userData.first
-                                                        .accountVerificationStatus ==
-                                                    '1'
-                                            ? Colors.green
-                                            : Colors.red,
-                                      ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Account Verification',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: controller
+                                                        .userData.isNotEmpty &&
+                                                    controller.userData.first
+                                                            .accountVerificationStatus ==
+                                                        '1'
+                                                ? Colors.green
+                                                : Colors.red,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          controller.userData.first
+                                                      .accountVerificationStatus ==
+                                                  '1'
+                                              ? 'Your Account Is Verified Successfully'
+                                              : 'UnVerified (Please Verify Again)',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: controller
+                                                        .userData.isNotEmpty &&
+                                                    controller.userData.first
+                                                            .accountVerificationStatus ==
+                                                        '1'
+                                                ? Colors.green
+                                                : Colors.red,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
                                     ),
                                     AnimatedSwitcher(
                                       duration: const Duration(seconds: 1),
