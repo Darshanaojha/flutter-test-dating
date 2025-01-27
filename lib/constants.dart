@@ -149,14 +149,14 @@ void success(title, message) {
         children: [
           Icon(
             Icons.check_circle_outline,
-            color: Colors.black,
+            color: Colors.white,
             size: 24,
           ),
           SizedBox(width: 10),
           Text(
             title,
             style: GoogleFonts.raleway(
-              color: Colors.black,
+              color: Colors.white,
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
@@ -169,13 +169,13 @@ void success(title, message) {
       child: Text(
         message,
         style: GoogleFonts.raleway(
-          color: Colors.black,
+          color: Colors.white,
           fontSize: 14,
         ),
       ),
     ),
-    colorText: Colors.black,
-    backgroundColor: Colors.green.withOpacity(0.85),
+    colorText: Colors.white,
+    backgroundColor: const Color.fromARGB(255, 156, 158, 156).withOpacity(0.85),
     borderColor: Colors.green.shade700,
     borderWidth: 2,
     borderRadius: 8.0,
@@ -197,14 +197,14 @@ void failure(title, message) {
         children: [
           Icon(
             Icons.error_outline,
-            color: Colors.black,
+            color: Colors.white,
             size: 24,
           ),
           SizedBox(width: 10),
           Text(
             title,
             style: GoogleFonts.raleway(
-              color: Colors.black,
+              color: Colors.white,
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
@@ -217,13 +217,13 @@ void failure(title, message) {
       child: Text(
         message,
         style: GoogleFonts.raleway(
-          color: Colors.black,
+          color: Colors.white,
           fontSize: 14,
         ),
       ),
     ),
-    colorText: Colors.black,
-    backgroundColor: Colors.red.withOpacity(0.85),
+    colorText: Colors.white,
+    backgroundColor: const Color.fromARGB(255, 192, 191, 190).withOpacity(0.85),
     borderColor: Colors.red.shade700,
     borderWidth: 2,
     borderRadius: 8.0,

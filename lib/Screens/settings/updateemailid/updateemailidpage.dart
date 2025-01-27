@@ -12,7 +12,7 @@ class UpdateEmailPage extends StatefulWidget {
 
 class UpdateEmailPageState extends State<UpdateEmailPage> {
   Controller controller = Get.find();
-
+  bool password = true;
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
@@ -57,7 +57,7 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
                   children: [
                     // Password Field
                     TextFormField(
-                      obscureText: true,
+                      obscureText: password,
                       style: AppTextStyles.inputFieldText
                           .copyWith(fontSize: getResponsiveFontSize(0.03)),
                       decoration: InputDecoration(
@@ -72,6 +72,11 @@ class UpdateEmailPageState extends State<UpdateEmailPage> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
+                        suffixIcon: IconButton(onPressed: (){
+                          setState(() {
+                            password=!password;
+                          });
+                        }, icon: Icon(password?Icons.visibility_off:Icons.visibility,size: 20,))
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {

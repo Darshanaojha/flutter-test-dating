@@ -14,7 +14,8 @@ class PasswordInputPage extends StatefulWidget {
 class PasswordInputPageState extends State<PasswordInputPage> {
   final formKey = GlobalKey<FormState>();
   Controller controller = Get.find();
-
+  bool passwordvisibility = true;
+  bool conformpasswordvisibility = true;
   @override
   void initState() {
     super.initState();
@@ -65,6 +66,7 @@ class PasswordInputPageState extends State<PasswordInputPage> {
     double fontSize = screenWidth * 0.03;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text('Set Password', style: AppTextStyles.headingText),
         backgroundColor: AppColors.primaryColor,
@@ -89,27 +91,36 @@ class PasswordInputPageState extends State<PasswordInputPage> {
                       cursorColor: AppColors.cursorColor,
                       style: AppTextStyles.inputFieldText
                           .copyWith(fontSize: fontSize),
-                      obscureText: true,
+                      obscureText: passwordvisibility,
                       decoration: InputDecoration(
-                        labelText: 'Password',
-                        labelStyle:
-                            AppTextStyles.bodyText.copyWith(fontSize: fontSize),
-                        filled: true,
-                        fillColor: AppColors.formFieldColor,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: AppColors.primaryColor),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide:
-                              BorderSide(color: AppColors.errorBorderColor),
-                        ),
-                      ),
+                          labelText: 'Password',
+                          labelStyle: AppTextStyles.bodyText
+                              .copyWith(fontSize: fontSize),
+                          filled: true,
+                          fillColor: AppColors.formFieldColor,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide:
+                                BorderSide(color: AppColors.primaryColor),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide:
+                                BorderSide(color: AppColors.errorBorderColor),
+                          ),
+                          suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  passwordvisibility = !passwordvisibility;
+                                });
+                              },
+                              icon: Icon(passwordvisibility
+                                  ? Icons.visibility_off
+                                  : Icons.visibility))),
                       validator: validatePassword,
                       onChanged: (value) {
                         controller.forgetPasswordRequest.newPassword = value;
@@ -120,7 +131,7 @@ class PasswordInputPageState extends State<PasswordInputPage> {
                       cursorColor: AppColors.cursorColor,
                       style: AppTextStyles.inputFieldText
                           .copyWith(fontSize: fontSize),
-                      obscureText: true,
+                      obscureText: conformpasswordvisibility,
                       decoration: InputDecoration(
                         labelText: 'Confirm Password',
                         labelStyle:
@@ -140,6 +151,11 @@ class PasswordInputPageState extends State<PasswordInputPage> {
                           borderSide:
                               BorderSide(color: AppColors.errorBorderColor),
                         ),
+                        suffixIcon: IconButton(onPressed: (){
+                         setState(() {
+                            conformpasswordvisibility=!conformpasswordvisibility;
+                         });
+                        }, icon: Icon(conformpasswordvisibility?Icons.visibility_off:Icons.visibility,size:20))
                       ),
                       validator: validateConfirmPassword,
                       onChanged: (value) {
@@ -153,11 +169,10 @@ class PasswordInputPageState extends State<PasswordInputPage> {
                       onPressed: () async {
                         if (formKey.currentState?.validate() ?? false) {
                           formKey.currentState?.save();
-                        if(controller.forgetPasswordRequest.validate()){
+                          if (controller.forgetPasswordRequest.validate()) {
                             await controller.getOtpForgetPassword(
-                              controller.forgetPasswordRequest);
-                        }
-                        
+                                controller.forgetPasswordRequest);
+                          }
                         } else {
                           failure('password', '');
                         }

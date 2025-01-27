@@ -14,6 +14,9 @@ class ChangePasswordPage extends StatefulWidget {
 class ChangePasswordPageState extends State<ChangePasswordPage> {
   final formKey = GlobalKey<FormState>();
   Controller controller = Get.find();
+  bool currentpassword = true;
+  bool newPassword = true;
+  bool conformpassword = true;
 
   @override
   void initState() {
@@ -38,7 +41,8 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
       return 'Password must be at least 8 characters';
     }
     if (!controller.changePasswordRequest.isValidPassword(value)) {
-      failure("Password","Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character");
+      failure("Password",
+          "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character");
       return 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character';
     }
     return null;
@@ -86,27 +90,42 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
                     TextFormField(
                       style: AppTextStyles.inputFieldText
                           .copyWith(fontSize: fontSize),
-                      obscureText: true,
+                      obscureText: currentpassword,
                       decoration: InputDecoration(
-                        labelText: 'Current Password',
-                        labelStyle:
-                            AppTextStyles.bodyText.copyWith(fontSize: fontSize),
-                        filled: true,
-                        fillColor: AppColors.formFieldColor,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: AppColors.primaryColor),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide:
-                              BorderSide(color: AppColors.errorBorderColor),
-                        ),
-                      ),
+                          labelText: 'Current Password',
+                          labelStyle: AppTextStyles.bodyText
+                              .copyWith(fontSize: fontSize),
+                          filled: true,
+                          fillColor: AppColors.formFieldColor,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide:
+                                BorderSide(color: AppColors.primaryColor),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide:
+                                BorderSide(color: AppColors.errorBorderColor),
+                          ),
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                setState(() {
+                                  currentpassword = !currentpassword;
+                                });
+                              });
+                            },
+                            icon: Icon(
+                              currentpassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              size: 20,
+                            ),
+                          )),
                       validator: validatePassword,
                       onChanged: (value) {
                         controller.changePasswordRequest.oldPassword = value;
@@ -116,7 +135,7 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
                     TextFormField(
                       style: AppTextStyles.inputFieldText
                           .copyWith(fontSize: fontSize),
-                      obscureText: true,
+                      obscureText: newPassword,
                       decoration: InputDecoration(
                         labelText: 'New Password',
                         labelStyle:
@@ -136,6 +155,19 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
                           borderSide:
                               BorderSide(color: AppColors.errorBorderColor),
                         ),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              newPassword = !newPassword;
+                            });
+                          },
+                          icon: Icon(
+                            newPassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            size: 20,
+                          ),
+                        ),
                       ),
                       validator: validatePassword,
                       onChanged: (value) {
@@ -146,7 +178,7 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
                     TextFormField(
                       style: AppTextStyles.inputFieldText
                           .copyWith(fontSize: fontSize),
-                      obscureText: true,
+                      obscureText: conformpassword,
                       decoration: InputDecoration(
                         labelText: 'Confirm New Password',
                         labelStyle:
@@ -166,6 +198,11 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
                           borderSide:
                               BorderSide(color: AppColors.errorBorderColor),
                         ),
+                        suffixIcon: IconButton(onPressed: (){
+                          setState(() {
+                            conformpassword=!conformpassword;
+                          });
+                        }, icon: Icon(conformpassword?Icons.visibility_off:Icons.visibility,size:20))
                       ),
                       validator: validateConfirmPassword,
                     ),
