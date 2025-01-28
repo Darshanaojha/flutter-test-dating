@@ -69,7 +69,7 @@ class AllOrdersPageState extends State<AllOrdersPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          order.packageTitle ?? 'Unknown Package',
+                          order.packageTitle,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -77,7 +77,7 @@ class AllOrdersPageState extends State<AllOrdersPage> {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'Package Category: ${order.packageCategoryTitle ?? 'Unknown'}',
+                          'Package Category: ${order.packageCategoryTitle}',
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.grey[600],
@@ -85,7 +85,7 @@ class AllOrdersPageState extends State<AllOrdersPage> {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'Amount: \$${order.actualAmount ?? '0.00'}',
+                          'Amount: \$${order.actualAmount}',
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.green,
@@ -93,7 +93,7 @@ class AllOrdersPageState extends State<AllOrdersPage> {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'Days: ${order.days ?? '0'} ${order.unit ?? ''}',
+                          'Days: ${order.days} ${order.unit}',
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.blue,
@@ -113,7 +113,7 @@ class AllOrdersPageState extends State<AllOrdersPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Created: ${order.created ?? 'N/A'}',
+                              'Created: ${order.created}',
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey[500],
@@ -123,7 +123,7 @@ class AllOrdersPageState extends State<AllOrdersPage> {
                               icon: Icon(Icons.info_outline),
                               onPressed: () {
                                 print(
-                                    'View more details for order ${order.id ?? 'Unknown'}');
+                                    'View more details for order ${order.id}');
                               },
                             ),
                           ],

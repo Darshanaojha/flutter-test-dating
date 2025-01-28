@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
-import 'package:pushable_button/pushable_button.dart';
 import '../../Controllers/controller.dart';
 import '../../constants.dart';
 

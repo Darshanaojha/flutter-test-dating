@@ -55,7 +55,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import '../Models/RequestModels/app_setting_request_model.dart';
 import '../Models/RequestModels/block_User_request_model.dart';
-import '../Models/RequestModels/chat_history_request_model.dart';
 import '../Models/RequestModels/delete_message_request_model.dart';
 import '../Models/RequestModels/deletefavourite_request_model.dart';
 import '../Models/RequestModels/dislike_profile_request_model.dart';

@@ -331,8 +331,8 @@ class EditProfilePageState extends State<EditProfilePage>
       return "Address cannot contain only special characters.";
     }
     if (RegExp(r'(?=.*[0-9])(?=.*[^\w\s])').hasMatch(value)) {
-      failure(
-          "Invalid Address", "Address cannot contain only special characters and numbers.");
+      failure("Invalid Address",
+          "Address cannot contain only special characters and numbers.");
 
       return "Address cannot contain only special characters.";
     }
@@ -642,7 +642,7 @@ class EditProfilePageState extends State<EditProfilePage>
     final screenSize = MediaQuery.of(context).size;
     double screenWidth = screenSize.width;
     double screenheight = screenSize.height;
-    double titleFontSize = screenWidth * 0.03;
+    // double titleFontSize = screenWidth * 0.03;
     double bodyFontSize = screenWidth * 0.02;
 
     // double chipFontSize = screenWidth * 0.03;

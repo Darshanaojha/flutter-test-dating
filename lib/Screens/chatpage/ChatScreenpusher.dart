@@ -215,7 +215,6 @@ class ChatScreenState extends State<ChatScreen> {
         title: Text(widget.receiverName),
         centerTitle: true,
         actions: [
-          // Add a delete button on the app bar
           selectedMessages.isNotEmpty
               ? IconButton(
                   icon: Icon(Icons.delete),
@@ -394,7 +393,6 @@ class ChatScreenState extends State<ChatScreen> {
                                   ),
                                 ),
                               ),
-                            // If not selected, show the regular message bubble without background
                             if (!selectedMessages.contains(message))
                               Align(
                                 alignment: isSentByUser
