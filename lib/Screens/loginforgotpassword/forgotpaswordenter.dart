@@ -133,30 +133,37 @@ class PasswordInputPageState extends State<PasswordInputPage> {
                           .copyWith(fontSize: fontSize),
                       obscureText: conformpasswordvisibility,
                       decoration: InputDecoration(
-                        labelText: 'Confirm Password',
-                        labelStyle:
-                            AppTextStyles.bodyText.copyWith(fontSize: fontSize),
-                        filled: true,
-                        fillColor: AppColors.formFieldColor,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: AppColors.primaryColor),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide:
-                              BorderSide(color: AppColors.errorBorderColor),
-                        ),
-                        suffixIcon: IconButton(onPressed: (){
-                         setState(() {
-                            conformpasswordvisibility=!conformpasswordvisibility;
-                         });
-                        }, icon: Icon(conformpasswordvisibility?Icons.visibility_off:Icons.visibility,size:20))
-                      ),
+                          labelText: 'Confirm Password',
+                          labelStyle: AppTextStyles.bodyText
+                              .copyWith(fontSize: fontSize),
+                          filled: true,
+                          fillColor: AppColors.formFieldColor,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide:
+                                BorderSide(color: AppColors.primaryColor),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide:
+                                BorderSide(color: AppColors.errorBorderColor),
+                          ),
+                          suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  conformpasswordvisibility =
+                                      !conformpasswordvisibility;
+                                });
+                              },
+                              icon: Icon(
+                                  conformpasswordvisibility
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                  size: 20))),
                       validator: validateConfirmPassword,
                       onChanged: (value) {
                         setState(() {

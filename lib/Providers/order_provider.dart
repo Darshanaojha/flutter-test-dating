@@ -1,8 +1,7 @@
-import 'dart:convert';
-
+import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
+import 'package:get/get.dart';
 import 'package:get/get_connect.dart';
-
 import '../Models/RequestModels/order_request_model.dart';
 import '../Models/RequestModels/transaction_request_model.dart';
 import '../Models/ResponseModels/all_orders_response_model.dart';
@@ -57,7 +56,8 @@ class OrderProvider extends GetConnect {
       if (token == null || token == "") {
         return null;
       }
-    print("transaction Request= ${transactionRequestModel.toJson().toString()}");
+      print(
+          "transaction Request= ${transactionRequestModel.toJson().toString()}");
       Response response = await post(
         '$baseurl/RazorpayController/Transaction',
         transactionRequestModel.toJson(),
@@ -67,8 +67,9 @@ class OrderProvider extends GetConnect {
         },
       );
       if (response.statusCode == 200) {
-         print("transaction Response= ${response.body.toString()}");
+        print("transaction Response= ${response.body.toString()}");
         if (response.body['error']['code'] == 0) {
+          Get.offAll(NavigationBottomBar);
           return TransactionResponseModel.fromJson(response.body);
         } else {
           failure('Error', response.body['error']['message']);

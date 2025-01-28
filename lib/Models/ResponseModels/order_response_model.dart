@@ -1,78 +1,87 @@
 class OrderResponseModel {
   bool success;
-  Payload payload;
-  Error error;
+  Payload? payload;  // Nullable Payload
+  Error? error;  // Nullable Error
 
   OrderResponseModel({
     required this.success,
-    required this.payload,
-    required this.error,
+    this.payload,
+    this.error,
   });
 
   factory OrderResponseModel.fromJson(Map<String, dynamic> json) {
-
-
-    // Safely parsing each field with null checks if necessary
     return OrderResponseModel(
-      success: json['success'] ?? false, // Default to false if success is not provided
-      payload: Payload.fromJson(json['payload'] ?? {}),
-      error: Error.fromJson(json['error'] ?? {}),
+      success: json['success'] ?? false, // Defaulting to false if missing
+      payload: json['payload'] != null ? Payload.fromJson(json['payload']) : null,  // Nullable Payload
+      error: json['error'] != null ? Error.fromJson(json['error']) : null,  // Nullable Error
     );
   }
 
+  // Method to convert the object back to JSON
   Map<String, dynamic> toJson() {
     return {
       'success': success,
-      'payload': payload.toJson(),
-      'error': error.toJson(),
+      'payload': payload?.toJson(),  // Nullable Payload
+      'error': error?.toJson(),  // Nullable Error
     };
   }
 }
 
 class Payload {
-  String message;
-  String orderId;
-  String amount;
+  String? message;  // Nullable
+  int? orderId;  // Nullable int
+  String? amount;  // Nullable String
+  String? order;  // Nullable String
+  int? transactionId;  // Nullable int
 
   Payload({
-    required this.message,
-    required this.orderId,
-    required this.amount,
+    this.message,
+    this.orderId,
+    this.amount,
+    this.order,
+    this.transactionId,
   });
 
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
-      message: json['message'].toString(), // Default empty string if message is null
-      orderId: json['order_id'].toString(), // Default empty string if order_id is null
-      amount: json['amount'].toString(), // Default '0.0' if amount is null
+      message: json['message'],  // Nullable string
+      orderId: json['order_id'] != null ? int.tryParse(json['order_id'].toString()) : null,  // Nullable int
+      amount: json['amount'],  // Nullable String
+      order: json['order'],  // Nullable String
+      transactionId: json['transactionId'] != null ? int.tryParse(json['transactionId'].toString()) : null,  // Nullable int
     );
   }
 
+  // Method to convert Payload back to JSON
   Map<String, dynamic> toJson() {
     return {
       'message': message,
-      'order_id': orderId,
+      'order_id': orderId,  // Nullable int
       'amount': amount,
+      'order': order,
+      'transactionId': transactionId,  // Nullable int
     };
   }
 }
 
 class Error {
-  String code; // Changed to int
-  String message;
+  int? code;  // Nullable int
+  String? message;  // Nullable String
 
   Error({
-    required this.code,
-    required this.message,
+    this.code,  // Nullable int
+    this.message,  // Nullable String
   });
 
+  // Factory constructor to create Error from JSON
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
-      code: json['code'].toString(), // Default to 0 if code is null or missing
-      message: json['message'].toString(), // Default to empty string if message is null
+      code: json['code'] != null ? json['code'] : null,  // Nullable int
+      message: json['message'],  // Nullable String
     );
   }
 
+  // Method to convert Error back to JSON
   Map<String, dynamic> toJson() {
     return {
       'code': code,
