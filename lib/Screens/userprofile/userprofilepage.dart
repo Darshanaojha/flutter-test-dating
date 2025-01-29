@@ -744,15 +744,13 @@ class UserProfilePageState extends State<UserProfilePage>
   String _getAccountVerificationMessage(String status) {
     switch (status) {
       case '0':
-        return 'UnVerified (Please Verify)';
+        return 'Verification Pending';
       case '1':
         return 'Your Account Is Verified Successfully';
       case '2':
-        return 'Verification Pending';
-      case '3':
         return 'Verification Rejected';
       default:
-        return 'Unknown Status';
+        return 'UnVerified (Please Verify)';
     }
   }
 
@@ -764,10 +762,8 @@ class UserProfilePageState extends State<UserProfilePage>
         return const Color.fromARGB(255, 2, 38, 100);
       case '2':
         return const Color.fromARGB(255, 59, 36, 1);
-      case '3':
-        return const Color.fromARGB(255, 111, 109, 109);
       default:
-        return const Color.fromARGB(255, 246, 244, 244);
+        return const Color.fromARGB(255, 111, 109, 109);
     }
   }
 
