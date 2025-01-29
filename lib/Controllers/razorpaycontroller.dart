@@ -103,17 +103,18 @@ class RazorpayController extends GetxController {
         transactionRequestModel.transactionId = transactionId ?? '';
         transactionRequestModel.paymentStatus = Transactionsuccess.SUCCESS;
         transactionRequestModel.paymentMethod = responseData['method'] ?? '';
-        transactionRequestModel.created = DateTime.now().toIso8601String();
-        transactionRequestModel.updated = responseData['updated']?.toString() ??
-            DateTime.now().toIso8601String();
+        transactionRequestModel.created = DateTime.now();
+        transactionRequestModel.updated = DateTime.now();
       }
 
-     await transaction(transactionRequestModel);
+      await transaction(transactionRequestModel).then((value) {
+        Get.offAll(NavigationBottomBar());
+      });
       print(
           "transaction details= ${transactionRequestModel.toJson().toString()}");
       print("Payment Success: ${response.paymentId}");
       print("Payment Success responsebody: ${responseData.toString()}");
-   
+
       _paymentCompleter.complete(true);
     } catch (e) {
       print("Error handling payment success: $e");
@@ -180,10 +181,10 @@ class RazorpayController extends GetxController {
         (double.tryParse(response.error?.toString() ?? '0.0') ?? 0.0)
             .toString();
     transactionRequestModel.message = errorMessage;
-    transactionRequestModel.created = DateTime.now().toString();
-    transactionRequestModel.updated = DateTime.now().toString();
+    transactionRequestModel.created = DateTime.now();
+    transactionRequestModel.updated = DateTime.now();
     print("Transaction Failure Data: ${transactionRequestModel.toJson()}");
-    transaction(transactionRequestModel);
+    await transaction(transactionRequestModel).then((value) {});
     print(
         "transaction details= ${transactionRequestModel.toJson().toString()}");
     print("Full Razorpay failure Response: ${response.toString()}");
@@ -277,26 +278,21 @@ class RazorpayController extends GetxController {
       amount: '',
       transactionId: '',
       message: '',
-      created: '',
-      updated: '');
-  Future<bool?> transaction(
+      created: DateTime.now(),
+      updated: DateTime.now());
+  Future<bool> transaction(
       TransactionRequestModel transactionRequestModel) async {
     try {
       TransactionResponseModel? transactionResponseModel =
           await OrderProvider().transaction(transactionRequestModel);
-
       if (transactionResponseModel == null) {
         failure('Error', 'No response from the server');
         return false;
       }
-      if (transactionResponseModel.success) {
-        return true;
-      } else {
-        var errorMessage =
-            transactionResponseModel.error?.message ?? 'Unknown error';
-        failure('Error', errorMessage);
-        return false;
-      }
+
+      Get.snackbar('success', 'success in the controller',
+          duration: Duration(seconds: 10));
+      return true;
     } catch (e) {
       failure('Error', e.toString());
       return false;
