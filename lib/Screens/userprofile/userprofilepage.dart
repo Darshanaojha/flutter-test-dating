@@ -439,20 +439,14 @@ class UserProfilePageState extends State<UserProfilePage>
                                         ),
                                         SizedBox(height: 4),
                                         Text(
-                                          controller.userData.first
-                                                      .accountVerificationStatus ==
-                                                  '1'
-                                              ? 'Your Account Is Verified Successfully'
-                                              : 'UnVerified (Please Verify Again)',
+                                          _getAccountVerificationMessage(
+                                              controller.userData.first
+                                                  .accountVerificationStatus),
                                           style: TextStyle(
                                             fontSize: 10,
-                                            color: controller
-                                                        .userData.isNotEmpty &&
-                                                    controller.userData.first
-                                                            .accountVerificationStatus ==
-                                                        '1'
-                                                ? Colors.green
-                                                : Colors.red,
+                                            color: _getAccountVerificationColor(
+                                                controller.userData.first
+                                                    .accountVerificationStatus),
                                           ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
@@ -745,6 +739,36 @@ class UserProfilePageState extends State<UserProfilePage>
       },
       isScrollControlled: true,
     );
+  }
+
+  String _getAccountVerificationMessage(String status) {
+    switch (status) {
+      case '0':
+        return 'UnVerified (Please Verify)';
+      case '1':
+        return 'Your Account Is Verified Successfully';
+      case '2':
+        return 'Verification Pending';
+      case '3':
+        return 'Verification Rejected';
+      default:
+        return 'Unknown Status';
+    }
+  }
+
+  Color _getAccountVerificationColor(String status) {
+    switch (status) {
+      case '0':
+        return const Color.fromARGB(255, 61, 5, 0);
+      case '1':
+        return const Color.fromARGB(255, 2, 38, 100);
+      case '2':
+        return const Color.fromARGB(255, 59, 36, 1);
+      case '3':
+        return const Color.fromARGB(255, 111, 109, 109);
+      default:
+        return const Color.fromARGB(255, 246, 244, 244);
+    }
   }
 
   void showVerificationDialog(BuildContext context) {

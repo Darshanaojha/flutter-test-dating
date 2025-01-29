@@ -234,8 +234,9 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                                     );
                                     controller.updateNewPackageRequestModel
                                         .packageId = package.id;
-                                    razorpaycontroller.orderRequestModel
-                                        .amount = package.offerAmount.toString();
+                                    razorpaycontroller
+                                            .orderRequestModel.amount =
+                                        package.offerAmount.toString();
                                     razorpaycontroller.orderRequestModel
                                         .packageId = package.id;
                                     razorpaycontroller.orderRequestModel.type =

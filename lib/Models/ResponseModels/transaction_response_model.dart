@@ -1,7 +1,7 @@
 class TransactionResponseModel {
   bool success;
-  Payload? payload;  // Nullable Payload
-  Error? error;  // Nullable Error
+  Payload? payload;
+  Error? error;
 
   TransactionResponseModel({
     required this.success,
@@ -11,51 +11,54 @@ class TransactionResponseModel {
 
   factory TransactionResponseModel.fromJson(Map<String, dynamic> json) {
     return TransactionResponseModel(
-      success: json['success'] ?? false,  // Default to false if not present
-      payload: json['payload'] != null ? Payload.fromJson(json['payload']) : null,  // Nullable Payload
-      error: json['error'] != null ? Error.fromJson(json['error']) : null,  // Nullable Error
+      success: json['success'] ?? false,
+      payload:
+          json['payload'] != null ? Payload.fromJson(json['payload']) : null,
+      error: json['error'] != null ? Error.fromJson(json['error']) : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'success': success,
-      'payload': payload?.toJson(),  // Nullable Payload
-      'error': error?.toJson(),  // Nullable Error
+      'payload': payload?.toJson(),
+      'error': error?.toJson(),
     };
   }
 }
 
 class Payload {
-  Transaction? transaction;  // Nullable Transaction
+  Transaction? transaction;
 
   Payload({this.transaction});
 
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
-      transaction: json['transaction'] != null ? Transaction.fromJson(json['transaction']) : null,  // Nullable Transaction
+      transaction: json['transaction'] != null
+          ? Transaction.fromJson(json['transaction'])
+          : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'transaction': transaction?.toJson(),  // Nullable Transaction
+      'transaction': transaction?.toJson(),
     };
   }
 }
 
 class Transaction {
-  String? userId;  // Nullable String
-  String? orderId;  // Nullable String
-  String? packageId;  // Nullable String
-  String? type;  // Nullable String
-  String? razorpayOrderId;  // Nullable String
-  String? razorpayPaymentId;  // Nullable String
-  String? paymentStatus;  // Nullable String
-  String? paymentMethod;  // Nullable String
-  String? amount;  // Nullable String
-  String? message;  // Nullable String
-  String? updated;  // Nullable String
+  String? userId;
+  String? orderId;
+  String? packageId;
+  String? type;
+  String? razorpayOrderId;
+  String? razorpayPaymentId;
+  String? paymentStatus;
+  String? paymentMethod;
+  String? amount;
+  String? message;
+  String? updated;
 
   Transaction({
     this.userId,
@@ -73,17 +76,17 @@ class Transaction {
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
     return Transaction(
-      userId: json['user_id'],  // Nullable String
-      orderId: json['order_id'],  // Nullable String
-      packageId: json['package_id'],  // Nullable String
-      type: json['type'],  // Nullable String
-      razorpayOrderId: json['razorpay_order_id'],  // Nullable String
-      razorpayPaymentId: json['razorpay_payment_id'],  // Nullable String
-      paymentStatus: json['payment_status'],  // Nullable String
-      paymentMethod: json['payment_method'],  // Nullable String
-      amount: json['amount'],  // Nullable String
-      message: json['message'],  // Nullable String
-      updated: json['updated'],  // Nullable String
+      userId: json['user_id'],
+      orderId: json['order_id'],
+      packageId: json['package_id'],
+      type: json['type'],
+      razorpayOrderId: json['razorpay_order_id'],
+      razorpayPaymentId: json['razorpay_payment_id'],
+      paymentStatus: json['payment_status'],
+      paymentMethod: json['payment_method'],
+      amount: json['amount'],
+      message: json['message'],
+      updated: json['updated'],
     );
   }
 
@@ -105,18 +108,18 @@ class Transaction {
 }
 
 class Error {
-  String? code;  // Nullable String
-  String? message;  // Nullable String
+  String code;
+  String message;
 
   Error({
-    this.code,
-    this.message,
+    required this.code,
+    required this.message,
   });
 
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
-      code: json['code']?.toString(),  // Nullable String (handles null safely)
-      message: json['message'],  // Nullable String
+      code: json['code']?.toString() ?? '',
+      message: json['message'] ?? '',
     );
   }
 

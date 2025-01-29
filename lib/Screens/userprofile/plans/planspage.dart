@@ -299,6 +299,7 @@ class PricingPageState extends State<PricingPage>
                 } else {
                   failure("Order", "Your Payment Order Is Not Created");
                 }
+                 Navigator.of(context).pop();
                 // controller.updatinguserpackage(
                 //     controller.updateNewPackageRequestModel);
 
