@@ -88,9 +88,8 @@ class OrderProvider extends GetConnect {
       if (token == null || token.isEmpty) {
         return null;
       }
-      Response response = await post(
+      Response response = await get(
         '$baseurl/RazorpayController/allTransactions',
-        null,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
@@ -98,22 +97,13 @@ class OrderProvider extends GetConnect {
       );
       if (response.statusCode == 200) {
         print("Response of get all Transaction: ${response.body}");
-
-        Map<String, dynamic> responseBody = json.decode(response.body);
-
-        if (responseBody['error'] != null &&
-            responseBody['error']['code'] == 0) {
-          return AllTransactionsResponseModel.fromJson(responseBody);
-        } else {
-          failure('Error', responseBody['error']['message'] ?? 'Unknown error');
-          return null;
-        }
+        return AllTransactionsResponseModel.fromJson(response.body);
       } else {
         failure(response.statusCode.toString(), response.body);
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error tranasction', e.toString());
       return null;
     }
   }
@@ -127,28 +117,22 @@ class OrderProvider extends GetConnect {
         return null;
       }
 
-      Response response = await post(
+      Response response = await get(
         '$baseurl/RazorpayController/allOrders',
-        null,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
         },
       );
+      print("Rsponse of get all Orders=${response.body.toString()}");
       if (response.statusCode == 200) {
-        print("Rsponse of get all Orders=${response.body.toString()}");
-        if (response.body['error']['code'] == 0) {
-          return AllOrdersResponseModel.fromJson(response.body);
-        } else {
-          failure('Error', response.body['error']['message']);
-          return null;
-        }
+        return AllOrdersResponseModel.fromJson(response.body);
       } else {
         failure(response.statusCode, response.body['error']['message']);
         return null;
       }
     } catch (e) {
-      failure("Error", e.toString());
+      failure("Error orders", e.toString());
       return null;
     }
   }

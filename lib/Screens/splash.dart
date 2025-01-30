@@ -58,7 +58,6 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
           EncryptedSharedPreferences.getInstance();
 
       String? token = preferences.getString('token');
-      String? packageStatus = preferences.getString('package_status');
       bool? value = preferences.getBoolean('isSeenUser');
       if (value == null || value == false) {
         controller.fetchAllIntroSlider().then((value) {
@@ -79,11 +78,10 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
       await controller.fetchDesires();
       await controller.fetchGenders();
       await controller.fetchCountries();
-
+      String? packageStatus;
       if (token == null || token.isEmpty) {
         Get.offAll(() => Login());
       } else {
-        await controller.fetchProfile();
         await controller.userSuggestions();
         await controller.fetchallfavourites();
         await controller.reportReason();
@@ -98,20 +96,22 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
         await controller.fetchAllAddOn();
         await controller.allOrders();
         await controller.allTransactions();
-
-        if (packageStatus != null && packageStatus.isNotEmpty) {
-          if (packageStatus == "1") {
-            FCMService().subscribeToTopic("subscribed");
-            FCMService().subscribeToTopic(controller.userData.first.id);
-            FCMService().subscribeToTopic("alluser");
-            Get.offAll(() => NavigationBottomBar());
-          } else {
-            FCMService().subscribeToTopic("unsubscribed");
-            FCMService().subscribeToTopic(controller.userData.first.id);
-            FCMService().subscribeToTopic("alluser");
-            Get.offAll(() => Unsubscribenavigation());
+        await controller.fetchProfile().then((_) {
+          packageStatus = controller.userData.first.packageStatus;
+          if (packageStatus != null && packageStatus!.isNotEmpty) {
+            if (packageStatus == "1") {
+              FCMService().subscribeToTopic("subscribed");
+              FCMService().subscribeToTopic(controller.userData.first.id);
+              FCMService().subscribeToTopic("alluser");
+              Get.offAll(() => NavigationBottomBar());
+            } else {
+              FCMService().subscribeToTopic("unsubscribed");
+              FCMService().subscribeToTopic(controller.userData.first.id);
+              FCMService().subscribeToTopic("alluser");
+              Get.offAll(() => Unsubscribenavigation());
+            }
           }
-        }
+        });
       }
       Position position = await _getUserLocation();
       List<Placemark> placemarks =

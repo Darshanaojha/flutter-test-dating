@@ -9,20 +9,13 @@ class AllTransactionsResponseModel {
     required this.error,
   });
 
+  // Factory constructor to create an instance from JSON
   factory AllTransactionsResponseModel.fromJson(Map<String, dynamic> json) {
     return AllTransactionsResponseModel(
-      success: json['success'] ?? false, 
-      payload: Payload.fromJson(json['payload']),
-      error: Error.fromJson(json['error'] ?? {}), 
+      success: json['success'] ?? false, // Default to false if success is null
+      payload: Payload.fromJson(json['payload'] ?? {}),
+      error: Error.fromJson(json['error'] ?? {}),
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'success': success,
-      'payload': payload.toJson(),
-      'error': error.toJson(),
-    };
   }
 }
 
@@ -31,35 +24,30 @@ class Payload {
 
   Payload({required this.transactions});
 
+  // Factory constructor to create a list of transactions from JSON
   factory Payload.fromJson(Map<String, dynamic> json) {
-    var transactionsList = (json['transactions'] as List?)
-            ?.map((transactionJson) => Transaction.fromJson(transactionJson))
-            .toList() ??
-        [];
-
+    var transactionsJson = json['transactions'] as List? ?? [];
+    List<Transaction> transactionsList = transactionsJson
+        .map((transactionJson) => Transaction.fromJson(transactionJson))
+        .toList();
     return Payload(transactions: transactionsList);
   }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'transactions': transactions.map((transaction) => transaction.toJson()).toList(),
-    };
-  }
 }
+
 class Transaction {
   String id;
   String userId;
   String orderId;
   String packageId;
   String type;
-  String razorpayOrderId;
-  String razorpayPaymentId;
+  String? razorpayOrderId; // Nullable field
+  String? razorpayPaymentId; // Nullable field
   String paymentStatus;
-  String paymentMethod;
+  String? paymentMethod; // Nullable field
   String amount;
+  String message;
   String created;
   String updated;
-
 
   Transaction({
     required this.id,
@@ -67,85 +55,50 @@ class Transaction {
     required this.orderId,
     required this.packageId,
     required this.type,
-    required this.razorpayOrderId,
-    required this.razorpayPaymentId,
+    this.razorpayOrderId,
+    this.razorpayPaymentId,
     required this.paymentStatus,
-    required this.paymentMethod,
+    this.paymentMethod,
     required this.amount,
+    required this.message,
     required this.created,
     required this.updated,
   });
 
-
+  // Factory constructor to create a transaction from JSON
   factory Transaction.fromJson(Map<String, dynamic> json) {
     return Transaction(
-      id: json['id'] ?? '',
-      userId: json['user_id'] ?? '',
-      orderId: json['order_id'] ?? '',
-      packageId: json['package_id'] ?? '',
-      type: json['type'] ?? '',
-      razorpayOrderId: json['razorpay_order_id'] ?? '',
-      razorpayPaymentId: json['razorpay_payment_id'] ?? '',
-      paymentStatus: json['payment_status'] ?? '',
-      paymentMethod: json['payment_method'] ?? '',
-      amount: _parseAmount(json['amount']),
-      created: json['created']?.toString() ?? '', 
-      updated: json['updated']?.toString() ?? '', 
+      id: json['id'] ?? '', // Default to empty string if id is null
+      userId: json['user_id'] ?? '', // Default to empty string if user_id is null
+      orderId: json['order_id'] ?? '', // Default to empty string if order_id is null
+      packageId: json['package_id'] ?? '', // Default to empty string if package_id is null
+      type: json['type'] ?? '', // Default to empty string if type is null
+      razorpayOrderId: json['razorpay_order_id'], // Nullable
+      razorpayPaymentId: json['razorpay_payment_id'], // Nullable
+      paymentStatus: json['payment_status'] ?? '', // Default to empty string if payment_status is null
+      paymentMethod: json['payment_method'], // Nullable
+      amount: json['amount'] ?? '', // Default to empty string if amount is null
+      message: json['message'] ?? '', // Default to empty string if message is null
+      created: json['created'] ?? '', // Default to empty string if created is null
+      updated: json['updated'] ?? '', // Default to empty string if updated is null
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'user_id': userId,
-      'order_id': orderId,
-      'package_id': packageId,
-      'type': type,
-      'razorpay_order_id': razorpayOrderId,
-      'razorpay_payment_id': razorpayPaymentId,
-      'payment_status': paymentStatus,
-      'payment_method': paymentMethod,
-      'amount': amount,
-      'created': created,
-      'updated': updated,
-    };
-  }
-
-  static String _parseAmount(dynamic amount) {
-    if (amount == null) {
-      return '0'; 
-    } else if (amount is int) {
-      return amount.toString();
-    } else if (amount is double) {
-      return amount.toStringAsFixed(2); 
-    } else if (amount is String) {
-      return amount; 
-    }
-    return '0'; 
   }
 }
 
-
 class Error {
-  String code;
+  int code;
   String message;
 
-  // Constructor
-  Error({required this.code, required this.message});
+  Error({
+    required this.code,
+    required this.message,
+  });
 
-  // Factory constructor to create Error instance from JSON
+  // Factory constructor to create an Error object from JSON
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
-      code: json['code'] ?? '',
-      message: json['message'] ?? '',
+      code: json['code'] ?? 0, // Default to 0 if code is null
+      message: json['message'] ?? '', // Default to empty string if message is null
     );
-  }
-
-  // Method to convert Error to JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'code': code,
-      'message': message,
-    };
   }
 }

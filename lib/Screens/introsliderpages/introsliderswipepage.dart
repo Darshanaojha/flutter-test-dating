@@ -23,12 +23,13 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> {
     super.initState();
   }
 
+  // Generates a darker color for dark theme
   Color getRandomColor() {
     Random random = Random();
     return Color.fromRGBO(
-      random.nextInt(256),
-      random.nextInt(256),
-      random.nextInt(256),
+      random.nextInt(100), // Keep RGB values low for dark colors
+      random.nextInt(100),
+      random.nextInt(100),
       1.0,
     );
   }
@@ -38,13 +39,13 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> {
       max(0.0, 1.0 - ((page) - index).abs()),
     );
     double zoom = 1.0 + (2.0 - 1.0) * selectedness;
-    return Container(
+    return SizedBox(
       width: 25.0,
       child: Center(
         child: Material(
           color: Colors.white,
           type: MaterialType.circle,
-          child: Container(
+          child: SizedBox(
             width: 8.0 * zoom,
             height: 8.0 * zoom,
           ),
@@ -66,7 +67,7 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> {
                 var slider = controller.sliderData[index];
                 return Container(
                   width: double.infinity,
-                  color: getRandomColor(), 
+                  color: getRandomColor(), // Dark background color
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisSize: MainAxisSize.max,
@@ -80,7 +81,8 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> {
                           if (loadingProgress == null) {
                             return child;
                           } else {
-                            return const Center(child: CircularProgressIndicator());
+                            return const Center(
+                                child: CircularProgressIndicator());
                           }
                         },
                         errorBuilder: (context, error, stackTrace) {
@@ -94,7 +96,10 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> {
                         children: <Widget>[
                           Text(
                             slider.title!,
-                            style: TextStyle(fontSize: 24, color: Colors.white),
+                            style: TextStyle(
+                              fontSize: 24,
+                              color: Colors.white, // White text for contrast
+                            ),
                           ),
                         ],
                       ),
@@ -103,7 +108,8 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> {
                 );
               },
               positionSlideIcon: 0.8,
-              slideIconWidget: const Icon(Icons.arrow_back_ios),
+              slideIconWidget: const Icon(Icons.arrow_back_ios,
+                  color: Colors.white), // White icon for visibility
               onPageChangeCallback: (int lpage) {
                 setState(() {
                   page = lpage;
@@ -114,7 +120,7 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> {
               fullTransitionValue: 880,
               enableSideReveal: true,
               preferDragFromRevealedArea: true,
-              enableLoop: false, // Disable looping for smoother flow
+              enableLoop: false,
               ignoreUserGestureWhileAnimating: true,
             ),
 
@@ -126,7 +132,8 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> {
                   Expanded(child: SizedBox()),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(controller.sliderData.length, _buildDot),
+                    children:
+                        List.generate(controller.sliderData.length, _buildDot),
                   ),
                 ],
               ),
@@ -146,8 +153,9 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> {
                     );
                   },
                   style: TextButton.styleFrom(
-                      backgroundColor: Colors.white.withOpacity(0.01),
-                      foregroundColor: Colors.black),
+                      backgroundColor: Colors.white.withOpacity(
+                          0.1), // Transparent background for button
+                      foregroundColor: Colors.white), // White text color
                   child: const Text("Skip to End"),
                 ),
               ),
@@ -160,13 +168,15 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> {
                 child: TextButton(
                   onPressed: () {
                     liquidController.jumpToPage(
-                        page: liquidController.currentPage + 1 > controller.sliderData.length - 1
+                        page: liquidController.currentPage + 1 >
+                                controller.sliderData.length - 1
                             ? 0
                             : liquidController.currentPage + 1);
                   },
                   style: TextButton.styleFrom(
-                      backgroundColor: Colors.white.withOpacity(0.01),
-                      foregroundColor: Colors.black),
+                      backgroundColor: Colors.white.withOpacity(
+                          0.1), // Transparent background for button
+                      foregroundColor: Colors.white), // White text color
                   child: const Text("Next"),
                 ),
               ),

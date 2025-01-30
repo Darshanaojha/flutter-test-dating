@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:dating_application/Models/RequestModels/transaction_request_model.dart';
-import 'package:dating_application/Screens/homepage/homepage.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -177,9 +176,6 @@ class RazorpayController extends GetxController {
     transactionRequestModel.amount = amount ?? "";
     transactionRequestModel.paymentStatus = Transactionsuccess.FAIL;
     transactionRequestModel.paymentMethod = response.error?.toString() ?? '';
-    transactionRequestModel.amount =
-        (double.tryParse(response.error?.toString() ?? '0.0') ?? 0.0)
-            .toString();
     transactionRequestModel.message = errorMessage;
     transactionRequestModel.created = DateTime.now();
     transactionRequestModel.updated = DateTime.now();
@@ -289,9 +285,6 @@ class RazorpayController extends GetxController {
         failure('Error', 'No response from the server');
         return false;
       }
-
-      Get.snackbar('success', 'success in the controller',
-          duration: Duration(seconds: 10));
       return true;
     } catch (e) {
       failure('Error', e.toString());

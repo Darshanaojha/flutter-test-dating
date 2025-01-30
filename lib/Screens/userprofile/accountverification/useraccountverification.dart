@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:dating_application/Screens/homepage/homepage.dart';
+import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
@@ -21,6 +23,7 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
   bool isSelfieTaken = false;
   String selfiePath = '';
   bool isLoading = true;
+  bool isSubmitting = false; // Track submission state
   late Future<bool> _fetchverification;
 
   @override
@@ -58,9 +61,23 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
     return base64Encode(bytes);
   }
 
-  void submitVerification() {
+  void submitVerification() async {
     if (isSelfieTaken) {
-      controller.verifyuseraccount(controller.requestToVerifyAccount);
+      setState(() {
+        isSubmitting = true; 
+      });
+      bool isVerified =
+          await controller.verifyuseraccount(controller.requestToVerifyAccount);
+
+      setState(() {
+        isSubmitting = false; 
+      });
+
+      if (isVerified) {
+        Get.offAll(NavigationBottomBar());
+      } else {
+        failure('Error', "Verification failed. Please try again.");
+      }
     } else {
       failure('Error', "Please take a selfie to complete the verification.");
     }
@@ -152,25 +169,26 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
                       Center(
                         child: SizedBox(
                           width: 160,
-                          child: PushableButton(
-                            onPressed: submitVerification,
-                            // style: ElevatedButton.styleFrom(
-                            //   backgroundColor: controller.requestToVerifyAccount
-                            //           .identifyImage.isNotEmpty
-                            //       ? AppColors.buttonColor
-                            //       : AppColors.activeColor,
-                            // ),
-                            hslColor: HSLColor.fromColor(Colors.green),
-                            height: 50.0,
-                            elevation: 8.0,
-                            shadow: BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 4.0,
-                              spreadRadius: 2.0,
-                              offset: Offset(0, 4),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: AppColors.textColor,
+                              backgroundColor: AppColors.buttonColor,
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 16.0, horizontal: 20.0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
                             ),
-                            child: Text('Submit Verification',
-                                style: AppTextStyles.textStyle),
+                            onPressed: isSubmitting
+                                ? null
+                                : submitVerification, 
+
+                            child: isSubmitting
+                                ? CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
+                                : Text('Submit Verification',
+                                    style: AppTextStyles.textStyle),
                           ),
                         ),
                       ),

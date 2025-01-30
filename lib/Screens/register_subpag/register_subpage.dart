@@ -339,6 +339,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     TextEditingController nicknameController = TextEditingController(
       text: controller.userRegistrationRequest.nickname,
     );
+
     return Card(
       elevation: 8,
       shape: RoundedRectangleBorder(
@@ -394,49 +395,60 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               cursorColor: AppColors.cursorColor,
             ),
             SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: controller.userRegistrationRequest.nickname.isEmpty
-                  ? null
-                  : () {
-                      if (controller.userRegistrationRequest.nickname.isEmpty) {
-                        failure('Nickname', 'Enter Your Nickname');
-                        return;
-                      } else {
-                        if (_validateNickname(
-                            controller.userRegistrationRequest.nickname)) {
-                          markStepAsCompleted(2);
-                          Get.snackbar(
-                              'nickname',
-                              controller.userRegistrationRequest.nickname
-                                  .toString());
-                          pageController.nextPage(
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.ease,
-                          );
-                        }
-                      }
-                    },
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                backgroundColor: AppColors.activeColor,
-                foregroundColor: AppColors.textColor,
-              ),
-              child: Text(
-                'Next',
-                style: AppTextStyles.buttonText.copyWith(
-                  fontSize: screenSize.width * 0.02,
+            // Row to place the buttons on the left and right
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: onBackPressed,
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                    backgroundColor: AppColors.activeColor,
+                    foregroundColor: AppColors.textColor,
+                  ),
+                  child: Text(
+                    'Back',
+                    style: AppTextStyles.buttonText.copyWith(
+                      fontSize: screenSize.width * 0.02,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: onBackPressed,
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                backgroundColor: AppColors.buttonColor,
-                foregroundColor: AppColors.textColor,
-              ),
-              child: Text('Back', style: AppTextStyles.buttonText),
+                ElevatedButton(
+                  onPressed: controller.userRegistrationRequest.nickname.isEmpty
+                      ? null
+                      : () {
+                          if (controller
+                              .userRegistrationRequest.nickname.isEmpty) {
+                            failure('Nickname', 'Enter Your Nickname');
+                            return;
+                          } else {
+                            if (_validateNickname(
+                                controller.userRegistrationRequest.nickname)) {
+                              markStepAsCompleted(2);
+                              Get.snackbar(
+                                  'nickname',
+                                  controller.userRegistrationRequest.nickname
+                                      .toString());
+                              pageController.nextPage(
+                                duration: Duration(milliseconds: 300),
+                                curve: Curves.ease,
+                              );
+                            }
+                          }
+                        },
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                    backgroundColor: AppColors.buttonColor,
+                    foregroundColor: AppColors.textColor,
+                  ),
+                  child: Text(
+                    'Next',
+                    style: AppTextStyles.buttonText.copyWith(
+                      fontSize: screenSize.width * 0.02,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -516,50 +528,61 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               }),
               SizedBox(height: 40),
               Obx(() {
-                return ElevatedButton(
-                  onPressed: selectedGender.value == null
-                      ? null
-                      : () {
-                          if (selectedGender.value == null) {
-                            failure('Failed',
-                                'Please select an option to proceed.');
-                          } else {
-                            markStepAsCompleted(3);
-                            Get.snackbar(
-                                'gender',
-                                controller.userRegistrationRequest.gender
-                                    .toString());
-                            pageController.nextPage(
-                              duration: Duration(milliseconds: 300),
-                              curve: Curves.ease,
-                            );
-                          }
-                        },
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                    backgroundColor: selectedGender.value != null
-                        ? AppColors.buttonColor
-                        : AppColors.activeColor,
-                    foregroundColor: AppColors.textColor,
-                  ),
-                  child: Text(
-                    'Next',
-                    style: AppTextStyles.buttonText.copyWith(
-                      fontSize: screenSize.width * 0.03,
-                    ),
-                  ),
-                );
+                return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                        onPressed: onBackPressed,
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 14, horizontal: 30),
+                          backgroundColor: AppColors.activeColor,
+                          foregroundColor: AppColors.textColor,
+                        ),
+                        child: Text(
+                          'Back',
+                          style: AppTextStyles.buttonText.copyWith(
+                            fontSize: screenSize.width * 0.03,
+                          ),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: selectedGender.value == null
+                            ? null
+                            : () {
+                                if (selectedGender.value == null) {
+                                  failure('Failed',
+                                      'Please select an option to proceed.');
+                                } else {
+                                  markStepAsCompleted(3);
+                                  Get.snackbar(
+                                      'gender',
+                                      controller.userRegistrationRequest.gender
+                                          .toString());
+                                  pageController.nextPage(
+                                    duration: Duration(milliseconds: 300),
+                                    curve: Curves.ease,
+                                  );
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 14, horizontal: 30),
+                          backgroundColor: selectedGender.value != null
+                              ? AppColors.buttonColor
+                              : AppColors.activeColor,
+                          foregroundColor: AppColors.textColor,
+                        ),
+                        child: Text(
+                          'Next',
+                          style: AppTextStyles.buttonText.copyWith(
+                            fontSize: screenSize.width * 0.03,
+                          ),
+                        ),
+                      ),
+                    ]);
               }),
               SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: onBackPressed,
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                  backgroundColor: AppColors.buttonColor,
-                  foregroundColor: AppColors.textColor,
-                ),
-                child: Text('Back', style: AppTextStyles.buttonText),
-              ),
             ],
           ),
         ),
@@ -644,44 +667,51 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 ),
               ),
               SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: selectedOption.value.isEmpty
-                    ? null
-                    : () {
-                        markStepAsCompleted(4);
-                        Get.snackbar(
-                            'Sub-gender',
-                            controller.userRegistrationRequest.subGender
-                                .toString());
-                        pageController.nextPage(
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.ease,
-                        );
-                      },
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                  backgroundColor: selectedOption.value.isEmpty
-                      ? AppColors.disabled
-                      : AppColors.buttonColor,
-                  foregroundColor: AppColors.textColor,
-                ),
-                child: Text(
-                  'Next',
-                  style: AppTextStyles.buttonText.copyWith(
-                    fontSize: screenSize.width * 0.02,
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                ElevatedButton(
+                  onPressed: onBackPressed,
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                    backgroundColor: AppColors.activeColor,
+                    foregroundColor: AppColors.textColor,
+                  ),
+                  child: Text(
+                    'Back',
+                    style: AppTextStyles.buttonText.copyWith(
+                      fontSize: screenSize.width * 0.02,
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: onBackPressed,
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                  backgroundColor: AppColors.buttonColor,
-                  foregroundColor: AppColors.textColor,
+                ElevatedButton(
+                  onPressed: selectedOption.value.isEmpty
+                      ? null
+                      : () {
+                          markStepAsCompleted(4);
+                          Get.snackbar(
+                              'Sub-gender',
+                              controller.userRegistrationRequest.subGender
+                                  .toString());
+                          pageController.nextPage(
+                            duration: Duration(milliseconds: 300),
+                            curve: Curves.ease,
+                          );
+                        },
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                    backgroundColor: selectedOption.value.isEmpty
+                        ? AppColors.disabled
+                        : AppColors.buttonColor,
+                    foregroundColor: AppColors.textColor,
+                  ),
+                  child: Text(
+                    'Next',
+                    style: AppTextStyles.buttonText.copyWith(
+                      fontSize: screenSize.width * 0.02,
+                    ),
+                  ),
                 ),
-                child: Text('Back', style: AppTextStyles.buttonText),
-              ),
+              ]),
+              SizedBox(height: 10),
             ],
           ),
         ),
@@ -771,53 +801,58 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  List<String> selectedPreferences = [];
-                  for (int i = 0; i < preferencesSelectedOptions.length; i++) {
-                    if (preferencesSelectedOptions[i]) {
-                      selectedPreferences.add(controller.preferences[i].id);
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                ElevatedButton(
+                  onPressed: onBackPressed,
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
+                    backgroundColor: AppColors.activeColor,
+                    foregroundColor: AppColors.textColor,
+                  ),
+                  child: Text('Back', style: AppTextStyles.textStyle),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    List<String> selectedPreferences = [];
+                    for (int i = 0;
+                        i < preferencesSelectedOptions.length;
+                        i++) {
+                      if (preferencesSelectedOptions[i]) {
+                        selectedPreferences.add(controller.preferences[i].id);
+                      }
                     }
-                  }
 
-                  controller.userRegistrationRequest.preferences =
-                      selectedPreferences;
+                    controller.userRegistrationRequest.preferences =
+                        selectedPreferences;
 
-                  if (selectedPreferences.isEmpty) {
-                    failure('Failed', 'Please select at least one preference.');
-                  } else {
-                    markStepAsCompleted(5);
-                    Get.snackbar(
-                        'pref',
-                        controller.userRegistrationRequest.preferences
-                            .toString());
-                    pageController.nextPage(
-                      duration: Duration(milliseconds: 300),
-                      curve: Curves.ease,
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
-                  backgroundColor: preferencesSelectedOptions.isNotEmpty
-                      ? AppColors.inactiveColor
-                      : AppColors.buttonColor,
-                  foregroundColor: AppColors.textColor,
+                    if (selectedPreferences.isEmpty) {
+                      failure(
+                          'Failed', 'Please select at least one preference.');
+                    } else {
+                      markStepAsCompleted(5);
+                      Get.snackbar(
+                          'pref',
+                          controller.userRegistrationRequest.preferences
+                              .toString());
+                      pageController.nextPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.ease,
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
+                    backgroundColor: preferencesSelectedOptions.isNotEmpty
+                        ? AppColors.buttonColor
+                        : AppColors.disabled,
+                    foregroundColor: AppColors.textColor,
+                  ),
+                  child: Text(
+                    'Next',
+                    style: AppTextStyles.textStyle,
+                  ),
                 ),
-                child: Text(
-                  'Next',
-                  style: AppTextStyles.textStyle,
-                ),
-              ),
-              ElevatedButton(
-                onPressed: onBackPressed,
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
-                  backgroundColor: AppColors.buttonColor,
-                  foregroundColor: AppColors.textColor,
-                ),
-                child: Text('Back', style: AppTextStyles.textStyle),
-              ),
+              ]),
             ],
           ),
         ),
@@ -1006,47 +1041,49 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       )
                     : Container();
               }),
-              Obx(() {
-                return selectedStatus.isNotEmpty
-                    ? Align(
-                        alignment: Alignment.centerRight,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            markStepAsCompleted(6);
-                            Get.snackbar(
-                                'desires',
-                                controller.userRegistrationRequest.desires
-                                    .toString());
-                            pageController.nextPage(
-                              duration: Duration(milliseconds: 300),
-                              curve: Curves.ease,
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.buttonColor,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                          ),
-                          child: Text(
-                            'Next',
-                            style: AppTextStyles.buttonText.copyWith(
-                              fontSize: AppTextStyles.buttonSize,
-                              color: AppColors.textColor,
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                ElevatedButton(
+                  onPressed: onBackPressed,
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
+                    backgroundColor: AppColors.activeColor,
+                    foregroundColor: AppColors.textColor,
+                  ),
+                  child: Text('Back', style: AppTextStyles.textStyle),
+                ),
+                Obx(() {
+                  return selectedStatus.isNotEmpty
+                      ? Align(
+                          alignment: Alignment.centerRight,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              markStepAsCompleted(6);
+                              Get.snackbar(
+                                  'desires',
+                                  controller.userRegistrationRequest.desires
+                                      .toString());
+                              pageController.nextPage(
+                                duration: Duration(milliseconds: 300),
+                                curve: Curves.ease,
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.buttonColor,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                            ),
+                            child: Text(
+                              'Next',
+                              style: AppTextStyles.buttonText.copyWith(
+                                fontSize: AppTextStyles.buttonSize,
+                                color: AppColors.textColor,
+                              ),
                             ),
                           ),
-                        ),
-                      )
-                    : Container();
-              }),
-              ElevatedButton(
-                onPressed: onBackPressed,
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
-                  backgroundColor: AppColors.buttonColor,
-                  foregroundColor: AppColors.textColor,
-                ),
-                child: Text('Back', style: AppTextStyles.textStyle),
-              ),
+                        )
+                      : Container();
+                }),
+              ]),
             ],
           ),
         ),
@@ -1222,49 +1259,51 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       )
                     : Container();
               }),
-              Obx(() {
-                return isSelectionValid()
-                    ? Align(
-                        alignment: Alignment.centerRight,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            markStepAsCompleted(7);
-                            Get.snackbar(
-                                'intrest',
-                                controller.userRegistrationRequest.interest
-                                    .toString());
-                            pageController.nextPage(
-                              duration: Duration(milliseconds: 300),
-                              curve: Curves.ease,
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: selectedInterests.isNotEmpty
-                                ? AppColors.activeColor
-                                : AppColors.inactiveColor,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                          ),
-                          child: Text(
-                            'Continue',
-                            style: AppTextStyles.buttonText.copyWith(
-                              fontSize: buttonFontSize,
-                              color: AppColors.textColor,
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                ElevatedButton(
+                  onPressed: onBackPressed,
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
+                    backgroundColor: AppColors.activeColor,
+                    foregroundColor: AppColors.textColor,
+                  ),
+                  child: Text('Back', style: AppTextStyles.textStyle),
+                ),
+                Obx(() {
+                  return isSelectionValid()
+                      ? Align(
+                          alignment: Alignment.centerRight,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              markStepAsCompleted(7);
+                              Get.snackbar(
+                                  'intrest',
+                                  controller.userRegistrationRequest.interest
+                                      .toString());
+                              pageController.nextPage(
+                                duration: Duration(milliseconds: 300),
+                                curve: Curves.ease,
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: selectedInterests.isNotEmpty
+                                  ? AppColors.buttonColor
+                                  : AppColors.inactiveColor,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                            ),
+                            child: Text(
+                              'Continue',
+                              style: AppTextStyles.buttonText.copyWith(
+                                fontSize: buttonFontSize,
+                                color: AppColors.textColor,
+                              ),
                             ),
                           ),
-                        ),
-                      )
-                    : Container();
-              }),
-              ElevatedButton(
-                onPressed: onBackPressed,
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
-                  backgroundColor: AppColors.buttonColor,
-                  foregroundColor: AppColors.textColor,
-                ),
-                child: Text('Back', style: AppTextStyles.textStyle),
-              ),
+                        )
+                      : Container();
+                }),
+              ]),
             ],
           ),
         ),
@@ -1415,45 +1454,48 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       ],
                     );
             }),
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: () {
-                  if (selectedLanguages.isEmpty) {
-                    failure('Error', 'Please select at least one language');
-                    Get.snackbar("lang", controller.language.length.toString());
-                    return;
-                  } else {
-                    print('Next button pressed');
-                    print(
-                        'Selected Language IDs: ${controller.userRegistrationRequest.lang}');
-                    markStepAsCompleted(8);
-
-                    Get.snackbar('lang',
-                        controller.userRegistrationRequest.lang.toString());
-                    pageController.nextPage(
-                      duration: Duration(milliseconds: 300),
-                      curve: Curves.ease,
-                    );
-                  }
-                },
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              ElevatedButton(
+                onPressed: onBackPressed,
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
+                  backgroundColor: AppColors.activeColor,
+                  foregroundColor: AppColors.textColor,
                 ),
-                child: Text('Next'),
+                child: Text('Back', style: AppTextStyles.buttonText),
               ),
-            ),
-            ElevatedButton(
-              onPressed: onBackPressed,
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
-                backgroundColor: AppColors.buttonColor,
-                foregroundColor: AppColors.textColor,
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (selectedLanguages.isEmpty) {
+                      failure('Error', 'Please select at least one language');
+                      Get.snackbar(
+                          "lang", controller.language.length.toString());
+                      return;
+                    } else {
+                      print('Next button pressed');
+                      print(
+                          'Selected Language IDs: ${controller.userRegistrationRequest.lang}');
+                      markStepAsCompleted(8);
+
+                      Get.snackbar('lang',
+                          controller.userRegistrationRequest.lang.toString());
+                      pageController.nextPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.ease,
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
+                    backgroundColor: AppColors.buttonColor,
+                    foregroundColor: AppColors.textColor,
+                  ),
+                  child: Text('Next'),
+                ),
               ),
-              child: Text('Back', style: AppTextStyles.buttonText),
-            ),
+            ]),
           ],
         ),
       ),
@@ -1464,11 +1506,11 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   RxString userDescription = ''.obs;
   final TextEditingController descriptionController = TextEditingController();
   Widget buildUserDescriptionStep(Size screenSize) {
-    bool isInputValid = true;
+    // bool isInputValid = true;
     void onDescriptionChanged(String value) {
       userDescription.value = value;
       controller.userRegistrationRequest.bio = value;
-      isInputValid = RegExp(r'^[a-zA-Z\s]*$').hasMatch(value);
+      // isInputValid = RegExp(r'^[a-zA-Z\s]*$').hasMatch(value);
     }
 
     double screenWidth = screenSize.width;
@@ -1531,85 +1573,77 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(color: AppColors.textColor),
                   ),
-                  errorText:
-                      isInputValid ? null : 'Please enter only alphabets',
+                  // errorText:
+                  //     isInputValid ? null : 'Please enter only alphabets',
                 ),
                 style: TextStyle(
                   color: AppColors.textColor,
                   fontSize: inputFontSize,
                 ),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
-                ],
+                // inputFormatters: [
+                //   FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                // ],
                 cursorColor: AppColors.cursorColor,
                 textInputAction: TextInputAction.done,
               ),
               SizedBox(height: 20),
               Obx(() {
                 return Text(
-                  '${userDescription.value.length} / 250 characters',
+                  '${userDescription.value.length} / 1000 characters',
                   style: AppTextStyles.bodyText.copyWith(
                     fontSize: bodyFontSize,
-                    color: userDescription.value.length > 250
+                    color: userDescription.value.length > 1000
                         ? Colors.red
                         : AppColors.textColor,
                   ),
                 );
               }),
               SizedBox(height: 20),
-              Obx(() {
-                return ElevatedButton(
-                  onPressed: userDescription.value.isNotEmpty &&
-                          userDescription.value.length <= 250
-                      ? () {
-                          if (userDescription.value.isEmpty) {
-                            failure(
-                              'Validation Error',
-                              'Description cannot be empty.',
-                            );
-                          } else if (userDescription.value.length > 250) {
-                            failure(
-                              'Validation Error',
-                              'Description cannot exceed 250 characters.',
-                            );
-                          }
-                          markStepAsCompleted(9);
-                          Get.snackbar(
-                              'bio',
-                              controller.userRegistrationRequest.bio
-                                  .toString());
-                          pageController.nextPage(
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.ease,
-                          );
-                          // controller.register(controller.userRegistrationRequest);
-                          print("User Description: ${userDescription.value}");
-                        }
-                      : null,
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                ElevatedButton(
+                  onPressed: onBackPressed,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: userDescription.value.isNotEmpty &&
-                            userDescription.value.length <= 250
-                        ? AppColors.buttonColor
-                        : Colors.red,
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                    backgroundColor: AppColors.activeColor,
+                    foregroundColor: AppColors.textColor,
                   ),
                   child: Text(
-                    'Next',
+                    'Back',
                     style: AppTextStyles.buttonText.copyWith(
                       fontSize: buttonFontSize,
                     ),
                   ),
-                );
-              }),
-              ElevatedButton(
-                onPressed: onBackPressed,
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                  backgroundColor: AppColors.buttonColor,
-                  foregroundColor: AppColors.textColor,
                 ),
-                child: Text('Back', style: AppTextStyles.buttonText),
-              ),
+                Obx(() {
+                  return ElevatedButton(
+                    onPressed: () {
+                      markStepAsCompleted(9);
+                      Get.snackbar('bio',
+                          controller.userRegistrationRequest.bio.toString());
+                      pageController.nextPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.ease,
+                      );
+                      // controller.register(controller.userRegistrationRequest);
+                      print("User Description: ${userDescription.value}");
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: userDescription.value.isNotEmpty &&
+                              userDescription.value.length <= 1000
+                          ? AppColors.buttonColor
+                          : AppColors.disabled,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    ),
+                    child: Text(
+                      'Next',
+                      style: AppTextStyles.buttonText.copyWith(
+                        fontSize: buttonFontSize,
+                      ),
+                    ),
+                  );
+                }),
+              ]),
             ],
           ),
         ),
@@ -1752,7 +1786,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     child: Text(
                       "We need permission to send you notifications through email.",
                       style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize - 2,
+                        fontSize: fontSize,
                         color: AppColors.textColor,
                       ),
                     ),
@@ -1761,7 +1795,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     return Text(
                       notificationGranted.value ? 'Granted' : 'Tap to Grant',
                       style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize - 2,
+                        fontSize: fontSize,
                         color: notificationGranted.value
                             ? AppColors.buttonColor
                             : AppColors.formFieldColor,
@@ -1797,7 +1831,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     child: Text(
                       "We need permission to access your location.",
                       style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize - 2,
+                        fontSize: fontSize,
                         color: AppColors.textColor,
                       ),
                     ),
@@ -1808,7 +1842,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       style: AppTextStyles.bodyText.copyWith(
                         fontSize: fontSize - 2,
                         color: locationGranted.value
-                            ? AppColors.buttonColor
+                            ? AppColors.activeColor
                             : AppColors.formFieldColor,
                       ),
                     );
@@ -1819,46 +1853,50 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           ),
         ),
         SizedBox(height: 20),
-        Obx(() {
-          return ElevatedButton(
-            onPressed: notificationGranted.value && locationGranted.value
-                ? () {
-                    markStepAsCompleted(10);
-                    Get.snackbar(
-                        'permission',
-                        controller.userRegistrationRequest.emailAlerts
-                            .toString());
-                    pageController.nextPage(
-                      duration: Duration(milliseconds: 300),
-                      curve: Curves.ease,
-                    );
-                  }
-                : null,
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          ElevatedButton(
+            onPressed: onBackPressed,
             style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  notificationGranted.value && locationGranted.value
-                      ? AppColors.buttonColor
-                      : Colors.grey,
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
+              backgroundColor: AppColors.buttonColor,
+              foregroundColor: AppColors.textColor,
             ),
-            child: Text(
-              'Next',
-              style: AppTextStyles.buttonText.copyWith(
-                fontSize: fontSize,
-              ),
-            ),
-          );
-        }),
-        SizedBox(height: 20),
-        ElevatedButton(
-          onPressed: onBackPressed,
-          style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
-            backgroundColor: AppColors.buttonColor,
-            foregroundColor: AppColors.textColor,
+            child: Text('Back', style: AppTextStyles.buttonText.copyWith(
+                  fontSize: fontSize,
+                ),),
           ),
-          child: Text('Back', style: AppTextStyles.buttonText),
-        ),
+          Obx(() {
+            return ElevatedButton(
+              onPressed: notificationGranted.value && locationGranted.value
+                  ? () {
+                      markStepAsCompleted(10);
+                      Get.snackbar(
+                          'permission',
+                          controller.userRegistrationRequest.emailAlerts
+                              .toString());
+                      pageController.nextPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.ease,
+                      );
+                    }
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    notificationGranted.value && locationGranted.value
+                        ? AppColors.buttonColor
+                        : Colors.grey,
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              ),
+              child: Text(
+                'Next',
+                style: AppTextStyles.buttonText.copyWith(
+                  fontSize: fontSize,
+                ),
+              ),
+            );
+          }),
+        ]),
+        SizedBox(height: 20),
       ],
     );
   }
@@ -2270,32 +2308,40 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 );
               }),
               SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: onNextButtonPressed,
-                style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    backgroundColor:
-                        controller.userRegistrationRequest.photos.isNotEmpty
-                            ? AppColors.activeColor
-                            : AppColors.inactiveColor),
-                child: Text("Next",
-                    style: AppTextStyles.buttonText.copyWith(
-                      color: AppColors.primaryColor,
-                    )),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children:[ 
+                   ElevatedButton(
                 onPressed: onBackPressed,
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
-                  backgroundColor: AppColors.buttonColor,
+                  backgroundColor: AppColors.activeColor,
                   foregroundColor: AppColors.textColor,
                 ),
-                child: Text('Back', style: AppTextStyles.buttonText),
+                child: Text('Back', style: AppTextStyles.buttonText.copyWith(
+                        color: AppColors.primaryColor,
+                      )),
               ),
+                  ElevatedButton(
+                  onPressed: onNextButtonPressed,
+                  style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      backgroundColor:
+                          controller.userRegistrationRequest.photos.isNotEmpty
+                              ? AppColors.buttonColor
+                              : AppColors.inactiveColor),
+                  child: Text("Next",
+                      style: AppTextStyles.buttonText.copyWith(
+                        color: AppColors.primaryColor,
+                      )),
+                ),
+                ]
+              ),
+              SizedBox(height: 20),
+             
             ],
           ),
         ),
@@ -2419,31 +2465,39 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           SizedBox(height: 20),
 
           // Acknowledge Button
-          ElevatedButton(
-            onPressed: nextStep,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.buttonColor,
-              foregroundColor: AppColors.textColor,
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            ),
-            child: Text(
-              'Acknowledge',
-              style: AppTextStyles.buttonText.copyWith(
-                fontSize: fontSize,
-              ),
-            ),
-          ),
-          SizedBox(height: 10),
-
-          ElevatedButton(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children:[ 
+               ElevatedButton(
             onPressed: onBackPressed,
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
-              backgroundColor: AppColors.buttonColor,
+              backgroundColor: AppColors.activeColor,
               foregroundColor: AppColors.textColor,
             ),
-            child: Text('Back', style: AppTextStyles.buttonText),
+            child: Text('Back', style: AppTextStyles.buttonText.copyWith(
+                  fontSize: fontSize,
+                ),),
           ),
+              ElevatedButton(
+              onPressed: nextStep,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.buttonColor,
+                foregroundColor: AppColors.textColor,
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              ),
+              child: Text(
+                'Acknowledge',
+                style: AppTextStyles.buttonText.copyWith(
+                  fontSize: fontSize,
+                ),
+              ),
+            ),
+            ]
+          ),
+          SizedBox(height: 10),
+
+         
         ],
       ),
     );

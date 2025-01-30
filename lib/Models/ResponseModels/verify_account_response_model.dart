@@ -1,4 +1,3 @@
-
 class RequestToVerifyAccountResponse {
   final bool success;
   final Payload payload;
@@ -34,7 +33,6 @@ class Payload {
     required this.message,
   });
 
- 
   Map<String, dynamic> toJson() {
     return {
       'message': message,

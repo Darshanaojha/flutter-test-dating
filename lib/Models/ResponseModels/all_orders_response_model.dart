@@ -29,20 +29,17 @@ class AllOrdersResponseModel {
 class Payload {
   List<Order> orders;
 
-  // Constructor
   Payload({required this.orders});
 
-  // Factory constructor to create Payload instance from JSON
   factory Payload.fromJson(Map<String, dynamic> json) {
     var ordersList = (json['orders'] as List?)
             ?.map((orderJson) => Order.fromJson(orderJson))
             .toList() ??
-        []; // Handle null 'orders' or empty list
+        [];  // Default to an empty list if orders is null or empty.
 
     return Payload(orders: ordersList);
   }
 
-  // Method to convert Payload to JSON
   Map<String, dynamic> toJson() {
     return {
       'orders': orders.map((order) => order.toJson()).toList(),
@@ -52,6 +49,7 @@ class Payload {
 
 class Order {
   String id;
+  String razorpayOrderId;
   String userId;
   String packageId;
   String type;
@@ -72,9 +70,9 @@ class Order {
   String created;
   String updated;
 
-  // Constructor
   Order({
     required this.id,
+    required this.razorpayOrderId,
     required this.userId,
     required this.packageId,
     required this.type,
@@ -98,33 +96,34 @@ class Order {
 
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
-      id: json['id'] ?? '', 
+      id: json['id'] ?? '',  // Default to empty string if null
+      razorpayOrderId: json['razorpay_order_id'] ?? '',  // Default to empty string if null
       userId: json['user_id'] ?? '',
       packageId: json['package_id'] ?? '',
       type: json['type'] ?? '',
-      amount: _parseAmount(json['amount']), 
+      amount: json['amount'] ?? '0.00',  // Default to '0.00' if null
       packageTitle: json['package_title'] ?? '',
       packageCategoryId: json['package_category_id'] ?? '',
       packageCategoryTitle: json['package_category_title'] ?? '',
       packageCategoryDescription: json['package_category_description'] ?? '',
       days: json['days'] ?? '',
-      actualAmount: json['actual_amount'] ?? '',
-      offerAmount: json['offer_amount'] ?? '',
+      actualAmount: json['actual_amount'] ?? '0.00',  // Default to '0.00' if null
+      offerAmount: json['offer_amount'] ?? '0.00',  // Default to '0.00' if null
       unit: json['unit'] ?? '',
-      addonTitle: json['addon_title'] ?? '',
-      addonDuration: json['addon_duration'] ?? '',
-      addonDurationUnit: json['addon_duration_unit'] ?? '',
-      addonAmount: json['addon_amount'] ?? '',
-      status: json['status'] ?? '',
-      created: json['created'] ?? '', // Handle missing 'created'
-      updated: json['updated'] ?? '', // Handle missing 'updated'
+      addonTitle: json['addon_title'] as String?,
+      addonDuration: json['addon_duration'] as String?,
+      addonDurationUnit: json['addon_duration_unit'] as String?,
+      addonAmount: json['addon_amount'] as String?,
+      status: json['status'] ?? '', 
+      created: json['created'] ?? '', 
+      updated: json['updated'] ?? '',  
     );
   }
 
-  // Method to convert an Order to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'razorpay_order_id': razorpayOrderId,
       'user_id': userId,
       'package_id': packageId,
       'type': type,
@@ -137,40 +136,30 @@ class Order {
       'actual_amount': actualAmount,
       'offer_amount': offerAmount,
       'unit': unit,
-      'addon_title': addonTitle,
-      'addon_duration': addonDuration,
-      'addon_duration_unit': addonDurationUnit,
-      'addon_amount': addonAmount,
+      'addon_title': addonTitle ?? '',
+      'addon_duration': addonDuration ?? '',
+      'addon_duration_unit': addonDurationUnit ?? '',
+      'addon_amount': addonAmount ?? '',
       'status': status,
       'created': created,
       'updated': updated,
     };
   }
-
-  static String _parseAmount(dynamic amount) {
-    if (amount == null) {
-      return '0'; 
-    } else if (amount is int) {
-      return amount.toString(); 
-    } else if (amount is String) {
-      return amount;
-    }
-    return '0'; 
-  }
 }
 
 class Error {
-  String code;
+  int code;
   String message;
+
   Error({required this.code, required this.message});
+
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
-      code: json['code'] ?? '', 
+      code: json['code'] ?? 0,  
       message: json['message'] ?? '', 
     );
   }
 
-  // Method to convert Error to JSON
   Map<String, dynamic> toJson() {
     return {
       'code': code,

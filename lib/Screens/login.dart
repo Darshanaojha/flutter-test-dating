@@ -186,9 +186,9 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
             filled: true,
             suffixIcon: IconButton(
                 onPressed: () {
-                setState(() {
+                  setState(() {
                     emailvisibility = !emailvisibility;
-                });
+                  });
                 },
                 icon: Icon(
                     emailvisibility ? Icons.visibility_off : Icons.visibility,

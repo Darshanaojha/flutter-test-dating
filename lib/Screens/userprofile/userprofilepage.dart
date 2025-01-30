@@ -81,394 +81,446 @@ class UserProfilePageState extends State<UserProfilePage>
     return true;
   }
 
+  Future<void> _refreshData() async {
+    await Future.delayed(Duration(seconds: 2));
+    await controller.fetchProfile();
+    await controller.fetchProfileUserPhotos();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      body: Stack(
-        children: [
-          FutureBuilder<bool>(
-              future: _fetchprofilepage,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                    // child: SpinKitCircle(
-                    //   size: 150.0,
-                    //   color: AppColors.progressColor,
-                    // ),
-                    child: Lottie.asset(
-                        "assets/animations/handloadinganimation.json",
-                        repeat: true,
-                        reverse: true),
-                  );
-                }
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text(
-                      'Error loading user photos: ${snapshot.error}',
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  );
-                }
-                if (!snapshot.hasData ||
-                    controller.userPhotos == null ||
-                    controller.userPhotos!.images.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'No photos available.',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  );
-                }
-                return SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.2,
-                        child: Scrollbar(
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount:
-                                controller.userPhotos?.images.length ?? 0,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: GestureDetector(
-                                  onTap: () => showFullImageDialog(context,
-                                      controller.userPhotos!.images[index]),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(15),
-                                    child: controller.userPhotos!.images[index]
-                                            .isNotEmpty
-                                        ? Image.network(
-                                            controller.userPhotos
-                                                    ?.images[index] ??
-                                                '',
-                                            fit: BoxFit.cover,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.2,
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.3,
-                                            loadingBuilder: (context, child,
-                                                loadingProgress) {
-                                              if (loadingProgress == null) {
-                                                return child; // Image loaded, return the actual image
-                                              } else {
-                                                return Center(
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    value: loadingProgress
-                                                                .expectedTotalBytes !=
-                                                            null
-                                                        ? loadingProgress
-                                                                .cumulativeBytesLoaded /
-                                                            (loadingProgress
-                                                                    .expectedTotalBytes ??
-                                                                1)
-                                                        : null,
+      body: RefreshIndicator(
+        onRefresh: _refreshData,
+        child: Stack(
+          children: [
+            FutureBuilder<bool>(
+                future: _fetchprofilepage,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      // child: SpinKitCircle(
+                      //   size: 150.0,
+                      //   color: AppColors.progressColor,
+                      // ),
+                      child: Lottie.asset(
+                          "assets/animations/handloadinganimation.json",
+                          repeat: true,
+                          reverse: true),
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        'Error loading user photos: ${snapshot.error}',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    );
+                  }
+                  if (!snapshot.hasData ||
+                      controller.userPhotos == null ||
+                      controller.userPhotos!.images.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'No photos available.',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    );
+                  }
+                  return Obx(()=> SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.2,
+                          child: Scrollbar(
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount:
+                                  controller.userPhotos?.images.length ?? 0,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: GestureDetector(
+                                    onTap: () => showFullImageDialog(context,
+                                        controller.userPhotos!.images[index]),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(15),
+                                      child: controller.userPhotos!
+                                              .images[index].isNotEmpty
+                                          ? Image.network(
+                                              controller.userPhotos
+                                                      ?.images[index] ??
+                                                  '',
+                                              fit: BoxFit.cover,
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.2,
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.3,
+                                              loadingBuilder: (context, child,
+                                                  loadingProgress) {
+                                                if (loadingProgress == null) {
+                                                  return child; // Image loaded, return the actual image
+                                                } else {
+                                                  return Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      value: loadingProgress
+                                                                  .expectedTotalBytes !=
+                                                              null
+                                                          ? loadingProgress
+                                                                  .cumulativeBytesLoaded /
+                                                              (loadingProgress
+                                                                      .expectedTotalBytes ??
+                                                                  1)
+                                                          : null,
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return Container(
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.2,
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height *
+                                                      0.3,
+                                                  color: Colors.grey[300],
+                                                  alignment: Alignment.center,
+                                                  child: Icon(
+                                                    Icons.co_present_rounded,
+                                                    size: 70,
+                                                    color: Colors.grey,
                                                   ),
                                                 );
-                                              }
-                                            },
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return Container(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.2,
-                                                height: MediaQuery.of(context)
-                                                        .size
-                                                        .height *
-                                                    0.3,
-                                                color: Colors.grey[300],
-                                                alignment: Alignment.center,
-                                                child: Icon(
-                                                  Icons.co_present_rounded,
-                                                  size: 70,
-                                                  color: Colors.grey,
-                                                ),
-                                              );
-                                            },
-                                          )
-                                        : Container(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.2,
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.3,
-                                            color: Colors.grey[300],
-                                            alignment: Alignment.center,
-                                            child: Icon(
-                                              Icons.co_present_rounded,
-                                              size: 50,
-                                              color: Colors.grey,
+                                              },
+                                            )
+                                          : Container(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.2,
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.3,
+                                              color: Colors.grey[300],
+                                              alignment: Alignment.center,
+                                              child: Icon(
+                                                Icons.co_present_rounded,
+                                                size: 50,
+                                                color: Colors.grey,
+                                              ),
                                             ),
-                                          ),
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  controller.usernameUpdateRequest.username
-                                          .isNotEmpty
-                                      ? controller
-                                          .usernameUpdateRequest.username
-                                      : controller.userData.first.username,
-                                  style: AppTextStyles.titleText.copyWith(
-                                    fontSize: getResponsiveFontSize(0.03),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    controller.usernameUpdateRequest.username
+                                            .isNotEmpty
+                                        ? controller
+                                            .usernameUpdateRequest.username
+                                        : controller.userData.first.username,
+                                    style: AppTextStyles.titleText.copyWith(
+                                      fontSize: getResponsiveFontSize(0.03),
+                                    ),
                                   ),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  'Click to change username',
-                                  style: AppTextStyles.textStyle.copyWith(
-                                    fontSize: getResponsiveFontSize(0.02),
-                                    color: Colors.grey,
+                                  SizedBox(height: 8),
+                                  Text(
+                                    'Click to change username',
+                                    style: AppTextStyles.textStyle.copyWith(
+                                      fontSize: getResponsiveFontSize(0.02),
+                                      color: Colors.grey,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.edit,
-                                  size: 30, color: Colors.blue),
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: Text(
-                                        'Edit Username',
-                                        style: AppTextStyles.titleText.copyWith(
-                                          fontSize: getResponsiveFontSize(0.03),
-                                          fontWeight: FontWeight.bold,
+                                ],
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.edit,
+                                    size: 30, color: Colors.blue),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text(
+                                          'Edit Username',
+                                          style:
+                                              AppTextStyles.titleText.copyWith(
+                                            fontSize:
+                                                getResponsiveFontSize(0.03),
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                      content: SizedBox(
-                                        height: 80,
-                                        child: Scrollbar(
-                                          child: SingleChildScrollView(
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  TextField(
-                                                    cursorColor:
-                                                        AppColors.cursorColor,
-                                                    controller:
-                                                        TextEditingController(
-                                                      text: controller
+                                        content: SizedBox(
+                                          height: 80,
+                                          child: Scrollbar(
+                                            child: SingleChildScrollView(
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    TextField(
+                                                      cursorColor:
+                                                          AppColors.cursorColor,
+                                                      controller:
+                                                          TextEditingController(
+                                                        text: controller
+                                                                .usernameUpdateRequest
+                                                                .username
+                                                                .isNotEmpty
+                                                            ? controller
+                                                                .usernameUpdateRequest
+                                                                .username
+                                                            : controller
+                                                                .userData
+                                                                .first
+                                                                .username,
+                                                      ),
+                                                      onChanged: (value) {
+                                                        setState(() {
+                                                          controller
                                                               .usernameUpdateRequest
-                                                              .username
-                                                              .isNotEmpty
-                                                          ? controller
-                                                              .usernameUpdateRequest
-                                                              .username
-                                                          : controller.userData
-                                                              .first.username,
-                                                    ),
-                                                    onChanged: (value) {
-                                                      setState(() {
-                                                        controller
-                                                            .usernameUpdateRequest
-                                                            .username = value;
-                                                      });
-                                                    },
-                                                    decoration: InputDecoration(
-                                                      labelText: 'Username',
-                                                      labelStyle: AppTextStyles
-                                                          .labelText
-                                                          .copyWith(
-                                                              fontSize:
-                                                                  getResponsiveFontSize(
-                                                                      0.03)),
-                                                      filled: true,
-                                                      fillColor: AppColors
-                                                          .formFieldColor,
-                                                      border:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                        borderSide:
-                                                            BorderSide.none,
+                                                              .username = value;
+                                                        });
+                                                      },
+                                                      decoration:
+                                                          InputDecoration(
+                                                        labelText: 'Username',
+                                                        labelStyle: AppTextStyles
+                                                            .labelText
+                                                            .copyWith(
+                                                                fontSize:
+                                                                    getResponsiveFontSize(
+                                                                        0.03)),
+                                                        filled: true,
+                                                        fillColor: AppColors
+                                                            .formFieldColor,
+                                                        border:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                          borderSide:
+                                                              BorderSide.none,
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
-                                                  SizedBox(height: 20),
-                                                ],
+                                                    SizedBox(height: 20),
+                                                  ],
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            style: TextButton.styleFrom(
+                                              foregroundColor:
+                                                  AppColors.textColor,
+                                              backgroundColor:
+                                                  AppColors.inactiveColor,
+                                            ),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Text('Cancel',
+                                                style: AppTextStyles.buttonText
+                                                    .copyWith(
+                                                        fontSize:
+                                                            getResponsiveFontSize(
+                                                                0.03))),
+                                          ),
+                                          ElevatedButton(
+                                            style: TextButton.styleFrom(
+                                              foregroundColor:
+                                                  AppColors.textColor,
+                                              backgroundColor:
+                                                  AppColors.activeColor,
+                                            ),
+                                            onPressed: () {
+                                              UsernameUpdateRequest
+                                                  usernameUpdateRequest =
+                                                  UsernameUpdateRequest(
+                                                username: controller
+                                                        .usernameUpdateRequest
+                                                        .username
+                                                        .isNotEmpty
+                                                    ? controller
+                                                        .usernameUpdateRequest
+                                                        .username
+                                                    : controller.userData.first
+                                                        .username,
+                                              );
+                                              controller.updateusername(
+                                                  usernameUpdateRequest);
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Text('Save'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 22.0),
+                          child: Row(
+                            children: [
+                              Text(
+                                controller.userData.isNotEmpty
+                                    ? '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userData.first.dob).year} '
+                                        ' years old | ${controller.userData.first.genderName}'
+                                    : 'NA',
+                                style: AppTextStyles.labelText.copyWith(
+                                    fontSize: getResponsiveFontSize(0.03)),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: DecoratedBoxTransition(
+                            decoration:
+                                decorationTween.animate(_animationController),
+                            child: Card(
+                              elevation: 5,
+                              color: controller.userData.isNotEmpty &&
+                                      controller.userData.first
+                                              .accountVerificationStatus ==
+                                          '1'
+                                  ? Colors.green[50]
+                                  : const Color.fromARGB(255, 68, 63, 62),
+                              child: InkWell(
+                                onTap: () {
+                                  showVerificationDialog(context);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16, horizontal: 20),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Account Verification',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                              color: controller.userData
+                                                          .isNotEmpty &&
+                                                      controller.userData.first
+                                                              .accountVerificationStatus ==
+                                                          '1'
+                                                  ? const Color.fromARGB(
+                                                      255, 0, 115, 4)
+                                                  : const Color.fromARGB(
+                                                      255, 97, 6, 0),
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          SizedBox(height: 4),
+                                          Text(
+                                            _getAccountVerificationMessage(
+                                                controller.userData.first
+                                                    .accountVerificationStatus),
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              color: _getAccountVerificationColor(
+                                                  controller.userData.first
+                                                      .accountVerificationStatus),
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
                                       ),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          style: TextButton.styleFrom(
-                                            foregroundColor:
-                                                AppColors.textColor,
-                                            backgroundColor:
-                                                AppColors.inactiveColor,
-                                          ),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: Text('Cancel',
-                                              style: AppTextStyles.buttonText
-                                                  .copyWith(
-                                                      fontSize:
-                                                          getResponsiveFontSize(
-                                                              0.03))),
-                                        ),
-                                        ElevatedButton(
-                                          style: TextButton.styleFrom(
-                                            foregroundColor:
-                                                AppColors.textColor,
-                                            backgroundColor:
-                                                AppColors.activeColor,
-                                          ),
-                                          onPressed: () {
-                                            UsernameUpdateRequest
-                                                usernameUpdateRequest =
-                                                UsernameUpdateRequest(
-                                              username: controller
-                                                      .usernameUpdateRequest
-                                                      .username
-                                                      .isNotEmpty
-                                                  ? controller
-                                                      .usernameUpdateRequest
-                                                      .username
-                                                  : controller
-                                                      .userData.first.username,
-                                            );
-                                            controller.updateusername(
-                                                usernameUpdateRequest);
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: Text('Save'),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
+                                      AnimatedSwitcher(
+                                        duration: const Duration(seconds: 1),
+                                        child: controller.userData.isNotEmpty &&
+                                                controller.userData.first
+                                                        .accountVerificationStatus ==
+                                                    '1'
+                                            ? Icon(
+                                                Icons.verified_user_outlined,
+                                                color: Colors.green,
+                                                key: ValueKey<int>(1),
+                                              )
+                                            : Icon(
+                                                Icons.cancel_outlined,
+                                                color: Colors.red,
+                                                key: ValueKey<int>(0),
+                                              ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 22.0),
-                        child: Row(
-                          children: [
-                            Text(
-                              controller.userData.isNotEmpty
-                                  ? '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userData.first.dob).year} '
-                                      ' years old | ${controller.userData.first.genderName}'
-                                  : 'NA',
-                              style: AppTextStyles.labelText.copyWith(
-                                  fontSize: getResponsiveFontSize(0.03)),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: DecoratedBoxTransition(
+                        DecoratedBoxTransition(
                           decoration:
                               decorationTween.animate(_animationController),
                           child: Card(
+                            color: Color.fromARGB(255, 68, 63, 62),
                             elevation: 5,
-                            color: controller.userData.isNotEmpty &&
-                                    controller.userData.first
-                                            .accountVerificationStatus ==
-                                        '1'
-                                ? Colors.green[50]
-                                : const Color.fromARGB(255, 68, 63, 62),
                             child: InkWell(
                               onTap: () {
-                                showVerificationDialog(context);
+                                Get.to(PlanPage());
                               },
-                              child: Padding(
+                              child: Container(
                                 padding: const EdgeInsets.symmetric(
-                                    vertical: 16, horizontal: 20),
+                                    vertical: 12, horizontal: 12),
+                                width: MediaQuery.of(context).size.height * 0.4,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.06,
                                 child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Account Verification',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                            color: controller
-                                                        .userData.isNotEmpty &&
-                                                    controller.userData.first
-                                                            .accountVerificationStatus ==
-                                                        '1'
-                                                ? Colors.green
-                                                : Colors.red,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          _getAccountVerificationMessage(
-                                              controller.userData.first
-                                                  .accountVerificationStatus),
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: _getAccountVerificationColor(
-                                                controller.userData.first
-                                                    .accountVerificationStatus),
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
+                                    Icon(
+                                      Icons.card_membership,
+                                      size: 40,
+                                      color: Colors.white,
                                     ),
-                                    AnimatedSwitcher(
-                                      duration: const Duration(seconds: 1),
-                                      child: controller.userData.isNotEmpty &&
-                                              controller.userData.first
-                                                      .accountVerificationStatus ==
-                                                  '1'
-                                          ? Icon(
-                                              Icons.verified_user_outlined,
-                                              color: Colors.green,
-                                              key: ValueKey<int>(1),
-                                            )
-                                          : Icon(
-                                              Icons.cancel_outlined,
-                                              color: Colors.red,
-                                              key: ValueKey<int>(0),
-                                            ),
+                                    SizedBox(width: 40),
+                                    Text(
+                                      'Membership',
+                                      style: AppTextStyles.titleText.copyWith(
+                                          fontSize:
+                                              getResponsiveFontSize(0.03)),
                                     ),
                                   ],
                                 ),
@@ -476,91 +528,57 @@ class UserProfilePageState extends State<UserProfilePage>
                             ),
                           ),
                         ),
-                      ),
-                      DecoratedBoxTransition(
-                        decoration:
-                            decorationTween.animate(_animationController),
-                        child: Card(
-                          color: Color.fromARGB(255, 68, 63, 62),
-                          elevation: 5,
-                          child: InkWell(
-                            onTap: () {
-                              Get.to(PlanPage());
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 12, horizontal: 12),
-                              width: MediaQuery.of(context).size.height * 0.4,
-                              height: MediaQuery.of(context).size.height * 0.06,
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.card_membership,
-                                    size: 40,
-                                    color: Colors.white,
-                                  ),
-                                  SizedBox(width: 40),
-                                  Text(
-                                    'Membership',
-                                    style: AppTextStyles.titleText.copyWith(
-                                        fontSize: getResponsiveFontSize(0.03)),
-                                  ),
-                                ],
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 4),
+                          child: Column(
+                            children: [
+                              SettingCard(
+                                title: 'Edit Profile',
+                                subtitle: 'Edit your profile details',
+                                icon: Icons.edit,
+                                onTap: () {
+                                  Get.to(EditProfilePage());
+                                },
                               ),
-                            ),
+                              SettingCard(
+                                title: 'Your Orders',
+                                subtitle: 'See Your All Orders',
+                                icon: Icons.plagiarism_outlined,
+                                onTap: () {
+                                  Get.to(AllOrdersPage());
+                                },
+                              ),
+                              SettingCard(
+                                title: 'Transactions',
+                                subtitle: 'See Your All Transactions',
+                                icon: Icons.monetization_on_outlined,
+                                onTap: () {
+                                  Get.to(AllTransactionsPage());
+                                },
+                              ),
+                              SettingCard(
+                                title: 'Share The Application',
+                                subtitle: 'Share our Application with others',
+                                icon: Icons.share,
+                                onTap: showShareProfileBottomSheet,
+                              ),
+                              SettingCard(
+                                  title: 'Help',
+                                  subtitle: 'helpline',
+                                  icon: Icons.help,
+                                  onTap: () {
+                                    showHelpBottomSheet(context);
+                                  }),
+                            ],
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 4),
-                        child: Column(
-                          children: [
-                            SettingCard(
-                              title: 'Edit Profile',
-                              subtitle: 'Edit your profile details',
-                              icon: Icons.edit,
-                              onTap: () {
-                                Get.to(EditProfilePage());
-                              },
-                            ),
-                            SettingCard(
-                              title: 'Your Orders',
-                              subtitle: 'See Your All Orders',
-                              icon: Icons.plagiarism_outlined,
-                              onTap: () {
-                                Get.to(AllOrdersPage());
-                              },
-                            ),
-                            SettingCard(
-                              title: 'Transactions',
-                              subtitle: 'See Your All Transactions',
-                              icon: Icons.monetization_on_outlined,
-                              onTap: () {
-                                Get.to(AllTransactionsPage());
-                              },
-                            ),
-                            SettingCard(
-                              title: 'Share The Application',
-                              subtitle: 'Share our Application with others',
-                              icon: Icons.share,
-                              onTap: showShareProfileBottomSheet,
-                            ),
-                            SettingCard(
-                                title: 'Help',
-                                subtitle: 'helpline',
-                                icon: Icons.help,
-                                onTap: () {
-                                  showHelpBottomSheet(context);
-                                }),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-        ],
+                      ],
+                    ),
+                  ));
+                }),
+          ],
+        ),
       ),
     );
   }
@@ -783,53 +801,33 @@ class UserProfilePageState extends State<UserProfilePage>
             textAlign: TextAlign.center,
           ),
           actions: <Widget>[
-            SizedBox(
-              width: 70,
-              height: 60,
-              child: PushableButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                hslColor: HSLColor.fromColor(Colors.red),
-                height: 50.0,
-                elevation: 8.0,
-                shadow: BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 4.0,
-                  spreadRadius: 2.0,
-                  offset: Offset(0, 4),
-                ),
-                child: Text(
-                  'Cancel',
-                  style: AppTextStyles.textStyle,
-                  textAlign: TextAlign.center,
-                ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.buttonColor,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+                style: AppTextStyles.textStyle,
+                textAlign: TextAlign.center,
               ),
             ),
             SizedBox(width: 28),
-            SizedBox(
-              height: 60,
-              width: 70,
-              child: PushableButton(
-                onPressed: () {
-                  controller.fetchAllverificationtype();
-                  Navigator.of(context).pop();
-                  Get.to(PhotoVerificationPage());
-                },
-                hslColor: HSLColor.fromColor(Colors.green),
-                height: 50.0,
-                elevation: 8.0,
-                shadow: BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 4.0,
-                  spreadRadius: 2.0,
-                  offset: Offset(0, 4),
-                ),
-                child: Text(
-                  'Confirm',
-                  style: AppTextStyles.textStyle,
-                  textAlign: TextAlign.center,
-                ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.buttonColor,
+              ),
+              onPressed: () {
+                controller.fetchAllverificationtype();
+                Navigator.of(context).pop();
+                Get.to(PhotoVerificationPage());
+              },
+              child: Text(
+                'Confirm',
+                style: AppTextStyles.textStyle,
+                textAlign: TextAlign.center,
               ),
             ),
           ],
