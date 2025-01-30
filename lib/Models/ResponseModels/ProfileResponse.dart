@@ -65,7 +65,7 @@ class Payload {
     };
   }
 }
-
+       
 class UserData {
   String id;
   String name;
@@ -98,7 +98,15 @@ class UserData {
   String updated;
   String genderName;
   String subGenderName;
+  
+  // New fields
+  String lastSeen;         // The user's last seen time
+  String packageStatus;    // Package status (1 for active, etc.)
+  String minimumAge;       // Minimum age for the user
+  String maximumAge;       // Maximum age for the user
+  String rangeKm;          // Range in kilometers
 
+  // Constructor
   UserData({
     required this.id,
     required this.name,
@@ -131,44 +139,58 @@ class UserData {
     required this.updated,
     required this.genderName,
     required this.subGenderName,
+    // New fields in the constructor
+    required this.lastSeen,
+    required this.packageStatus,
+    required this.minimumAge,
+    required this.maximumAge,
+    required this.rangeKm,
   });
 
+  // Factory method for creating an instance from JSON
   factory UserData.fromJson(Map<String, dynamic> json) {
     return UserData(
-      id: json['id'],
-      name: json['name'],
-      email: json['email'],
-      mobile: json['mobile'],
-      city: json['city'],
-      address: json['address'],
-      gender: json['gender'],
-      subGender: json['sub_gender'],
-      countryId: json['country_id'],
-      password: json['password'],
-      latitude: json['latitude'],
-      longitude: json['longitude'],
-      otp: json['otp'],
-      type: json['type'],
-      dob: json['dob'],
-      nickname: json['nickname'],
-      interest: json['interest'],
-      bio: json['bio'],
-      emailAlerts: json['email_alerts'],
-      lookingFor: json['looking_for'],
-      username: json['username'],
-      profileImage: json['profile_image'],
-      userActiveStatus: json['user_active_status'],
-      statusSetting: json['status_setting'],
-      accountVerificationStatus: json['account_verification_status'],
-      accountHighlightStatus: json['account_highlight_status'],
-      status: json['status'],
-      created: json['created'],
-      updated: json['updated'],
-      genderName: json['gender_name'],
-      subGenderName: json['sub_gender_nm'],
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
+      mobile: json['mobile'] ?? '',
+      city: json['city'] ?? '',
+      address: json['address'] ?? '',
+      gender: json['gender'] ?? '',
+      subGender: json['sub_gender'] ?? '',
+      countryId: json['country_id'] ?? '',
+      password: json['password'] ?? '',
+      latitude: json['latitude'] ?? '',
+      longitude: json['longitude'] ?? '',
+      otp: json['otp'] ?? '0',
+      type: json['type'] ?? '3',
+      dob: json['dob'] ?? '',
+      nickname: json['nickname'] ?? '',
+      interest: json['interest'] ?? '',
+      bio: json['bio'] ?? '',
+      emailAlerts: json['email_alerts'] ?? '1',
+      lookingFor: json['looking_for'] ?? '1',
+      username: json['username'] ?? '',
+      profileImage: json['profile_image'] ?? '',
+      userActiveStatus: json['user_active_status'] ?? '1',
+      statusSetting: json['status_setting'] ?? '1',
+      accountVerificationStatus: json['account_verification_status'] ?? '1',
+      accountHighlightStatus: json['account_highlight_status'] ?? '0',
+      status: json['status'] ?? '1',
+      created: json['created'] ?? '',
+      updated: json['updated'] ?? '',
+      genderName: json['gender_name'] ?? 'male',
+      subGenderName: json['sub_gender_nm'] ?? 'other',
+      // New fields with their default values if not provided
+      lastSeen: json['last_seen'] ?? '',
+      packageStatus: json['package_status'] ?? '1',
+      minimumAge: json['minimumAge'] ?? '18',
+      maximumAge: json['maximumAge'] ?? '100',
+      rangeKm: json['rangeKm'] ?? '500',
     );
   }
 
+  // Method to convert the object back to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -202,9 +224,15 @@ class UserData {
       'updated': updated,
       'gender_name': genderName,
       'sub_gender_nm': subGenderName,
+      'last_seen': lastSeen,
+      'package_status': packageStatus,
+      'minimumAge': minimumAge,
+      'maximumAge': maximumAge,
+      'rangeKm': rangeKm,
     };
   }
 }
+
 
 class UserDesire {
   String desiresId;

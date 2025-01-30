@@ -22,8 +22,10 @@ class FetchAllFavouritesProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
+          print("favourites response = ${response.body.toString()}");
           return GetFavouritesResponse.fromJson(response.body);
         } else {
           failure('Error', response.body['error']['message']);

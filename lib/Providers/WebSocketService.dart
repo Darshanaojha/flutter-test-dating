@@ -28,7 +28,7 @@ class WebSocketService {
 
     _stompClient = StompClient(
       config: StompConfig.sockJS(
-        url: 'http://192.168.1.9:8080/chat',
+        url: 'http://192.168.1.8:8080/chat',
         onConnect: _onConnect,
         beforeConnect: () async {
           print('Connecting...');

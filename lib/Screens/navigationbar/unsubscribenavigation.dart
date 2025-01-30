@@ -36,7 +36,7 @@ class UnSubscribeNavigationController extends GetxController {
         color: AppColors.primaryColor,
       ),
       backgroundColor: AppColors.disabled,
-      barrierDismissible: true,
+      barrierDismissible: false,
       radius: 15.0,
       contentPadding: EdgeInsets.all(20),
       content: Column(

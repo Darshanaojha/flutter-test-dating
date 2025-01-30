@@ -546,16 +546,12 @@ class Controller extends GetxController {
   RxList<UserLang> userLang = <UserLang>[].obs;
   Future<bool> fetchProfile() async {
     try {
-      userData.clear();
-      userDesire.clear();
-      userPreferences.clear();
-      userLang.clear();
       UserProfileResponse? response = await HomePageProvider().fetchProfile();
       if (response != null) {
-        userData.addAll(response.payload.data);
-        userDesire.addAll(response.payload.desires);
-        userPreferences.addAll(response.payload.preferences);
-        userLang.addAll(response.payload.lang);
+        userData.assignAll(response.payload.data);
+        userDesire.assignAll(response.payload.desires);
+        userPreferences.assignAll(response.payload.preferences);
+        userLang.assignAll(response.payload.lang);
         print('successfully fetched the user profile');
         return true;
       } else {
@@ -1241,7 +1237,7 @@ class Controller extends GetxController {
       UpdateLatLongResponse? response = await UpdateLatitudeLongitudeProvider()
           .updatelatlong(updateLatLongRequest);
       if (response != null) {
-        success('success', response.payload.message);
+        success('success', response.payload);
         return true;
       } else {
         failure('Error', 'Failed to update lat long of the user');
@@ -1300,17 +1296,17 @@ class Controller extends GetxController {
         }
 
         if (response.payload!.desireBase != null &&
-            response.payload!.desireBase!.isNotEmpty) {
-          print('Desire base: ${response.payload!.desireBase!.length}');
-          addUniqueUsers(response.payload!.desireBase!, userSuggestionsList);
+            response.payload!.desireBase.isNotEmpty) {
+          print('Desire base: ${response.payload!.desireBase.length}');
+          addUniqueUsers(response.payload!.desireBase, userSuggestionsList);
           print('userSuggestionsList length: ${userSuggestionsList.length}');
         }
 
         if (response.payload!.locationBase != null &&
-            response.payload!.locationBase!.isNotEmpty) {
-          print('Location base: ${response.payload!.locationBase!.length}');
-          addUniqueUsers(response.payload!.locationBase!, userNearByList);
-          addUniqueUsers(response.payload!.locationBase!, userSuggestionsList);
+            response.payload!.locationBase.isNotEmpty) {
+          print('Location base: ${response.payload!.locationBase.length}');
+          addUniqueUsers(response.payload!.locationBase, userNearByList);
+          addUniqueUsers(response.payload!.locationBase, userSuggestionsList);
           print('userSuggestionsList length: ${userSuggestionsList.length}');
         }
 
@@ -1323,9 +1319,9 @@ class Controller extends GetxController {
         }
 
         if (response.payload!.languageBase != null &&
-            response.payload!.languageBase!.isNotEmpty) {
-          print('Language base: ${response.payload!.languageBase!.length}');
-          addUniqueUsers(response.payload!.languageBase!, userSuggestionsList);
+            response.payload!.languageBase.isNotEmpty) {
+          print('Language base: ${response.payload!.languageBase.length}');
+          addUniqueUsers(response.payload!.languageBase, userSuggestionsList);
           print('userSuggestionsList length: ${userSuggestionsList.length}');
         }
 
@@ -1628,15 +1624,17 @@ class Controller extends GetxController {
 
   Future<bool> fetchallfavourites() async {
     try {
-      favourite.clear();
       GetFavouritesResponse? response =
           await FetchAllFavouritesProvider().fetchallfavouritesprovider();
       if (response != null) {
-        favourite.addAll(response.payload.data);
+        favourite.assignAll(response.payload.data);
         print('successfully fetched all the favourites');
+        print(favourite.first.city);
+        print("favourites length is = ${favourite.length}");
         return true;
       } else {
         failure('Error', 'Failed to fetch the favourites');
+        print('Failed to fetch the favourites');
         return false;
       }
     } catch (e) {
@@ -1779,13 +1777,12 @@ class Controller extends GetxController {
   RxList<LikeRequestPages> likespage = <LikeRequestPages>[].obs;
   Future<bool> likesuserpage() async {
     try {
-      likespage.clear();
       GetAllLikesResponse? response =
           await FetchLikesPageProvider().likespageprovider();
       if (response != null) {
         success('Success', response.payload.message);
         if (response.payload.data.isNotEmpty) {
-          likespage.addAll(response.payload.data);
+          likespage.assignAll(response.payload.data);
           return true;
         } else {
           return true;
@@ -1978,7 +1975,7 @@ class Controller extends GetxController {
       AllTransactionsResponseModel? response =
           await OrderProvider().allTransactions();
       if (response != null) {
-        transactions.assignAll(response.payload.transactions);
+        transactions.assignAll(response.payload!.transactions);
         return true;
       } else {
         return false;
@@ -1995,12 +1992,14 @@ class Controller extends GetxController {
       AllOrdersResponseModel? response = await OrderProvider().allOrders();
       if (response != null) {
         orders.assignAll(response.payload.orders);
+        print("all orders length = ${orders.length.toString()}");
+        print("all orders error = ${response.error.message}");
         return true;
       } else {
         return false;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error order controller', e.toString());
       return false;
     }
   }

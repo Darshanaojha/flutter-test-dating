@@ -42,37 +42,19 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
           }
 
           if (snapshot.hasError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.red)),
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _fetchAllTransactions = initializeData();  // Retry fetching
-                      });
-                    },
-                    child: Text('Retry'),
-                  ),
-                ],
-              ),
-            );
+            return Center(child: Text('Error: ${snapshot.error}'));
           }
 
-          if (!snapshot.hasData || controller.transactions.isEmpty) {
-            return Center(child: Text('No Transactions Found.'));
-          }
+          // if (!snapshot.hasData ) {
+          //   return Center(child: Text('No Orders Found.'));
+          // }
 
           return ListView.builder(
             itemCount: controller.transactions.length,
             itemBuilder: (context, index) {
               var transaction = controller.transactions[index];
               double amount = double.tryParse(transaction.amount) ?? 0.0;
-
-              // Formatting the amount to display as currency
-              var formattedAmount = NumberFormat.currency(symbol: '\$').format(amount);
+              var formattedAmount = NumberFormat.currency(symbol: '\₹').format(amount);
 
               return Padding(
                 padding: const EdgeInsets.all(8.0),

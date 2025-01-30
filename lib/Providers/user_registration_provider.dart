@@ -40,8 +40,9 @@ class UserRegistrationProvider extends GetConnect {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
-
+   
       if (response.statusCode == 200) {
+        print(response.body.toString());
         if (response.body['error']['code'] == 0) {
           return UserRegistrationResponse.fromJson(response.body);
         } else {

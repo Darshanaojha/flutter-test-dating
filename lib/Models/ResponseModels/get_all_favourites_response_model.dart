@@ -1,4 +1,3 @@
-
 class GetFavouritesResponse {
   bool success;
   Payload payload;
@@ -66,7 +65,7 @@ class Favourite {
   String name;
   String username;
   String city;
-  List<String> images;  
+  List<String> images;
 
   Favourite({
     required this.id,
@@ -79,7 +78,7 @@ class Favourite {
     required this.name,
     required this.username,
     required this.city,
-    required this.images,  
+    required this.images,
   });
 
   factory Favourite.fromJson(Map<String, dynamic> json) {
@@ -90,7 +89,7 @@ class Favourite {
       json['img4'] as String? ?? '',
       json['img5'] as String? ?? '',
       json['img6'] as String? ?? '',
-    ].where((img) => img.isNotEmpty).toList();  
+    ].where((img) => img.isNotEmpty).toList();
 
     return Favourite(
       id: json['id'],
@@ -102,8 +101,8 @@ class Favourite {
       dob: json['dob'],
       name: json['name'],
       username: json['username'],
-      city : json['city'],
-      images: images,  
+      city: json['city'],
+      images: images,
     );
   }
 
@@ -118,7 +117,7 @@ class Favourite {
       'dob': dob,
       'name': name,
       'username': username,
-      'city':city,
+      'city': city,
     };
   }
 }

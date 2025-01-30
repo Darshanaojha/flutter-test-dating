@@ -44,7 +44,8 @@ class HomePageProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
-
+      print(response.body.toString());
+      print("on pull to refresh");
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return UserProfileResponse.fromJson(response.body);

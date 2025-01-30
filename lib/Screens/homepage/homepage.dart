@@ -381,10 +381,10 @@ class HomePageState extends State<HomePage>
                                 selectedFilter.value = 0;
                               });
 
-                              Get.snackbar(
-                                  'All',
-                                  controller.userSuggestionsList.length
-                                      .toString());
+                              // Get.snackbar(
+                              //     'All',
+                              //     controller.userSuggestionsList.length
+                              //         .toString());
                             }),
                             buildFilterButton(1, 'NearBy', Icons.location_on,
                                 (value) {
@@ -392,8 +392,8 @@ class HomePageState extends State<HomePage>
                                 selectedFilter.value = 1;
                               });
 
-                              Get.snackbar('NearBy',
-                                  controller.userNearByList.length.toString());
+                              // Get.snackbar('NearBy',
+                              //     controller.userNearByList.length.toString());
                             }),
                             buildFilterButton(2, 'Highlighted', Icons.star,
                                 (value) {
@@ -401,19 +401,18 @@ class HomePageState extends State<HomePage>
                                 selectedFilter.value = 2;
                               });
 
-                              Get.snackbar(
-                                  'Highlighted',
-                                  controller.userHighlightedList.length
-                                      .toString());
+                              // Get.snackbar(
+                              //     'Highlighted',
+                              //     controller.userHighlightedList.length
+                              //         .toString());
                             }),
                             buildFilterButton(3, 'Favourite', Icons.favorite,
                                 (value) {
                               setState(() {
                                 selectedFilter.value = 3;
                               });
-
-                              Get.snackbar('userfavourite',
-                                  controller.favourite.length.toString());
+                              // Get.snackbar('userfavourite',
+                              //     controller.favourite.length.toString());
                             }),
                           ],
                         ),

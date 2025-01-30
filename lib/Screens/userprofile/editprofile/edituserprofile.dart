@@ -1414,55 +1414,67 @@ class EditProfilePageState extends State<EditProfilePage>
                                                 textAlign: TextAlign.left,
                                               ),
                                               const SizedBox(height: 20),
-                                              ListView.builder(
-                                                shrinkWrap: true,
-                                                physics:
-                                                    NeverScrollableScrollPhysics(),
-                                                itemCount: controller
-                                                    .preferences.length,
-                                                itemBuilder: (context, index) {
-                                                  return CheckboxListTile(
-                                                    title: Text(
-                                                      controller
-                                                          .preferences[index]
-                                                          .title,
-                                                      style: AppTextStyles
-                                                          .bodyText
-                                                          .copyWith(
-                                                        fontSize: bodyFontSize,
-                                                        color:
-                                                            AppColors.textColor,
-                                                      ),
-                                                    ),
-                                                    value:
-                                                        preferencesSelectedOptions[
-                                                            index],
-                                                    onChanged: (bool? value) {
-                                                      preferencesSelectedOptions[
-                                                              index] =
-                                                          value ?? false;
-                                                      if (preferencesSelectedOptions[
-                                                          index]) {
-                                                        selectedPreferences.add(
+                                              SizedBox(
+                                                height: 300,
+                                                child: Scrollbar(
+                                                  child: SingleChildScrollView(
+                                                    child: ListView.builder(
+                                                      shrinkWrap: true,
+                                                      physics:
+                                                          NeverScrollableScrollPhysics(),
+                                                      itemCount: controller
+                                                          .preferences.length,
+                                                      itemBuilder:
+                                                          (context, index) {
+                                                        return CheckboxListTile(
+                                                          title: Text(
                                                             controller
                                                                 .preferences[
                                                                     index]
-                                                                .id);
-                                                      } else {
-                                                        selectedPreferences
-                                                            .remove(controller
-                                                                .preferences[
-                                                                    index]
-                                                                .id);
-                                                      }
-                                                    },
-                                                    activeColor:
-                                                        AppColors.buttonColor,
-                                                    checkColor: Colors.white,
-                                                    contentPadding:
-                                                        EdgeInsets.zero,
-                                                  );
-                                                },
+                                                                .title,
+                                                            style: AppTextStyles
+                                                                .bodyText
+                                                                .copyWith(
+                                                              fontSize:
+                                                                  bodyFontSize,
+                                                              color: AppColors
+                                                                  .textColor,
+                                                            ),
+                                                          ),
+                                                          value:
+                                                              preferencesSelectedOptions[
+                                                                  index],
+                                                          onChanged:
+                                                              (bool? value) {
+                                                            preferencesSelectedOptions[
+                                                                    index] =
+                                                                value ?? false;
+                                                            if (preferencesSelectedOptions[
+                                                                index]) {
+                                                              selectedPreferences
+                                                                  .add(controller
+                                                                      .preferences[
+                                                                          index]
+                                                                      .id);
+                                                            } else {
+                                                              selectedPreferences
+                                                                  .remove(controller
+                                                                      .preferences[
+                                                                          index]
+                                                                      .id);
+                                                            }
+                                                          },
+                                                          activeColor: AppColors
+                                                              .buttonColor,
+                                                          checkColor:
+                                                              Colors.white,
+                                                          contentPadding:
+                                                              EdgeInsets.zero,
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -1681,13 +1693,16 @@ class EditProfilePageState extends State<EditProfilePage>
                       SizedBox(
                         height: MediaQuery.of(context).size.height * 0.001,
                       ),
-                      DecoratedBoxTransition(
-                        decoration:
-                            decorationTween.animate(_animationController),
-                        child: SizedBox(
-                          height: screenheight * 0.08,
-                          width: screenWidth * 2,
-                          child: PushableButton(
+                      SizedBox(
+                        height: screenheight * 0.08,
+                        width: screenWidth * 2,
+                        child: DecoratedBoxTransition(
+                          decoration:
+                              decorationTween.animate(_animationController),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.buttonColor,
+                            ),
                             onPressed: () async {
                               print(
                                   'desires are : ${controller.userProfileUpdateRequest.desires}');
@@ -1818,15 +1833,6 @@ class EditProfilePageState extends State<EditProfilePage>
                                 return;
                               }
                             },
-                            hslColor: HSLColor.fromColor(Colors.green),
-                            height: 60.0,
-                            elevation: 8.0,
-                            shadow: BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 4.0,
-                              spreadRadius: 2.0,
-                              offset: Offset(0, 4),
-                            ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -2195,81 +2201,71 @@ class EditProfilePageState extends State<EditProfilePage>
                 ),
                 Align(
                   alignment: Alignment.centerRight,
-                  child: SizedBox(
-                    width: 60.0,
-                    height: 60.0,
-                    child: PushableButton(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text(
-                                'Confirm Reset',
-                                style: AppTextStyles.bodyText.copyWith(
-                                  fontSize: bodyFontSize,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.textColor,
-                                ),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.inactiveColor,
+                    ),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text(
+                              'Confirm Reset',
+                              style: AppTextStyles.bodyText.copyWith(
+                                fontSize: bodyFontSize,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textColor,
                               ),
-                              content: Text(
-                                'Are you sure you want to clear your selections?',
-                                style: AppTextStyles.bodyText.copyWith(
-                                  fontSize: bodyFontSize,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.textColor,
-                                ),
+                            ),
+                            content: Text(
+                              'Are you sure you want to clear your selections?',
+                              style: AppTextStyles.bodyText.copyWith(
+                                fontSize: bodyFontSize,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textColor,
                               ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    'Cancel',
-                                    style: AppTextStyles.bodyText.copyWith(
-                                      fontSize: bodyFontSize,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.textColor,
-                                    ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text(
+                                  'Cancel',
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    fontSize: bodyFontSize,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textColor,
                                   ),
                                 ),
-                                TextButton(
-                                  onPressed: () {
-                                    selectedOptions.value = List.filled(
-                                        selectedOptions.length, false);
-                                    selectedDesires.clear();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    'Confirm',
-                                    style: AppTextStyles.bodyText.copyWith(
-                                      fontSize: bodyFontSize,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.textColor,
-                                    ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  selectedOptions.value = List.filled(
+                                      selectedOptions.length, false);
+                                  selectedDesires.clear();
+                                  Navigator.pop(context);
+                                },
+                                child: Text(
+                                  'Confirm',
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    fontSize: bodyFontSize,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textColor,
                                   ),
                                 ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                      hslColor: HSLColor.fromColor(Colors.red), // HSL color
-                      height: 50.0,
-                      elevation: 8.0,
-                      shadow: BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 4.0,
-                        spreadRadius: 2.0,
-                        offset: Offset(0, 4),
-                      ),
-                      child: Text(
-                        'Cancel',
-                        style: AppTextStyles.buttonText.copyWith(
-                          fontSize: bodyFontSize,
-                          color: AppColors.textColor,
-                        ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    child: Text(
+                      'Cancel',
+                      style: AppTextStyles.buttonText.copyWith(
+                        fontSize: bodyFontSize,
+                        color: AppColors.textColor,
                       ),
                     ),
                   ),
@@ -2689,8 +2685,8 @@ class PrivacyToggle extends StatelessWidget {
             child: Switch(
               value: value,
               onChanged: onChanged,
-              activeColor: AppColors.activeColor,
-              inactiveThumbColor: AppColors.inactiveColor,
+              activeColor: AppColors.progressColor,
+              inactiveThumbColor: AppColors.progressColor,
             ),
           ),
         ],

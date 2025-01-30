@@ -49,92 +49,97 @@ class AllOrdersPageState extends State<AllOrdersPage> {
             return Center(child: Text('No Orders Found.'));
           }
 
-          return ListView.builder(
-            itemCount: controller.orders.length,
-            itemBuilder: (context, index) {
-              var order = controller.orders[index];
+          return Obx(() {
+            if (controller.orders.isEmpty) {
+              return Center(child: Text('No Orders Found.'));
+            }
 
-              // Handle null values using the null-aware operator ?? for each field
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Card(
-                  elevation: 5,
-                  shadowColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          order.packageTitle,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+            return ListView.builder(
+              itemCount: controller.orders.length,
+              itemBuilder: (context, index) {
+                var order = controller.orders[index];
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Card(
+                    elevation: 5,
+                    shadowColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            order.packageTitle,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Package Category: ${order.packageCategoryTitle}',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[600],
+                          SizedBox(height: 8),
+                          Text(
+                            'Package Category: ${order.packageCategoryTitle}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Amount: \$${order.actualAmount}',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.green,
+                          SizedBox(height: 8),
+                          Text(
+                            'Amount: \₹${order.actualAmount}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.green,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Days: ${order.days} ${order.unit}',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.blue,
+                          SizedBox(height: 8),
+                          Text(
+                            'Days: ${order.days} ${order.unit}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.blue,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Status: ${order.status == '1' ? 'Active' : 'Inactive'}',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color:
-                                order.status == '1' ? Colors.green : Colors.red,
+                          SizedBox(height: 8),
+                          Text(
+                            'Status: ${order.status == '1' ? 'Active' : 'Inactive'}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: order.status == '1'
+                                  ? Colors.green
+                                  : Colors.red,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Created: ${order.created}',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[500],
+                          SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Created: ${order.created}',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[500],
+                                ),
                               ),
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.info_outline),
-                              onPressed: () {
-                                print(
-                                    'View more details for order ${order.id}');
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
+                              IconButton(
+                                icon: Icon(Icons.info_outline),
+                                onPressed: () {
+                                  print(
+                                      'View more details for order ${order.id}');
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
-          );
+                );
+              },
+            );
+          });
         },
       ),
     );

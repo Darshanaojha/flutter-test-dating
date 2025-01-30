@@ -198,7 +198,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                             // Handle onSaved (this is typically used for form submission)
                             controller.userRegistrationRequest.address = value;
                           },
-                          16.0, // fontSize
+                          fontSize, // fontSize
                           isaddressfield:
                               true, // Mark this field as the address field
                         ),

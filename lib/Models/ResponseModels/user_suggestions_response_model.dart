@@ -3,8 +3,11 @@ class UserSuggestionsResponseModel {
   final Payload? payload;
   final Error? error;
 
-  UserSuggestionsResponseModel(
-      {required this.success, this.payload, this.error});
+  UserSuggestionsResponseModel({
+    required this.success,
+    this.payload,
+    this.error,
+  });
 
   factory UserSuggestionsResponseModel.fromJson(Map<String, dynamic> json) {
     return UserSuggestionsResponseModel(
@@ -25,11 +28,11 @@ class UserSuggestionsResponseModel {
 }
 
 class Payload {
-  final List<SuggestedUser>? locationBase;
-  final List<SuggestedUser>? preferenceBase;
-  final List<SuggestedUser>? desireBase;
-  final List<SuggestedUser>? languageBase;
-  final List<SuggestedUser>? highlightedAccount;
+  final List<SuggestedUser> locationBase;
+  final List<SuggestedUser> preferenceBase;
+  final List<SuggestedUser> desireBase;
+  final List<SuggestedUser> languageBase;
+  final List<SuggestedUser> highlightedAccount;
 
   Payload({
     required this.locationBase,
@@ -41,36 +44,39 @@ class Payload {
 
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
-      locationBase: (json['location_base'] as List? ?? [])
-          .map((item) => SuggestedUser.fromJson(item))
-          .toList(),
-      preferenceBase: (json['preference_base'] as List? ?? [])
-          .map((item) => SuggestedUser.fromJson(item))
-          .toList(),
-      desireBase: (json['desire_base'] as List? ?? [])
-          .map((item) => SuggestedUser.fromJson(item))
-          .toList(),
-      languageBase: (json['language_base'] as List? ?? [])
-          .map((item) => SuggestedUser.fromJson(item))
-          .toList(),
-      highlightedAccount: (json['highlighted_account'] as List? ?? [])
-          .map((item) => SuggestedUser.fromJson(item))
-          .toList(),
+      locationBase: _parseSuggestedUsers(json['location_base']),
+      preferenceBase: _parseSuggestedUsers(json['preference_base']),
+      desireBase: _parseSuggestedUsers(json['desire_base']),
+      languageBase: _parseSuggestedUsers(json['language_base']),
+      highlightedAccount: _parseSuggestedUsers(json['highlighted_account']),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'location_base':
-          locationBase ?? locationBase!.map((e) => e.toJson()).toList(),
-      'preference_base':
-          preferenceBase ?? preferenceBase!.map((e) => e.toJson()).toList(),
-      'desire_base': desireBase ?? desireBase!.map((e) => e.toJson()).toList(),
-      'language_base':
-          languageBase ?? languageBase!.map((e) => e.toJson()).toList(),
-      'highlighted_account': highlightedAccount ??
-          highlightedAccount!.map((e) => e.toJson()).toList(),
+      'location_base': locationBase.isNotEmpty
+          ? locationBase.map((e) => e.toJson()).toList()
+          : [],
+      'preference_base': preferenceBase.isNotEmpty
+          ? preferenceBase.map((e) => e.toJson()).toList()
+          : [],
+      'desire_base': desireBase.isNotEmpty
+          ? desireBase.map((e) => e.toJson()).toList()
+          : [],
+      'language_base': languageBase.isNotEmpty
+          ? languageBase.map((e) => e.toJson()).toList()
+          : [],
+      'highlighted_account': highlightedAccount.isNotEmpty
+          ? highlightedAccount.map((e) => e.toJson()).toList()
+          : [],
     };
+  }
+
+  // Helper function to handle null/empty lists for SuggestedUser
+  static List<SuggestedUser> _parseSuggestedUsers(dynamic jsonList) {
+    if (jsonList == null) return [];
+    return List<SuggestedUser>.from(
+        (jsonList as List).map((item) => SuggestedUser.fromJson(item)));
   }
 }
 
@@ -155,51 +161,52 @@ class SuggestedUser {
 
   factory SuggestedUser.fromJson(Map<String, dynamic> json) {
     return SuggestedUser(
-        id: json['id'],
-        userId: json['user_id'],
-        name: json['name'],
-        email: json['email'],
-        mobile: json['mobile'],
-        city: json['city'],
-        address: json['address'],
-        gender: json['gender'],
-        subGender: json['sub_gender'],
-        countryId: json['country_id'],
-        password: json['password'],
-        latitude: json['latitude'],
-        longitude: json['longitude'],
-        otp: json['otp'],
-        type: json['type'],
-        dob: json['dob'],
-        nickname: json['nickname'],
-        interest: json['interest'],
-        bio: json['bio'],
-        emailAlerts: json['email_alerts'],
-        lookingFor: json['looking_for'],
-        username: json['username'],
-        profileImage: json['profile_image'],
-        userActiveStatus: json['user_active_status'],
-        statusSetting: json['status_setting'],
-        accountVerificationStatus: json['account_verification_status'],
-        accountHighlightStatus: json['account_highlight_status'],
-        status: json['status'],
-        created: json['created'],
-        updated: json['updated'],
-        genderName: json['gender_name'],
-        subGenderName: json['sub_gender_name'] ?? json['sub_gender_nm'],
-        countryName: json['country_name'],
-        images: [
-          json['img1'] as String? ?? '',
-          json['img2'] as String? ?? '',
-          json['img3'] as String? ?? '',
-          json['img4'] as String? ?? '',
-          json['img5'] as String? ?? '',
-          json['img6'] as String? ?? '',
-        ].where((img) => img.isNotEmpty).toList(),
-        preferenceId:
-            json.containsKey('preference_id') ? json['preference_id'] : null,
-        desiresId: json.containsKey('desires_id') ? json['desires_id'] : null,
-        langId: json.containsKey('lang_id') ? json['lang_id'] : null);
+      id: json['id'],
+      userId: json['user_id'],
+      name: json['name'],
+      email: json['email'],
+      mobile: json['mobile'],
+      city: json['city'],
+      address: json['address'],
+      gender: json['gender'],
+      subGender: json['sub_gender'],
+      countryId: json['country_id'],
+      password: json['password'],
+      latitude: json['latitude'],
+      longitude: json['longitude'],
+      otp: json['otp'],
+      type: json['type'],
+      dob: json['dob'],
+      nickname: json['nickname'],
+      interest: json['interest'],
+      bio: json['bio'],
+      emailAlerts: json['email_alerts'],
+      lookingFor: json['looking_for'],
+      username: json['username'],
+      profileImage: json['profile_image'],
+      userActiveStatus: json['user_active_status'],
+      statusSetting: json['status_setting'],
+      accountVerificationStatus: json['account_verification_status'],
+      accountHighlightStatus: json['account_highlight_status'],
+      status: json['status'],
+      created: json['created'],
+      updated: json['updated'],
+      genderName: json['gender_name'],
+      subGenderName: json['sub_gender_name'] ?? json['sub_gender_nm'],
+      countryName: json['country_name'],
+      images: [
+        json['img1'] as String? ?? '',
+        json['img2'] as String? ?? '',
+        json['img3'] as String? ?? '',
+        json['img4'] as String? ?? '',
+        json['img5'] as String? ?? '',
+        json['img6'] as String? ?? '',
+      ].where((img) => img.isNotEmpty).toList(),
+      preferenceId:
+          json.containsKey('preference_id') ? json['preference_id'] : null,
+      desiresId: json.containsKey('desires_id') ? json['desires_id'] : null,
+      langId: json.containsKey('lang_id') ? json['lang_id'] : null,
+    );
   }
 
   Map<String, dynamic> toJson() {
@@ -248,7 +255,10 @@ class Error {
   final int code;
   final String? message;
 
-  Error({required this.code, this.message});
+  Error({
+    required this.code,
+    this.message,
+  });
 
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(

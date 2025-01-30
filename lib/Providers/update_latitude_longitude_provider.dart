@@ -1,4 +1,3 @@
-
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get_connect/connect.dart';
 
@@ -8,8 +7,7 @@ import '../constants.dart';
 
 class UpdateLatitudeLongitudeProvider extends GetConnect {
   Future<UpdateLatLongResponse?> updatelatlong(
-      UpdateLatLongRequest
-          reportUserReasonFeedbackRequestModel) async {
+      UpdateLatLongRequest reportUserReasonFeedbackRequestModel) async {
     try {
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
@@ -19,7 +17,7 @@ class UpdateLatitudeLongitudeProvider extends GetConnect {
         failure('Error', 'Token not found');
         return null;
       }
-
+      print(reportUserReasonFeedbackRequestModel.toJson().toString());
       Response response = await post(
         '$baseurl/Users/update_latitude_longitude',
         reportUserReasonFeedbackRequestModel.toJson(),
@@ -28,14 +26,9 @@ class UpdateLatitudeLongitudeProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
-
+      print(response.body.toString());
       if (response.statusCode == 200) {
-        if (response.body['error']['code'] == 0) {
-          return UpdateLatLongResponse.fromJson(response.body);
-        } else {
-          failure('Error', response.body['error']['message']);
-          return null;
-        }
+         return UpdateLatLongResponse.fromJson(response.body);
       } else {
         failure(response.statusCode, response.body['error']['message']);
         return null;

@@ -15,18 +15,18 @@ class UserSuggestionsProvider extends GetConnect {
         failure('Error', 'Token not found');
         return null;
       }
-      Response response = await post(
+      Response response = await get(
         '$baseurl/Chats/user_suggestions',
-        null,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
         },
       );
-     
+
       if (response.statusCode == 200 && response.body != null) {
         if (response.body['error']['code'] == 0) {
-        return UserSuggestionsResponseModel.fromJson(response.body);
+                print("user suggestion response in provider = ${response.body.toString()}");
+          return UserSuggestionsResponseModel.fromJson(response.body);
         } else {
           failure('Error', response.body['error']['message']);
           return null;
