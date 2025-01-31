@@ -1,5 +1,6 @@
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Screens/settings/appinfopages/appinfopagestart.dart';
+import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
@@ -22,10 +23,12 @@ class SettingsPageState extends State<SettingsPage> {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
   }
- Controller controller = Get.put(Controller());
+
+  Controller controller = Get.put(Controller());
   final TextEditingController desireController = TextEditingController();
   bool showOnlineUsers = false;
   RxBool spotlightUser = false.obs;
+  RxBool visibility_status = true.obs;
   String currentLocation = "Fetching...";
   String locationSelection = "Current Location";
 
@@ -43,6 +46,31 @@ class SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     getCurrentLocation();
+    _loadSpotlightStatus();
+  }
+
+  Future<void> _loadSpotlightStatus() async {
+    EncryptedSharedPreferences prefs =
+        await EncryptedSharedPreferences.getInstance();
+    bool isSpotlight = prefs.getBoolean('spotlightUser') ?? false;
+    spotlightUser.value = isSpotlight;
+  }
+
+  Future<void> saveSpotlightStatus(bool value) async {
+    EncryptedSharedPreferences prefs =
+        await EncryptedSharedPreferences.getInstance();
+    await prefs.setBoolean('spotlightUser', value);
+    Get.snackbar("save ", value.toString());
+  }
+
+  _onSwitchChanged(bool value) {
+    saveSpotlightStatus(value);
+    setState(() {
+      spotlightUser.value = value;
+      controller.highlightProfileStatusRequest.status = value ? '1' : '0';
+    });
+
+    controller.highlightProfile(controller.highlightProfileStatusRequest);
   }
 
   Future<void> getCurrentLocation() async {
@@ -73,195 +101,179 @@ class SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Settings",
-          style: AppTextStyles.headingText.copyWith(
-            fontSize: getResponsiveFontSize(0.03),
+        appBar: AppBar(
+          title: Text(
+            "Settings",
+            style: AppTextStyles.headingText.copyWith(
+              fontSize: getResponsiveFontSize(0.03),
+            ),
           ),
-        ),
-        backgroundColor: AppColors.primaryColor,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.info_outline),
-            onPressed: () {
-              Get.to(AppInfoPage());
-            },
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            // Maximum Distance
-            Text("Maximum Distance (km)",
-                style: AppTextStyles.subheadingText
-                    .copyWith(fontSize: getResponsiveFontSize(0.03))),
-            Slider(
-              value: maxDistance,
-              min: 0,
-              max: 500,
-              divisions: 50,
-              label: maxDistance.toStringAsFixed(0),
-              activeColor: AppColors.activeColor,
-              inactiveColor: AppColors.inactiveColor,
-              onChanged: (double value) {
-                setState(() {
-                  maxDistance = value;
-                  controller.appSettingRequest.rangeKm = value.toString();
-                });
-              },
-            ),
-            SizedBox(height: 20),
-
-// Age Range
-            Text("Age Range",
-                style: AppTextStyles.subheadingText
-                    .copyWith(fontSize: getResponsiveFontSize(0.03))),
-            RangeSlider(
-              values: ageRange,
-              min: 18,
-              max: 100,
-              divisions: 82,
-              labels: RangeLabels(
-                ageRange.start.round().toString(),
-                ageRange.end.round().toString(),
-              ),
-              activeColor: AppColors.activeColor,
-              inactiveColor: AppColors.inactiveColor,
-              onChanged: (RangeValues values) {
-                setState(() {
-                  ageRange = values;
-                  controller.appSettingRequest.minimumAge =
-                      values.start.round().toString();
-                  controller.appSettingRequest.maximumAge =
-                      values.end.round().toString();
-                });
-              },
-            ),
-
-            SizedBox(height: 20),
-            ElevatedButton(
+          backgroundColor: AppColors.primaryColor,
+          actions: [
+            IconButton(
+              icon: Icon(Icons.info_outline),
               onPressed: () {
-                controller.appsetting(controller.appSettingRequest);
-                     Navigator.pop(context);
+                Get.to(AppInfoPage());
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.buttonColor,
-                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: Text(
-                "Apply",
-                style: AppTextStyles.buttonText
-                    .copyWith(fontSize: getResponsiveFontSize(0.03)),
-              ),
-            ),
-            SizedBox(height: 20),
-            Text("Selected: ${lookingFor.join(", ")}",
-                style: AppTextStyles.textStyle
-                    .copyWith(fontSize: getResponsiveFontSize(0.03))),
-            SizedBox(height: 20),
-
-            Text("My Location",
-                style: AppTextStyles.subheadingText
-                    .copyWith(fontSize: getResponsiveFontSize(0.04))),
-            ListTile(
-              tileColor: AppColors.secondaryColor,
-              title: Text(locationSelection,
-                  style: AppTextStyles.textStyle
-                      .copyWith(fontSize: getResponsiveFontSize(0.03))),
-              trailing:
-                  Icon(Icons.arrow_drop_down, color: AppColors.accentColor),
-              onTap: () async {
-                await showLocationSelectionDialog();
-              },
-            ), 
-            SizedBox(height: 20),
-            Text("Show Recent Online Users",
-                style: AppTextStyles.subheadingText
-                    .copyWith(fontSize: getResponsiveFontSize(0.03))),
-            SwitchListTile(
-              value: showOnlineUsers,
-              onChanged: (bool value) {
-                setState(() {
-                  showOnlineUsers = value;
-                });
-              },
-              activeColor: AppColors.acceptColor,
-              title: Text(
-                showOnlineUsers ? "Online Users Visible" : "Hide Online Users",
-                style: AppTextStyles.textStyle
-                    .copyWith(fontSize: getResponsiveFontSize(0.03)),
-              ),
-            ),
-            SizedBox(height: 20),
-            Text("Show Spotlight",
-                style: AppTextStyles.subheadingText
-                    .copyWith(fontSize: getResponsiveFontSize(0.03))),
-            Obx(
-              () => SwitchListTile(
-                value: spotlightUser.value,
-                onChanged: (bool value) {
-                  spotlightUser.value = value;
-                  controller.highlightProfileStatusRequest.status =
-                      value ? '1' : '0';
-                },
-                activeColor: AppColors.acceptColor,
-                title: Text(
-                  spotlightUser.value
-                      ? "Your profile Spotlight"
-                      : "Not Spotlight",
-                  style: AppTextStyles.textStyle
-                      .copyWith(fontSize: getResponsiveFontSize(0.03)),
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
-
-            // Change Password Button
-            ElevatedButton(
-              onPressed: () {
-                Get.to(ChangePasswordPage());
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.buttonColor,
-                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: Text(
-                "Change Password",
-                style: AppTextStyles.buttonText
-                    .copyWith(fontSize: getResponsiveFontSize(0.03)),
-              ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Get.to(UpdateEmailPage());
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.buttonColor,
-                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: Text(
-                "Update Email",
-                style: AppTextStyles.buttonText
-                    .copyWith(fontSize: getResponsiveFontSize(0.03)),
-              ),
             ),
           ],
         ),
-      ),
-    );
+        body: FutureBuilder<void>(
+            future: _loadSpotlightStatus(),
+            builder: (context, snapshot) {
+              // While loading, show a loading indicator or placeholder
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              }
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ListView(
+                  children: [
+                    // Maximum Distance
+                    Text("Maximum Distance (km)",
+                        style: AppTextStyles.subheadingText
+                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
+                    Slider(
+                      value: maxDistance,
+                      min: 0,
+                      max: 500,
+                      divisions: 50,
+                      label: maxDistance.toStringAsFixed(0),
+                      activeColor: AppColors.activeColor,
+                      inactiveColor: AppColors.inactiveColor,
+                      onChanged: (double value) {
+                        setState(() {
+                          maxDistance = value;
+                          controller.appSettingRequest.rangeKm =
+                              value.toString();
+                        });
+                      },
+                    ),
+                    SizedBox(height: 20),
+
+// Age Range
+                    Text("Age Range",
+                        style: AppTextStyles.subheadingText
+                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
+                    RangeSlider(
+                      values: ageRange,
+                      min: 18,
+                      max: 100,
+                      divisions: 82,
+                      labels: RangeLabels(
+                        ageRange.start.round().toString(),
+                        ageRange.end.round().toString(),
+                      ),
+                      activeColor: AppColors.activeColor,
+                      inactiveColor: AppColors.inactiveColor,
+                      onChanged: (RangeValues values) {
+                        setState(() {
+                          ageRange = values;
+                          controller.appSettingRequest.minimumAge =
+                              values.start.round().toString();
+                          controller.appSettingRequest.maximumAge =
+                              values.end.round().toString();
+                        });
+                      },
+                    ),
+
+                    SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        controller.appsetting(controller.appSettingRequest);
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.buttonColor,
+                        padding:
+                            EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        "Apply",
+                        style: AppTextStyles.buttonText
+                            .copyWith(fontSize: getResponsiveFontSize(0.03)),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    // Text("Selected: ${lookingFor.join(", ")}",
+                    //     style: AppTextStyles.textStyle
+                    //         .copyWith(fontSize: getResponsiveFontSize(0.03))),
+                    // SizedBox(height: 20),
+
+                    // Text("My Location",
+                    //     style: AppTextStyles.subheadingText
+                    //         .copyWith(fontSize: getResponsiveFontSize(0.04))),
+                    // ListTile(
+                    //   tileColor: AppColors.secondaryColor,
+                    //   title: Text(locationSelection,
+                    //       style: AppTextStyles.textStyle
+                    //           .copyWith(fontSize: getResponsiveFontSize(0.03))),
+                    //   trailing:
+                    //       Icon(Icons.arrow_drop_down, color: AppColors.accentColor),
+                    //   onTap: () async {
+                    //     await showLocationSelectionDialog();
+                    //   },
+                    // ),
+                    SizedBox(height: 20),
+                    Text("Show Spotlight",
+                        style: AppTextStyles.subheadingText
+                            .copyWith(fontSize: getResponsiveFontSize(0.02))),
+                    PrivacyToggle(
+                        label: spotlightUser.value
+                            ? "Your profile Spotlight"
+                            : "Not Spotlight",
+                        value: spotlightUser.value,
+                        onChanged: (value) {
+                          _onSwitchChanged(value);
+                        }),
+
+                    SizedBox(height: 20),
+
+                    // Change Password Button
+                    ElevatedButton(
+                      onPressed: () {
+                        Get.to(ChangePasswordPage());
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.buttonColor,
+                        padding:
+                            EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        "Change Password",
+                        style: AppTextStyles.buttonText
+                            .copyWith(fontSize: getResponsiveFontSize(0.03)),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        Get.to(UpdateEmailPage());
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.buttonColor,
+                        padding:
+                            EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        "Update Email",
+                        style: AppTextStyles.buttonText
+                            .copyWith(fontSize: getResponsiveFontSize(0.03)),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }));
   }
 
   Future<void> showLocationSelectionDialog() async {
@@ -339,6 +351,47 @@ class SettingsPageState extends State<SettingsPage> {
           ),
         );
       },
+    );
+  }
+}
+
+class PrivacyToggle extends StatelessWidget {
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const PrivacyToggle(
+      {super.key,
+      required this.label,
+      required this.value,
+      required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    double getResponsiveFontSize(double scale) {
+      double screenWidth = MediaQuery.of(context).size.width;
+      return screenWidth * scale;
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 0.5),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label,
+              style: AppTextStyles.bodyText
+                  .copyWith(fontSize: getResponsiveFontSize(0.02))),
+          Transform.scale(
+            scale: 0.6,
+            child: Switch(
+              value: value,
+              onChanged: onChanged,
+              activeColor: AppColors.progressColor,
+              inactiveThumbColor: AppColors.progressColor,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

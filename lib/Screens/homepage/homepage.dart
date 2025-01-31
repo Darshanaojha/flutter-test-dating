@@ -401,18 +401,18 @@ class HomePageState extends State<HomePage>
                                 selectedFilter.value = 2;
                               });
 
-                              // Get.snackbar(
-                              //     'Highlighted',
-                              //     controller.userHighlightedList.length
-                              //         .toString());
+                              Get.snackbar(
+                                  'Highlighted',
+                                  controller.userHighlightedList.length
+                                      .toString());
                             }),
                             buildFilterButton(3, 'Favourite', Icons.favorite,
                                 (value) {
                               setState(() {
                                 selectedFilter.value = 3;
                               });
-                              // Get.snackbar('userfavourite',
-                              //     controller.favourite.length.toString());
+                              Get.snackbar('userfavourite',
+                                  controller.favourite.length.toString());
                             }),
                           ],
                         ),
@@ -463,11 +463,16 @@ class HomePageState extends State<HomePage>
                                                       .userNearByList[index];
                                           break;
                                         case 2:
-                                          user = controller
-                                                  .userHighlightedList.isEmpty
+                                          user = (controller.userHighlightedList
+                                                      .isEmpty ||
+                                                  index >=
+                                                      controller
+                                                          .userHighlightedList
+                                                          .length)
                                               ? SuggestedUser()
                                               : controller
                                                   .userHighlightedList[index];
+
                                           break;
                                         case 3:
                                           user = controller.favourite.isEmpty
@@ -490,13 +495,14 @@ class HomePageState extends State<HomePage>
                                         decoration: BoxDecoration(
                                           color: isLastCard
                                               ? Colors.grey[300]
-                                              : Colors.blue,
+                                              : const Color.fromARGB(255, 109, 79, 197),
                                           borderRadius:
                                               BorderRadius.circular(12),
                                           border: Border.all(
                                             color: isLastCard
                                                 ? Colors.grey
-                                                : Colors.green,
+                                                : const Color.fromARGB(
+                                                    255, 1, 76, 151),
                                             width: 2,
                                           ),
                                           boxShadow: [

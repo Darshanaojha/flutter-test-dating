@@ -61,7 +61,7 @@ class AllOrdersPageState extends State<AllOrdersPage> {
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Card(
-                    elevation: 5,
+                    elevation: 15,
                     shadowColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -74,7 +74,7 @@ class AllOrdersPageState extends State<AllOrdersPage> {
                           Text(
                             order.packageTitle,
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 8,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -82,7 +82,7 @@ class AllOrdersPageState extends State<AllOrdersPage> {
                           Text(
                             'Package Category: ${order.packageCategoryTitle}',
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 8,
                               color: Colors.grey[600],
                             ),
                           ),
@@ -90,23 +90,23 @@ class AllOrdersPageState extends State<AllOrdersPage> {
                           Text(
                             'Amount: \₹${order.actualAmount}',
                             style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.green,
+                              fontSize: 8,
+                              color: Colors.grey[500],
                             ),
                           ),
                           SizedBox(height: 8),
                           Text(
                             'Days: ${order.days} ${order.unit}',
                             style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.blue,
+                              fontSize: 8,
+                              color: const Color.fromARGB(255, 0, 84, 152),
                             ),
                           ),
                           SizedBox(height: 8),
                           Text(
                             'Status: ${order.status == '1' ? 'Active' : 'Inactive'}',
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 8,
                               color: order.status == '1'
                                   ? Colors.green
                                   : Colors.red,
@@ -119,7 +119,7 @@ class AllOrdersPageState extends State<AllOrdersPage> {
                               Text(
                                 'Created: ${order.created}',
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 8,
                                   color: Colors.grey[500],
                                 ),
                               ),

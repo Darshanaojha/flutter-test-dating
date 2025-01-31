@@ -65,7 +65,7 @@ class Payload {
     };
   }
 }
-       
+
 class UserData {
   String id;
   String name;
@@ -98,13 +98,13 @@ class UserData {
   String updated;
   String genderName;
   String subGenderName;
-  
+
   // New fields
-  String lastSeen;         // The user's last seen time
-  String packageStatus;    // Package status (1 for active, etc.)
-  String minimumAge;       // Minimum age for the user
-  String maximumAge;       // Maximum age for the user
-  String rangeKm;          // Range in kilometers
+  String lastSeen; // The user's last seen time
+  String packageStatus; // Package status (1 for active, etc.)
+  String minimumAge; // Minimum age for the user
+  String maximumAge; // Maximum age for the user
+  String rangeKm; // Range in kilometers
 
   // Constructor
   UserData({
@@ -233,7 +233,6 @@ class UserData {
   }
 }
 
-
 class UserDesire {
   String desiresId;
   String title;
@@ -283,8 +282,8 @@ class UserPreferences {
 }
 
 class UserLang {
-   String langId;
-   String title;
+  String langId;
+  String title;
 
   UserLang({
     required this.langId,
@@ -307,8 +306,8 @@ class UserLang {
 }
 
 class Error {
-   int code;
-   String message;
+  int code;
+  String message;
 
   Error({
     required this.code,

@@ -1345,7 +1345,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Selected Languages',
-                            style: TextStyle(fontSize: 12)),
+                            style: TextStyle(fontSize: 8)),
                         SizedBox(height: 10),
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
@@ -1441,7 +1441,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                     color: isSelected
                                         ? Colors.white
                                         : Colors.black,
-                                    fontSize: 14,
+                                    fontSize: 12,
                                   ),
                                   onSelected: (bool selected) {
                                     handleChipSelection(language.title);
@@ -1554,7 +1554,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               TextField(
                 controller: descriptionController,
                 onChanged: onDescriptionChanged,
-                maxLength: 250,
+                maxLength: 1000,
                 maxLines: 6,
                 decoration: InputDecoration(
                   labelText: "Your Description",
@@ -1857,13 +1857,16 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           ElevatedButton(
             onPressed: onBackPressed,
             style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
-              backgroundColor: AppColors.buttonColor,
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 22),
+              backgroundColor: AppColors.disabled,
               foregroundColor: AppColors.textColor,
             ),
-            child: Text('Back', style: AppTextStyles.buttonText.copyWith(
-                  fontSize: fontSize,
-                ),),
+            child: Text(
+              'Back',
+              style: AppTextStyles.buttonText.copyWith(
+                fontSize: fontSize,
+              ),
+            ),
           ),
           Obx(() {
             return ElevatedButton(
@@ -1887,12 +1890,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                         : Colors.grey,
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
-              child: Text(
-                'Next',
-                style: AppTextStyles.buttonText.copyWith(
-                  fontSize: fontSize,
-                ),
-              ),
+              child: Text('Next',
+                  style: AppTextStyles.buttonText.copyWith(
+                    fontSize: fontSize,
+                  )),
             );
           }),
         ]),
@@ -2308,24 +2309,24 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 );
               }),
               SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children:[ 
-                   ElevatedButton(
-                onPressed: onBackPressed,
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
-                  backgroundColor: AppColors.activeColor,
-                  foregroundColor: AppColors.textColor,
-                ),
-                child: Text('Back', style: AppTextStyles.buttonText.copyWith(
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                ElevatedButton(
+                  onPressed: onBackPressed,
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
+                    backgroundColor: AppColors.activeColor,
+                    foregroundColor: AppColors.textColor,
+                  ),
+                  child: Text('Back',
+                      style: AppTextStyles.buttonText.copyWith(
                         color: AppColors.primaryColor,
                       )),
-              ),
-                  ElevatedButton(
+                ),
+                ElevatedButton(
                   onPressed: onNextButtonPressed,
                   style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 12, horizontal: 22),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -2338,10 +2339,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                         color: AppColors.primaryColor,
                       )),
                 ),
-                ]
-              ),
+              ]),
               SizedBox(height: 20),
-             
             ],
           ),
         ),
@@ -2465,21 +2464,22 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           SizedBox(height: 20),
 
           // Acknowledge Button
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children:[ 
-               ElevatedButton(
-            onPressed: onBackPressed,
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
-              backgroundColor: AppColors.activeColor,
-              foregroundColor: AppColors.textColor,
-            ),
-            child: Text('Back', style: AppTextStyles.buttonText.copyWith(
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            ElevatedButton(
+              onPressed: onBackPressed,
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 22),
+                backgroundColor: AppColors.activeColor,
+                foregroundColor: AppColors.textColor,
+              ),
+              child: Text(
+                'Back',
+                style: AppTextStyles.buttonText.copyWith(
                   fontSize: fontSize,
-                ),),
-          ),
-              ElevatedButton(
+                ),
+              ),
+            ),
+            ElevatedButton(
               onPressed: nextStep,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.buttonColor,
@@ -2493,11 +2493,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 ),
               ),
             ),
-            ]
-          ),
+          ]),
           SizedBox(height: 10),
-
-         
         ],
       ),
     );

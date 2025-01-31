@@ -184,8 +184,6 @@ class RazorpayController extends GetxController {
     print(
         "transaction details= ${transactionRequestModel.toJson().toString()}");
     print("Full Razorpay failure Response: ${response.toString()}");
-
-    _showErrorDialog(errorMessage);
     print(
         "Error Details: Code: ${response.code}, Message: ${response.message}");
     if (response.error != null) {
@@ -193,23 +191,6 @@ class RazorpayController extends GetxController {
     }
 
     _paymentCompleter.complete(false);
-  }
-
-  void _showErrorDialog(String errorMessage) {
-    Get.dialog(
-      AlertDialog(
-        title: Text('Payment Error'),
-        content: Text(errorMessage),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Get.back();
-            },
-            child: Text('OK'),
-          ),
-        ],
-      ),
-    );
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {

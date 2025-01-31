@@ -55,30 +55,30 @@ class Payload {
 }
 
 class Favourite {
-  String id;
-  String userId;
-  String favouriteId;
-  String status;
-  String created;
-  String updated;
-  String dob;
-  String name;
-  String username;
-  String city;
-  List<String> images;
+  String? id;
+  String? userId;
+  String? favouriteId;
+  String? status;
+  String? created;
+  String? updated;
+  String? dob;
+  String? name;
+  String? username;
+  String? city;
+  List<String>? images;
 
   Favourite({
-    required this.id,
-    required this.userId,
-    required this.favouriteId,
-    required this.status,
-    required this.created,
-    required this.updated,
-    required this.dob,
-    required this.name,
-    required this.username,
-    required this.city,
-    required this.images,
+     this.id,
+     this.userId,
+     this.favouriteId,
+     this.status,
+     this.created,
+     this.updated,
+     this.dob,
+     this.name,
+     this.username,
+     this.city,
+     this.images,
   });
 
   factory Favourite.fromJson(Map<String, dynamic> json) {
