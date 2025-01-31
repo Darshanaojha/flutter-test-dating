@@ -41,7 +41,7 @@ class Payload {
         list.map((i) => LikeRequestPages.fromJson(i)).toList();
 
     return Payload(
-      message: json['message'] ?? "", // Provide a default value if null
+      message: json['message'] ?? "",
       data: dataList,
     );
   }
@@ -62,9 +62,9 @@ class LikeRequestPages {
   String status;
   String created;
   String updated;
-  String? name; // Nullable field
-  String? nickname; // Nullable field
-  String? email; // Nullable field
+  String? name;
+  String? nickname;
+  String? email;
   String profileImage;
   String dob;
   int likedByMe;

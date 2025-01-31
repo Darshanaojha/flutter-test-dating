@@ -1788,10 +1788,14 @@ class EditProfilePageState extends State<EditProfilePage>
                                           .isNotEmpty
                                       ? controller.userProfileUpdateRequest.bio
                                       : controller.userData.first.bio,
-                                  visibility: visibility_status.value == true
-                                      ? controller.userProfileUpdateRequest
-                                          .visibility = '1'
-                                      : '0',
+                                  visibility: controller
+                                          .userProfileUpdateRequest
+                                          .visibility
+                                          .isNotEmpty
+                                      ? controller
+                                          .userProfileUpdateRequest.visibility
+                                      : controller
+                                          .userData.first.userActiveStatus,
                                   emailAlerts: controller
                                           .userProfileUpdateRequest
                                           .emailAlerts

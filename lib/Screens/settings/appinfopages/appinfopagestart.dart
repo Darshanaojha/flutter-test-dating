@@ -73,19 +73,19 @@ class _AppInfoPageState extends State<AppInfoPage> {
               // License Button
               SizedBox(
                 width: 160,
-                child: PushableButton(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: AppColors.textColor,
+                    backgroundColor: AppColors.buttonColor,
+                    padding:
+                        EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
                   onPressed: () {
                     Get.to(LicenseDetailsPage());
                   },
-                   hslColor: HSLColor.fromColor(Colors.green),
-                              height: 50.0,
-                              elevation: 8.0,
-                              shadow: BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
-                                blurRadius: 4.0,
-                                spreadRadius: 2.0,
-                                offset: Offset(0, 4),
-                              ),
                   child: Text(
                     'View Licenses',
                     style: AppTextStyles.headingText.copyWith(

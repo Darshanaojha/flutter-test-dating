@@ -1325,16 +1325,14 @@ class Controller extends GetxController {
           print('userSuggestionsList length: ${userSuggestionsList.length}');
         }
 
-        if (response.payload!.highlightedAccount != null &&
-            response.payload!.highlightedAccount!.isNotEmpty) {
+        if (response.payload!.highlightedAccount.isNotEmpty) {
           print(
-              'Highlighted account base: ${response.payload!.highlightedAccount!.length}');
+              'Highlighted account base: ${response.payload!.highlightedAccount.length}');
           addUniqueUsers(
-              response.payload!.highlightedAccount!, userHighlightedList);
-          addUniqueUsers(
-              response.payload!.highlightedAccount!, userSuggestionsList);
+              response.payload!.highlightedAccount, userHighlightedList);
           print('userHighlightedList length: ${userHighlightedList.length}');
-          print('userSuggestionsList length: ${userSuggestionsList.length}');
+          print(
+              'userSuggestionsList first city: ${userSuggestionsList.first.city}');
         }
         return true;
       } else {
@@ -1564,6 +1562,7 @@ class Controller extends GetxController {
               .highlightProfileStatus(highlightProfileStatusRequest);
       if (response != null) {
         success('success', response.payload.message);
+        Get.close(1);
         return true;
       } else {
         failure('Error', 'Failed to highlight your profile');
@@ -1651,7 +1650,7 @@ class Controller extends GetxController {
       dob: favourite.dob,
       username: favourite.username,
       city: favourite.city,
-      images: favourite.images,
+      images: favourite.images ?? [],
       status: favourite.status,
       created: favourite.created,
       updated: favourite.updated,
@@ -1695,16 +1694,13 @@ class Controller extends GetxController {
           .markasfavouriteprovider(markFavouriteRequestModel);
       if (response != null) {
         success('success', response.payload.message);
-        Get.close(1);
         return true;
       } else {
         failure('Error', 'Failed to submit the mark as favourite request');
-        Get.close(1);
         return false;
       }
     } catch (e) {
       failure('Error', e.toString());
-      Get.close(1);
       return false;
     }
   }
@@ -1719,16 +1715,13 @@ class Controller extends GetxController {
           .deletefavouriteprovider(deleteFavouritesRequest);
       if (response != null) {
         success('success', response.payload);
-        Get.close(1);
         return true;
       } else {
         failure('Error', 'Failed to submit the delete favourite request');
-        Get.close(1);
         return false;
       }
     } catch (e) {
       failure('Error', e.toString());
-      Get.close(1);
       return false;
     }
   }
