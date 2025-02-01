@@ -325,11 +325,6 @@ class HomePageState extends State<HomePage>
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
-                      // child: SpinKitCircle(
-                      //   size: 150.0,
-                      //   color: Colors.blue,
-                      // ),
-                      // assets/animations/homeanimation.json
                       child: Lottie.asset(
                           "assets/animations/handloadinganimation.json"));
                 }
@@ -380,27 +375,18 @@ class HomePageState extends State<HomePage>
                               setState(() {
                                 selectedFilter.value = 0;
                               });
-
-                              // Get.snackbar(
-                              //     'All',
-                              //     controller.userSuggestionsList.length
-                              //         .toString());
                             }),
                             buildFilterButton(1, 'NearBy', Icons.location_on,
                                 (value) {
                               setState(() {
                                 selectedFilter.value = 1;
                               });
-
-                              // Get.snackbar('NearBy',
-                              //     controller.userNearByList.length.toString());
                             }),
                             buildFilterButton(2, 'Highlighted', Icons.star,
                                 (value) {
                               setState(() {
                                 selectedFilter.value = 2;
                               });
-
                               Get.snackbar(
                                   'Highlighted',
                                   controller.userHighlightedList.length
@@ -421,22 +407,15 @@ class HomePageState extends State<HomePage>
                     SafeArea(
                       child: Column(
                         children: [
-                          if (lastUser != null)
-                            Text(
-                              'Last User: ${lastUser!.name}',
-                              style: TextStyle(fontSize: 12),
-                            ),
                           SizedBox(
                             height: size.height * 0.7 -
                                 MediaQuery.of(context).viewInsets.bottom,
-                            child: controller.userSuggestionsList.isEmpty &&
+                            child: controller
+                                        .getCurrentList(selectedFilter.value)
+                                        .isEmpty &&
                                     lastUser != null
                                 ? buildCardLayoutAll(
-                                    context,
-                                    lastUser!,
-                                    size,
-                                    isLastCard,
-                                  )
+                                    context, lastUser!, size, isLastCard)
                                 : SwipeCards(
                                     matchEngine: matchEngine,
                                     itemBuilder:
@@ -444,9 +423,10 @@ class HomePageState extends State<HomePage>
                                       SuggestedUser user;
                                       isLastCard = index ==
                                           controller
-                                                  .userSuggestionsList.length -
+                                                  .getCurrentList(
+                                                      selectedFilter.value)
+                                                  .length -
                                               1;
-
                                       switch (selectedFilter.value) {
                                         case 0:
                                           user = controller
@@ -463,24 +443,34 @@ class HomePageState extends State<HomePage>
                                                       .userNearByList[index];
                                           break;
                                         case 2:
-                                          user = (controller.userHighlightedList
+                                          user = controller.userHighlightedList
                                                       .isEmpty ||
                                                   index >=
                                                       controller
                                                           .userHighlightedList
-                                                          .length)
+                                                          .length
                                               ? SuggestedUser()
                                               : controller
                                                   .userHighlightedList[index];
-
                                           break;
                                         case 3:
-                                          user = controller.favourite.isEmpty
-                                              ? SuggestedUser()
-                                              : controller
-                                                  .convertFavouriteToSuggestedUser(
-                                                      controller
-                                                          .favourite[index]);
+                                          if (controller.favourite.isNotEmpty &&
+                                              index <
+                                                  controller.favourite.length) {
+                                            user = controller.favourite.isEmpty
+                                                ? SuggestedUser()
+                                                : controller
+                                                    .convertFavouriteToSuggestedUser(
+                                                        controller
+                                                            .favourite[index]);
+                                          } else {
+                                            return Center(
+                                                child: Text(
+                                              "No Favourites Available",
+                                              style: AppTextStyles.buttonText,
+                                            ));
+                                          }
+
                                           break;
                                         default:
                                           user = controller
@@ -495,7 +485,8 @@ class HomePageState extends State<HomePage>
                                         decoration: BoxDecoration(
                                           color: isLastCard
                                               ? Colors.grey[300]
-                                              : const Color.fromARGB(255, 109, 79, 197),
+                                              : const Color.fromARGB(
+                                                  255, 109, 79, 197),
                                           borderRadius:
                                               BorderRadius.circular(12),
                                           border: Border.all(
@@ -530,9 +521,12 @@ class HomePageState extends State<HomePage>
                                     onStackFinished: () async {
                                       isSwipeFinished = true;
                                       if (controller
-                                          .userSuggestionsList.isNotEmpty) {
-                                        lastUser =
-                                            controller.userSuggestionsList.last;
+                                          .getCurrentList(selectedFilter.value)
+                                          .isNotEmpty) {
+                                        lastUser = controller
+                                            .getCurrentList(
+                                                selectedFilter.value)
+                                            .last as SuggestedUser?;
                                         await _storeLastUser(lastUser!);
                                       }
                                       failure('Finished', "Stack Finished");
@@ -545,7 +539,7 @@ class HomePageState extends State<HomePage>
                           ),
                         ],
                       ),
-                    )
+                    ),
                   ],
                 );
               },
@@ -601,8 +595,9 @@ class HomePageState extends State<HomePage>
                                         errorWidget: (context, url, error) {
                                           print(
                                               "Failed to load image from URL: $url");
-                                          return Icon(Icons.error,
-                                              color: Colors.red);
+                                          return Icon(Icons.person_pin_outlined,
+                                              color: const Color.fromARGB(
+                                                  255, 150, 148, 148));
                                         },
                                         fit: BoxFit.cover,
                                         width: size.width * 0.9,
