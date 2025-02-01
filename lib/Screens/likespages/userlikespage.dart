@@ -851,71 +851,79 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 36.0, vertical: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '$label Filter',
-                    style: AppTextStyles.headingText.copyWith(fontSize: 12),
-                  ),
-                  SizedBox(height: 9),
-                  CheckboxListTile(
-                    title: Text('All', style: AppTextStyles.textStyle),
-                    value: selectedOptions.length == options.length,
-                    onChanged: (isChecked) {
-                      setState(() {
-                        if (isChecked == true) {
-                          selectedOptions = List.from(options);
-                        } else {
-                          selectedOptions.clear();
-                        }
-                      });
-                    },
-                    activeColor: AppColors.buttonColor,
-                  ),
-                  ...options.map((option) {
-                    return CheckboxListTile(
-                      title: Text(option, style: AppTextStyles.textStyle),
-                      value: selectedOptions.contains(option),
-                      onChanged: (isChecked) {
-                        setState(() {
-                          if (isChecked == true) {
-                            selectedOptions.add(option);
-                          } else {
-                            selectedOptions.remove(option);
-                          }
-                        });
-                      },
-                      activeColor: AppColors.buttonColor,
-                    );
-                  }),
-                  SizedBox(height: 9),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.buttonColor,
-                      foregroundColor: Colors.white,
-                      padding:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        return SizedBox(
+          height: 600,
+          child: Scrollbar(
+            child: SingleChildScrollView(
+              child: StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 36.0, vertical: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '$label Filter',
+                          style:
+                              AppTextStyles.headingText.copyWith(fontSize: 12),
+                        ),
+                        SizedBox(height: 9),
+                        CheckboxListTile(
+                          title: Text('All', style: AppTextStyles.textStyle),
+                          value: selectedOptions.length == options.length,
+                          onChanged: (isChecked) {
+                            setState(() {
+                              if (isChecked == true) {
+                                selectedOptions = List.from(options);
+                              } else {
+                                selectedOptions.clear();
+                              }
+                            });
+                          },
+                          activeColor: AppColors.buttonColor,
+                        ),
+                        ...options.map((option) {
+                          return CheckboxListTile(
+                            title: Text(option, style: AppTextStyles.textStyle),
+                            value: selectedOptions.contains(option),
+                            onChanged: (isChecked) {
+                              setState(() {
+                                if (isChecked == true) {
+                                  selectedOptions.add(option);
+                                } else {
+                                  selectedOptions.remove(option);
+                                }
+                              });
+                            },
+                            activeColor: AppColors.buttonColor,
+                          );
+                        }),
+                        SizedBox(height: 6),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.buttonColor,
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 12),
+                          ),
+                          onPressed: () {
+                            onSelected(selectedOptions);
+                            Navigator.pop(context);
+                          },
+                          child: Text(
+                            "Apply",
+                            style: TextStyle(fontSize: 9),
+                          ),
+                        ),
+                      ],
                     ),
-                    onPressed: () {
-                      onSelected(selectedOptions);
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      "Apply",
-                      style: TextStyle(fontSize: 9),
-                    ),
-                  ),
-                ],
+                  );
+                },
               ),
-            );
-          },
+            ),
+          ),
         );
       },
     );
