@@ -1272,12 +1272,10 @@ class Controller extends GetxController {
   RxList<Object> getCurrentList(int filterIndex) {
     switch (filterIndex) {
       case 0:
-        return userSuggestionsList;
-      case 1:
         return userNearByList;
-      case 2:
+      case 1:
         return userHighlightedList;
-      case 3:
+      case 2:
         return favourite;
       default:
         return userSuggestionsList;
@@ -1291,25 +1289,25 @@ class Controller extends GetxController {
   SuggestedUser? lastUser;
   Future<bool> userSuggestions() async {
     try {
-      userSuggestionsList.clear();
-      userHighlightedList.clear();
-      userNearByList.clear();
-
+      // Fetch user suggestions from provider
       UserSuggestionsResponseModel? response =
           await UserSuggestionsProvider().userSuggestions();
 
       if (response != null && response.payload != null) {
         print('User fetched successfully');
+
         void addUniqueUsers(
             List<SuggestedUser> users, RxList<SuggestedUser> targetList) {
           for (var user in users) {
             if (user.userId != null && !seenUserIds.contains(user.userId)) {
-              targetList.add(user);
-              seenUserIds.add(user.userId);
+              targetList
+                  .add(user); // Use `add` to add a single user to the list
+              seenUserIds.add(user.userId); // Add userId to the Set
             }
           }
         }
 
+        // Adding users to different lists based on categories
         if (response.payload!.desireBase != null &&
             response.payload!.desireBase.isNotEmpty) {
           addUniqueUsers(response.payload!.desireBase, userSuggestionsList);
