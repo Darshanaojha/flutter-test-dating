@@ -13,7 +13,7 @@ class ChatProvider extends GetConnect {
       String? token = preferences.getString('token');
       if (token != null && token.isNotEmpty) {
         Response response = await post(
-          'http://192.168.1.10:8080/updateChats',
+          '$springbooturl updateChats',
           message.toJson(),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
@@ -45,7 +45,7 @@ class ChatProvider extends GetConnect {
 
       if (token != null && token.isNotEmpty) {
         Response response = await post(
-          'http://192.168.1.10:8080/fetchChats',
+          '$springbooturl fetchChats',
           {'connectionId': connectionId},
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
@@ -79,7 +79,7 @@ class ChatProvider extends GetConnect {
         List<Map<String, dynamic>> jsonChats =
             chats.map((message) => message.toJson()).toList();
         Response response = await post(
-          'http://192.168.1.10:8080/deleteChats',
+          '$springbooturl deleteChats',
           jsonChats,
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
