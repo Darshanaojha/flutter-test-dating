@@ -767,18 +767,39 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
               child: SizedBox(
                 width: 120,
                 height: 40,
-                child: FloatingActionButton(
-                  onPressed: () {
-                    showUpgradeBottomSheet();
-                  },
-                  backgroundColor: AppColors.buttonColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment(0.8, 1),
+                      colors: <Color>[
+                        Color(0xff1f005c),
+                        Color(0xff5b0060),
+                        Color(0xff870160),
+                        Color(0xffac255e),
+                        Color(0xffca485c),
+                        Color(0xffe16b5c),
+                        Color(0xfff39060),
+                        Color(0xffffb56b),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(
+                        30), // Ensure the button has rounded corners
                   ),
-                  child: Text(
-                    "Add On",
-                    style: AppTextStyles.textStyle,
-                    textAlign: TextAlign.center,
+                  child: FloatingActionButton(
+                    onPressed: () {
+                      showUpgradeBottomSheet();
+                    },
+                    backgroundColor: Colors
+                        .transparent, // Set to transparent as the gradient is applied via Container
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Text(
+                      "Add On",
+                      style: AppTextStyles.textStyle,
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
               ),
@@ -806,33 +827,53 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
       padding: const EdgeInsets.symmetric(horizontal: 6.0),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 0.5),
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            foregroundColor: AppColors.primaryColor,
-            backgroundColor: AppColors.secondaryColor,
-            padding: EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-              side: BorderSide(color: AppColors.activeColor, width: 2),
+        child: Container(
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment(0.8, 1),
+                colors: <Color>[
+                  Color(0xff1f005c),
+                  Color(0xff5b0060),
+                  Color(0xff870160),
+                  Color(0xffac255e),
+                  Color(0xffca485c),
+                  Color(0xffe16b5c),
+                  Color(0xfff39060),
+                  Color(0xffffb56b),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(
+                  30), // Optional: Adjust based on your design
             ),
-          ),
-          onPressed: () {
-            if (options.isEmpty) return;
-            showBottomSheet(label, options, initialSelection, onSelected);
-          },
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                label,
-                style: AppTextStyles.textStyle,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              foregroundColor: AppColors.primaryColor,
+              backgroundColor: Colors.transparent,
+              padding: EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: BorderSide(color: AppColors.activeColor, width: 2),
               ),
-              SizedBox(width: 2),
-              Icon(
-                Icons.arrow_drop_down,
-                color: AppColors.activeColor,
-              ),
-            ],
+            ),
+            onPressed: () {
+              if (options.isEmpty) return;
+              showBottomSheet(label, options, initialSelection, onSelected);
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: AppTextStyles.textStyle,
+                ),
+                SizedBox(width: 2),
+                Icon(
+                  Icons.arrow_drop_down,
+                  color: AppColors.activeColor,
+                ),
+              ],
+            ),
           ),
         ),
       ),

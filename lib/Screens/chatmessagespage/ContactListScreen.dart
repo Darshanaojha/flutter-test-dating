@@ -62,23 +62,49 @@ class ContactListScreenState extends State<ContactListScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextField(
-                  cursorColor: AppColors.cursorColor,
-                  onChanged: (query) {
-                    setState(() {
-                      searchQuery = query;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Search Contacts...',
-                    hintStyle:
-                        AppTextStyles.customTextStyle(color: Colors.grey),
-                    prefixIcon: Icon(Icons.search, color: AppColors.iconColor),
-                    filled: true,
-                    fillColor: AppColors.formFieldColor,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius:
+                        BorderRadius.all(Radius.circular(8)), // Rounded corners
+                    gradient: RadialGradient(
+                      center:
+                          Alignment.center, // Start the gradient at the center
+                      radius: 0.8,
+                      colors: <Color>[
+                        Color(0xff1f005c),
+                        Color(0xff5b0060),
+                        Color(0xff870160),
+                        Color(0xffac255e),
+                        Color(0xffca485c),
+                        Color(0xffe16b5c),
+                        Color(0xfff39060),
+                        Color(0xffffb56b),
+                      ],
+                      stops: [0.0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.0],
+                    ),
+                  ),
+                  child: TextField(
+                    cursorColor: AppColors.cursorColor,
+                    onChanged: (query) {
+                      setState(() {
+                        searchQuery = query;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Search Contacts...',
+                      hintStyle:
+                          AppTextStyles.customTextStyle(color: Colors.grey),
+                      prefixIcon:
+                          Icon(Icons.search, color: AppColors.iconColor),
+                      filled: true,
+                      fillColor: Colors
+                          .transparent, // Keep transparent so the gradient shows through
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                     ),
                   ),
                 ),
@@ -96,18 +122,40 @@ class ContactListScreenState extends State<ContactListScreen> {
                     Stack(
                       clipBehavior: Clip.none,
                       children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            Get.to(MessageRequestPage());
-                            print("Ping button pressed");
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.buttonColor,
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment(0.8, 1),
+                              colors: <Color>[
+                                Color(0xff1f005c),
+                                Color(0xff5b0060),
+                                Color(0xff870160),
+                                Color(0xffac255e),
+                                Color(0xffca485c),
+                                Color(0xffe16b5c),
+                                Color(0xfff39060),
+                                Color(0xffffb56b),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(60),
                           ),
-                          child: Text(
-                            'Request',
-                            style: AppTextStyles.customTextStyle(
-                                color: AppColors.inactiveColor),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Get.to(MessageRequestPage());
+                              print("Ping button pressed");
+                            },
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.transparent,
+                              shape: StadiumBorder(),
+                              minimumSize: Size(100, 45),
+                            ),
+                            child: Text(
+                              'Request',
+                              style: AppTextStyles.customTextStyle(
+                                  color: AppColors.inactiveColor),
+                            ),
                           ),
                         ),
                         if (controller.messageRequest.isNotEmpty)

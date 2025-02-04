@@ -317,39 +317,59 @@ class HomePageState extends State<HomePage>
       int button, String label, IconData icon, Function(String) onTap) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: ElevatedButton.icon(
-        onPressed: () {
-          setState(() {
-            selectedFilter.value = button;
-          });
-          _animationController.forward(from: 0);
-          onTap(label);
-        },
-        icon: AnimatedBuilder(
-          animation: _animationController,
-          builder: (context, child) {
-            return Transform.rotate(
-              angle:
-                  selectedFilter.value == button ? _rotationAnimation.value : 0,
-              child: Icon(
-                icon,
-                size: 30,
-                color: AppColors.textColor,
-              ),
-            );
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment(0.8, 1),
+            colors: <Color>[
+              Color(0xff1f005c),
+              Color(0xff5b0060),
+              Color(0xff870160),
+              Color(0xffac255e),
+              Color(0xffca485c),
+              Color(0xffe16b5c),
+              Color(0xfff39060),
+              Color(0xffffb56b),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(
+              30), // You can adjust the border radius here
+        ),
+        child: ElevatedButton.icon(
+          onPressed: () {
+            setState(() {
+              selectedFilter.value = button;
+            });
+            _animationController.forward(from: 0);
+            onTap(label);
           },
-        ),
-        label: Text(
-          label,
-          style: TextStyle(fontSize: 10, color: AppColors.textColor),
-        ),
-        style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.white,
-          backgroundColor: selectedFilter.value == button
-              ? AppColors.activeColor
-              : AppColors.buttonColor,
-          shape: StadiumBorder(),
-          minimumSize: Size(100, 45),
+          icon: AnimatedBuilder(
+            animation: _animationController,
+            builder: (context, child) {
+              return Transform.rotate(
+                angle: selectedFilter.value == button
+                    ? _rotationAnimation.value
+                    : 0,
+                child: Icon(
+                  icon,
+                  size: 30,
+                  color: AppColors.textColor,
+                ),
+              );
+            },
+          ),
+          label: Text(
+            label,
+            style: TextStyle(fontSize: 10, color: AppColors.textColor),
+          ),
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors
+                .transparent, // Set to transparent since the gradient is applied on Container
+            shape: StadiumBorder(),
+            minimumSize: Size(100, 45),
+          ),
         ),
       ),
     );
@@ -419,6 +439,8 @@ class HomePageState extends State<HomePage>
                               setState(() {
                                 selectedFilter.value = 0;
                               });
+                              Get.snackbar('NearBy',
+                                  controller.userNearByList.length.toString());
                             }),
                             buildFilterButton(1, 'Highlighted', Icons.star,
                                 (value) {
@@ -473,16 +495,18 @@ class HomePageState extends State<HomePage>
                                             return Container(
                                               decoration: BoxDecoration(
                                                 color: isLastCard
-                                                    ? Colors.grey[300]
+                                                    ? const Color.fromARGB(
+                                                        255, 16, 16, 16)
                                                     : const Color.fromARGB(
-                                                        255, 109, 79, 197),
+                                                        255, 176, 175, 180),
                                                 borderRadius:
                                                     BorderRadius.circular(12),
                                                 border: Border.all(
                                                   color: isLastCard
-                                                      ? Colors.grey
+                                                      ? const Color.fromARGB(
+                                                          255, 24, 24, 24)
                                                       : const Color.fromARGB(
-                                                          255, 1, 76, 151),
+                                                          255, 149, 151, 152),
                                                   width: 2,
                                                 ),
                                                 boxShadow: [
@@ -779,11 +803,29 @@ class HomePageState extends State<HomePage>
     return user.id == ''
         ? Text("No users available")
         : Container(
-            alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(15),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment(0.8, 1),
+                colors: <Color>[
+                  Color(0xff1f005c),
+                  Color(0xff5b0060),
+                  Color(0xff870160),
+                  Color(0xffac255e),
+                  Color(0xffca485c),
+                  Color(0xffe16b5c),
+                  Color(0xfff39060),
+                  Color(0xffffb56b),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(
+                  30), // You can adjust the border radius here
             ),
+            // alignment: Alignment.center,
+            // decoration: BoxDecoration(
+            //   color: Colors.black,
+            //   borderRadius: BorderRadius.circular(15),
+            // ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -887,7 +929,8 @@ class HomePageState extends State<HomePage>
                           print("button pressed nope");
                         },
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.NopeColor),
+                          backgroundColor: Colors.transparent,
+                        ),
                         child: Text("Nope",
                             style: AppTextStyles.buttonText.copyWith(
                                 fontSize: getResponsiveFontSize(0.015))),
