@@ -20,10 +20,10 @@ class VideoCallPage extends StatefulWidget {
 }
 
 class VideoCallPageState extends State<VideoCallPage> {
-  late String channelName;
+  String channelName = "";
   late DateTime callStartTime;
   late DateTime callEndTime;
-  late String agoraToken;
+  String agoraToken = "";
   int? localUid;
   int? remoteUid;
   bool localUserJoined = false;
@@ -38,7 +38,7 @@ class VideoCallPageState extends State<VideoCallPage> {
         failure("Error", "Bearer Token not found");
         return null;
       }
-
+      print("Fetching the agora token");
       final response = await http.get(
         Uri.parse('${springbooturl}api/agora/generateToken'),
         headers: {
@@ -46,11 +46,12 @@ class VideoCallPageState extends State<VideoCallPage> {
           'Content-Type': 'application/json',
         },
       );
-
+      print(response.body.toString());
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
 
         if (data['success'] == true) {
+          print('token is ${data['message']}');
           return data['message'] as String;
         } else {
           failure('Error', 'Failed to fetch token: ${data['message']}');
@@ -70,13 +71,20 @@ class VideoCallPageState extends State<VideoCallPage> {
   @override
   void initState() {
     super.initState();
-
-    channelName = _generateChannelName(widget.caller, widget.receiver);
-
-    _initializeAgora();
+    fetchAgoraToken().then((value) {
+      if (value == null) {
+        failure('Error',
+            'An Error Occured while fetching the token from the server');
+      } else {
+        agoraToken = value;
+        channelName = generateChannelName(widget.caller, widget.receiver);
+        print('channel name is ${channelName}');
+        initializeAgora();
+      }
+    });
   }
 
-  Future<void> _initializeAgora() async {
+  Future<void> initializeAgora() async {
     final permissionStatus = await [
       Permission.microphone,
       Permission.camera,
@@ -104,54 +112,65 @@ class VideoCallPageState extends State<VideoCallPage> {
       );
       return;
     }
-    _engine = createAgoraRtcEngine();
-    await _engine.initialize(const RtcEngineContext(
-      appId: AgoraConstants.AGORAAPPID,
-      channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
-    ));
-
-    _engine.registerEventHandler(
-      RtcEngineEventHandler(
-        onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
-          debugPrint("local user ${connection.localUid} joined");
-          setState(() {
-            localUid = connection.localUid;
-            callStartTime = DateTime.now();
-          });
-        },
-        onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
-          debugPrint("remote user $remoteUid joined");
-          setState(() {
-            this.remoteUid = remoteUid;
-          });
-        },
-        onUserOffline: (RtcConnection connection, int remoteUid,
-            UserOfflineReasonType reason) {
-          debugPrint("remote user $remoteUid left channel");
-          callEndTime = DateTime.now();
-          _sendCallDataToBackend();
-        },
-        onTokenPrivilegeWillExpire: (RtcConnection connection, String token) {
-          debugPrint(
-              '[onTokenPrivilegeWillExpire] connection: ${connection.toJson()}, token: $token');
-        },
-      ),
-    );
+    print("app id is ${AgoraConstants.AGORAAPPID}");
+    try {
+      _engine = createAgoraRtcEngine();
+      await _engine.initialize(const RtcEngineContext(
+        appId: AgoraConstants.AGORAAPPID,
+        channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
+      ));
+    } catch (e) {
+      print(e.toString());
+    }
+    try {
+      _engine.registerEventHandler(
+        RtcEngineEventHandler(
+          onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
+            debugPrint("local user ${connection.localUid} joined");
+            setState(() {
+              localUid = connection.localUid;
+              callStartTime = DateTime.now();
+            });
+          },
+          onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
+            debugPrint("remote user $remoteUid joined");
+            setState(() {
+              this.remoteUid = remoteUid;
+            });
+          },
+          onUserOffline: (RtcConnection connection, int remoteUid,
+              UserOfflineReasonType reason) {
+            debugPrint("remote user $remoteUid left channel");
+            callEndTime = DateTime.now();
+            _sendCallDataToBackend();
+          },
+          onTokenPrivilegeWillExpire: (RtcConnection connection, String token) {
+            debugPrint(
+                '[onTokenPrivilegeWillExpire] connection: ${connection.toJson()}, token: $token');
+          },
+        ),
+      );
+    } catch (e) {
+      print(e.toString());
+    }
 
     await _engine.setClientRole(role: ClientRoleType.clientRoleBroadcaster);
     await _engine.enableVideo();
 
     await _engine.startPreview();
-
-    await _engine.joinChannel(
-      token: agoraToken,
-      channelId: channelName,
-      uid: 0,
-      options: const ChannelMediaOptions(),
-    );
+    try {
+      await _engine.joinChannel(
+        token: agoraToken,
+        channelId: channelName,
+        uid: 0,
+        options: const ChannelMediaOptions(),
+      );
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
-  String _generateChannelName(String caller, String receiver) {
+  String generateChannelName(String caller, String receiver) {
     return caller.compareTo(receiver) < 0
         ? "chat_${caller}_and_$receiver"
         : "chat_${receiver}_and_$caller";
