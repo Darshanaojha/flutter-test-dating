@@ -29,6 +29,10 @@ class HomePageState extends State<HomePage>
   }
 
   SuggestedUser? lastUser;
+  SuggestedUser? lastUserNearBy;
+  SuggestedUser? lastUserHighlighted;
+  SuggestedUser? lastUserFavourite;
+
   bool isLastCard = false;
   RxInt selectedFilter = 0.obs;
   bool isLiked = false;
@@ -67,34 +71,74 @@ class HomePageState extends State<HomePage>
     _fetchSuggestion = initializeApp();
   }
 
-  Future<void> _storeLastUser(SuggestedUser lastUser) async {
+  Future<void> _storeLastUserForAllLists(SuggestedUser suggestedUser) async {
     final preferences = await EncryptedSharedPreferences.getInstance();
-    String lastUserString = jsonEncode(lastUser.toJson());
-    await preferences.setString('last user', lastUserString);
-    print("Saved last user: $lastUserString");
-    // Get.snackbar("Last user saved", lastUser.name.toString());
+
+    Map<String, String> lastUsersMap = {};
+    if (controller.getCurrentList(0).isNotEmpty) {
+      SuggestedUser lastUserNearby =
+          controller.getCurrentList(0).last as SuggestedUser;
+      lastUsersMap['nearBy'] = jsonEncode(lastUserNearby.toJson());
+    }
+
+    // Save last user for 'highlighted' list
+    if (controller.getCurrentList(1).isNotEmpty) {
+      SuggestedUser lastUserHighlighted =
+          controller.getCurrentList(1).last as SuggestedUser;
+      lastUsersMap['highlighted'] = jsonEncode(lastUserHighlighted.toJson());
+    }
+
+    // Save last user for 'favourite' list
+    if (controller.getCurrentList(2).isNotEmpty) {
+      SuggestedUser lastUserFavourite =
+          controller.getCurrentList(2).last as SuggestedUser;
+      lastUsersMap['favourite'] = jsonEncode(lastUserFavourite.toJson());
+    }
+
+    // Save the entire map of last users
+    await preferences.setString('lastUsersMap', jsonEncode(lastUsersMap));
+
+    print("Saved last users for all lists: $lastUsersMap");
   }
 
-  Future<void> _retrieveLastUser() async {
+  Future<void> _retrieveLastUsers() async {
     final preferences = await EncryptedSharedPreferences.getInstance();
-    String? lastUserString = await preferences.getString('last user');
-    // Get.snackbar("Stored lastUser", lastUserString ?? "No data found");
+    String? lastUsersMapString = await preferences.getString('lastUsersMap');
 
-    if (lastUserString != null) {
-      Map<String, dynamic> lastUserMap = jsonDecode(lastUserString);
+    if (lastUsersMapString != null) {
+      // Decode the map from JSON
+      Map<String, dynamic> lastUsersMap = jsonDecode(lastUsersMapString);
+
       setState(() {
-        lastUser = SuggestedUser.fromJson(lastUserMap);
+        // Retrieve last user for 'nearBy' list
+        if (lastUsersMap['nearBy'] != null) {
+          Map<String, dynamic> lastUserMap = jsonDecode(lastUsersMap['nearBy']);
+          lastUserNearBy = SuggestedUser.fromJson(lastUserMap);
+        }
+
+        // Retrieve last user for 'highlighted' list
+        if (lastUsersMap['highlighted'] != null) {
+          Map<String, dynamic> lastUserMap =
+              jsonDecode(lastUsersMap['highlighted']);
+          lastUserHighlighted = SuggestedUser.fromJson(lastUserMap);
+        }
+
+        // Retrieve last user for 'favourite' list
+        if (lastUsersMap['favourite'] != null) {
+          Map<String, dynamic> lastUserMap =
+              jsonDecode(lastUsersMap['favourite']);
+          lastUserFavourite = SuggestedUser.fromJson(lastUserMap);
+        }
       });
-      // Get.snackbar("Last user retrieved", lastUser!.name.toString());
-      print("Last User retrieved: ${lastUser!.name}");
+
+      print("Last users retrieved: $lastUsersMap");
     } else {
-      print('No last user found');
-      // Get.snackbar("No User", 'No last user found');
+      print('No last users found');
     }
   }
 
   Future<bool> initializeApp() async {
-    await _retrieveLastUser();
+    await _retrieveLastUsers();
 
     await controller.userSuggestions();
     for (int i = 0; i < controller.userSuggestionsList.length; i++) {
@@ -370,32 +414,26 @@ class HomePageState extends State<HomePage>
                         child: ListView(
                           scrollDirection: Axis.horizontal,
                           children: [
-                            buildFilterButton(0, 'All', Icons.all_inclusive,
+                            buildFilterButton(0, 'NearBy', Icons.location_on,
                                 (value) {
                               setState(() {
                                 selectedFilter.value = 0;
                               });
                             }),
-                            buildFilterButton(1, 'NearBy', Icons.location_on,
+                            buildFilterButton(1, 'Highlighted', Icons.star,
                                 (value) {
                               setState(() {
                                 selectedFilter.value = 1;
-                              });
-                            }),
-                            buildFilterButton(2, 'Highlighted', Icons.star,
-                                (value) {
-                              setState(() {
-                                selectedFilter.value = 2;
                               });
                               Get.snackbar(
                                   'Highlighted',
                                   controller.userHighlightedList.length
                                       .toString());
                             }),
-                            buildFilterButton(3, 'Favourite', Icons.favorite,
+                            buildFilterButton(2, 'Favourite', Icons.favorite,
                                 (value) {
                               setState(() {
-                                selectedFilter.value = 3;
+                                selectedFilter.value = 2;
                               });
                               Get.snackbar('userfavourite',
                                   controller.favourite.length.toString());
@@ -404,142 +442,326 @@ class HomePageState extends State<HomePage>
                         ),
                       ),
                     ),
-                    SafeArea(
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            height: size.height * 0.7 -
-                                MediaQuery.of(context).viewInsets.bottom,
-                            child: controller
-                                        .getCurrentList(selectedFilter.value)
-                                        .isEmpty &&
-                                    lastUser != null
-                                ? buildCardLayoutAll(
-                                    context, lastUser!, size, isLastCard)
-                                : SwipeCards(
-                                    matchEngine: matchEngine,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      SuggestedUser user;
-                                      isLastCard = index ==
-                                          controller
+                    selectedFilter.value == 0
+                        ? SafeArea(
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  height: size.height * 0.7 -
+                                      MediaQuery.of(context).viewInsets.bottom,
+                                  child: controller
+                                              .getCurrentList(
+                                                  selectedFilter.value)
+                                              .isEmpty &&
+                                          lastUser != null
+                                      ? buildCardLayoutAll(
+                                          context, lastUser!, size, isLastCard)
+                                      : SwipeCards(
+                                          matchEngine: matchEngine,
+                                          itemBuilder: (BuildContext context,
+                                              int index) {
+                                            SuggestedUser user = controller
+                                                .userNearByList[index];
+                                            isLastCard = index ==
+                                                controller
+                                                        .getCurrentList(
+                                                            selectedFilter
+                                                                .value)
+                                                        .length -
+                                                    1;
+
+                                            return Container(
+                                              decoration: BoxDecoration(
+                                                color: isLastCard
+                                                    ? Colors.grey[300]
+                                                    : const Color.fromARGB(
+                                                        255, 109, 79, 197),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                                border: Border.all(
+                                                  color: isLastCard
+                                                      ? Colors.grey
+                                                      : const Color.fromARGB(
+                                                          255, 1, 76, 151),
+                                                  width: 2,
+                                                ),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.white
+                                                        .withOpacity(0.2),
+                                                    spreadRadius: 2,
+                                                    blurRadius: 5,
+                                                    offset: Offset(0, 3),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: buildCardLayoutAll(
+                                                context,
+                                                user,
+                                                size,
+                                                isLastCard,
+                                              ),
+                                            );
+                                          },
+                                          upSwipeAllowed: true,
+                                          leftSwipeAllowed: true,
+                                          rightSwipeAllowed: true,
+                                          fillSpace: true,
+                                          onStackFinished: () async {
+                                            isSwipeFinished = true;
+                                            if (controller
+                                                .getCurrentList(
+                                                    selectedFilter.value)
+                                                .isNotEmpty) {
+                                              lastUser = controller
                                                   .getCurrentList(
                                                       selectedFilter.value)
-                                                  .length -
-                                              1;
-                                      switch (selectedFilter.value) {
-                                        case 0:
-                                          user = controller
-                                                  .userSuggestionsList.isEmpty
-                                              ? SuggestedUser()
-                                              : controller
-                                                  .userSuggestionsList[index];
-                                          break;
-                                        case 1:
-                                          user =
-                                              controller.userNearByList.isEmpty
-                                                  ? SuggestedUser()
-                                                  : controller
-                                                      .userNearByList[index];
-                                          break;
-                                        case 2:
-                                          user = controller.userHighlightedList
-                                                      .isEmpty ||
-                                                  index >=
-                                                      controller
-                                                          .userHighlightedList
-                                                          .length
-                                              ? SuggestedUser()
-                                              : controller
-                                                  .userHighlightedList[index];
-                                          break;
-                                        case 3:
-                                          if (controller.favourite.isNotEmpty &&
-                                              index <
-                                                  controller.favourite.length) {
-                                            user = controller.favourite.isEmpty
-                                                ? SuggestedUser()
-                                                : controller
-                                                    .convertFavouriteToSuggestedUser(
-                                                        controller
-                                                            .favourite[index]);
-                                          } else {
-                                            return Center(
-                                                child: Text(
-                                              "No Favourites Available",
-                                              style: AppTextStyles.buttonText,
-                                            ));
-                                          }
+                                                  .last as SuggestedUser?;
+                                              await _storeLastUserForAllLists(
+                                                  lastUser!);
+                                            }
+                                            failure(
+                                                'Finished', "Stack Finished");
+                                          },
+                                          itemChanged:
+                                              (SwipeItem item, int index) {
+                                            print(
+                                                "Item: ${item.content}, Index: $index");
+                                          },
+                                        ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : selectedFilter.value == 1
+                            ? SafeArea(
+                                child: Column(
+                                  children: [
+                                    SizedBox(
+                                      height: size.height * 0.7 -
+                                          MediaQuery.of(context)
+                                              .viewInsets
+                                              .bottom,
+                                      child: controller
+                                                  .getCurrentList(
+                                                      selectedFilter.value)
+                                                  .isEmpty &&
+                                              lastUser != null
+                                          ? buildCardLayoutAll(context,
+                                              lastUser!, size, isLastCard)
+                                          : SwipeCards(
+                                              matchEngine: matchEngine,
+                                              itemBuilder:
+                                                  (BuildContext context,
+                                                      int index) {
+                                                SuggestedUser user = controller
+                                                            .userHighlightedList
+                                                            .isEmpty ||
+                                                        index >=
+                                                            controller
+                                                                .userHighlightedList
+                                                                .length
+                                                    ? SuggestedUser()
+                                                    : controller
+                                                            .userHighlightedList[
+                                                        index];
 
-                                          break;
-                                        default:
-                                          user = controller
-                                                  .userSuggestionsList.isEmpty
-                                              ? SuggestedUser()
-                                              : controller
-                                                  .userSuggestionsList[index];
-                                          break;
-                                      }
+                                                isLastCard = index ==
+                                                    controller
+                                                            .getCurrentList(
+                                                                selectedFilter
+                                                                    .value)
+                                                            .length -
+                                                        1;
 
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                          color: isLastCard
-                                              ? Colors.grey[300]
-                                              : const Color.fromARGB(
-                                                  255, 109, 79, 197),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          border: Border.all(
-                                            color: isLastCard
-                                                ? Colors.grey
-                                                : const Color.fromARGB(
-                                                    255, 1, 76, 151),
-                                            width: 2,
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color:
-                                                  Colors.white.withOpacity(0.2),
-                                              spreadRadius: 2,
-                                              blurRadius: 5,
-                                              offset: Offset(0, 3),
+                                                return Container(
+                                                  decoration: BoxDecoration(
+                                                    color: isLastCard
+                                                        ? Colors.grey[300]
+                                                        : const Color.fromARGB(
+                                                            255, 109, 79, 197),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
+                                                    border: Border.all(
+                                                      color: isLastCard
+                                                          ? Colors.grey
+                                                          : const Color
+                                                              .fromARGB(
+                                                              255, 1, 76, 151),
+                                                      width: 2,
+                                                    ),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.white
+                                                            .withOpacity(0.2),
+                                                        spreadRadius: 2,
+                                                        blurRadius: 5,
+                                                        offset: Offset(0, 3),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: buildCardLayoutAll(
+                                                    context,
+                                                    user,
+                                                    size,
+                                                    isLastCard,
+                                                  ),
+                                                );
+                                              },
+                                              upSwipeAllowed: true,
+                                              leftSwipeAllowed: true,
+                                              rightSwipeAllowed: true,
+                                              fillSpace: true,
+                                              onStackFinished: () async {
+                                                isSwipeFinished = true;
+                                                if (controller
+                                                    .getCurrentList(
+                                                        selectedFilter.value)
+                                                    .isNotEmpty) {
+                                                  lastUser = controller
+                                                      .getCurrentList(
+                                                          selectedFilter.value)
+                                                      .last as SuggestedUser?;
+                                                  await _storeLastUserForAllLists(
+                                                      lastUser!);
+                                                }
+                                                failure('Finished',
+                                                    "Stack Finished");
+                                              },
+                                              itemChanged:
+                                                  (SwipeItem item, int index) {
+                                                print(
+                                                    "Item: ${item.content}, Index: $index");
+                                              },
                                             ),
-                                          ],
-                                        ),
-                                        child: buildCardLayoutAll(
-                                          context,
-                                          user,
-                                          size,
-                                          isLastCard,
-                                        ),
-                                      );
-                                    },
-                                    upSwipeAllowed: true,
-                                    leftSwipeAllowed: true,
-                                    rightSwipeAllowed: true,
-                                    fillSpace: true,
-                                    onStackFinished: () async {
-                                      isSwipeFinished = true;
-                                      if (controller
-                                          .getCurrentList(selectedFilter.value)
-                                          .isNotEmpty) {
-                                        lastUser = controller
-                                            .getCurrentList(
-                                                selectedFilter.value)
-                                            .last as SuggestedUser?;
-                                        await _storeLastUser(lastUser!);
-                                      }
-                                      failure('Finished', "Stack Finished");
-                                    },
-                                    itemChanged: (SwipeItem item, int index) {
-                                      print(
-                                          "Item: ${item.content}, Index: $index");
-                                    },
-                                  ),
-                          ),
-                        ],
-                      ),
-                    ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : SafeArea(
+                                child: Column(
+                                  children: [
+                                    SizedBox(
+                                      height: size.height * 0.7 -
+                                          MediaQuery.of(context)
+                                              .viewInsets
+                                              .bottom,
+                                      child: controller
+                                                  .getCurrentList(
+                                                      selectedFilter.value)
+                                                  .isEmpty &&
+                                              lastUser != null
+                                          ? buildCardLayoutAll(context,
+                                              lastUser!, size, isLastCard)
+                                          : SwipeCards(
+                                              matchEngine: matchEngine,
+                                              itemBuilder:
+                                                  (BuildContext context,
+                                                      int index) {
+                                                SuggestedUser user = controller
+                                                        .favourite.isEmpty
+                                                    ? SuggestedUser()
+                                                    : controller
+                                                        .convertFavouriteToSuggestedUser(
+                                                            controller
+                                                                    .favourite[
+                                                                index]);
+                                                //    if (controller
+                                                //         .favourite.isNotEmpty &&
+                                                //     index <
+                                                //         controller
+                                                //             .favourite.length) {
+                                                //   SuggestedUser user = controller
+                                                //           .favourite.isEmpty
+                                                //       ? SuggestedUser()
+                                                // : controller
+                                                //     .convertFavouriteToSuggestedUser(
+                                                //         controller
+                                                //                 .favourite[
+                                                //             index]);
+                                                // } else {
+                                                //   return Center(
+                                                //       child: Text(
+                                                //     "No Favourites Available",
+                                                //     style: AppTextStyles
+                                                //         .buttonText,
+                                                //   ));
+                                                // }
+
+                                                isLastCard = index ==
+                                                    controller
+                                                            .getCurrentList(
+                                                                selectedFilter
+                                                                    .value)
+                                                            .length -
+                                                        1;
+
+                                                return Container(
+                                                  decoration: BoxDecoration(
+                                                    color: isLastCard
+                                                        ? Colors.grey[300]
+                                                        : const Color.fromARGB(
+                                                            255, 109, 79, 197),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
+                                                    border: Border.all(
+                                                      color: isLastCard
+                                                          ? Colors.grey
+                                                          : const Color
+                                                              .fromARGB(
+                                                              255, 1, 76, 151),
+                                                      width: 2,
+                                                    ),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.white
+                                                            .withOpacity(0.2),
+                                                        spreadRadius: 2,
+                                                        blurRadius: 5,
+                                                        offset: Offset(0, 3),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: buildCardLayoutAll(
+                                                    context,
+                                                    user,
+                                                    size,
+                                                    isLastCard,
+                                                  ),
+                                                );
+                                              },
+                                              upSwipeAllowed: true,
+                                              leftSwipeAllowed: true,
+                                              rightSwipeAllowed: true,
+                                              fillSpace: true,
+                                              onStackFinished: () async {
+                                                isSwipeFinished = true;
+                                                if (controller
+                                                    .getCurrentList(
+                                                        selectedFilter.value)
+                                                    .isNotEmpty) {
+                                                  lastUser = controller
+                                                      .getCurrentList(
+                                                          selectedFilter.value)
+                                                      .last as SuggestedUser?;
+                                                  await _storeLastUserForAllLists(
+                                                      lastUser!);
+                                                }
+                                                failure('Finished',
+                                                    "Stack Finished");
+                                              },
+                                              itemChanged:
+                                                  (SwipeItem item, int index) {
+                                                print(
+                                                    "Item: ${item.content}, Index: $index");
+                                              },
+                                            ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                   ],
                 );
               },

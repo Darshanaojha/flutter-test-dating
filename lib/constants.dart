@@ -7,7 +7,9 @@ const encryptionkey = "flamrpisyst2024!";
 const secretkey = "ArqamzSnehaSadiq@flamrdating2024";
 const baseurl = "http://192.168.1.35/dating_backend_springboot/admin";
 const ip = "http://192.168.1.35/dating_backend_springboot/";
+
 const springbooturl = "http://192.168.1.35:8080/";
+
 const registerUrl = "Authentication/register";
 const loginUrl = "Authentication/login";
 const profileUrl = "Authentication/profile";

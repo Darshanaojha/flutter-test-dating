@@ -28,7 +28,9 @@ class WebSocketService {
 
     _stompClient = StompClient(
       config: StompConfig.sockJS(
+
         url: '$springbooturl chat',
+
         onConnect: _onConnect,
         beforeConnect: () async {
           print('Connecting...');
