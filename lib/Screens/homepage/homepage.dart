@@ -29,6 +29,10 @@ class HomePageState extends State<HomePage>
   }
 
   SuggestedUser? lastUser;
+  SuggestedUser? lastUserNearBy;
+  SuggestedUser? lastUserHighlighted;
+  SuggestedUser? lastUserFavourite;
+
   bool isLastCard = false;
   RxInt selectedFilter = 0.obs;
   bool isLiked = false;
@@ -67,34 +71,74 @@ class HomePageState extends State<HomePage>
     _fetchSuggestion = initializeApp();
   }
 
-  Future<void> _storeLastUser(SuggestedUser lastUser) async {
+  Future<void> _storeLastUserForAllLists(SuggestedUser suggestedUser) async {
     final preferences = await EncryptedSharedPreferences.getInstance();
-    String lastUserString = jsonEncode(lastUser.toJson());
-    await preferences.setString('last user', lastUserString);
-    print("Saved last user: $lastUserString");
-    // Get.snackbar("Last user saved", lastUser.name.toString());
+
+    Map<String, String> lastUsersMap = {};
+    if (controller.getCurrentList(0).isNotEmpty) {
+      SuggestedUser lastUserNearby =
+          controller.getCurrentList(0).last as SuggestedUser;
+      lastUsersMap['nearBy'] = jsonEncode(lastUserNearby.toJson());
+    }
+
+    // Save last user for 'highlighted' list
+    if (controller.getCurrentList(1).isNotEmpty) {
+      SuggestedUser lastUserHighlighted =
+          controller.getCurrentList(1).last as SuggestedUser;
+      lastUsersMap['highlighted'] = jsonEncode(lastUserHighlighted.toJson());
+    }
+
+    // Save last user for 'favourite' list
+    if (controller.getCurrentList(2).isNotEmpty) {
+      SuggestedUser lastUserFavourite =
+          controller.getCurrentList(2).last as SuggestedUser;
+      lastUsersMap['favourite'] = jsonEncode(lastUserFavourite.toJson());
+    }
+
+    // Save the entire map of last users
+    await preferences.setString('lastUsersMap', jsonEncode(lastUsersMap));
+
+    print("Saved last users for all lists: $lastUsersMap");
   }
 
-  Future<void> _retrieveLastUser() async {
+  Future<void> _retrieveLastUsers() async {
     final preferences = await EncryptedSharedPreferences.getInstance();
-    String? lastUserString = await preferences.getString('last user');
-    // Get.snackbar("Stored lastUser", lastUserString ?? "No data found");
+    String? lastUsersMapString = await preferences.getString('lastUsersMap');
 
-    if (lastUserString != null) {
-      Map<String, dynamic> lastUserMap = jsonDecode(lastUserString);
+    if (lastUsersMapString != null) {
+      // Decode the map from JSON
+      Map<String, dynamic> lastUsersMap = jsonDecode(lastUsersMapString);
+
       setState(() {
-        lastUser = SuggestedUser.fromJson(lastUserMap);
+        // Retrieve last user for 'nearBy' list
+        if (lastUsersMap['nearBy'] != null) {
+          Map<String, dynamic> lastUserMap = jsonDecode(lastUsersMap['nearBy']);
+          lastUserNearBy = SuggestedUser.fromJson(lastUserMap);
+        }
+
+        // Retrieve last user for 'highlighted' list
+        if (lastUsersMap['highlighted'] != null) {
+          Map<String, dynamic> lastUserMap =
+              jsonDecode(lastUsersMap['highlighted']);
+          lastUserHighlighted = SuggestedUser.fromJson(lastUserMap);
+        }
+
+        // Retrieve last user for 'favourite' list
+        if (lastUsersMap['favourite'] != null) {
+          Map<String, dynamic> lastUserMap =
+              jsonDecode(lastUsersMap['favourite']);
+          lastUserFavourite = SuggestedUser.fromJson(lastUserMap);
+        }
       });
-      // Get.snackbar("Last user retrieved", lastUser!.name.toString());
-      print("Last User retrieved: ${lastUser!.name}");
+
+      print("Last users retrieved: $lastUsersMap");
     } else {
-      print('No last user found');
-      // Get.snackbar("No User", 'No last user found');
+      print('No last users found');
     }
   }
 
   Future<bool> initializeApp() async {
-    await _retrieveLastUser();
+    await _retrieveLastUsers();
 
     await controller.userSuggestions();
     for (int i = 0; i < controller.userSuggestionsList.length; i++) {
@@ -473,7 +517,8 @@ class HomePageState extends State<HomePage>
                                                   .getCurrentList(
                                                       selectedFilter.value)
                                                   .last as SuggestedUser?;
-                                              await _storeLastUser(lastUser!);
+                                              await _storeLastUserForAllLists(
+                                                  lastUser!);
                                             }
                                             failure(
                                                 'Finished', "Stack Finished");
@@ -578,7 +623,7 @@ class HomePageState extends State<HomePage>
                                                       .getCurrentList(
                                                           selectedFilter.value)
                                                       .last as SuggestedUser?;
-                                                  await _storeLastUser(
+                                                  await _storeLastUserForAllLists(
                                                       lastUser!);
                                                 }
                                                 failure('Finished',
@@ -701,7 +746,7 @@ class HomePageState extends State<HomePage>
                                                       .getCurrentList(
                                                           selectedFilter.value)
                                                       .last as SuggestedUser?;
-                                                  await _storeLastUser(
+                                                  await _storeLastUserForAllLists(
                                                       lastUser!);
                                                 }
                                                 failure('Finished',
