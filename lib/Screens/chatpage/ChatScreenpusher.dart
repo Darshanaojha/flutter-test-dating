@@ -1,3 +1,4 @@
+import 'package:dating_application/Screens/chatpage/VideoCallPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
@@ -7,6 +8,8 @@ import '../../Models/ResponseModels/chat_history_response_model.dart';
 import '../../Providers/WebsocketService.dart';
 import 'package:vibration/vibration.dart';
 import 'package:chat_bubbles/chat_bubbles.dart';
+
+import 'AudioCallPage.dart';
 
 class ChatScreen extends StatefulWidget {
   final String senderId;
@@ -249,6 +252,24 @@ class ChatScreenState extends State<ChatScreen> {
                   },
                 )
               : SizedBox(),
+          IconButton(
+            icon: Icon(Icons.phone),
+            onPressed: () {
+              Get.to(AudioCallPage(
+                caller: widget.senderId,
+                receiver: widget.receiverId,
+              ));
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.videocam),
+            onPressed: () {
+              Get.to(VideoCallPage(
+                caller: widget.senderId,
+                receiver: widget.receiverId,
+              ));
+            },
+          ),
         ],
       ),
       body: Column(
