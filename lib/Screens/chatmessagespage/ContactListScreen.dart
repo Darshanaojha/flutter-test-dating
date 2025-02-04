@@ -90,7 +90,8 @@ class ContactListScreenState extends State<ContactListScreen> {
                   children: [
                     Text(
                       '${getFilteredUsers().length} Member',
-                      style: AppTextStyles.customTextStyle(color: AppColors.textColor),
+                      style: AppTextStyles.customTextStyle(
+                          color: AppColors.textColor),
                     ),
                     Stack(
                       clipBehavior: Clip.none,

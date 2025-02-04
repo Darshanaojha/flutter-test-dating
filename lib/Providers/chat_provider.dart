@@ -14,7 +14,7 @@ class ChatProvider extends GetConnect {
       if (token != null && token.isNotEmpty) {
         Response response = await post(
 
-          '$springbooturl updateChats',
+          '${springbooturl}updateChats',
 
           message.toJson(),
           headers: <String, String>{
@@ -48,7 +48,7 @@ class ChatProvider extends GetConnect {
       if (token != null && token.isNotEmpty) {
         Response response = await post(
 
-          '$springbooturl fetchChats',
+          '${springbooturl}fetchChats',
 
           {'connectionId': connectionId},
           headers: <String, String>{
@@ -84,7 +84,7 @@ class ChatProvider extends GetConnect {
             chats.map((message) => message.toJson()).toList();
         Response response = await post(
 
-          '$springbooturl deleteChats',
+          '${springbooturl}deleteChats',
 
           jsonChats,
           headers: <String, String>{

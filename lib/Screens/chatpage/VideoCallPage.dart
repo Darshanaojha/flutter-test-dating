@@ -40,7 +40,7 @@ class VideoCallPageState extends State<VideoCallPage> {
       }
 
       final response = await http.get(
-        Uri.parse('$springbooturl api/agora/generateToken'),
+        Uri.parse('${springbooturl}api/agora/generateToken'),
         headers: {
           'Authorization': 'Bearer $bearerToken',
           'Content-Type': 'application/json',
@@ -163,7 +163,7 @@ class VideoCallPageState extends State<VideoCallPage> {
     int durationInSeconds = callDuration.inSeconds;
 
     final response = await http.post(
-      Uri.parse('$springbooturl api/agora/saveData'),
+      Uri.parse('${springbooturl}api/agora/saveData'),
       body: json.encode({
         'type': 'video',
         'caller': widget.caller,
