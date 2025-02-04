@@ -25,11 +25,11 @@ class WebSocketService {
       print("Already connected to WebSocket.");
       return;
     }
-
+print('url is ${springbooturl}chat');
     _stompClient = StompClient(
       config: StompConfig.sockJS(
 
-        url: '$springbooturl chat',
+        url: '${springbooturl}chat',
 
         onConnect: _onConnect,
         beforeConnect: () async {
