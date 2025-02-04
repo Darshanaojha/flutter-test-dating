@@ -19,10 +19,23 @@ class AudioCallPage extends StatefulWidget {
   AudioCallPageState createState() => AudioCallPageState();
 }
 
+
 class AudioCallPageState extends State<AudioCallPage> {
+  String channelName = "";
+  late DateTime callStartTime;
+  late DateTime callEndTime;
+  String agoraToken = "";
+  int? localUid;
+  int? remoteUid;
+  bool localUserJoined = false;
+  bool isLocalAudioMuted = false; // Mute state for local user
+
+  late RtcEngine engine;
+
+  // Fetch the Agora token from the server
   Future<String?> fetchAgoraToken() async {
     try {
-      final preferences = EncryptedSharedPreferences.getInstance();
+      final preferences = await EncryptedSharedPreferences.getInstance();
       String? bearerToken = preferences.getString('token');
 
       if (bearerToken == null || bearerToken.isEmpty) {
@@ -30,21 +43,24 @@ class AudioCallPageState extends State<AudioCallPage> {
         return null;
       }
 
-      final response = await http.get(
+      print("Fetching the Agora token");
+
+      final response = await http.post(
         Uri.parse('${springbooturl}api/agora/generateToken'),
         headers: {
           'Authorization': 'Bearer $bearerToken',
           'Content-Type': 'application/json',
         },
+        body: jsonEncode({'channelName': channelName}),
       );
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
-
         if (data['success'] == true) {
-          return data['message'] as String;
+          localUid = data['uid'];
+          return data['token'] as String;
         } else {
-          failure('Error', 'Failed to fetch token: ${data['message']}');
+          failure('Error', 'Failed to fetch token: ${data['token']}');
           return null;
         }
       } else {
@@ -58,131 +74,85 @@ class AudioCallPageState extends State<AudioCallPage> {
     }
   }
 
-  late String channelName;
-  late DateTime callStartTime;
-  late DateTime callEndTime;
-  late String agoraToken;
-  int? localUid;
-  int? remoteUid;
-  bool localUserJoined = false;
-  bool isLocalAudioMuted = false; // Track mute state
+  // Initialize Agora engine and setup
+  Future<void> initializeAgora() async {
+    print("Initializing Agora...");
 
-  late RtcEngine _engine;
+    try {
+      print("Initializing Agora Engine...");
+      engine = createAgoraRtcEngine();
+      await engine.initialize(RtcEngineContext(
+        appId: AgoraConstants.AGORAAPPID,
+        channelProfile:
+            ChannelProfileType.channelProfileCommunication, // Audio call mode
+      ));
+      print("Agora Engine initialized successfully");
+    } catch (e) {
+      print("Error initializing Agora Engine: $e");
+      return;
+    }
 
-  @override
-  void initState() {
-    super.initState();
-    fetchAgoraToken().then((fetchedToken) {
-      if (fetchedToken != null) {
-        agoraToken = fetchedToken;
-      }
-      _initializeAgora();
-    }).catchError((error) {
-      print("Error fetching token: $error");
-    });
-    channelName = _generateChannelName(widget.caller, widget.receiver);
-  }
-
-  Future<void> _initializeAgora() async {
-    final permissionStatus = await Permission.microphone.request();
-
-    if (!permissionStatus.isGranted) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("Permission Denied"),
-            content: const Text(
-                "Microphone permission is required to make an audio call."),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                },
-                child: const Text("OK"),
-              ),
-            ],
-          );
-        },
+    try {
+      print("Registering Event Handlers...");
+      engine.registerEventHandler(
+        RtcEngineEventHandler(
+          onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
+            debugPrint("Local user ${connection.localUid} joined the channel");
+            setState(() {
+              localUid = connection.localUid;
+              callStartTime = DateTime.now();
+              localUserJoined = true;
+            });
+          },
+          onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
+            debugPrint("Remote user $remoteUid joined the channel");
+            setState(() {
+              this.remoteUid = remoteUid;
+            });
+          },
+          onUserOffline: (RtcConnection connection, int remoteUid,
+              UserOfflineReasonType reason) {
+            debugPrint("Remote user $remoteUid left the channel");
+            callEndTime = DateTime.now();
+            setState(() {
+              remoteUid = 0;
+            });
+          },
+        ),
       );
-      return; // Do not proceed further if permission is not granted
+      print("Event Handlers registered successfully");
+    } catch (e) {
+      print("Error registering event handlers: $e");
+      return;
     }
 
-    _engine = createAgoraRtcEngine();
-    await _engine.initialize(const RtcEngineContext(
-      appId: AgoraConstants.AGORAAPPID,
-      channelProfile: ChannelProfileType.channelProfileCommunication,
-    ));
-
-    _engine.registerEventHandler(
-      RtcEngineEventHandler(
-        onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
-          debugPrint("local user ${connection.localUid} joined");
-          setState(() {
-            localUid = connection.localUid;
-            callStartTime = DateTime.now();
-          });
-        },
-        onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
-          debugPrint("remote user $remoteUid joined");
-          setState(() {
-            this.remoteUid = remoteUid;
-          });
-        },
-        onUserOffline: (RtcConnection connection, int remoteUid,
-            UserOfflineReasonType reason) {
-          debugPrint("remote user $remoteUid left channel");
-          callEndTime = DateTime.now();
-          _sendCallDataToBackend();
-        },
-        onTokenPrivilegeWillExpire: (RtcConnection connection, String token) {
-          debugPrint(
-              '[onTokenPrivilegeWillExpire] connection: ${connection.toJson()}, token: $token');
-        },
-      ),
-    );
-
-    await _engine.setClientRole(role: ClientRoleType.clientRoleBroadcaster);
-    await _engine.enableAudio();
-
-    await _engine.joinChannel(
-      token: agoraToken,
-      channelId: channelName,
-      uid: 0,
-      options: const ChannelMediaOptions(),
-    );
-  }
-
-  String _generateChannelName(String caller, String receiver) {
-    return caller.compareTo(receiver) < 0
-        ? "chat_${caller}_and_$receiver"
-        : "chat_${receiver}_and_$caller";
-  }
-
-  void _sendCallDataToBackend() async {
-    Duration callDuration = callEndTime.difference(callStartTime);
-
-    int durationInSeconds = callDuration.inSeconds;
-
-    final response = await http.post(
-      Uri.parse('${springbooturl}api/agora/saveData'),
-      body: json.encode({
-        'type': 'audio',
-        'caller': widget.caller,
-        'receiver': widget.receiver,
-        'callStartTime': callStartTime.toIso8601String(),
-        'callEndTime': callEndTime.toIso8601String(),
-        'callDurationSeconds': durationInSeconds,
-      }),
-      headers: {'Content-Type': 'application/json'},
-    );
-
-    if (response.statusCode == 200) {
-      print('Call data successfully sent');
-    } else {
-      print('Failed to send call data');
+    try {
+      // Joining the channel
+      print(
+          "Joining channel with ID: $channelName and token: $agoraToken and localuid: $localUid");
+      await engine.joinChannel(
+        token: agoraToken,
+        channelId: channelName,
+        uid: localUid ?? 0,
+        options: ChannelMediaOptions(
+          clientRoleType: ClientRoleType.clientRoleBroadcaster,
+          channelProfile: ChannelProfileType.channelProfileCommunication,
+        ),
+      );
+      print("Successfully joined the channel");
+    } catch (e) {
+      print("Error joining channel: $e");
     }
+  }
+
+  String generateChannelName(String caller, String receiver) {
+    int callerHashCode = caller.hashCode.abs();
+    int receiverHashCode = receiver.hashCode.abs();
+    int firstHash =
+        callerHashCode < receiverHashCode ? callerHashCode : receiverHashCode;
+    int secondHash =
+        callerHashCode < receiverHashCode ? receiverHashCode : callerHashCode;
+    return "chat_${firstHash}_and_$secondHash";
   }
 
   @override
@@ -191,9 +161,35 @@ class AudioCallPageState extends State<AudioCallPage> {
     _disposeAgora();
   }
 
+  // Cleanup Agora resources
   Future<void> _disposeAgora() async {
-    await _engine.leaveChannel();
-    await _engine.release();
+    await engine.leaveChannel();
+    await engine.release();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    channelName = generateChannelName(widget.caller, widget.receiver);
+    print('channel name is $channelName');
+    fetchAgoraToken().then((value) {
+      if (value == null) {
+        failure('Error',
+            'An Error Occured while fetching the token from the server');
+      } else {
+        agoraToken = value;
+        initializeAgora();
+      }
+    });
+  }
+
+  // Toggle mute/unmute functionality
+  void _toggleMute() async {
+    setState(() {
+      isLocalAudioMuted = !isLocalAudioMuted;
+    });
+
+    await engine.muteLocalAudioStream(isLocalAudioMuted);
   }
 
   @override
@@ -204,45 +200,35 @@ class AudioCallPageState extends State<AudioCallPage> {
       ),
       body: Stack(
         children: [
+          // Display remote user's audio status (using an icon as placeholder)
           Center(
-            child: _remoteAudio(),
+            child: remoteUid != null
+                ? const Icon(Icons.volume_up, size: 50, color: Colors.green)
+                : const Text(
+                    'Waiting for remote user to join...',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 18),
+                  ),
           ),
+          // Local user controls (microphone mute/unmute)
           Align(
-            alignment: Alignment.topLeft,
+            alignment: Alignment.bottomCenter,
             child: SizedBox(
-              width: 100,
-              height: 150,
+              height: 100,
               child: Center(
-                child: localUserJoined
-                    ? IconButton(
-                        icon: Icon(Icons.mic),
-                        onPressed: _toggleMute,
-                      )
-                    : const CircularProgressIndicator(),
+                child: IconButton(
+                  icon: Icon(
+                    isLocalAudioMuted ? Icons.mic_off : Icons.mic,
+                    size: 40,
+                    color: isLocalAudioMuted ? Colors.red : Colors.green,
+                  ),
+                  onPressed: _toggleMute,
+                ),
               ),
             ),
           ),
         ],
       ),
     );
-  }
-
-  Widget _remoteAudio() {
-    if (remoteUid != null) {
-      return Icon(Icons.volume_up, size: 50, color: Colors.green);
-    } else {
-      return const Text(
-        'Please wait for remote user to join',
-        textAlign: TextAlign.center,
-      );
-    }
-  }
-
-  void _toggleMute() async {
-    setState(() {
-      isLocalAudioMuted = !isLocalAudioMuted;
-    });
-
-    await _engine.muteLocalAudioStream(isLocalAudioMuted);
   }
 }
