@@ -5,8 +5,10 @@ import 'package:dating_application/Screens/homepage/unsubscribeuser.dart';
 import 'package:dating_application/Screens/login.dart';
 import 'package:dating_application/Screens/userprofile/userprofilepage.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/update_activity_status_request_model.dart';
 import '../../constants.dart';
@@ -18,7 +20,7 @@ class UnSubscribeNavigationController extends GetxController {
   final RxString selectedPlan = 'None'.obs;
 
   final List<Widget> screens = [
-    Unsubscribeuser(), 
+    Unsubscribeuser(),
     UserProfilePage(),
   ];
 
@@ -48,13 +50,12 @@ class UnSubscribeNavigationController extends GetxController {
               color: AppColors.textColor,
             ),
           ),
-        
         ],
       ),
       actions: [
         TextButton(
           onPressed: () {
-            Get.back(); 
+            Get.back();
           },
           child: Text(
             'Cancel',
@@ -90,7 +91,6 @@ class UnSubscribeNavigationController extends GetxController {
   }
 }
 
-
 class Unsubscribenavigation extends StatefulWidget {
   const Unsubscribenavigation({super.key});
 
@@ -98,7 +98,8 @@ class Unsubscribenavigation extends StatefulWidget {
   UnsubscribenavigationState createState() => UnsubscribenavigationState();
 }
 
-class UnsubscribenavigationState extends State<Unsubscribenavigation> with SingleTickerProviderStateMixin {
+class UnsubscribenavigationState extends State<Unsubscribenavigation>
+    with SingleTickerProviderStateMixin {
   int selectedIndex = 0;
   Controller controller = Get.put(Controller());
 
@@ -108,6 +109,77 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation> with Singl
   double getResponsiveFontSize(BuildContext context, double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
+  }
+
+  void _requestPermissions() async {
+    // Request notification permission
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    NotificationSettings notificationSettings =
+        await messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    if (notificationSettings.authorizationStatus ==
+        AuthorizationStatus.authorized) {
+      print('User granted notification permission');
+    } else if (notificationSettings.authorizationStatus ==
+        AuthorizationStatus.denied) {
+      print('User declined notification permission');
+    } else if (notificationSettings.authorizationStatus ==
+        AuthorizationStatus.provisional) {
+      print('User granted provisional notification permission');
+    }
+
+    // Request camera permission
+    var cameraStatus = await Permission.camera.request();
+    if (cameraStatus.isGranted) {
+      print('Camera permission granted');
+    } else if (cameraStatus.isDenied) {
+      print('Camera permission denied');
+    }
+
+    // Request location permission
+    var locationStatus = await Permission.location.request();
+    if (locationStatus.isGranted) {
+      print('Location permission granted');
+    } else if (locationStatus.isDenied) {
+      print('Location permission denied');
+    }
+
+    // Request storage permission
+    var storageStatus = await Permission.storage.request();
+    if (storageStatus.isGranted) {
+      print('Storage permission granted');
+    } else if (await Permission.storage.isRestricted) {
+      print('Storage permission is restricted');
+    } else {
+      // Handle Android 13+ permissions
+      var manageStorageStatus =
+          await Permission.manageExternalStorage.request();
+
+      if (manageStorageStatus.isGranted) {
+        print('Manage external storage permission granted');
+      } else if (manageStorageStatus.isPermanentlyDenied) {
+        openAppSettings();
+      } else {
+        print('Manage external storage permission denied');
+      }
+    }
+
+    // Request microphone permission
+    var microphoneStatus = await Permission.microphone.request();
+    if (microphoneStatus.isGranted) {
+      print('Microphone permission granted');
+    } else if (microphoneStatus.isDenied) {
+      print('Microphone permission denied');
+    }
+
+    // Speaker permission (typically implicitly granted when using audio output)
+    // There's no specific permission for speaker access in Flutter.
+    // Just ensure that the app can play audio properly, and you'll usually be good to go.
+    print('Speaker permission is assumed granted when playing audio.');
   }
 
   @override
@@ -121,11 +193,12 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation> with Singl
     _rotationAnimation = Tween<double>(begin: 0, end: 2 * pi).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
+    _requestPermissions();
   }
 
   @override
   void dispose() {
-    _animationController.dispose(); 
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -164,7 +237,7 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation> with Singl
                     EncryptedSharedPreferences.getInstance();
                 preferences.clear();
                 Get.offAll(() => Login());
-                 UpdateActivityStatusRequest updateActivityStatusRequest =
+                UpdateActivityStatusRequest updateActivityStatusRequest =
                     UpdateActivityStatusRequest(status: '0');
                 controller.updateactivitystatus(updateActivityStatusRequest);
               },
@@ -225,7 +298,8 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation> with Singl
         ),
       ),
       body: Obx(() {
-        return navigationcontroller.screens[navigationcontroller.selectedIndex.value];
+        return navigationcontroller
+            .screens[navigationcontroller.selectedIndex.value];
       }),
       bottomNavigationBar: CurvedNavigationBar(
         index: selectedIndex,
@@ -235,11 +309,13 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation> with Singl
             animation: _animationController,
             builder: (context, child) {
               return Transform.rotate(
-                angle: selectedIndex == 0 ? _rotationAnimation.value : 0.0, 
+                angle: selectedIndex == 0 ? _rotationAnimation.value : 0.0,
                 child: Icon(
                   Icons.home,
                   size: 30,
-                  color: selectedIndex == 0 ? AppColors.primaryColor : Colors.white,
+                  color: selectedIndex == 0
+                      ? AppColors.primaryColor
+                      : Colors.white,
                 ),
               );
             },
@@ -252,7 +328,9 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation> with Singl
                 child: Icon(
                   Icons.account_circle,
                   size: 30,
-                  color: selectedIndex == 1 ? AppColors.primaryColor : Colors.white,
+                  color: selectedIndex == 1
+                      ? AppColors.primaryColor
+                      : Colors.white,
                 ),
               );
             },

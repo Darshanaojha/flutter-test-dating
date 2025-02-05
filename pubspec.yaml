@@ -62,7 +62,7 @@ dependencies:
   intl_phone_number_input: ^0.7.4
   pull_to_refresh_flutter3: ^2.0.2
   agora_rtc_engine: ^6.5.0
-
+  audioplayers: ^6.1.1
 
 
 
@@ -98,5 +98,6 @@ flutter:
     - assets/animations/handloadinganimation.json
     - assets/animations/new404animation.json
     - assets/animations/likesbuttonpressanimation.json
+    - assets/sounds/call.mp3
     
     

@@ -17,11 +17,12 @@ void main() async {
     await EncryptedSharedPreferences.initialize(encryptionkey);
     await Firebase.initializeApp(
       options: FirebaseConstants.firebaseOptions,
-    );
+    ).then((_) async {
+      final fcmService = FCMService();
+      await fcmService.setupNotifications();
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    });
 
-    final fcmService = FCMService();
-    await fcmService.setupNotifications();
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     Controller controller = Get.put(Controller());
     runApp(const MainApp());
   } catch (e) {
@@ -91,6 +92,7 @@ class MainAppState extends State<MainApp> with WidgetsBindingObserver {
   }
 }
 
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print('Handling a background message: ${message.messageId}');
+  // Handle background message logic here
 }
