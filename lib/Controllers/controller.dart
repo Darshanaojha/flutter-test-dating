@@ -1289,7 +1289,6 @@ class Controller extends GetxController {
   SuggestedUser? lastUser;
   Future<bool> userSuggestions() async {
     try {
-      // Fetch user suggestions from provider
       UserSuggestionsResponseModel? response =
           await UserSuggestionsProvider().userSuggestions();
 
@@ -1298,16 +1297,14 @@ class Controller extends GetxController {
 
         void addUniqueUsers(
             List<SuggestedUser> users, RxList<SuggestedUser> targetList) {
-          for (var user in users) {
-            if (user.userId != null && !seenUserIds.contains(user.userId)) {
-              targetList
-                  .add(user); // Use `add` to add a single user to the list
-              seenUserIds.add(user.userId); // Add userId to the Set
-            }
-          }
+          final newUsers = users
+              .where((user) =>
+                  user.userId != null && !seenUserIds.contains(user.userId))
+              .toList();
+          targetList.addAll(newUsers);
+          seenUserIds.addAll(newUsers.map((user) => user.userId!));
         }
 
-        // Adding users to different lists based on categories
         if (response.payload!.desireBase != null &&
             response.payload!.desireBase.isNotEmpty) {
           addUniqueUsers(response.payload!.desireBase, userSuggestionsList);
@@ -1640,8 +1637,9 @@ class Controller extends GetxController {
           for (var favouriteItem in favourites) {
             if (favouriteItem.userId != null &&
                 !seenFavouriteIds.contains(favouriteItem.userId)) {
-              targetList.add(favouriteItem);
-              seenFavouriteIds.add(favouriteItem.userId);
+              targetList.assignAll(favouriteItem as Iterable<Favourite>);
+              seenFavouriteIds
+                  .assignAll(favouriteItem.userId as Iterable<String?>);
             }
           }
         }

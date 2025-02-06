@@ -98,6 +98,12 @@ flutter:
     - assets/animations/handloadinganimation.json
     - assets/animations/new404animation.json
     - assets/animations/likesbuttonpressanimation.json
+
     - assets/sounds/call.mp3
+
+    - assets/images/like.png
+    - assets/images/heart.png
+    - assets/images/dislike.png
+
     
     

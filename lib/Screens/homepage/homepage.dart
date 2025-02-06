@@ -317,39 +317,59 @@ class HomePageState extends State<HomePage>
       int button, String label, IconData icon, Function(String) onTap) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: ElevatedButton.icon(
-        onPressed: () {
-          setState(() {
-            selectedFilter.value = button;
-          });
-          _animationController.forward(from: 0);
-          onTap(label);
-        },
-        icon: AnimatedBuilder(
-          animation: _animationController,
-          builder: (context, child) {
-            return Transform.rotate(
-              angle:
-                  selectedFilter.value == button ? _rotationAnimation.value : 0,
-              child: Icon(
-                icon,
-                size: 30,
-                color: AppColors.textColor,
-              ),
-            );
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment(0.8, 1),
+            colors: <Color>[
+              Color(0xff1f005c),
+              Color(0xff5b0060),
+              Color(0xff870160),
+              Color(0xffac255e),
+              Color(0xffca485c),
+              Color(0xffe16b5c),
+              Color(0xfff39060),
+              Color(0xffffb56b),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(
+              30), // You can adjust the border radius here
+        ),
+        child: ElevatedButton.icon(
+          onPressed: () {
+            setState(() {
+              selectedFilter.value = button;
+            });
+            _animationController.forward(from: 0);
+            onTap(label);
           },
-        ),
-        label: Text(
-          label,
-          style: TextStyle(fontSize: 10, color: AppColors.textColor),
-        ),
-        style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.white,
-          backgroundColor: selectedFilter.value == button
-              ? AppColors.activeColor
-              : AppColors.buttonColor,
-          shape: StadiumBorder(),
-          minimumSize: Size(100, 45),
+          icon: AnimatedBuilder(
+            animation: _animationController,
+            builder: (context, child) {
+              return Transform.rotate(
+                angle: selectedFilter.value == button
+                    ? _rotationAnimation.value
+                    : 0,
+                child: Icon(
+                  icon,
+                  size: 30,
+                  color: AppColors.textColor,
+                ),
+              );
+            },
+          ),
+          label: Text(
+            label,
+            style: TextStyle(fontSize: 10, color: AppColors.textColor),
+          ),
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors
+                .transparent, // Set to transparent since the gradient is applied on Container
+            shape: StadiumBorder(),
+            minimumSize: Size(100, 45),
+          ),
         ),
       ),
     );
@@ -419,6 +439,8 @@ class HomePageState extends State<HomePage>
                               setState(() {
                                 selectedFilter.value = 0;
                               });
+                              Get.snackbar('NearBy',
+                                  controller.userNearByList.length.toString());
                             }),
                             buildFilterButton(1, 'Highlighted', Icons.star,
                                 (value) {
@@ -473,17 +495,18 @@ class HomePageState extends State<HomePage>
                                             return Container(
                                               decoration: BoxDecoration(
                                                 color: isLastCard
-                                                    ? Colors.grey[300]
-                                                    : const Color.fromARGB(
-                                                        255, 109, 79, 197),
+                                                    ? const Color.fromARGB(
+                                                        255, 16, 16, 16)
+                                                    : Colors.transparent,
                                                 borderRadius:
-                                                    BorderRadius.circular(12),
+                                                    BorderRadius.circular(32),
                                                 border: Border.all(
                                                   color: isLastCard
-                                                      ? Colors.grey
+                                                      ? const Color.fromARGB(
+                                                          255, 24, 24, 24)
                                                       : const Color.fromARGB(
-                                                          255, 1, 76, 151),
-                                                  width: 2,
+                                                          255, 149, 151, 152),
+                                                  width: 1,
                                                 ),
                                                 boxShadow: [
                                                   BoxShadow(
@@ -582,7 +605,7 @@ class HomePageState extends State<HomePage>
                                                             255, 109, 79, 197),
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                            12),
+                                                            32),
                                                     border: Border.all(
                                                       color: isLastCard
                                                           ? Colors.grey
@@ -705,7 +728,7 @@ class HomePageState extends State<HomePage>
                                                             255, 109, 79, 197),
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                            12),
+                                                            32),
                                                     border: Border.all(
                                                       color: isLastCard
                                                           ? Colors.grey
@@ -779,11 +802,29 @@ class HomePageState extends State<HomePage>
     return user.id == ''
         ? Text("No users available")
         : Container(
-            alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(15),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment(0.8, 1),
+                colors: <Color>[
+                  Color(0xff1f005c),
+                  Color(0xff5b0060),
+                  Color(0xff870160),
+                  Color(0xffac255e),
+                  Color(0xffca485c),
+                  Color(0xffe16b5c),
+                  Color(0xfff39060),
+                  Color(0xffffb56b),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(
+                  30), // You can adjust the border radius here
             ),
+            // alignment: Alignment.center,
+            // decoration: BoxDecoration(
+            //   color: Colors.black,
+            //   borderRadius: BorderRadius.circular(15),
+            // ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -879,47 +920,122 @@ class HomePageState extends State<HomePage>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            matchEngine.currentItem?.nope();
-                          });
-                          print("button pressed nope");
-                        },
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.NopeColor),
-                        child: Text("Nope",
-                            style: AppTextStyles.buttonText.copyWith(
-                                fontSize: getResponsiveFontSize(0.015))),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            matchEngine.currentItem?.superLike();
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.FavouriteColor),
-                        child: Text("Favourite",
-                            style: AppTextStyles.buttonText.copyWith(
-                                fontSize: getResponsiveFontSize(0.015))),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          print('Like pressed');
-                          setState(() {
-                            matchEngine.currentItem?.like();
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
+                      Container(
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.5),
+                              blurRadius: 28,
+                              offset: Offset(2, 14),
+                            ),
+                          ],
                         ),
-                        child: Text(
-                          "Like",
-                          style: TextStyle(
-                              fontSize: getResponsiveFontSize(0.015),
-                              color: Colors.white),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                matchEngine.currentItem?.nope();
+                              });
+                              print("button pressed nope");
+                            },
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Image.asset(
+                                  'assets/images/dislike.png',
+                                  height: 60,
+                                  width: 60,
+                                ),
+                                SizedBox(height: 5),
+                                Text(
+                                  "Nope",
+                                  style: AppTextStyles.buttonText.copyWith(
+                                    fontSize: getResponsiveFontSize(0.015),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.transparent.withOpacity(0.5),
+                              blurRadius: 28,
+                              offset: Offset(2, 14),
+                            ),
+                          ],
+                        ),
+                        child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  matchEngine.currentItem?.superLike();
+                                });
+                                print("button pressed super like");
+                              },
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Image.asset(
+                                    'assets/images/heart.png',
+                                    height: 60,
+                                    width: 60,
+                                  ),
+                                  SizedBox(height: 5),
+                                  Text(
+                                    "Favourite",
+                                    style: AppTextStyles.buttonText.copyWith(
+                                      fontSize: getResponsiveFontSize(0.015),
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.5),
+                              blurRadius: 28,
+                              offset: Offset(2, 14),
+                            ),
+                          ],
+                        ),
+                        child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  matchEngine.currentItem?.like();
+                                });
+                                print("button pressed like");
+                              },
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Image.asset(
+                                    'assets/images/like.png',
+                                    height: 60,
+                                    width: 60,
+                                  ),
+                                  SizedBox(height: 5),
+                                  Text(
+                                    "Like",
+                                    style: TextStyle(
+                                      fontSize: getResponsiveFontSize(0.015),
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
                       ),
                     ],
                   ),

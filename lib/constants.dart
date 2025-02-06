@@ -44,13 +44,26 @@ class AppColors {
       const Color.fromARGB(196, 114, 8, 0).withOpacity(0.3);
   static Color errorBorderColor = const Color.fromARGB(205, 100, 8, 0);
   //static Color navigationColor =  Color.fromARGB(255, 63, 62, 62);
-  static Color navigationColor = Color.fromARGB(255, 123, 83, 83);
+  static Color navigationColor = Color(0xffe16b5c);
   static Color navigationColorleft = Color.fromARGB(255, 47, 27, 27);
   static Color navigationright = Color.fromARGB(255, 115, 111, 111);
   static Color progressColor = Color(0xFFD3D3D3);
   static var primaryTextColor;
-
   static var shadowColor;
+  static  LinearGradient gradientBackground = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment(0.8, 1),
+    colors: <Color>[
+      Color(0xff1f005c),
+      Color(0xff5b0060),
+      Color(0xff870160),
+      Color(0xffac255e),
+      Color(0xffca485c),
+      Color(0xffe16b5c),
+      Color(0xfff39060),
+      Color(0xffffb56b),
+    ],
+  );
 }
 
 class AppTextStyles {
