@@ -829,30 +829,29 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
         padding: const EdgeInsets.symmetric(horizontal: 0.5),
         child: Container(
           decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment(0.8, 1),
-                colors: <Color>[
-                  Color(0xff1f005c),
-                  Color(0xff5b0060),
-                  Color(0xff870160),
-                  Color(0xffac255e),
-                  Color(0xffca485c),
-                  Color(0xffe16b5c),
-                  Color(0xfff39060),
-                  Color(0xffffb56b),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(
-                  30), // Optional: Adjust based on your design
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment(0.8, 1),
+              colors: <Color>[
+                Color(0xff1f005c),
+                Color(0xff5b0060),
+                Color(0xff870160),
+                Color(0xffac255e),
+                Color(0xffca485c),
+                Color(0xffe16b5c),
+                Color(0xfff39060),
+                Color(0xffffb56b),
+              ],
             ),
+            borderRadius: BorderRadius.circular(38),
+          ),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               foregroundColor: AppColors.primaryColor,
               backgroundColor: Colors.transparent,
               padding: EdgeInsets.symmetric(vertical: 6, horizontal: 6),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(18),
                 side: BorderSide(color: AppColors.activeColor, width: 2),
               ),
             ),
