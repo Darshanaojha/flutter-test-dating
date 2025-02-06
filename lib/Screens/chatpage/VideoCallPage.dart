@@ -1,12 +1,15 @@
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../Controllers/controller.dart';
+import '../../Providers/agora_provider.dart';
 import '../../constants.dart';
 
 class VideoCallPage extends StatefulWidget {
@@ -21,6 +24,7 @@ class VideoCallPage extends StatefulWidget {
 }
 
 class VideoCallPageState extends State<VideoCallPage> {
+  Controller controller = Get.put(Controller());
   String channelName = "";
   late DateTime callStartTime;
   late DateTime callEndTime;
@@ -100,9 +104,8 @@ class VideoCallPageState extends State<VideoCallPage> {
     // There's no specific permission for speaker access in Flutter.
     // Just ensure that the app can play audio properly, and you'll usually be good to go.
     print('Speaker permission is assumed granted when playing audio.');
-
-   
   }
+
   Future<String?> fetchAgoraToken() async {
     try {
       final preferences = EncryptedSharedPreferences.getInstance();
@@ -163,8 +166,6 @@ class VideoCallPageState extends State<VideoCallPage> {
   Future<void> initializeAgora() async {
     print("Initializing Agora...");
 
-   
-
     try {
       print("Initializing Agora Engine...");
       engine = createAgoraRtcEngine();
@@ -188,6 +189,14 @@ class VideoCallPageState extends State<VideoCallPage> {
             setState(() {
               localUid = connection.localUid;
               callStartTime = DateTime.now();
+            });
+            AgoraProvider()
+                .sendNotification(channelName, controller.userData.first.name,
+                    widget.receiver, '3')
+                .then((value) {
+              value == true
+                  ? null
+                  : failure('Error', 'Failed to connect to the user');
             });
           },
           onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
@@ -241,7 +250,7 @@ class VideoCallPageState extends State<VideoCallPage> {
       );
       print("Successfully joined the channel");
 
-       // Set video encoder configuration for lower resolution and frame rate
+      // Set video encoder configuration for lower resolution and frame rate
       await engine.setVideoEncoderConfiguration(VideoEncoderConfiguration(
         dimensions:
             VideoDimensions(width: 640, height: 360), // Lower resolution
