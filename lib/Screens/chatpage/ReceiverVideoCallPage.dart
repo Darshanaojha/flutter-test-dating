@@ -1,39 +1,40 @@
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:async';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../../constants.dart'; // Assuming you have constants for Agora APP ID
 
-import '../../Controllers/controller.dart';
-import '../../Providers/agora_provider.dart';
-import '../../constants.dart';
+class ReceiverVideoCallPage extends StatefulWidget {
+  final String channelName;
 
-class VideoCallPage extends StatefulWidget {
-  final String caller;
-  final String receiver;
-
-  const VideoCallPage(
-      {super.key, required this.caller, required this.receiver});
+  const ReceiverVideoCallPage({super.key, required this.channelName});
 
   @override
-  VideoCallPageState createState() => VideoCallPageState();
+  ReceiverVideoCallPageState createState() => ReceiverVideoCallPageState();
 }
 
-class VideoCallPageState extends State<VideoCallPage> {
-  Controller controller = Get.put(Controller());
-  String channelName = "";
-  late DateTime callStartTime;
-  late DateTime callEndTime;
+class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
+  late RtcEngine engine;
   String agoraToken = "";
   int? localUid;
   int? remoteUid;
-  bool localUserJoined = false;
 
-  late RtcEngine engine;
+  @override
+  void initState() {
+    super.initState();
+    _requestPermissions();
+    fetchAgoraToken(widget.channelName).then((value) {
+      if (value == null) {
+        failure('Error', 'Failed to fetch Agora token');
+      } else {
+        agoraToken = value;
+        initializeAgora();
+      }
+    });
+  }
 
   void _requestPermissions() async {
     // Request notification permission
@@ -106,27 +107,27 @@ class VideoCallPageState extends State<VideoCallPage> {
     print('Speaker permission is assumed granted when playing audio.');
   }
 
-  Future<String?> fetchAgoraToken() async {
+  Future<String?> fetchAgoraToken(String channelName) async {
     try {
-      final preferences = EncryptedSharedPreferences.getInstance();
+      final preferences = await EncryptedSharedPreferences.getInstance();
       String? bearerToken = preferences.getString('token');
 
       if (bearerToken == null || bearerToken.isEmpty) {
         failure("Error", "Bearer Token not found");
         return null;
       }
-      print("Fetching the agora token");
-      final response =
-          await http.post(Uri.parse('${springbooturl}api/agora/generateToken'),
-              headers: {
-                'Authorization': 'Bearer $bearerToken',
-                'Content-Type': 'application/json',
-              },
-              body: jsonEncode({'channelName': channelName}));
-      print(response.body.toString());
+      print("Fetching Agora token");
+      final response = await http.post(
+        Uri.parse('${springbooturl}api/agora/generateToken'),
+        headers: {
+          'Authorization': 'Bearer $bearerToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'channelName': channelName}),
+      );
+
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
-
         if (data['success'] == true) {
           localUid = data['uid'];
           return data['token'] as String;
@@ -135,8 +136,7 @@ class VideoCallPageState extends State<VideoCallPage> {
           return null;
         }
       } else {
-        failure('Error',
-            'Failed to fetch token with status code: ${response.statusCode}');
+        failure('Error', 'Failed to fetch token');
         return null;
       }
     } catch (e) {
@@ -145,110 +145,50 @@ class VideoCallPageState extends State<VideoCallPage> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _requestPermissions();
-    channelName = generateChannelName(widget.caller, widget.receiver);
-    print('channel name is $channelName');
-    fetchAgoraToken().then((value) {
-      if (value == null) {
-        failure('Error',
-            'An Error Occured while fetching the token from the server');
-      } else {
-        agoraToken = value;
-
-        initializeAgora();
-      }
-    });
-  }
-
   Future<void> initializeAgora() async {
-    print("Initializing Agora...");
-
     try {
+      // Initialize the Agora engine
       print("Initializing Agora Engine...");
       engine = createAgoraRtcEngine();
-
       await engine.initialize(RtcEngineContext(
         appId: AgoraConstants.AGORAAPPID,
         channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
       ));
-      print("Agora Engine initialized successfully");
-    } catch (e) {
-      print("Error initializing Agora Engine: $e");
-      return;
-    }
 
-    try {
-      print("Registering Event Handlers...");
       engine.registerEventHandler(
         RtcEngineEventHandler(
           onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
-            debugPrint("Local user ${connection.localUid} joined the channel");
             setState(() {
               localUid = connection.localUid;
-              callStartTime = DateTime.now();
-            });
-            AgoraProvider()
-                .sendNotification(channelName, controller.userData.first.name,
-                    widget.receiver, '3')
-                .then((value) {
-              value == true
-                  ? null
-                  : failure('Error', 'Failed to connect to the user');
             });
           },
           onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
-            debugPrint("Remote user $remoteUid joined the channel");
             setState(() {
               this.remoteUid = remoteUid;
             });
           },
           onUserOffline: (RtcConnection connection, int remoteUid,
               UserOfflineReasonType reason) {
-            debugPrint("Remote user $remoteUid left the channel");
-            callEndTime = DateTime.now();
-          },
-          onTokenPrivilegeWillExpire: (RtcConnection connection, String token) {
-            debugPrint(
-                '[onTokenPrivilegeWillExpire] connection: ${connection.toJson()}, token: $token');
+            // Handle user offline
           },
         ),
       );
-      print("Event Handlers registered successfully");
-    } catch (e) {
-      print("Error registering event handlers: $e");
-      return;
-    }
 
-    try {
-      print("Setting client role to Broadcaster...");
+      // Set client role to Broadcaster and enable video
       await engine.setClientRole(role: ClientRoleType.clientRoleBroadcaster);
-      print("Client role set to Broadcaster");
-
-      print("Enabling Video...");
       await engine.enableVideo();
-      print("Video enabled");
-
-      print("Starting Preview...");
       await engine.startPreview();
-      print("Preview started");
 
-      // Joining the channel
-      ChannelMediaOptions options = const ChannelMediaOptions(
-        clientRoleType: ClientRoleType.clientRoleBroadcaster,
-        channelProfile: ChannelProfileType.channelProfileCommunication,
-      );
-      print(
-          "Joining channel with ID: $channelName and token: $agoraToken and localuid: $localUid");
+      // Join the channel
       await engine.joinChannel(
         token: agoraToken,
-        channelId: channelName,
+        channelId: widget.channelName,
         uid: localUid ?? 0,
-        options: options,
+        options: const ChannelMediaOptions(
+          clientRoleType: ClientRoleType.clientRoleBroadcaster,
+          channelProfile: ChannelProfileType.channelProfileCommunication,
+        ),
       );
-      print("Successfully joined the channel");
 
       // Set video encoder configuration for lower resolution and frame rate
       await engine.setVideoEncoderConfiguration(VideoEncoderConfiguration(
@@ -262,23 +202,8 @@ class VideoCallPageState extends State<VideoCallPage> {
             .maintainQuality, // Prioritize quality over bitrate
       ));
     } catch (e) {
-      print("Error joining channel: $e");
+      print("Error initializing Agora Engine: $e");
     }
-  }
-
-  String generateChannelName(String caller, String receiver) {
-    // Convert the caller and receiver UUIDs to hashCodes and ensure they are positive integers
-    int callerHashCode = caller.hashCode.abs();
-    int receiverHashCode = receiver.hashCode.abs();
-
-    // Sort the hash codes to keep it consistent and prevent duplicates
-    int firstHash =
-        callerHashCode < receiverHashCode ? callerHashCode : receiverHashCode;
-    int secondHash =
-        callerHashCode < receiverHashCode ? receiverHashCode : callerHashCode;
-
-    // Create the channel name with the two sorted hash codes
-    return "chat_${firstHash}_and_$secondHash";
   }
 
   @override
@@ -296,32 +221,29 @@ class VideoCallPageState extends State<VideoCallPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Video Call'),
+        title: const Text('Receiver Video Call'),
       ),
       body: Stack(
         children: [
-          // Remote video
+          // Remote video view
           Center(
             child: remoteVideo(),
           ),
 
-          // Local video in top-left corner
+          // Local video view in top-left corner
           Align(
             alignment: Alignment.topLeft,
             child: SizedBox(
-              width: 100, // You can adjust the size based on your needs
+              width: 100,
               height: 150,
-              child: Center(
-                child: localUserJoined
-                    ? AgoraVideoView(
-                        controller: VideoViewController(
-                          rtcEngine: engine,
-                          canvas:
-                              VideoCanvas(uid: localUid ?? 0), // Use localUid
-                        ),
-                      )
-                    : const CircularProgressIndicator(),
-              ),
+              child: localUid != null
+                  ? AgoraVideoView(
+                      controller: VideoViewController(
+                        rtcEngine: engine,
+                        canvas: VideoCanvas(uid: localUid ?? 0),
+                      ),
+                    )
+                  : const CircularProgressIndicator(),
             ),
           ),
         ],
@@ -329,20 +251,18 @@ class VideoCallPageState extends State<VideoCallPage> {
     );
   }
 
-// Remote video widget
   Widget remoteVideo() {
     if (remoteUid != null) {
       return AgoraVideoView(
         controller: VideoViewController.remote(
           rtcEngine: engine,
           canvas: VideoCanvas(uid: remoteUid),
-          connection: RtcConnection(channelId: channelName),
+          connection: RtcConnection(channelId: widget.channelName),
         ),
       );
     } else {
       return const Center(
-        child:
-            CircularProgressIndicator(), // Show loading spinner until remote user joins
+        child: CircularProgressIndicator(),
       );
     }
   }

@@ -1,4 +1,5 @@
 import 'package:encrypt_shared_preferences/provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -19,7 +20,6 @@ class AudioCallPage extends StatefulWidget {
   AudioCallPageState createState() => AudioCallPageState();
 }
 
-
 class AudioCallPageState extends State<AudioCallPage> {
   String channelName = "";
   late DateTime callStartTime;
@@ -31,6 +31,76 @@ class AudioCallPageState extends State<AudioCallPage> {
   bool isLocalAudioMuted = false; // Mute state for local user
 
   late RtcEngine engine;
+  void _requestPermissions() async {
+    // Request notification permission
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    NotificationSettings notificationSettings =
+        await messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    if (notificationSettings.authorizationStatus ==
+        AuthorizationStatus.authorized) {
+      print('User granted notification permission');
+    } else if (notificationSettings.authorizationStatus ==
+        AuthorizationStatus.denied) {
+      print('User declined notification permission');
+    } else if (notificationSettings.authorizationStatus ==
+        AuthorizationStatus.provisional) {
+      print('User granted provisional notification permission');
+    }
+
+    // Request camera permission
+    var cameraStatus = await Permission.camera.request();
+    if (cameraStatus.isGranted) {
+      print('Camera permission granted');
+    } else if (cameraStatus.isDenied) {
+      print('Camera permission denied');
+    }
+
+    // Request location permission
+    var locationStatus = await Permission.location.request();
+    if (locationStatus.isGranted) {
+      print('Location permission granted');
+    } else if (locationStatus.isDenied) {
+      print('Location permission denied');
+    }
+
+    // Request storage permission
+    var storageStatus = await Permission.storage.request();
+    if (storageStatus.isGranted) {
+      print('Storage permission granted');
+    } else if (await Permission.storage.isRestricted) {
+      print('Storage permission is restricted');
+    } else {
+      // Handle Android 13+ permissions
+      var manageStorageStatus =
+          await Permission.manageExternalStorage.request();
+
+      if (manageStorageStatus.isGranted) {
+        print('Manage external storage permission granted');
+      } else if (manageStorageStatus.isPermanentlyDenied) {
+        openAppSettings();
+      } else {
+        print('Manage external storage permission denied');
+      }
+    }
+
+    // Request microphone permission
+    var microphoneStatus = await Permission.microphone.request();
+    if (microphoneStatus.isGranted) {
+      print('Microphone permission granted');
+    } else if (microphoneStatus.isDenied) {
+      print('Microphone permission denied');
+    }
+
+    // Speaker permission (typically implicitly granted when using audio output)
+    // There's no specific permission for speaker access in Flutter.
+    // Just ensure that the app can play audio properly, and you'll usually be good to go.
+    print('Speaker permission is assumed granted when playing audio.');
+  }
 
   // Fetch the Agora token from the server
   Future<String?> fetchAgoraToken() async {
@@ -140,6 +210,8 @@ class AudioCallPageState extends State<AudioCallPage> {
         ),
       );
       print("Successfully joined the channel");
+
+     
     } catch (e) {
       print("Error joining channel: $e");
     }
@@ -170,6 +242,7 @@ class AudioCallPageState extends State<AudioCallPage> {
   @override
   void initState() {
     super.initState();
+    _requestPermissions();
     channelName = generateChannelName(widget.caller, widget.receiver);
     print('channel name is $channelName');
     fetchAgoraToken().then((value) {
