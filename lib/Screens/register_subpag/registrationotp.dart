@@ -103,41 +103,61 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
               SizedBox(
                 width: double.infinity,
                 height: size.height * 0.055,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                    backgroundColor: AppColors.buttonColor,
-                    foregroundColor: AppColors.textColor,
-                  ),
-                  onPressed: () async {
-                    if (registrationOtpVerificationRequest.otp.length != 6) {
-                      setState(() {
-                        isOtpValid = false; // OTP is invalid
-                      });
-                      failure("Invalid OTP", "Please enter a valid 6-digit OTP.");
-                      return;
-                    }
-                      Get.snackbar('otp entered is',registrationOtpVerificationRequest.otp.toString() );
-                    controller
-                        .otpVerificationForRegistration(
-                            registrationOtpVerificationRequest)
-                        .then((value) {
-                      if (value) {
-                        success("Success", "OTP verified!");
-                        
-                     
-                      } else {
+                child: Container(
+                    decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment(0.8, 1),
+                colors: <Color>[
+                  Color(0xff1f005c),
+                  Color(0xff5b0060),
+                  Color(0xff870160),
+                  Color(0xffac255e),
+                  Color(0xffca485c),
+                  Color(0xffe16b5c),
+                  Color(0xfff39060),
+                  Color(0xffffb56b),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(
+                  30), // You can adjust the border radius here
+            ),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: AppColors.textColor,
+                    ),
+                    onPressed: () async {
+                      if (registrationOtpVerificationRequest.otp.length != 6) {
                         setState(() {
-                          isOtpValid = false; // OTP verification failed
+                          isOtpValid = false; // OTP is invalid
                         });
-                        failure("Error", "OTP verification failed. Please try again.");
+                        failure("Invalid OTP", "Please enter a valid 6-digit OTP.");
+                        return;
                       }
-                    });
-                  },
-                  child: Text(
-                    "Verify OTP",
-                    style: AppTextStyles.buttonText
-                        .copyWith(fontSize: buttonFontSize),
+                        Get.snackbar('otp entered is',registrationOtpVerificationRequest.otp.toString() );
+                      controller
+                          .otpVerificationForRegistration(
+                              registrationOtpVerificationRequest)
+                          .then((value) {
+                        if (value) {
+                          success("Success", "OTP verified!");
+                          
+                       
+                        } else {
+                          setState(() {
+                            isOtpValid = false; // OTP verification failed
+                          });
+                          failure("Error", "OTP verification failed. Please try again.");
+                        }
+                      });
+                    },
+                    child: Text(
+                      "Verify OTP",
+                      style: AppTextStyles.buttonText
+                          .copyWith(fontSize: buttonFontSize),
+                    ),
                   ),
                 ),
               ),

@@ -209,38 +209,58 @@ class UserInputPageState extends State<UserInputPage> {
                 ),
                 SizedBox(height: 40),
                 // Submit Button
-                ElevatedButton(
-                  onPressed: () {
-                    if (formKey.currentState?.validate() ?? false) {
-                      if (controller.registrationOTPRequest.validate()) {
-                        controller.getOtpForRegistration(
-                            controller.registrationOTPRequest);
+                Container(
+                    decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment(0.8, 1),
+                colors: <Color>[
+                  Color(0xff1f005c),
+                  Color(0xff5b0060),
+                  Color(0xff870160),
+                  Color(0xffac255e),
+                  Color(0xffca485c),
+                  Color(0xffe16b5c),
+                  Color(0xfff39060),
+                  Color(0xffffb56b),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(
+                  30),
+            ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (formKey.currentState?.validate() ?? false) {
+                        if (controller.registrationOTPRequest.validate()) {
+                          controller.getOtpForRegistration(
+                              controller.registrationOTPRequest);
+                        }
+                  
+                        Get.snackbar('Email is',
+                            controller.registrationOTPRequest.email.toString());
+                      } else {
+                        failure(
+                          'Validation Failed',
+                          'Please check your inputs and try again.',
+                        );
                       }
-
-                      Get.snackbar('Email is',
-                          controller.registrationOTPRequest.email.toString());
-                    } else {
-                      failure(
-                        'Validation Failed',
-                        'Please check your inputs and try again.',
-                      );
-                    }
-                    Get.snackbar('',
-                        controller.userRegistrationRequest.toJson().toString());
-                  },
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: AppColors.textColor,
-                    backgroundColor: AppColors.buttonColor,
-                    padding:
-                        EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                      Get.snackbar('',
+                          controller.userRegistrationRequest.toJson().toString());
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: AppColors.textColor,
+                      backgroundColor:Colors.transparent,
+                      padding:
+                          EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    'Submit',
-                    style: TextStyle(
-                        fontSize: fontSize, fontWeight: FontWeight.bold),
+                    child: Text(
+                      'Submit',
+                      style: TextStyle(
+                          fontSize: fontSize, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ],

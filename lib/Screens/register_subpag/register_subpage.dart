@@ -278,40 +278,60 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   )),
             ),
             SizedBox(height: screenSize.height * 0.02),
-            ElevatedButton(
-              onPressed: () {
-                DateTime now = DateTime.now();
-                int age = now.year - selectedDate.year;
-                if (now.month < selectedDate.month ||
-                    (now.month == selectedDate.month &&
-                        now.day < selectedDate.day)) {
-                  age--;
-                }
-                if (age < 18) {
-                  failure('Failed',
-                      'You must be at least 18 years old to proceed.');
-                  return;
-                }
-                String formattedDate =
-                    '${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}';
-                controller.userRegistrationRequest.dob = formattedDate;
-                markStepAsCompleted(1);
-                Get.snackbar(
-                    'dob', controller.userRegistrationRequest.dob.toString());
-                print(controller.userRegistrationRequest.dob.toString());
-                pageController.nextPage(
-                  duration: Duration(milliseconds: 300),
-                  curve: Curves.ease,
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                backgroundColor: controller.userRegistrationRequest.dob.isEmpty
-                    ? AppColors.disabled
-                    : AppColors.buttonColor,
-                foregroundColor: AppColors.textColor,
+            Container(
+                decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment(0.8, 1),
+                colors: <Color>[
+                  Color(0xff1f005c),
+                  Color(0xff5b0060),
+                  Color(0xff870160),
+                  Color(0xffac255e),
+                  Color(0xffca485c),
+                  Color(0xffe16b5c),
+                  Color(0xfff39060),
+                  Color(0xffffb56b),
+                ],
               ),
-              child: Text('Next', style: AppTextStyles.buttonText),
+              borderRadius: BorderRadius.circular(
+                  30), // You can adjust the border radius here
+            ),
+              child: ElevatedButton(
+                onPressed: () {
+                  DateTime now = DateTime.now();
+                  int age = now.year - selectedDate.year;
+                  if (now.month < selectedDate.month ||
+                      (now.month == selectedDate.month &&
+                          now.day < selectedDate.day)) {
+                    age--;
+                  }
+                  if (age < 18) {
+                    failure('Failed',
+                        'You must be at least 18 years old to proceed.');
+                    return;
+                  }
+                  String formattedDate =
+                      '${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}';
+                  controller.userRegistrationRequest.dob = formattedDate;
+                  markStepAsCompleted(1);
+                  Get.snackbar(
+                      'dob', controller.userRegistrationRequest.dob.toString());
+                  print(controller.userRegistrationRequest.dob.toString());
+                  pageController.nextPage(
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.ease,
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                  backgroundColor: controller.userRegistrationRequest.dob.isEmpty
+                      ? AppColors.disabled
+                      : Colors.transparent,
+                  foregroundColor: AppColors.textColor,
+                ),
+                child: Text('Next', style: AppTextStyles.buttonText),
+              ),
             ),
           ],
         ),
@@ -438,7 +458,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                         },
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                    backgroundColor: AppColors.buttonColor,
+                    backgroundColor: Colors.transparent,
                     foregroundColor: AppColors.textColor,
                   ),
                   child: Text(
