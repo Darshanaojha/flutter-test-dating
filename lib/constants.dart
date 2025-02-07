@@ -5,8 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 const encryptionkey = "flamrpisyst2024!";
 const secretkey = "ArqamzSnehaSadiq@flamrdating2024";
-const baseurl = "http://192.168.1.6/dating_backend_springboot/admin";
-const ip = "http://192.168.1.6/dating_backend_springboot/";
+const baseurl = "http://192.168.1.24/dating_backend_springboot/admin";
+const ip = "http://192.168.1.24/dating_backend_springboot/";
 
 const springbooturl = "http://192.168.1.6:8080/";
 
@@ -50,7 +50,7 @@ class AppColors {
   static Color progressColor = Color(0xFFD3D3D3);
   static var primaryTextColor;
   static var shadowColor;
-  static  LinearGradient gradientBackground = LinearGradient(
+  static LinearGradient gradientBackground = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment(0.8, 1),
     colors: <Color>[

@@ -317,68 +317,89 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                         ),
 
                         SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () {
-                            if (formKey.currentState!.validate()) {
-                              if (controller.userRegistrationRequest.password !=
-                                  confirmPassword.text) {
-                                failure('Failed', 'Passwords do not match!');
-                                return;
-                              }
-                              Get.to(MultiStepFormPage());
-                              success(
-                                  'Success', 'Form submitted successfully!');
-                            }
-                            // Get.snackbar(
-                            //     'name',
-                            //     controller.userRegistrationRequest.name
-                            //         .toString());
-                            // Get.snackbar(
-                            //     'email',
-                            //     controller.userRegistrationRequest.email
-                            //         .toString());
-                            // Get.snackbar(
-                            //     'username',
-                            //     controller.userRegistrationRequest.username
-                            //         .toString());
-                            // Get.snackbar(
-                            //     'mobile',
-                            //     controller.userRegistrationRequest.mobile
-                            //         .toString());
-                            // Get.snackbar(
-                            //     'address',
-                            //     controller.userRegistrationRequest.address
-                            //         .toString());
-                            // Get.snackbar(
-                            //     'password',
-                            //     controller.userRegistrationRequest.password
-                            //         .toString());
-                            // Get.snackbar(
-                            //     'country',
-                            //     controller.userRegistrationRequest.countryId
-                            //         .toString());
-                            // Get.snackbar(
-                            //     'city',
-                            //     controller.userRegistrationRequest.city
-                            //         .toString());
-                            // Get.snackbar(
-                            //     'latitude',
-                            //     controller.userRegistrationRequest.latitude
-                            //         .toString());
-                            // Get.snackbar(
-                            //     'longitude',
-                            //     controller.userRegistrationRequest.longitude
-                            //         .toString());
-                          },
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 14, horizontal: 30),
-                            backgroundColor: AppColors.buttonColor,
-                            foregroundColor: Colors.white,
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment(0.8, 1),
+                              colors: <Color>[
+                                Color(0xff1f005c),
+                                Color(0xff5b0060),
+                                Color(0xff870160),
+                                Color(0xffac255e),
+                                Color(0xffca485c),
+                                Color(0xffe16b5c),
+                                Color(0xfff39060),
+                                Color(0xffffb56b),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(
+                                30),
                           ),
-                          child: Text("Submit",
-                              style: AppTextStyles.buttonText
-                                  .copyWith(fontSize: fontSize)),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (formKey.currentState!.validate()) {
+                                if (controller
+                                        .userRegistrationRequest.password !=
+                                    confirmPassword.text) {
+                                  failure('Failed', 'Passwords do not match!');
+                                  return;
+                                }
+                                Get.to(MultiStepFormPage());
+                                success(
+                                    'Success', 'Form submitted successfully!');
+                              }
+                              // Get.snackbar(
+                              //     'name',
+                              //     controller.userRegistrationRequest.name
+                              //         .toString());
+                              // Get.snackbar(
+                              //     'email',
+                              //     controller.userRegistrationRequest.email
+                              //         .toString());
+                              // Get.snackbar(
+                              //     'username',
+                              //     controller.userRegistrationRequest.username
+                              //         .toString());
+                              // Get.snackbar(
+                              //     'mobile',
+                              //     controller.userRegistrationRequest.mobile
+                              //         .toString());
+                              // Get.snackbar(
+                              //     'address',
+                              //     controller.userRegistrationRequest.address
+                              //         .toString());
+                              // Get.snackbar(
+                              //     'password',
+                              //     controller.userRegistrationRequest.password
+                              //         .toString());
+                              // Get.snackbar(
+                              //     'country',
+                              //     controller.userRegistrationRequest.countryId
+                              //         .toString());
+                              // Get.snackbar(
+                              //     'city',
+                              //     controller.userRegistrationRequest.city
+                              //         .toString());
+                              // Get.snackbar(
+                              //     'latitude',
+                              //     controller.userRegistrationRequest.latitude
+                              //         .toString());
+                              // Get.snackbar(
+                              //     'longitude',
+                              //     controller.userRegistrationRequest.longitude
+                              //         .toString());
+                            },
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 14, horizontal: 30),
+                              backgroundColor: Colors.transparent,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: Text("Submit",
+                                style: AppTextStyles.buttonText
+                                    .copyWith(fontSize: fontSize)),
+                          ),
                         ),
                       ],
                     ),

@@ -1,12 +1,15 @@
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../Controllers/controller.dart';
+import '../../Providers/agora_provider.dart';
 import '../../constants.dart';
 
 class AudioCallPage extends StatefulWidget {
@@ -21,6 +24,8 @@ class AudioCallPage extends StatefulWidget {
 }
 
 class AudioCallPageState extends State<AudioCallPage> {
+  Controller controller = Get.put(Controller());
+
   String channelName = "";
   late DateTime callStartTime;
   late DateTime callEndTime;
@@ -173,6 +178,14 @@ class AudioCallPageState extends State<AudioCallPage> {
               callStartTime = DateTime.now();
               localUserJoined = true;
             });
+            AgoraProvider()
+                .sendNotification(channelName, controller.userData.first.name,
+                    widget.receiver, '2')
+                .then((value) {
+              value == true
+                  ? null
+                  : failure('Error', 'Failed to connect to the user');
+            });
           },
           onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
             debugPrint("Remote user $remoteUid joined the channel");
@@ -210,8 +223,6 @@ class AudioCallPageState extends State<AudioCallPage> {
         ),
       );
       print("Successfully joined the channel");
-
-     
     } catch (e) {
       print("Error joining channel: $e");
     }
@@ -265,6 +276,13 @@ class AudioCallPageState extends State<AudioCallPage> {
     await engine.muteLocalAudioStream(isLocalAudioMuted);
   }
 
+  void _endCall() async {
+  await _disposeAgora();
+
+  Get.close(2);
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -289,13 +307,29 @@ class AudioCallPageState extends State<AudioCallPage> {
             child: SizedBox(
               height: 100,
               child: Center(
-                child: IconButton(
-                  icon: Icon(
-                    isLocalAudioMuted ? Icons.mic_off : Icons.mic,
-                    size: 40,
-                    color: isLocalAudioMuted ? Colors.red : Colors.green,
-                  ),
-                  onPressed: _toggleMute,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment
+                      .center, // Centers the icons horizontally
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        isLocalAudioMuted ? Icons.mic_off : Icons.mic,
+                        size: 40,
+                        color: isLocalAudioMuted ? Colors.red : Colors.green,
+                      ),
+                      onPressed: _toggleMute,
+                    ),
+                    SizedBox(width: 20), // Add some space between the two icons
+                    IconButton(
+                      icon: Icon(
+                        Icons.call_end,
+                        size: 40,
+                        color: Colors.red, // Set color for end call button
+                      ),
+                      onPressed:
+                          _endCall, // Make sure you implement the _endCall method
+                    ),
+                  ],
                 ),
               ),
             ),

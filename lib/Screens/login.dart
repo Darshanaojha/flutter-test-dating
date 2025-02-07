@@ -86,63 +86,84 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                         loginRequest.password = value;
                       }, size, fontSize),
                       SizedBox(height: size.height * 0.05),
-                      ElevatedButton(
-                        onPressed: () async {
-                          if (formKey.currentState!.validate()) {
-                            formKey.currentState!.save();
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment(0.8, 1),
+                            colors: <Color>[
+                              Color(0xff1f005c),
+                              Color(0xff5b0060),
+                              Color(0xff870160),
+                              Color(0xffac255e),
+                              Color(0xffca485c),
+                              Color(0xffe16b5c),
+                              Color(0xfff39060),
+                              Color(0xffffb56b),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(
+                              30), // You can adjust the border radius here
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            if (formKey.currentState!.validate()) {
+                              formKey.currentState!.save();
 
-                            setState(() {
-                              isLoading = true;
-                            });
-                            UserLoginResponse? response =
-                                await controller.login(loginRequest);
+                              setState(() {
+                                isLoading = true;
+                              });
+                              UserLoginResponse? response =
+                                  await controller.login(loginRequest);
 
-                            setState(() {
-                              isLoading = false;
-                            });
+                              setState(() {
+                                isLoading = false;
+                              });
 
-                            if (response != null) {
-                              if (response.success == true) {
-                                String packagestatus =
-                                    response.payload.packagestatus;
-                                if (packagestatus == '0') {
-                                  FCMService().subscribeToTopic("unsubscribed");
-                                  FCMService().subscribeToTopic(
-                                      response.payload.userId);
-                                  FCMService().subscribeToTopic("alluser");
-                                  Get.offAll(Unsubscribenavigation());
-                                } else if (packagestatus == '1') {
-                                  FCMService().subscribeToTopic("subscribed");
-                                  FCMService().subscribeToTopic(
-                                      response.payload.userId);
-                                  FCMService().subscribeToTopic("alluser");
-                                  Get.offAll(NavigationBottomBar());
+                              if (response != null) {
+                                if (response.success == true) {
+                                  String packagestatus =
+                                      response.payload.packagestatus;
+                                  if (packagestatus == '0') {
+                                    FCMService()
+                                        .subscribeToTopic("unsubscribed");
+                                    FCMService().subscribeToTopic(
+                                        response.payload.userId);
+                                    FCMService().subscribeToTopic("alluser");
+                                    Get.offAll(Unsubscribenavigation());
+                                  } else if (packagestatus == '1') {
+                                    FCMService().subscribeToTopic("subscribed");
+                                    FCMService().subscribeToTopic(
+                                        response.payload.userId);
+                                    FCMService().subscribeToTopic("alluser");
+                                    Get.offAll(NavigationBottomBar());
+                                  }
+                                } else {
+                                  Get.snackbar(
+                                    'Login Failed',
+                                    'Invalid credentials or network error.',
+                                    snackPosition: SnackPosition.BOTTOM,
+                                    backgroundColor: Colors.red,
+                                    colorText: Colors.white,
+                                  );
                                 }
-                              } else {
-                                Get.snackbar(
-                                  'Login Failed',
-                                  'Invalid credentials or network error.',
-                                  snackPosition: SnackPosition.BOTTOM,
-                                  backgroundColor: Colors.red,
-                                  colorText: Colors.white,
-                                );
                               }
                             }
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: AppColors.textColor,
-                          backgroundColor: AppColors.buttonColor,
-                          padding: EdgeInsets.symmetric(
-                              vertical: 16.0, horizontal: 32.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                          },
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: AppColors.textColor,
+                            backgroundColor: Colors.transparent,
+                            padding: EdgeInsets.symmetric(
+                                vertical: 16.0, horizontal: 32.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          'Login',
-                          style: AppTextStyles.buttonText
-                              .copyWith(fontSize: fontSize),
+                          child: Text(
+                            'Login',
+                            style: AppTextStyles.buttonText
+                                .copyWith(fontSize: fontSize),
+                          ),
                         ),
                       ),
                       SizedBox(height: size.height * 0.02),

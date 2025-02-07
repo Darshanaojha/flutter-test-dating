@@ -63,6 +63,7 @@ dependencies:
   pull_to_refresh_flutter3: ^2.0.2
   agora_rtc_engine: ^6.5.0
   audioplayers: ^6.1.1
+  icons_plus: ^5.0.0
 
 
 
