@@ -333,8 +333,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                                 Color(0xffffb56b),
                               ],
                             ),
-                            borderRadius: BorderRadius.circular(
-                                30),
+                            borderRadius: BorderRadius.circular(30),
                           ),
                           child: ElevatedButton(
                             onPressed: () {
