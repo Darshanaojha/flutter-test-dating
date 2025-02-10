@@ -7,6 +7,7 @@ import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:heart_overlay/heart_overlay.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:swipe_cards/swipe_cards.dart';
@@ -434,7 +435,7 @@ class HomePageState extends State<HomePage>
                         child: ListView(
                           scrollDirection: Axis.horizontal,
                           children: [
-                            buildFilterButton(0, 'NearBy', Icons.location_on,
+                            buildFilterButton(0, 'NearBy', FontAwesome.map_location_dot_solid,
                                 (value) {
                               setState(() {
                                 selectedFilter.value = 0;
@@ -442,7 +443,7 @@ class HomePageState extends State<HomePage>
                               Get.snackbar('NearBy',
                                   controller.userNearByList.length.toString());
                             }),
-                            buildFilterButton(1, 'Highlighted', Icons.star,
+                            buildFilterButton(1, 'Highlighted', FontAwesome.star,
                                 (value) {
                               setState(() {
                                 selectedFilter.value = 1;
@@ -452,7 +453,7 @@ class HomePageState extends State<HomePage>
                                   controller.userHighlightedList.length
                                       .toString());
                             }),
-                            buildFilterButton(2, 'Favourite', Icons.favorite,
+                            buildFilterButton(2, 'Favourite', FontAwesome.heart,
                                 (value) {
                               setState(() {
                                 selectedFilter.value = 2;

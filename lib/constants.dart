@@ -5,8 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 const encryptionkey = "flamrpisyst2024!";
 const secretkey = "ArqamzSnehaSadiq@flamrdating2024";
-const baseurl = "http://192.168.1.24/dating_backend_springboot/admin";
-const ip = "http://192.168.1.24/dating_backend_springboot/";
+const baseurl = "http://192.168.1.3/dating_backend_springboot/admin";
+const ip = "http://192.168.1.3/dating_backend_springboot/";
 
 const springbooturl = "http://192.168.1.6:8080/";
 
@@ -44,7 +44,7 @@ class AppColors {
       const Color.fromARGB(196, 114, 8, 0).withOpacity(0.3);
   static Color errorBorderColor = const Color.fromARGB(205, 100, 8, 0);
   //static Color navigationColor =  Color.fromARGB(255, 63, 62, 62);
-  static Color navigationColor = Color(0xffe16b5c);
+  static Color navigationColor = Color.fromARGB(255, 197, 173, 122);
   static Color navigationColorleft = Color.fromARGB(255, 47, 27, 27);
   static Color navigationright = Color.fromARGB(255, 115, 111, 111);
   static Color progressColor = Color(0xFFD3D3D3);

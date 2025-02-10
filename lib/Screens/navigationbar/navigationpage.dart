@@ -4,6 +4,7 @@ import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/update_activity_status_request_model.dart';
@@ -126,8 +127,6 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
     // There's no specific permission for speaker access in Flutter.
     // Just ensure that the app can play audio properly, and you'll usually be good to go.
     print('Speaker permission is assumed granted when playing audio.');
-
-   
   }
 
   @override
@@ -297,7 +296,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                         ? _rotationAnimation.value
                         : 0.0,
                     child: Icon(
-                      Icons.home,
+                      FontAwesome.house_chimney_solid,
                       size: 30,
                       color: navigationcontroller.selectedIndex.value == 0
                           ? AppColors.primaryColor
@@ -314,7 +313,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                         ? _rotationAnimation.value
                         : 0.0,
                     child: Icon(
-                      Icons.favorite,
+                      FontAwesome.heart_solid,
                       size: 30,
                       color: navigationcontroller.selectedIndex.value == 1
                           ? AppColors.primaryColor
@@ -331,7 +330,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                         ? _rotationAnimation.value
                         : 0.0,
                     child: Icon(
-                      Icons.messenger,
+                      FontAwesome.message_solid,
                       size: 30,
                       color: navigationcontroller.selectedIndex.value == 2
                           ? AppColors.primaryColor
@@ -348,7 +347,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                         ? _rotationAnimation.value
                         : 0.0,
                     child: Icon(
-                      Icons.account_circle,
+                      FontAwesome.person_chalkboard_solid,
                       size: 30,
                       color: navigationcontroller.selectedIndex.value == 3
                           ? AppColors.primaryColor

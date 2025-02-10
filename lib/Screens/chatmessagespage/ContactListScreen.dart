@@ -157,6 +157,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                   color: AppColors.inactiveColor),
                             ),
                           ),
+                          
                         ),
                         if (controller.messageRequest.isNotEmpty)
                           Positioned(
