@@ -80,6 +80,7 @@ import '../Models/RequestModels/user_profile_update_request_model.dart';
 import '../Models/RequestModels/user_registration_request_model.dart';
 import '../Models/RequestModels/usernameupdate_request_model.dart';
 import '../Models/RequestModels/verify_account_request_model.dart';
+import '../Models/ResponseModels/GetPointAmountResponse.dart';
 import '../Models/ResponseModels/ProfileResponse.dart';
 import '../Models/ResponseModels/all_active_user_resposne_model.dart';
 import '../Models/ResponseModels/all_orders_response_model.dart';
@@ -125,6 +126,7 @@ import '../Models/ResponseModels/user_registration_response_model.dart';
 import '../Models/ResponseModels/user_suggestions_response_model.dart';
 import '../Models/ResponseModels/usernameupdate_response_model.dart';
 import '../Models/ResponseModels/verify_account_response_model.dart';
+import '../Providers/GetPointAmountProvider.dart';
 import '../Providers/block_user_provider.dart';
 import '../Providers/delete_message_provider.dart';
 import '../Providers/deletefavourite_provider_model.dart';
@@ -2041,6 +2043,23 @@ class Controller extends GetxController {
       }
     } catch (e) {
       failure('Error order controller', e.toString());
+      return false;
+    }
+  }
+
+  RxList<PointAmount> pointamount = <PointAmount>[].obs;
+  Future<bool> getpointdetailsamount() async {
+    try {
+      PointAmountResponse? response =
+          await GetPointAmountProvider().getpointamount();
+      if (response != null) {
+        pointamount.assignAll(response.payload.pointToAmount);
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      failure("Error", e.toString());
       return false;
     }
   }

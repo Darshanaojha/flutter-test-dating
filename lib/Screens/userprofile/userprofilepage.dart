@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
-import 'package:pushable_button/pushable_button.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/usernameupdate_request_model.dart';
 import '../settings/appinfopages/appinfopagestart.dart';
 import 'Orders/OrdersViewScreen.dart';
 import 'Transactions/TransactionsViewScreen.dart';
+import 'Wallet/WalletScreen.dart';
 import 'editprofile/edituserprofile.dart';
 import 'membership/userselectedplan.dart';
 
@@ -631,6 +631,14 @@ class UserProfilePageState extends State<UserProfilePage>
                                     icon: Icons.monetization_on_outlined,
                                     onTap: () {
                                       Get.to(AllTransactionsPage());
+                                    },
+                                  ),
+                                  SettingCard(
+                                    title: 'Your Wallets',
+                                    subtitle: 'See Your All Wallets Details',
+                                    icon: Icons.wallet,
+                                    onTap: () {
+                                      Get.to(WalletPage());
                                     },
                                   ),
                                   SettingCard(
