@@ -79,8 +79,7 @@ class UserRegistrationRequest {
     );
   }
 
-
-   void reset() {
+  void reset() {
     name = '';
     email = '';
     mobile = '';
@@ -204,7 +203,7 @@ class UserRegistrationRequest {
     }
   }
 
-   validatePhotos(List<String> photos) {
+  validatePhotos(List<String> photos) {
     if (photos.isEmpty) {
       failure('Photo', "Photos list cannot be empty for field: Photos.");
     }
