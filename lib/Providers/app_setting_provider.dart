@@ -1,7 +1,6 @@
 
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-
 import '../Models/RequestModels/app_setting_request_model.dart';
 import '../Models/ResponseModels/app_setting_response_model.dart';
 import '../constants.dart';

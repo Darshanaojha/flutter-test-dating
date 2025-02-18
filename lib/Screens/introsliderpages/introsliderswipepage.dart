@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:dating_application/Screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -23,34 +22,57 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> {
     super.initState();
   }
 
-  // Generates a darker color for dark theme
-  Color getRandomColor() {
-    Random random = Random();
-    return Color.fromRGBO(
-      random.nextInt(100), // Keep RGB values low for dark colors
-      random.nextInt(100),
-      random.nextInt(100),
-      1.0,
+  Widget buildPage(String image, String title, String description, int index) {
+    List<List<Color>> gradients = [
+      [Color(0xff1f005c), Color(0xff5b0060), Color(0xff870160)],
+      [Color(0xffac255e), Color(0xffca485c), Color(0xffe16b5c)],
+      [Color(0xffe16b5c), Color(0xfff39060), Color(0xffffb56b)],
+      [
+        Color(0xff1f005c),
+        Color(0xff5b0060),
+        Color(0xff870160),
+        Color(0xffac255e)
+      ],
+    ];
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: gradients[index % gradients.length],
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          if (index == 0 || index == 2) ...[
+            Text(title, style: _titleStyle()),
+            Image.network(image, height: 250, fit: BoxFit.contain),
+            Text(description, style: _textStyle()),
+          ] else ...[
+            Text(description, style: _textStyle()),
+            Image.network(image, height: 250, fit: BoxFit.contain),
+            Text(title, style: _titleStyle()),
+          ]
+        ],
+      ),
     );
   }
 
-  Widget _buildDot(int index) {
-    double selectedness = Curves.easeOut.transform(
-      max(0.0, 1.0 - ((page) - index).abs()),
+  TextStyle _titleStyle() {
+    return const TextStyle(
+      fontSize: 28,
+      fontWeight: FontWeight.bold,
+      color: Colors.white,
     );
-    double zoom = 1.0 + (2.0 - 1.0) * selectedness;
-    return SizedBox(
-      width: 25.0,
-      child: Center(
-        child: Material(
-          color: Colors.white,
-          type: MaterialType.circle,
-          child: SizedBox(
-            width: 8.0 * zoom,
-            height: 8.0 * zoom,
-          ),
-        ),
-      ),
+  }
+
+  TextStyle _textStyle() {
+    return const TextStyle(
+      fontSize: 18,
+      color: Colors.white,
     );
   }
 
@@ -65,51 +87,9 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> {
               itemCount: controller.sliderData.length,
               itemBuilder: (context, index) {
                 var slider = controller.sliderData[index];
-                return Container(
-                  width: double.infinity,
-                  color: getRandomColor(), // Dark background color
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      Image.network(
-                        slider.image!,
-                        height: 300,
-                        fit: BoxFit.contain,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) {
-                            return child;
-                          } else {
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          }
-                        },
-                        errorBuilder: (context, error, stackTrace) {
-                          return Image.asset('assets/placeholder_image.png');
-                        },
-                      ),
-                      Padding(
-                        padding: EdgeInsets.all(index != 4 ? 24.0 : 0),
-                      ),
-                      Column(
-                        children: <Widget>[
-                          Text(
-                            slider.title!,
-                            style: TextStyle(
-                              fontSize: 24,
-                              color: Colors.white, // White text for contrast
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
+                return buildPage(
+                    slider.image!, slider.title!, 'Sample description', index);
               },
-              positionSlideIcon: 0.8,
-              slideIconWidget: const Icon(Icons.arrow_back_ios,
-                  color: Colors.white), // White icon for visibility
               onPageChangeCallback: (int lpage) {
                 setState(() {
                   page = lpage;
@@ -117,29 +97,7 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> {
               },
               waveType: WaveType.liquidReveal,
               liquidController: liquidController,
-              fullTransitionValue: 880,
-              enableSideReveal: true,
-              preferDragFromRevealedArea: true,
-              enableLoop: false,
-              ignoreUserGestureWhileAnimating: true,
             ),
-
-            // Dot indicators at the bottom
-            Padding(
-              padding: EdgeInsets.all(20),
-              child: Column(
-                children: <Widget>[
-                  Expanded(child: SizedBox()),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children:
-                        List.generate(controller.sliderData.length, _buildDot),
-                  ),
-                ],
-              ),
-            ),
-
-            // Skip to End Button
             Align(
               alignment: Alignment.bottomRight,
               child: Padding(
@@ -147,20 +105,20 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> {
                 child: TextButton(
                   onPressed: () {
                     Get.to(Login());
+
                     liquidController.animateToPage(
                       page: controller.sliderData.length - 1,
                       duration: 700,
                     );
                   },
                   style: TextButton.styleFrom(
-                      backgroundColor: Colors.white.withOpacity(
-                          0.1), // Transparent background for button
-                      foregroundColor: Colors.white), // White text color
+                    backgroundColor: Colors.white.withOpacity(0.1),
+                    foregroundColor: Colors.white,
+                  ),
                   child: const Text("Skip to End"),
                 ),
               ),
             ),
-
             Align(
               alignment: Alignment.bottomLeft,
               child: Padding(
@@ -168,15 +126,16 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> {
                 child: TextButton(
                   onPressed: () {
                     liquidController.jumpToPage(
-                        page: liquidController.currentPage + 1 >
-                                controller.sliderData.length - 1
-                            ? 0
-                            : liquidController.currentPage + 1);
+                      page: liquidController.currentPage + 1 >=
+                              controller.sliderData.length
+                          ? 0
+                          : liquidController.currentPage + 1,
+                    );
                   },
                   style: TextButton.styleFrom(
-                      backgroundColor: Colors.white.withOpacity(
-                          0.1), // Transparent background for button
-                      foregroundColor: Colors.white), // White text color
+                    backgroundColor: Colors.white.withOpacity(0.1),
+                    foregroundColor: Colors.white,
+                  ),
                   child: const Text("Next"),
                 ),
               ),

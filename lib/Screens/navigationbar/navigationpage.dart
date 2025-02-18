@@ -211,7 +211,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
               ],
             ),
             borderRadius: BorderRadius.circular(
-                30), // You can adjust the border radius here
+                30), 
           ),
           child: AppBar(
             elevation: 5,

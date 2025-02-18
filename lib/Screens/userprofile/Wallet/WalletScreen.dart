@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'dart:math';
 
 import '../../../Controllers/controller.dart';
+import '../../../constants.dart';
 
 class WalletPage extends StatefulWidget {
   const WalletPage({super.key});
@@ -35,73 +36,14 @@ class WalletPageState extends State<WalletPage>
     await controller
         .getpointdetailsamount(); // Ensure your Controller has this method
   }
-
-  void _showDialog() {
-    if (controller.pointamount.isEmpty) {
-      return; // Prevent crash if data is empty
-    }
-
+void _showDialog() {
+  if (controller.pointamount.isEmpty) {
     showDialog(
-      barrierDismissible: false,
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Center(child: Text('Transaction Details')),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Spinning Coin Animation
-              SizedBox(
-                height: 60,
-                width: 60,
-                child: TweenAnimationBuilder<double>(
-                  tween: Tween<double>(begin: 0, end: 1),
-                  duration: Duration(seconds: 2),
-                  builder: (context, value, child) {
-                    return Transform.rotate(
-                      angle: value * 6.28,
-                      child: child,
-                    );
-                  },
-                  child: Image.asset('assets/images/coin.png'),
-                ),
-              ),
-              SizedBox(height: 10),
-
-              SizedBox(
-                height: 200,
-                width: double.maxFinite,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: controller.pointamount.length,
-                  itemBuilder: (context, index) {
-                    final item = controller.pointamount[index];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Points: ${item.points}',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            '₹${item.amount}',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+          title: Text('Transaction Details'),
+          content: Text('No transactions found!'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -111,7 +53,74 @@ class WalletPageState extends State<WalletPage>
         );
       },
     );
+    return; // Prevent proceeding to avoid error when data is empty
   }
+
+  // Continue with the dialog if data is available
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Center(child: Text('Transaction Details')),
+        content: Column(
+          children: [
+            // Animated Coin
+            SizedBox(
+              height: 60,
+              width: 60,
+              child: TweenAnimationBuilder<double>(
+                tween: Tween<double>(begin: 0, end: 1),
+                duration: Duration(seconds: 2),
+                builder: (context, value, child) {
+                  return Transform.rotate(
+                    angle: value * 6.28,
+                    child: child,
+                  );
+                },
+                child: Image.asset('assets/images/coin.png'),
+              ),
+            ),
+            SizedBox(height: 10),
+            SizedBox(
+              height: 200,
+              width: double.maxFinite,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: controller.pointamount.length,
+                itemBuilder: (context, index) {
+                  final item = controller.pointamount[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Points: ${item.points}',
+                          style: AppTextStyles.transactionTextStyle,
+                        ),
+                        Text(
+                          '₹${item.amount}',
+                          style: AppTextStyles.transactionTextStyle,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Close'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
