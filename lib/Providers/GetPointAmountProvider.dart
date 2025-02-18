@@ -2,7 +2,6 @@ import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 import '../Models/ResponseModels/GetPointAmountResponse.dart';
-
 class GetPointAmountProvider extends GetConnect {
   Future<PointAmountResponse?> getpointamount() async {
     try {
@@ -12,23 +11,32 @@ class GetPointAmountProvider extends GetConnect {
 
       if (token == null || token.isEmpty) {
         failure("Token", "Token is Not Found");
+        return null; 
       }
-      final response = await get('$baseurl/Rewardpoints/get_point_to_amount',
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token'
-          });
+
+      final response = await get(
+        '$baseurl/Rewardpoints/get_point_to_amount',
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token'
+        },
+      );
 
       if (response.statusCode == 200) {
         print(response.body.toString());
-        if (response.body['error']['code'] == 0) {
-          return PointAmountResponse.fromJson(response.body);
+        if (response.body != null && response.body['error'] != null) {
+          if (response.body['error']['code'] == 0) {
+            return PointAmountResponse.fromJson(response.body);
+          } else {
+            failure("Error", response.body['error']['code']);
+            return null;
+          }
         } else {
-          failure("Error", response.body['error']['code']);
+          failure("Error", "Invalid response format");
           return null;
         }
       } else {
-        failure("Error", response.body.toString());
+        failure("Error", "Failed to fetch data, Status Code: ${response.statusCode}");
         return null;
       }
     } catch (e) {
