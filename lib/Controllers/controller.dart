@@ -27,6 +27,7 @@ import 'package:dating_application/Models/ResponseModels/profile_like_response_m
 import 'package:dating_application/Models/ResponseModels/subgender_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/updating_package_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/user_upload_images_response_model.dart';
+import 'package:dating_application/Providers/ReferalCodeProvider.dart';
 import 'package:dating_application/Providers/activity_status_provider.dart';
 import 'package:dating_application/Providers/app_setting_provider.dart';
 import 'package:dating_application/Providers/change_password_provider.dart';
@@ -53,6 +54,8 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../Models/RequestModels/ReferalCodeRequestModel.dart';
 import '../Models/RequestModels/app_setting_request_model.dart';
 import '../Models/RequestModels/block_User_request_model.dart';
 import '../Models/RequestModels/delete_message_request_model.dart';
@@ -81,7 +84,9 @@ import '../Models/RequestModels/user_registration_request_model.dart';
 import '../Models/RequestModels/usernameupdate_request_model.dart';
 import '../Models/RequestModels/verify_account_request_model.dart';
 import '../Models/ResponseModels/GetPointAmountResponse.dart';
+import '../Models/ResponseModels/GetPointCreditedDebitedResponse.dart';
 import '../Models/ResponseModels/ProfileResponse.dart';
+import '../Models/ResponseModels/ReferalCodeResponse.dart';
 import '../Models/ResponseModels/all_active_user_resposne_model.dart';
 import '../Models/ResponseModels/all_orders_response_model.dart';
 import '../Models/ResponseModels/all_transactions_response_model.dart';
@@ -127,6 +132,7 @@ import '../Models/ResponseModels/user_suggestions_response_model.dart';
 import '../Models/ResponseModels/usernameupdate_response_model.dart';
 import '../Models/ResponseModels/verify_account_response_model.dart';
 import '../Providers/GetPointAmountProvider.dart';
+import '../Providers/GetPointCreditedDebitedProvider.dart';
 import '../Providers/block_user_provider.dart';
 import '../Providers/delete_message_provider.dart';
 import '../Providers/deletefavourite_provider_model.dart';
@@ -2054,6 +2060,53 @@ class Controller extends GetxController {
           await GetPointAmountProvider().getpointamount();
       if (response != null) {
         pointamount.assignAll(response.payload.pointToAmount);
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      failure("Error", e.toString());
+      return false;
+    }
+  }
+
+  ReferralCodeRequestModel referalcoderequestmodel =
+      ReferralCodeRequestModel(mobile: '');
+  Future<bool> requestreference(ReferralCodeRequestModel referalcoderequestmodel) async {
+    try {
+      ReferralCodeResponse? response = await ReferalCodeProvider()
+          .referalcodeprovider(referalcoderequestmodel);
+      if (response != null) {
+        success("Success", response.payload.referralCode);
+        String referralMessage =
+            "Check out my referral code: ${response.payload.referralCode}";
+        String url = "whatsapp://send?text=$referralMessage";
+        if (await canLaunch(url)) {
+          await launch(url);
+        } else {
+          failure("Error", "Could not open WhatsApp");
+          return false;
+        }
+        return true;
+      } else {
+        failure("error", response!.error.message);
+        return false;
+      }
+    } catch (e) {
+      failure("Error", e.toString());
+      return false;
+    }
+  }
+
+  RxList<CreditDebitHistory> creditdebithistory = <CreditDebitHistory>[].obs;
+  Future<bool> getcreditdebithistory() async {
+    try {
+      GetPointCreditedDebitedResponse? response =
+          await GetPointCreditedDebitedProvider()
+              .getpointcrediteddebitedprovider();
+
+      if (response != null) {
+        creditdebithistory.assignAll(response.payload.creditdebithistory);
         return true;
       } else {
         return false;

@@ -20,7 +20,8 @@ class PointAmountResponse {
     }
 
     return PointAmountResponse(
-      success: json['success'] ?? false, // Fallback to false if 'success' key is missing
+      success: json['success'] ??
+          false, 
       payload: Payload.fromJson(json['payload']),
       error: ApiError.fromJson(json['error']),
     );
@@ -33,15 +34,24 @@ class Payload {
   Payload({required this.pointToAmount});
 
   factory Payload.fromJson(Map<String, dynamic>? json) {
-    // If 'point_to_amount' is missing or null, return an empty list
+    if (json == null || json['point_to_amount'] == null) {
+      return Payload(pointToAmount: []);
+    }
+
+    var data = json['point_to_amount'];
+
     return Payload(
-      pointToAmount: (json?['point_to_amount'] as List?)
-              ?.map((e) => PointAmount.fromJson(e))
-              .toList() ??
-          [], // Return empty list if 'point_to_amount' is not found
+      pointToAmount: data is List
+          ? data.map((e) => PointAmount.fromJson(e)).toList()
+          : [PointAmount.fromJson(data)], 
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {'point_to_amount': pointToAmount.map((e) => e.tojson()).toList()};
+  }
 }
+
 
 class PointAmount {
   final String points;
@@ -50,11 +60,13 @@ class PointAmount {
   PointAmount({required this.points, required this.amount});
 
   factory PointAmount.fromJson(Map<String, dynamic>? json) {
-    // Fallback to default values if points or amount are missing
     return PointAmount(
       points: json?['points'] ?? '0',
       amount: json?['amount'] ?? '0',
     );
+  }
+  Map<String, dynamic> tojson() {
+    return {'points': points, 'amount': amount};
   }
 }
 
@@ -65,10 +77,13 @@ class ApiError {
   ApiError({required this.code, required this.message});
 
   factory ApiError.fromJson(Map<String, dynamic>? json) {
-    // Handle null or missing error fields gracefully
     return ApiError(
-      code: json?['code'] ?? 0, // Default to 0 if 'code' is not found
-      message: json?['message'] ?? '', // Default to empty string if 'message' is missing
+      code: json?['code'] ?? 0,
+      message: json?['message'] ?? '',
     );
+  }
+
+  Map<String, dynamic> tojson() {
+    return {'code': code, 'message': message};
   }
 }
