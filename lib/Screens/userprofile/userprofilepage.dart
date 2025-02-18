@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/usernameupdate_request_model.dart';
 import '../settings/appinfopages/appinfopagestart.dart';
+import 'GenerateReferalCode/GenerateReferalCode.dart';
 import 'Orders/OrdersViewScreen.dart';
 import 'Transactions/TransactionsViewScreen.dart';
 import 'Wallet/WalletScreen.dart';
@@ -639,6 +640,14 @@ class UserProfilePageState extends State<UserProfilePage>
                                     icon: Icons.wallet,
                                     onTap: () {
                                       Get.to(WalletPage());
+                                    },
+                                  ),
+                                  SettingCard(
+                                    title: 'Generate Referal Code',
+                                    subtitle: 'Generate Referal Code To Refer Your Frends',
+                                    icon: Icons.offline_share_outlined,
+                                    onTap: () {
+                                      Get.to(GenerateReferralPage());
                                     },
                                   ),
                                   SettingCard(

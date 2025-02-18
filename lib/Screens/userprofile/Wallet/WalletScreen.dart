@@ -58,6 +58,7 @@ void _showDialog() {
 
   // Continue with the dialog if data is available
   showDialog(
+    barrierDismissible: false,
     context: context,
     builder: (context) {
       return AlertDialog(
@@ -65,20 +66,16 @@ void _showDialog() {
         content: Column(
           children: [
             // Animated Coin
-            SizedBox(
-              height: 60,
-              width: 60,
-              child: TweenAnimationBuilder<double>(
-                tween: Tween<double>(begin: 0, end: 1),
-                duration: Duration(seconds: 2),
-                builder: (context, value, child) {
-                  return Transform.rotate(
-                    angle: value * 6.28,
-                    child: child,
-                  );
-                },
-                child: Image.asset('assets/images/coin.png'),
-              ),
+            TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0, end: 1),
+              duration: Duration(seconds: 2),
+              builder: (context, value, child) {
+                return Transform.rotate(
+                  angle: value * 6.28,
+                  child: child,
+                );
+              },
+              child: Image.asset('assets/images/coin.png'),
             ),
             SizedBox(height: 10),
             SizedBox(
