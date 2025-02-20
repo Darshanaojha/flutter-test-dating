@@ -1,6 +1,7 @@
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:super_tooltip/super_tooltip.dart';
 import '../../../Controllers/controller.dart';
 import '../../../Controllers/razorpaycontroller.dart';
 
@@ -140,6 +141,7 @@ class PricingPageState extends State<PricingPage>
     );
   }
 
+  RxInt selectedCoins = 0.obs;
   Widget buildPaymentWidget(BuildContext context) {
     double fontSize = MediaQuery.of(context).size.width * 0.04;
     double cardWidth = MediaQuery.of(context).size.width * 0.4;
@@ -159,7 +161,7 @@ class PricingPageState extends State<PricingPage>
                     final package = controller.packages[index];
                     double offerPercentage = calculateOfferPercentage(
                         package.actualAmount, package.offerAmount);
-                    double amount = double.tryParse(package.offerAmount) ?? 0.0; 
+                    double amount = double.tryParse(package.offerAmount) ?? 0.0;
                     return Padding(
                       padding:
                           EdgeInsets.symmetric(horizontal: 12, vertical: 3),
@@ -170,18 +172,9 @@ class PricingPageState extends State<PricingPage>
                             selectedPlan.value = package.id;
                           });
                           showPaymentConfirmationDialog(
-                            context,
-                            package.days,
-                            amount
-                          );
-                          razorpaycontroller.orderRequestModel.amount =
-                              package.offerAmount.toString();
+                              context, package.days, amount);
                           razorpaycontroller.orderRequestModel.packageId =
                               package.id;
-                          razorpaycontroller.orderRequestModel.type = '2';
-                          print(razorpaycontroller.orderRequestModel
-                              .toJson()
-                              .toString());
                         },
                         child: Obx(() {
                           bool isSelected = selectedPlan.value == package.id;
@@ -251,71 +244,499 @@ class PricingPageState extends State<PricingPage>
     );
   }
 
+//  Future<void> showPaymentConfirmationDialog(
+//     BuildContext context, String planId, double amount) async {
+//   double fontSize = MediaQuery.of(context).size.width * 0.03;
+
+//   // Fetch conversion values from API response
+//   int coinValue = int.tryParse(controller.pointamount.first.points) ?? 100;
+//   double amountValue = double.tryParse(controller.pointamount.first.amount) ?? 10.0;
+//   double coinPrice = amountValue / coinValue; // ₹0.10 per coin
+
+//   double availableCoins = double.tryParse(controller.totalpoint.first.points) ?? 0.0;
+//   RxInt selectedCoins = 0.obs; // Reactive selected coins
+//   RxDouble discountedAmount = amount.obs; // Reactive discounted amount
+
+//   // Calculate the max coins user can apply (50% of amount)
+//   int maxCoinsAllowed = ((amount / 2) * (coinValue / amountValue)).toInt();
+//   maxCoinsAllowed = maxCoinsAllowed.clamp(0, availableCoins.toInt());
+
+//   return showDialog<void>(
+//     context: context,
+//     barrierDismissible: false,
+//     builder: (BuildContext context) {
+//       return Obx(() {
+//         double totalPayable = discountedAmount.value - (selectedCoins.value * coinPrice);
+
+//         return AlertDialog(
+//           title: Text(
+//             "Confirm Subscription",
+//             style: AppTextStyles.titleText.copyWith(
+//               fontSize: fontSize,
+//               color: AppColors.textColor,
+//             ),
+//           ),
+//           content: Column(
+//             mainAxisSize: MainAxisSize.min,
+//             children: [
+//               Text(
+//                 "Do you want to subscribe to the selected plan?",
+//                 style: AppTextStyles.bodyText.copyWith(
+//                   fontSize: fontSize - 2,
+//                   color: AppColors.textColor,
+//                 ),
+//                 textAlign: TextAlign.center,
+//               ),
+//               const SizedBox(height: 15),
+
+//               // Available Coins Display
+//               Text(
+//                 "Available Coins: ${availableCoins - selectedCoins.value}",
+//                 style: AppTextStyles.titleText.copyWith(
+//                   fontSize: fontSize,
+//                   color: AppColors.textColor,
+//                 ),
+//               ),
+//               const SizedBox(height: 10),
+
+//               // Coin Adjustment Row
+//               Row(
+//                 mainAxisAlignment: MainAxisAlignment.center,
+//                 children: [
+//                   IconButton(
+//                     icon: const Icon(Icons.remove_circle, color: Colors.red),
+//                     onPressed: selectedCoins > 0
+//                         ? () => selectedCoins.value -=10
+//                         : null,
+//                   ),
+//                   Text(
+//                     "${selectedCoins.value} Coins",
+//                     style: AppTextStyles.titleText.copyWith(
+//                       fontSize: fontSize,
+//                       color: AppColors.textColor,
+//                     ),
+//                   ),
+//                   IconButton(
+//                     icon: const Icon(Icons.add_circle, color: Colors.green),
+//                     onPressed: selectedCoins < maxCoinsAllowed
+//                         ? () => selectedCoins.value +=10
+//                         : null,
+//                   ),
+//                 ],
+//               ),
+
+//               const SizedBox(height: 10),
+
+//               // Updated Amount after Discount
+//               Text(
+//                 "Total Payable: ₹${totalPayable.toStringAsFixed(2)}",
+//                 style: AppTextStyles.titleText.copyWith(
+//                   fontSize: fontSize,
+//                   color: AppColors.textColor,
+//                 ),
+//               ),
+//             ],
+//           ),
+//           actions: <Widget>[
+//             // Cancel Button
+//             TextButton(
+//               onPressed: () {
+//                 showCoinDialog(context, availableCoins);
+//               },
+//               child: Text(
+//                 'Cancel',
+//                 style: AppTextStyles.bodyText.copyWith(
+//                   color: AppColors.deniedColor,
+//                   fontSize: fontSize,
+//                 ),
+//               ),
+//             ),
+
+//             // Subscribe Button
+//             TextButton(
+//               onPressed: () async {
+//                 bool? isOrderCreated = await razorpaycontroller.createOrder(
+//                   razorpaycontroller.orderRequestModel,
+//                 );
+
+//                 if (isOrderCreated == true) {
+//                   razorpaycontroller.initRazorpay();
+//                   razorpaycontroller.openPayment(
+//                     totalPayable,
+//                     controller.userData.first.name,
+//                     planId,
+//                     controller.userData.first.mobile,
+//                     controller.userData.first.email,
+//                   );
+//                 } else {
+//                   failure("Order", "Your Payment Order Is Not Created");
+//                 }
+//                 Navigator.of(context).pop();
+//                 print("Subscribed to plan id $planId");
+//               },
+//               child: Text(
+//                 'Subscribe',
+//                 style: AppTextStyles.bodyText.copyWith(
+//                   color: AppColors.acceptColor,
+//                   fontSize: fontSize,
+//                 ),
+//               ),
+//             ),
+//           ],
+//         );
+//       });
+//     },
+//   );
+// }
+
+  // Future<void> showPaymentConfirmationDialog(
+  //     BuildContext context, String planId, double amount) async {
+  //   double fontSize = MediaQuery.of(context).size.width * 0.03;
+
+  //   // Fetch conversion values from API response
+  //   int coinValue = int.tryParse(controller.pointamount.first.points) ?? 0;
+  //   double amountValue =
+  //       double.tryParse(controller.pointamount.first.amount) ?? 0.0;
+  //   double coinPrice = amountValue / coinValue; // ₹0.10 per coin
+
+  //   double availableCoins =
+  //       double.tryParse(controller.totalpoint.first.points) ?? 0.0;
+  //   RxBool useCoins = false.obs; // Checkbox state
+  //   RxDouble discountedAmount = amount.obs; // Reactive discounted amount
+
+  //   // Get the percentage threshold for max coin usage
+  //   double thresholdPercentage =
+  //       double.tryParse(controller.packages.first.threshold) ?? 0;
+  //   int maxCoinsAllowed =
+  //       ((thresholdPercentage / 100) * availableCoins).toInt();
+  //   maxCoinsAllowed = maxCoinsAllowed.clamp(0, availableCoins.toInt());
+
+  //   return showDialog<void>(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (BuildContext context) {
+  //       return Obx(() {
+  //         // Apply discount if checkbox is selected
+  //         selectedCoins.value = useCoins.value ? maxCoinsAllowed : 0;
+  //         double discountAmount = selectedCoins.value * coinPrice;
+  //         double totalPayable = discountedAmount.value - discountAmount;
+
+  //         return AlertDialog(
+  //           title: Text(
+  //             "Confirm Subscription",
+  //             style: AppTextStyles.titleText.copyWith(
+  //               fontSize: fontSize,
+  //               color: AppColors.textColor,
+  //             ),
+  //           ),
+  //           content: Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               Text(
+  //                 "Do you want to subscribe to the selected plan?",
+  //                 style: AppTextStyles.bodyText.copyWith(
+  //                   fontSize: fontSize - 2,
+  //                   color: AppColors.textColor,
+  //                 ),
+  //                 textAlign: TextAlign.center,
+  //               ),
+  //               const SizedBox(height: 15),
+  //               Text(
+  //                 "Available Coins: ${availableCoins - selectedCoins.value}",
+  //                 style: AppTextStyles.titleText.copyWith(
+  //                   fontSize: fontSize,
+  //                   color: AppColors.textColor,
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 5),
+  //               if (availableCoins > 0)
+  //                 if (availableCoins > 0)
+  //                   Row(
+  //                     mainAxisAlignment:
+  //                         MainAxisAlignment.start,
+  //                     children: [
+  //                       Obx(() => Checkbox(
+  //                             value: useCoins.value,
+  //                             onChanged: (bool? value) {
+  //                               useCoins.value = value ?? false;
+  //                             },
+  //                           )),
+  //                       Expanded(
+  //                         child: Text(
+  //                           "Redeem ${thresholdPercentage.toInt()}% of available coins",
+  //                           style: AppTextStyles.bodyText.copyWith(
+  //                             fontSize: fontSize,
+  //                             color: AppColors.textColor,
+  //                           ),
+  //                           overflow: TextOverflow
+  //                               .ellipsis, // Ensures text doesn't overflow
+  //                         ),
+  //                       ),
+  //                       const SizedBox(width: 5),
+  //                       SuperTooltip(
+  //                         popupDirection: TooltipDirection.up,
+  //                         content: Text(
+  //                           "You can use up to ${thresholdPercentage.toInt()}% of your available coins for a discount.",
+  //                           style: AppTextStyles.bodyText
+  //                               .copyWith(fontSize: fontSize),
+  //                         ),
+  //                         child: Icon(Icons.info, color: Colors.blue, size: 12),
+  //                       ),
+  //                     ],
+  //                   ),
+
+  //               if (useCoins.value)
+  //                 Text(
+  //                   "Coins Used: $selectedCoins (₹${discountAmount.toStringAsFixed(2)} discount)",
+  //                   style: AppTextStyles.bodyText.copyWith(
+  //                     fontSize: fontSize,
+  //                     color: Colors.green,
+  //                   ),
+  //                 ),
+
+  //               const SizedBox(height: 10),
+
+  //               // Updated Amount after Discount
+  //               Text(
+  //                 "Total Payable: ₹${totalPayable.toStringAsFixed(2)}",
+  //                 style: AppTextStyles.titleText.copyWith(
+  //                   fontSize: fontSize,
+  //                   color: AppColors.textColor,
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //           actions: <Widget>[
+  //             // Cancel Button
+  //             TextButton(
+  //               onPressed: () {
+  //                 showCoinDialog(context, availableCoins);
+  //               },
+  //               child: Text(
+  //                 'Cancel',
+  //                 style: AppTextStyles.bodyText.copyWith(
+  //                   color: AppColors.deniedColor,
+  //                   fontSize: fontSize,
+  //                 ),
+  //               ),
+  //             ),
+
+  //             // Subscribe Button
+  //             TextButton(
+  //               onPressed: () async {
+  //                 bool? isOrderCreated = await razorpaycontroller.createOrder(
+  //                   razorpaycontroller.orderRequestModel,
+  //                 );
+
+  //                 if (isOrderCreated == true) {
+  //                   razorpaycontroller.initRazorpay();
+  //                   razorpaycontroller.openPayment(
+  //                     totalPayable,
+  //                     controller.userData.first.name,
+  //                     planId,
+  //                     controller.userData.first.mobile,
+  //                     controller.userData.first.email,
+  //                   );
+  //                 } else {
+  //                   failure("Order", "Your Payment Order Is Not Created");
+  //                 }
+  //                 Navigator.of(context).pop();
+  //                 print("Subscribed to plan id $planId");
+  //               },
+  //               child: Text(
+  //                 'Subscribe',
+  //                 style: AppTextStyles.bodyText.copyWith(
+  //                   color: AppColors.acceptColor,
+  //                   fontSize: fontSize,
+  //                 ),
+  //               ),
+  //             ),
+  //           ],
+  //         );
+  //       });
+  //     },
+  //   );
+  // }
+
   Future<void> showPaymentConfirmationDialog(
       BuildContext context, String planId, double amount) async {
     double fontSize = MediaQuery.of(context).size.width * 0.03;
+
+    // Fetch conversion values from API response
+    int coinValue = int.tryParse(controller.pointamount.first.points) ?? 0;
+    double amountValue =
+        double.tryParse(controller.pointamount.first.amount) ?? 0.0;
+    double coinPrice = amountValue / coinValue; // ₹0.10 per coin
+
+    double availableCoins =
+        double.tryParse(controller.totalpoint.first.points) ?? 0.0;
+    RxBool useCoins = false.obs; // Checkbox state
+    RxDouble discountedAmount = amount.obs; // Reactive discounted amount
+
+    // Get the percentage threshold for max coin usage
+    double thresholdPercentage =
+        double.tryParse(controller.packages.first.threshold) ?? 0;
+    int maxCoinsAllowed = ((thresholdPercentage / 100) * amount).toInt();
+    maxCoinsAllowed = maxCoinsAllowed.clamp(0, availableCoins.toInt());
 
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            "Confirm Subscription",
-            style: AppTextStyles.titleText.copyWith(
-              fontSize: fontSize,
-              color: AppColors.textColor,
-            ),
-          ),
-          content: Text(
-            "Do you want to subscribe to the selected plan?",
-            style: AppTextStyles.bodyText.copyWith(
-              fontSize: fontSize - 2,
-              color: AppColors.textColor,
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Get.snackbar('', planId.toString());
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'Cancel',
-                style: AppTextStyles.bodyText.copyWith(
-                  color: AppColors.deniedColor,
-                  fontSize: fontSize,
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                bool? isOrderCreated = await razorpaycontroller
-                    .createOrder(razorpaycontroller.orderRequestModel);
-                if (isOrderCreated == true) {
-                  razorpaycontroller.initRazorpay();
-                  razorpaycontroller.openPayment(
-                      amount, controller.userData.first.name, planId,  controller.userData.first.mobile,  controller.userData.first.email);
-                } else {
-                  failure("Order", "Your Payment Order Is Not Created");
-                }
-                 Navigator.of(context).pop();
-                // controller.updatinguserpackage(
-                //     controller.updateNewPackageRequestModel);
+        return Obx(() {
+          // Apply discount if checkbox is selected
+          selectedCoins.value = useCoins.value ? maxCoinsAllowed : 0;
+          double discountAmount = selectedCoins.value * coinPrice;
+          double totalPayable = discountedAmount.value - discountAmount;
 
-                print("Subscribed to plan id ${planId.toString()}");
-                print("Subscribed to the selected plan");
-              },
-              child: Text(
-                'Subscribe',
-                style: AppTextStyles.bodyText.copyWith(
-                  color: AppColors.acceptColor,
-                  fontSize: fontSize,
-                ),
+          return AlertDialog(
+            title: Text(
+              "Confirm Subscription",
+              style: AppTextStyles.titleText.copyWith(
+                fontSize: fontSize,
+                color: AppColors.textColor,
               ),
             ),
-          ],
-        );
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Do you want to subscribe to the selected plan?",
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: fontSize - 2,
+                    color: AppColors.textColor,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 15),
+
+                // Available Coins Display
+                Text(
+                  "Available Coins: ${availableCoins - selectedCoins.value}",
+                  style: AppTextStyles.titleText.copyWith(
+                    fontSize: fontSize,
+                    color: AppColors.textColor,
+                  ),
+                ),
+                const SizedBox(height: 5),
+
+                if (availableCoins >= maxCoinsAllowed && maxCoinsAllowed > 0)
+                  Row(
+                    children: [
+                      Obx(() => Checkbox(
+                            value: useCoins.value,
+                            onChanged: (bool? value) {
+                              useCoins.value = value ?? false;
+                            },
+                          )),
+                      Expanded(
+                        child: Text(
+                          "Redeem ${thresholdPercentage.toInt()}% of your payable amount using coins",
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: fontSize,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      SuperTooltip(
+                        popupDirection: TooltipDirection.up,
+                        content: Text(
+                          "You can use up to ${thresholdPercentage.toInt()}% of your payable amount using available coins.",
+                          style: AppTextStyles.bodyText
+                              .copyWith(fontSize: fontSize),
+                        ),
+                        child: Icon(Icons.info, color: Colors.blue, size: 12),
+                      ),
+                    ],
+                  )
+                else
+                  Text(
+                    "Not enough coins to apply a discount.",
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: fontSize,
+                      color: Colors.red,
+                    ),
+                  ),
+
+                if (useCoins.value)
+                  Text(
+                    "Coins Used: $selectedCoins (₹${discountAmount.toStringAsFixed(2)} discount)",
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: fontSize,
+                      color: Colors.green,
+                    ),
+                  ),
+
+                const SizedBox(height: 10),
+
+                // Updated Amount after Discount
+                Text(
+                  "Total Payable: ₹${totalPayable.toStringAsFixed(2)}",
+                  style: AppTextStyles.titleText.copyWith(
+                    fontSize: fontSize,
+                    color: AppColors.textColor,
+                  ),
+                ),
+              ],
+            ),
+            actions: <Widget>[
+              // Cancel Button
+              TextButton(
+                onPressed: () {
+                  Get.snackbar('', planId.toString());
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  'Cancel',
+                  style: AppTextStyles.bodyText.copyWith(
+                    color: AppColors.deniedColor,
+                  ),
+                ),
+              ),
+
+              // Subscribe Button
+              TextButton(
+                onPressed: () async {
+                  razorpaycontroller.orderRequestModel.amount =
+                      totalPayable.toString();
+                  //  packages.offerAmount.toString();
+
+                  razorpaycontroller.orderRequestModel.points =
+                      selectedCoins.value.toString();
+                  razorpaycontroller.orderRequestModel.type = '2';
+                  print(
+                      razorpaycontroller.orderRequestModel.toJson().toString());
+                  bool? isOrderCreated = await razorpaycontroller.createOrder(
+                    razorpaycontroller.orderRequestModel,
+                  );
+
+                  if (isOrderCreated == true) {
+                    razorpaycontroller.initRazorpay();
+                    razorpaycontroller.openPayment(
+                      totalPayable,
+                      controller.userData.first.name,
+                      planId,
+                      controller.userData.first.mobile,
+                      controller.userData.first.email,
+                    );
+                  } else {
+                    failure("Order", "Your Payment Order Is Not Created");
+                  }
+                  Navigator.of(context).pop();
+                  print("Subscribed to plan id $planId");
+                },
+                child: Text(
+                  'Subscribe',
+                  style: AppTextStyles.bodyText.copyWith(
+                    color: AppColors.acceptColor,
+                    fontSize: fontSize,
+                  ),
+                ),
+              ),
+            ],
+          );
+        });
       },
     );
   }

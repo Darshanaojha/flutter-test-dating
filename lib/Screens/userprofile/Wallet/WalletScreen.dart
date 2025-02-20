@@ -15,11 +15,13 @@ class WalletPage extends StatefulWidget {
 class WalletPageState extends State<WalletPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  late Future<bool> _fetchpagedata;
   Controller controller = Get.put(Controller());
 
   @override
   void initState() {
     super.initState();
+    _fetchpagedata = fetchAllData();
     _controller = AnimationController(
       duration: Duration(seconds: 2),
       vsync: this,
@@ -32,18 +34,84 @@ class WalletPageState extends State<WalletPage>
     super.dispose();
   }
 
-  Future<void> _fetchTransactions() async {
-    await controller
-        .getpointdetailsamount(); // Ensure your Controller has this method
+  Future<bool> fetchAllData() async {
+    if (!await controller.getpointdetailsamount()) return false;
+    if (!await controller.gettotalpoint()) return false;
+
+    return true;
   }
-void _showDialog() {
-  if (controller.pointamount.isEmpty) {
+
+  void _showDialog() {
+    if (controller.pointamount.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Transaction Details'),
+            content: Text('No transactions found!'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Close'),
+              ),
+            ],
+          );
+        },
+      );
+      return; // Prevent proceeding to avoid error when data is empty
+    }
+
+    // Continue with the dialog if data is available
     showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Transaction Details'),
-          content: Text('No transactions found!'),
+          title: Center(child: Text('Transaction Details')),
+          content: Column(
+            children: [
+              // Animated Coin
+              TweenAnimationBuilder<double>(
+                tween: Tween<double>(begin: 0, end: 1),
+                duration: Duration(seconds: 2),
+                builder: (context, value, child) {
+                  return Transform.rotate(
+                    angle: value * 6.28,
+                    child: child,
+                  );
+                },
+                child: Image.asset('assets/images/coin.png'),
+              ),
+              SizedBox(height: 10),
+              SizedBox(
+                height: 200,
+                width: double.maxFinite,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: controller.pointamount.length,
+                  itemBuilder: (context, index) {
+                    final item = controller.pointamount[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Points: ${item.points}',
+                            style: AppTextStyles.transactionTextStyle,
+                          ),
+                          Text(
+                            '₹${item.amount}',
+                            style: AppTextStyles.transactionTextStyle,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -53,71 +121,7 @@ void _showDialog() {
         );
       },
     );
-    return; // Prevent proceeding to avoid error when data is empty
   }
-
-  // Continue with the dialog if data is available
-  showDialog(
-    barrierDismissible: false,
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: Center(child: Text('Transaction Details')),
-        content: Column(
-          children: [
-            // Animated Coin
-            TweenAnimationBuilder<double>(
-              tween: Tween<double>(begin: 0, end: 1),
-              duration: Duration(seconds: 2),
-              builder: (context, value, child) {
-                return Transform.rotate(
-                  angle: value * 6.28,
-                  child: child,
-                );
-              },
-              child: Image.asset('assets/images/coin.png'),
-            ),
-            SizedBox(height: 10),
-            SizedBox(
-              height: 200,
-              width: double.maxFinite,
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: controller.pointamount.length,
-                itemBuilder: (context, index) {
-                  final item = controller.pointamount[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Points: ${item.points}',
-                          style: AppTextStyles.transactionTextStyle,
-                        ),
-                        Text(
-                          '₹${item.amount}',
-                          style: AppTextStyles.transactionTextStyle,
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Close'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -157,9 +161,12 @@ void _showDialog() {
           ),
           SizedBox(height: 10),
           Text(
-            '₹10,500',
+            '${controller.totalpoint.isNotEmpty ? controller.totalpoint.first.points : "0"}',
             style: TextStyle(
-                fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
           SizedBox(height: 20),
           Expanded(
@@ -172,7 +179,7 @@ void _showDialog() {
                 ),
               ),
               child: FutureBuilder(
-                future: _fetchTransactions(),
+                future: fetchAllData(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
