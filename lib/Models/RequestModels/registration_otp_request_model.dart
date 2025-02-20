@@ -4,18 +4,22 @@ class RegistrationOTPRequest {
   String email;
   String name;
   String mobile;
+  String referalcode;
 
   RegistrationOTPRequest({
     required this.email,
     required this.name,
     required this.mobile,
+    required this.referalcode,
   });
 
   factory RegistrationOTPRequest.fromJson(Map<String, dynamic> json) {
     String email = json['email'] ?? '';
     String name = json['name'] ?? '';
     String mobile = json['mobile'] ?? '';
-    return RegistrationOTPRequest(email: email, name: name, mobile: mobile);
+    String referalcode = json['referal_code'] ?? '';
+    return RegistrationOTPRequest(
+        email: email, name: name, mobile: mobile, referalcode: referalcode);
   }
 
   Map<String, dynamic> toJson() {
@@ -23,6 +27,7 @@ class RegistrationOTPRequest {
       'email': email,
       'name': name,
       'mobile': mobile,
+      'referal_code': referalcode,
     };
   }
 
@@ -38,7 +43,11 @@ class RegistrationOTPRequest {
       failure("Invalid Name", nameError);
       return false;
     }
-
+    String? referalcodeerror = validateReferalCode(referalcode);
+    if (referalcodeerror != null) {
+      failure("Invalid Referal Code",
+          "Referral code must be exactly 6 alphanumeric characters");
+    }
     return true;
   }
 
@@ -54,6 +63,13 @@ class RegistrationOTPRequest {
       return 'Invalid email format';
     }
 
+    return null;
+  }
+
+  static String? validateReferalCode(String referalcode) {
+    if (!RegExp(r'^[a-zA-Z0-9]{6}$').hasMatch(referalcode)) {
+      return 'Referral code must be exactly 6 alphanumeric characters';
+    }
     return null;
   }
 

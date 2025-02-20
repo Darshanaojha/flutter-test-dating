@@ -63,6 +63,9 @@ class Package {
   String actualAmount;
   String offerAmount;
   String unit;
+  String points;
+  String pointamount;
+  String threshold;
   String status;
   String created;
   String updated;
@@ -76,6 +79,9 @@ class Package {
     required this.actualAmount,
     required this.offerAmount,
     required this.unit,
+    required this.points,
+    required this.pointamount,
+    required this.threshold,
     required this.status,
     required this.created,
     required this.updated,
@@ -91,6 +97,9 @@ class Package {
       actualAmount: json['actual_amount'],
       offerAmount: json['offer_amount'],
       unit: json['unit'],
+      points:json['points'],
+      pointamount:json['point_amount'],
+      threshold:json['threshold'],
       status: json['status'],
       created: json['created'],
       updated: json['updated'],
@@ -107,6 +116,9 @@ class Package {
       'actual_amount': actualAmount,
       'offer_amount': offerAmount,
       'unit': unit,
+      'points':points,
+      'points_amount':pointamount,
+      'threshold':threshold,
       'status': status,
       'created': created,
       'updated': updated,

@@ -184,12 +184,10 @@ class UserInputPageState extends State<UserInputPage> {
                   ),
                   style: TextStyle(
                       fontSize: fontSize, color: AppColors.primaryColor),
-                  keyboardType:
-                      TextInputType.phone, 
+                  keyboardType: TextInputType.phone,
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(
-                        10), 
+                    LengthLimitingTextInputFormatter(10),
                   ],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -207,27 +205,65 @@ class UserInputPageState extends State<UserInputPage> {
                     controller.registrationOTPRequest.mobile = value ?? '';
                   },
                 ),
+                SizedBox(height: 20),
+                TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Referral Code',
+                    labelStyle: TextStyle(
+                      fontSize: fontSize,
+                      color: AppColors.textColor,
+                    ),
+                    filled: true,
+                    fillColor: AppColors.formFieldColor,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.green, width: 2.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white, width: 1.5),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  maxLength: 6,
+                  validator: (value) {
+                    if (!RegExp(r'^[a-zA-Z0-9]{6}$').hasMatch(value!)) {
+                      return 'Referral code must be exactly 6 alphanumeric characters';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    controller.registrationOTPRequest.referalcode = value;
+                    controller.userRegistrationRequest.referalcode = value;
+                  },
+                  onSaved: (value) {
+                    controller.registrationOTPRequest.referalcode = value ?? '';
+                  },
+                ),
+
                 SizedBox(height: 40),
                 // Submit Button
                 Container(
-                    decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment(0.8, 1),
-                colors: <Color>[
-                  Color(0xff1f005c),
-                  Color(0xff5b0060),
-                  Color(0xff870160),
-                  Color(0xffac255e),
-                  Color(0xffca485c),
-                  Color(0xffe16b5c),
-                  Color(0xfff39060),
-                  Color(0xffffb56b),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(
-                  30),
-            ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment(0.8, 1),
+                      colors: <Color>[
+                        Color(0xff1f005c),
+                        Color(0xff5b0060),
+                        Color(0xff870160),
+                        Color(0xffac255e),
+                        Color(0xffca485c),
+                        Color(0xffe16b5c),
+                        Color(0xfff39060),
+                        Color(0xffffb56b),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                   child: ElevatedButton(
                     onPressed: () {
                       if (formKey.currentState?.validate() ?? false) {
@@ -235,7 +271,7 @@ class UserInputPageState extends State<UserInputPage> {
                           controller.getOtpForRegistration(
                               controller.registrationOTPRequest);
                         }
-                  
+
                         Get.snackbar('Email is',
                             controller.registrationOTPRequest.email.toString());
                       } else {
@@ -244,14 +280,17 @@ class UserInputPageState extends State<UserInputPage> {
                           'Please check your inputs and try again.',
                         );
                       }
-                      Get.snackbar('',
-                          controller.userRegistrationRequest.toJson().toString());
+                      Get.snackbar(
+                          '',
+                          controller.userRegistrationRequest
+                              .toJson()
+                              .toString());
                     },
                     style: ElevatedButton.styleFrom(
                       foregroundColor: AppColors.textColor,
-                      backgroundColor:Colors.transparent,
-                      padding:
-                          EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+                      backgroundColor: Colors.transparent,
+                      padding: EdgeInsets.symmetric(
+                          vertical: 16.0, horizontal: 32.0),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),

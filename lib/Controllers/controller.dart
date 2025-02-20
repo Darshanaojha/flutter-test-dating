@@ -85,6 +85,7 @@ import '../Models/RequestModels/usernameupdate_request_model.dart';
 import '../Models/RequestModels/verify_account_request_model.dart';
 import '../Models/ResponseModels/GetPointAmountResponse.dart';
 import '../Models/ResponseModels/GetPointCreditedDebitedResponse.dart';
+import '../Models/ResponseModels/GetUsersTotalPointsResponse.dart';
 import '../Models/ResponseModels/ProfileResponse.dart';
 import '../Models/ResponseModels/ReferalCodeResponse.dart';
 import '../Models/ResponseModels/all_active_user_resposne_model.dart';
@@ -133,6 +134,7 @@ import '../Models/ResponseModels/usernameupdate_response_model.dart';
 import '../Models/ResponseModels/verify_account_response_model.dart';
 import '../Providers/GetPointAmountProvider.dart';
 import '../Providers/GetPointCreditedDebitedProvider.dart';
+import '../Providers/GetUserTotalpointsProvider.dart';
 import '../Providers/block_user_provider.dart';
 import '../Providers/delete_message_provider.dart';
 import '../Providers/deletefavourite_provider_model.dart';
@@ -207,6 +209,7 @@ class Controller extends GetxController {
     name: '',
     email: '',
     mobile: '',
+    referalcode: '',
     latitude: '',
     longitude: '',
     address: '',
@@ -270,7 +273,7 @@ class Controller extends GetxController {
   }
 
   RegistrationOTPRequest registrationOTPRequest =
-      RegistrationOTPRequest(email: '', name: '', mobile: '');
+      RegistrationOTPRequest(email: '', name: '', mobile: '', referalcode: '');
 
   Future<bool> getOtpForRegistration(
       RegistrationOTPRequest registrationOTPRequest) async {
@@ -2116,4 +2119,21 @@ class Controller extends GetxController {
       return false;
     }
   }
+RxList<Point> totalpoint = <Point>[].obs;
+
+Future<bool> gettotalpoint() async {
+  try {
+    GetUsersTotalPoints? response = await GetUsertotalPointsProvider().Getusertotalpointsprovider();
+    if (response != null) {
+      totalpoint.assignAll([response.payload.point]);
+      return true;
+    } else {
+      return false;
+    }
+  } catch (e) {
+    failure("Error", e.toString());
+    return false;
+  }
+}
+
 }

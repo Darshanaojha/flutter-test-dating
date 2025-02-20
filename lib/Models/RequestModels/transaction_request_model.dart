@@ -9,6 +9,7 @@ class TransactionRequestModel {
   String paymentMethod;
   String transactionId;
   String amount;
+  String points;
   DateTime created;
   DateTime updated;
 
@@ -22,6 +23,7 @@ class TransactionRequestModel {
     required this.paymentStatus,
     required this.paymentMethod,
     required this.amount,
+    required this.points,
     required this.transactionId,
     required this.created,
     required this.updated,
@@ -38,14 +40,14 @@ class TransactionRequestModel {
       paymentStatus: json['payment_status'] ?? '',
       paymentMethod: json['payment_method'] ?? '',
       amount: json['amount'] ?? '',
+      points: json['points'] ?? '',
       transactionId: json['transactionId'] ?? '',
-      created: DateTime.parse(
-          json['created'] ?? DateTime.now().toIso8601String()), 
-      updated: DateTime.parse(
-          json['updated'] ?? DateTime.now().toIso8601String()), 
+      created:
+          DateTime.parse(json['created'] ?? DateTime.now().toIso8601String()),
+      updated:
+          DateTime.parse(json['updated'] ?? DateTime.now().toIso8601String()),
     );
   }
-
 
   Map<String, dynamic> toJson() {
     return {
@@ -58,8 +60,9 @@ class TransactionRequestModel {
       'payment_status': paymentStatus,
       'payment_method': paymentMethod,
       'amount': amount,
+      'points': points,
       'transactionId': transactionId,
-      'created': created.toIso8601String(), 
+      'created': created.toIso8601String(),
       'updated': updated.toIso8601String(),
     };
   }
