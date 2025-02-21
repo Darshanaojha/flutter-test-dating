@@ -40,7 +40,8 @@ class HomePageProvider extends GetConnect {
 
       Response response = await get(
         '$baseurl/Profile/profile',
-        headers: {
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
         },
       );

@@ -18,6 +18,7 @@ class PricingPageState extends State<PricingPage>
   RazorpayController razorpaycontroller = Get.put(RazorpayController());
   RxString selectedPlan = ''.obs;
   RxString planId = ''.obs;
+  RxBool ispointused = false.obs;
   late final AnimationController _animationController;
   late final DecorationTween decorationTween;
   @override
@@ -626,6 +627,7 @@ class PricingPageState extends State<PricingPage>
                       Obx(() => Checkbox(
                             value: useCoins.value,
                             onChanged: (bool? value) {
+                              ispointused.value = true;
                               useCoins.value = value ?? false;
                             },
                           )),
@@ -700,7 +702,8 @@ class PricingPageState extends State<PricingPage>
                 onPressed: () async {
                   razorpaycontroller.orderRequestModel.amount =
                       totalPayable.toString();
-                  //  packages.offerAmount.toString();
+                  razorpaycontroller.orderRequestModel.ispointused =
+                      ispointused.value == true ? "1" : "0";
 
                   razorpaycontroller.orderRequestModel.points =
                       selectedCoins.value.toString();

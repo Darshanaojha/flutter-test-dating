@@ -14,10 +14,10 @@ class UserProfileProvider extends GetConnect {
         failure('Error', 'Token not found');
         return null;
       }
-      Response response = await post(
+      Response response = await get(
         '$baseurl/Profile/userphotos',
-        null,
-        headers: {
+         headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
         },
       );

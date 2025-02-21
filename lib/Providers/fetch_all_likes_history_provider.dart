@@ -16,9 +16,8 @@ class LikesHistoryProvider extends GetConnect {
         return null;
       }
 
-      Response response = await post(
+      Response response = await get(
         '$baseurl/Profile/likes',
-        null,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
