@@ -654,17 +654,16 @@ class Controller extends GetxController {
     }
   }
 
-  var packages = <Package>[].obs;
+  RxList<Package> packages = <Package>[].obs;
 
   Future<bool> fetchAllPackages() async {
     try {
-      packages.clear();
 
       GetAllPackagesResponseModel? response =
           await FetchAllPackagesProvider().fetchAllPackages();
 
       if (response != null && response.success) {
-        packages.addAll(response.payload.data);
+        packages.assignAll(response.payload.data);
         print('Successfully fetched all the packages');
         return true;
       } else {
@@ -2075,7 +2074,8 @@ class Controller extends GetxController {
 
   ReferralCodeRequestModel referalcoderequestmodel =
       ReferralCodeRequestModel(mobile: '');
-  Future<bool> requestreference(ReferralCodeRequestModel referalcoderequestmodel) async {
+  Future<bool> requestreference(
+      ReferralCodeRequestModel referalcoderequestmodel) async {
     try {
       ReferralCodeResponse? response = await ReferalCodeProvider()
           .referalcodeprovider(referalcoderequestmodel);
@@ -2119,21 +2119,22 @@ class Controller extends GetxController {
       return false;
     }
   }
-RxList<Point> totalpoint = <Point>[].obs;
 
-Future<bool> gettotalpoint() async {
-  try {
-    GetUsersTotalPoints? response = await GetUsertotalPointsProvider().Getusertotalpointsprovider();
-    if (response != null) {
-      totalpoint.assignAll([response.payload.point]);
-      return true;
-    } else {
+  RxList<Point> totalpoint = <Point>[].obs;
+
+  Future<bool> gettotalpoint() async {
+    try {
+      GetUsersTotalPoints? response =
+          await GetUsertotalPointsProvider().Getusertotalpointsprovider();
+      if (response != null) {
+        totalpoint.assignAll([response.payload.point]);
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      failure("Error", e.toString());
       return false;
     }
-  } catch (e) {
-    failure("Error", e.toString());
-    return false;
   }
-}
-
 }

@@ -1,11 +1,29 @@
+import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 
 import '../Models/ResponseModels/get_all_packages_response_model.dart';
 import '../constants.dart';
+
 class FetchAllPackagesProvider extends GetConnect {
   Future<GetAllPackagesResponseModel?> fetchAllPackages() async {
     try {
-      final response = await get('$baseurl/Common/fetch_all_packages');
+      EncryptedSharedPreferences preferences =
+          EncryptedSharedPreferences.getInstance();
+      String? token = preferences.getString('token');
+
+      if (token == null || token.isEmpty) {
+        failure('Error', 'Token not found');
+        return null;
+      }
+      final response = await get(
+        '$baseurl/Common/fetch_all_packages',
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      print("packagesprovider${response.statusCode.toString()}");
+      print("packagesresponse${response.body.toString()}");
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return GetAllPackagesResponseModel.fromJson(response.body);

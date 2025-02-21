@@ -199,7 +199,7 @@ class RazorpayController extends GetxController {
   }
 
   OrderRequestModel orderRequestModel =
-      OrderRequestModel(packageId: '', amount: '', points:'', type: '');
+      OrderRequestModel(packageId: '', amount: '', points:'', ispointused: '', type: '');
   Future<bool?> createOrder(OrderRequestModel orderRequestModel) async {
     try {
       OrderResponseModel? orderResponseModel =

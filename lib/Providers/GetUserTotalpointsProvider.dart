@@ -7,8 +7,8 @@ class GetUsertotalPointsProvider extends GetConnect {
   Future<GetUsersTotalPoints?> Getusertotalpointsprovider() async {
     try {
       EncryptedSharedPreferences preferences =
-          await EncryptedSharedPreferences.getInstance(); // Await instance
-      String? token = await preferences.getString('token'); // Await getString
+          await EncryptedSharedPreferences.getInstance(); 
+      String? token = await preferences.getString('token');
 
       if (token == null || token.isEmpty) {
         failure("Error", "Token is not found");
@@ -19,17 +19,17 @@ class GetUsertotalPointsProvider extends GetConnect {
         '$baseurl/Rewardpoints/get_user_point',
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token', // Fixed missing space
+          'Authorization': 'Bearer $token',
         },
       );
         print("totalcoin = ${response.body.toString()}");
       if (response.statusCode == 200) {
 
         if (response.body != null && response.body['error'] != null) {
-          if (response.body['error']['code'] == 0) { // Corrected the condition
+          if (response.body['error']['code'] == 0) { 
             return GetUsersTotalPoints.fromJson(response.body);
           } else {
-            failure("Error", response.body['error']['code'].toString()); // Ensure code is a string
+            failure("Error", response.body['error']['code'].toString()); 
             return null;
           }
         } else {

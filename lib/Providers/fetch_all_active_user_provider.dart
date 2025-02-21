@@ -10,9 +10,8 @@ class FetchAllActiveUserProvider extends GetConnect {
           EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
       if (token != null && token.isNotEmpty) {
-        Response response = await post(
+        Response response = await get(
           "$baseurl/Profile/fetch_all_active_user",
-          null,
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token',
