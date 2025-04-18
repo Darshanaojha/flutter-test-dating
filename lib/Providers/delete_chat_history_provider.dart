@@ -1,4 +1,3 @@
-
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 import 'dart:convert';
@@ -10,8 +9,6 @@ class DeleteChatHistoryProvider extends GetConnect {
   Future<DeleteChatResponse?> deletechathistoryprovider(
       DeleteChatRequest deleteChatRequest) async {
     try {
-      
-
       final preferences = EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
       if (token == null || token.isEmpty) {
@@ -27,6 +24,10 @@ class DeleteChatHistoryProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {

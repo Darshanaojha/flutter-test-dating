@@ -3,12 +3,14 @@ import 'package:get/get.dart';
 
 import '../Models/ResponseModels/get_all_addon_response_model.dart';
 import '../constants.dart';
+
 class FetchAllAddOnProvider extends GetConnect {
   Future<GetAllAddonsResponse?> getalladdonprovider() async {
     try {
-      EncryptedSharedPreferences preferences = await EncryptedSharedPreferences.getInstance();
+      EncryptedSharedPreferences preferences =
+          await EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
-      
+
       if (token != null && token.isNotEmpty) {
         Response response = await get(
           "$baseurl/Addon/getalladdon",
@@ -17,6 +19,10 @@ class FetchAllAddOnProvider extends GetConnect {
             'Authorization': 'Bearer $token',
           },
         );
+        if (response.statusCode == null || response.body == null) {
+          failure('Error', 'Server Failed To Respond');
+          return null;
+        }
         if (response.statusCode == 200) {
           if (response.body['error']['code'] == 0) {
             return GetAllAddonsResponse.fromJson(response.body);

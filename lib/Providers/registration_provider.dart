@@ -12,7 +12,7 @@ class RegistrationProvider extends GetConnect {
   Future<CountryResponse?> fetchCountries() async {
     try {
       Response response = await get('$baseurl/Common/country');
-    
+
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return CountryResponse.fromJson(response.body);
@@ -43,8 +43,12 @@ class RegistrationProvider extends GetConnect {
           await post('$baseurl/Authentication/sendotp', requestBody, headers: {
         'Content-Type': 'application/json',
       });
-      // print('Response status code: ${response.statusCode}');
-      // print('Response body: ${response.body}');
+      print('Response status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
@@ -67,35 +71,36 @@ class RegistrationProvider extends GetConnect {
 
   // Verify password while registration
   Future<RegistrationOtpVerificationResponse?> otpVerificationForRegistration(
-    RegistrationOtpVerificationRequest registrationOtpVerificationRequest) async {
-  try {
-    print(registrationOtpVerificationRequest.toJson().toString());
-    
-    Response response = await post(
-      '$baseurl/Authentication/verifyotp', 
-      registrationOtpVerificationRequest.toJson(),
-      headers: {
-        'Content-Type': 'application/json', 
-      },
-    );
-    print('Response status code: ${response.statusCode}');
-    print('Response body: ${response.body}');
-    if (response.statusCode == 200) {
-      if (response.body['error']['code'] == 0) {
-        return RegistrationOtpVerificationResponse.fromJson(response.body);
+      RegistrationOtpVerificationRequest
+          registrationOtpVerificationRequest) async {
+    try {
+      print(registrationOtpVerificationRequest.toJson().toString());
+
+      Response response = await post(
+        '$baseurl/Authentication/verifyotp',
+        registrationOtpVerificationRequest.toJson(),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+      print('Response status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      if (response.statusCode == 200) {
+        if (response.body['error']['code'] == 0) {
+          return RegistrationOtpVerificationResponse.fromJson(response.body);
+        } else {
+          failure('Error', response.body['error']['message']);
+          return null;
+        }
       } else {
-        failure('Error', response.body['error']['message']);
+        failure(
+            'Error', 'Received invalid status code: ${response.statusCode}');
         return null;
       }
-    } else {
-      failure('Error', 'Received invalid status code: ${response.statusCode}');
+    } catch (e) {
+      print('Error occurred: ${e.toString()}');
+      failure('Error', e.toString());
       return null;
     }
-  } catch (e) {
-    print('Error occurred: ${e.toString()}');
-    failure('Error', e.toString());
-    return null;
   }
-}
-
 }

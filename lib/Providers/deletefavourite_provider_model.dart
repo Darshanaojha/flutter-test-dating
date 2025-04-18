@@ -1,4 +1,3 @@
-
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 import '../Models/RequestModels/deletefavourite_request_model.dart';
@@ -26,6 +25,11 @@ class DeletefavouriteProviderModel extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {

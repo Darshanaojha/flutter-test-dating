@@ -7,6 +7,11 @@ class FetchAllDesiresProvider extends GetConnect {
   Future<DesiresResponse?> fetchDesires() async {
     try {
       final response = await get('$baseurl/Common/all_desires');
+
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return DesiresResponse.fromJson(response.body);

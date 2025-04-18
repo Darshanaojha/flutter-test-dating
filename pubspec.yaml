@@ -66,6 +66,7 @@ dependencies:
   icons_plus: ^5.0.0
   aurora_background: ^1.0.1
   super_tooltip: ^2.0.9
+  font_awesome_flutter: ^10.8.0
 
 
 
@@ -101,13 +102,12 @@ flutter:
     - assets/animations/handloadinganimation.json
     - assets/animations/new404animation.json
     - assets/animations/likesbuttonpressanimation.json
-
     - assets/sounds/call.mp3
-
     - assets/images/like.png
     - assets/images/heart.png
     - assets/images/dislike.png
     - assets/images/coin.png
+    - assets/images/emoji/
 
     
     

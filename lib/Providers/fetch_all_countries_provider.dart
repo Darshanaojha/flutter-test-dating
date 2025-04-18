@@ -6,6 +6,10 @@ class FetchAllCountriesProvider extends GetConnect {
   Future<CountryResponse?> fetchCountries() async {
     try {
       Response response = await get('$baseurl/Common/country');
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return CountryResponse.fromJson(response.body);

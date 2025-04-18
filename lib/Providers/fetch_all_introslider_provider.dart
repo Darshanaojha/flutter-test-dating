@@ -7,6 +7,10 @@ class FetchAllIntroSliderProvider extends GetConnect {
   Future<IntroSliderResponse?> fetchAllIntroSliderProvider() async {
     try {
       final response = await get('$baseurl/Common/all_intro_sliders');
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
 
       if (response.statusCode == 200 && response.body != null) {
         if (response.body['error']['code'] == 0) {

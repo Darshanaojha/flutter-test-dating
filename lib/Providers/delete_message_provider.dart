@@ -10,8 +10,6 @@ class DeleteMessageProvider extends GetConnect {
   Future<DeleteMessageResponse?> deleteMessage(
       DeleteMessageRequest request) async {
     try {
-      
-
       final preferences = EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
       if (token == null || token.isEmpty) {
@@ -27,7 +25,10 @@ class DeleteMessageProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
-
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return DeleteMessageResponse.fromJson(response.body);

@@ -1,4 +1,3 @@
-
 import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
 import 'package:dating_application/Models/ResponseModels/subgender_response_model.dart';
 import 'package:dating_application/constants.dart';
@@ -15,6 +14,10 @@ class FetchSubGendersProvider extends GetConnect {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return SubGenderResponse.fromJson(response.body);

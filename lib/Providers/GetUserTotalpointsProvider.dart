@@ -7,7 +7,7 @@ class GetUsertotalPointsProvider extends GetConnect {
   Future<GetUsersTotalPoints?> Getusertotalpointsprovider() async {
     try {
       EncryptedSharedPreferences preferences =
-          await EncryptedSharedPreferences.getInstance(); 
+          await EncryptedSharedPreferences.getInstance();
       String? token = await preferences.getString('token');
 
       if (token == null || token.isEmpty) {
@@ -22,14 +22,17 @@ class GetUsertotalPointsProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
-        print("totalcoin = ${response.body.toString()}");
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
+      print("totalcoin = ${response.body.toString()}");
       if (response.statusCode == 200) {
-
         if (response.body != null && response.body['error'] != null) {
-          if (response.body['error']['code'] == 0) { 
+          if (response.body['error']['code'] == 0) {
             return GetUsersTotalPoints.fromJson(response.body);
           } else {
-            failure("Error", response.body['error']['code'].toString()); 
+            failure("Error", response.body['error']['code'].toString());
             return null;
           }
         } else {
@@ -37,7 +40,8 @@ class GetUsertotalPointsProvider extends GetConnect {
           return null;
         }
       } else {
-        failure("Error", "Failed to fetch data, Status Code: ${response.statusCode}");
+        failure("Error",
+            "Failed to fetch data, Status Code: ${response.statusCode}");
         return null;
       }
     } catch (e) {

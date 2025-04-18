@@ -9,12 +9,11 @@ import '../Models/ResponseModels/user_login_response_model.dart';
 import '../constants.dart';
 
 class LoginProvider extends GetConnect {
- Controller controller= Get.find();
+  Controller controller = Get.find();
   Future<ForgetPasswordResponse?> getOtpForgetPassword(
       ForgetPasswordRequest forgetPasswordRequest) async {
-        
     try {
-        final requestBody = forgetPasswordRequest.toJson();
+      final requestBody = forgetPasswordRequest.toJson();
       Response response = await post(
         "$baseurl/Profile/forget_password",
         requestBody,
@@ -22,6 +21,10 @@ class LoginProvider extends GetConnect {
           'Content-Type': 'application/json; charset=UTF-8'
         },
       );
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
@@ -74,8 +77,6 @@ class LoginProvider extends GetConnect {
     }
   }
 
-
-
 // User Login
   Future<UserLoginResponse?> userLogin(
       UserLoginRequest userLoginRequest) async {
@@ -88,7 +89,7 @@ class LoginProvider extends GetConnect {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
-      
+
       print(response.body);
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {

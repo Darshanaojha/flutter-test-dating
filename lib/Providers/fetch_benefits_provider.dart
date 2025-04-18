@@ -7,7 +7,10 @@ class FetchBenefitsProvider extends GetConnect {
   Future<BenefitsResponse?> fetchBenefits() async {
     try {
       Response response = await get('$baseurl/Common/all_benefits');
-
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return BenefitsResponse.fromJson(response.body);

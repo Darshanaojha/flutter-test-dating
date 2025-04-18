@@ -22,6 +22,10 @@ class FetchAllPackagesProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
       print("packagesprovider${response.statusCode.toString()}");
       print("packagesresponse${response.body.toString()}");
       if (response.statusCode == 200) {

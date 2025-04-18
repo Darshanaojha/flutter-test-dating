@@ -23,6 +23,10 @@ class LikesHistoryProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
