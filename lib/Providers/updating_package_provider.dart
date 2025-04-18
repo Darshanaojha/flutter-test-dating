@@ -1,4 +1,3 @@
-
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 
@@ -8,8 +7,7 @@ import '../constants.dart';
 
 class UpdatingPackageProvider extends GetConnect {
   Future<UpdateNewPackageResponse?> updatingpackage(
-      UpdateNewPackageRequestModel
-          updateNewPackageRequestModel) async {
+      UpdateNewPackageRequestModel updateNewPackageRequestModel) async {
     try {
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
@@ -28,6 +26,10 @@ class UpdatingPackageProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {

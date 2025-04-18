@@ -2,11 +2,15 @@ import 'package:dating_application/Models/ResponseModels/get_all_headlines_respo
 import 'package:dating_application/constants.dart';
 import 'package:get/get.dart';
 
-class FetchAllHeadlinesProvider extends GetConnect{
-
+class FetchAllHeadlinesProvider extends GetConnect {
   Future<HeadlinesResponse?> fetchAllHeadlines() async {
     try {
       final response = await get('$baseurl/Common/all_headlines');
+
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return HeadlinesResponse.fromJson(response.body);
@@ -26,5 +30,4 @@ class FetchAllHeadlinesProvider extends GetConnect{
       return null;
     }
   }
-
 }

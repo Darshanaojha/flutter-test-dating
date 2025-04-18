@@ -22,7 +22,7 @@ class ChatMessagePageProvider extends GetConnect {
           },
         );
         if (response.statusCode == null || response.body == null) {
-          failure('Error', 'Internal server error');
+          failure('Error', 'Server Failed To Respond');
           return null;
         }
         if (response.statusCode == 200) {

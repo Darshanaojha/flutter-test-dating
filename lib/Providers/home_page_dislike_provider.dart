@@ -27,6 +27,10 @@ class HomePageDislikeProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
 
       print("API Response status: ${response.statusCode}");
       print("API Response body: ${response.body}");

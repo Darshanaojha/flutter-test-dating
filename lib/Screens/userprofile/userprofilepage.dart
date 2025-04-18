@@ -34,20 +34,15 @@ class UserProfilePageState extends State<UserProfilePage>
     return screenWidth * scale;
   }
 
-  late final AnimationController _animationController;
   late final DecorationTween decorationTween;
   @override
   void initState() {
     super.initState();
     _fetchprofilepage = fetchAllData();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 1),
-    )..repeat(reverse: true);
 
     decorationTween = DecorationTween(
       begin: BoxDecoration(
-        color: Colors.transparent, // Transparent box
+        color: Colors.transparent,
         border: Border.all(style: BorderStyle.none),
         borderRadius: BorderRadius.circular(10.0),
         boxShadow: const <BoxShadow>[
@@ -644,7 +639,8 @@ class UserProfilePageState extends State<UserProfilePage>
                                   ),
                                   SettingCard(
                                     title: 'Generate Referal Code',
-                                    subtitle: 'Generate Referal Code To Refer Your Frends',
+                                    subtitle:
+                                        'Generate Referal Code To Refer Your Frends',
                                     icon: Icons.offline_share_outlined,
                                     onTap: () {
                                       Get.to(GenerateReferralPage());

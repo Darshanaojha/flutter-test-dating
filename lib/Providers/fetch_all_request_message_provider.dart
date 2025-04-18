@@ -1,4 +1,3 @@
-
 import 'package:dating_application/Models/ResponseModels/get_all_request_message_response.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
@@ -6,7 +5,8 @@ import 'package:get/get.dart';
 import '../constants.dart';
 
 class FetchAllRequestMessageProvider extends GetConnect {
-  Future<GetAllRequestPingMessageResponse?> fetchallrequestmessageprovider() async {
+  Future<GetAllRequestPingMessageResponse?>
+      fetchallrequestmessageprovider() async {
     try {
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
@@ -25,6 +25,10 @@ class FetchAllRequestMessageProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {

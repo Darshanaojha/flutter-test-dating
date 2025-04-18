@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import '../../constants.dart';
+import 'MoodSwings/MoodSwings.dart';
 import 'changepassword/changepasswordnewpassword.dart';
 import 'updateemailid/updateemailidpage.dart';
 
@@ -27,7 +28,10 @@ class SettingsPageState extends State<SettingsPage> {
   Controller controller = Get.put(Controller());
   final TextEditingController desireController = TextEditingController();
   bool showOnlineUsers = false;
+  bool isExpanded = false;
   RxBool spotlightUser = false.obs;
+  RxBool incognativeMode = false.obs;
+  RxBool HookUpMode = false.obs;
   RxBool visibility_status = true.obs;
   String currentLocation = "Fetching...";
   String locationSelection = "Current Location";
@@ -73,6 +77,34 @@ class SettingsPageState extends State<SettingsPage> {
     controller.highlightProfile(controller.highlightProfileStatusRequest);
   }
 
+  Future<void> saveIncognativeStatus(bool value) async {
+    EncryptedSharedPreferences prefs =
+        await EncryptedSharedPreferences.getInstance();
+    await prefs.setBoolean('incognativeMode', value);
+    Get.snackbar("Incognative Mode Save ", value.toString());
+  }
+
+  _onSwitchChnagedIncognative(bool value) {
+    saveIncognativeStatus(value);
+    setState(() {
+      incognativeMode.value = value;
+    });
+  }
+
+  Future<void> saveHookUpStatus(bool value) async {
+    EncryptedSharedPreferences prefs =
+        await EncryptedSharedPreferences.getInstance();
+    await prefs.setBoolean('HookUpMode', value);
+    Get.snackbar("HookUp Save ", value.toString());
+  }
+
+  _onSwitchChnagedHookUp(bool value) {
+    saveHookUpStatus(value);
+    setState(() {
+      HookUpMode.value = value;
+    });
+  }
+
   Future<void> getCurrentLocation() async {
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
@@ -100,6 +132,8 @@ class SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
         appBar: AppBar(
           title: Text(
@@ -230,8 +264,79 @@ class SettingsPageState extends State<SettingsPage> {
                           _onSwitchChanged(value);
                         }),
 
-                    SizedBox(height: 20),
+                    SizedBox(height: screenHeight * 0.02),
+                    Text("Active Incognative Mode",
+                        style: AppTextStyles.subheadingText
+                            .copyWith(fontSize: getResponsiveFontSize(0.02))),
+                    PrivacyToggle(
+                        label: incognativeMode.value
+                            ? "Incognitive Mode Active"
+                            : "Incognitive Inactve",
+                        value: incognativeMode.value,
+                        onChanged: (value) {
+                          _onSwitchChnagedIncognative(value);
+                        }),
+                    SizedBox(height: screenHeight * 0.02),
+                    Text("HookUp Mode",
+                        style: AppTextStyles.subheadingText
+                            .copyWith(fontSize: getResponsiveFontSize(0.02))),
+                    PrivacyToggle(
+                        label: HookUpMode.value
+                            ? "HookUp  Active"
+                            : "HookUp Inactve",
+                        value: HookUpMode.value,
+                        onChanged: (value) {
+                          _onSwitchChnagedHookUp(value);
+                        }),
 
+                    SizedBox(height: screenHeight * 0.04),
+                    Center(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            isExpanded = !isExpanded;
+                          });
+                          // Get.to(MoodSelectionScreen());
+                        },
+                        child: Card(
+                          color: Colors.deepPurpleAccent.withOpacity(0.8),
+                          elevation: 6,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: AnimatedContainer(
+                            duration: Duration(milliseconds: 400),
+                            curve: Curves.easeInOut,
+                            width: screenWidth * 0.95,
+                            height: 70,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons
+                                      .emoji_emotions, // You can swap this with any icon
+                                  color: Colors.amberAccent,
+                                  size: 28,
+                                ),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Selected Mood',
+                                  style: TextStyle(
+                                    fontSize: isExpanded ? 18 : 22,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: screenHeight * 0.04),
                     // Change Password Button
                     ElevatedButton(
                       onPressed: () {

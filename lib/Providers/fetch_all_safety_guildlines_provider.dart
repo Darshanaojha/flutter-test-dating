@@ -6,6 +6,10 @@ class FetchAllSafetyGuildlinesProvider extends GetConnect {
   Future<SafetyGuidelinesResponse?> fetchAllSafetyGuidelines() async {
     try {
       final response = await get('$baseurl/Common/all_safety_guidelines');
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return SafetyGuidelinesResponse.fromJson(response.body);

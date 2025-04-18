@@ -16,15 +16,18 @@ class UserProfileProvider extends GetConnect {
       }
       Response response = await get(
         '$baseurl/Profile/userphotos',
-         headers: <String, String>{
+        headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
         },
       );
-  
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
+
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
-        
           return UserUploadImagesResponse.fromJson(response.body);
         } else {
           failure('Error', response.body['error']['message']);

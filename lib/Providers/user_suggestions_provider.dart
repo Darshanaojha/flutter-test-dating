@@ -22,10 +22,15 @@ class UserSuggestionsProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
 
       if (response.statusCode == 200 && response.body != null) {
         if (response.body['error']['code'] == 0) {
-                print("user suggestion response in provider = ${response.body.toString()}");
+          print(
+              "user suggestion response in provider = ${response.body.toString()}");
           return UserSuggestionsResponseModel.fromJson(response.body);
         } else {
           failure('Error', response.body['error']['message']);

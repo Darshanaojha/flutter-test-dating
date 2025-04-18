@@ -26,9 +26,13 @@ class UpdateLatitudeLongitudeProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
       print(response.body.toString());
       if (response.statusCode == 200) {
-         return UpdateLatLongResponse.fromJson(response.body);
+        return UpdateLatLongResponse.fromJson(response.body);
       } else {
         failure(response.statusCode, response.body['error']['message']);
         return null;

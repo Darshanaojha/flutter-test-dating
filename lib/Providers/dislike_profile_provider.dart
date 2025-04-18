@@ -33,6 +33,11 @@ class DislikeProfileProvider extends GetConnect {
       print(
         "response dislike${response.body.toString()}",
       );
+
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return DislikeProfileResponse.fromJson(response.body);

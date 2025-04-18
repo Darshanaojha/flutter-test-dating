@@ -1442,6 +1442,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                   duration: Duration(milliseconds: 300),
                                   curve: Curves.ease,
                                 );
+                                controller.fetchlang();
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: selectedInterests.isNotEmpty

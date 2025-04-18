@@ -7,6 +7,11 @@ class FetchAllGendersProvider extends GetConnect {
   Future<GenderResponse?> fetchGenders() async {
     try {
       final response = await get('$baseurl/Common/gender');
+
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return GenderResponse.fromJson(response.body);

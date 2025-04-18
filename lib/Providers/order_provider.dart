@@ -68,6 +68,10 @@ class OrderProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+      if (response.statusCode == null || response.body == null) {
+        failure('Error', 'Server Failed To Respond');
+        return null;
+      }
       if (response.statusCode == 200) {
         return TransactionResponseModel.fromJson(response.body);
       } else {
