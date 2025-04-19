@@ -67,6 +67,7 @@ dependencies:
   aurora_background: ^1.0.1
   super_tooltip: ^2.0.9
   font_awesome_flutter: ^10.8.0
+  flutter_speed_dial: ^7.0.0
 
 
 

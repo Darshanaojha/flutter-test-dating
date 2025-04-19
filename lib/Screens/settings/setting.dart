@@ -134,251 +134,286 @@ class SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            "Settings",
-            style: AppTextStyles.headingText.copyWith(
-              fontSize: getResponsiveFontSize(0.03),
-            ),
+      appBar: AppBar(
+        title: Text(
+          "Settings",
+          style: AppTextStyles.headingText.copyWith(
+            fontSize: getResponsiveFontSize(0.035),
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
           ),
-          backgroundColor: AppColors.primaryColor,
-          actions: [
-            IconButton(
-              icon: Icon(Icons.info_outline),
-              onPressed: () {
-                Get.to(AppInfoPage());
-              },
+        ),
+        backgroundColor: AppColors.primaryColor,
+        elevation: 4,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.info_outline, color: Colors.white),
+            onPressed: () => Get.to(AppInfoPage()),
+          ),
+        ],
+      ),
+      body: FutureBuilder<void>(
+        future: _loadSpotlightStatus(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: ListView(
+              children: [
+                // 🔥 Distance Setting Card
+                SettingsCard(
+                  icon: Icons.location_on,
+                  title: "Maximum Distance (km)",
+                  child: Slider(
+                    value: maxDistance,
+                    min: 0,
+                    max: 500,
+                    divisions: 50,
+                    label: "${maxDistance.round()} km",
+                    activeColor: AppColors.activeColor,
+                    inactiveColor: AppColors.inactiveColor,
+                    onChanged: (value) {
+                      setState(() {
+                        maxDistance = value;
+                        controller.appSettingRequest.rangeKm = value.toString();
+                      });
+                    },
+                  ),
+                ),
+
+                // 🔥 Age Range Slider
+                SettingsCard(
+                  icon: Icons.favorite_border,
+                  title: "Age Range",
+                  child: RangeSlider(
+                    values: ageRange,
+                    min: 18,
+                    max: 100,
+                    divisions: 82,
+                    labels: RangeLabels(
+                      "${ageRange.start.round()}",
+                      "${ageRange.end.round()}",
+                    ),
+                    activeColor: AppColors.activeColor,
+                    inactiveColor: AppColors.inactiveColor,
+                    onChanged: (RangeValues values) {
+                      setState(() {
+                        ageRange = values;
+                        controller.appSettingRequest.minimumAge =
+                            values.start.round().toString();
+                        controller.appSettingRequest.maximumAge =
+                            values.end.round().toString();
+                      });
+                    },
+                  ),
+                ),
+
+                SizedBox(height: 20),
+
+                // 🌟 Apply Button
+                Center(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      controller.appsetting(controller.appSettingRequest);
+                      Navigator.pop(context);
+                    },
+                    icon: Icon(Icons.check_circle_outline),
+                    label: Text("Apply Settings"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.buttonColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 14, horizontal: 36),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 4,
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 24),
+
+                // 💡 Privacy Toggles
+                _buildPrivacyToggle(
+                  title: "Spotlight Profile",
+                  icon: Icons.flash_on,
+                  value: spotlightUser.value,
+                  labelOn: "You're in the spotlight 🌟",
+                  labelOff: "Not visible in spotlight",
+                  onChanged: _onSwitchChanged,
+                ),
+                _buildPrivacyToggle(
+                  title: "Incognitō Mode",
+                  icon: Icons.visibility_off,
+                  value: incognativeMode.value,
+                  labelOn: "You're browsing secretly 🕵️‍♂️",
+                  labelOff: "Others can see you",
+                  onChanged: _onSwitchChnagedIncognative,
+                ),
+                _buildPrivacyToggle(
+                  title: "HookUp Mode",
+                  icon: Icons.whatshot,
+                  value: HookUpMode.value,
+                  labelOn: "HookUp Active 🔥",
+                  labelOff: "HookUp Inactive",
+                  onChanged: _onSwitchChnagedHookUp,
+                ),
+
+                SizedBox(height: screenHeight * 0.04),
+
+                // 😎 Mood Section (Expandable)
+                GestureDetector(
+                  onTap: () => setState(() => isExpanded = !isExpanded),
+                  child: Card(
+                    color: Colors.deepPurpleAccent.withOpacity(0.85),
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: AnimatedContainer(
+                      duration: Duration(milliseconds: 400),
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.emoji_emotions, color: Colors.amberAccent),
+                          SizedBox(width: 12),
+                          Text(
+                            'Selected Mood',
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: screenHeight * 0.02),
+                GestureDetector(
+                  onTap: () => setState(() => isExpanded = !isExpanded),
+                  child: Card(
+                    color: Colors.deepPurpleAccent.withOpacity(0.85),
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: AnimatedContainer(
+                      duration: Duration(milliseconds: 400),
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.emoji_symbols_outlined, color: Colors.amberAccent),
+                          SizedBox(width: 12),
+                          Text(
+                            'Become Containt Creator',
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: screenHeight * 0.02),
+                // 🔐 Change Password & Email
+                _buildSettingsButton(
+                  label: "Change Password",
+                  icon: Icons.lock_outline,
+                  onPressed: () => Get.to(ChangePasswordPage()),
+                ),
+                SizedBox(height: 12),
+                _buildSettingsButton(
+                  label: "Update Email",
+                  icon: Icons.email_outlined,
+                  onPressed: () => Get.to(UpdateEmailPage()),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSettingsButton(
+      {required String label,
+      required IconData icon,
+      required VoidCallback onPressed}) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon),
+      label: Text(label),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.buttonColor,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 32),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
+        elevation: 4,
+      ),
+    );
+  }
+
+  Widget _buildPrivacyToggle({
+    required String title,
+    required IconData icon,
+    required bool value,
+    required String labelOn,
+    required String labelOff,
+    required Function(bool) onChanged,
+  }) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Icon(icon, color: AppColors.primaryColor, size: 28),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: AppTextStyles.subheadingText.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      )),
+                  SizedBox(height: 4),
+                  Text(
+                    value ? labelOn : labelOff,
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                  ),
+                ],
+              ),
+            ),
+            Switch(
+              value: value,
+              activeColor: AppColors.navigationColor,
+              onChanged: onChanged,
             ),
           ],
         ),
-        body: FutureBuilder<void>(
-            future: _loadSpotlightStatus(),
-            builder: (context, snapshot) {
-              // While loading, show a loading indicator or placeholder
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              }
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: ListView(
-                  children: [
-                    // Maximum Distance
-                    Text("Maximum Distance (km)",
-                        style: AppTextStyles.subheadingText
-                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                    Slider(
-                      value: maxDistance,
-                      min: 0,
-                      max: 500,
-                      divisions: 50,
-                      label: maxDistance.toStringAsFixed(0),
-                      activeColor: AppColors.activeColor,
-                      inactiveColor: AppColors.inactiveColor,
-                      onChanged: (double value) {
-                        setState(() {
-                          maxDistance = value;
-                          controller.appSettingRequest.rangeKm =
-                              value.toString();
-                        });
-                      },
-                    ),
-                    SizedBox(height: 20),
-
-// Age Range
-                    Text("Age Range",
-                        style: AppTextStyles.subheadingText
-                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                    RangeSlider(
-                      values: ageRange,
-                      min: 18,
-                      max: 100,
-                      divisions: 82,
-                      labels: RangeLabels(
-                        ageRange.start.round().toString(),
-                        ageRange.end.round().toString(),
-                      ),
-                      activeColor: AppColors.activeColor,
-                      inactiveColor: AppColors.inactiveColor,
-                      onChanged: (RangeValues values) {
-                        setState(() {
-                          ageRange = values;
-                          controller.appSettingRequest.minimumAge =
-                              values.start.round().toString();
-                          controller.appSettingRequest.maximumAge =
-                              values.end.round().toString();
-                        });
-                      },
-                    ),
-
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {
-                        controller.appsetting(controller.appSettingRequest);
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.buttonColor,
-                        padding:
-                            EdgeInsets.symmetric(vertical: 15, horizontal: 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Text(
-                        "Apply",
-                        style: AppTextStyles.buttonText
-                            .copyWith(fontSize: getResponsiveFontSize(0.03)),
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    // Text("Selected: ${lookingFor.join(", ")}",
-                    //     style: AppTextStyles.textStyle
-                    //         .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                    // SizedBox(height: 20),
-
-                    // Text("My Location",
-                    //     style: AppTextStyles.subheadingText
-                    //         .copyWith(fontSize: getResponsiveFontSize(0.04))),
-                    // ListTile(
-                    //   tileColor: AppColors.secondaryColor,
-                    //   title: Text(locationSelection,
-                    //       style: AppTextStyles.textStyle
-                    //           .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                    //   trailing:
-                    //       Icon(Icons.arrow_drop_down, color: AppColors.accentColor),
-                    //   onTap: () async {
-                    //     await showLocationSelectionDialog();
-                    //   },
-                    // ),
-                    SizedBox(height: 20),
-                    Text("Show Spotlight",
-                        style: AppTextStyles.subheadingText
-                            .copyWith(fontSize: getResponsiveFontSize(0.02))),
-                    PrivacyToggle(
-                        label: spotlightUser.value
-                            ? "Your profile Spotlight"
-                            : "Not Spotlight",
-                        value: spotlightUser.value,
-                        onChanged: (value) {
-                          _onSwitchChanged(value);
-                        }),
-
-                    SizedBox(height: screenHeight * 0.02),
-                    Text("Active Incognative Mode",
-                        style: AppTextStyles.subheadingText
-                            .copyWith(fontSize: getResponsiveFontSize(0.02))),
-                    PrivacyToggle(
-                        label: incognativeMode.value
-                            ? "Incognitive Mode Active"
-                            : "Incognitive Inactve",
-                        value: incognativeMode.value,
-                        onChanged: (value) {
-                          _onSwitchChnagedIncognative(value);
-                        }),
-                    SizedBox(height: screenHeight * 0.02),
-                    Text("HookUp Mode",
-                        style: AppTextStyles.subheadingText
-                            .copyWith(fontSize: getResponsiveFontSize(0.02))),
-                    PrivacyToggle(
-                        label: HookUpMode.value
-                            ? "HookUp  Active"
-                            : "HookUp Inactve",
-                        value: HookUpMode.value,
-                        onChanged: (value) {
-                          _onSwitchChnagedHookUp(value);
-                        }),
-
-                    SizedBox(height: screenHeight * 0.04),
-                    Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            isExpanded = !isExpanded;
-                          });
-                          // Get.to(MoodSelectionScreen());
-                        },
-                        child: Card(
-                          color: Colors.deepPurpleAccent.withOpacity(0.8),
-                          elevation: 6,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: AnimatedContainer(
-                            duration: Duration(milliseconds: 400),
-                            curve: Curves.easeInOut,
-                            width: screenWidth * 0.95,
-                            height: 70,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 16),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons
-                                      .emoji_emotions, // You can swap this with any icon
-                                  color: Colors.amberAccent,
-                                  size: 28,
-                                ),
-                                SizedBox(width: 12),
-                                Text(
-                                  'Selected Mood',
-                                  style: TextStyle(
-                                    fontSize: isExpanded ? 18 : 22,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: screenHeight * 0.04),
-                    // Change Password Button
-                    ElevatedButton(
-                      onPressed: () {
-                        Get.to(ChangePasswordPage());
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.buttonColor,
-                        padding:
-                            EdgeInsets.symmetric(vertical: 15, horizontal: 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Text(
-                        "Change Password",
-                        style: AppTextStyles.buttonText
-                            .copyWith(fontSize: getResponsiveFontSize(0.03)),
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {
-                        Get.to(UpdateEmailPage());
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.buttonColor,
-                        padding:
-                            EdgeInsets.symmetric(vertical: 15, horizontal: 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Text(
-                        "Update Email",
-                        style: AppTextStyles.buttonText
-                            .copyWith(fontSize: getResponsiveFontSize(0.03)),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }));
+      ),
+    );
   }
 
   Future<void> showLocationSelectionDialog() async {
@@ -496,6 +531,50 @@ class PrivacyToggle extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class SettingsCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final Widget child;
+
+  const SettingsCard({
+    required this.icon,
+    required this.title,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: AppColors.primaryColor, size: 24),
+                SizedBox(width: 8),
+                Text(
+                  title,
+                  style: AppTextStyles.subheadingText.copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            child,
+          ],
+        ),
       ),
     );
   }
