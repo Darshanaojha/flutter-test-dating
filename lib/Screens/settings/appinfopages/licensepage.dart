@@ -9,7 +9,7 @@ class LicenseDetailsPage extends StatefulWidget {
 
 class LicenseDetailsPageState extends State<LicenseDetailsPage> {
   String license = "abcd";
-  String updatedTime = "2024-11-23 15:54:18"; 
+  String updatedTime = "2024-11-23 15:54:18";
 
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -27,8 +27,10 @@ class LicenseDetailsPageState extends State<LicenseDetailsPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                "License: $license", 
-                style: TextStyle(fontSize: getResponsiveFontSize(0.05), fontWeight: FontWeight.bold),
+                "License: $license",
+                style: TextStyle(
+                    fontSize: getResponsiveFontSize(0.05),
+                    fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 20),
               Text(
@@ -42,4 +44,3 @@ class LicenseDetailsPageState extends State<LicenseDetailsPage> {
     );
   }
 }
-

@@ -143,45 +143,92 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
   void showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Logout',
-              style: AppTextStyles.headingText
-                  .copyWith(fontSize: getResponsiveFontSize(context, 0.04))),
-          content: Text('Are you sure you want to log out?',
-              style: AppTextStyles.headingText
-                  .copyWith(fontSize: getResponsiveFontSize(context, 0.04))),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.textColor,
-                backgroundColor: AppColors.primaryColor,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          backgroundColor: Colors.white.withOpacity(0.95),
+          elevation: 10,
+          titlePadding: const EdgeInsets.only(top: 24, left: 24, right: 24),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+          actionsPadding: const EdgeInsets.only(bottom: 16, right: 16),
+          title: Column(
+            children: [
+              Icon(Icons.logout, size: 48, color: Colors.pinkAccent),
+              const SizedBox(height: 16),
+              Text(
+                'Log Out?',
+                textAlign: TextAlign.center,
+                style: AppTextStyles.headingText.copyWith(
+                  fontSize: getResponsiveFontSize(context, 0.05),
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('No',
-                  style: AppTextStyles.headingText.copyWith(
-                      fontSize: getResponsiveFontSize(context, 0.04))),
+            ],
+          ),
+          content: Text(
+            'Are you sure you want to log out of your account?',
+            textAlign: TextAlign.center,
+            style: AppTextStyles.headingText.copyWith(
+              fontSize: getResponsiveFontSize(context, 0.04),
+              fontWeight: FontWeight.w400,
+              color: Colors.black54,
             ),
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.textColor,
-                backgroundColor: AppColors.inactiveColor,
-              ),
-              onPressed: () {
-                EncryptedSharedPreferences preferences =
-                    EncryptedSharedPreferences.getInstance();
-                preferences.clear();
-                Get.offAll(() => Login());
-                UpdateActivityStatusRequest updateActivityStatusRequest =
-                    UpdateActivityStatusRequest(status: '0');
-                controller.updateactivitystatus(updateActivityStatusRequest);
-              },
-              child: Text('Yes',
-                  style: AppTextStyles.headingText.copyWith(
-                      fontSize: getResponsiveFontSize(context, 0.04))),
+          ),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey.shade300,
+                    foregroundColor: Colors.black87,
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  icon: Icon(Icons.close),
+                  label: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                    child: Text('Cancel'),
+                  ),
+                ),
+
+                // Confirm Button
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    final preferences =
+                        await EncryptedSharedPreferences.getInstance();
+                    preferences.clear();
+                    Get.offAll(() => Login());
+
+                    UpdateActivityStatusRequest updateActivityStatusRequest =
+                        UpdateActivityStatusRequest(status: '0');
+                    controller
+                        .updateactivitystatus(updateActivityStatusRequest);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.pinkAccent,
+                    foregroundColor: Colors.white,
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  icon: Icon(Icons.check),
+                  label: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                    child: Text('Log Out'),
+                  ),
+                ),
+              ],
             ),
           ],
         );
@@ -210,8 +257,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                 Color(0xffffb56b),
               ],
             ),
-            borderRadius: BorderRadius.circular(
-                30), 
+            borderRadius: BorderRadius.circular(30),
           ),
           child: AppBar(
             elevation: 5,
