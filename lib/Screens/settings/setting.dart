@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import '../../constants.dart';
+import 'ContaintCreator/creatorPlansScreen.dart';
 import 'MoodSwings/MoodSwings.dart';
 import 'changepassword/changepasswordnewpassword.dart';
 import 'updateemailid/updateemailidpage.dart';
@@ -300,7 +301,9 @@ class SettingsPageState extends State<SettingsPage> {
 
                 SizedBox(height: screenHeight * 0.02),
                 GestureDetector(
-                  onTap: () => setState(() => isExpanded = !isExpanded),
+                  onTap: () {
+                    Get.to(PricingPage());
+                  },
                   child: Card(
                     color: Colors.deepPurpleAccent.withOpacity(0.85),
                     elevation: 6,
@@ -313,7 +316,8 @@ class SettingsPageState extends State<SettingsPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.emoji_symbols_outlined, color: Colors.amberAccent),
+                          Icon(Icons.emoji_symbols_outlined,
+                              color: Colors.amberAccent),
                           SizedBox(width: 12),
                           Text(
                             'Become Containt Creator',

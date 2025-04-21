@@ -13,6 +13,7 @@ import 'package:lottie/lottie.dart';
 import 'package:swipe_cards/swipe_cards.dart';
 import '../../Models/ResponseModels/user_suggestions_response_model.dart';
 import '../../constants.dart';
+import '../settings/ContaintCreator/ContaintCreatorList/ContaintCreatorList.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -435,7 +436,8 @@ class HomePageState extends State<HomePage>
                         child: ListView(
                           scrollDirection: Axis.horizontal,
                           children: [
-                            buildFilterButton(0, 'NearBy', FontAwesome.map_location_dot_solid,
+                            buildFilterButton(
+                                0, 'NearBy', FontAwesome.map_location_dot_solid,
                                 (value) {
                               setState(() {
                                 selectedFilter.value = 0;
@@ -443,8 +445,8 @@ class HomePageState extends State<HomePage>
                               Get.snackbar('NearBy',
                                   controller.userNearByList.length.toString());
                             }),
-                            buildFilterButton(1, 'Highlighted', FontAwesome.star,
-                                (value) {
+                            buildFilterButton(
+                                1, 'Highlighted', FontAwesome.star, (value) {
                               setState(() {
                                 selectedFilter.value = 1;
                               });
@@ -460,6 +462,13 @@ class HomePageState extends State<HomePage>
                               });
                               Get.snackbar('userfavourite',
                                   controller.favourite.length.toString());
+                            }),
+                            buildFilterButton(2, 'Creators', FontAwesome.artstation_brand,
+                                (value) {
+                              setState(() {
+                              Get.to(CreatorListPage());
+                              });
+                              
                             }),
                           ],
                         ),
