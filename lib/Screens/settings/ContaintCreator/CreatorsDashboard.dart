@@ -254,3 +254,236 @@
 //     );
 //   }
 // }
+
+import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
+
+class CreatorDashboardPage extends StatelessWidget {
+  const CreatorDashboardPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > 600;
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: const Text("📊 Creator Dashboard", style: TextStyle(color: Colors.white)),
+        elevation: 0,
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          _sectionTitle("Earnings Overview", isTablet),
+          const SizedBox(height: 12),
+          _earningsChart(),
+
+          const SizedBox(height: 30),
+          _sectionTitle("Revenue Breakdown", isTablet),
+          const SizedBox(height: 12),
+          _revenuePieChart(),
+
+          const SizedBox(height: 30),
+          _sectionTitle("Key Stats", isTablet),
+          const SizedBox(height: 12),
+          _statsGrid(),
+
+          const SizedBox(height: 30),
+          _sectionTitle("Recent Activity", isTablet),
+          const SizedBox(height: 12),
+          ..._recentActivityList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _sectionTitle(String title, bool isTablet) {
+    return Text(
+      title,
+      style: TextStyle(
+        color: Colors.white70,
+        fontSize: isTablet ? 20 : 18,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
+  Widget _earningsChart() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey[900],
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: SizedBox(
+        height: 200,
+        child: LineChart(
+          LineChartData(
+            gridData: FlGridData(show: false),
+            titlesData: FlTitlesData(show: false),
+            borderData: FlBorderData(show: false),
+            lineBarsData: [
+              LineChartBarData(
+                spots: [
+                  FlSpot(0, 50),
+                  FlSpot(1, 70),
+                  FlSpot(2, 60),
+                  FlSpot(3, 90),
+                  FlSpot(4, 100),
+                  FlSpot(5, 80),
+                  FlSpot(6, 110),
+                ],
+                isCurved: true,
+                color: Colors.pinkAccent,
+                barWidth: 3,
+                dotData: FlDotData(show: false),
+                belowBarData: BarAreaData(
+                  show: true,
+                  color: Colors.pinkAccent.withOpacity(0.3),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _revenuePieChart() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[900],
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 180,
+            child: PieChart(
+              PieChartData(
+                centerSpaceRadius: 30,
+                sectionsSpace: 2,
+                sections: [
+                  PieChartSectionData(
+                    color: Colors.pinkAccent,
+                    value: 45,
+                    title: 'Subs\n45%',
+                    radius: 60,
+                    titleStyle: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  PieChartSectionData(
+                    color: Colors.blueAccent,
+                    value: 30,
+                    title: 'Tips\n30%',
+                    radius: 55,
+                    titleStyle: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  PieChartSectionData(
+                    color: Colors.greenAccent,
+                    value: 25,
+                    title: 'Content\n25%',
+                    radius: 50,
+                    titleStyle: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _Legend(color: Colors.pinkAccent, label: "Subscriptions"),
+              _Legend(color: Colors.blueAccent, label: "Tips"),
+              _Legend(color: Colors.greenAccent, label: "Paid Content"),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _statsGrid() {
+    return GridView.count(
+      shrinkWrap: true,
+      crossAxisCount: 2,
+      crossAxisSpacing: 14,
+      mainAxisSpacing: 14,
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        _statCard("Total Subscribers", "1.2K", Icons.people),
+        _statCard("Total Posts", "48", Icons.image),
+        _statCard("Avg. Earnings/Post", "\$25", Icons.monetization_on),
+        _statCard("Engagement Rate", "13.5%", Icons.trending_up),
+      ],
+    );
+  }
+
+  Widget _statCard(String title, String value, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[900],
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.white10,
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: Colors.pinkAccent, size: 28),
+          const SizedBox(height: 12),
+          Text(value,
+              style: const TextStyle(
+                  color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 6),
+          Text(title, style: const TextStyle(color: Colors.white70, fontSize: 14)),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _recentActivityList() {
+    final activities = [
+      "You earned \$30 from a new subscription.",
+      "New post received 120 likes.",
+      "Subscriber ‘@user89’ sent you a tip.",
+      "You gained 14 new followers.",
+    ];
+
+    return activities
+        .map((activity) => ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 0),
+              leading: const Icon(Icons.bolt, color: Colors.pinkAccent),
+              title: Text(activity, style: const TextStyle(color: Colors.white70)),
+            ))
+        .toList();
+  }
+}
+
+// Reusable legend widget
+class _Legend extends StatelessWidget {
+  final Color color;
+  final String label;
+
+  const _Legend({required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(width: 12, height: 12, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        const SizedBox(width: 6),
+        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+      ],
+    );
+  }
+}

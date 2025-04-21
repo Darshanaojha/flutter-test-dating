@@ -1,310 +1,310 @@
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 
+import 'ContaintCreatorPlansAdd/CreatorPlansPage.dart';
+import 'CreatorProfile/CreatorProfileScreen.dart';
+import 'CreatorsDashboard.dart';
+import 'NewPostUpload/CreatorNewPost.dart';
 
+class CreatorHomeScreen extends StatelessWidget {
+  const CreatorHomeScreen({super.key});
 
+  final String name = "Alex Creator";
+  final String username = "alex.creates";
+  final String bio = "Photographer | Storyteller | Digital Artist";
+  final String paymentMode = "Bank Transfer";
 
+  final String profileImagePath = 'assets/images/techlead.jpg';
+  final String bannerImagePath = 'assets/images/techlead.jpg';
+  
 
-// import 'dart:io';
-// import 'package:flutter/material.dart';
-// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-// import 'package:get/get.dart';
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
 
-// class CreatorsHomeScreen extends StatelessWidget {
-//   final String username;
-//   final String name;
-//   final String bio;
-//   final String paymentMode;
-//   final File? profileImage;
-//   final File? bannerImage;
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text("👋 Welcome Back",
+            style: TextStyle(color: Colors.white)),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications, color: Colors.white70),
+            onPressed: () {},
+          ),
+        ],
+      ),
 
-//   const CreatorsHomeScreen({
-//     super.key,
-//     required this.username,
-//     required this.name,
-//     required this.bio,
-//     required this.paymentMode,
-//     this.profileImage,
-//     this.bannerImage,
-//   });
+      // 🔥 Drawer Added
+      drawer: Drawer(
+        backgroundColor: Colors.grey[900],
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 🔷 Profile Header in Drawer
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundImage: AssetImage(profileImagePath),
+                    ),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(name,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16)),
+                        const SizedBox(height: 4),
+                        Text('@$username',
+                            style: const TextStyle(
+                                color: Colors.white54, fontSize: 13)),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+              const Divider(color: Colors.white24),
 
-//   @override
-//   Widget build(BuildContext context) {
-//     final screenWidth = MediaQuery.of(context).size.width;
-//     final screenHeight = MediaQuery.of(context).size.height;
-//     final isTablet = screenWidth > 600;
+              // 🔘 Drawer Buttons
+              ListTile(
+                leading:
+                    const Icon(Icons.subscriptions, color: Colors.pinkAccent),
+                title: const Text("Subscriptions",
+                    style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Get.back();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.account_balance_wallet,
+                    color: Colors.orange),
+                title: const Text("Transactions",
+                    style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Get.back();
+                },
+              ),
+              ListTile(
+                leading:
+                    const Icon(Icons.shopping_bag, color: Colors.greenAccent),
+                title:
+                    const Text("Orders", style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Get.back();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
 
-//     return Scaffold(
-//       appBar: AppBar(
-//         backgroundColor: Colors.black,
-//         leading: Builder(
-//           builder: (context) => IconButton(
-//             icon: Icon(Icons.menu, color: Colors.white, size: isTablet ? 28 : 22),
-//             onPressed: () => Scaffold.of(context).openDrawer(),
-//           ),
-//         ),
-//         title: Text(
-//           'Creator Home',
-//           style: TextStyle(color: Colors.white, fontSize: isTablet ? 22 : 18),
-//         ),
-//         actions: [
-//           IconButton(
-//             icon: Icon(Icons.notifications, color: Colors.white, size: isTablet ? 26 : 20),
-//             onPressed: () {
-//               // Handle notification click
-//             },
-//           ),
-//         ],
-//       ),
-//       drawer: Drawer(
-//         backgroundColor: Colors.black,
-//         child: ListView(
-//           padding: EdgeInsets.zero,
-//           children: [
-//             DrawerHeader(
-//               decoration: const BoxDecoration(color: Colors.black),
-//               child: Row(
-//                 crossAxisAlignment: CrossAxisAlignment.center,
-//                 children: [
-//                   CircleAvatar(
-//                     radius: isTablet ? 50 : 35,
-//                     backgroundImage: profileImage != null
-//                         ? FileImage(profileImage!)
-//                         : const AssetImage('assets/default_profile.png') as ImageProvider,
-//                   ),
-//                   SizedBox(width: isTablet ? 20 : 12),
-//                   Expanded(
-//                     child: Column(
-//                       mainAxisAlignment: MainAxisAlignment.center,
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         Text(
-//                           name,
-//                           style: TextStyle(
-//                             color: Colors.white,
-//                             fontSize: isTablet ? 18 : 14,
-//                             fontWeight: FontWeight.bold,
-//                           ),
-//                           maxLines: 1,
-//                           overflow: TextOverflow.ellipsis,
-//                         ),
-//                         SizedBox(height: 4),
-//                         Text(
-//                           username,
-//                           style: TextStyle(color: Colors.white70, fontSize: isTablet ? 14 : 12),
-//                           maxLines: 1,
-//                           overflow: TextOverflow.ellipsis,
-//                         ),
-//                         SizedBox(height: 6),
-//                         Text(
-//                           bio,
-//                           style: TextStyle(color: Colors.white54, fontSize: isTablet ? 13 : 11),
-//                           maxLines: 2,
-//                           overflow: TextOverflow.ellipsis,
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          // Profile Info
+          Row(
+            children: [
+              GestureDetector(
+                onTap: (){
+                  Get.to(CreatorProfileScreen(name: name, profileUrl:profileImagePath , photos:10, videos: 17, followers: 199, following: 100,));
+                },
+                child: CircleAvatar(
+                  radius: 34,
+                  backgroundImage: AssetImage(profileImagePath),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    Text('@$username',
+                        style: const TextStyle(
+                            color: Colors.white60, fontSize: 14)),
+                  ],
+                ),
+              ),
+              const Icon(Icons.verified, color: Colors.pinkAccent, size: 22),
+            ],
+          ),
 
-//             // Sleek Cards
-//             Padding(
-//               padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-//               child: Row(
-//                 children: [
-//                   _drawerCard(
-//                     icon: Icons.folder_copy,
-//                     label: 'My Content',
-//                     onTap: () {
-//                       Get.to(PostLibraryScreen());
-//                     },
-//                     isTablet: isTablet,
-//                     width: screenWidth,
-//                   ),
-//                   SizedBox(width: screenWidth * 0.03),
-//                   _drawerCard(
-//                     icon: Icons.local_offer,
-//                     label: 'My Packages',
-//                     onTap: () {
-//                       Get.to(ManageSubscriptionScreen());
-//                     },
-//                     isTablet: isTablet,
-//                     width: screenWidth,
-//                   ),
-//                 ],
-//               ),
-//             ),
+          const SizedBox(height: 30),
 
-//             _buildSectionTitle('Account', isTablet),
-//             _buildDrawerItem(FontAwesomeIcons.edit, 'Edit Profile', () {
-//               Get.to(() => const CleanBlackFormPage());
-//             }, isTablet),
+          // Banner
+          ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: Image.asset(
+              bannerImagePath,
+              height: 160,
+              fit: BoxFit.cover,
+              width: double.infinity,
+            ),
+          ),
 
-//             _buildSectionTitle('Support & About', isTablet),
-//             _buildDrawerItem(FontAwesomeIcons.shoppingBag, 'My Purchase', () {
-//               Get.to(() => CreatorSubsPurchasedPage());
-//             }, isTablet),
-//             _buildDrawerItem(FontAwesomeIcons.creditCard, 'Payment Details', () {
-//               // Handle Payment Details
-//             }, isTablet),
-//           ],
-//         ),
-//       ),
-//       backgroundColor: Colors.black,
-//       body:CreatorsListPage(),
-//     );
-//   }
+          const SizedBox(height: 30),
 
-//   Widget _buildSectionTitle(String title, bool isTablet) {
-//     return Padding(
-//       padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
-//       child: Text(
-//         title,
-//         style: TextStyle(
-//           color: Colors.white70,
-//           fontSize: isTablet ? 16 : 14,
-//           fontWeight: FontWeight.w500,
-//         ),
-//       ),
-//     );
-//   }
+          // Action Buttons
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Get.to(() => CreateNewPostPage());
+                },
+                child: _actionCard(
+                  context,
+                  icon: FontAwesomeIcons.penToSquare,
+                  label: "Create",
+                  color: Colors.deepPurpleAccent,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Get.to(CreatorPlansPage());
+                },
+                child: _actionCard(
+                  context,
+                  icon: FontAwesomeIcons.cubes,
+                  label: "Packages",
+                  color: Colors.orangeAccent,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Get.to(CreatorDashboardPage());
+                },
+                child: _actionCard(
+                  context,
+                  icon: FontAwesomeIcons.chartPie,
+                  label: "Analytics",
+                  color: Colors.tealAccent.shade400,
+                ),
+              ),
+            ],
+          ),
 
-//   Widget _buildDrawerItem(IconData icon, String title, VoidCallback onTap, bool isTablet) {
-//     return ListTile(
-//       leading: Icon(icon, color: Colors.white70, size: isTablet ? 22 : 18),
-//       title: Text(title, style: TextStyle(color: Colors.white, fontSize: isTablet ? 16 : 14)),
-//       onTap: onTap,
-//       contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-//     );
-//   }
+          const SizedBox(height: 30),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GestureDetector(
+                onTap: () {
+              
+                },
+                child: _actionCard(
+                  context,
+                  icon: FontAwesomeIcons.artstation,
+                  label: "Cretors",
+                  color: Colors.deepPurpleAccent,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Get.to(CreatorPlansPage());
+                },
+                child: _actionCard(
+                  context,
+                  icon: FontAwesomeIcons.airbnb,
+                  label: "All",
+                  color: Colors.orangeAccent,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Get.to(CreatorDashboardPage());
+                },
+                child: _actionCard(
+                  context,
+                  icon: FontAwesomeIcons.democrat,
+                  label: "Demo",
+                  color: Colors.tealAccent.shade400,
+                ),
+              ),
+            ],
+          ),
+                  const SizedBox(height: 30),
 
-//   Widget _drawerCard({
-//     required IconData icon,
-//     required String label,
-//     required VoidCallback onTap,
-//     required bool isTablet,
-//     required double width,
-//   }) {
-//     return Expanded(
-//       child: GestureDetector(
-//         onTap: onTap,
-//         child: Container(
-//           height: isTablet ? 80 : 70,
-//           decoration: BoxDecoration(
-//             color: Colors.black,
-//             border: Border.all(color: Colors.white, width: 0.3),
-//             borderRadius: BorderRadius.circular(12),
-//           ),
-//           child: Column(
-//             mainAxisAlignment: MainAxisAlignment.center,
-//             children: [
-//               Icon(icon, color: Colors.white70, size: isTablet ? 30 : 24),
-//               SizedBox(height: 6),
-//               Text(
-//                 label,
-//                 style: TextStyle(color: Colors.white, fontSize: isTablet ? 14 : 12),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
+          // Earnings Info
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: Colors.grey[850],
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("Monetization",
+                    style: TextStyle(color: Colors.white60, fontSize: 14)),
+                const SizedBox(height: 6),
+                Text(paymentMode,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    const Icon(Icons.account_balance_wallet,
+                        color: Colors.greenAccent, size: 20),
+                    const SizedBox(width: 8),
+                    const Text("Estimated Earnings: ",
+                        style: TextStyle(color: Colors.white70)),
+                    Text("\$1,200",
+                        style: TextStyle(
+                            color: Colors.greenAccent.shade100,
+                            fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ],
+            ),
+          ),
 
+          const SizedBox(height: 50),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFFFF1694),
+        onPressed: () {},
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+    );
+  }
 
-// class CreatorsListPage extends StatelessWidget {
-//   final controller = Get.put(CreatorsController());
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final screenWidth = MediaQuery.of(context).size.width;
-
-//     // Responsive sizes
-//     double padding = screenWidth * 0.04;
-//     double imageHeight = screenWidth * 0.35;
-//     double avatarRadius = screenWidth * 0.08;
-//     double nameFontSize = screenWidth * 0.045;
-//     double bioFontSize = screenWidth * 0.035;
-
-//     return Scaffold(
-//       backgroundColor: Colors.black,
-//       body: Obx(() {
-//         return ListView.builder(
-//           itemCount: controller.creators.length,
-//           padding: EdgeInsets.all(padding),
-//           itemBuilder: (context, index) {
-//             final creator = controller.creators[index];
-//             return GestureDetector(
-//               onTap: () {
-//                 Get.to(() => CreatorDashboardPage(creator: creator));
-//               },
-//               child: Container(
-//                 margin: EdgeInsets.only(bottom: padding),
-//                 decoration: BoxDecoration(
-//                   color: Colors.grey[900],
-//                   borderRadius: BorderRadius.circular(12),
-//                 ),
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     // Banner image
-//                     ClipRRect(
-//                       borderRadius:
-//                       const BorderRadius.vertical(top: Radius.circular(12)),
-//                       child: Image.network(
-//                         creator.bannerImageUrl,
-//                         height: imageHeight,
-//                         width: double.infinity,
-//                         fit: BoxFit.cover,
-//                       ),
-//                     ),
-//                     Padding(
-//                       padding: EdgeInsets.all(padding),
-//                       child: Row(
-//                         children: [
-//                           // Profile image
-//                           CircleAvatar(
-//                             radius: avatarRadius,
-//                             backgroundImage: NetworkImage(creator.profileImageUrl),
-//                           ),
-//                           SizedBox(width: padding),
-//                           // Name and Bio
-//                           Expanded(
-//                             child: Column(
-//                               crossAxisAlignment: CrossAxisAlignment.start,
-//                               children: [
-//                                 Text(
-//                                   creator.displayName,
-//                                   style: TextStyle(
-//                                     color: Colors.white,
-//                                     fontSize: nameFontSize,
-//                                     fontWeight: FontWeight.bold,
-//                                   ),
-//                                 ),
-//                                 SizedBox(height: 4),
-//                                 Text(
-//                                   creator.bio,
-//                                   style: TextStyle(
-//                                     color: Colors.white70,
-//                                     fontSize: bioFontSize,
-//                                   ),
-//                                   maxLines: 2,
-//                                   overflow: TextOverflow.ellipsis,
-//                                 ),
-//                               ],
-//                             ),
-//                           )
-//                         ],
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             );
-//           },
-//         );
-//       }),
-//     );
-//   }
-// }
+  Widget _actionCard(BuildContext context,
+      {required IconData icon, required String label, required Color color}) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.25,
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      decoration: BoxDecoration(
+        color: Colors.grey[900],
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white12),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(height: 8),
+          Text(label,
+              style: const TextStyle(color: Colors.white70, fontSize: 13)),
+        ],
+      ),
+    );
+  }
+}
