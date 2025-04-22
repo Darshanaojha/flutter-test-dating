@@ -37,7 +37,8 @@ class Payload {
 
   factory Payload.fromJson(Map<String, dynamic> json) {
     var dataList = json['data'] as List;
-    List<Addon> addonList = dataList.map((addonJson) => Addon.fromJson(addonJson)).toList();
+    List<Addon> addonList =
+        dataList.map((addonJson) => Addon.fromJson(addonJson)).toList();
 
     return Payload(
       msg: json['msg'],
@@ -78,7 +79,9 @@ class Addon {
 
   factory Addon.fromJson(Map<String, dynamic> json) {
     var addonPointsList = json['addonpoints'] as List;
-    List<AddonPoint> points = addonPointsList.map((pointJson) => AddonPoint.fromJson(pointJson)).toList();
+    List<AddonPoint> points = addonPointsList
+        .map((pointJson) => AddonPoint.fromJson(pointJson))
+        .toList();
 
     return Addon(
       id: json['id'],
