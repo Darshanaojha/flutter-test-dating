@@ -1315,25 +1315,21 @@ class Controller extends GetxController {
           seenUserIds.addAll(newUsers.map((user) => user.userId!));
         }
 
-        if (response.payload!.desireBase != null &&
-            response.payload!.desireBase.isNotEmpty) {
+        if (response.payload!.desireBase.isNotEmpty) {
           addUniqueUsers(response.payload!.desireBase, userSuggestionsList);
         }
 
-        if (response.payload!.locationBase != null &&
-            response.payload!.locationBase.isNotEmpty) {
+        if (response.payload!.locationBase.isNotEmpty) {
           addUniqueUsers(response.payload!.locationBase, userNearByList);
           addUniqueUsers(response.payload!.locationBase, userSuggestionsList);
         }
 
-        if (response.payload!.preferenceBase != null &&
-            response.payload!.preferenceBase!.isNotEmpty) {
+        if (response.payload!.preferenceBase.isNotEmpty) {
           addUniqueUsers(
-              response.payload!.preferenceBase!, userSuggestionsList);
+              response.payload!.preferenceBase, userSuggestionsList);
         }
 
-        if (response.payload!.languageBase != null &&
-            response.payload!.languageBase.isNotEmpty) {
+        if (response.payload!.languageBase.isNotEmpty) {
           addUniqueUsers(response.payload!.languageBase, userSuggestionsList);
         }
 
@@ -2026,7 +2022,7 @@ class Controller extends GetxController {
       AllTransactionsResponseModel? response =
           await OrderProvider().allTransactions();
       if (response != null) {
-        transactions.assignAll(response.payload!.transactions);
+        transactions.assignAll(response.payload.transactions);
         return true;
       } else {
         return false;

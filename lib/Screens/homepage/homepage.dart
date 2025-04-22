@@ -74,7 +74,7 @@ class HomePageState extends State<HomePage>
   }
 
   Future<void> _storeLastUserForAllLists(SuggestedUser suggestedUser) async {
-    final preferences = await EncryptedSharedPreferences.getInstance();
+    final preferences = EncryptedSharedPreferences.getInstance();
 
     Map<String, String> lastUsersMap = {};
     if (controller.getCurrentList(0).isNotEmpty) {
@@ -104,8 +104,8 @@ class HomePageState extends State<HomePage>
   }
 
   Future<void> _retrieveLastUsers() async {
-    final preferences = await EncryptedSharedPreferences.getInstance();
-    String? lastUsersMapString = await preferences.getString('lastUsersMap');
+    final preferences = EncryptedSharedPreferences.getInstance();
+    String? lastUsersMapString = preferences.getString('lastUsersMap');
 
     if (lastUsersMapString != null) {
       // Decode the map from JSON

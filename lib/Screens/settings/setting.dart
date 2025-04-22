@@ -56,14 +56,14 @@ class SettingsPageState extends State<SettingsPage> {
 
   Future<void> _loadSpotlightStatus() async {
     EncryptedSharedPreferences prefs =
-        await EncryptedSharedPreferences.getInstance();
+        EncryptedSharedPreferences.getInstance();
     bool isSpotlight = prefs.getBoolean('spotlightUser') ?? false;
     spotlightUser.value = isSpotlight;
   }
 
   Future<void> saveSpotlightStatus(bool value) async {
     EncryptedSharedPreferences prefs =
-        await EncryptedSharedPreferences.getInstance();
+        EncryptedSharedPreferences.getInstance();
     await prefs.setBoolean('spotlightUser', value);
     Get.snackbar("save ", value.toString());
   }

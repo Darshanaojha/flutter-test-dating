@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:dating_application/Models/RequestModels/transaction_request_model.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../Models/RequestModels/order_request_model.dart';
@@ -75,7 +74,7 @@ class RazorpayController extends GetxController {
       print("Full Razorpay Success Response: ${response.data}");
 
       EncryptedSharedPreferences preferences =
-          await EncryptedSharedPreferences.getInstance();
+          EncryptedSharedPreferences.getInstance();
       String? orderid = preferences.getString('OrderId');
       String? razorpayorderid = preferences.getString('RazorpayOrderId');
       String? transactionId = preferences.getString('transactionId');
@@ -162,7 +161,7 @@ class RazorpayController extends GetxController {
         break;
     }
     EncryptedSharedPreferences preferences =
-        await EncryptedSharedPreferences.getInstance();
+        EncryptedSharedPreferences.getInstance();
     String? orderid = preferences.getString('OrderId');
     String? razorpayorderid = preferences.getString('RazorpayOrderId');
     String? transactionId = preferences.getString('transactionId');
@@ -218,7 +217,7 @@ class RazorpayController extends GetxController {
             payload.amount != null) {
           success('Success', payload.message);
           EncryptedSharedPreferences preferences =
-              await EncryptedSharedPreferences.getInstance();
+              EncryptedSharedPreferences.getInstance();
 
           await preferences.setString('OrderId', payload.orderId.toString());
           await preferences.setString(

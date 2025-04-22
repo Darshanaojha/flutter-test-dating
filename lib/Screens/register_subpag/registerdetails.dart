@@ -515,7 +515,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
             return 'User name must only contain letters';
           }
           if (isaddressfield) {
-            if (value == null || value.isEmpty) {
+            if (value.isEmpty) {
               failure("Invalid Address", "Address cannot be empty.");
               return "Address cannot be empty";
             }

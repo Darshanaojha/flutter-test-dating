@@ -10,7 +10,7 @@ class EstablishConnectionProvider extends GetConnect {
           establishConnectionMessageRequest) async {
     try {
       EncryptedSharedPreferences preferences =
-          await EncryptedSharedPreferences.getInstance();
+          EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {

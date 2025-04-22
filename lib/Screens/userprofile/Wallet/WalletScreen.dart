@@ -161,7 +161,7 @@ class WalletPageState extends State<WalletPage>
           ),
           SizedBox(height: 10),
           Text(
-            '${controller.totalpoint.isNotEmpty ? controller.totalpoint.first.points : "0"}',
+            controller.totalpoint.isNotEmpty ? controller.totalpoint.first.points : "0",
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,

@@ -17,7 +17,7 @@ class PusherService extends GetConnect {
         String channelName, String socketId, dynamic options) async {
       try {
         EncryptedSharedPreferences preferences =
-            await EncryptedSharedPreferences.getInstance();
+            EncryptedSharedPreferences.getInstance();
         String? token = preferences.getString('token');
 
         if (token == null || token.isEmpty) {
@@ -126,7 +126,7 @@ class PusherService extends GetConnect {
       SendMessageRequestModel sendMessageRequestModel) async {
     try {
       EncryptedSharedPreferences preferences =
-          await EncryptedSharedPreferences.getInstance();
+          EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {

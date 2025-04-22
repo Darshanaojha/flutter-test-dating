@@ -56,7 +56,7 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
               var transaction = controller.transactions[index];
               double amount = double.tryParse(transaction.amount) ?? 0.0;
               var formattedAmount =
-                  NumberFormat.currency(symbol: '\₹').format(amount);
+                  NumberFormat.currency(symbol: '₹').format(amount);
 
               return Padding(
                 padding: const EdgeInsets.all(8.0),

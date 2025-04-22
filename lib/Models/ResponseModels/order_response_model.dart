@@ -76,7 +76,7 @@ class Error {
   // Factory constructor to create Error from JSON
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
-      code: json['code'] != null ? json['code'] : null,  // Nullable int
+      code: json['code'],  // Nullable int
       message: json['message'],  // Nullable String
     );
   }

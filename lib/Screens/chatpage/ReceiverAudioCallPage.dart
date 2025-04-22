@@ -111,7 +111,7 @@ void _requestPermissions() async {
   }
   Future<String?> fetchAgoraToken(String channelName) async {
     try {
-      final preferences = await EncryptedSharedPreferences.getInstance();
+      final preferences = EncryptedSharedPreferences.getInstance();
       String? bearerToken = preferences.getString('token');
 
       if (bearerToken == null || bearerToken.isEmpty) {
