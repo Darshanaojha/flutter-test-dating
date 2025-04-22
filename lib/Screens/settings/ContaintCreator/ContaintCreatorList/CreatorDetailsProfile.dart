@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 
 class CreatorsProfilePage extends StatefulWidget {
   final String name;
@@ -27,10 +28,12 @@ class CreatorsProfilePage extends StatefulWidget {
 class _CreatorProfilePageState extends State<CreatorsProfilePage> {
   int selectedTabIndex = 0;
   bool isSubscribed = false;
-
+  final RxSet<String> likedMedia = <String>{}.obs;
   late List<MediaItem> photos;
   late List<MediaItem> videos;
   late List<MediaItem> others;
+  Set<String> unlockedMediaUrls = {};
+  late AnimationController _unlockAnimationController;
 
   @override
   void initState() {
@@ -38,13 +41,13 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
     photos = List.generate(widget.photos, (index) {
       return MediaItem(
         url: "https://picsum.photos/id/${index + 20}/300/300",
-        price:  4.99 ,
+        price: 4.99,
       );
     });
     videos = List.generate(widget.videos, (index) {
       return MediaItem(
         url: "https://picsum.photos/id/${index + 40}/300/300",
-        price:  2.99 ,
+        price: 2.99,
       );
     });
     others = List.generate(4, (index) {
@@ -102,7 +105,10 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
               final media = _getMediaList()[index];
 
               // If the user is not subscribed, lock all media
-              final isLocked = !isSubscribed;
+              // final isLocked = !isSubscribed;
+
+              final isLocked =
+                  !isSubscribed && !unlockedMediaUrls.contains(media.url);
               return GestureDetector(
                 onTap: () {
                   if (media.isUnlocked || media.price == null || isSubscribed) {
@@ -320,47 +326,61 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
                   child: Image.network(media.url, fit: BoxFit.cover),
                 ),
                 const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.favorite_border,
-                          color: Colors.white),
-                      onPressed: () {},
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.share, color: Colors.white),
-                      onPressed: () {},
-                    ),
-                    PopupMenuButton<int>(
-                      icon: const Icon(Icons.more_vert, color: Colors.white),
-                      color: Colors.grey[900],
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      onSelected: (value) {
-                        if (value == 1) {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Item deleted')),
-                          );
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        PopupMenuItem<int>(
-                          value: 1,
-                          child: Row(
-                            children: const [
-                              Icon(Icons.delete, color: Colors.red),
-                              SizedBox(width: 8),
-                              Text('Delete',
-                                  style: TextStyle(color: Colors.red)),
-                            ],
-                          ),
+                Obx(
+                  () => Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          likedMedia.contains(media.url)
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: likedMedia.contains(media.url)
+                              ? Colors.redAccent
+                              : Colors.white,
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                        onPressed: () {
+                          if (likedMedia.contains(media.url)) {
+                            likedMedia.remove(media.url);
+                          } else {
+                            likedMedia.add(media.url);
+                          }
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.share, color: Colors.white),
+                        onPressed: () {},
+                      ),
+                      PopupMenuButton<int>(
+                        icon: const Icon(Icons.more_vert, color: Colors.white),
+                        color: Colors.grey[900],
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        onSelected: (value) {
+                          if (value == 1) {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Item deleted')),
+                            );
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          PopupMenuItem<int>(
+                            value: 1,
+                            child: Row(
+                              children: const [
+                                Icon(Icons.report, color: Colors.red),
+                                SizedBox(width: 8),
+                                Text('Report',
+                                    style: TextStyle(color: Colors.red)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                )
               ],
             ),
           ),
@@ -381,7 +401,7 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
           title:
               const Text("Unlock Media", style: TextStyle(color: Colors.white)),
           content: Text(
-            "Pay \$${media.price?.toStringAsFixed(2)} to unlock this content?",
+            "Pay \₹${media.price?.toStringAsFixed(2)} to unlock this content?",
             style: const TextStyle(color: Colors.white70),
           ),
           actions: [
@@ -392,10 +412,13 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
             ),
             ElevatedButton(
               onPressed: () {
+                Navigator.pop(context);
                 setState(() {
                   media.isUnlocked = true;
                 });
-                Navigator.pop(context);
+                setState(() {
+                  unlockedMediaUrls.add(media.url);
+                });
               },
               child: const Text("Pay Now"),
             ),
