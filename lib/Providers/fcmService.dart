@@ -31,29 +31,27 @@ class FCMService {
           onDidReceiveNotificationResponse: onNotificationTap);
       // Listen to incoming Firebase messages
       FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-        if (message != null) {
-          // Ensure message data is not null or empty
-          if (message.data != null && message.data.isNotEmpty) {
-            // Safely access 'type' from message.data (it can be null, so default to '0' if not present)
-            String notificationType = message.data['type'] ?? '0';
-            print(notificationType);
+        // Ensure message data is not null or empty
+        if (message.data.isNotEmpty) {
+          // Safely access 'type' from message.data (it can be null, so default to '0' if not present)
+          String notificationType = message.data['type'] ?? '0';
+          print(notificationType);
 
-            if (notificationType == "1") {
-              // Regular notification
-              if (message.notification != null) {
-                // Ensure message.notification is not null before passing to showNotification
-                showNotification(message.notification!);
-              }
-            } else if (notificationType == "2" || notificationType == "3") {
-              // Call notification
-              if (message.notification != null) {
-                // Ensure message.notification is not null before passing to showCallNotification
-                showCallNotification(message.notification!, notificationType);
-              }
+          if (notificationType == "1") {
+            // Regular notification
+            if (message.notification != null) {
+              // Ensure message.notification is not null before passing to showNotification
+              showNotification(message.notification!);
+            }
+          } else if (notificationType == "2" || notificationType == "3") {
+            // Call notification
+            if (message.notification != null) {
+              // Ensure message.notification is not null before passing to showCallNotification
+              showCallNotification(message.notification!, notificationType);
             }
           }
         }
-      });
+            });
 
       // Listen to notification taps when the app is opened from a background state
       FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {

@@ -1938,7 +1938,7 @@ class EditProfilePageState extends State<EditProfilePage>
                 return Text(
                   selectedValue.value != null
                       ? (displayValue != null
-                          ? displayValue(selectedValue.value!)
+                          ? displayValue(selectedValue.value as T)
                           : selectedValue.value.toString())
                       : controller.initialCountry!.name.toString(),
                   style:

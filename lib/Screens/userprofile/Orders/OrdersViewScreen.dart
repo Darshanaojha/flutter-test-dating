@@ -88,7 +88,7 @@ class AllOrdersPageState extends State<AllOrdersPage> {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            'Amount: \₹${order.actualAmount}',
+                            'Amount: ₹${order.actualAmount}',
                             style: TextStyle(
                               fontSize: 8,
                               color: Colors.grey[500],

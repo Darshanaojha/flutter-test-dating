@@ -1,7 +1,6 @@
 import 'package:dating_application/Screens/settings/appinfopages/licensepage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pushable_button/pushable_button.dart';
 import '../../../constants.dart';
 
 class AppInfoPage extends StatefulWidget {

@@ -7,8 +7,8 @@ class GetUsertotalPointsProvider extends GetConnect {
   Future<GetUsersTotalPoints?> Getusertotalpointsprovider() async {
     try {
       EncryptedSharedPreferences preferences =
-          await EncryptedSharedPreferences.getInstance(); 
-      String? token = await preferences.getString('token');
+          EncryptedSharedPreferences.getInstance(); 
+      String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
         failure("Error", "Token is not found");

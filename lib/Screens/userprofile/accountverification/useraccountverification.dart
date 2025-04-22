@@ -1,12 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:dating_application/Screens/homepage/homepage.dart';
 import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:pushable_button/pushable_button.dart';
 import '../../../Controllers/controller.dart';
 import '../../../constants.dart';
 

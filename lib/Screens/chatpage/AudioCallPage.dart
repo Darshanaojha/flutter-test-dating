@@ -110,7 +110,7 @@ class AudioCallPageState extends State<AudioCallPage> {
   // Fetch the Agora token from the server
   Future<String?> fetchAgoraToken() async {
     try {
-      final preferences = await EncryptedSharedPreferences.getInstance();
+      final preferences = EncryptedSharedPreferences.getInstance();
       String? bearerToken = preferences.getString('token');
 
       if (bearerToken == null || bearerToken.isEmpty) {

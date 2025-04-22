@@ -1,6 +1,4 @@
-import 'dart:convert';
 
-import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 import 'package:get/get_connect.dart';
@@ -54,7 +52,7 @@ class OrderProvider extends GetConnect {
       TransactionRequestModel transactionRequestModel) async {
     try {
       EncryptedSharedPreferences preferences =
-          await EncryptedSharedPreferences.getInstance();
+          EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
       if (token == null || token.isEmpty) {
         return null;
@@ -83,7 +81,7 @@ class OrderProvider extends GetConnect {
   Future<AllTransactionsResponseModel?> allTransactions() async {
     try {
       EncryptedSharedPreferences preferences =
-          await EncryptedSharedPreferences.getInstance();
+          EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {

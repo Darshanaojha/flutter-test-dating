@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
