@@ -33,7 +33,6 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
   late List<MediaItem> videos;
   late List<MediaItem> others;
   Set<String> unlockedMediaUrls = {};
-  late AnimationController _unlockAnimationController;
 
   @override
   void initState() {

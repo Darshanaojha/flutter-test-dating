@@ -49,6 +49,7 @@ import 'package:dating_application/Providers/chat_provider.dart';
 import 'package:dating_application/Providers/user_profile_provider.dart';
 import 'package:dating_application/Screens/loginforgotpassword/forgotpasswordotp.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -83,6 +84,7 @@ import '../Models/RequestModels/user_profile_update_request_model.dart';
 import '../Models/RequestModels/user_registration_request_model.dart';
 import '../Models/RequestModels/usernameupdate_request_model.dart';
 import '../Models/RequestModels/verify_account_request_model.dart';
+import '../Models/ResponseModels/BecomeCreatorPackagesResponse.dart';
 import '../Models/ResponseModels/GetPointAmountResponse.dart';
 import '../Models/ResponseModels/GetPointCreditedDebitedResponse.dart';
 import '../Models/ResponseModels/GetUsersTotalPointsResponse.dart';
@@ -132,6 +134,7 @@ import '../Models/ResponseModels/user_registration_response_model.dart';
 import '../Models/ResponseModels/user_suggestions_response_model.dart';
 import '../Models/ResponseModels/usernameupdate_response_model.dart';
 import '../Models/ResponseModels/verify_account_response_model.dart';
+import '../Providers/BecomeCreatorPackagesProvider.dart';
 import '../Providers/GetPointAmountProvider.dart';
 import '../Providers/GetPointCreditedDebitedProvider.dart';
 import '../Providers/GetUserTotalpointsProvider.dart';
@@ -658,7 +661,6 @@ class Controller extends GetxController {
 
   Future<bool> fetchAllPackages() async {
     try {
-
       GetAllPackagesResponseModel? response =
           await FetchAllPackagesProvider().fetchAllPackages();
 
@@ -1325,8 +1327,7 @@ class Controller extends GetxController {
         }
 
         if (response.payload!.preferenceBase.isNotEmpty) {
-          addUniqueUsers(
-              response.payload!.preferenceBase, userSuggestionsList);
+          addUniqueUsers(response.payload!.preferenceBase, userSuggestionsList);
         }
 
         if (response.payload!.languageBase.isNotEmpty) {
@@ -2133,4 +2134,25 @@ class Controller extends GetxController {
       return false;
     }
   }
-}
+
+  RxList<PackageForCreator> packageforcreator = <PackageForCreator>[].obs;
+
+  Future<bool> fetchAllPackagesForCreator() async {
+    try {
+      BecomeCreatorPackagesResponseModel? response =
+          await FetchAllBecomeCreatorPackageProvider().getAllCreatorPackages();
+
+      if (response != null && response.success) {
+        packageforcreator.assignAll(response.data);
+        debugPrint('Successfully fetched all the Packages For Creator');
+        return true;
+      } else {
+        failure('Error', response?.message ?? 'Unknown error');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', 'An exception occurred: ${e.toString()}');
+      return false;
+    }
+  }
+}   

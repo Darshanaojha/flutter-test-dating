@@ -6,7 +6,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import '../../constants.dart';
 import 'ContaintCreator/creatorPlansScreen.dart';
-import 'MoodSwings/MoodSwings.dart';
 import 'changepassword/changepasswordnewpassword.dart';
 import 'updateemailid/updateemailidpage.dart';
 
@@ -133,7 +132,7 @@ class SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    // final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
