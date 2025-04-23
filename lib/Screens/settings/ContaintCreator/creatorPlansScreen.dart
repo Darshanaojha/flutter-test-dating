@@ -298,14 +298,14 @@ class PricingCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            "\$${plan.offerAmount.toStringAsFixed(2)}",
+            "₹${plan.offerAmount.toStringAsFixed(2)}",
             style: TextStyle(
                 fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           if (plan.offerAmount < plan.actualAmount) ...[
             const SizedBox(height: 6),
             Text(
-              "\$${plan.actualAmount.toStringAsFixed(2)}",
+              "₹${plan.actualAmount.toStringAsFixed(2)}",
               style: const TextStyle(
                 fontSize: 16,
                 color: Colors.white54,
@@ -338,7 +338,7 @@ class PricingCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
             ),
             onPressed: () {
-             Get.to(CreatorFormPage());
+              Get.to(CreatorFormPage());
             },
             child: const Text("Buy Now"),
           ),
