@@ -70,6 +70,7 @@ dependencies:
   flutter_speed_dial: ^7.0.0
   fl_chart: ^0.71.0
   shimmer: ^3.0.0
+  connectivity_plus: ^6.1.4
 
 
 
