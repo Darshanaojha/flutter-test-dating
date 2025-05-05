@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../../../constants.dart';
+
 class AddSubscriptionFormPage extends StatefulWidget {
   const AddSubscriptionFormPage({super.key});
 
   @override
-  State<AddSubscriptionFormPage> createState() => _AddSubscriptionFormPageState();
+  State<AddSubscriptionFormPage> createState() =>
+      _AddSubscriptionFormPageState();
 }
 
 class _AddSubscriptionFormPageState extends State<AddSubscriptionFormPage> {
@@ -34,12 +37,6 @@ class _AddSubscriptionFormPageState extends State<AddSubscriptionFormPage> {
 
   void createPlan() {
     if (_formKey.currentState!.validate()) {
-      // For now, just print the values
-      debugPrint('Plan Created!');
-      debugPrint('Name: ${nameController.text}');
-      debugPrint('Description: ${descriptionController.text}');
-      debugPrint('Price: ${priceController.text}');
-      debugPrint('Features: $features');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Plan created successfully!')),
       );
@@ -54,14 +51,16 @@ class _AddSubscriptionFormPageState extends State<AddSubscriptionFormPage> {
         controller: controller,
         keyboardType: keyboardType,
         style: const TextStyle(color: Colors.white),
-        validator: (value) =>
-            value == null || value.trim().isEmpty ? 'Please enter $label' : null,
+        validator: (value) => value == null || value.trim().isEmpty
+            ? 'Please enter $label'
+            : null,
         decoration: InputDecoration(
           labelText: label,
           labelStyle: const TextStyle(color: Colors.white70),
           filled: true,
           fillColor: Colors.black,
-          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Colors.white24),
@@ -80,20 +79,23 @@ class _AddSubscriptionFormPageState extends State<AddSubscriptionFormPage> {
   }
 
   Widget _headerBanner() {
+      //  final screenWidth = MediaQuery.of(context).size.width * 0.02;
+    final screenHeight = MediaQuery.of(context).size.height * 0.02;
     return Stack(
       children: [
         Container(
-          height: 180,
+          height: 200,
           width: double.infinity,
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: NetworkImage("https://source.unsplash.com/featured/?creative,studio"),
+              image: NetworkImage(
+                  "https://source.unsplash.com/featured/?creative,studio"),
               fit: BoxFit.cover,
             ),
           ),
         ),
         Container(
-          height: 180,
+          height: 200,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.black.withOpacity(0.85), Colors.transparent],
@@ -102,17 +104,27 @@ class _AddSubscriptionFormPageState extends State<AddSubscriptionFormPage> {
             ),
           ),
         ),
-        const Positioned(
+        Positioned(
           bottom: 20,
           left: 20,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Create Subscription Plan 💼",
-                  style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-              SizedBox(height: 4),
-              Text("Design and submit your package",
-                  style: TextStyle(color: Colors.white70, fontSize: 14)),
+              Text(
+                "Create Subscription Plan 💼",
+                style: AppTextStyles.bodyText.copyWith(
+                  fontSize: getResponsiveFontSize(0.03),
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(height: screenHeight * 0.01),
+              Text(
+                "Design and submit your package",
+                style: AppTextStyles.bodyText.copyWith(
+                  fontSize: getResponsiveFontSize(0.03),
+                  color: Colors.white,
+                ),
+              ),
             ],
           ),
         )
@@ -151,25 +163,41 @@ class _AddSubscriptionFormPageState extends State<AddSubscriptionFormPage> {
       ),
       child: TextButton(
         onPressed: createPlan,
-        child: const Padding(
+        child: Padding(
           padding: EdgeInsets.symmetric(vertical: 14),
-          child: Text("Create Plan",
-              style: TextStyle(color: Colors.white, fontSize: 18)),
+          child: Text(
+            "Create Plan",
+            style: AppTextStyles.bodyText.copyWith(
+              fontSize: getResponsiveFontSize(0.03),
+              color: Colors.white,
+            ),
+          ),
         ),
       ),
     );
   }
 
+  double getResponsiveFontSize(double scale) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth * scale;
+  }
+
   @override
   Widget build(BuildContext context) {
+      // final screenWidth = MediaQuery.of(context).size.width * 0.02;
+    final screenHeight = MediaQuery.of(context).size.height * 0.02;
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Add Subscription'),
+        title: Text('Add Subscription',
+            style: AppTextStyles.bodyText.copyWith(
+              fontSize: getResponsiveFontSize(0.03),
+              color: Colors.white,
+            )),
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
-        titleTextStyle:
-            const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 18),
+        titleTextStyle: const TextStyle(
+            color: Colors.white, fontWeight: FontWeight.w600, fontSize: 18),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -186,15 +214,15 @@ class _AddSubscriptionFormPageState extends State<AddSubscriptionFormPage> {
                     _buildStyledInput("Description", descriptionController),
                     _buildStyledInput("Monthly Price", priceController,
                         keyboardType: TextInputType.number),
-                    const SizedBox(height: 20),
-                    const Text("Features",
-                        style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 10),
+                    SizedBox(height: screenHeight * 0.01),
+                    Text("Features",
+                        style: AppTextStyles.bodyText.copyWith(
+                          fontSize: getResponsiveFontSize(0.03),
+                          color: Colors.white,
+                        )),
+                    SizedBox(height: screenHeight * 0.01),
                     _buildFeatures(),
-                    const SizedBox(height: 10),
+                    SizedBox(height: screenHeight * 0.01),
                     Row(
                       children: [
                         Expanded(
@@ -208,12 +236,13 @@ class _AddSubscriptionFormPageState extends State<AddSubscriptionFormPage> {
                               fillColor: Colors.black,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: Colors.white24),
+                                borderSide:
+                                    const BorderSide(color: Colors.white24),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide:
-                                    const BorderSide(color: Color(0xFFFF1694), width: 1.5),
+                                borderSide: const BorderSide(
+                                    color: Color(0xFFFF1694), width: 1.5),
                               ),
                             ),
                             onFieldSubmitted: (_) => addFeature(),
@@ -226,15 +255,20 @@ class _AddSubscriptionFormPageState extends State<AddSubscriptionFormPage> {
                             backgroundColor: const Color(0xFFFF1694),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12)),
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 14),
                           ),
-                          child: const Text("Add"),
+                          child: Text("Add",
+                              style: AppTextStyles.bodyText.copyWith(
+                                fontSize: getResponsiveFontSize(0.03),
+                                color: Colors.white,
+                              )),
                         )
                       ],
                     ),
-                    const SizedBox(height: 30),
+                    SizedBox(height: screenHeight * 0.01),
                     _buildGradientButton(),
-                    const SizedBox(height: 50),
+                    SizedBox(height: screenHeight * 0.01),
                   ],
                 ),
               ),

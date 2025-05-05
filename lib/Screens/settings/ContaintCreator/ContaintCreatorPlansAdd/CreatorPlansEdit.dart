@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../constants.dart';
 import 'CreatorPlansPage.dart';
-
-
 
 class SubscriptionEditScreen extends StatefulWidget {
   final SubscriptionModel subscription;
@@ -21,7 +20,10 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
   late List<String> features;
 
   final _formKey = GlobalKey<FormState>();
-
+double getResponsiveFontSize(double scale) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth * scale;
+  }
   @override
   void initState() {
     super.initState();
@@ -56,7 +58,6 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
         features: features,
       );
 
-      // You can now pass `updated` back or use Get.back(result: updated);
       Navigator.pop(context, updated);
     }
   }
@@ -148,7 +149,10 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
-          child: const Text("Add"),
+          child: Text("Add",style: AppTextStyles.bodyText.copyWith(
+            fontSize: getResponsiveFontSize(0.03),
+            color: Colors.white,
+          )),
         )
       ],
     );
@@ -167,10 +171,13 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
       ),
       child: TextButton(
         onPressed: saveSubscription,
-        child: const Padding(
+        child:  Padding(
           padding: EdgeInsets.symmetric(vertical: 14),
           child: Text("Save Changes",
-              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              style: AppTextStyles.bodyText.copyWith(
+            fontSize: getResponsiveFontSize(0.03),
+            color: Colors.white,
+          )),
         ),
       ),
     );
@@ -178,10 +185,15 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
 
   @override
   Widget build(BuildContext context) {
+      //  final screenWidth = MediaQuery.of(context).size.width * 0.02;
+    final screenHeight = MediaQuery.of(context).size.height * 0.02;
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Edit Subscription'),
+        title:  Text('Edit Subscription',style: AppTextStyles.bodyText.copyWith(
+            fontSize: getResponsiveFontSize(0.03),
+            color: Colors.white,
+          )),
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
         titleTextStyle: const TextStyle(
@@ -197,16 +209,16 @@ class _SubscriptionEditScreenState extends State<SubscriptionEditScreen> {
               _buildTextField("Plan Name", nameController),
               _buildTextField("Description", descriptionController),
               _buildTextField("Monthly Price", priceController, keyboardType: TextInputType.number),
-              const SizedBox(height: 20),
+SizedBox(height: screenHeight* 0.01),
               const Text("Features",
                   style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
+SizedBox(height: screenHeight* 0.01),
               _buildFeaturesList(),
-              const SizedBox(height: 12),
+             SizedBox(height: screenHeight* 0.01),
               _buildFeatureInputRow(),
-              const SizedBox(height: 30),
+              SizedBox(height: screenHeight* 0.01),
               _buildGradientButton(),
-              const SizedBox(height: 40),
+              SizedBox(height: screenHeight* 0.01),
             ],
           ),
         ),

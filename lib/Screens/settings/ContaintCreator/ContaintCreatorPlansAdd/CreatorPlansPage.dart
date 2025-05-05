@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
+import '../../../../constants.dart';
 import 'CreatorPlansAddPage.dart';
 import 'CreatorPlansEdit.dart';
 
@@ -66,6 +67,10 @@ class CreatorPlansPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+     double getResponsiveFontSize(double scale) {
+      double screenWidth = MediaQuery.of(context).size.width;
+      return screenWidth * scale;
+    }
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
 
@@ -73,13 +78,19 @@ class CreatorPlansPage extends StatelessWidget {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: const Text("Your Plans", style: TextStyle(color: Colors.white)),
+        title:  Text("Your Plans", style: AppTextStyles.bodyText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
+                    color: Colors.white,
+                  )),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: const Color(0xFFFF1694),
         icon: const Icon(Icons.add),
-        label: const Text("Add Plan"),
+        label:  Text("Add Plan", style: AppTextStyles.bodyText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
+                    color: Colors.white,
+                  )),
         onPressed: () {
           Get.to(AddSubscriptionFormPage());
         },
@@ -87,7 +98,7 @@ class CreatorPlansPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _topBanner(),
+            _topBanner(context),
             Padding(
               padding: const EdgeInsets.all(16),
               child: Wrap(
@@ -104,11 +115,17 @@ class CreatorPlansPage extends StatelessWidget {
     );
   }
 
-  Widget _topBanner() {
+  Widget _topBanner(context) {
+    double getResponsiveFontSize(double scale) {
+      double screenWidth = MediaQuery.of(context).size.width;
+      return screenWidth * scale;
+    }
+  //  final screenWidth = MediaQuery.of(context).size.width * 0.02;
+    final screenHeight = MediaQuery.of(context).size.height * 0.02;
     return Stack(
       children: [
         Container(
-          height: 180,
+          height: 200,
           width: double.infinity,
           decoration: const BoxDecoration(
             image: DecorationImage(
@@ -119,11 +136,11 @@ class CreatorPlansPage extends StatelessWidget {
           ),
         ),
         Container(
-          height: 180,
+          height: 200,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Colors.black.withOpacity(0.7),
+                Colors.black.withOpacity(0.8),
                 Colors.black.withOpacity(0.3)
               ],
               begin: Alignment.bottomCenter,
@@ -136,19 +153,18 @@ class CreatorPlansPage extends StatelessWidget {
           left: 20,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text(
-                "Monetize Your Content 🎯",
-                style: TextStyle(
+            children: [
+              Text("Monetize Your Content 🎯",
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
                     color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 4),
-              Text(
-                "Manage your subscription plans below",
-                style: TextStyle(color: Colors.white70, fontSize: 14),
-              ),
+                  )),
+            SizedBox(height: screenHeight* 0.01),
+              Text("Manage your subscription plans below",
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
+                    color: Colors.white,
+                  )),
             ],
           ),
         ),
@@ -158,11 +174,26 @@ class CreatorPlansPage extends StatelessWidget {
 
   Widget _planCard(
       Map<String, dynamic> plan, bool isTablet, BuildContext context) {
-    return Container(
+    double getResponsiveFontSize(double scale) {
+      double screenWidth = MediaQuery.of(context).size.width;
+      return screenWidth * scale;
+    }
+      //  final screenWidth = MediaQuery.of(context).size.width * 0.02;
+    final screenHeight = MediaQuery.of(context).size.height * 0.02;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       width: isTablet ? 280 : double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: getTypeColor(plan['type']),
+        gradient: LinearGradient(
+          colors: [
+            getTypeColor(plan['type']),
+            getTypeColor(plan['type']).withOpacity(0.8),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -177,63 +208,68 @@ class CreatorPlansPage extends StatelessWidget {
               FaIcon(getPlanIcon(plan['type']), color: Colors.amberAccent),
               const SizedBox(width: 10),
               Expanded(
-                child: Text(
-                  plan['name'],
-                  style: const TextStyle(
+                child: Text(plan['name'],
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: getResponsiveFontSize(0.03),
                       color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold),
-                ),
+                    )),
               ),
-              PopupMenuItem(
-                onTap: () {
-                  Future.delayed(Duration.zero, () {
+              PopupMenuButton<String>(
+                color: Colors.grey[900],
+                onSelected: (value) {
+                  if (value == 'edit') {
                     final model = SubscriptionModel(
                       name: plan['name'],
                       description: plan['description'],
                       price: plan['price'],
                       features: List<String>.from(plan['features']),
                     );
-
-                    Get.to(() =>
-                        SubscriptionEditScreen(subscription: model));
-                  });
+                    Get.to(() => SubscriptionEditScreen(subscription: model));
+                  }
                 },
-                value: 'edit',
-                child: Row(
-                  children: const [
-                    Icon(Icons.remove_red_eye, color: Colors.white70, size: 20),
-                    SizedBox(width: 8),
-                    Text("Preview", style: TextStyle(color: Colors.white)),
-                  ],
-                ),
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: const [
+                        Icon(Icons.edit, color: Colors.white70, size: 20),
+                        SizedBox(width: 8),
+                        Text("Edit", style: TextStyle(color: Colors.white)),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: screenHeight* 0.01),
           Text(plan['description'],
-              style: const TextStyle(color: Colors.white70, fontSize: 14)),
-          const SizedBox(height: 12),
+              style: AppTextStyles.bodyText.copyWith(
+                fontSize: getResponsiveFontSize(0.03),
+                color: Colors.white,
+              )),
+        SizedBox(height: screenHeight* 0.01),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: List<Widget>.from(plan['features'].map((f) => Chip(
-                  label: Text(f, style: const TextStyle(color: Colors.white)),
+                  label: Text(f,
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: getResponsiveFontSize(0.03),
+                        color: Colors.white,
+                      )),
                   backgroundColor: Colors.white10,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                   side: const BorderSide(color: Colors.white30),
                 ))),
           ),
-          const SizedBox(height: 16),
-          Text(
-            "\$${plan['price'].toStringAsFixed(2)} / mo",
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          SizedBox(height: screenHeight* 0.01),
+          Text("\$${plan['price'].toStringAsFixed(2)} / mo",
+              style: AppTextStyles.bodyText.copyWith(
+                fontSize: getResponsiveFontSize(0.03),
+                color: Colors.white,
+              )),
         ],
       ),
     );
