@@ -82,6 +82,10 @@ class PricingPageState extends State<PricingPage> {
           type: "premium",
         ),
       ];
+  double getResponsiveFontSize(double scale) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth * scale;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,12 +94,20 @@ class PricingPageState extends State<PricingPage> {
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 20),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.02,
+            ),
             // Toggle switch
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Monthly", style: TextStyle(color: Colors.white70)),
+                Text(
+                  "Monthly",
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
+                    color: Colors.white,
+                  ),
+                ),
                 Switch(
                   value: isYearly,
                   onChanged: (value) {
@@ -105,10 +117,18 @@ class PricingPageState extends State<PricingPage> {
                   },
                   activeColor: Colors.amber,
                 ),
-                Text("Yearly", style: TextStyle(color: Colors.white70)),
+                Text(
+                  "Yearly",
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
+                    color: Colors.white,
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: 10),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.02,
+            ),
 
             // Cards
             Expanded(
@@ -139,7 +159,9 @@ class PricingPageState extends State<PricingPage> {
                               ),
                             ),
                           ),
-                          SizedBox(width: 16),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.02,
+                          ),
                         ],
                       );
                     }).toList(),
@@ -147,7 +169,9 @@ class PricingPageState extends State<PricingPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.02,
+            ),
           ],
         ),
       ),
@@ -161,11 +185,11 @@ class PricingCard extends StatelessWidget {
   final bool isSelected;
 
   const PricingCard({
-    Key? key,
+    super.key,
     required this.plan,
     required this.gradient,
     this.isSelected = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -200,40 +224,55 @@ class PricingCard extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 color: Colors.white70),
           ),
-          const SizedBox(height: 12),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.02,
+          ),
           Text(
             "₹${plan.offerAmount.toStringAsFixed(2)}",
             style: TextStyle(
                 fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           if (plan.offerAmount < plan.actualAmount) ...[
-            const SizedBox(height: 6),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.02,
+            ),
             Text(
               "₹${plan.actualAmount.toStringAsFixed(2)}",
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.white54,
-                decoration: TextDecoration.lineThrough,
+              style: AppTextStyles.bodyText.copyWith(
+                fontSize: getResponsiveFontSize(0.03),
+                color: Colors.white,
               ),
             ),
           ],
-          const SizedBox(height: 12),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.02,
+          ),
           Text(
             "${plan.duration} ${plan.unit}",
-            style: const TextStyle(fontSize: 14, color: Colors.white70),
+            style: AppTextStyles.bodyText.copyWith(
+              fontSize: getResponsiveFontSize(0.03),
+              color: Colors.white,
+            ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.02,
+          ),
           ...plan.description.split("\n").map(
                 (feature) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Text(
                     feature,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: getResponsiveFontSize(0.03),
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
-          const SizedBox(height: 24),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.02,
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white.withOpacity(0.2),
@@ -252,6 +291,9 @@ class PricingCard extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
+          ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.02,
           ),
         ],
       ),

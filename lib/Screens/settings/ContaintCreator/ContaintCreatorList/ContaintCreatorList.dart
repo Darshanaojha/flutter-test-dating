@@ -1,9 +1,11 @@
-import 'package:dating_application/Screens/settings/ContaintCreator/creatorPlansScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'dart:ui';
 
+import '../../../../constants.dart';
 import '../CreatorHomesScreen.dart';
-import 'CreatorDetailsProfile.dart'; // Import the page we want to show
+import 'CreatorDetailsProfile.dart';
+import 'package:dating_application/Screens/settings/ContaintCreator/creatorPlansScreen.dart';
 
 class Creator {
   final String name;
@@ -29,7 +31,7 @@ class CreatorListPage extends StatelessWidget {
   CreatorListPage({super.key});
 
   final bool isCreator = true;
-  final bool isSubscribed = true; // Flag to check if the user is subscribed
+  final bool isSubscribed = true;
 
   final List<Creator> creators = [
     Creator(
@@ -60,10 +62,15 @@ class CreatorListPage extends StatelessWidget {
       following: 150,
     ),
   ];
-
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final size = MediaQuery.of(context).size;
+    final screenWidth = size.width * 0.02;
+    // final screenHeight = size.height*0.02;
+    double getResponsiveFontSize(double scale) {
+      double screenWidth = MediaQuery.of(context).size.width;
+      return screenWidth * scale;
+    }
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -73,59 +80,67 @@ class CreatorListPage extends StatelessWidget {
         titleSpacing: 0,
         leading: GestureDetector(
           onTap: () {
-            // Navigate to the Creator Home Screen when the icon is tapped
             if (isSubscribed) {
               Get.to(() => const CreatorHomeScreen());
             }
           },
           child: Padding(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(screenWidth * 0.5),
             child: Stack(
               children: [
-                if (isSubscribed) // Show the icon only if the user is subscribed
-                  const CircleAvatar(
-                    radius: 22,
-                    backgroundImage: NetworkImage(
-                      "https://randomuser.me/api/portraits/men/3.jpg",
-                    ),
+                if (isSubscribed)
+                  CircleAvatar(
+                    radius: screenWidth * 2.5,
+                    backgroundImage: const NetworkImage(
+                        "https://randomuser.me/api/portraits/men/3.jpg"),
                   ),
-                if (!isSubscribed) // Show the "Become a Creator" button if not subscribed
+                if (!isSubscribed)
                   Positioned(
                     bottom: 0,
                     right: 0,
                     child: Container(
-                      padding: const EdgeInsets.all(2),
+                      padding: EdgeInsets.all(screenWidth * 0.2),
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.white,
                       ),
-                      child: const Icon(Icons.apps, size: 14, color: Colors.black),
+                      child: Icon(Icons.apps,
+                          size: screenWidth * 0.7, color: Colors.black),
                     ),
                   ),
               ],
             ),
           ),
         ),
-        title: const Text(
+        title: Text(
           "Creators",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+          style: AppTextStyles.bodyText.copyWith(
+            fontSize: getResponsiveFontSize(0.03),
+            color: Colors.white,
+          ),
         ),
         actions: [
           if (!isCreator)
             Padding(
-              padding: const EdgeInsets.only(right: 12),
+              padding: EdgeInsets.only(right: screenWidth),
               child: ElevatedButton.icon(
-                onPressed: () {
-                  Get.to(() => PricingPage());
-                },
-                icon: const Icon(Icons.star, size: 18),
-                label: const Text("Become a Creator"),
+                onPressed: () => Get.to(() => PricingPage()),
+                icon: Icon(Icons.star, size: screenWidth * 0.9),
+                label: Text(
+                  "Become a Creator",
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
+                    color: Colors.white,
+                  ),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.pinkAccent.shade400,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: screenWidth * 1.2,
+                      vertical: screenWidth * 0.9),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(screenWidth * 1.5),
                   ),
                   elevation: 6,
                 ),
@@ -136,22 +151,25 @@ class CreatorListPage extends StatelessWidget {
       body: Stack(
         children: [
           Container(
-            height: 180,
+            height: size.height * 0.25,
             width: double.infinity,
             decoration: const BoxDecoration(
               image: DecorationImage(
                 image: NetworkImage(
-                  "https://images.unsplash.com/photo-1557682250-33bd709cbe85",
-                ),
+                    "https://images.unsplash.com/photo-1557682250-33bd709cbe85"),
                 fit: BoxFit.cover,
               ),
             ),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(color: Colors.black.withOpacity(0.5)),
+            ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 160),
+            padding: EdgeInsets.only(top: size.height * 0.2),
             child: ListView.builder(
               itemCount: creators.length,
-              padding: const EdgeInsets.only(bottom: 20),
+              padding: EdgeInsets.only(bottom: screenWidth * 2),
               itemBuilder: (context, index) {
                 final creator = creators[index];
                 return GestureDetector(
@@ -166,14 +184,20 @@ class CreatorListPage extends StatelessWidget {
                         ));
                   },
                   child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    margin: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.8,
+                        vertical: screenWidth * 0.6),
                     decoration: BoxDecoration(
-                      color: Colors.grey[900],
-                      borderRadius: BorderRadius.circular(16),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF870160), Color(0xFFAC255E)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(screenWidth * 0.8),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.25),
-                          blurRadius: 8,
+                          blurRadius: screenWidth * 0.8,
                           offset: const Offset(0, 4),
                         ),
                       ],
@@ -181,46 +205,55 @@ class CreatorListPage extends StatelessWidget {
                     child: Row(
                       children: [
                         ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(16),
-                            bottomLeft: Radius.circular(16),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(screenWidth * 0.8),
+                            bottomLeft: Radius.circular(screenWidth * 0.8),
                           ),
                           child: Image.network(
                             creator.profileUrl,
-                            width: screenWidth * 0.3,
-                            height: screenWidth * 0.3,
+                            width: size.width * 0.3,
+                            height: size.width * 0.3,
                             fit: BoxFit.cover,
                           ),
                         ),
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
+                            padding: EdgeInsets.all(screenWidth * 0.7),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  creator.name,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    creator.name,
+                                    style: AppTextStyles.bodyText.copyWith(
+                                      fontSize: getResponsiveFontSize(0.03),
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                SizedBox(height: screenWidth * 0.3),
                                 Text(
                                   "Age: ${creator.age}",
-                                  style: const TextStyle(
-                                      color: Colors.white60, fontSize: 13),
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    fontSize: getResponsiveFontSize(0.03),
+                                    color: Colors.white,
+                                  ),
                                 ),
-                                const SizedBox(height: 14),
-                                Wrap(
-                                  spacing: 18,
-                                  runSpacing: 6,
+                                SizedBox(height: screenWidth * 1.2),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    _infoItem(Icons.photo, creator.photos),
-                                    _infoItem(Icons.videocam, creator.videos),
-                                    _infoItem(Icons.people, creator.followers),
-                                    _infoItem(Icons.person_add, creator.following),
+                                    _infoItem(context, Icons.photo,
+                                        creator.photos, screenWidth),
+                                    _infoItem(context, Icons.videocam,
+                                        creator.videos, screenWidth),
+                                    _infoItem(context, Icons.people,
+                                        creator.followers, screenWidth),
+                                    _infoItem(context, Icons.person_add,
+                                        creator.following, screenWidth),
                                   ],
                                 ),
                               ],
@@ -239,15 +272,22 @@ class CreatorListPage extends StatelessWidget {
     );
   }
 
-  Widget _infoItem(IconData icon, int count) {
+  Widget _infoItem(context, IconData icon, int count, double screenWidth) {
+    double getResponsiveFontSize(double scale) {
+      double screenWidth = MediaQuery.of(context).size.width;
+      return screenWidth * scale;
+    }
+
     return Row(
-      mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: Colors.white38, size: 16),
-        const SizedBox(width: 4),
+        Icon(icon, color: Colors.white70, size: screenWidth * 1.2),
+        SizedBox(width: screenWidth * 0.4),
         Text(
           "$count",
-          style: const TextStyle(color: Colors.white70, fontSize: 13),
+          style: AppTextStyles.bodyText.copyWith(
+            fontSize: getResponsiveFontSize(0.03),
+            color: Colors.white,
+          ),
         ),
       ],
     );

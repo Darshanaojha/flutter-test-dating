@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
+import '../../../constants.dart';
 import 'ContaintCreatorPlansAdd/CreatorPlansPage.dart';
 import 'CreatorProfile/CreatorProfileScreen.dart';
 import 'CreatorsDashboard.dart';
@@ -17,11 +18,15 @@ class CreatorHomeScreen extends StatelessWidget {
 
   final String profileImagePath = 'assets/images/techlead.jpg';
   final String bannerImagePath = 'assets/images/techlead.jpg';
-  
 
   @override
   Widget build(BuildContext context) {
-    // final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    double getResponsiveFontSize(double scale) {
+      double screenWidth = MediaQuery.of(context).size.width;
+      return screenWidth * scale;
+    }
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -29,8 +34,13 @@ class CreatorHomeScreen extends StatelessWidget {
         backgroundColor: Colors.black,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text("👋 Welcome Back",
-            style: TextStyle(color: Colors.white)),
+        title: Text(
+          "👋 Welcome Back",
+          style: AppTextStyles.bodyText.copyWith(
+            fontSize: getResponsiveFontSize(0.03),
+            color: Colors.white,
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.white70),
@@ -46,7 +56,6 @@ class CreatorHomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 🔷 Profile Header in Drawer
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Row(
@@ -55,7 +64,7 @@ class CreatorHomeScreen extends StatelessWidget {
                       radius: 30,
                       backgroundImage: AssetImage(profileImagePath),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: screenWidth * 0.01),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -64,23 +73,30 @@ class CreatorHomeScreen extends StatelessWidget {
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16)),
-                        const SizedBox(height: 4),
-                        Text('@$username',
-                            style: const TextStyle(
-                                color: Colors.white54, fontSize: 13)),
+                        SizedBox(height: screenHeight * 0.01),
+                        Text(
+                          '@$username',
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: getResponsiveFontSize(0.03),
+                            color: Colors.white,
+                          ),
+                        ),
                       ],
                     )
                   ],
                 ),
               ),
               const Divider(color: Colors.white24),
-
-              // 🔘 Drawer Buttons
               ListTile(
                 leading:
                     const Icon(Icons.subscriptions, color: Colors.pinkAccent),
-                title: const Text("Subscriptions",
-                    style: TextStyle(color: Colors.white)),
+                title: Text(
+                  "Subscriptions",
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
+                    color: Colors.white,
+                  ),
+                ),
                 onTap: () {
                   Get.back();
                 },
@@ -88,8 +104,13 @@ class CreatorHomeScreen extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.account_balance_wallet,
                     color: Colors.orange),
-                title: const Text("Transactions",
-                    style: TextStyle(color: Colors.white)),
+                title: Text(
+                  "Transactions",
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
+                    color: Colors.white,
+                  ),
+                ),
                 onTap: () {
                   Get.back();
                 },
@@ -115,28 +136,41 @@ class CreatorHomeScreen extends StatelessWidget {
           Row(
             children: [
               GestureDetector(
-                onTap: (){
-                  Get.to(CreatorProfileScreen(name: name, profileUrl:profileImagePath , photos:10, videos: 17, followers: 199, following: 100,));
+                onTap: () {
+                  Get.to(CreatorProfileScreen(
+                    name: name,
+                    profileUrl: profileImagePath,
+                    photos: 10,
+                    videos: 17,
+                    followers: 199,
+                    following: 100,
+                  ));
                 },
                 child: CircleAvatar(
                   radius: 34,
                   backgroundImage: AssetImage(profileImagePath),
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: screenWidth * 0.01),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 4),
-                    Text('@$username',
-                        style: const TextStyle(
-                            color: Colors.white60, fontSize: 14)),
+                    Text(
+                      name,
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: getResponsiveFontSize(0.03),
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: screenHeight * 0.01),
+                    Text(
+                      '@$username',
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: getResponsiveFontSize(0.03),
+                        color: Colors.white,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -144,7 +178,7 @@ class CreatorHomeScreen extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 30),
+          SizedBox(height: screenHeight * 0.01),
 
           // Banner
           ClipRRect(
@@ -157,7 +191,7 @@ class CreatorHomeScreen extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 30),
+          SizedBox(height: screenHeight * 0.01),
 
           // Action Buttons
           Row(
@@ -199,14 +233,12 @@ class CreatorHomeScreen extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 30),
+          SizedBox(height: screenHeight * 0.01),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               GestureDetector(
-                onTap: () {
-              
-                },
+                onTap: () {},
                 child: _actionCard(
                   context,
                   icon: FontAwesomeIcons.artstation,
@@ -238,7 +270,7 @@ class CreatorHomeScreen extends StatelessWidget {
               ),
             ],
           ),
-                  const SizedBox(height: 30),
+          SizedBox(height: screenHeight * 0.01),
 
           // Earnings Info
           Container(
@@ -250,33 +282,48 @@ class CreatorHomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Monetization",
-                    style: TextStyle(color: Colors.white60, fontSize: 14)),
-                const SizedBox(height: 6),
-                Text(paymentMode,
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold)),
-                const SizedBox(height: 12),
+                Text(
+                  "Monetization",
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: screenHeight * 0.01),
+                Text(
+                  paymentMode,
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: screenHeight * 0.01),
                 Row(
                   children: [
                     const Icon(Icons.account_balance_wallet,
                         color: Colors.greenAccent, size: 20),
-                    const SizedBox(width: 8),
-                    const Text("Estimated Earnings: ",
-                        style: TextStyle(color: Colors.white70)),
-                    Text("\$1,200",
-                        style: TextStyle(
-                            color: Colors.greenAccent.shade100,
-                            fontWeight: FontWeight.bold)),
+                    SizedBox(width: screenWidth * 0.01),
+                    Text(
+                      "Estimated Earnings: ",
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: getResponsiveFontSize(0.03),
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      "\$1,200",
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: getResponsiveFontSize(0.03),
+                        color: Colors.white,
+                      ),
+                    ),
                   ],
                 ),
               ],
             ),
           ),
 
-          const SizedBox(height: 50),
+          SizedBox(height: screenHeight * 0.01),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -289,20 +336,40 @@ class CreatorHomeScreen extends StatelessWidget {
 
   Widget _actionCard(BuildContext context,
       {required IconData icon, required String label, required Color color}) {
-    return Container(
+    // final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    double getResponsiveFontSize(double scale) {
+      double screenWidth = MediaQuery.of(context).size.width;
+      return screenWidth * scale;
+    }
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       width: MediaQuery.of(context).size.width * 0.25,
       padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
         color: Colors.grey[900],
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.white12),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
-          Text(label,
-              style: const TextStyle(color: Colors.white70, fontSize: 13)),
+          Icon(icon, color: color, size: 28),
+          SizedBox(height: screenHeight * 0.01),
+          Text(
+            label,
+            style: AppTextStyles.bodyText.copyWith(
+              fontSize: getResponsiveFontSize(0.03),
+              color: Colors.white,
+            ),
+          ),
         ],
       ),
     );

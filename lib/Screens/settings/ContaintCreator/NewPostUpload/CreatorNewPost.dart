@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../../../constants.dart';
+
 class CreateNewPostPage extends StatefulWidget {
   const CreateNewPostPage({super.key});
 
@@ -18,70 +20,82 @@ class _CreateNewPostPageState extends State<CreateNewPostPage> {
   XFile? _mediaFile;
   bool _isVideo = false;
   VideoPlayerController? _videoController;
-Future<XFile?> _showMediaPickerDialog() async {
-  return await showModalBottomSheet<XFile>(
-    context: context,
-    backgroundColor: Colors.grey[900],
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (context) {
-      return SafeArea(
-        child: Wrap(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.image, color: Colors.white),
-              title: const Text("Pick Image from Gallery",
-                  style: TextStyle(color: Colors.white)),
-              onTap: () async {
-                final file = await _picker.pickImage(source: ImageSource.gallery);
-                Navigator.pop(context, file);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.video_library, color: Colors.white),
-              title: const Text("Pick Video from Gallery",
-                  style: TextStyle(color: Colors.white)),
-              onTap: () async {
-                final file = await _picker.pickVideo(source: ImageSource.gallery);
-                Navigator.pop(context, file);
-              },
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
+
+  double getResponsiveFontSize(double scale) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth * scale;
+  }
+  Future<XFile?> _showMediaPickerDialog() async {
+    return await showModalBottomSheet<XFile>(
+      context: context,
+      backgroundColor: Colors.grey[900],
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.image, color: Colors.white),
+                title:  Text("Pick Image from Gallery",
+                     style: AppTextStyles.bodyText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
+                    color: Colors.white,
+                  ),),
+                onTap: () async {
+                  final file =
+                      await _picker.pickImage(source: ImageSource.gallery);
+                  Navigator.pop(context, file);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.video_library, color: Colors.white),
+                title:  Text("Pick Video from Gallery",
+                     style: AppTextStyles.bodyText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
+                    color: Colors.white,
+                  ),),
+                onTap: () async {
+                  final file =
+                      await _picker.pickVideo(source: ImageSource.gallery);
+                  Navigator.pop(context, file);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   Future<void> _pickMedia({required bool fromCamera}) async {
-  final XFile? file = fromCamera
-      ? await _picker.pickVideo(source: ImageSource.camera)
-      : await _showMediaPickerDialog();
+    final XFile? file = fromCamera
+        ? await _picker.pickVideo(source: ImageSource.camera)
+        : await _showMediaPickerDialog();
 
-  if (file != null) {
-    _disposeVideoController();
+    if (file != null) {
+      _disposeVideoController();
 
-    final isVideoFile = file.path.toLowerCase().endsWith('.mp4') ||
-        file.path.toLowerCase().endsWith('.mov') ||
-        file.path.toLowerCase().endsWith('.avi');
+      final isVideoFile = file.path.toLowerCase().endsWith('.mp4') ||
+          file.path.toLowerCase().endsWith('.mov') ||
+          file.path.toLowerCase().endsWith('.avi');
 
-    setState(() {
-      _mediaFile = file;
-      _isVideo = isVideoFile;
-    });
+      setState(() {
+        _mediaFile = file;
+        _isVideo = isVideoFile;
+      });
 
-    if (_isVideo) {
-      _videoController = VideoPlayerController.file(File(file.path));
-      await _videoController!.initialize();
-      _videoController!
-        ..setLooping(true)
-        ..play();
-      setState(() {});
+      if (_isVideo) {
+        _videoController = VideoPlayerController.file(File(file.path));
+        await _videoController!.initialize();
+        _videoController!
+          ..setLooping(true)
+          ..play();
+        setState(() {});
+      }
     }
   }
-}
-
 
   void _disposeVideoController() {
     _videoController?.dispose();
@@ -112,7 +126,10 @@ Future<XFile?> _showMediaPickerDialog() async {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text("Create Post"),
+        title: Text("Create Post", style: AppTextStyles.bodyText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
+                    color: Colors.white,
+                  ),),
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
@@ -136,9 +153,14 @@ Future<XFile?> _showMediaPickerDialog() async {
                 border: Border.all(color: Colors.white24),
               ),
               child: _mediaFile == null
-                  ? const Center(
-                      child: Text("No media selected",
-                          style: TextStyle(color: Colors.white54)),
+                  ? Center(
+                      child: Text(
+                        "No media selected",
+                        style: AppTextStyles.bodyText.copyWith(
+                          fontSize: getResponsiveFontSize(0.03),
+                          color: Colors.white,
+                        ),
+                      ),
                     )
                   : _isVideo
                       ? _videoController != null &&
@@ -157,7 +179,9 @@ Future<XFile?> _showMediaPickerDialog() async {
                           child: Image.file(file!, fit: BoxFit.cover),
                         ),
             ),
-            const SizedBox(height: 20),
+       SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.02,
+                  ),
 
             // Caption Input
             TextField(
@@ -175,45 +199,75 @@ Future<XFile?> _showMediaPickerDialog() async {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+           SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.02,
+                  ),
 
             // Action Buttons
             Row(
-           
-              
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ElevatedButton.icon(
-                  onPressed: () => _pickMedia(fromCamera: false),
-                  icon: const Icon(Icons.photo_library),
-                  label: const Text("Pick from Gallery"),
-                  style: _buttonStyle(),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _pickMedia(fromCamera: false),
+                    icon: const Icon(Icons.photo_library),
+                    label: Text(
+                      "Pick from Gallery",
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: getResponsiveFontSize(0.03),
+                        color: Colors.white,
+                      ),
+                    ),
+                    style: _buttonStyle(),
+                  ),
                 ),
-                SizedBox(width: 1,),
-                ElevatedButton.icon(
-                  onPressed: () => _pickMedia(fromCamera: true),
-                  icon: const Icon(Icons.videocam),
-                  label: const Text("Record Video"),
-                  style: _buttonStyle(),
+               SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.02,
+                  ),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _pickMedia(fromCamera: true),
+                    icon: const Icon(Icons.videocam),
+                    label: Text(
+                      "Record Video",
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: getResponsiveFontSize(0.03),
+                        color: Colors.white,
+                      ),
+                    ),
+                    style: _buttonStyle(),
+                  ),
                 ),
-                if (_mediaFile != null)
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        _mediaFile = null;
-                        _captionController.clear();
-                        _disposeVideoController();
-                      });
-                    },
-                    icon: const Icon(Icons.delete_forever,
-                        color: Colors.redAccent),
-                    label: const Text("Clear Media",
-                        style: TextStyle(color: Colors.redAccent)),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.redAccent),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                if (_mediaFile != null) ...[
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.02,
+                  ),// Add spacing between buttons
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _mediaFile = null;
+                          _captionController.clear();
+                          _disposeVideoController();
+                        });
+                      },
+                      icon: const Icon(Icons.delete_forever,
+                          color: Colors.redAccent),
+                      label: Text(
+                        "Clear Media",
+                        style: AppTextStyles.bodyText.copyWith(
+                          fontSize: getResponsiveFontSize(0.03),
+                          color: Colors.red,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.redAccent),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
                     ),
                   ),
+                ],
               ],
             )
           ],

@@ -1,6 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+import '../../../../constants.dart';
 
 class CreatorProfileScreen extends StatefulWidget {
   final String name;
@@ -26,8 +27,6 @@ class CreatorProfileScreen extends StatefulWidget {
 
 class _CreatorProfilePageState extends State<CreatorProfileScreen> {
   int selectedTabIndex = 0;
-  bool isSubscribed = false;
-
   late List<MediaItem> photos;
   late List<MediaItem> videos;
   late List<MediaItem> others;
@@ -38,16 +37,19 @@ class _CreatorProfilePageState extends State<CreatorProfileScreen> {
     photos = List.generate(widget.photos, (index) {
       return MediaItem(
         url: "https://picsum.photos/id/${index + 20}/300/300",
+        isLiked: false,
       );
     });
     videos = List.generate(widget.videos, (index) {
       return MediaItem(
         url: "https://picsum.photos/id/${index + 40}/300/300",
+        isLiked: false,
       );
     });
     others = List.generate(4, (index) {
       return MediaItem(
         url: "https://picsum.photos/id/${index + 60}/300/300",
+        isLiked: false,
       );
     });
   }
@@ -69,60 +71,107 @@ class _CreatorProfilePageState extends State<CreatorProfileScreen> {
   Widget build(BuildContext context) {
     final mediaList = _getMediaList();
 
+    double getResponsiveFontSize(double scale) {
+      double screenWidth = MediaQuery.of(context).size.width;
+      return screenWidth * scale;
+    }
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
         centerTitle: true,
-        title: Text(widget.name, style: const TextStyle(color: Colors.white)),
+        title: Text(
+          widget.name,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.white),
+            onPressed: () {
+              // Navigate to settings
+            },
+          ),
+        ],
       ),
-      body: ListView(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        children: [
-          _buildProfileHeader(),
-          const SizedBox(height: 16),
-          _buildBioSection(),
-          const SizedBox(height: 20),
-          _buildTabBar(),
-          const SizedBox(height: 20),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: mediaList.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              childAspectRatio: 1,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildProfileHeader(),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.01,
             ),
-            itemBuilder: (context, index) {
-              final media = _getMediaList()[index];
-
-              return GestureDetector(
-                onTap: () {
-                  _showMediaDialog(media);
-                },
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+            _buildBioSection(),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.01,
+            ),
+            _buildTabBar(),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.01,
+            ),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: mediaList.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                childAspectRatio: 1,
+              ),
+              itemBuilder: (context, index) {
+                final media = mediaList[index];
+                return GestureDetector(
+                  onTap: () {
+                    _showMediaDialog(media);
+                  },
                   child: Stack(
-                    fit: StackFit.expand,
                     children: [
-                      // Display the media (photo/video)
-                      Image.network(
-                        media.url,
-                        fit: BoxFit.cover,
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          media.url,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                        ),
                       ),
+                      // Positioned(
+                      //   top: 8,
+                      //   right: 8,
+                      //   child: GestureDetector(
+                      //     onTap: () {
+                      //       setState(() {
+                      //         media.isLiked = !media.isLiked;
+                      //       });
+                      //     },
+                      //     child: Icon(
+                      //       media.isLiked
+                      //           ? FontAwesomeIcons.solidHeart
+                      //           : FontAwesomeIcons.heart,
+                      //       color: media.isLiked ? Colors.red : Colors.white70,
+                      //       size: 20,
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
-                ),
-              );
-            },
-          )
-        ],
+                );
+              },
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.pinkAccent,
-        onPressed: () {},
+        onPressed: () {
+          // Add new post
+        },
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );
@@ -150,16 +199,24 @@ class _CreatorProfilePageState extends State<CreatorProfileScreen> {
       ],
     );
   }
+   double getResponsiveFontSize(double scale) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth * scale;
+  }
 
   Widget _statItem(IconData icon, int count, String label) {
     return Column(
       children: [
         Icon(icon, color: Colors.white70, size: 20),
-        const SizedBox(height: 4),
+        SizedBox(
+          height: MediaQuery.of(context).size.height * 0.01,
+        ),
         Text(
           "$count",
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+          style: AppTextStyles.bodyText.copyWith(
+            fontSize: getResponsiveFontSize(0.03),
+            color: Colors.white,
+          ),
         ),
         Text(label,
             style: const TextStyle(color: Colors.white54, fontSize: 12)),
@@ -170,16 +227,33 @@ class _CreatorProfilePageState extends State<CreatorProfileScreen> {
   Widget _buildBioSection() {
     return Column(
       children: [
-        const SizedBox(height: 12),
+        Text(
+          "Photographer | Storyteller | Digital Artist",
+          textAlign: TextAlign.center,
+          style: AppTextStyles.bodyText.copyWith(
+            fontSize: getResponsiveFontSize(0.03),
+            color: Colors.white,
+          ),
+        ),
+        SizedBox(
+          height: MediaQuery.of(context).size.height * 0.01,
+        ),
         GestureDetector(
-          onTap: () {},
+          onTap: () {
+            // Edit bio
+          },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Icon(Icons.edit, color: Colors.white70, size: 18),
               SizedBox(width: 8),
-              Text("Add a bio...",
-                  style: TextStyle(color: Colors.white70, fontSize: 14)),
+              Text(
+                "Edit Bio",
+                style: AppTextStyles.bodyText.copyWith(
+                  fontSize: getResponsiveFontSize(0.03),
+                  color: Colors.white,
+                ),
+              ),
             ],
           ),
         ),
@@ -208,7 +282,9 @@ class _CreatorProfilePageState extends State<CreatorProfileScreen> {
                 color: isSelected ? Colors.pinkAccent : Colors.white54,
                 size: 22,
               ),
-              const SizedBox(height: 4),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.01,
+              ),
               Text(
                 tabs[index],
                 style: TextStyle(
@@ -224,7 +300,6 @@ class _CreatorProfilePageState extends State<CreatorProfileScreen> {
     );
   }
 
-  // Show media dialog with full image and actions
   void _showMediaDialog(MediaItem media) {
     showDialog(
       context: context,
@@ -242,14 +317,25 @@ class _CreatorProfilePageState extends State<CreatorProfileScreen> {
                   borderRadius: BorderRadius.circular(12),
                   child: Image.network(media.url, fit: BoxFit.cover),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.01,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.favorite_border,
-                          color: Colors.white),
-                      onPressed: () {},
+                      icon: Icon(
+                        media.isLiked
+                            ? FontAwesomeIcons.solidHeart
+                            : FontAwesomeIcons.heart,
+                        color: media.isLiked ? Colors.red : Colors.white70,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          media.isLiked = !media.isLiked;
+                        });
+                      },
                     ),
                     IconButton(
                       icon: const Icon(Icons.share, color: Colors.white),
@@ -280,6 +366,17 @@ class _CreatorProfilePageState extends State<CreatorProfileScreen> {
                             ],
                           ),
                         ),
+                        PopupMenuItem<int>(
+                          value: 2,
+                          child: Row(
+                            children: const [
+                              Icon(Icons.edit, color: Colors.blue),
+                              SizedBox(width: 8),
+                              Text('Edit',
+                                  style: TextStyle(color: Colors.blue)),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -291,52 +388,14 @@ class _CreatorProfilePageState extends State<CreatorProfileScreen> {
       },
     );
   }
-
-  // Show payment dialog for locked media
-  void _showPaymentDialog(MediaItem media) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.grey[900],
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title:
-              const Text("Unlock Media", style: TextStyle(color: Colors.white)),
-          content: Text(
-            "Pay \$${media.price?.toStringAsFixed(2)} to unlock this content?",
-            style: const TextStyle(color: Colors.white70),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child:
-                  const Text("Cancel", style: TextStyle(color: Colors.white54)),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  media.isUnlocked = true;
-                });
-                Navigator.pop(context);
-              },
-              child: const Text("Pay Now"),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }
 
 class MediaItem {
   final String url;
-  final double? price;
-  bool isUnlocked;
+  bool isLiked;
 
   MediaItem({
     required this.url,
-    this.price,
-    this.isUnlocked = false,
+    this.isLiked = false,
   });
 }

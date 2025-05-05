@@ -5,10 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 
 const encryptionkey = "flamrpisyst2024!";
 const secretkey = "ArqamzSnehaSadiq@flamrdating2024";
-const baseurl = "http://192.168.1.6/dating_backend_springboot/admin";
-const ip = "http://192.168.1.6/dating_backend_springboot/";
+const baseurl = "http://192.168.1.15/dating_backend_springboot/admin";
+const ip = "http://192.168.1.15/dating_backend_springboot/";
 
-const springbooturl = "http://192.168.1.6:8080/";
+const springbooturl = "http://192.168.1.15:8080/";
 
 const registerUrl = "Authentication/register";
 const loginUrl = "Authentication/login";
@@ -67,7 +67,6 @@ class AppColors {
 }
 
 class AppTextStyles {
-  static const String baseFontFamily = 'raleway';
   static const double headingSize = 32.0;
   static const double subheadingSize = 24.0;
   static const double titleSize = 17.0;
@@ -77,65 +76,86 @@ class AppTextStyles {
   static const double inputFieldSize = 16.0;
   static const double textSize = 9.0;
 
-  static TextStyle headingText = GoogleFonts.raleway(
+  static final TextStyle headingText = GoogleFonts.roboto(
     fontSize: headingSize,
     fontWeight: FontWeight.bold,
     color: Colors.white,
   );
-  static TextStyle textStyle = GoogleFonts.raleway(
-    fontSize: textSize,
-    fontWeight: FontWeight.bold,
-    color: Colors.white,
-  );
-  static TextStyle transactionTextStyle =
-      TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white);
 
-  static TextStyle subheadingText = GoogleFonts.raleway(
+  static final TextStyle subheadingText = GoogleFonts.roboto(
     fontSize: subheadingSize,
     fontWeight: FontWeight.w600,
     color: Colors.white,
   );
 
-  static TextStyle titleText = GoogleFonts.raleway(
+  static final TextStyle titleText = GoogleFonts.roboto(
     fontSize: titleSize,
     fontWeight: FontWeight.bold,
     color: Colors.white,
   );
 
-  static TextStyle bodyText = GoogleFonts.raleway(
+  static final TextStyle bodyText = GoogleFonts.roboto(
     fontSize: bodySize,
     fontWeight: FontWeight.normal,
     color: Colors.white,
   );
 
-  static TextStyle buttonText = GoogleFonts.raleway(
+  static final TextStyle buttonText = GoogleFonts.roboto(
     fontSize: buttonSize,
     fontWeight: FontWeight.w500,
     color: Colors.white,
   );
 
-  static TextStyle labelText = GoogleFonts.raleway(
+  static final TextStyle labelText = GoogleFonts.roboto(
     fontSize: labelSize,
     fontWeight: FontWeight.w400,
     color: Colors.white,
   );
 
-  static TextStyle inputFieldText = GoogleFonts.raleway(
+  static final TextStyle inputFieldText = GoogleFonts.roboto(
     fontSize: inputFieldSize,
     fontWeight: FontWeight.w400,
     color: Colors.white,
   );
-  static TextStyle errorText = GoogleFonts.raleway(
+
+  static final TextStyle errorText = GoogleFonts.roboto(
     fontSize: bodySize,
     fontWeight: FontWeight.bold,
     color: Colors.red,
   );
-  static TextStyle customTextStyle(
-      {double fontSize = 12.0,
-      FontWeight fontWeight = FontWeight.normal,
-      Color color = Colors.black}) {
-    return GoogleFonts.raleway(
+
+  static final TextStyle textStyle = GoogleFonts.roboto(
+    fontSize: textSize,
+    fontWeight: FontWeight.bold,
+    color: Colors.white,
+  );
+
+  static final TextStyle transactionTextStyle = GoogleFonts.roboto(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    color: Colors.white,
+  );
+
+  static TextStyle customTextStyle({
+    double fontSize = 12.0,
+    FontWeight fontWeight = FontWeight.normal,
+    Color color = Colors.black,
+  }) {
+    return GoogleFonts.roboto(
       fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+    );
+  }
+
+  static TextStyle responsiveTextStyle({
+    required double screenWidth,
+    required double scaleFactor,
+    FontWeight fontWeight = FontWeight.normal,
+    Color color = Colors.black,
+  }) {
+    return GoogleFonts.roboto(
+      fontSize: screenWidth * scaleFactor,
       fontWeight: fontWeight,
       color: color,
     );

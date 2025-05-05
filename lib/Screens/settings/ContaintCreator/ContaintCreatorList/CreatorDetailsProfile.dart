@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
+import '../../../../constants.dart';
+
 class CreatorsProfilePage extends StatefulWidget {
   final String name;
   final String profileUrl;
@@ -102,22 +104,12 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
             ),
             itemBuilder: (context, index) {
               final media = _getMediaList()[index];
-
-              // If the user is not subscribed, lock all media
-              // final isLocked = !isSubscribed;
-
               final isLocked =
                   !isSubscribed && !unlockedMediaUrls.contains(media.url);
+
               return GestureDetector(
                 onTap: () {
-                  if (media.isUnlocked || media.price == null || isSubscribed) {
-                    _showMediaDialog(media);
-                  } else {
-                    _showPaymentDialog(media);
-                  }
-                },
-                onLongPress: () {
-                  if (media.isUnlocked || media.price == null) {
+                  if (!isLocked) {
                     _showMediaDialog(media);
                   } else {
                     _showPaymentDialog(media);
@@ -167,9 +159,9 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
                             ),
                             child: Text(
                               '\₹${media.price!.toStringAsFixed(2)}',
-                              style: const TextStyle(
+                              style: AppTextStyles.bodyText.copyWith(
+                                fontSize: getResponsiveFontSize(0.03),
                                 color: Colors.white,
-                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
@@ -190,26 +182,43 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
     );
   }
 
+  double getResponsiveFontSize(double scale) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth * scale;
+  }
+
   Widget _buildProfileHeader() {
-    return Row(
-      children: [
-        CircleAvatar(
-          radius: 44,
-          backgroundImage: NetworkImage(widget.profileUrl),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF870160), Color(0xFFAC255E)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        const SizedBox(width: 24),
-        Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _statItem(FontAwesomeIcons.layerGroup, widget.photos, "Posts"),
-              _statItem(FontAwesomeIcons.users, widget.followers, "Followers"),
-              _statItem(
-                  FontAwesomeIcons.userPlus, widget.following, "Following"),
-            ],
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 44,
+            backgroundImage: NetworkImage(widget.profileUrl),
           ),
-        ),
-      ],
+          const SizedBox(width: 24),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _statItem(FontAwesomeIcons.layerGroup, widget.photos, "Posts"),
+                _statItem(
+                    FontAwesomeIcons.users, widget.followers, "Followers"),
+                _statItem(
+                    FontAwesomeIcons.userPlus, widget.following, "Following"),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -220,11 +229,18 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
         const SizedBox(height: 4),
         Text(
           "$count",
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+          style: AppTextStyles.bodyText.copyWith(
+            fontSize: getResponsiveFontSize(0.03),
+            color: Colors.white,
+          ),
         ),
-        Text(label,
-            style: const TextStyle(color: Colors.white54, fontSize: 12)),
+        Text(
+          label,
+          style: AppTextStyles.bodyText.copyWith(
+            fontSize: getResponsiveFontSize(0.03),
+            color: Colors.white,
+          ),
+        ),
       ],
     );
   }
@@ -237,7 +253,13 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
           children: [
             FilledButton(
               onPressed: () {},
-              child: const Text('Follow'),
+              child: Text(
+                'Follow',
+                style: AppTextStyles.bodyText.copyWith(
+                  fontSize: getResponsiveFontSize(0.03),
+                  color: Colors.white,
+                ),
+              ),
             ),
             const SizedBox(width: 10),
             OutlinedButton(
@@ -257,11 +279,16 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
           onTap: () {},
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Icon(Icons.edit, color: Colors.white70, size: 18),
               SizedBox(width: 8),
-              Text("Add a bio...",
-                  style: TextStyle(color: Colors.white70, fontSize: 14)),
+              Text(
+                "Add a bio...",
+                style: AppTextStyles.bodyText.copyWith(
+                  fontSize: getResponsiveFontSize(0.03),
+                  color: Colors.white,
+                ),
+              ),
             ],
           ),
         ),
@@ -306,7 +333,6 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
     );
   }
 
-  // Show media dialog with full image and actions
   void _showMediaDialog(MediaItem media) {
     showDialog(
       context: context,
@@ -367,11 +393,16 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
                           PopupMenuItem<int>(
                             value: 1,
                             child: Row(
-                              children: const [
+                              children: [
                                 Icon(Icons.report, color: Colors.red),
                                 SizedBox(width: 8),
-                                Text('Report',
-                                    style: TextStyle(color: Colors.red)),
+                                Text(
+                                  'Report',
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    fontSize: getResponsiveFontSize(0.03),
+                                    color: Colors.red,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -388,7 +419,6 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
     );
   }
 
-  // Show payment dialog for locked media
   void _showPaymentDialog(MediaItem media) {
     showDialog(
       context: context,
@@ -414,8 +444,6 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
                 Navigator.pop(context);
                 setState(() {
                   media.isUnlocked = true;
-                });
-                setState(() {
                   unlockedMediaUrls.add(media.url);
                 });
               },
