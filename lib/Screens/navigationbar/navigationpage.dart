@@ -204,7 +204,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                 ElevatedButton.icon(
                   onPressed: () async {
                     final preferences =
-                        await EncryptedSharedPreferences.getInstance();
+                        EncryptedSharedPreferences.getInstance();
                     preferences.clear();
                     Get.offAll(() => Login());
 

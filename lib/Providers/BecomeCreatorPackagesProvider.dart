@@ -8,7 +8,7 @@ class FetchAllBecomeCreatorPackageProvider extends GetConnect {
     try {
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
-      String? token = await preferences.getString('token');
+      String? token = preferences.getString('token');
 
       if (token != null && token.isNotEmpty) {
         Response response = await get(

@@ -158,7 +158,7 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              '\₹${media.price!.toStringAsFixed(2)}',
+                              '₹${media.price!.toStringAsFixed(2)}',
                               style: AppTextStyles.bodyText.copyWith(
                                 fontSize: getResponsiveFontSize(0.03),
                                 color: Colors.white,
@@ -430,7 +430,7 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
           title:
               const Text("Unlock Media", style: TextStyle(color: Colors.white)),
           content: Text(
-            "Pay \₹${media.price?.toStringAsFixed(2)} to unlock this content?",
+            "Pay ₹${media.price?.toStringAsFixed(2)} to unlock this content?",
             style: const TextStyle(color: Colors.white70),
           ),
           actions: [

@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
-import 'dart:ui';
 import 'package:dating_application/Models/RequestModels/change_password_request.dart';
 import 'package:dating_application/Models/RequestModels/delete_chat_history_request_model.dart';
 import 'package:dating_application/Models/RequestModels/profile_like_request_model.dart';

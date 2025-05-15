@@ -8,7 +8,7 @@ class FetchAllAddOnProvider extends GetConnect {
   Future<GetAllAddonsResponse?> getalladdonprovider() async {
     try {
       EncryptedSharedPreferences preferences =
-          await EncryptedSharedPreferences.getInstance();
+          EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
 
       if (token != null && token.isNotEmpty) {

@@ -267,7 +267,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                           if (value == true) {
                                             EncryptedSharedPreferences
                                                 preferences =
-                                                await EncryptedSharedPreferences
+                                                EncryptedSharedPreferences
                                                     .getInstance();
                                             String? token =
                                                 preferences.getString('token');
@@ -317,8 +317,9 @@ class ContactListScreenState extends State<ContactListScreen> {
                                             child: GestureDetector(
                                               onTap: () {
                                                 // Navigate to the chat screen when clicking anywhere in the row except the profile image
-                                                if (controller.userData.isEmpty)
+                                                if (controller.userData.isEmpty) {
                                                   return;
+                                                }
 
                                                 debugPrint(
                                                     'User ID: ${controller.userData.first.id}');
@@ -344,7 +345,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                                   if (value == true) {
                                                     EncryptedSharedPreferences
                                                         preferences =
-                                                        await EncryptedSharedPreferences
+                                                        EncryptedSharedPreferences
                                                             .getInstance();
                                                     String? token = preferences
                                                         .getString('token');
