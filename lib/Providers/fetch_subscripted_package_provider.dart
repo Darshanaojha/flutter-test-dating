@@ -41,7 +41,7 @@ class FetchSubscriptedPackageProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in subscribed package', e.toString());
       return null;
     }
   }

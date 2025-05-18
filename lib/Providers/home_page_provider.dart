@@ -49,8 +49,7 @@ class HomePageProvider extends GetConnect {
         failure('Error', 'Server Failed To Respond');
         return null;
       }
-      print(response.body.toString());
-      print("on pull to refresh");
+      print("Profile : ${response.body.toString()}");
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return UserProfileResponse.fromJson(response.body);
@@ -63,7 +62,7 @@ class HomePageProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error on profile', e.toString());
       return null;
     }
   }

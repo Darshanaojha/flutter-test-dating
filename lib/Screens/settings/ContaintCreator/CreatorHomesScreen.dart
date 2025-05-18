@@ -1,3 +1,4 @@
+import 'package:dating_application/Screens/settings/ContaintCreator/CreatorsAllContentPage.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -122,6 +123,15 @@ class CreatorHomeScreen extends StatelessWidget {
                     const Text("Orders", style: TextStyle(color: Colors.white)),
                 onTap: () {
                   Get.back();
+                },
+              ),
+              ListTile(
+                leading:
+                    const Icon(Icons.shopping_bag, color: Colors.blueAccent),
+                title: const Text("My Contents",
+                    style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Get.to(CreatorsAllContentPage());
                 },
               ),
             ],

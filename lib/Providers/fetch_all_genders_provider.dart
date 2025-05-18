@@ -27,7 +27,7 @@ class FetchAllGendersProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure("Error", e.toString());
+      failure("Error in gender", e.toString());
       return null;
     }
   }

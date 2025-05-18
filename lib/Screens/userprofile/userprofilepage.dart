@@ -114,121 +114,131 @@ class UserProfilePageState extends State<UserProfilePage>
                       ),
                     );
                   }
-                  if (!snapshot.hasData ||
-                      controller.userPhotos == null ||
-                      controller.userPhotos!.images.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No photos available.',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    );
-                  }
                   return Obx(() => SingleChildScrollView(
                         child: Column(
                           children: [
                             SizedBox(
                               height: MediaQuery.of(context).size.height * 0.2,
                               child: Scrollbar(
-                                child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount:
-                                      controller.userPhotos?.images.length ?? 0,
-                                  itemBuilder: (context, index) {
-                                    return Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: GestureDetector(
-                                        onTap: () => showFullImageDialog(
-                                            context,
-                                            controller
-                                                .userPhotos!.images[index]),
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                          child: controller.userPhotos!
-                                                  .images[index].isNotEmpty
-                                              ? Image.network(
-                                                  controller.userPhotos
-                                                          ?.images[index] ??
-                                                      '',
-                                                  fit: BoxFit.cover,
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.2,
-                                                  height: MediaQuery.of(context)
-                                                          .size
-                                                          .height *
-                                                      0.3,
-                                                  loadingBuilder: (context,
-                                                      child, loadingProgress) {
-                                                    if (loadingProgress ==
-                                                        null) {
-                                                      return child; // Image loaded, return the actual image
-                                                    } else {
-                                                      return Center(
-                                                        child:
-                                                            CircularProgressIndicator(
-                                                          value: loadingProgress
-                                                                      .expectedTotalBytes !=
-                                                                  null
-                                                              ? loadingProgress
-                                                                      .cumulativeBytesLoaded /
-                                                                  (loadingProgress
-                                                                          .expectedTotalBytes ??
-                                                                      1)
-                                                              : null,
-                                                        ),
-                                                      );
-                                                    }
-                                                  },
-                                                  errorBuilder: (context, error,
-                                                      stackTrace) {
-                                                    return Container(
-                                                      width:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.2,
-                                                      height:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .height *
-                                                              0.3,
-                                                      color: Colors.grey[300],
-                                                      alignment:
-                                                          Alignment.center,
-                                                      child: Icon(
-                                                        Icons
-                                                            .co_present_rounded,
-                                                        size: 70,
-                                                        color: Colors.grey,
-                                                      ),
-                                                    );
-                                                  },
-                                                )
-                                              : Container(
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.2,
-                                                  height: MediaQuery.of(context)
-                                                          .size
-                                                          .height *
-                                                      0.3,
-                                                  color: Colors.grey[300],
-                                                  alignment: Alignment.center,
-                                                  child: Icon(
-                                                    Icons.co_present_rounded,
-                                                    size: 50,
-                                                    color: Colors.grey,
-                                                  ),
-                                                ),
+                                child: (controller.userPhotos == null ||
+                                        controller.userPhotos!.images.isEmpty)
+                                    ? Center(
+                                        child: Text(
+                                          'No photos available.',
+                                          style: TextStyle(color: Colors.grey),
                                         ),
+                                      )
+                                    : ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: controller
+                                                .userPhotos?.images.length ??
+                                            0,
+                                        itemBuilder: (context, index) {
+                                          return Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: GestureDetector(
+                                              onTap: () => showFullImageDialog(
+                                                  context,
+                                                  controller.userPhotos!
+                                                      .images[index]),
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                                child: controller
+                                                        .userPhotos!
+                                                        .images[index]
+                                                        .isNotEmpty
+                                                    ? Image.network(
+                                                        controller.userPhotos
+                                                                    ?.images[
+                                                                index] ??
+                                                            '',
+                                                        fit: BoxFit.cover,
+                                                        width: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.2,
+                                                        height: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .height *
+                                                            0.3,
+                                                        loadingBuilder: (context,
+                                                            child,
+                                                            loadingProgress) {
+                                                          if (loadingProgress ==
+                                                              null) {
+                                                            return child;
+                                                          } else {
+                                                            return Center(
+                                                              child:
+                                                                  CircularProgressIndicator(
+                                                                value: loadingProgress
+                                                                            .expectedTotalBytes !=
+                                                                        null
+                                                                    ? loadingProgress
+                                                                            .cumulativeBytesLoaded /
+                                                                        (loadingProgress.expectedTotalBytes ??
+                                                                            1)
+                                                                    : null,
+                                                              ),
+                                                            );
+                                                          }
+                                                        },
+                                                        errorBuilder: (context,
+                                                            error, stackTrace) {
+                                                          return Container(
+                                                            width: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width *
+                                                                0.2,
+                                                            height: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .height *
+                                                                0.3,
+                                                            color: Colors
+                                                                .grey[300],
+                                                            alignment: Alignment
+                                                                .center,
+                                                            child: Icon(
+                                                              Icons
+                                                                  .co_present_rounded,
+                                                              size: 70,
+                                                              color:
+                                                                  Colors.grey,
+                                                            ),
+                                                          );
+                                                        },
+                                                      )
+                                                    : Container(
+                                                        width: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.2,
+                                                        height: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .height *
+                                                            0.3,
+                                                        color: Colors.grey[300],
+                                                        alignment:
+                                                            Alignment.center,
+                                                        child: Icon(
+                                                          Icons
+                                                              .co_present_rounded,
+                                                          size: 50,
+                                                          color: Colors.grey,
+                                                        ),
+                                                      ),
+                                              ),
+                                            ),
+                                          );
+                                        },
                                       ),
-                                    );
-                                  },
-                                ),
                               ),
                             ),
                             Padding(
@@ -246,8 +256,10 @@ class UserProfilePageState extends State<UserProfilePage>
                                                 .username.isNotEmpty
                                             ? controller
                                                 .usernameUpdateRequest.username
-                                            : controller
-                                                .userData.first.username,
+                                            : (controller.userData.isNotEmpty
+                                                ? controller
+                                                    .userData.first.username
+                                                : 'NA'),
                                         style: AppTextStyles.titleText.copyWith(
                                           fontSize: getResponsiveFontSize(0.03),
                                         ),

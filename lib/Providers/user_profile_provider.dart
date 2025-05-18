@@ -34,11 +34,11 @@ class UserProfileProvider extends GetConnect {
           return null;
         }
       } else {
-        failure('Error', response.body.toString());
+        // failure('Error', response.body.toString());
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in user photo', e.toString());
       return null;
     }
   }

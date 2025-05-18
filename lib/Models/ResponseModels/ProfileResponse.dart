@@ -99,14 +99,21 @@ class UserData {
   String genderName;
   String subGenderName;
 
-  // New fields
-  String lastSeen; // The user's last seen time
-  String packageStatus; // Package status (1 for active, etc.)
-  String minimumAge; // Minimum age for the user
-  String maximumAge; // Maximum age for the user
-  String rangeKm; // Range in kilometers
+  // New fields from JSON
+  String? points;
+  String? firstTranDone;
+  String? version;
+  String? banned;
+  String? hookupStatus;
+  String? incognativeMode;
+  String? moodId;
+  String? creator;
+  String? lastSeen; // Can be null
+  String? packageStatus;
+  String? minimumAge;
+  String? maximumAge;
+  String? rangeKm;
 
-  // Constructor
   UserData({
     required this.id,
     required this.name,
@@ -139,15 +146,22 @@ class UserData {
     required this.updated,
     required this.genderName,
     required this.subGenderName,
-    // New fields in the constructor
-    required this.lastSeen,
-    required this.packageStatus,
-    required this.minimumAge,
-    required this.maximumAge,
-    required this.rangeKm,
+    // New fields
+    this.points,
+    this.firstTranDone,
+    this.version,
+    this.banned,
+    this.hookupStatus,
+    this.incognativeMode,
+    this.moodId,
+    this.creator,
+    this.lastSeen,
+    this.packageStatus,
+    this.minimumAge,
+    this.maximumAge,
+    this.rangeKm,
   });
 
-  // Factory method for creating an instance from JSON
   factory UserData.fromJson(Map<String, dynamic> json) {
     return UserData(
       id: json['id'] ?? '',
@@ -162,35 +176,42 @@ class UserData {
       password: json['password'] ?? '',
       latitude: json['latitude'] ?? '',
       longitude: json['longitude'] ?? '',
-      otp: json['otp'] ?? '0',
-      type: json['type'] ?? '3',
+      otp: json['otp']?.toString() ?? '',
+      type: json['type']?.toString() ?? '',
       dob: json['dob'] ?? '',
       nickname: json['nickname'] ?? '',
       interest: json['interest'] ?? '',
       bio: json['bio'] ?? '',
-      emailAlerts: json['email_alerts'] ?? '1',
-      lookingFor: json['looking_for'] ?? '1',
+      emailAlerts: json['email_alerts']?.toString() ?? '',
+      lookingFor: json['looking_for']?.toString() ?? '',
       username: json['username'] ?? '',
       profileImage: json['profile_image'] ?? '',
-      userActiveStatus: json['user_active_status'] ?? '1',
-      statusSetting: json['status_setting'] ?? '1',
-      accountVerificationStatus: json['account_verification_status'] ?? '1',
-      accountHighlightStatus: json['account_highlight_status'] ?? '0',
-      status: json['status'] ?? '1',
+      userActiveStatus: json['user_active_status']?.toString() ?? '',
+      statusSetting: json['status_setting']?.toString() ?? '',
+      accountVerificationStatus: json['account_verification_status']?.toString() ?? '',
+      accountHighlightStatus: json['account_highlight_status']?.toString() ?? '',
+      status: json['status'] ?? '',
       created: json['created'] ?? '',
       updated: json['updated'] ?? '',
-      genderName: json['gender_name'] ?? 'male',
-      subGenderName: json['sub_gender_nm'] ?? 'other',
-      // New fields with their default values if not provided
-      lastSeen: json['last_seen'] ?? '',
-      packageStatus: json['package_status'] ?? '1',
-      minimumAge: json['minimumAge'] ?? '18',
-      maximumAge: json['maximumAge'] ?? '100',
-      rangeKm: json['rangeKm'] ?? '500',
+      genderName: json['gender_name'] ?? '',
+      subGenderName: json['sub_gender_nm'] ?? '',
+      // New fields
+      points: json['points']?.toString(),
+      firstTranDone: json['first_tran_done']?.toString(),
+      version: json['version']?.toString(),
+      banned: json['banned']?.toString(),
+      hookupStatus: json['hookup_status']?.toString(),
+      incognativeMode: json['incognative_mode']?.toString(),
+      moodId: json['mood_id']?.toString(),
+      creator: json['creator']?.toString(),
+      lastSeen: json['last_seen'] ?? json['lastSeen']?.toString(),
+      packageStatus: json['package_status']?.toString(),
+      minimumAge: json['minimumAge']?.toString(),
+      maximumAge: json['maximumAge']?.toString(),
+      rangeKm: json['rangeKm']?.toString(),
     );
   }
 
-  // Method to convert the object back to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -224,6 +245,14 @@ class UserData {
       'updated': updated,
       'gender_name': genderName,
       'sub_gender_nm': subGenderName,
+      'points': points,
+      'first_tran_done': firstTranDone,
+      'version': version,
+      'banned': banned,
+      'hookup_status': hookupStatus,
+      'incognative_mode': incognativeMode,
+      'mood_id': moodId,
+      'creator': creator,
       'last_seen': lastSeen,
       'package_status': packageStatus,
       'minimumAge': minimumAge,

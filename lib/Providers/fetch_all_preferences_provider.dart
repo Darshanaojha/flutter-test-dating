@@ -26,7 +26,7 @@ class FetchAllPreferencesProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in preferences', e.toString());
       return null;
     }
   }

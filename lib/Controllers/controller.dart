@@ -10,9 +10,12 @@ import 'package:dating_application/Models/RequestModels/update_activity_status_r
 import 'package:dating_application/Models/RequestModels/updating_package_request_model.dart';
 import 'package:dating_application/Models/ResponseModels/activity_status_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/change_password_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/creators_content_model.dart';
+import 'package:dating_application/Models/ResponseModels/creators_generic_response.dart';
 import 'package:dating_application/Models/ResponseModels/delete_chat_history_response.dart';
 import 'package:dating_application/Models/ResponseModels/deletefavourite_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_benifites_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/get_all_creators_packages_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_faq_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_favourites_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_gender_from_response_model.dart';
@@ -30,14 +33,18 @@ import 'package:dating_application/Providers/ReferalCodeProvider.dart';
 import 'package:dating_application/Providers/activity_status_provider.dart';
 import 'package:dating_application/Providers/app_setting_provider.dart';
 import 'package:dating_application/Providers/change_password_provider.dart';
+import 'package:dating_application/Providers/creators_all_content_provider.dart';
+import 'package:dating_application/Providers/creators_generic_provider.dart';
 import 'package:dating_application/Providers/delete_chat_history_provider.dart';
 import 'package:dating_application/Providers/fetch_all_add_on_provider.dart';
 import 'package:dating_application/Providers/fetch_all_chat_history_page.dart';
+import 'package:dating_application/Providers/fetch_all_creator_package_provider.dart';
 import 'package:dating_application/Providers/fetch_all_desires_provider.dart';
 import 'package:dating_application/Providers/fetch_all_faq_provider.dart';
 import 'package:dating_application/Providers/fetch_all_favourites_provider.dart';
 import 'package:dating_application/Providers/fetch_all_headlines_provider.dart';
 import 'package:dating_application/Providers/fetch_all_introslider_provider.dart';
+import 'package:dating_application/Providers/fetch_all_language_provider.dart';
 import 'package:dating_application/Providers/fetch_all_preferences_provider.dart';
 import 'package:dating_application/Providers/fetch_all_safety_guildlines_provider.dart';
 import 'package:dating_application/Providers/fetch_subscripted_package_provider.dart';
@@ -83,7 +90,6 @@ import '../Models/RequestModels/user_profile_update_request_model.dart';
 import '../Models/RequestModels/user_registration_request_model.dart';
 import '../Models/RequestModels/usernameupdate_request_model.dart';
 import '../Models/RequestModels/verify_account_request_model.dart';
-import '../Models/ResponseModels/BecomeCreatorPackagesResponse.dart';
 import '../Models/ResponseModels/GetPointAmountResponse.dart';
 import '../Models/ResponseModels/GetPointCreditedDebitedResponse.dart';
 import '../Models/ResponseModels/GetUsersTotalPointsResponse.dart';
@@ -133,7 +139,6 @@ import '../Models/ResponseModels/user_registration_response_model.dart';
 import '../Models/ResponseModels/user_suggestions_response_model.dart';
 import '../Models/ResponseModels/usernameupdate_response_model.dart';
 import '../Models/ResponseModels/verify_account_response_model.dart';
-import '../Providers/BecomeCreatorPackagesProvider.dart';
 import '../Providers/GetPointAmountProvider.dart';
 import '../Providers/GetPointCreditedDebitedProvider.dart';
 import '../Providers/GetUserTotalpointsProvider.dart';
@@ -146,7 +151,6 @@ import '../Providers/established_connection_message_provider.dart';
 import '../Providers/fetch_all_active_user_provider.dart';
 import '../Providers/fetch_all_countries_provider.dart';
 import '../Providers/fetch_all_genders_provider.dart';
-import '../Providers/fetch_all_language_provider.dart';
 import '../Providers/fetch_all_packages_provider.dart';
 import '../Providers/fetch_all_request_message_provider.dart';
 import '../Providers/fetch_benefits_provider.dart';
@@ -201,7 +205,7 @@ class Controller extends GetxController {
       await preferences.setString(
           'package_status', userLoginResponse.payload.packagestatus);
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error storeUserData', e.toString());
     }
   }
 
@@ -249,7 +253,8 @@ class Controller extends GetxController {
         return false;
       }
     } catch (e) {
-      failure('Error', 'An unexpected error occurred: ${e.toString()}');
+      failure(
+          'Error register', 'An unexpected error occurred: ${e.toString()}');
       return false;
     }
   }
@@ -269,7 +274,7 @@ class Controller extends GetxController {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error login', e.toString());
       return null;
     }
   }
@@ -348,14 +353,14 @@ class Controller extends GetxController {
 
       if (response != null && response.payload.data.isNotEmpty) {
         countries.addAll(response.payload.data);
-        print('Countries fetched successfully');
+        // print('Countries fetched successfully');
         return true;
       } else {
         failure('Error', 'No countries found in the response');
         return false;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error fetchCountries', e.toString());
       return false;
     }
   }
@@ -380,7 +385,7 @@ class Controller extends GetxController {
 
       if (response != null && response.payload.data.isNotEmpty) {
         language.addAll(response.payload.data);
-        print('Languages fetched successfully');
+        // print('Languages fetched successfully');
         return true;
       } else {
         failure('Error', 'No Languages found in the response');
@@ -604,14 +609,14 @@ class Controller extends GetxController {
       GenderResponse? response = await FetchAllGendersProvider().fetchGenders();
       if (response != null) {
         genders.addAll(response.payload.data);
-        print('Genders fetched successfully');
+        // print('Genders fetched successfully');
         return true;
       } else {
-        failure('Error', 'Error fetching the genders');
+        failure('Error fetchGenders', 'Error fetching the genders');
         return false;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error fetchGenders', e.toString());
       return false;
     }
   }
@@ -624,14 +629,14 @@ class Controller extends GetxController {
           await FetchAllPreferencesProvider().fetchPreferences();
       if (response != null) {
         preferences.addAll(response.payload.data);
-        print('User preferences fetched successfully');
+        // print('User preferences fetched successfully');
         return true;
       } else {
-        failure('Error', 'Error fetching the preferences');
+        failure('Error fetchPreferences', 'Error fetching the preferences');
         return false;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error fetchPreferences', e.toString());
       return false;
     }
   }
@@ -1304,7 +1309,7 @@ class Controller extends GetxController {
           await UserSuggestionsProvider().userSuggestions();
 
       if (response != null && response.payload != null) {
-        print('User fetched successfully');
+        // print('User fetched successfully');
 
         void addUniqueUsers(
             List<SuggestedUser> users, RxList<SuggestedUser> targetList) {
@@ -1479,7 +1484,7 @@ class Controller extends GetxController {
       final FAQResponseModel? response = await FetchAllFaqProvider().fetchFaq();
       if (response != null && response.payload.data.isNotEmpty) {
         faq.addAll(response.payload.data);
-        print('FAQs fetched successfully');
+        // print('FAQs fetched successfully');
         return response;
       } else {
         failure('Error', 'No FAQs found in the response');
@@ -2138,11 +2143,53 @@ class Controller extends GetxController {
 
   Future<bool> fetchAllPackagesForCreator() async {
     try {
-      BecomeCreatorPackagesResponseModel? response =
-          await FetchAllBecomeCreatorPackageProvider().getAllCreatorPackages();
+      CreatorPackageResponse? response =
+          await FetchAllCreatorPackageProvider().fetchCreatorPackage();
 
       if (response != null && response.success) {
         packageforcreator.assignAll(response.data);
+        debugPrint('Successfully fetched all the Packages For Creator');
+        return true;
+      } else {
+        failure('Error', response?.message ?? 'Unknown error');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', 'An exception occurred: ${e.toString()}');
+      return false;
+    }
+  }
+
+  RxList<CreatorContent> creatorContent = <CreatorContent>[].obs;
+  Future<bool> fetchAllCreatorContent() async {
+    try {
+      CreatorContentResponse? response =
+          await CreatorAllContentProvider().fetchCreatorContent();
+
+      if (response != null && response.success) {
+        creatorContent.assignAll(response.data);
+        debugPrint('Successfully fetched all the Packages For Creator');
+        return true;
+      } else {
+        failure('Error', response?.message ?? 'Unknown error');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', 'An exception occurred: ${e.toString()}');
+      return false;
+    }
+  }
+
+  RxList<CreatorGeneric> creatorGeneric = <CreatorGeneric>[].obs;
+  Future<bool> fetchAllCreatorGeneric() async {
+    try {
+      CreatorGenericResponse? response =
+          await FetchAllCreatorGenericProvider().fetchCreatorGeneric();
+
+      if (response != null && response.success) {
+        // Flatten the list of lists
+        final flatList = response.data.expand((x) => x).toList();
+        creatorGeneric.assignAll(flatList);
         debugPrint('Successfully fetched all the Packages For Creator');
         return true;
       } else {
