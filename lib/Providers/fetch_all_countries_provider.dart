@@ -25,7 +25,7 @@ class FetchAllCountriesProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure("Error", e.toString());
+      failure("Error in countries", e.toString());
       return null;
     }
   }

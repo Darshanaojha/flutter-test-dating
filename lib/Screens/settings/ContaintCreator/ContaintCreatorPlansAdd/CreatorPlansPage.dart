@@ -51,6 +51,8 @@ class CreatorPlansPage extends StatelessWidget {
     'vip': const Color(0xfff39060),
   };
 
+   CreatorPlansPage({super.key});
+
   Color getTypeColor(String type) =>
       typeColors[type.toLowerCase()] ?? Colors.grey.shade800;
 

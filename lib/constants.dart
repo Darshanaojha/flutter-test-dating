@@ -5,10 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 
 const encryptionkey = "flamrpisyst2024!";
 const secretkey = "ArqamzSnehaSadiq@flamrdating2024";
-const baseurl = "http://192.168.1.15/dating_backend_springboot/admin";
-const ip = "http://192.168.1.15/dating_backend_springboot/";
+const baseurl = "http://192.168.1.2/dating_backend_springboot/admin";
+const ip = "http://192.168.1.2/dating_backend_springboot/";
 
-const springbooturl = "http://192.168.1.15:8080/";
+const springbooturl = "http://192.168.1.2:8080";
 
 const registerUrl = "Authentication/register";
 const loginUrl = "Authentication/login";
@@ -22,10 +22,10 @@ class AppColors {
   static Color primaryColor = Colors.black;
   static Color disabled = Colors.grey;
   static Color secondaryColor = Color(0xFF1C1C1C);
-  static Color NopeColor = Color.fromARGB(255, 144, 184, 208);
-  static Color FavouriteColor = Color.fromARGB(255, 97, 154, 187);
-  static Color LikeColor = Color.fromARGB(255, 162, 168, 162);
-  static Color FilterChipColor = Colors.grey;
+  static Color nopeColor = Color.fromARGB(255, 144, 184, 208);
+  static Color favouriteColor = Color.fromARGB(255, 97, 154, 187);
+  static Color likeColor = Color.fromARGB(255, 162, 168, 162);
+  static Color filterChipColor = Colors.grey;
   static Color textColor = Colors.white;
   static Color accentColor = Colors.black;
   static Color cursorColor = Colors.white;

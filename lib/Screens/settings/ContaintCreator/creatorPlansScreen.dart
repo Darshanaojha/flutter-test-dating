@@ -3,26 +3,8 @@ import 'package:get/get.dart';
 
 import '../../../constants.dart';
 import 'CreatorFormPage.dart';
-
-class PricingModel {
-  final String title;
-  final double offerAmount;
-  final double actualAmount;
-  final int duration;
-  final String unit;
-  final String description;
-  final String type;
-
-  PricingModel({
-    required this.title,
-    required this.offerAmount,
-    required this.actualAmount,
-    required this.duration,
-    required this.unit,
-    required this.description,
-    required this.type,
-  });
-}
+import '../../../Controllers/controller.dart';
+import '../../../Models/ResponseModels/get_all_creators_packages_model.dart';
 
 class PricingPage extends StatefulWidget {
   const PricingPage({super.key});
@@ -32,8 +14,10 @@ class PricingPage extends StatefulWidget {
 }
 
 class PricingPageState extends State<PricingPage> {
-  bool isYearly = false;
+  String selectedType = 'CUT'; // Default filter
   int? selectedIndex;
+
+  final Controller controller = Get.put(Controller());
 
   Gradient commonGradient = const LinearGradient(
     colors: [
@@ -50,41 +34,26 @@ class PricingPageState extends State<PricingPage> {
     end: Alignment.bottomRight,
   );
 
-  List<PricingModel> get pricingPlans => [
-        PricingModel(
-          title: "Starter",
-          offerAmount: isYearly ? 79.99 : 9.99,
-          actualAmount: isYearly ? 99.99 : 14.99,
-          duration: isYearly ? 12 : 1,
-          unit: "month${isYearly ? 's' : ''}",
-          description:
-              "Access to basic features\nSupport via email\n1 project slot",
-          type: "basic",
-        ),
-        PricingModel(
-          title: "Pro",
-          offerAmount: isYearly ? 149.99 : 19.99,
-          actualAmount: isYearly ? 199.99 : 29.99,
-          duration: isYearly ? 12 : 3,
-          unit: "month${isYearly ? 's' : ''}",
-          description:
-              "Access to all features\nPriority support\n5 project slots",
-          type: "cut",
-        ),
-        PricingModel(
-          title: "Ultimate",
-          offerAmount: isYearly ? 399.99 : 49.99,
-          actualAmount: isYearly ? 499.99 : 59.99,
-          duration: 12,
-          unit: "months",
-          description:
-              "All features unlocked\nDedicated manager\nUnlimited projects",
-          type: "premium",
-        ),
-      ];
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
+  }
+
+  String getTypeDescription(String type) {
+    switch (type) {
+      case 'CUT':
+        return "CUT plans offer exclusive, time-limited deals for creators.";
+      case 'NORMAL':
+        return "NORMAL plans provide standard access to premium features.";
+      default:
+        return "";
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    controller.fetchAllPackagesForCreator();
   }
 
   @override
@@ -97,76 +66,111 @@ class PricingPageState extends State<PricingPage> {
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.02,
             ),
-            // Toggle switch
+            // Type filter
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  "Monthly",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: getResponsiveFontSize(0.03),
-                    color: Colors.white,
-                  ),
-                ),
-                Switch(
-                  value: isYearly,
-                  onChanged: (value) {
+                ChoiceChip(
+                  label: const Text('CUT'),
+                  selected: selectedType == 'CUT',
+                  onSelected: (selected) {
                     setState(() {
-                      isYearly = value;
+                      selectedType = 'CUT';
+                      selectedIndex = null;
                     });
                   },
-                  activeColor: Colors.amber,
-                ),
-                Text(
-                  "Yearly",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: getResponsiveFontSize(0.03),
-                    color: Colors.white,
+                  selectedColor: Colors.amber,
+                  labelStyle: TextStyle(
+                    color: selectedType == 'CUT' ? Colors.black : Colors.white,
                   ),
+                  backgroundColor: Colors.grey[800],
+                ),
+                SizedBox(width: 16),
+                ChoiceChip(
+                  label: const Text('NORMAL'),
+                  selected: selectedType == 'NORMAL',
+                  onSelected: (selected) {
+                    setState(() {
+                      selectedType = 'NORMAL';
+                      selectedIndex = null;
+                    });
+                  },
+                  selectedColor: Colors.amber,
+                  labelStyle: TextStyle(
+                    color:
+                        selectedType == 'NORMAL' ? Colors.black : Colors.white,
+                  ),
+                  backgroundColor: Colors.grey[800],
                 ),
               ],
+            ),
+            SizedBox(height: 8),
+            // Short description for selected type
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Text(
+                getTypeDescription(selectedType),
+                style: AppTextStyles.bodyText.copyWith(
+                  color: Colors.white70,
+                  fontSize: getResponsiveFontSize(0.028),
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.02,
             ),
-
             // Cards
             Expanded(
               child: Center(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: pricingPlans.asMap().entries.map((entry) {
-                      int index = entry.key;
-                      PricingModel plan = entry.value;
-
-                      return Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedIndex = index;
-                              });
-                            },
-                            child: AnimatedScale(
-                              duration: Duration(milliseconds: 200),
-                              scale: selectedIndex == index ? 1.05 : 1.0,
-                              child: PricingCard(
-                                plan: plan,
-                                gradient: commonGradient,
-                                isSelected: selectedIndex == index,
+                child: Obx(() {
+                  if (controller.packageforcreator.isEmpty) {
+                    return const CircularProgressIndicator();
+                  }
+                  final filteredPlans = controller.packageforcreator
+                      .where((plan) => plan.type.toUpperCase() == selectedType)
+                      .toList();
+                  if (filteredPlans.isEmpty) {
+                    return Text(
+                      "No plans available for this type.",
+                      style:
+                          AppTextStyles.bodyText.copyWith(color: Colors.white),
+                    );
+                  }
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: filteredPlans.asMap().entries.map((entry) {
+                        int index = entry.key;
+                        PackageForCreator plan = entry.value;
+                        return Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  selectedIndex = index;
+                                });
+                              },
+                              child: AnimatedScale(
+                                duration: const Duration(milliseconds: 200),
+                                scale: selectedIndex == index ? 1.05 : 1.0,
+                                child: CreatorPricingCard(
+                                  plan: plan,
+                                  gradient: commonGradient,
+                                  isSelected: selectedIndex == index,
+                                ),
                               ),
                             ),
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.02,
-                          ),
-                        ],
-                      );
-                    }).toList(),
-                  ),
-                ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.02,
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+                  );
+                }),
               ),
             ),
             SizedBox(
@@ -179,12 +183,12 @@ class PricingPageState extends State<PricingPage> {
   }
 }
 
-class PricingCard extends StatelessWidget {
-  final PricingModel plan;
+class CreatorPricingCard extends StatelessWidget {
+  final PackageForCreator plan;
   final Gradient gradient;
   final bool isSelected;
 
-  const PricingCard({
+  const CreatorPricingCard({
     super.key,
     required this.plan,
     required this.gradient,
@@ -219,7 +223,7 @@ class PricingCard extends StatelessWidget {
         children: [
           Text(
             plan.title,
-            style: TextStyle(
+            style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: Colors.white70),
@@ -229,7 +233,7 @@ class PricingCard extends StatelessWidget {
           ),
           Text(
             "₹${plan.offerAmount.toStringAsFixed(2)}",
-            style: TextStyle(
+            style: const TextStyle(
                 fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           if (plan.offerAmount < plan.actualAmount) ...[
@@ -241,6 +245,7 @@ class PricingCard extends StatelessWidget {
               style: AppTextStyles.bodyText.copyWith(
                 fontSize: getResponsiveFontSize(0.03),
                 color: Colors.white,
+                decoration: TextDecoration.lineThrough,
               ),
             ),
           ],

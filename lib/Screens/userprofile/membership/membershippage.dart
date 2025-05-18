@@ -135,7 +135,7 @@ class MembershipPageState extends State<MembershipPage>
             },
             transitionType: TransitionType.LEFT_TO_RIGHT,
             textStyle: AppTextStyles.buttonText.copyWith(fontSize: 12),
-            backgroundColor: AppColors.FavouriteColor,
+            backgroundColor: AppColors.favouriteColor,
             selectedBackgroundColor: AppColors.activeColor,
             borderRadius: 16.0,
             height: 50,

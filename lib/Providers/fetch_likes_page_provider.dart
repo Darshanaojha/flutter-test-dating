@@ -35,7 +35,7 @@ class FetchLikesPageProvider extends GetConnect {
           return null;
         }
       } else {
-        failure(response.statusCode, response.body['error']['message']);
+        // failure(response.statusCode, response.body['error']['message']);
         return null;
       }
     } catch (e) {

@@ -1,21 +1,20 @@
 class UserUploadImagesResponse {
   final bool success;
-  final UserUploadImagesPayload? payload; 
+  final UserUploadImagesPayload? payload;
   final ApiError error;
 
   UserUploadImagesResponse({
     required this.success,
-    this.payload, 
+    this.payload,
     required this.error,
   });
-
 
   factory UserUploadImagesResponse.fromJson(Map<String, dynamic> json) {
     return UserUploadImagesResponse(
       success: json['success'],
       payload: json['payload'] != null
           ? UserUploadImagesPayload.fromJson(json['payload'])
-          : null, 
+          : null,
       error: ApiError.fromJson(json['error']),
     );
   }
@@ -23,8 +22,7 @@ class UserUploadImagesResponse {
   Map<String, dynamic> toJson() {
     return {
       'success': success,
-      'payload':
-          payload?.toJson(), 
+      'payload': payload?.toJson(),
       'error': error.toJson(),
     };
   }
@@ -32,27 +30,31 @@ class UserUploadImagesResponse {
 
 class UserUploadImagesPayload {
   final String message;
-  final UserImageData? data; 
+  final UserImageData? data;
 
   UserUploadImagesPayload({
     required this.message,
-    this.data, 
+    this.data,
   });
 
   factory UserUploadImagesPayload.fromJson(Map<String, dynamic> json) {
+    final dataJson = json['data'];
+    UserImageData? userImageData;
+    if (dataJson is Map<String, dynamic>) {
+      userImageData = UserImageData.fromJson(dataJson);
+    } else {
+      userImageData = null;
+    }
     return UserUploadImagesPayload(
       message: json['message'],
-      data: json['data'] != null
-          ? UserImageData.fromJson(json['data'])
-          : null,
+      data: userImageData,
     );
   }
-
 
   Map<String, dynamic> toJson() {
     return {
       'message': message,
-      'data': data?.toJson(), 
+      'data': data?.toJson(),
     };
   }
 }
@@ -84,15 +86,14 @@ class UserImageData {
     required this.updated,
   });
 
-
   factory UserImageData.fromJson(Map<String, dynamic> json) {
     return UserImageData(
       id: json['id'],
       userId: json['user_id'],
-      img1: json['img1'] ?? '', 
+      img1: json['img1'] ?? '',
       img2: json['img2'] ?? '',
-      img3: json['img3'] ?? '', 
-      img4: json['img4'] ?? '', 
+      img3: json['img3'] ?? '',
+      img4: json['img4'] ?? '',
       img5: json['img5'] ?? '',
       img6: json['img6'] ?? '',
       status: json['status'],
@@ -121,8 +122,7 @@ class UserImageData {
     List<String> imageList = [img1, img2, img3, img4, img5, img6];
     imageList = imageList.where((image) => image.isNotEmpty).toList();
     while (imageList.length < 3) {
-      imageList
-          .add(''); 
+      imageList.add('');
     }
     return imageList.take(6).toList();
   }
@@ -137,12 +137,10 @@ class ApiError {
     required this.message,
   });
 
-
   factory ApiError.fromJson(Map<String, dynamic> json) {
     return ApiError(
       code: json['code'],
-      message:
-          json['message'] ?? '', 
+      message: json['message'] ?? '',
     );
   }
 

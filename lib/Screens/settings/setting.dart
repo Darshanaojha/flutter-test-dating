@@ -79,7 +79,7 @@ class SettingsPageState extends State<SettingsPage> {
 
   Future<void> saveIncognativeStatus(bool value) async {
     EncryptedSharedPreferences prefs =
-        await EncryptedSharedPreferences.getInstance();
+        EncryptedSharedPreferences.getInstance();
     await prefs.setBoolean('incognativeMode', value);
     Get.snackbar("Incognative Mode Save ", value.toString());
   }
@@ -93,7 +93,7 @@ class SettingsPageState extends State<SettingsPage> {
 
   Future<void> saveHookUpStatus(bool value) async {
     EncryptedSharedPreferences prefs =
-        await EncryptedSharedPreferences.getInstance();
+        EncryptedSharedPreferences.getInstance();
     await prefs.setBoolean('HookUpMode', value);
     Get.snackbar("HookUp Save ", value.toString());
   }
@@ -544,7 +544,7 @@ class SettingsCard extends StatelessWidget {
   final String title;
   final Widget child;
 
-  const SettingsCard({
+  const SettingsCard({super.key, 
     required this.icon,
     required this.title,
     required this.child,

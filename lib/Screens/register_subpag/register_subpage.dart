@@ -2283,7 +2283,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                                             .styleFrom(
                                                           backgroundColor:
                                                               AppColors
-                                                                  .FavouriteColor,
+                                                                  .favouriteColor,
                                                           foregroundColor:
                                                               AppColors
                                                                   .textColor,
@@ -2302,7 +2302,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                                                 Icons
                                                                     .camera_alt,
                                                                 color: AppColors
-                                                                    .FavouriteColor),
+                                                                    .favouriteColor),
                                                             SizedBox(width: 8),
                                                             Text(
                                                               "Camera",
@@ -2327,7 +2327,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                                             .styleFrom(
                                                           backgroundColor:
                                                               AppColors
-                                                                  .FavouriteColor,
+                                                                  .favouriteColor,
                                                           foregroundColor:
                                                               AppColors
                                                                   .textColor,
@@ -2344,7 +2344,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                                           children: [
                                                             Icon(Icons.photo,
                                                                 color: AppColors
-                                                                    .FavouriteColor),
+                                                                    .favouriteColor),
                                                             const SizedBox(
                                                                 width: 8),
                                                             Text(

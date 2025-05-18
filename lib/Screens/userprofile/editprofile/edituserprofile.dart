@@ -36,6 +36,7 @@ class EditProfilePageState extends State<EditProfilePage>
   RxBool emailAlerts = true.obs;
   RxBool visibility_status = true.obs;
   bool optOutOfPingNote = true;
+
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
@@ -52,11 +53,9 @@ class EditProfilePageState extends State<EditProfilePage>
   Rx<String> selectedOption = ''.obs;
   Rx<Gender?> selectedGender = Rx<Gender?>(null);
   RxString selectedSubGender = ''.obs;
-
   List<String> interestsList = [];
   RxList<bool> preferencesSelectedOptions = <bool>[].obs;
   RxList<String> selectedPreferences = <String>[].obs;
-
   TextEditingController interestController = TextEditingController();
   RxList<String> updatedSelectedInterests = <String>[].obs;
 
@@ -192,13 +191,13 @@ class EditProfilePageState extends State<EditProfilePage>
           preferencesSelectedOptions[index] = true;
         }
       }
-      print("Matching indexes: $matchingIndexes");
+      // print("Matching indexes: $matchingIndexes");
 
-      print(
-          "DOB : ${controller.userProfileUpdateRequest.dob} and previous ${controller.userData.first.dob}");
-      selectedDate = DateFormat('dd/MM/yyyy')
-          .parse(controller.userProfileUpdateRequest.dob);
-      print("SelectedDate: $selectedDate");
+      // print(
+      //     "DOB : ${controller.userProfileUpdateRequest.dob} and previous ${controller.userData.first.dob}");
+      // selectedDate = DateFormat('dd/MM/yyyy')
+      //     .parse(controller.userProfileUpdateRequest.dob);
+      // print("SelectedDate: $selectedDate");
 
       latitudeController.text = controller.userData.first.latitude.isNotEmpty
           ? controller.userData.first.latitude
@@ -706,11 +705,11 @@ class EditProfilePageState extends State<EditProfilePage>
                                       height:
                                           MediaQuery.of(context).size.height *
                                               0.25,
-                                      child: controller
-                                              .userPhotos!.images.isEmpty
+                                      child: (controller.userPhotos == null ||
+                                              controller.userPhotos!.images
+                                                  .isEmpty)
                                           ? Center(
-                                              child:
-                                                  Text("No images available"))
+                                              child: Text("No images available"))
                                           : Scrollbar(
                                               child: ListView.builder(
                                                 scrollDirection: Axis.vertical,
@@ -2387,7 +2386,7 @@ class EditProfilePageState extends State<EditProfilePage>
       }
     }
     controller.userProfileUpdateRequest.lang = selectedLanguagesId;
-    print("Selected Lang Id : ${selectedLanguagesId.toList()}");
+    // print("Selected Lang Id : ${selectedLanguagesId.toList()}");
   }
 
   void showLanguageSelectionBottomSheet(BuildContext context) {

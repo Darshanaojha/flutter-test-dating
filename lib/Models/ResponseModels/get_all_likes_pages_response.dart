@@ -99,44 +99,50 @@ class LikeRequestPages {
     List<String> imagesList = [];
     for (var i = 1; i <= 6; i++) {
       String imgKey = 'img$i';
-      if (json[imgKey] != null && json[imgKey].isNotEmpty) {
-        imagesList.add(json[imgKey]);
+      if (json[imgKey] != null && json[imgKey].toString().isNotEmpty) {
+        imagesList.add(json[imgKey].toString());
       }
     }
 
     List<String> desiresList = [];
     if (json['desires'] != null) {
       for (var desire in json['desires']) {
-        desiresList.add(desire['title']);
+        desiresList.add(desire['title'].toString());
       }
     }
 
     List<String> preferencesList = [];
     if (json['preferences'] != null) {
       for (var preference in json['preferences']) {
-        preferencesList.add(preference['title']);
+        preferencesList.add(preference['title'].toString());
       }
     }
 
     return LikeRequestPages(
-      id: json['id'],
-      userId: json['user_id'],
-      conectionId: json['conection_id'],
-      type: json['type'],
-      status: json['status'],
-      created: json['created'],
-      updated: json['updated'],
-      name: json['name'] ?? '',
-      nickname: json['nickname'] ?? '',
-      email: json['email'] ?? '',
-      profileImage: json['profile_image'] ?? '',
-      dob: json['DOB'] ?? '',
-      likedByMe: json['likeed_by_me'] ?? 0,
-      gender: json['gender'] ?? '',
-      countryName: json['countryname'] ?? '',
-      images: imagesList,
-      desires: desiresList,
-      preferences: preferencesList,
+      id: json['id']?.toString() ?? '',
+      userId: json['user_id']?.toString() ?? '',
+      conectionId: json['conection_id']?.toString() ?? '',
+      type: json['type']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+      created: json['created']?.toString() ?? '',
+      updated: json['updated']?.toString() ?? '',
+      name: json['name']?.toString(),
+      nickname: json['nickname']?.toString(),
+      email: json['email']?.toString(),
+      profileImage: json['profile_image']?.toString() ?? '',
+      dob: json['DOB']?.toString() ?? '',
+      likedByMe: json['likeed_by_me'] is int
+          ? json['likeed_by_me']
+          : int.tryParse(json['likeed_by_me']?.toString() ?? '0') ?? 0,
+      gender: json['gender']?.toString() ?? '',
+      countryName: json['countryname']?.toString() ?? '',
+      images:
+          (json['images'] as List?)?.map((e) => e.toString()).toList() ?? [],
+      desires:
+          (json['desires'] as List?)?.map((e) => e.toString()).toList() ?? [],
+      preferences:
+          (json['preferences'] as List?)?.map((e) => e.toString()).toList() ??
+              [],
     );
   }
 
