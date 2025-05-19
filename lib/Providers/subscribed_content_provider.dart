@@ -1,10 +1,10 @@
+import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-import 'package:dating_application/constants.dart';
-import 'package:dating_application/Models/ResponseModels/subscribed_content_response.dart';
+import '../Models/ResponseModels/creator_package_response.dart';
 
-class SubscribedContentProvider extends GetConnect {
-  Future<SubscribedContentResponse?> fetchSubscribedContent() async {
+class FetchAllBecomeCreatorPackageProvider extends GetConnect {
+  Future<PackageResponse?> getAllCreatorPackages() async {
     try {
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
@@ -12,8 +12,8 @@ class SubscribedContentProvider extends GetConnect {
 
       if (token != null && token.isNotEmpty) {
         Response response = await get(
-          '$springbooturl/creator/subscribed-content/',
-          headers: <String, String>{
+          "$springbooturl/creator/get-creators-packages-userSide",
+          headers: {
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token',
           },
@@ -25,7 +25,15 @@ class SubscribedContentProvider extends GetConnect {
         }
 
         if (response.statusCode == 200) {
-          return SubscribedContentResponse.fromJson(response.body);
+          final body = response.body;
+
+          if (body is Map && body['success'] == true) {
+            return PackageResponse.fromJson(
+                body as Map<String, dynamic>);
+          } else {
+            failure('Error', body['message'] ?? 'Unknown error occurred');
+            return null;
+          }
         } else {
           failure('Error', response.body.toString());
           return null;

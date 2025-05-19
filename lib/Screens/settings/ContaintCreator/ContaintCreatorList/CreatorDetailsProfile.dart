@@ -33,7 +33,6 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
   final RxSet<String> likedMedia = <String>{}.obs;
   late List<MediaItem> photos;
   late List<MediaItem> videos;
-  late List<MediaItem> others;
   Set<String> unlockedMediaUrls = {};
 
   @override
@@ -51,12 +50,6 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
         price: 2.99,
       );
     });
-    others = List.generate(4, (index) {
-      return MediaItem(
-        url: "https://picsum.photos/id/${index + 60}/300/300",
-        price: 1.99,
-      );
-    });
   }
 
   List<MediaItem> _getMediaList() {
@@ -65,8 +58,6 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
         return photos;
       case 1:
         return videos;
-      case 2:
-        return others;
       default:
         return [];
     }
@@ -77,109 +68,103 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
     final mediaList = _getMediaList();
 
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
         backgroundColor: Colors.black,
-        centerTitle: true,
-        title: Text(widget.name, style: const TextStyle(color: Colors.white)),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _buildProfileHeader(),
-          const SizedBox(height: 16),
-          _buildBioSection(),
-          const SizedBox(height: 20),
-          _buildTabBar(),
-          const SizedBox(height: 20),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: mediaList.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              childAspectRatio: 1,
-            ),
-            itemBuilder: (context, index) {
-              final media = _getMediaList()[index];
-              final isLocked =
-                  !isSubscribed && !unlockedMediaUrls.contains(media.url);
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          centerTitle: true,
+          title: Text(widget.name, style: const TextStyle(color: Colors.white)),
+        ),
+        body: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            _buildProfileHeader(),
+            const SizedBox(height: 16),
+            _buildBioSection(),
+            const SizedBox(height: 20),
+            _buildTabBar(),
+            const SizedBox(height: 20),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: mediaList.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                childAspectRatio: 1,
+              ),
+              itemBuilder: (context, index) {
+                final media = _getMediaList()[index];
+                final isLocked =
+                    !isSubscribed && !unlockedMediaUrls.contains(media.url);
 
-              return GestureDetector(
-                onTap: () {
-                  if (!isLocked) {
-                    _showMediaDialog(media);
-                  } else {
-                    _showPaymentDialog(media);
-                  }
-                },
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      // Display the media (photo/video)
-                      Image.network(
-                        media.url,
-                        fit: BoxFit.cover,
-                      ),
-
-                      // If the media is locked, apply a blur effect
-                      if (isLocked)
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                            child: Container(
-                              color: Colors.black.withOpacity(0.4),
-                            ),
-                          ),
+                return GestureDetector(
+                  onTap: () {
+                    if (!isLocked) {
+                      _showMediaDialog(media);
+                    } else {
+                      _showPaymentDialog(media);
+                    }
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        // Display the media (photo/video)
+                        Image.network(
+                          media.url,
+                          fit: BoxFit.cover,
                         ),
 
-                      // Show a lock icon on locked media
-                      if (isLocked)
-                        const Center(
-                          child: Icon(Icons.lock_outline,
-                              color: Colors.white70, size: 36),
-                        ),
-
-                      // If the media has a price, show the price tag for locked items
-                      if (media.price != null && isLocked)
-                        Positioned(
-                          bottom: 8,
-                          right: 8,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.black87,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              '₹${media.price!.toStringAsFixed(2)}',
-                              style: AppTextStyles.bodyText.copyWith(
-                                fontSize: getResponsiveFontSize(0.03),
-                                color: Colors.white,
+                        // If the media is locked, apply a blur effect
+                        if (isLocked)
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                              child: Container(
+                                color: Colors.black.withOpacity(0.4),
                               ),
                             ),
                           ),
-                        ),
-                    ],
+
+                        // Show a lock icon on locked media
+                        if (isLocked)
+                          const Center(
+                            child: Icon(Icons.lock_outline,
+                                color: Colors.white70, size: 36),
+                          ),
+
+                        // If the media has a price, show the price tag for locked items
+                        if (media.price != null && isLocked)
+                          Positioned(
+                            bottom: 8,
+                            right: 8,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.black87,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                '₹${media.price!.toStringAsFixed(2)}',
+                                style: AppTextStyles.bodyText.copyWith(
+                                  fontSize: getResponsiveFontSize(0.03),
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
-          )
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.pinkAccent,
-        onPressed: () {},
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
-    );
+                );
+              },
+            )
+          ],
+        ));
   }
 
   double getResponsiveFontSize(double scale) {
@@ -209,7 +194,8 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _statItem(FontAwesomeIcons.layerGroup, widget.photos, "Posts"),
+                _statItem(FontAwesomeIcons.layerGroup,
+                    widget.photos + widget.videos, "Posts"),
                 _statItem(
                     FontAwesomeIcons.users, widget.followers, "Followers"),
                 _statItem(
@@ -246,67 +232,40 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
   }
 
   Widget _buildBioSection() {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            FilledButton(
-              onPressed: () {},
-              child: Text(
-                'Follow',
-                style: AppTextStyles.bodyText.copyWith(
-                  fontSize: getResponsiveFontSize(0.03),
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            OutlinedButton(
-              onPressed: () {
-                setState(() {
-                  isSubscribed = !isSubscribed;
-                });
-              },
-              style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: Colors.pinkAccent)),
-              child: Text(isSubscribed ? 'Unsubscribe' : 'Subscribe'),
-            ),
-          ],
+    return OutlinedButton(
+      onPressed: () {
+        setState(() {
+          isSubscribed = !isSubscribed;
+        });
+      },
+      style: OutlinedButton.styleFrom(
+        side: const BorderSide(color: Colors.deepPurple),
+        backgroundColor:
+            isSubscribed ? Colors.black87 : Colors.deepPurple.shade900,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
-        const SizedBox(height: 12),
-        GestureDetector(
-          onTap: () {},
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.edit, color: Colors.white70, size: 18),
-              SizedBox(width: 8),
-              Text(
-                "Add a bio...",
-                style: AppTextStyles.bodyText.copyWith(
-                  fontSize: getResponsiveFontSize(0.03),
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
+      ),
+      child: Text(
+        isSubscribed ? 'Unsubscribe' : 'Subscribe',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+          color: isSubscribed ? Colors.grey.shade300 : Colors.white,
         ),
-      ],
+      ),
     );
   }
 
   Widget _buildTabBar() {
-    final tabs = ["Photos", "Videos", "Others"];
-    final icons = [
-      FontAwesomeIcons.image,
-      FontAwesomeIcons.video,
-      FontAwesomeIcons.ellipsis
-    ];
+    final tabs = ["Photos", "Videos"];
+    final icons = [FontAwesomeIcons.image, FontAwesomeIcons.video];
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: List.generate(3, (index) {
+      children: List.generate(2, (index) {
         final isSelected = selectedTabIndex == index;
         return GestureDetector(
           onTap: () => setState(() => selectedTabIndex = index),
@@ -425,19 +384,33 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: Colors.grey[900],
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title:
-              const Text("Unlock Media", style: TextStyle(color: Colors.white)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            "Unlock Media",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           content: Text(
             "Pay ₹${media.price?.toStringAsFixed(2)} to unlock this content?",
-            style: const TextStyle(color: Colors.white70),
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 16,
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child:
-                  const Text("Cancel", style: TextStyle(color: Colors.white54)),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.grey[400],
+              ),
+              child: const Text(
+                "Cancel",
+                style: TextStyle(fontSize: 14),
+              ),
             ),
             ElevatedButton(
               onPressed: () {
@@ -447,7 +420,21 @@ class _CreatorProfilePageState extends State<CreatorsProfilePage> {
                   unlockedMediaUrls.add(media.url);
                 });
               },
-              child: const Text("Pay Now"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurple.shade700,
+                foregroundColor: Colors.white,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                shadowColor: Colors.deepPurpleAccent,
+                elevation: 5,
+              ),
+              child: const Text(
+                "Pay Now",
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         );

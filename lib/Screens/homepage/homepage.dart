@@ -463,12 +463,13 @@ class HomePageState extends State<HomePage>
                               Get.snackbar('userfavourite',
                                   controller.favourite.length.toString());
                             }),
-                            buildFilterButton(2, 'Creators', FontAwesome.artstation_brand,
-                                (value) {
+                            buildFilterButton(
+                                2, 'Creators', FontAwesome.artstation_brand,
+                                (value) async {
+                              await controller.getAllCreators();
                               setState(() {
-                              Get.to(CreatorListPage());
+                                Get.to(CreatorListPage());
                               });
-                              
                             }),
                           ],
                         ),

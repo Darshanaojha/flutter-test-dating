@@ -29,11 +29,11 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-
+    flavorDimensions "default"
     defaultConfig {
         applicationId = "com.pisyst.dating_application"
         minSdkVersion 23
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -45,6 +45,11 @@ android {
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
     }
 }
 

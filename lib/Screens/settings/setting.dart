@@ -319,7 +319,7 @@ class SettingsPageState extends State<SettingsPage> {
                               color: Colors.amberAccent),
                           SizedBox(width: 12),
                           Text(
-                            'Become Containt Creator',
+                            'Become Content Creator',
                             style: TextStyle(
                               fontSize: 20,
                               color: Colors.white,
