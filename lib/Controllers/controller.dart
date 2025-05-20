@@ -2,14 +2,21 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
+
+import 'package:crypto/crypto.dart';
+import 'package:dating_application/Models/RequestModels/add_user_to_creator_request.dart';
 import 'package:dating_application/Models/RequestModels/change_password_request.dart';
+import 'package:dating_application/Models/RequestModels/creator_order_request_model.dart';
 import 'package:dating_application/Models/RequestModels/delete_chat_history_request_model.dart';
 import 'package:dating_application/Models/RequestModels/profile_like_request_model.dart';
 import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
 import 'package:dating_application/Models/RequestModels/update_activity_status_request_model.dart';
 import 'package:dating_application/Models/RequestModels/updating_package_request_model.dart';
 import 'package:dating_application/Models/ResponseModels/activity_status_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/add_user_to_creator_response.dart';
 import 'package:dating_application/Models/ResponseModels/change_password_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/creator_order_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/creators_all_orders_response.dart';
 import 'package:dating_application/Models/ResponseModels/creators_content_model.dart';
 import 'package:dating_application/Models/ResponseModels/creators_generic_response.dart';
 import 'package:dating_application/Models/ResponseModels/delete_chat_history_response.dart';
@@ -25,6 +32,7 @@ import 'package:dating_application/Models/ResponseModels/get_all_packages_respon
 import 'package:dating_application/Models/ResponseModels/get_all_request_message_response.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_saftey_guidelines_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_whoareyoulookingfor_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/get_content_by_id_response.dart';
 import 'package:dating_application/Models/ResponseModels/profile_like_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/subgender_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/updating_package_response_model.dart';
@@ -33,7 +41,10 @@ import 'package:dating_application/Providers/ReferalCodeProvider.dart';
 import 'package:dating_application/Providers/activity_status_provider.dart';
 import 'package:dating_application/Providers/app_setting_provider.dart';
 import 'package:dating_application/Providers/change_password_provider.dart';
+import 'package:dating_application/Providers/chat_provider.dart';
+import 'package:dating_application/Providers/creator_order_provider.dart';
 import 'package:dating_application/Providers/creators_all_content_provider.dart';
+import 'package:dating_application/Providers/creators_all_orders_provider.dart';
 import 'package:dating_application/Providers/creators_generic_provider.dart';
 import 'package:dating_application/Providers/delete_chat_history_provider.dart';
 import 'package:dating_application/Providers/fetch_all_add_on_provider.dart';
@@ -48,12 +59,13 @@ import 'package:dating_application/Providers/fetch_all_language_provider.dart';
 import 'package:dating_application/Providers/fetch_all_preferences_provider.dart';
 import 'package:dating_application/Providers/fetch_all_safety_guildlines_provider.dart';
 import 'package:dating_application/Providers/fetch_subscripted_package_provider.dart';
+import 'package:dating_application/Providers/get_content_by_id_provider.dart';
 import 'package:dating_application/Providers/home_page_dislike_provider.dart';
 import 'package:dating_application/Providers/login_provider.dart';
 import 'package:dating_application/Providers/share_profile_provider.dart';
-import 'package:dating_application/Providers/chat_provider.dart';
 import 'package:dating_application/Providers/user_profile_provider.dart';
 import 'package:dating_application/Screens/loginforgotpassword/forgotpasswordotp.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -62,6 +74,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../Models/RequestModels/ReferalCodeRequestModel.dart';
 import '../Models/RequestModels/app_setting_request_model.dart';
 import '../Models/RequestModels/block_User_request_model.dart';
@@ -90,6 +103,7 @@ import '../Models/RequestModels/user_profile_update_request_model.dart';
 import '../Models/RequestModels/user_registration_request_model.dart';
 import '../Models/RequestModels/usernameupdate_request_model.dart';
 import '../Models/RequestModels/verify_account_request_model.dart';
+import '../Models/ResponseModels/GetAllCreatorsResponse.dart';
 import '../Models/ResponseModels/GetPointAmountResponse.dart';
 import '../Models/ResponseModels/GetPointCreditedDebitedResponse.dart';
 import '../Models/ResponseModels/GetUsersTotalPointsResponse.dart';
@@ -103,6 +117,7 @@ import '../Models/ResponseModels/app_setting_response_model.dart';
 import '../Models/ResponseModels/block_user_response_model.dart';
 import '../Models/ResponseModels/chat_history_response_model.dart';
 import '../Models/ResponseModels/chat_response.dart';
+import '../Models/ResponseModels/creator_transaction_history_response.dart';
 import '../Models/ResponseModels/delete_message_response_model.dart';
 import '../Models/ResponseModels/dislike_profile_response_model.dart';
 import '../Models/ResponseModels/edit_message_response_model.dart';
@@ -114,12 +129,12 @@ import '../Models/ResponseModels/get_all_chat_history_page.dart';
 import '../Models/ResponseModels/get_all_country_response_model.dart';
 import '../Models/ResponseModels/get_all_desires_model_response.dart';
 import '../Models/ResponseModels/get_all_language_response_model.dart';
+import '../Models/ResponseModels/get_all_like_history_response_model.dart';
 import '../Models/ResponseModels/get_all_likes_pages_response.dart';
 import '../Models/ResponseModels/get_all_subscripted_package_model.dart';
 import '../Models/ResponseModels/get_all_verification_response_model.dart';
 import '../Models/ResponseModels/get_report_user_options_response_model.dart';
 import '../Models/ResponseModels/highlight_profile_status_response_model.dart';
-import '../Models/ResponseModels/get_all_like_history_response_model.dart';
 import '../Models/ResponseModels/homepage_dislike_response_model.dart';
 import '../Models/ResponseModels/liked_by_response_model.dart';
 import '../Models/ResponseModels/marksasfavourite_response_model.dart';
@@ -139,10 +154,13 @@ import '../Models/ResponseModels/user_registration_response_model.dart';
 import '../Models/ResponseModels/user_suggestions_response_model.dart';
 import '../Models/ResponseModels/usernameupdate_response_model.dart';
 import '../Models/ResponseModels/verify_account_response_model.dart';
+import '../Providers/GetAllCreatorsProvider.dart';
 import '../Providers/GetPointAmountProvider.dart';
 import '../Providers/GetPointCreditedDebitedProvider.dart';
 import '../Providers/GetUserTotalpointsProvider.dart';
+import '../Providers/add_user_to_creator_provider.dart';
 import '../Providers/block_user_provider.dart';
+import '../Providers/creator_transaction_history_provider.dart';
 import '../Providers/delete_message_provider.dart';
 import '../Providers/deletefavourite_provider_model.dart';
 import '../Providers/dislike_profile_provider.dart';
@@ -151,6 +169,7 @@ import '../Providers/established_connection_message_provider.dart';
 import '../Providers/fetch_all_active_user_provider.dart';
 import '../Providers/fetch_all_countries_provider.dart';
 import '../Providers/fetch_all_genders_provider.dart';
+import '../Providers/fetch_all_likes_history_provider.dart';
 import '../Providers/fetch_all_packages_provider.dart';
 import '../Providers/fetch_all_request_message_provider.dart';
 import '../Providers/fetch_benefits_provider.dart';
@@ -159,7 +178,6 @@ import '../Providers/fetch_sub_genders_provider.dart';
 import '../Providers/fetch_verificationtype_provider.dart';
 import '../Providers/highlight_profile_status_provider.dart';
 import '../Providers/home_page_provider.dart';
-import '../Providers/fetch_all_likes_history_provider.dart';
 import '../Providers/markasfavourite_provider.dart';
 import '../Providers/master_setting_provider.dart';
 import '../Providers/order_provider.dart';
@@ -186,10 +204,6 @@ import '../Screens/register_subpag/registerdetails.dart';
 import '../Screens/register_subpag/registrationotp.dart';
 import '../Screens/settings/updateemailid/updateemailotpverification.dart';
 import '../constants.dart';
-import 'package:crypto/crypto.dart';
-import 'package:encrypt/encrypt.dart' as encrypt;
-import '../Models/ResponseModels/GetAllCreatorsResponse.dart';
-import '../Providers/GetAllCreatorsProvider.dart';
 
 class Controller extends GetxController {
   RxString token = ''.obs;
@@ -2215,6 +2229,115 @@ class Controller extends GetxController {
         return true;
       } else {
         failure('Error', 'Failed to fetch the creators');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<OrderData> creatorOrders = <OrderData>[].obs;
+
+  Future<CreatorOrderResponse?> createCreatorOrder(
+      CreatorOrderRequest request) async {
+    try {
+      final CreatorOrderResponse? response =
+          await CreatorOrderProvider().createOrder(request);
+
+      if (response != null && response.success && response.data.isNotEmpty) {
+        creatorOrders.assignAll(response.data);
+        success('Success', response.message);
+        return response;
+      } else {
+        failure('Error', response?.message ?? 'Failed to create order');
+        return response;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return null;
+    }
+  }
+
+  RxList<TransactionData> creatorTransactionHistory = <TransactionData>[].obs;
+
+  Future<bool> fetchCreatorTransactionHistory() async {
+    try {
+      final CreatorTransactionHistoryResponse? response =
+          await CreatorTransactionHistoryProvider()
+              .fetchCreatorTransactionHistory();
+
+      if (response != null && response.success && response.data.isNotEmpty) {
+        creatorTransactionHistory.assignAll(response.data);
+        debugPrint('Successfully fetched creator transaction history');
+        return true;
+      } else {
+        failure('Error', response?.message ?? 'No transaction history found');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<CreatorSubscriptionData> creatorSubscriptions =
+      <CreatorSubscriptionData>[].obs;
+
+  Future<AddUserToCreatorResponse?> addUserToCreator(
+      AddUserToCreatorRequest request) async {
+    try {
+      final AddUserToCreatorResponse? response =
+          await AddUserToCreatorProvider().addUserToCreator(request);
+
+      if (response != null && response.data.isNotEmpty) {
+        creatorSubscriptions.assignAll(response.data);
+        success('Success', response.message);
+        return response;
+      } else {
+        failure('Error', response?.message ?? 'Failed to add user to creator');
+        return response;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return null;
+    }
+  }
+
+  RxList<CreatorAllOrder> creatorsAllOrders = <CreatorAllOrder>[].obs;
+
+  Future<bool> fetchCreatorsAllOrders() async {
+    try {
+      final CreatorAllOrdersResponse? response =
+          await CreatorsAllOrdersProvider().fetchCreatorsAllOrders();
+
+      if (response != null && response.data.isNotEmpty) {
+        creatorsAllOrders.assignAll(response.data);
+        debugPrint('Successfully fetched all creator orders');
+        return true;
+      } else {
+        failure('Error', response?.message ?? 'No creator orders found');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<CreatorContentById> contentById = <CreatorContentById>[].obs;
+
+  Future<bool> fetchContentById(String contentId) async {
+    try {
+      final CreatorContentByIdResponse? response =
+          await GetContentByIdProvider().fetchContentById(contentId);
+
+      if (response != null && response.success && response.data.isNotEmpty) {
+        contentById.assignAll(response.data);
+        debugPrint('Successfully fetched content by ID');
+        return true;
+      } else {
+        failure('Error', response?.message ?? 'No content found for this ID');
         return false;
       }
     } catch (e) {

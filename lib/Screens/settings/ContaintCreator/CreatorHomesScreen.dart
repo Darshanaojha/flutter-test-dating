@@ -1,4 +1,5 @@
 import 'package:dating_application/Screens/settings/ContaintCreator/CreatorsAllContentPage.dart';
+import 'package:dating_application/Screens/settings/ContaintCreator/CreatorsOrders/CreatorsTransactionPage.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -7,6 +8,7 @@ import '../../../constants.dart';
 import 'ContaintCreatorPlansAdd/CreatorPlansPage.dart';
 import 'CreatorProfile/CreatorProfileScreen.dart';
 import 'CreatorsDashboard.dart';
+import 'CreatorsOrders/CreatorsOrdersPage.dart';
 import 'NewPostUpload/CreatorNewPost.dart';
 
 class CreatorHomeScreen extends StatelessWidget {
@@ -113,7 +115,7 @@ class CreatorHomeScreen extends StatelessWidget {
                   ),
                 ),
                 onTap: () {
-                  Get.back();
+                  Get.to(CreatorsTransactionPage());
                 },
               ),
               ListTile(
@@ -122,7 +124,7 @@ class CreatorHomeScreen extends StatelessWidget {
                 title:
                     const Text("Orders", style: TextStyle(color: Colors.white)),
                 onTap: () {
-                  Get.back();
+                  Get.to(CreatorsOrdersPage());
                 },
               ),
               ListTile(
