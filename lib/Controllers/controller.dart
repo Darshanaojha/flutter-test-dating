@@ -19,6 +19,7 @@ import 'package:dating_application/Models/ResponseModels/creator_order_response_
 import 'package:dating_application/Models/ResponseModels/creators_all_orders_response.dart';
 import 'package:dating_application/Models/ResponseModels/creators_content_model.dart';
 import 'package:dating_application/Models/ResponseModels/creators_generic_response.dart';
+import 'package:dating_application/Models/ResponseModels/creators_subscription_history_response.dart';
 import 'package:dating_application/Models/ResponseModels/delete_chat_history_response.dart';
 import 'package:dating_application/Models/ResponseModels/deletefavourite_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_benifites_response_model.dart';
@@ -46,6 +47,7 @@ import 'package:dating_application/Providers/creator_order_provider.dart';
 import 'package:dating_application/Providers/creators_all_content_provider.dart';
 import 'package:dating_application/Providers/creators_all_orders_provider.dart';
 import 'package:dating_application/Providers/creators_generic_provider.dart';
+import 'package:dating_application/Providers/creatos_subscription_history_provider.dart';
 import 'package:dating_application/Providers/delete_chat_history_provider.dart';
 import 'package:dating_application/Providers/fetch_all_add_on_provider.dart';
 import 'package:dating_application/Providers/fetch_all_chat_history_page.dart';
@@ -2338,6 +2340,29 @@ class Controller extends GetxController {
         return true;
       } else {
         failure('Error', response?.message ?? 'No content found for this ID');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxList<CreatorSubscriptionHistory> creatorsSubscriptionHistory =
+      <CreatorSubscriptionHistory>[].obs;
+
+  Future<bool> fetchCreatorsSubscriptionHistory() async {
+    try {
+      final CreatorSubscriptionHistoryResponse? response =
+          await CreatorsSubscriptionHistoryProvider()
+              .fetchCreatorsSubscriptionHistory();
+
+      if (response != null && response.success && response.data.isNotEmpty) {
+        creatorsSubscriptionHistory.assignAll(response.data);
+        debugPrint('Successfully fetched creator subscription history');
+        return true;
+      } else {
+        failure('Error', response?.message ?? 'No subscription history found');
         return false;
       }
     } catch (e) {

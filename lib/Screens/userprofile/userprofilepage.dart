@@ -420,14 +420,27 @@ class UserProfilePageState extends State<UserProfilePage>
                                   const EdgeInsets.symmetric(horizontal: 22.0),
                               child: Row(
                                 children: [
-                                  Text(
-                                    controller.userData.isNotEmpty
-                                        ? '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userData.first.dob).year} '
-                                            ' years old | ${controller.userData.first.genderName}'
-                                        : 'NA',
-                                    style: AppTextStyles.labelText.copyWith(
-                                        fontSize: getResponsiveFontSize(0.03)),
-                                  ),
+Text(
+  controller.userData.isNotEmpty
+      ? (() {
+          try {
+            // Extract date part before ' at ' if present
+            String dobString = controller.userData.first.dob;
+            if (dobString.contains(' at ')) {
+              dobString = dobString.split(' at ')[0];
+            }
+            DateTime dob = DateFormat('yyyy-MM-dd').parse(dobString);
+            int age = DateTime.now().year - dob.year;
+            return '$age years old | ${controller.userData.first.genderName}';
+          } catch (e) {
+            // Fallback if parsing fails
+            return 'NA';
+          }
+        })()
+      : 'NA',
+  style: AppTextStyles.labelText.copyWith(
+      fontSize: getResponsiveFontSize(0.03)),
+),
                                 ],
                               ),
                             ),

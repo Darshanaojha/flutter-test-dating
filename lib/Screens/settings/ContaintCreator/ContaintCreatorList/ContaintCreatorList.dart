@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'dart:ui';
 import '../../../../Controllers/controller.dart';
 import '../../../../constants.dart';
 import '../CreatorHomesScreen.dart';
@@ -39,7 +38,7 @@ class CreatorListPageState extends State<CreatorListPage> {
         leading: GestureDetector(
           onTap: () {
             if (isSubscribed) {
-              Get.to(() => const CreatorHomeScreen());
+              Get.to(() => CreatorHomeScreen());
             }
           },
           child: Padding(
@@ -118,15 +117,15 @@ class CreatorListPageState extends State<CreatorListPage> {
                   : null;
 
               return GestureDetector(
-                onTap: () async{
-                 // await controller.getCreatorDetails(creator.creatorId);
+                onTap: () async {
+                  // await controller.getCreatorDetails(creator.creatorId);
                   Get.to(() => CreatorsProfilePage(
                         name: creator.name,
                         profileUrl: creator.profileImage,
-                        photos: 10,//creator.imageCount,
-                        videos: 10,//creator.videoCount,
-                        followers: 10,//creator.followers,
-                        following: 10,//creator.following,
+                        photos: 10, //creator.imageCount,
+                        videos: 10, //creator.videoCount,
+                        followers: 10, //creator.followers,
+                        following: 10, //creator.following,
                       ));
                 },
                 child: Container(

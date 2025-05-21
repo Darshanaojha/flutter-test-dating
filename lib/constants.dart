@@ -5,10 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 
 const encryptionkey = "flamrpisyst2024!";
 const secretkey = "ArqamzSnehaSadiq@flamrdating2024";
-const baseurl = "http://192.168.1.2/dating_backend_springboot/admin";
-const ip = "http://192.168.1.2/dating_backend_springboot/";
+const baseurl = "http://192.168.1.5/dating_backend_springboot/admin";
+const ip = "http://192.168.1.5/dating_backend_springboot/";
 
-const springbooturl = "http://192.168.1.2:8080";
+const springbooturl = "http://192.168.1.5:8080";
 
 const registerUrl = "Authentication/register";
 const loginUrl = "Authentication/login";
