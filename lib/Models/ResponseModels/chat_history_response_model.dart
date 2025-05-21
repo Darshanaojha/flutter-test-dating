@@ -57,7 +57,7 @@ class Message {
   String? id;
   String senderId;
   String receiverId;
-  String message;
+  String? message;
   int messageType;
   String? created;
   String? updated;
@@ -95,7 +95,7 @@ class Message {
       id: json['id'].toString(),
       senderId: json['senderId'].toString(),
       receiverId: json['receiver_id'].toString(),
-      message: json['message'].toString(),
+      message: json['message'],
       messageType: json['message_type'],
       created: json['created'],
       updated: json['updated'],
@@ -114,7 +114,7 @@ class Message {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'sender_id': senderId,
+      'senderId': senderId,
       'receiver_id': receiverId,
       'message': message,
       'message_type': messageType,

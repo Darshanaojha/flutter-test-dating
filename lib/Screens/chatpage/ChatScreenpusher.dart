@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dating_application/Screens/chatpage/VideoCallPage.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
@@ -9,6 +10,7 @@ import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../Models/ResponseModels/chat_history_response_model.dart';
 import '../../Providers/WebsocketService.dart';
 import 'package:vibration/vibration.dart';
@@ -35,7 +37,10 @@ class ChatScreen extends StatefulWidget {
 class ChatScreenState extends State<ChatScreen> {
   Controller controller = Get.put(Controller());
   final WebSocketService websocketService = WebSocketService();
+  File? selectedImage;
   final TextEditingController messageController = TextEditingController();
+  String? bearerToken =
+      EncryptedSharedPreferences.getInstance().getString('token');
   @override
   void initState() {
     super.initState();
@@ -242,12 +247,12 @@ class ChatScreenState extends State<ChatScreen> {
     controller.messages[index].deletedByReceiver = 0;
     controller.messages[index].isEdited = 1;
     controller.messages[index].message = controller.encryptMessage(
-        controller.messages[index].message, secretkey);
+        controller.messages[index].message ?? '', secretkey);
 
     controller.updateChats(controller.messages[index]);
 
     controller.messages[index].message = controller.decryptMessage(
-        controller.messages[index].message, secretkey);
+        controller.messages[index].message ?? '', secretkey);
   }
 
   @override
@@ -470,7 +475,8 @@ class ChatScreenState extends State<ChatScreen> {
                                       ? CrossAxisAlignment.end
                                       : CrossAxisAlignment.start,
                                   children: [
-                                    BubbleSpecialThree(
+                                    message.message == null ? SizedBox.shrink():
+                                   BubbleSpecialThree(
                                       sent: isSentByUser,
                                       delivered: isSentByUser,
                                       seen: isSentByUser,
@@ -486,6 +492,13 @@ class ChatScreenState extends State<ChatScreen> {
                                         fontSize: 16,
                                       ),
                                     ),
+                                    if (message.imagePath != null)
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(top: 5.0),
+                                        child: buildImageWithAuth(
+                                            message.imagePath!, bearerToken!),
+                                      ),
                                     Container(
                                       padding: isSentByUser
                                           ? EdgeInsets.fromLTRB(0, 0, 5, 0)
@@ -528,39 +541,166 @@ class ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  color: Colors.green,
-                  onPressed: () async {
-                    if (messageController.text.trim().isNotEmpty) {
-                      // controller.messages.add(Message(
-                      //     id: null,
-                      //     senderId: widget.senderId,
-                      //     receiverId: widget.receiverId,
-                      //     message: messageController.text.trim(),
-                      //     messageType: 1,
-                      //     created: DateTime.now().toIso8601String(),
-                      //     updated: DateTime.now().toIso8601String(),
-                      //     status: 1,
-                      //     isEdited: 0,
-                      //     deletedBySender: 0,
-                      //     deletedByReceiver: 0,
-                      //     deletedAtReceiver: null,
-                      //     deletedAtSender: null));
-                      await _sendMessage(
-                          message: messageController.text.trim(),
-                          receiverId: widget.receiverId);
-                      messageController.clear();
-                      controller.fetchChats(widget.receiverId);
-                    }
-                  },
-                ),
+                Row(
+                  children: [
+                    // Image picker icon (only selects and stores image)
+                    IconButton(
+                      icon: Icon(Icons.image),
+                      color: Colors.orange,
+                      onPressed: () async {
+                        final pickedFile = await showModalBottomSheet<XFile?>(
+                          context: context,
+                          builder: (context) => _buildImagePickerOptions(),
+                        );
+
+                        if (pickedFile != null) {
+                          setState(() {
+                            selectedImage = File(pickedFile.path);
+                          });
+                        }
+                      },
+                    ),
+                    if (selectedImage != null)
+                      GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              content: Image.file(selectedImage!),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text("Close"),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: CircleAvatar(
+                            radius: 24,
+                            backgroundImage: FileImage(selectedImage!),
+                          ),
+                        ),
+                      ),
+
+                    // Send button (sends text + selected image if any)
+                    IconButton(
+                      icon: Icon(Icons.send),
+                      color: Colors.green,
+                      onPressed: () async {
+                        final messageText = messageController.text.trim();
+
+                        if (messageText.isNotEmpty || selectedImage != null) {
+                          await _sendMessage(
+                            message: messageText,
+                            receiverId: widget.receiverId,
+                            image: selectedImage,
+                          );
+
+                          // Clear after sending
+                          messageController.clear();
+                          selectedImage = null;
+                          controller.fetchChats(widget.receiverId);
+                        } else {
+                          Get.snackbar("Empty Message",
+                              "Please type a message or select an image.");
+                        }
+                      },
+                    ),
+                  ],
+                )
               ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildImagePickerOptions() {
+    return SafeArea(
+      child: Wrap(
+        children: <Widget>[
+          ListTile(
+            leading: Icon(Icons.photo_library),
+            title: Text('Gallery'),
+            onTap: () async {
+              final picked =
+                  await ImagePicker().pickImage(source: ImageSource.gallery);
+              Navigator.pop(context, picked);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.camera_alt),
+            title: Text('Camera'),
+            onTap: () async {
+              final picked =
+                  await ImagePicker().pickImage(source: ImageSource.camera);
+              Navigator.pop(context, picked);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  FutureBuilder<Uint8List> buildImageWithAuth(
+      String imagePath, String bearerToken) {
+    return FutureBuilder<Uint8List>(
+      future: _fetchImageBytes(imagePath, bearerToken),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Icon(Icons.broken_image);
+        } else if (snapshot.hasData) {
+          return GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (_) => Dialog(
+                  backgroundColor: Colors.transparent,
+                  child: InteractiveViewer(
+                    child: Image.memory(snapshot.data!),
+                  ),
+                ),
+              );
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.memory(
+                snapshot.data!,
+                width: 180,
+                height: 180,
+                fit: BoxFit.cover,
+              ),
+            ),
+          );
+        } else {
+          return SizedBox.shrink();
+        }
+      },
+    );
+  }
+
+  Future<Uint8List> _fetchImageBytes(
+      String imagePath, String bearerToken) async {
+
+    final response = await http.get(
+      Uri.parse('$springbooturl/ChatController/uploads/$imagePath'),
+      headers: {
+        'Authorization': 'Bearer $bearerToken',
+        'Content-Type': 'application/json',
+      },
+    );
+  
+    if (response.statusCode == 200) {
+      return response.bodyBytes;
+    } else {
+      throw Exception('Failed to load image');
+    }
   }
 }
 

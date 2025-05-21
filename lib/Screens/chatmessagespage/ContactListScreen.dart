@@ -251,19 +251,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                             'Connection ID: ${connection.conectionId}');
                                         debugPrint(
                                             'Connection Name: ${connection.name}');
-                                        Get.snackbar(
-                                          'Connection Info',
-                                          'User ID: ${controller.userData.first.id}\n'
-                                              'Connection ID: ${connection.conectionId}\n'
-                                              'Connection Name: ${connection.name}',
-                                          snackPosition: SnackPosition.BOTTOM,
-                                          duration: const Duration(seconds: 4),
-                                          backgroundColor: Colors.blue.shade100,
-                                          colorText: Colors.black,
-                                          borderRadius: 10,
-                                          margin: const EdgeInsets.all(10),
-                                        );
-
+                                       
                                         if (controller.userData.first.id ==
                                             connection.conectionId) {
                                           connection.conectionId =
@@ -341,22 +329,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                                     'Connection ID: ${connection.conectionId}');
                                                 debugPrint(
                                                     'Connection Name: ${connection.name}');
-                                                Get.snackbar(
-                                                  'Connection Info',
-                                                  'User ID: ${controller.userData.first.id}\n'
-                                                      'Connection ID: ${connection.conectionId}\n'
-                                                      'Connection Name: ${connection.name}',
-                                                  snackPosition:
-                                                      SnackPosition.BOTTOM,
-                                                  duration: const Duration(
-                                                      seconds: 4),
-                                                  backgroundColor:
-                                                      Colors.blue.shade100,
-                                                  colorText: Colors.black,
-                                                  borderRadius: 10,
-                                                  margin:
-                                                      const EdgeInsets.all(10),
-                                                );
+                                              
 
                                                 if (controller
                                                         .userData.first.id ==

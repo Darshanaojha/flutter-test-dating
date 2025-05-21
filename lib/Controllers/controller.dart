@@ -524,7 +524,9 @@ class Controller extends GetxController {
 
       for (var message in newMessages) {
         try {
-          message.message = decryptMessage(message.message, secretkey);
+          if (message.message != null) {
+            message.message = decryptMessage(message.message!, secretkey);
+          }
         } catch (e) {
           print('Error decrypting message with ID: ${message.id}');
           print(e.toString());
