@@ -168,26 +168,25 @@ class WebSocketService {
   // }
 
   void sendMessage(String destination, Map<String, dynamic> message) async {
-  if (!_isConnected) {
-    print('Cannot send message. Not connected to WebSocket.');
-    return;
+    if (!_isConnected) {
+      print('Cannot send message. Not connected to WebSocket.');
+      return;
+    }
+
+    // Extract only the required parameters
+    final Map<String, dynamic> filteredMessage = {
+      'message': message['message'],
+      'receiver_id': message['receiver_id'],
+    };
+
+    _stompClient.send(
+      destination: destination,
+      headers: {
+        'Authorization': 'Bearer ${controller.token.value}',
+      },
+      body: jsonEncode(filteredMessage),
+    );
   }
-
-  // Extract only the required parameters
-  final Map<String, dynamic> filteredMessage = {
-    'message': message['message'],
-    'receiver_id': message['receiver_id'],
-  };
-
-  _stompClient.send(
-    destination: destination,
-    headers: {
-      'Authorization': 'Bearer ${controller.token.value}',
-    },
-    body: jsonEncode(filteredMessage),
-  );
-}
-
 
   /// Disconnect from the WebSocket server.
   void disconnect() {

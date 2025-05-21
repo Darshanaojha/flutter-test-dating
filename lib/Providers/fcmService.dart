@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vibration/vibration.dart';
 
@@ -49,7 +50,7 @@ class FCMService {
             }
           }
         }
-            });
+      });
 
       // Listen to notification taps when the app is opened from a background state
       FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
@@ -90,53 +91,66 @@ class FCMService {
       RemoteNotification notification, String notificationType) async {
     String callerName = notification.title ?? '';
     String channelName = notification.body ?? '';
-    AudioPlayer().play(AssetSource('sounds/call.mp3'),
-        volume: 1.0, mode: PlayerMode.lowLatency);
 
-    Vibration.vibrate(duration: 3000);
-    // AndroidNotificationDetails with custom settings
-    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-      'call_channel', // Notification channel ID
-      'Call Notifications', // Channel name
-      channelDescription:
-          'Notifications for incoming calls', // Channel description
-      importance: Importance.max, // High importance for urgent notifications
-      priority: Priority.high, // High priority for quick interaction
-      playSound: true, // Play the default ringtone
-      sound: RawResourceAndroidNotificationSound(
-          'call'), // Referencing 'call.mp3' without the extension
+    debugPrint('Caller Name: $callerName');
+    debugPrint('Channel Name: $channelName');
+    debugPrint('Notification Type: $notificationType');
 
-      enableVibration: true, // Enable vibration
-      timeoutAfter:
-          15000, // Notification will automatically remove after 30 seconds if not answered
-      ongoing: true, // Ongoing notification so it stays visible
-      enableLights: true,
-      actions: [
-        // Accept action with a green phone icon
-        AndroidNotificationAction('1', 'Accept',
-            showsUserInterface: true, cancelNotification: false),
-        // Reject action with a red phone icon
-        AndroidNotificationAction('2', 'Reject',
-            showsUserInterface: true, cancelNotification: false),
-      ],
-    );
+    try {
+      // Play call sound
+      debugPrint('Playing call sound...');
+      await AudioPlayer().play(
+        AssetSource('sounds/call.mp3'),
+        volume: 1.0,
+        mode: PlayerMode.lowLatency,
+      );
 
-    var platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
+      // Vibrate
+      debugPrint('Triggering vibration...');
+      Vibration.vibrate(duration: 3000);
 
-    // Show the notification
-    await flutterLocalNotificationsPlugin.show(
-      notification.hashCode, // Notification ID
-      notificationType == "2"
-          ? 'Incoming Voice Call'
-          : "Incoming Video Call", // Notification title
-      '$callerName is calling you', // Notification body
-      platformChannelSpecifics, // Platform-specific settings
-      payload: jsonEncode({
-        'channelName': channelName,
-        'type': notificationType
-      }), // Send the channel name as the payload (optional)
-    );
+      // Create Android notification details
+      debugPrint('Setting up Android notification details...');
+      var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+        'call_channel',
+        'Call Notifications',
+        channelDescription: 'Notifications for incoming calls',
+        importance: Importance.max,
+        priority: Priority.high,
+        playSound: true,
+        sound: RawResourceAndroidNotificationSound('call'),
+        enableVibration: true,
+        timeoutAfter: 15000,
+        ongoing: true,
+        enableLights: true,
+        actions: [
+          AndroidNotificationAction('1', 'Accept',
+              showsUserInterface: true, cancelNotification: false),
+          AndroidNotificationAction('2', 'Reject',
+              showsUserInterface: true, cancelNotification: false),
+        ],
+      );
+
+      var platformChannelSpecifics =
+          NotificationDetails(android: androidPlatformChannelSpecifics);
+
+      // Show the notification
+      debugPrint('Showing the notification...');
+      await flutterLocalNotificationsPlugin.show(
+        notification.hashCode,
+        notificationType == "2" ? 'Incoming Voice Call' : "Incoming Video Call",
+        '$callerName is calling you',
+        platformChannelSpecifics,
+        payload: jsonEncode({
+          'channelName': channelName,
+          'type': notificationType,
+        }),
+      );
+
+      debugPrint('Notification displayed successfully.');
+    } catch (e) {
+      debugPrint('Error showing call notification: $e');
+    }
   }
 
   Future<void> onNotificationTap(NotificationResponse response) async {

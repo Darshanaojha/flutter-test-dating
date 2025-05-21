@@ -15,7 +15,7 @@ class AgoraProvider extends GetConnect {
         return false;
       }
       Response response = await post(
-        "${springbooturl}api/agora/sendNotification",
+        "$springbooturl/api/agora/sendNotification",
         {
           "channelName": channelName,
           "callerName": callerName,

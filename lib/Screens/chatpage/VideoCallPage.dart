@@ -135,7 +135,7 @@ class VideoCallPageState extends State<VideoCallPage> {
       }
 
       final response = await http.post(
-        Uri.parse('${springbooturl}api/agora/generateToken'),
+        Uri.parse('$springbooturl/api/agora/generateToken'),
         headers: {
           'Authorization': 'Bearer $bearerToken',
           'Content-Type': 'application/json',

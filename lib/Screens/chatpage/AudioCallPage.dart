@@ -121,7 +121,7 @@ class AudioCallPageState extends State<AudioCallPage> {
       print("Fetching the Agora token");
 
       final response = await http.post(
-        Uri.parse('${springbooturl}api/agora/generateToken'),
+        Uri.parse('$springbooturl/api/agora/generateToken'),
         headers: {
           'Authorization': 'Bearer $bearerToken',
           'Content-Type': 'application/json',
