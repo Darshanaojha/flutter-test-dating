@@ -67,6 +67,9 @@ class Message {
   String? deletedAtSender;
   String? deletedAtReceiver;
   int isEdited;
+  String? imagePath;
+  int? sensitivity;
+  String? timestamp;
 
   Message({
     required this.id,
@@ -82,6 +85,9 @@ class Message {
     required this.deletedAtSender,
     required this.deletedAtReceiver,
     required this.isEdited,
+    this.imagePath,
+    this.sensitivity,
+    this.timestamp,
   });
 
   factory Message.fromJson(Map<String, dynamic> json) {
@@ -99,6 +105,9 @@ class Message {
       deletedAtSender: json['deleted_at_sender'],
       deletedAtReceiver: json['deleted_at_receiver'],
       isEdited: json['is_edited'],
+      imagePath: json['imagePath'],
+      sensitivity: json['sensitivity'],
+      timestamp: json['timestamp'],
     );
   }
 
@@ -123,6 +132,9 @@ class Message {
           ? null
           : DateTime.parse(deletedAtReceiver!).toIso8601String(),
       'is_edited': isEdited,
+      'imagePath': imagePath,
+      'sensitivity': sensitivity,
+      'timestamp': timestamp,
     };
   }
 
@@ -140,6 +152,9 @@ class Message {
     String? deletedAtSender,
     String? deletedAtReceiver,
     int? isEdited,
+    String? imagePath,
+    int? sensitivity,
+    String? timestamp,
   }) {
     return Message(
       id: id ?? this.id,
@@ -155,6 +170,9 @@ class Message {
       deletedAtSender: deletedAtSender ?? this.deletedAtSender,
       deletedAtReceiver: deletedAtReceiver ?? this.deletedAtReceiver,
       isEdited: isEdited ?? this.isEdited,
+      imagePath: imagePath ?? this.imagePath,
+      sensitivity: sensitivity ?? this.sensitivity,
+      timestamp: timestamp ?? this.timestamp,
     );
   }
 }

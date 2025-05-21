@@ -8,7 +8,7 @@ const secretkey = "ArqamzSnehaSadiq@flamrdating2024";
 const baseurl = "http://192.168.1.15/dating_backend_springboot/admin";
 const ip = "http://192.168.1.15/dating_backend_springboot/";
 
-const springbooturl = "http://192.168.1.15:8080";
+const springbooturl = "http://192.168.1.21:8080";
 
 const registerUrl = "Authentication/register";
 const loginUrl = "Authentication/login";

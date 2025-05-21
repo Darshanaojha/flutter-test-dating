@@ -87,6 +87,7 @@ class FCMService {
     );
   }
 
+  AudioPlayer audioPlayer = AudioPlayer();
   void showCallNotification(
       RemoteNotification notification, String notificationType) async {
     String callerName = notification.title ?? '';
@@ -99,7 +100,8 @@ class FCMService {
     try {
       // Play call sound
       debugPrint('Playing call sound...');
-      await AudioPlayer().play(
+
+      await audioPlayer.play(
         AssetSource('sounds/call.mp3'),
         volume: 1.0,
         mode: PlayerMode.lowLatency,
@@ -154,6 +156,7 @@ class FCMService {
   }
 
   Future<void> onNotificationTap(NotificationResponse response) async {
+    audioPlayer.stop(); // Stop the audio when notification is tapped
     if (response.payload != null && response.actionId != null) {
       final actionId = response.actionId; // Get actionId from the response
       final payload =
