@@ -222,6 +222,7 @@ class Controller extends GetxController {
       await preferences.setString('status', userLoginResponse.payload.status);
       await preferences.setString(
           'package_status', userLoginResponse.payload.packagestatus);
+      debugPrint("User Token save : ${preferences.getString('token').toString()}");
     } catch (e) {
       failure('Error storeUserData', e.toString());
     }
@@ -875,14 +876,14 @@ class Controller extends GetxController {
           await FetchAllHeadlinesProvider().fetchAllHeadlines();
       if (response != null) {
         headlines.addAll(response.payload.data);
-        print('successfully fetched all the headlines');
+        debugPrint('successfully fetched all the headlines');
         return true;
       } else {
-        failure('Error', 'Failed to fetch the headlines');
+        debugPrint('Error : Failed to fetch the headlines');
         return false;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in headlines', e.toString());
       return false;
     }
   }

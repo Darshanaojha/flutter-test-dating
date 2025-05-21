@@ -277,11 +277,10 @@ class AudioCallPageState extends State<AudioCallPage> {
   }
 
   void _endCall() async {
-  await _disposeAgora();
+    await _disposeAgora();
 
-  Get.close(2);
-}
-
+    Get.close(2);
+  }
 
   @override
   Widget build(BuildContext context) {

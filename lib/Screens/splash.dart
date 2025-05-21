@@ -58,6 +58,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
           EncryptedSharedPreferences.getInstance();
 
       String? token = preferences.getString('token');
+      debugPrint("Token: $token");
       bool? value = preferences.getBoolean('isSeenUser');
       if (value == null || value == false) {
         controller.fetchAllIntroSlider().then((value) {
@@ -71,7 +72,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
         });
         return;
       }
-      await controller.fetchAllHeadlines();
+      // await controller.fetchAllHeadlines();
       await controller.fetchSafetyGuidelines();
       await controller.fetchAllPackages();
       await controller.fetchlang();

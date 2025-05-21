@@ -1,4 +1,3 @@
-
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 import 'package:get/get_connect.dart';
@@ -20,7 +19,7 @@ class OrderProvider extends GetConnect {
       if (token == null || token == "") {
         return null;
       }
-      print(orderRequestModel.toJson().toString());
+      print("Order Request:${orderRequestModel.toJson()}");
 
       Response response = await post(
         '$baseurl/RazorpayController/createOrder',
@@ -30,7 +29,7 @@ class OrderProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
-      print(response.body.toString());
+      print("Order Response:${response.body}");
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return OrderResponseModel.fromJson(response.body);
@@ -39,7 +38,8 @@ class OrderProvider extends GetConnect {
           return null;
         }
       } else {
-        failure(response.statusCode, response.body['error']['message']);
+        failure(
+            response.statusCode.toString(), response.body['error']['message']);
         return null;
       }
     } catch (e) {
@@ -98,8 +98,8 @@ class OrderProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+      print("Response of get all Transaction: ${response.body}");
       if (response.statusCode == 200) {
-        print("Response of get all Transaction: ${response.body}");
         return AllTransactionsResponseModel.fromJson(response.body);
       } else {
         failure(response.statusCode.toString(), response.body);

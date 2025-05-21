@@ -142,7 +142,7 @@ class VideoCallPageState extends State<VideoCallPage> {
         },
         body: jsonEncode({'channelName': channelName}),
       );
-      print(response.body.toString());
+      debugPrint(response.body.toString());
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);

@@ -169,13 +169,13 @@ class EditProfilePageState extends State<EditProfilePage>
             (gender) => gender.id == genderFromUserData,
             orElse: () => controller.genders.first,
           );
-          controller.fetchSubGender(SubGenderRequest(
+          await controller.fetchSubGender(SubGenderRequest(
             genderId: genderFromUserData,
           ));
         }
       } else if (controller.genders.isNotEmpty) {
         selectedGender.value = controller.genders.first;
-        controller.fetchSubGender(SubGenderRequest(
+        await controller.fetchSubGender(SubGenderRequest(
           genderId: controller.genders.first.id,
         ));
       }
@@ -706,10 +706,11 @@ class EditProfilePageState extends State<EditProfilePage>
                                           MediaQuery.of(context).size.height *
                                               0.25,
                                       child: (controller.userPhotos == null ||
-                                              controller.userPhotos!.images
-                                                  .isEmpty)
+                                              controller
+                                                  .userPhotos!.images.isEmpty)
                                           ? Center(
-                                              child: Text("No images available"))
+                                              child:
+                                                  Text("No images available"))
                                           : Scrollbar(
                                               child: ListView.builder(
                                                 scrollDirection: Axis.vertical,
@@ -2695,5 +2696,19 @@ class PrivacyToggle extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class GenderValidator {
+  static bool validateGenderId(String genderId) {
+    try {
+      int parsedGenderId = int.parse(genderId);
+      if (parsedGenderId <= 0) {
+        return false;
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }
