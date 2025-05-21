@@ -51,11 +51,11 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
   intialize() async {
+    await controller.fetchAllHeadlines();
     await controller.fetchBenefits();
     await controller.fetchSafetyGuidelines();
     await controller.fetchPreferences();
     await controller.fetchGenders();
-    await controller.fetchAllHeadlines();
     await controller.fetchDesires();
     await controller.fetchAllPackages();
     await controller.fetchlang();

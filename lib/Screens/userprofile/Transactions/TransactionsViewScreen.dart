@@ -27,6 +27,16 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
     return true;
   }
 
+  double getResponsiveFontSize(BuildContext context, double scale) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth * scale;
+  }
+
+  double getResponsiveHeight(BuildContext context, double scale) {
+    double screenHeight = MediaQuery.of(context).size.height;
+    return screenHeight * scale;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,7 +56,7 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
 
-          if (!snapshot.hasData) {
+          if (controller.transactions.isEmpty) {
             return Center(child: Text('No Transaction Found.'));
           }
 
@@ -59,83 +69,157 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
                   NumberFormat.currency(symbol: '₹').format(amount);
 
               return Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.symmetric(
+                  horizontal: getResponsiveHeight(context, 0.015),
+                  vertical: getResponsiveHeight(context, 0.008),
+                ),
                 child: Card(
-                  elevation: 15,
-                  shadowColor: Colors.white,
+                  elevation: 8,
+                  shadowColor: Colors.black45,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(12),
                   ),
+                  color: Colors.grey[900],
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding:
+                        EdgeInsets.all(getResponsiveHeight(context, 0.018)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Transaction ID: ${transaction.razorpayOrderId}',
+                          'Transaction ID: ${transaction.razorpayOrderId ?? "-"}',
                           style: TextStyle(
-                            fontSize: 8,
+                            fontSize: getResponsiveFontSize(context, 0.038),
                             fontWeight: FontWeight.bold,
+                            color: Colors.amber,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        SizedBox(height: getResponsiveHeight(context, 0.008)),
                         Text(
-                          'Payment Method: ${transaction.paymentMethod}',
+                          'Order ID: ${transaction.orderId}',
                           style: TextStyle(
-                            fontSize: 8,
-                            color: Colors.grey[600],
+                            fontSize: getResponsiveFontSize(context, 0.034),
+                            color: Colors.white,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        SizedBox(height: getResponsiveHeight(context, 0.008)),
+                        Text(
+                          'Payment Method: ${transaction.paymentMethod ?? "-"}',
+                          style: TextStyle(
+                            fontSize: getResponsiveFontSize(context, 0.032),
+                            color: Colors.white70,
+                          ),
+                        ),
+                        SizedBox(height: getResponsiveHeight(context, 0.008)),
                         Text(
                           'Amount: $formattedAmount',
                           style: TextStyle(
-                            fontSize: 8,
-                            color: Colors.grey[200],
+                            fontSize: getResponsiveFontSize(context, 0.038),
+                            color: Colors.greenAccent,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        SizedBox(height: getResponsiveHeight(context, 0.008)),
                         Text(
                           'Payment Status: ${transaction.paymentStatus}',
                           style: TextStyle(
-                            fontSize: 8,
+                            fontSize: getResponsiveFontSize(context, 0.032),
                             color: transaction.paymentStatus == 'success'
-                                ? const Color.fromARGB(255, 183, 223, 184)
-                                : Colors.grey[200],
+                                ? Colors.green
+                                : Colors.red,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        SizedBox(height: getResponsiveHeight(context, 0.008)),
+                        Text(
+                          'Message: ${transaction.message}',
+                          style: TextStyle(
+                            fontSize: getResponsiveFontSize(context, 0.03),
+                            color: Colors.white70,
+                          ),
+                        ),
+                        SizedBox(height: getResponsiveHeight(context, 0.008)),
                         Text(
                           'Created: ${transaction.created}',
                           style: TextStyle(
-                            fontSize: 8,
-                            color: Colors.grey[500],
+                            fontSize: getResponsiveFontSize(context, 0.028),
+                            color: Colors.grey[400],
                           ),
                         ),
-                        SizedBox(height: 8),
                         Text(
                           'Updated: ${transaction.updated}',
                           style: TextStyle(
-                            fontSize: 4,
+                            fontSize: getResponsiveFontSize(context, 0.025),
                             color: Colors.grey[500],
                           ),
                         ),
-                        SizedBox(height: 10),
+                        SizedBox(height: getResponsiveHeight(context, 0.012)),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Text(
-                              'Order ID: ${transaction.orderId}',
-                              style: TextStyle(
-                                fontSize: 8,
-                                color: Colors.grey[600],
-                              ),
-                            ),
                             IconButton(
-                              icon: Icon(Icons.info_outline),
+                              icon: Icon(Icons.info_outline,
+                                  color: Colors.amber,
+                                  size: getResponsiveFontSize(context, 0.045)),
                               onPressed: () {
-                                print(
-                                    'View more details for transaction ${transaction.id}');
+                                // You can show a dialog or bottom sheet with more details here
+                                showDialog(
+                                  context: context,
+                                  builder: (_) => AlertDialog(
+                                    backgroundColor: Colors.black87,
+                                    title: Text(
+                                      "Transaction Details",
+                                      style: TextStyle(color: Colors.amber),
+                                    ),
+                                    content: SingleChildScrollView(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                              'Transaction ID: ${transaction.razorpayOrderId ?? "-"}',
+                                              style: TextStyle(
+                                                  color: Colors.white)),
+                                          Text(
+                                              'Order ID: ${transaction.orderId}',
+                                              style: TextStyle(
+                                                  color: Colors.white)),
+                                          Text(
+                                              'Payment Method: ${transaction.paymentMethod ?? "-"}',
+                                              style: TextStyle(
+                                                  color: Colors.white)),
+                                          Text('Amount: $formattedAmount',
+                                              style: TextStyle(
+                                                  color: Colors.white)),
+                                          Text(
+                                              'Payment Status: ${transaction.paymentStatus}',
+                                              style: TextStyle(
+                                                  color: Colors.white)),
+                                          Text(
+                                              'Message: ${transaction.message}',
+                                              style: TextStyle(
+                                                  color: Colors.white)),
+                                          Text(
+                                              'Created: ${transaction.created}',
+                                              style: TextStyle(
+                                                  color: Colors.white)),
+                                          Text(
+                                              'Updated: ${transaction.updated}',
+                                              style: TextStyle(
+                                                  color: Colors.white)),
+                                        ],
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text("Close",
+                                            style:
+                                                TextStyle(color: Colors.amber)),
+                                      ),
+                                    ],
+                                  ),
+                                );
                               },
                             ),
                           ],

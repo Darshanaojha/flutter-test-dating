@@ -230,7 +230,7 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                                       context,
                                       package.unit,
                                       package.id,
-                                      '₹${package.offerAmount}',
+                                      package.offerAmount,
                                     );
                                     controller.updateNewPackageRequestModel
                                         .packageId = package.id;
@@ -360,7 +360,7 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "Do you want to subscribe to the $planType plan for $amount?",
+                      "Do you want to subscribe to the $planType plan for Rs. $amount?",
                       style: AppTextStyles.bodyText.copyWith(
                         fontSize: fontSize - 2,
                         color: AppColors.textColor,
@@ -428,11 +428,12 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                 if (isOrderCreated == true) {
                   razorpaycontroller.initRazorpay();
                   razorpaycontroller.openPayment(
-                      amount as double,
-                      controller.userData.first.name,
-                      planId,
-                      controller.userData.first.mobile,
-                      controller.userData.first.email);
+                    double.tryParse(amount) ?? 0.0,
+                    controller.userData.first.name,
+                    planId,
+                    controller.userData.first.mobile,
+                    controller.userData.first.email,
+                  );
                 } else {
                   failure("Order", "Your Payment Order Is Not Created");
                 }

@@ -317,7 +317,8 @@ class ContactListScreenState extends State<ContactListScreen> {
                                             child: GestureDetector(
                                               onTap: () {
                                                 // Navigate to the chat screen when clicking anywhere in the row except the profile image
-                                                if (controller.userData.isEmpty) {
+                                                if (controller
+                                                    .userData.isEmpty) {
                                                   return;
                                                 }
 

@@ -1,9 +1,14 @@
+import 'dart:io';
+
 import 'package:dating_application/Screens/chatpage/VideoCallPage.dart';
+import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/constants.dart';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import '../../Models/ResponseModels/chat_history_response_model.dart';
 import '../../Providers/WebsocketService.dart';
 import 'package:vibration/vibration.dart';
@@ -37,29 +42,71 @@ class ChatScreenState extends State<ChatScreen> {
     websocketService.connect(controller.token.value);
   }
 
-  void _sendMessage() {
-    final messageText = messageController.text.trim();
-    if (messageText.isNotEmpty) {
-      websocketService.sendMessage(
-          '/app/sendMessage',
-          Message(
-                  id: null,
-                  senderId: widget.senderId,
-                  receiverId: widget.receiverId,
-                  message: controller.encryptMessage(messageText, secretkey),
-                  messageType: 1,
-                  created: DateTime.now().toIso8601String(),
-                  updated: DateTime.now().toIso8601String(),
-                  status: 1,
-                  isEdited: 0,
-                  deletedBySender: 0,
-                  deletedByReceiver: 0,
-                  deletedAtReceiver: null,
-                  deletedAtSender: null)
-              .toJson());
+  // void _sendMessage() {
+  //   final messageText = messageController.text.trim();
+  //   if (messageText.isNotEmpty) {
+  //     websocketService.sendMessage(
+  //         '/app/sendMessage',
+  //         Message(
+  //                 id: null,
+  //                 senderId: widget.senderId,
+  //                 receiverId: widget.receiverId,
+  //                 message: controller.encryptMessage(messageText, secretkey),
+  //                 messageType: 1,
+  //                 created: DateTime.now().toIso8601String(),
+  //                 updated: DateTime.now().toIso8601String(),
+  //                 status: 1,
+  //                 isEdited: 0,
+  //                 deletedBySender: 0,
+  //                 deletedByReceiver: 0,
+  //                 deletedAtReceiver: null,
+  //                 deletedAtSender: null)
+  //             .toJson());
 
-      messageController.clear();
-      controller.fetchChats(widget.receiverId);
+  //     messageController.clear();
+  //     controller.fetchChats(widget.receiverId);
+  //   }
+  // }
+
+  Future<void> _sendMessage({
+    required String message,
+    required String receiverId,
+    File? image,
+  }) async {
+    final sharedPreferences = EncryptedSharedPreferences.getInstance();
+    final token = await sharedPreferences
+        .getString('token'); // Await here if getString is async
+
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse('$springbooturl/ChatController/send-message'),
+    );
+
+    request.headers['Authorization'] = 'Bearer $token';
+    request.fields['receiverId'] = receiverId;
+    request.fields['message'] = message;
+
+    if (image != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'image',
+          image.path,
+          contentType: MediaType('image', 'jpeg'), // or detect content type
+        ),
+      );
+    }
+
+    try {
+      final response = await request.send();
+      if (response.statusCode == 200) {
+        print('✅ Message sent successfully');
+      } else {
+        print('❌ Failed to send message. Status code: ${response.statusCode}');
+        final body = await response.stream.bytesToString();
+        print('Response body: $body');
+      }
+    } catch (e) {
+      print('❗ Exception sending message: $e');
     }
   }
 
@@ -485,7 +532,14 @@ class ChatScreenState extends State<ChatScreen> {
                 IconButton(
                   icon: Icon(Icons.send),
                   color: Colors.green,
-                  onPressed: _sendMessage,
+                  onPressed: () async {
+                    if (messageController.text.trim().isNotEmpty) {
+                      await _sendMessage(
+                          message: messageController.text.trim(),
+                          receiverId: widget.receiverId);
+                      messageController.clear();
+                    }
+                  },
                 ),
               ],
             ),

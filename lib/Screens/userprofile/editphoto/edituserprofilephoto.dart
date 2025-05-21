@@ -22,7 +22,7 @@ class EditPhotosPage extends StatefulWidget {
 class EditPhotosPageState extends State<EditPhotosPage> {
   Controller controller = Get.put(Controller());
   RxList<RxString> updatedImages = List.filled(6, "".obs).obs;
-  RxList<File> filePaths = <File>[].obs;
+  RxList<File?> filePaths = <File?>[].obs;
   RxList<int> indexUpdated = <int>[].obs;
 
   @override
@@ -33,16 +33,17 @@ class EditPhotosPageState extends State<EditPhotosPage> {
 
   intialize() async {
     try {
-      List<RxString> fetchedImages = controller.userPhotos!.images
-          .map((image) => RxString(image))
-          .toList();
-
+      await controller.fetchAllHeadlines();
+      await controller.fetchProfileUserPhotos();
+      List<RxString> fetchedImages = controller.userPhotos?.images
+              .map((image) => RxString(image))
+              .toList() ??
+          [];
       updatedImages.value = List.generate(
         6,
         (index) => index < fetchedImages.length ? fetchedImages[index] : "".obs,
       );
-
-      filePaths.value = List.generate(6, (index) => File('')).obs;
+      filePaths.value = List.generate(6, (index) => null);
     } catch (e) {
       failure('Error', e.toString());
     }
@@ -65,8 +66,13 @@ class EditPhotosPageState extends State<EditPhotosPage> {
 
   Future<void> requestGalleryPermission() async {
     var status = await Permission.photos.request();
-    if (status.isDenied) {
-      Get.snackbar('Permission Denied', "Gallery permission denied");
+    if (status.isDenied || status.isPermanentlyDenied) {
+      // Try requesting storage permission as fallback (for Android)
+      var storageStatus = await Permission.storage.request();
+      if (storageStatus.isDenied || storageStatus.isPermanentlyDenied) {
+        // Get.snackbar('Permission Denied', "Gallery permission denied");
+        return;
+      }
     }
   }
 
@@ -78,10 +84,13 @@ class EditPhotosPageState extends State<EditPhotosPage> {
         await requestGalleryPermission();
       }
       final pickedFile = await picker.pickImage(source: source);
-
+      print('Picked file: ${pickedFile?.path}');
       if (pickedFile != null) {
         File imageFile = File(pickedFile.path);
+        print('Image file exists: ${await imageFile.exists()}');
         filePaths[index] = imageFile;
+        filePaths.refresh();
+
         final compressedImage = await FlutterImageCompress.compressWithFile(
           imageFile.path,
           quality: 50,
@@ -89,12 +98,11 @@ class EditPhotosPageState extends State<EditPhotosPage> {
 
         if (compressedImage != null) {
           String base64Image = base64Encode(compressedImage);
-          if (index < updatedImages.length) {
-            updatedImages[index] = base64Image.obs;
-            indexUpdated.add(index);
-          } else {
-            updatedImages.add(base64Image.obs);
-          }
+          updatedImages[index] = base64Image.obs;
+          updatedImages.refresh();
+
+          if (!indexUpdated.contains(index)) indexUpdated.add(index);
+          indexUpdated.refresh();
 
           success("Success", "Image updated successfully");
         } else {
@@ -106,6 +114,11 @@ class EditPhotosPageState extends State<EditPhotosPage> {
     } catch (e) {
       failure("Error", e.toString());
     }
+
+    // After picking and updating image
+    print('UpdatedImages: ${updatedImages.map((e) => e.value).toList()}');
+    print('FilePaths: $filePaths');
+    print('IndexUpdated: $indexUpdated');
   }
 
   Future<void> deletePhoto(int index) async {
@@ -114,7 +127,8 @@ class EditPhotosPageState extends State<EditPhotosPage> {
     });
 
     setState(() {
-      updatedImages.removeAt(index);
+      updatedImages[index].value = "";
+      filePaths[index] = null;
       indexUpdated.removeWhere((i) => i == index);
       isLoading = false;
     });
@@ -361,41 +375,56 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                         ),
                         itemCount: updatedImages.length,
                         itemBuilder: (context, index) {
-                          RxString imageUrl = updatedImages[index];
-                          print('Photo index is $index and URL is $imageUrl');
+                          RxString imageUrl = updatedImages.length > index
+                              ? updatedImages[index]
+                              : "".obs;
+                          File? file = filePaths.length > index
+                              ? filePaths[index]
+                              : null;
 
-                          if (indexUpdated.contains(index)) {
-                            print('File path at $index is ${filePaths[index]}');
-                          } else {
-                            print('File path not at $index');
-                          }
-
-                          if (imageUrl.value.isNotEmpty ||
-                              indexUpdated.contains(index)) {
+                          if (indexUpdated.contains(index) && file != null) {
                             return Padding(
                               padding: const EdgeInsets.all(4.0),
                               child: GestureDetector(
-                                onTap: () => indexUpdated.contains(index)
-                                    ? showFullPhotoDialogFile(filePaths[index])
-                                    : showFullPhotoDialog(imageUrl.value),
+                                onTap: () => showFullPhotoDialogFile(file),
                                 child: Stack(
                                   alignment: Alignment.bottomRight,
                                   children: [
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(10),
-                                      child: indexUpdated.contains(index)
-                                          ? Image.file(
-                                              filePaths[index],
-                                              fit: BoxFit.cover,
-                                              width: double.infinity,
-                                              height: double.infinity,
-                                            )
-                                          : Image.network(
-                                              imageUrl.value,
-                                              fit: BoxFit.cover,
-                                              width: double.infinity,
-                                              height: double.infinity,
-                                            ),
+                                      child: Image.file(
+                                        file,
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.more_vert,
+                                          color: AppColors.activeColor),
+                                      onPressed: () => showDeleteOptions(index),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          } else if (imageUrl.value.isNotEmpty) {
+                            return Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: GestureDetector(
+                                onTap: () =>
+                                    showFullPhotoDialog(imageUrl.value),
+                                child: Stack(
+                                  alignment: Alignment.bottomRight,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Image.network(
+                                        imageUrl.value,
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                      ),
                                     ),
                                     IconButton(
                                       icon: Icon(Icons.more_vert,
@@ -426,39 +455,43 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                       )),
             ),
             SizedBox(height: screenSize.height * 0.03),
-            Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Text(
-                      controller.headlines.isNotEmpty
-                          ? controller.headlines[11].title
-                          : "Loading Title...",
-                      style: AppTextStyles.titleText.copyWith(
-                        fontSize: fontSize,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textColor,
-                      ),
+            Obx(() => Card(
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        Text(
+                          (controller.headlines.length > 11)
+                              ? controller.headlines[11].title
+                              : controller.headlines.isNotEmpty
+                                  ? controller.headlines.first.title
+                                  : "Loading Title...",
+                          style: AppTextStyles.titleText.copyWith(
+                            fontSize: fontSize,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          (controller.headlines.length > 11)
+                              ? controller.headlines[11].description
+                              : controller.headlines.isNotEmpty
+                                  ? controller.headlines.first.description
+                                  : "Loading Description...",
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: fontSize,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      controller.headlines.isNotEmpty
-                          ? controller.headlines[11].description
-                          : "Loading Description...",
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize,
-                        color: AppColors.textColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+                  ),
+                )),
             SizedBox(height: 10),
             Card(
               elevation: 8,

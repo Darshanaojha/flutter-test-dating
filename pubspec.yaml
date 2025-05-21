@@ -4,7 +4,7 @@ publish_to: 'none'
 version: 0.1.0
 
 environment:
-  sdk: ^3.5.3
+  sdk: ^3.6.0
 
 dependencies:
   flutter:
@@ -61,7 +61,7 @@ dependencies:
   heart_overlay: ^1.4.1
   intl_phone_number_input: ^0.7.4
   pull_to_refresh_flutter3: ^2.0.2
-  agora_rtc_engine: ^6.5.0
+  agora_rtc_engine: ^6.5.2
   audioplayers: ^6.1.1
   icons_plus: ^5.0.0
   aurora_background: ^1.0.1
@@ -71,6 +71,7 @@ dependencies:
   fl_chart: ^1.0.0
   shimmer: ^3.0.0
   connectivity_plus: ^6.1.4
+  http_parser: ^4.1.2
 
 
 

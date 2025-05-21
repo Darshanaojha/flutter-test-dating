@@ -67,6 +67,7 @@ class _CreatorsAllContentPageState extends State<CreatorsAllContentPage> {
 
   void _editContent(CreatorContent content) {
     // TODO: Navigate to your edit page, passing the content
+    // Example: Get.to(EditContentPage(content: content));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Edit feature coming soon!')),
     );
@@ -74,111 +75,9 @@ class _CreatorsAllContentPageState extends State<CreatorsAllContentPage> {
 
   void _addContent() {
     // TODO: Navigate to your add content page
+    // Example: Get.to(AddContentPage());
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Add feature coming soon!')),
-    );
-  }
-
-  Widget _buildContentCard(CreatorContent content) {
-    // Replace with your actual image logic if you have URLs or assets
-    final String? imageUrl = content.contentName.isNotEmpty
-        ? content.contentName // Assuming this is a URL or asset path
-        : null;
-
-    return Card(
-      color: Colors.grey[900],
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () => _showFullView(content),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: imageUrl != null && imageUrl.isNotEmpty
-                    ? Image.network(
-                        imageUrl,
-                        width: 70,
-                        height: 70,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          width: 70,
-                          height: 70,
-                          color: Colors.grey[800],
-                          child: const Icon(Icons.image_not_supported,
-                              color: Colors.white38),
-                        ),
-                      )
-                    : Container(
-                        width: 70,
-                        height: 70,
-                        color: Colors.grey[800],
-                        child: const Icon(Icons.image, color: Colors.white38),
-                      ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      content.contentTitle,
-                      style: const TextStyle(
-                        color: Colors.amber,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      content.contentDescription,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style:
-                          const TextStyle(color: Colors.white70, fontSize: 14),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Chip(
-                          label: Text(
-                            "₹${content.actualAmount}",
-                            style: const TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          backgroundColor: Colors.amber[200],
-                          visualDensity: VisualDensity.compact,
-                        ),
-                        const SizedBox(width: 8),
-                        if (content.offeredDiscount > 0)
-                          Chip(
-                            label: Text(
-                              "-₹${content.offeredDiscount}",
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                            backgroundColor: Colors.red[400],
-                            visualDensity: VisualDensity.compact,
-                          ),
-                        const Spacer(),
-                        IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.amber),
-                          onPressed: () => _editContent(content),
-                          tooltip: "Edit",
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -199,12 +98,68 @@ class _CreatorsAllContentPageState extends State<CreatorsAllContentPage> {
             ),
           );
         }
-        return ListView.builder(
+        return ListView.separated(
           padding: const EdgeInsets.all(16),
           itemCount: controller.creatorContent.length,
+          separatorBuilder: (_, __) => const Divider(color: Colors.white12),
           itemBuilder: (context, index) {
             final content = controller.creatorContent[index];
-            return _buildContentCard(content);
+            return Card(
+              color: Colors.grey[900],
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () => _showFullView(content),
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Left: Image or Video Thumbnail
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: _buildMediaThumbnail(content.contentName),
+                      ),
+                      const SizedBox(width: 16),
+                      // Right: Details
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              content.contentTitle,
+                              style: const TextStyle(
+                                color: Colors.amber,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              content.contentDescription,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(color: Colors.white70, fontSize: 14),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "Created: ${content.created}",
+                              style: const TextStyle(color: Colors.white38, fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.amber),
+                        onPressed: () => _editContent(content),
+                        tooltip: "Edit",
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            );
           },
         );
       }),
@@ -215,5 +170,48 @@ class _CreatorsAllContentPageState extends State<CreatorsAllContentPage> {
         child: const Icon(Icons.add, color: Colors.black),
       ),
     );
+  }
+
+  Widget _buildMediaThumbnail(String contentName) {
+    // Simple check for image/video file extensions
+    final isImage = contentName.toLowerCase().endsWith('.png') ||
+        contentName.toLowerCase().endsWith('.jpg') ||
+        contentName.toLowerCase().endsWith('.jpeg') ||
+        contentName.toLowerCase().endsWith('.gif');
+    final isVideo = contentName.toLowerCase().endsWith('.mp4') ||
+        contentName.toLowerCase().endsWith('.mov') ||
+        contentName.toLowerCase().endsWith('.avi');
+
+    // Replace with your actual image/video URL logic if needed
+    final String url = contentName; // Use network or asset path as needed
+
+    if (isImage) {
+      return Image.network(
+        url,
+        width: 70,
+        height: 70,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Container(
+          width: 70,
+          height: 70,
+          color: Colors.grey[800],
+          child: const Icon(Icons.broken_image, color: Colors.white38),
+        ),
+      );
+    } else if (isVideo) {
+      return Container(
+        width: 70,
+        height: 70,
+        color: Colors.black26,
+        child: const Icon(Icons.videocam, color: Colors.amber, size: 40),
+      );
+    } else {
+      return Container(
+        width: 70,
+        height: 70,
+        color: Colors.grey[800],
+        child: const Icon(Icons.insert_drive_file, color: Colors.white38),
+      );
+    }
   }
 }

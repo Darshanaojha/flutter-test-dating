@@ -5,10 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 
 const encryptionkey = "flamrpisyst2024!";
 const secretkey = "ArqamzSnehaSadiq@flamrdating2024";
-const baseurl = "http://192.168.1.2/dating_backend_springboot/admin";
-const ip = "http://192.168.1.2/dating_backend_springboot/";
+const baseurl = "http://192.168.1.15/dating_backend_springboot/admin";
+const ip = "http://192.168.1.15/dating_backend_springboot/";
 
-const springbooturl = "http://192.168.1.2:8080";
+const springbooturl = "http://192.168.1.21:8080";
 
 const registerUrl = "Authentication/register";
 const loginUrl = "Authentication/login";
@@ -300,10 +300,10 @@ class PusherConstants {
 }
 
 class RazorpayKeys {
-  // static const String RAZORPAYKEYID = "rzp_test_27Thf113vIC8Np";
-  // static const String RAZORPAYKEYSECRET = "XSyj935cHFhXwXF6JdmFK8QA";
-  static const String RAZORPAYKEYID = "rzp_live_lqdEPFltHtYYIS";
-  static const String RAZORPAYKEYSECRET = "DJqvCl24zHwSeWK340FRAxyd";
+  static const String RAZORPAYKEYID = "rzp_test_27Thf113vIC8Np";
+  static const String RAZORPAYKEYSECRET = "XSyj935cHFhXwXF6JdmFK8QA";
+  // static const String RAZORPAYKEYID = "rzp_live_lqdEPFltHtYYIS";
+  // static const String RAZORPAYKEYSECRET = "DJqvCl24zHwSeWK340FRAxyd";
 }
 
 class Transactionsuccess {

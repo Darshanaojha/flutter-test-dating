@@ -25,12 +25,10 @@ class WebSocketService {
       print("Already connected to WebSocket.");
       return;
     }
-print('url is ${springbooturl}chat');
+    print('url is $springbooturl/chat');
     _stompClient = StompClient(
       config: StompConfig.sockJS(
-
-        url: '${springbooturl}chat',
-
+        url: '$springbooturl/chat',
         onConnect: _onConnect,
         beforeConnect: () async {
           print('Connecting...');
@@ -155,17 +153,38 @@ print('url is ${springbooturl}chat');
   }
 
   /// Send a message to the WebSocket server.
+  // void sendMessage(String destination, Map<String, dynamic> message) async {
+  //   if (!_isConnected) {
+  //     print('Cannot send message. Not connected to WebSocket.');
+  //     return;
+  //   }
+  //   _stompClient.send(
+  //     destination: destination,
+  //     headers: {
+  //       'Authorization': 'Bearer ${controller.token.value}',
+  //     },
+  //     body: jsonEncode(message),
+  //   );
+  // }
+
   void sendMessage(String destination, Map<String, dynamic> message) async {
     if (!_isConnected) {
       print('Cannot send message. Not connected to WebSocket.');
       return;
     }
+
+    // Extract only the required parameters
+    final Map<String, dynamic> filteredMessage = {
+      'message': message['message'],
+      'receiver_id': message['receiver_id'],
+    };
+
     _stompClient.send(
       destination: destination,
       headers: {
         'Authorization': 'Bearer ${controller.token.value}',
       },
-      body: jsonEncode(message),
+      body: jsonEncode(filteredMessage),
     );
   }
 

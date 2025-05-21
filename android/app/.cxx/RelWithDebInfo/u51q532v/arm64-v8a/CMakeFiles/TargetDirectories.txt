@@ -1,0 +1,2 @@
+/Users/apple/Documents/FlutterProjects/dating_flutter_app/android/app/.cxx/RelWithDebInfo/u51q532v/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/apple/Documents/FlutterProjects/dating_flutter_app/android/app/.cxx/RelWithDebInfo/u51q532v/arm64-v8a/CMakeFiles/rebuild_cache.dir
