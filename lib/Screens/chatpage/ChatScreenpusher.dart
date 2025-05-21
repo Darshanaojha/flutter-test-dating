@@ -328,7 +328,6 @@ class ChatScreenState extends State<ChatScreen> {
                   itemBuilder: (context, index) {
                     final message = controller.messages[index];
                     bool isSentByUser = message.senderId == widget.senderId;
-
                     return Slidable(
                       key: Key(message.id ?? ''),
                       // Specify the start-to-end action pane (Edit button)
@@ -534,10 +533,25 @@ class ChatScreenState extends State<ChatScreen> {
                   color: Colors.green,
                   onPressed: () async {
                     if (messageController.text.trim().isNotEmpty) {
+                      // controller.messages.add(Message(
+                      //     id: null,
+                      //     senderId: widget.senderId,
+                      //     receiverId: widget.receiverId,
+                      //     message: messageController.text.trim(),
+                      //     messageType: 1,
+                      //     created: DateTime.now().toIso8601String(),
+                      //     updated: DateTime.now().toIso8601String(),
+                      //     status: 1,
+                      //     isEdited: 0,
+                      //     deletedBySender: 0,
+                      //     deletedByReceiver: 0,
+                      //     deletedAtReceiver: null,
+                      //     deletedAtSender: null));
                       await _sendMessage(
                           message: messageController.text.trim(),
                           receiverId: widget.receiverId);
                       messageController.clear();
+                      controller.fetchChats(widget.receiverId);
                     }
                   },
                 ),
@@ -549,3 +563,5 @@ class ChatScreenState extends State<ChatScreen> {
     );
   }
 }
+
+// controller.encryptMessage( messageController.text.trim(), secretkey)

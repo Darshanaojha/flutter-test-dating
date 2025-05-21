@@ -59,6 +59,9 @@ class ChatProvider extends GetConnect {
         );
 
         if (response.statusCode == 200) {
+         
+
+              
           return ChatResponse.fromJson(response.body);
         } else {
           failure('Error', response.body.toString());

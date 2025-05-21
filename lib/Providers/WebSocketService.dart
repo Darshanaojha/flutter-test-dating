@@ -69,7 +69,8 @@ class WebSocketService {
 
             // Parse the message
             Message message = Message.fromJson(jsonDecode(frame.body!));
-
+            Get.snackbar('message', message.toJson().toString(),
+                duration: Duration(seconds: 15));
             // Validate message format before decryption
             if (!message.message.contains('::')) {
               print('Invalid encrypted message format: ${message.message}');
