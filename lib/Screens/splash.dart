@@ -57,14 +57,14 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
 
-      String? token = preferences.getString('token');
+      String? token = await preferences.getString('token'); // <-- await here
       debugPrint("Token: $token");
-      bool? value = preferences.getBoolean('isSeenUser');
+      bool? value =
+          await preferences.getBoolean('isSeenUser'); // <-- await here
       if (value == null || value == false) {
         controller.fetchAllIntroSlider().then((value) {
           if (value == true) {
             preferences.setBoolean('isSeenUser', true);
-
             Get.offAll(() => IntroSlidingPages());
           } else {
             failure('Error', 'Failed to fetch the intro slider');
@@ -82,6 +82,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
       String? packageStatus;
       if (token == null || token.isEmpty) {
         Get.offAll(() => Login());
+        return;
       } else {
         await controller.userSuggestions();
         await controller.fetchallfavourites();
@@ -116,52 +117,19 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
           }
         });
       }
-      Position position = await _getUserLocation();
-      List<Placemark> placemarks =
-          await placemarkFromCoordinates(position.latitude, position.longitude);
-      Placemark place = placemarks.first;
-
-      UpdateLatLongRequest updateLatLongRequest = UpdateLatLongRequest(
-        latitude: position.latitude.toString(),
-        longitude: position.longitude.toString(),
-        city: place.locality ?? 'Unknown',
-        address: place.name ?? 'Unknown',
-      );
-      controller.updatelatlong(updateLatLongRequest);
 
       UpdateActivityStatusRequest updateActivityStatusRequest =
           UpdateActivityStatusRequest(status: '1');
       controller.updateactivitystatus(updateActivityStatusRequest);
     } catch (e) {
-      failure("Error", e.toString());
+      failure("Error in fetchLocation", e.toString());
+      print(e.toString());
       Get.offAll(() => Login());
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
-  }
-
-  Future<Position> _getUserLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      throw 'Location services are disabled.';
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse &&
-          permission != LocationPermission.always) {
-        throw 'Location permission denied';
-      }
-    }
-
-    return await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
   }
 
   @override

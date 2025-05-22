@@ -186,34 +186,26 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
         keyboardType: type,
-        obscureText: emailvisibility,
+        obscureText: false,
         cursorColor: AppColors.cursorColor,
         decoration: InputDecoration(
-            labelText: label,
-            labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: AppColors.textColor),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: AppColors.activeColor),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: AppColors.textColor),
-            ),
-            fillColor: AppColors.formFieldColor,
-            filled: true,
-            suffixIcon: IconButton(
-                onPressed: () {
-                  setState(() {
-                    emailvisibility = !emailvisibility;
-                  });
-                },
-                icon: Icon(
-                    emailvisibility ? Icons.visibility_off : Icons.visibility,
-                    size: 20))),
+          labelText: label,
+          labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.activeColor),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor),
+          ),
+          fillColor: AppColors.formFieldColor,
+          filled: true,
+        ),
         onSaved: (value) => onSaved(value!),
         validator: (value) {
           if (value == null || value.isEmpty) {

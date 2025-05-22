@@ -222,7 +222,8 @@ class Controller extends GetxController {
       await preferences.setString('status', userLoginResponse.payload.status);
       await preferences.setString(
           'package_status', userLoginResponse.payload.packagestatus);
-      debugPrint("User Token save : ${preferences.getString('token').toString()}");
+      debugPrint(
+          "User Token save : ${preferences.getString('token').toString()}");
     } catch (e) {
       failure('Error storeUserData', e.toString());
     }
@@ -510,6 +511,7 @@ class Controller extends GetxController {
       }
 
       final fetchedMessages = response.chats;
+
       final existingIds = messages.map((msg) => msg.id).toSet();
       final newMessages = fetchedMessages
           .where((msg) => !existingIds.contains(msg.id))
@@ -528,7 +530,9 @@ class Controller extends GetxController {
           print(e.toString());
         }
       }
+
       messages.addAll(newMessages);
+
       return true;
     } catch (e) {
       print('Error fetching chats: $e');

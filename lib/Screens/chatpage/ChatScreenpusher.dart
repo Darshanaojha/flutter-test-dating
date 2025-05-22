@@ -1,19 +1,20 @@
 import 'dart:io';
 
+import 'package:chat_bubbles/chat_bubbles.dart';
+import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Screens/chatpage/VideoCallPage.dart';
+import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
-import 'package:dating_application/Controllers/controller.dart';
-import 'package:dating_application/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:vibration/vibration.dart';
+
 import '../../Models/ResponseModels/chat_history_response_model.dart';
 import '../../Providers/WebsocketService.dart';
-import 'package:vibration/vibration.dart';
-import 'package:chat_bubbles/chat_bubbles.dart';
-
 import 'AudioCallPage.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -95,6 +96,10 @@ class ChatScreenState extends State<ChatScreen> {
         ),
       );
     }
+
+    print("Sending message: $message");
+    print('Receiver ID: $receiverId');
+    print('Image: $image');
 
     try {
       final response = await request.send();
@@ -328,6 +333,8 @@ class ChatScreenState extends State<ChatScreen> {
                   itemBuilder: (context, index) {
                     final message = controller.messages[index];
                     bool isSentByUser = message.senderId == widget.senderId;
+                    bool hasImage = message.imagePath != null &&
+                        message.imagePath!.isNotEmpty;
 
                     return Slidable(
                       key: Key(message.id ?? ''),
@@ -471,6 +478,26 @@ class ChatScreenState extends State<ChatScreen> {
                                       ? CrossAxisAlignment.end
                                       : CrossAxisAlignment.start,
                                   children: [
+                                    if (hasImage)
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 4.0),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          child: Image.network(
+                                            message.imagePath!,
+                                            width: 180,
+                                            height: 180,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) =>
+                                                    Icon(Icons.broken_image,
+                                                        size: 60,
+                                                        color: Colors.grey),
+                                          ),
+                                        ),
+                                      ),
                                     BubbleSpecialThree(
                                       sent: isSentByUser,
                                       delivered: isSentByUser,
@@ -513,6 +540,22 @@ class ChatScreenState extends State<ChatScreen> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
+                IconButton(
+                  icon: Icon(Icons.image, color: Colors.blue),
+                  onPressed: () async {
+                    final pickedFile = await ImagePicker()
+                        .pickImage(source: ImageSource.gallery);
+                    if (pickedFile != null) {
+                      File imageFile = File(pickedFile.path);
+                      await _sendMessage(
+                        message: '', // or a caption if you want
+                        receiverId: widget.receiverId,
+                        image: imageFile,
+                      );
+                      controller.fetchChats(widget.receiverId);
+                    }
+                  },
+                ),
                 Expanded(
                   child: TextField(
                     cursorColor: AppColors.activeColor,
@@ -535,9 +578,11 @@ class ChatScreenState extends State<ChatScreen> {
                   onPressed: () async {
                     if (messageController.text.trim().isNotEmpty) {
                       await _sendMessage(
-                          message: messageController.text.trim(),
-                          receiverId: widget.receiverId);
+                        message: messageController.text.trim(),
+                        receiverId: widget.receiverId,
+                      );
                       messageController.clear();
+                      controller.fetchChats(widget.receiverId);
                     }
                   },
                 ),
@@ -549,3 +594,5 @@ class ChatScreenState extends State<ChatScreen> {
     );
   }
 }
+
+// controller.encryptMessage( messageController.text.trim(), secretkey)
