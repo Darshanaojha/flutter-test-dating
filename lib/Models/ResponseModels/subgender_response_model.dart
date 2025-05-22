@@ -9,7 +9,6 @@ class SubGenderResponse {
     required this.error,
   });
 
-
   factory SubGenderResponse.fromJson(Map<String, dynamic> json) {
     return SubGenderResponse(
       success: json['success'],
@@ -17,7 +16,6 @@ class SubGenderResponse {
       error: ApiError.fromJson(json['error']),
     );
   }
-
 
   Map<String, dynamic> toJson() {
     return {
@@ -37,15 +35,13 @@ class SubGenderPayload {
     required this.data,
   });
 
-
   factory SubGenderPayload.fromJson(Map<String, dynamic> json) {
-    var dataList = (json['data'] as List)
-        .map((item) => SubGenderData.fromJson(item))
-        .toList();
-
     return SubGenderPayload(
-      msg: json['msg'],
-      data: dataList,
+      msg: json['msg'] ?? '',
+      data: (json['data'] as List<dynamic>?)
+              ?.map((e) => SubGenderData.fromJson(e))
+              .toList() ??
+          [],
     );
   }
 
@@ -66,14 +62,12 @@ class SubGenderData {
     required this.title,
   });
 
-
   factory SubGenderData.fromJson(Map<String, dynamic> json) {
     return SubGenderData(
-      id: json['id'],
-      title: json['title'],
+      id: json['id'] ?? '',
+      title: json['title'] ?? '',
     );
   }
-
 
   Map<String, dynamic> toJson() {
     return {
@@ -91,7 +85,6 @@ class ApiError {
     required this.code,
     required this.message,
   });
-
 
   factory ApiError.fromJson(Map<String, dynamic> json) {
     return ApiError(

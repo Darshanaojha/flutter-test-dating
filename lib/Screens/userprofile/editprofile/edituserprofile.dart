@@ -169,12 +169,13 @@ class EditProfilePageState extends State<EditProfilePage>
             (gender) => gender.id == genderFromUserData,
             orElse: () => controller.genders.first,
           );
-          await controller.fetchSubGender(SubGenderRequest(
-            genderId: genderFromUserData,
-          ));
+          // await controller.fetchSubGender(SubGenderRequest(
+          //   genderId: genderFromUserData,
+          // ));
         }
-      } else if (controller.genders.isNotEmpty) {
+      }  if (controller.genders.isNotEmpty) {
         selectedGender.value = controller.genders.first;
+        print("Gender Id ${controller.genders.first.id}");
         await controller.fetchSubGender(SubGenderRequest(
           genderId: controller.genders.first.id,
         ));
