@@ -1,20 +1,21 @@
 import 'dart:io';
+import 'dart:typed_data';
 
-import 'package:chat_bubbles/chat_bubbles.dart';
-import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Screens/chatpage/VideoCallPage.dart';
-import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
+import 'package:dating_application/Controllers/controller.dart';
+import 'package:dating_application/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:vibration/vibration.dart';
-
 import '../../Models/ResponseModels/chat_history_response_model.dart';
 import '../../Providers/WebsocketService.dart';
+import 'package:vibration/vibration.dart';
+import 'package:chat_bubbles/chat_bubbles.dart';
+
 import 'AudioCallPage.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -36,7 +37,10 @@ class ChatScreen extends StatefulWidget {
 class ChatScreenState extends State<ChatScreen> {
   Controller controller = Get.put(Controller());
   final WebSocketService websocketService = WebSocketService();
+  File? selectedImage;
   final TextEditingController messageController = TextEditingController();
+  String? bearerToken =
+      EncryptedSharedPreferences.getInstance().getString('token');
   @override
   void initState() {
     super.initState();
@@ -96,10 +100,6 @@ class ChatScreenState extends State<ChatScreen> {
         ),
       );
     }
-
-    print("Sending message: $message");
-    print('Receiver ID: $receiverId');
-    print('Image: $image');
 
     try {
       final response = await request.send();
@@ -247,12 +247,12 @@ class ChatScreenState extends State<ChatScreen> {
     controller.messages[index].deletedByReceiver = 0;
     controller.messages[index].isEdited = 1;
     controller.messages[index].message = controller.encryptMessage(
-        controller.messages[index].message, secretkey);
+        controller.messages[index].message ?? '', secretkey);
 
     controller.updateChats(controller.messages[index]);
 
     controller.messages[index].message = controller.decryptMessage(
-        controller.messages[index].message, secretkey);
+        controller.messages[index].message ?? '', secretkey);
   }
 
   @override
@@ -333,9 +333,6 @@ class ChatScreenState extends State<ChatScreen> {
                   itemBuilder: (context, index) {
                     final message = controller.messages[index];
                     bool isSentByUser = message.senderId == widget.senderId;
-                    bool hasImage = message.imagePath != null &&
-                        message.imagePath!.isNotEmpty;
-
                     return Slidable(
                       key: Key(message.id ?? ''),
                       // Specify the start-to-end action pane (Edit button)
@@ -478,27 +475,8 @@ class ChatScreenState extends State<ChatScreen> {
                                       ? CrossAxisAlignment.end
                                       : CrossAxisAlignment.start,
                                   children: [
-                                    if (hasImage)
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 4.0),
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          child: Image.network(
-                                            message.imagePath!,
-                                            width: 180,
-                                            height: 180,
-                                            fit: BoxFit.cover,
-                                            errorBuilder:
-                                                (context, error, stackTrace) =>
-                                                    Icon(Icons.broken_image,
-                                                        size: 60,
-                                                        color: Colors.grey),
-                                          ),
-                                        ),
-                                      ),
-                                    BubbleSpecialThree(
+                                    message.message == null ? SizedBox.shrink():
+                                   BubbleSpecialThree(
                                       sent: isSentByUser,
                                       delivered: isSentByUser,
                                       seen: isSentByUser,
@@ -514,6 +492,13 @@ class ChatScreenState extends State<ChatScreen> {
                                         fontSize: 16,
                                       ),
                                     ),
+                                    if (message.imagePath != null)
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(top: 5.0),
+                                        child: buildImageWithAuth(
+                                            message.imagePath!, bearerToken!),
+                                      ),
                                     Container(
                                       padding: isSentByUser
                                           ? EdgeInsets.fromLTRB(0, 0, 5, 0)
@@ -540,22 +525,6 @@ class ChatScreenState extends State<ChatScreen> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                IconButton(
-                  icon: Icon(Icons.image, color: Colors.blue),
-                  onPressed: () async {
-                    final pickedFile = await ImagePicker()
-                        .pickImage(source: ImageSource.gallery);
-                    if (pickedFile != null) {
-                      File imageFile = File(pickedFile.path);
-                      await _sendMessage(
-                        message: '', // or a caption if you want
-                        receiverId: widget.receiverId,
-                        image: imageFile,
-                      );
-                      controller.fetchChats(widget.receiverId);
-                    }
-                  },
-                ),
                 Expanded(
                   child: TextField(
                     cursorColor: AppColors.activeColor,
@@ -572,26 +541,166 @@ class ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  color: Colors.green,
-                  onPressed: () async {
-                    if (messageController.text.trim().isNotEmpty) {
-                      await _sendMessage(
-                        message: messageController.text.trim(),
-                        receiverId: widget.receiverId,
-                      );
-                      messageController.clear();
-                      controller.fetchChats(widget.receiverId);
-                    }
-                  },
-                ),
+                Row(
+                  children: [
+                    // Image picker icon (only selects and stores image)
+                    IconButton(
+                      icon: Icon(Icons.image),
+                      color: Colors.orange,
+                      onPressed: () async {
+                        final pickedFile = await showModalBottomSheet<XFile?>(
+                          context: context,
+                          builder: (context) => _buildImagePickerOptions(),
+                        );
+
+                        if (pickedFile != null) {
+                          setState(() {
+                            selectedImage = File(pickedFile.path);
+                          });
+                        }
+                      },
+                    ),
+                    if (selectedImage != null)
+                      GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              content: Image.file(selectedImage!),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text("Close"),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: CircleAvatar(
+                            radius: 24,
+                            backgroundImage: FileImage(selectedImage!),
+                          ),
+                        ),
+                      ),
+
+                    // Send button (sends text + selected image if any)
+                    IconButton(
+                      icon: Icon(Icons.send),
+                      color: Colors.green,
+                      onPressed: () async {
+                        final messageText = messageController.text.trim();
+
+                        if (messageText.isNotEmpty || selectedImage != null) {
+                          await _sendMessage(
+                            message: messageText,
+                            receiverId: widget.receiverId,
+                            image: selectedImage,
+                          );
+
+                          // Clear after sending
+                          messageController.clear();
+                          selectedImage = null;
+                          controller.fetchChats(widget.receiverId);
+                        } else {
+                          Get.snackbar("Empty Message",
+                              "Please type a message or select an image.");
+                        }
+                      },
+                    ),
+                  ],
+                )
               ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildImagePickerOptions() {
+    return SafeArea(
+      child: Wrap(
+        children: <Widget>[
+          ListTile(
+            leading: Icon(Icons.photo_library),
+            title: Text('Gallery'),
+            onTap: () async {
+              final picked =
+                  await ImagePicker().pickImage(source: ImageSource.gallery);
+              Navigator.pop(context, picked);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.camera_alt),
+            title: Text('Camera'),
+            onTap: () async {
+              final picked =
+                  await ImagePicker().pickImage(source: ImageSource.camera);
+              Navigator.pop(context, picked);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  FutureBuilder<Uint8List> buildImageWithAuth(
+      String imagePath, String bearerToken) {
+    return FutureBuilder<Uint8List>(
+      future: _fetchImageBytes(imagePath, bearerToken),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Icon(Icons.broken_image);
+        } else if (snapshot.hasData) {
+          return GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (_) => Dialog(
+                  backgroundColor: Colors.transparent,
+                  child: InteractiveViewer(
+                    child: Image.memory(snapshot.data!),
+                  ),
+                ),
+              );
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.memory(
+                snapshot.data!,
+                width: 180,
+                height: 180,
+                fit: BoxFit.cover,
+              ),
+            ),
+          );
+        } else {
+          return SizedBox.shrink();
+        }
+      },
+    );
+  }
+
+  Future<Uint8List> _fetchImageBytes(
+      String imagePath, String bearerToken) async {
+
+    final response = await http.get(
+      Uri.parse('$springbooturl/ChatController/uploads/$imagePath'),
+      headers: {
+        'Authorization': 'Bearer $bearerToken',
+        'Content-Type': 'application/json',
+      },
+    );
+  
+    if (response.statusCode == 200) {
+      return response.bodyBytes;
+    } else {
+      throw Exception('Failed to load image');
+    }
   }
 }
 

@@ -69,17 +69,16 @@ class WebSocketService {
 
             // Parse the message
             Message message = Message.fromJson(jsonDecode(frame.body!));
-            Get.snackbar('message', message.toJson().toString(),
-                duration: Duration(seconds: 15));
+            
             // Validate message format before decryption
-            if (!message.message.contains('::')) {
+            if (!message.message!.contains('::')) {
               print('Invalid encrypted message format: ${message.message}');
               return;
             }
 
             // Decrypt the message
             message.message =
-                controller.decryptMessage(message.message, secretkey);
+                controller.decryptMessage(message.message!, secretkey);
             // Assuming message has an 'id' property
             if (controller.messages.any((m) => m.id == message.id)) {
               // Find the index of the message with the same ID
