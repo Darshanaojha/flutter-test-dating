@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'package:dating_application/Models/ResponseModels/chat_history_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/user_status_model.dart';
+import 'package:dating_application/Screens/chatmessagespage/ContactListScreen.dart';
 import 'package:get/get.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 import '../Controllers/controller.dart';
+import '../Models/ResponseModels/get_all_chat_history_page.dart';
 import '../constants.dart';
 
 class WebSocketService {
@@ -25,6 +28,7 @@ class WebSocketService {
       print("Already connected to WebSocket.");
       return;
     }
+    print(token);
     print('url is $springbooturl/chat');
     _stompClient = StompClient(
       config: StompConfig.sockJS(
@@ -69,7 +73,7 @@ class WebSocketService {
 
             // Parse the message
             Message message = Message.fromJson(jsonDecode(frame.body!));
-            
+
             // Validate message format before decryption
             if (!message.message!.contains('::')) {
               print('Invalid encrypted message format: ${message.message}');
@@ -150,6 +154,73 @@ class WebSocketService {
     );
 
     print('subscribed to the topic : $deleted');
+
+    String updateStatus = '/topic/status';
+    _stompClient.subscribe(
+      headers: {
+        'Authorization': 'Bearer ${controller.token.value}',
+      },
+      destination: updateStatus,
+      callback: (frame) {
+        if (frame.body != null && frame.body!.isNotEmpty) {
+          try {
+            print('Received frame: ${frame.body}');
+
+            // Parse the incoming JSON
+            dynamic userStatus = jsonDecode(frame.body!);
+            print('Decoded userStatus JSON: $userStatus');
+
+            UserStatusModel userStatusModel =
+                UserStatusModel.fromJson(userStatus);
+            print(
+                'Parsed userStatusModel: userId=${userStatusModel.userId}, status=${userStatusModel.status}, lastSeen=${userStatusModel.lastSeen}');
+
+            bool found = false;
+
+            for (int i = 0; i < controller.userConnections.length; i++) {
+              var connection = controller.userConnections[i];
+
+              if (connection.conectionId == userStatusModel.userId ||
+                  connection.userId == userStatusModel.userId) {
+                found = true;
+                print('Match found at index $i');
+
+                print(
+                    'Original: userId=${connection.conectionId}, status=${connection.useractivestatus}, lastSeen=${connection.lastSeen}');
+
+                connection.useractivestatus =
+                    userStatusModel.status == 'offline' ? '0' : '1';
+                print(
+                    'Updated useractivestatus: ${connection.useractivestatus}');
+
+                connection.lastSeen =
+                    userStatusModel.lastSeen?.toString() ?? '';
+                print('Updated lastSeen: ${connection.lastSeen}');
+
+                controller.userConnections[i] = connection;
+                print('Connection updated at index $i');
+              }
+            }
+
+            if (found) {
+              print('All matching connections updated.');
+            } else {
+              print(
+                  'No connection found for userId: ${userStatusModel.userId}');
+            }
+          } catch (e) {
+            // Log any errors that occur during the process
+            print('Error processing incoming messages: $e');
+            print('Frame body: ${frame.body}');
+          }
+        } else {
+          // Log if the frame body is empty or null
+          print('Received empty or null frame body.');
+        }
+      },
+    );
+
+    print('subscribed to the topic : $updateStatus');
   }
 
   /// Send a message to the WebSocket server.

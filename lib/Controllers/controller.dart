@@ -36,6 +36,8 @@ import 'package:dating_application/Models/ResponseModels/get_all_whoareyoulookin
 import 'package:dating_application/Models/ResponseModels/get_content_by_id_response.dart';
 import 'package:dating_application/Models/ResponseModels/profile_like_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/subgender_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/updateStatusResponse.dart'
+    show UpdateStatusResponse;
 import 'package:dating_application/Models/ResponseModels/updating_package_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/user_upload_images_response_model.dart';
 import 'package:dating_application/Providers/ReferalCodeProvider.dart';
@@ -190,6 +192,7 @@ import '../Providers/profile_like_provider.dart';
 import '../Providers/registration_provider.dart';
 import '../Providers/report_against_user_provider.dart';
 import '../Providers/report_reason_provider.dart';
+import '../Providers/updateStatusProvider.dart';
 import '../Providers/update_email_verification_provider.dart';
 import '../Providers/update_emailid_provider.dart';
 import '../Providers/update_hookup_status_provider.dart';
@@ -227,6 +230,7 @@ class Controller extends GetxController {
           'package_status', userLoginResponse.payload.packagestatus);
       debugPrint(
           "User Token save : ${preferences.getString('token').toString()}");
+      token.value = userLoginResponse.payload.token;
     } catch (e) {
       failure('Error storeUserData', e.toString());
     }
@@ -2410,6 +2414,24 @@ class Controller extends GetxController {
       return false;
     }
   }
+        
+ 
+  Future<bool?> updateStatus(String status) async {
+    try {
+      UpdateStatusResponse? response =
+          await Updatestatusprovider().updateStatus(status);
+      if (response != null) {
+        success('Success', response.message);
+        return true;
+      } else {
+        failure('Error', 'Failed to update the status');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
 
   Future<bool> updateHookupStatus(int hookupStatus) async {
     try {
@@ -2469,4 +2491,5 @@ class Controller extends GetxController {
     }
     return all;
   }
+
 }
