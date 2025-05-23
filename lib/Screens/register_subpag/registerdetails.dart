@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_country_response_model.dart';
 import 'package:dating_application/Screens/register_subpag/register_subpage.dart';
@@ -758,7 +759,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                 child: Text(
                   selectedValue != null
                       ? displayValue!(selectedValue)
-                      : 'Select $label',
+                      : 'Select Relationship Type',
                   style:
                       AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
                 ),
@@ -853,7 +854,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                 child: Text(
                   selectedValue != null
                       ? displayValue!(selectedValue)
-                      : "Select $label",
+                      : "Select Relationship Type",
                   style: AppTextStyles.bodyText.copyWith(fontSize: fontSize),
                 ),
               ),

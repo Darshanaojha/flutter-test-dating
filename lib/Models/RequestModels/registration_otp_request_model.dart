@@ -44,7 +44,7 @@ class RegistrationOTPRequest {
       return false;
     }
     String? referalcodeerror = validateReferalCode(referalcode);
-    if (referalcodeerror != null) {
+    if (referalcodeerror == null) {
       failure("Invalid Referal Code",
           "Referral code must be exactly 6 alphanumeric characters");
     }
@@ -67,8 +67,9 @@ class RegistrationOTPRequest {
   }
 
   static String? validateReferalCode(String referalcode) {
-    if (!RegExp(r'^[a-zA-Z0-9]{6}$').hasMatch(referalcode)) {
-      return 'Referral code must be exactly 6 alphanumeric characters';
+    if (referalcode.isNotEmpty ||
+        !RegExp(r'^[a-zA-Z0-9]{6}$').hasMatch(referalcode)) {
+      return 'Referral code must be exactly 6 alphanumeric characterssss';
     }
     return null;
   }

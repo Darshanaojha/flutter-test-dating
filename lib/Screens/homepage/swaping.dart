@@ -1,6 +1,10 @@
+import 'package:dating_application/Controllers/controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:swipe_cards/draggable_card.dart';
-import 'package:swipe_cards/swipe_cards.dart'; 
+import 'package:swipe_cards/swipe_cards.dart';
+
+import '../../Models/ResponseModels/user_suggestions_response_model.dart';
 
 class MySwipePage extends StatefulWidget {
   const MySwipePage({super.key});
@@ -21,6 +25,7 @@ class MySwipePageState extends State<MySwipePage> {
     Colors.yellow,
     Colors.orange
   ];
+  Controller controller = Get.put(Controller());
 
   @override
   void initState() {
@@ -59,6 +64,7 @@ class MySwipePageState extends State<MySwipePage> {
 
   @override
   Widget build(BuildContext context) {
+    print("Inside swipe page build");
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -72,6 +78,33 @@ class MySwipePageState extends State<MySwipePage> {
               child: SwipeCards(
                 matchEngine: _matchEngine,
                 itemBuilder: (BuildContext context, int index) {
+                  if (controller.userNearByList.isEmpty ||
+                      index >= controller.userNearByList.length) {
+                    return Center(child: Text("No users available"));
+                  } else {
+                    SuggestedUser user = controller.userNearByList[index];
+                  }
+                  if (controller.userHighlightedList.isEmpty ||
+                      index >= controller.userHighlightedList.length) {
+                    return Center(
+                        child: Text("No highlighted users available"));
+                  } else {
+                    SuggestedUser user = controller.userHighlightedList[index];
+                  }
+                  if (controller.favourite.isEmpty ||
+                      index >= controller.favourite.length) {
+                    return Center(child: Text("No favourites available"));
+                  } else {
+                    SuggestedUser user =
+                        controller.convertFavouriteToSuggestedUser(
+                            controller.favourite[index]);
+                  }
+                  if (controller.hookUpList.isEmpty ||
+                      index >= controller.hookUpList.length) {
+                    return Center(child: Text("No HookUp available"));
+                  } else {
+                    SuggestedUser user = controller.hookUpList[index];
+                  }
                   return Container(
                     alignment: Alignment.center,
                     color: _colors[index],
@@ -85,8 +118,8 @@ class MySwipePageState extends State<MySwipePage> {
                   setState(() {
                     if (_swipeItems.isNotEmpty) {
                       final lastItem = _swipeItems.last;
-                      _swipeItems.removeLast(); 
-                      _swipeItems.insert(0, lastItem); 
+                      _swipeItems.removeLast();
+                      _swipeItems.insert(0, lastItem);
                       _matchEngine = MatchEngine(swipeItems: _swipeItems);
                     }
 

@@ -75,34 +75,38 @@ class HomePageState extends State<HomePage>
 
     _fetchSuggestion = initializeApp();
 
-    fetchLocation();
+    // fetchLocation();
   }
 
-  fetchLocation() async {
-    Position position = await _getUserLocation();
-    List<Placemark> placemarks =
-        await placemarkFromCoordinates(position.latitude, position.longitude);
-    Placemark place = placemarks.first;
+  Future<void> fetchLocation() async {
+    try {
+      Position position = await _getUserLocation();
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
+      Placemark place = placemarks.first;
 
-    UpdateLatLongRequest updateLatLongRequest = UpdateLatLongRequest(
-      latitude: position.latitude.toString(),
-      longitude: position.longitude.toString(),
-      city: place.locality ?? 'Unknown',
-      address: place.name ?? 'Unknown',
-    );
-    controller.updatelatlong(updateLatLongRequest);
+      UpdateLatLongRequest updateLatLongRequest = UpdateLatLongRequest(
+        latitude: position.latitude.toString(),
+        longitude: position.longitude.toString(),
+        city: place.locality ?? 'Unknown',
+        address: place.name ?? 'Unknown',
+      );
+      controller.updatelatlong(updateLatLongRequest);
+    } catch (e) {
+      // Show a snackbar or dialog, but do NOT throw
+      Get.snackbar("Location Error",
+          "Location services are disabled or permission denied.");
+      // Optionally: continue loading the rest of the page
+    }
   }
 
   Future<Position> _getUserLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       throw 'Location services are disabled.';
     }
 
-    permission = await Geolocator.checkPermission();
+    LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission != LocationPermission.whileInUse &&
@@ -137,6 +141,13 @@ class HomePageState extends State<HomePage>
       SuggestedUser lastUserFavourite =
           controller.getCurrentList(2).last as SuggestedUser;
       lastUsersMap['favourite'] = jsonEncode(lastUserFavourite.toJson());
+    }
+
+    // Save last user for 'hookup' list
+    if (controller.getCurrentList(3).isNotEmpty) {
+      SuggestedUser lastUserHookUp =
+          controller.getCurrentList(3).last as SuggestedUser;
+      lastUsersMap['hookup'] = jsonEncode(lastUserHookUp.toJson());
     }
 
     // Save the entire map of last users
@@ -384,6 +395,7 @@ class HomePageState extends State<HomePage>
           onPressed: () {
             setState(() {
               selectedFilter.value = button;
+              rebuildSwipeItemsForFilter(button);
             });
             _animationController.forward(from: 0);
             onTap(label);
@@ -417,6 +429,49 @@ class HomePageState extends State<HomePage>
         ),
       ),
     );
+  }
+
+  void rebuildSwipeItemsForFilter(int filterIndex) {
+    swipeItems.clear();
+    List<SuggestedUser> currentList =
+        controller.getCurrentList(filterIndex).cast<SuggestedUser>();
+    for (var user in currentList) {
+      swipeItems.add(SwipeItem(
+        content: user,
+        likeAction: () {
+          matchEngine = MatchEngine(swipeItems: swipeItems);
+          if (user.userId != null) {
+            print("Pressed like button for user: ${user.name}");
+            setState(() {
+              controller.profileLikeRequest.likedBy = user.userId.toString();
+            });
+            controller.profileLike(controller.profileLikeRequest);
+          } else {
+            print("User ID is null");
+            failure('Error', "Error: User ID is null.");
+          }
+        },
+        nopeAction: () {
+          print("Pressed dislike button for user: ${user.name}");
+          matchEngine = MatchEngine(swipeItems: swipeItems);
+          setState(() {
+            controller.dislikeProfileRequest.id = user.id.toString();
+          });
+          controller.dislikeprofile(controller.dislikeProfileRequest);
+          print("User ${user.name} was 'nope'd");
+        },
+        superlikeAction: () {
+          matchEngine = MatchEngine(swipeItems: swipeItems);
+          if (user.userId != null) {
+            controller.markFavouriteRequestModel.favouriteId = user.userId;
+            controller.markasfavourite(controller.markFavouriteRequestModel);
+          } else {
+            failure('Error', "Error: User ID is null.");
+          }
+        },
+      ));
+    }
+    matchEngine = MatchEngine(swipeItems: swipeItems);
   }
 
   @override
@@ -478,6 +533,20 @@ class HomePageState extends State<HomePage>
                         child: ListView(
                           scrollDirection: Axis.horizontal,
                           children: [
+                            buildFilterButton(-1, 'All', Icons.people, (value) {
+                              setState(() {
+                                selectedFilter.value = -1;
+                                rebuildSwipeItemsForFilter(-1);
+                              });
+                            }),
+                            buildFilterButton(2, 'Favourite', FontAwesome.heart,
+                                (value) {
+                              setState(() {
+                                selectedFilter.value = 2;
+                              });
+                              Get.snackbar('userfavourite',
+                                  controller.favourite.length.toString());
+                            }),
                             buildFilterButton(
                                 0, 'NearBy', FontAwesome.map_location_dot_solid,
                                 (value) {
@@ -497,13 +566,14 @@ class HomePageState extends State<HomePage>
                                   controller.userHighlightedList.length
                                       .toString());
                             }),
-                            buildFilterButton(2, 'Favourite', FontAwesome.heart,
+                            buildFilterButton(
+                                3, 'HookUp', FontAwesome.heart_pulse_solid,
                                 (value) {
                               setState(() {
-                                selectedFilter.value = 2;
+                                selectedFilter.value = 3;
                               });
-                              Get.snackbar('userfavourite',
-                                  controller.favourite.length.toString());
+                              Get.snackbar('HookUp',
+                                  controller.hookUpList.length.toString());
                             }),
                             buildFilterButton(
                                 2, 'Creators', FontAwesome.artstation_brand,
@@ -535,8 +605,19 @@ class HomePageState extends State<HomePage>
                                           matchEngine: matchEngine,
                                           itemBuilder: (BuildContext context,
                                               int index) {
-                                            SuggestedUser user = controller
-                                                .userNearByList[index];
+                                            List<SuggestedUser> currentList =
+                                                controller
+                                                    .getCurrentList(
+                                                        selectedFilter.value)
+                                                    .cast<SuggestedUser>();
+                                            if (currentList.isEmpty ||
+                                                index >= currentList.length) {
+                                              return Center(
+                                                  child: Text(
+                                                      "No users available"));
+                                            }
+                                            SuggestedUser user =
+                                                currentList[index];
                                             isLastCard = index ==
                                                 controller
                                                         .getCurrentList(
@@ -630,6 +711,7 @@ class HomePageState extends State<HomePage>
                                               itemBuilder:
                                                   (BuildContext context,
                                                       int index) {
+                                                print("index is $index");
                                                 SuggestedUser user = controller
                                                             .userHighlightedList
                                                             .isEmpty ||
@@ -642,6 +724,7 @@ class HomePageState extends State<HomePage>
                                                             .userHighlightedList[
                                                         index];
 
+                                                print(user.toJson().toString());
                                                 isLastCard = index ==
                                                     controller
                                                             .getCurrentList(

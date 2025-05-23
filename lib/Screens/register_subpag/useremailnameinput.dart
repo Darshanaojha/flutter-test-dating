@@ -232,7 +232,7 @@ class UserInputPageState extends State<UserInputPage> {
                   validator: (value) {
                     if (value != null && value.isNotEmpty) {
                       if (!RegExp(r'^[a-zA-Z0-9]{6}$').hasMatch(value)) {
-                        return 'Referral code must be exactly 6 alphanumeric characters';
+                        return 'Referral code must be exactly 6 alphanumeric charactersrrr';
                       }
                     }
                     return null;

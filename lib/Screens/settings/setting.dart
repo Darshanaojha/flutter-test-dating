@@ -16,7 +16,10 @@ class SettingsPage extends StatefulWidget {
   SettingsPageState createState() => SettingsPageState();
 }
 
-class SettingsPageState extends State<SettingsPage> {
+class SettingsPageState extends State<SettingsPage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController animationController;
+
   double maxDistance = 50.0;
   RangeValues ageRange = RangeValues(18, 35);
   final List<String> lookingFor = [];
@@ -31,8 +34,8 @@ class SettingsPageState extends State<SettingsPage> {
   bool isExpanded = false;
   RxBool spotlightUser = false.obs;
   RxBool incognativeMode = false.obs;
-  RxBool HookUpMode = false.obs;
-  RxBool visibility_status = true.obs;
+  RxBool hookUpMode = false.obs;
+  RxBool visibilityStatus = true.obs;
   String currentLocation = "Fetching...";
   String locationSelection = "Current Location";
 
@@ -49,20 +52,54 @@ class SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
+    animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300),
+    );
+    _initializeSettings();
+  }
+
+  Future<void> _initializeSettings() async {
+    // Wait for profile data if not present
+    if (controller.userData.isEmpty) {
+      await controller.fetchProfile();
+    }
+    if (controller.userData.isNotEmpty) {
+      controller.fetchProfile();
+      final user = controller.userData.first;
+      setState(() {
+        // Distance
+        maxDistance = double.tryParse(user.rangeKm ?? '50') ?? 50.0;
+        // Age Range
+        double minAge = double.tryParse(user.minimumAge ?? '18') ?? 18;
+        double maxAge = double.tryParse(user.maximumAge ?? '35') ?? 35;
+        ageRange = RangeValues(minAge, maxAge);
+        // Spotlight
+        spotlightUser.value = (user.accountHighlightStatus == "1");
+        // Incognito
+        incognativeMode.value = (user.incognativeMode == "1");
+        // Hookup
+        hookUpMode.value = (user.hookupStatus == "1");
+      });
+    }
     getCurrentLocation();
     _loadSpotlightStatus();
   }
 
+  @override
+  void dispose() {
+    animationController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadSpotlightStatus() async {
-    EncryptedSharedPreferences prefs =
-        EncryptedSharedPreferences.getInstance();
+    EncryptedSharedPreferences prefs = EncryptedSharedPreferences.getInstance();
     bool isSpotlight = prefs.getBoolean('spotlightUser') ?? false;
     spotlightUser.value = isSpotlight;
   }
 
   Future<void> saveSpotlightStatus(bool value) async {
-    EncryptedSharedPreferences prefs =
-        EncryptedSharedPreferences.getInstance();
+    EncryptedSharedPreferences prefs = EncryptedSharedPreferences.getInstance();
     await prefs.setBoolean('spotlightUser', value);
     Get.snackbar("save ", value.toString());
   }
@@ -78,30 +115,30 @@ class SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> saveIncognativeStatus(bool value) async {
-    EncryptedSharedPreferences prefs =
-        EncryptedSharedPreferences.getInstance();
+    EncryptedSharedPreferences prefs = EncryptedSharedPreferences.getInstance();
     await prefs.setBoolean('incognativeMode', value);
-    Get.snackbar("Incognative Mode Save ", value.toString());
+    // Get.snackbar("Incognative Mode Save ", value.toString());
   }
 
-  _onSwitchChnagedIncognative(bool value) {
+  _onSwitchChangedIncognative(bool value) {
     saveIncognativeStatus(value);
+    controller.updateIncognitoStatus(value ? 1 : 0);
     setState(() {
       incognativeMode.value = value;
     });
   }
 
   Future<void> saveHookUpStatus(bool value) async {
-    EncryptedSharedPreferences prefs =
-        EncryptedSharedPreferences.getInstance();
+    EncryptedSharedPreferences prefs = EncryptedSharedPreferences.getInstance();
     await prefs.setBoolean('HookUpMode', value);
-    Get.snackbar("HookUp Save ", value.toString());
+    // Get.snackbar("HookUp Save ", value.toString());
   }
 
   _onSwitchChnagedHookUp(bool value) {
     saveHookUpStatus(value);
+    value ? controller.updateHookupStatus(1) : controller.updateHookupStatus(0);
     setState(() {
-      HookUpMode.value = value;
+      hookUpMode.value = value;
     });
   }
 
@@ -169,19 +206,24 @@ class SettingsPageState extends State<SettingsPage> {
                 SettingsCard(
                   icon: Icons.location_on,
                   title: "Maximum Distance (km)",
-                  child: Slider(
-                    value: maxDistance,
-                    min: 0,
-                    max: 500,
-                    divisions: 50,
-                    label: "${maxDistance.round()} km",
-                    activeColor: AppColors.activeColor,
-                    inactiveColor: AppColors.inactiveColor,
-                    onChanged: (value) {
-                      setState(() {
-                        maxDistance = value;
-                        controller.appSettingRequest.rangeKm = value.toString();
-                      });
+                  child: StatefulBuilder(
+                    builder: (context, setStateSB) {
+                      return Slider(
+                        value: maxDistance,
+                        min: 0,
+                        max: 500,
+                        divisions: 50,
+                        label: "${maxDistance.round()} km",
+                        activeColor: AppColors.activeColor,
+                        inactiveColor: AppColors.inactiveColor,
+                        onChanged: (value) {
+                          setStateSB(() {
+                            maxDistance = value;
+                            controller.appSettingRequest.rangeKm =
+                                value.toString();
+                          });
+                        },
+                      );
                     },
                   ),
                 ),
@@ -190,25 +232,29 @@ class SettingsPageState extends State<SettingsPage> {
                 SettingsCard(
                   icon: Icons.favorite_border,
                   title: "Age Range",
-                  child: RangeSlider(
-                    values: ageRange,
-                    min: 18,
-                    max: 100,
-                    divisions: 82,
-                    labels: RangeLabels(
-                      "${ageRange.start.round()}",
-                      "${ageRange.end.round()}",
-                    ),
-                    activeColor: AppColors.activeColor,
-                    inactiveColor: AppColors.inactiveColor,
-                    onChanged: (RangeValues values) {
-                      setState(() {
-                        ageRange = values;
-                        controller.appSettingRequest.minimumAge =
-                            values.start.round().toString();
-                        controller.appSettingRequest.maximumAge =
-                            values.end.round().toString();
-                      });
+                  child: StatefulBuilder(
+                    builder: (context, setStateSB) {
+                      return RangeSlider(
+                        values: ageRange,
+                        min: 18,
+                        max: 100,
+                        divisions: 82,
+                        labels: RangeLabels(
+                          "${ageRange.start.round()}",
+                          "${ageRange.end.round()}",
+                        ),
+                        activeColor: AppColors.activeColor,
+                        inactiveColor: AppColors.inactiveColor,
+                        onChanged: (RangeValues values) {
+                          setStateSB(() {
+                            ageRange = values;
+                            controller.appSettingRequest.minimumAge =
+                                values.start.round().toString();
+                            controller.appSettingRequest.maximumAge =
+                                values.end.round().toString();
+                          });
+                        },
+                      );
                     },
                   ),
                 ),
@@ -219,8 +265,19 @@ class SettingsPageState extends State<SettingsPage> {
                 Center(
                   child: ElevatedButton.icon(
                     onPressed: () {
+                      controller.appSettingRequest.rangeKm =
+                          maxDistance.round().toString();
+                      controller.appSettingRequest.minimumAge =
+                          ageRange.start.round().toString();
+                      controller.appSettingRequest.maximumAge =
+                          ageRange.end.round().toString();
+                      // controller.highlightProfileStatusRequest.status =
+                      //     spotlightUser.value ? '1' : '0';
+                      // controller
+                      //     .updateIncognitoStatus(incognativeMode.value ? 1 : 0);
+                      // controller.updateHookupStatus(hookUpMode.value ? 1 : 0);
                       controller.appsetting(controller.appSettingRequest);
-                      Navigator.pop(context);
+                      // Navigator.pop(context);
                     },
                     icon: Icon(Icons.check_circle_outline),
                     label: Text("Apply Settings"),
@@ -254,12 +311,12 @@ class SettingsPageState extends State<SettingsPage> {
                   value: incognativeMode.value,
                   labelOn: "You're browsing secretly 🕵️‍♂️",
                   labelOff: "Others can see you",
-                  onChanged: _onSwitchChnagedIncognative,
+                  onChanged: _onSwitchChangedIncognative,
                 ),
                 _buildPrivacyToggle(
                   title: "HookUp Mode",
                   icon: Icons.whatshot,
-                  value: HookUpMode.value,
+                  value: hookUpMode.value,
                   labelOn: "HookUp Active 🔥",
                   labelOff: "HookUp Inactive",
                   onChanged: _onSwitchChnagedHookUp,
@@ -544,7 +601,8 @@ class SettingsCard extends StatelessWidget {
   final String title;
   final Widget child;
 
-  const SettingsCard({super.key, 
+  const SettingsCard({
+    super.key,
     required this.icon,
     required this.title,
     required this.child,
