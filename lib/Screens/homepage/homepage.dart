@@ -15,6 +15,7 @@ import 'package:lottie/lottie.dart';
 import 'package:swipe_cards/swipe_cards.dart';
 import '../../Models/RequestModels/update_lat_long_request_model.dart';
 import '../../Models/ResponseModels/user_suggestions_response_model.dart';
+import '../../Providers/WebSocketService.dart';
 import '../../constants.dart';
 import '../settings/ContaintCreator/ContaintCreatorList/ContaintCreatorList.dart';
 
@@ -74,6 +75,13 @@ class HomePageState extends State<HomePage>
     matchEngine = MatchEngine();
 
     _fetchSuggestion = initializeApp();
+    initialize();
+  }
+
+  initialize() async {
+    WebSocketService().connect(controller.token.value);
+
+    await controller.updateStatus('online');
 
     fetchLocation();
   }

@@ -212,223 +212,259 @@ class ContactListScreenState extends State<ContactListScreen> {
                     : Builder(
                         builder: (context) {
                           if (selectedSection == 0) {
-                            return ListView.builder(
-                              itemCount: getFilteredUsers().length,
-                              itemBuilder: (context, index) {
-                                final connection = getFilteredUsers()[index];
-                                return Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 6),
-                                  child: Slidable(
-                                    key: Key(connection.conectionId),
-                                    direction: Axis.horizontal,
-                                    endActionPane: ActionPane(
-                                      motion: const StretchMotion(),
-                                      children: [
-                                        SlidableAction(
-                                          backgroundColor: Colors.red,
-                                          icon: Icons.info,
-                                          onPressed:
-                                              (BuildContext context) async {
-                                            showUserOptions(
-                                              context,
-                                              connection,
-                                              controller.userConnections[index]
-                                                  .userId,
-                                            );
-                                          },
-                                          label: 'More',
+                            return Obx(() => ListView.builder(
+                                  itemCount: getFilteredUsers().length,
+                                  itemBuilder: (context, index) {
+                                    final connection =
+                                        getFilteredUsers()[index];
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 6),
+                                      child: Slidable(
+                                        key: Key(connection.conectionId),
+                                        direction: Axis.horizontal,
+                                        endActionPane: ActionPane(
+                                          motion: const StretchMotion(),
+                                          children: [
+                                            SlidableAction(
+                                              backgroundColor: Colors.red,
+                                              icon: Icons.info,
+                                              onPressed:
+                                                  (BuildContext context) async {
+                                                showUserOptions(
+                                                  context,
+                                                  connection,
+                                                  controller
+                                                      .userConnections[index]
+                                                      .userId,
+                                                );
+                                              },
+                                              label: 'More',
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        if (controller.userData.isEmpty) return;
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            if (controller.userData.isEmpty)
+                                              return;
 
-                                        debugPrint(
-                                            'User ID: ${controller.userData.first.id}');
-                                        debugPrint(
-                                            'Connection ID: ${connection.conectionId}');
-                                        debugPrint(
-                                            'Connection Name: ${connection.name}');
-                                       
-                                        if (controller.userData.first.id ==
-                                            connection.conectionId) {
-                                          connection.conectionId =
-                                              connection.userId;
-                                          connection.userId =
-                                              controller.userData.first.id;
-                                        }
+                                            debugPrint(
+                                                'User ID: ${controller.userData.first.id}');
+                                            debugPrint(
+                                                'Connection ID: ${connection.conectionId}');
+                                            debugPrint(
+                                                'Connection Name: ${connection.name}');
 
-                                        controller.messages.clear();
-                                        controller
-                                            .fetchChats(connection.conectionId)
-                                            .then((value) async {
-                                          if (value == true) {
-                                            EncryptedSharedPreferences
-                                                preferences =
-                                                EncryptedSharedPreferences
-                                                    .getInstance();
-                                            String? token =
-                                                preferences.getString('token');
-                                            if (token != null &&
-                                                token.isNotEmpty) {
-                                              controller.token.value = token;
-
-                                              Get.to(() => ChatScreen(
-                                                    senderId: controller
-                                                        .userData.first.id,
-                                                    receiverId:
-                                                        connection.conectionId,
-                                                    receiverName:
-                                                        connection.name,
-                                                  ));
+                                            if (controller.userData.first.id ==
+                                                connection.conectionId) {
+                                              connection.conectionId =
+                                                  connection.userId;
+                                              connection.userId =
+                                                  controller.userData.first.id;
                                             }
-                                          }
-                                        });
-                                      },
-                                      child: Row(
-                                        children: [
-                                          GestureDetector(
-                                            onTap: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      FullScreenImagePage(
-                                                    imageUrl:
-                                                        connection.profileImage,
+
+                                            controller.messages.clear();
+                                            controller
+                                                .fetchChats(
+                                                    connection.conectionId)
+                                                .then((value) async {
+                                              if (value == true) {
+                                                EncryptedSharedPreferences
+                                                    preferences =
+                                                    EncryptedSharedPreferences
+                                                        .getInstance();
+                                                String? token = preferences
+                                                    .getString('token');
+                                                if (token != null &&
+                                                    token.isNotEmpty) {
+                                                  controller.token.value =
+                                                      token;
+
+                                                  Get.to(() => ChatScreen(
+                                                        senderId: controller
+                                                            .userData.first.id,
+                                                        receiverId: connection
+                                                            .conectionId,
+                                                        receiverName:
+                                                            connection.name,
+                                                      ));
+                                                }
+                                              }
+                                            });
+                                          },
+                                          child: Row(
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          FullScreenImagePage(
+                                                        imageUrl: connection
+                                                            .profileImage,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                child: Hero(
+                                                  tag: connection.profileImage,
+                                                  child: CircleAvatar(
+                                                    radius: 20.0,
+                                                    backgroundImage:
+                                                        NetworkImage(connection
+                                                            .profileImage),
                                                   ),
                                                 ),
-                                              );
-                                            },
-                                            child: Hero(
-                                              tag: connection.profileImage,
-                                              child: CircleAvatar(
-                                                radius: 20.0,
-                                                backgroundImage: NetworkImage(
-                                                    connection.profileImage),
                                               ),
-                                            ),
-                                          ),
-                                          SizedBox(width: 12),
+                                              SizedBox(width: 12),
 
-                                          // Entire row clickable except the profile image
-                                          Expanded(
-                                            child: GestureDetector(
-                                              onTap: () {
-                                                // Navigate to the chat screen when clicking anywhere in the row except the profile image
-                                                if (controller
-                                                    .userData.isEmpty) {
-                                                  return;
-                                                }
-
-                                                debugPrint(
-                                                    'User ID: ${controller.userData.first.id}');
-                                                debugPrint(
-                                                    'Connection ID: ${connection.conectionId}');
-                                                debugPrint(
-                                                    'Connection Name: ${connection.name}');
-                                              
-
-                                                if (controller
-                                                        .userData.first.id ==
-                                                    connection.conectionId) {
-                                                  connection.conectionId =
-                                                      connection.userId;
-                                                  connection.userId = controller
-                                                      .userData.first.id;
-                                                }
-
-                                                controller.messages.clear();
-                                                controller
-                                                    .fetchChats(
-                                                        connection.conectionId)
-                                                    .then((value) async {
-                                                  if (value == true) {
-                                                    EncryptedSharedPreferences
-                                                        preferences =
-                                                        EncryptedSharedPreferences
-                                                            .getInstance();
-                                                    String? token = preferences
-                                                        .getString('token');
-                                                    if (token != null &&
-                                                        token.isNotEmpty) {
-                                                      controller.token.value =
-                                                          token;
-                                                      Get.to(() => ChatScreen(
-                                                            senderId: controller
-                                                                .userData
-                                                                .first
-                                                                .id,
-                                                            receiverId:
-                                                                connection
-                                                                    .conectionId,
-                                                            receiverName:
-                                                                connection.name,
-                                                          ));
+                                              // Entire row clickable except the profile image
+                                              Expanded(
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    // Navigate to the chat screen when clicking anywhere in the row except the profile image
+                                                    if (controller
+                                                        .userData.isEmpty) {
+                                                      return;
                                                     }
-                                                  }
-                                                });
-                                              },
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Row(
+
+                                                    debugPrint(
+                                                        'User ID: ${controller.userData.first.id}');
+                                                    debugPrint(
+                                                        'Connection ID: ${connection.conectionId}');
+                                                    debugPrint(
+                                                        'Connection Name: ${connection.name}');
+
+                                                    if (controller.userData
+                                                            .first.id ==
+                                                        connection
+                                                            .conectionId) {
+                                                      connection.conectionId =
+                                                          connection.userId;
+                                                      connection.userId =
+                                                          controller.userData
+                                                              .first.id;
+                                                    }
+
+                                                    controller.messages.clear();
+                                                    controller
+                                                        .fetchChats(connection
+                                                            .conectionId)
+                                                        .then((value) async {
+                                                      if (value == true) {
+                                                        EncryptedSharedPreferences
+                                                            preferences =
+                                                            EncryptedSharedPreferences
+                                                                .getInstance();
+                                                        String? token =
+                                                            preferences
+                                                                .getString(
+                                                                    'token');
+                                                        if (token != null &&
+                                                            token.isNotEmpty) {
+                                                          controller.token
+                                                              .value = token;
+                                                          Get.to(
+                                                              () => ChatScreen(
+                                                                    senderId: controller
+                                                                        .userData
+                                                                        .first
+                                                                        .id,
+                                                                    receiverId:
+                                                                        connection
+                                                                            .conectionId,
+                                                                    receiverName:
+                                                                        connection
+                                                                            .name,
+                                                                  ));
+                                                        }
+                                                      }
+                                                    });
+                                                  },
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
-                                                      Text(
-                                                        connection.name,
-                                                        style: AppTextStyles
-                                                            .customTextStyle(
-                                                                color: Colors
-                                                                    .white),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  SizedBox(height: 4),
-                                                  Row(
-                                                    children: [
-                                                      Text(
-                                                        connection.lastSeen,
-                                                        style: AppTextStyles
-                                                            .customTextStyle(
-                                                                color: Colors
-                                                                    .grey),
-                                                      ),
-                                                      if (controller
-                                                          .messageRequest
-                                                          .isNotEmpty)
-                                                        Container(
-                                                          margin:
-                                                              EdgeInsets.only(
-                                                                  left: 196),
-                                                          padding: EdgeInsets
-                                                              .symmetric(
-                                                                  horizontal: 6,
-                                                                  vertical: 6),
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Colors.green,
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        12),
+                                                      Row(
+                                                        children: [
+                                                          Text(
+                                                            connection.name,
+                                                            style: AppTextStyles
+                                                                .customTextStyle(
+                                                                    color: Colors
+                                                                        .white),
                                                           ),
-                                                        ),
+                                                        ],
+                                                      ),
+                                                      SizedBox(height: 4),
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          Text(
+                                                            maxLines: 3,
+                                                            connection.lastSeen,
+                                                            style: AppTextStyles
+                                                                .customTextStyle(
+                                                                    color: Colors
+                                                                        .grey),
+                                                          ),
+                                                          if (controller
+                                                              .messageRequest
+                                                              .isNotEmpty)
+                                                            Container(
+                                                              margin: EdgeInsets
+                                                                  .only(
+                                                                      left:
+                                                                          196),
+                                                              padding: EdgeInsets
+                                                                  .symmetric(
+                                                                      horizontal:
+                                                                          6,
+                                                                      vertical:
+                                                                          6),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Colors
+                                                                    .green,
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            12),
+                                                              ),
+                                                            ),
+                                                          Text(
+                                                            connection.useractivestatus ==
+                                                                    "1"
+                                                                ? "online"
+                                                                : "offline",
+                                                            style: TextStyle(
+                                                              color: connection
+                                                                          .useractivestatus ==
+                                                                      "1"
+                                                                  ? Colors.green
+                                                                  : Colors.red,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ],
                                                   ),
-                                                ],
+                                                ),
                                               ),
-                                            ),
+                                            ],
                                           ),
-                                        ],
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ); // Your original list view
+                                    );
+                                  },
+                                )); // Your original list view
                           } else if (selectedSection == 1) {
                             return Center(
                               child: Text('Recently'),
