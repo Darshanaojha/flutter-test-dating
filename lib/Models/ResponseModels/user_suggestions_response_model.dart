@@ -33,6 +33,7 @@ class Payload {
   final List<SuggestedUser> desireBase;
   final List<SuggestedUser> languageBase;
   final List<SuggestedUser> highlightedAccount;
+  final List<SuggestedUser> hookup;
 
   Payload({
     required this.locationBase,
@@ -40,6 +41,7 @@ class Payload {
     required this.desireBase,
     required this.languageBase,
     required this.highlightedAccount,
+    required this.hookup,
   });
 
   factory Payload.fromJson(Map<String, dynamic> json) {
@@ -49,6 +51,7 @@ class Payload {
       desireBase: _parseSuggestedUsers(json['desire_base']),
       languageBase: _parseSuggestedUsers(json['language_base']),
       highlightedAccount: _parseSuggestedUsers(json['highlighted_account']),
+      hookup: _parseSuggestedUsers(json['hook_up']),
     );
   }
 
@@ -69,6 +72,8 @@ class Payload {
       'highlighted_account': highlightedAccount.isNotEmpty
           ? highlightedAccount.map((e) => e.toJson()).toList()
           : [],
+      'hook_up':
+          hookup.isNotEmpty ? hookup.map((e) => e.toJson()).toList() : [],
     };
   }
 

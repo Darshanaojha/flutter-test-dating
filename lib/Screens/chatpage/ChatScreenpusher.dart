@@ -1,21 +1,22 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui';
 
+import 'package:chat_bubbles/chat_bubbles.dart';
+import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Screens/chatpage/VideoCallPage.dart';
+import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
-import 'package:dating_application/Controllers/controller.dart';
-import 'package:dating_application/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:vibration/vibration.dart';
+
 import '../../Models/ResponseModels/chat_history_response_model.dart';
 import '../../Providers/WebsocketService.dart';
-import 'package:vibration/vibration.dart';
-import 'package:chat_bubbles/chat_bubbles.dart';
-
 import 'AudioCallPage.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -475,29 +476,33 @@ class ChatScreenState extends State<ChatScreen> {
                                       ? CrossAxisAlignment.end
                                       : CrossAxisAlignment.start,
                                   children: [
-                                    message.message == null ? SizedBox.shrink():
-                                   BubbleSpecialThree(
-                                      sent: isSentByUser,
-                                      delivered: isSentByUser,
-                                      seen: isSentByUser,
-                                      text: message.message ?? '',
-                                      isSender: isSentByUser,
-                                      color: isSentByUser
-                                          ? Colors.blueAccent
-                                          : Colors.grey[300]!,
-                                      textStyle: TextStyle(
-                                        color: isSentByUser
-                                            ? Colors.white
-                                            : Colors.black,
-                                        fontSize: 16,
-                                      ),
-                                    ),
+                                    message.message == null
+                                        ? SizedBox.shrink()
+                                        : BubbleSpecialThree(
+                                            sent: isSentByUser,
+                                            delivered: isSentByUser,
+                                            seen: isSentByUser,
+                                            text: message.message ?? '',
+                                            isSender: isSentByUser,
+                                            color: isSentByUser
+                                                ? Colors.blueAccent
+                                                : Colors.grey[300]!,
+                                            textStyle: TextStyle(
+                                              color: isSentByUser
+                                                  ? Colors.white
+                                                  : Colors.black,
+                                              fontSize: 16,
+                                            ),
+                                          ),
                                     if (message.imagePath != null)
                                       Padding(
                                         padding:
                                             const EdgeInsets.only(top: 5.0),
-                                        child: buildImageWithAuth(
-                                            message.imagePath!, bearerToken!),
+                                        child: SensitiveImageWidget(
+                                          imagePath: message.imagePath!,
+                                          bearerToken: bearerToken!,
+                                          sensitivity: message.sensitivity ?? 0,
+                                        ),
                                       ),
                                     Container(
                                       padding: isSentByUser
@@ -687,7 +692,6 @@ class ChatScreenState extends State<ChatScreen> {
 
   Future<Uint8List> _fetchImageBytes(
       String imagePath, String bearerToken) async {
-
     final response = await http.get(
       Uri.parse('$springbooturl/ChatController/uploads/$imagePath'),
       headers: {
@@ -695,7 +699,7 @@ class ChatScreenState extends State<ChatScreen> {
         'Content-Type': 'application/json',
       },
     );
-  
+
     if (response.statusCode == 200) {
       return response.bodyBytes;
     } else {
@@ -705,3 +709,145 @@ class ChatScreenState extends State<ChatScreen> {
 }
 
 // controller.encryptMessage( messageController.text.trim(), secretkey)
+
+class SensitiveImageWidget extends StatefulWidget {
+  final String imagePath;
+  final String bearerToken;
+  final int sensitivity;
+
+  const SensitiveImageWidget({
+    super.key,
+    required this.imagePath,
+    required this.bearerToken,
+    required this.sensitivity,
+  });
+
+  @override
+  State<SensitiveImageWidget> createState() => _SensitiveImageWidgetState();
+}
+
+class _SensitiveImageWidgetState extends State<SensitiveImageWidget> {
+  bool _showBlur = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Uint8List>(
+      future: _fetchImageBytes(widget.imagePath, widget.bearerToken),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return const Icon(Icons.broken_image);
+        } else if (snapshot.hasData) {
+          Widget image = ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.memory(
+              snapshot.data!,
+              width: 180,
+              height: 180,
+              fit: BoxFit.cover,
+            ),
+          );
+
+          if (widget.sensitivity == 0 && _showBlur) {
+            return GestureDetector(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: const Text("Sensitive Content"),
+                    content: const Text(
+                        "This image contains 18+ content. Are you sure you want to view it?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text("Cancel"),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            _showBlur = false;
+                          });
+                          Navigator.pop(context);
+                        },
+                        child: const Text("Proceed"),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              child: Stack(
+                children: [
+                  ImageFiltered(
+                    imageFilter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                    child: image,
+                  ),
+                  Positioned.fill(
+                    child: Container(
+                      alignment: Alignment.center,
+                      color: Colors.black.withOpacity(0.3),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.warning,
+                            color: Colors.white,
+                            size: 32,
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            "Sensitive Content",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              backgroundColor: Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          } else {
+            // Not sensitive or user has chosen to view
+            return GestureDetector(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => Dialog(
+                    backgroundColor: Colors.transparent,
+                    child: InteractiveViewer(
+                      child: image,
+                    ),
+                  ),
+                );
+              },
+              child: image,
+            );
+          }
+        } else {
+          return const SizedBox.shrink();
+        }
+      },
+    );
+  }
+
+  Future<Uint8List> _fetchImageBytes(
+      String imagePath, String bearerToken) async {
+    final response = await http.get(
+      Uri.parse('$springbooturl/ChatController/uploads/$imagePath'),
+      headers: {
+        'Authorization': 'Bearer $bearerToken',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode == 200) {
+      return response.bodyBytes;
+    } else {
+      throw Exception('Failed to load image');
+    }
+  }
+}

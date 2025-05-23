@@ -42,6 +42,7 @@ import 'package:dating_application/Models/ResponseModels/updating_package_respon
 import 'package:dating_application/Models/ResponseModels/user_upload_images_response_model.dart';
 import 'package:dating_application/Providers/ReferalCodeProvider.dart';
 import 'package:dating_application/Providers/activity_status_provider.dart';
+import 'package:dating_application/Providers/add_user_to_hookup_provider.dart';
 import 'package:dating_application/Providers/app_setting_provider.dart';
 import 'package:dating_application/Providers/change_password_provider.dart';
 import 'package:dating_application/Providers/chat_provider.dart';
@@ -194,6 +195,8 @@ import '../Providers/report_reason_provider.dart';
 import '../Providers/updateStatusProvider.dart';
 import '../Providers/update_email_verification_provider.dart';
 import '../Providers/update_emailid_provider.dart';
+import '../Providers/update_hookup_status_provider.dart';
+import '../Providers/update_incognito_mode_provider.dart';
 import '../Providers/update_latitude_longitude_provider.dart';
 import '../Providers/update_profile_photo_provider.dart';
 import '../Providers/update_profile_provider.dart';
@@ -1315,6 +1318,9 @@ class Controller extends GetxController {
   }
 
   RxList<Object> getCurrentList(int filterIndex) {
+    if (filterIndex == -1) {
+      return RxList<Object>(getAllUsers());
+    }
     switch (filterIndex) {
       case 0:
         return userNearByList;
@@ -1322,6 +1328,8 @@ class Controller extends GetxController {
         return userHighlightedList;
       case 2:
         return favourite;
+      case 3:
+        return hookUpList;
       default:
         return userSuggestionsList;
     }
@@ -1329,6 +1337,7 @@ class Controller extends GetxController {
 
   RxList<SuggestedUser> userSuggestionsList = <SuggestedUser>[].obs;
   RxList<SuggestedUser> userHighlightedList = <SuggestedUser>[].obs;
+  RxList<SuggestedUser> hookUpList = <SuggestedUser>[].obs;
   RxList<SuggestedUser> userNearByList = <SuggestedUser>[].obs;
   Set<String?> seenUserIds = {};
   SuggestedUser? lastUser;
@@ -1370,6 +1379,12 @@ class Controller extends GetxController {
         if (response.payload!.highlightedAccount.isNotEmpty) {
           addUniqueUsers(
               response.payload!.highlightedAccount, userHighlightedList);
+        }
+
+        if (response.payload!.hookup.isNotEmpty) {
+          print("Hookup is not empty");
+          print(response.payload!.hookup);
+          addUniqueUsers(response.payload!.hookup, hookUpList);
         }
 
         return true;
@@ -1600,7 +1615,7 @@ class Controller extends GetxController {
               .highlightProfileStatus(highlightProfileStatusRequest);
       if (response != null) {
         success('success', response.payload.message);
-        Get.close(1);
+        // Get.close(1);
         return true;
       } else {
         failure('Error', 'Failed to highlight your profile');
@@ -2382,6 +2397,25 @@ class Controller extends GetxController {
     }
   }
 
+  Future<bool> addUserToHookup(interestedId) async {
+    try {
+      final bool response = await AddHookupRequestProvider()
+          .addHookupRequest(interestedId: interestedId);
+
+      if (response) {
+        success('Success', 'User added to hookup successfully');
+        return true;
+      } else {
+        failure('Error', 'Failed to add user to hookup');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+        
+ 
   Future<bool?> updateStatus(String status) async {
     try {
       UpdateStatusResponse? response =
@@ -2398,4 +2432,64 @@ class Controller extends GetxController {
       return false;
     }
   }
+
+  Future<bool> updateHookupStatus(int hookupStatus) async {
+    try {
+      final bool response = await UpdateHookupStatusProvider()
+          .updateHookupStatus(hookupStatus: hookupStatus);
+
+      if (response) {
+        success('Success', 'Hookup status updated successfully');
+        return true;
+      } else {
+        failure('Error', 'Failed to update hookup status');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> updateIncognitoStatus(int status) async {
+    try {
+      final bool response =
+          await UpdateIncognitoStatusProvider().updateIncognitoStatus(
+        status: status,
+      );
+
+      if (response) {
+        success('Success', 'Incognito mode status updated');
+        return true;
+      } else {
+        failure('Error', 'Failed to update incognito mode status');
+        return false;
+      }
+    } catch (e) {
+      failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  List<SuggestedUser> getAllUsers() {
+    final Set<String?> seen = {};
+    final List<SuggestedUser> all = [];
+    // Combine all lists, avoiding duplicates by userId
+    for (var list in [
+      userNearByList,
+      userHighlightedList,
+      hookUpList,
+      userSuggestionsList,
+      // Add more lists if needed
+    ]) {
+      for (var user in list) {
+        if (user.userId != null && !seen.contains(user.userId)) {
+          all.add(user);
+          seen.add(user.userId);
+        }
+      }
+    }
+    return all;
+  }
+
 }
