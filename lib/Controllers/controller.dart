@@ -1383,7 +1383,7 @@ class Controller extends GetxController {
 
         if (response.payload!.hookup.isNotEmpty) {
           print("Hookup is not empty");
-          print(response.payload!.hookup);
+          print(response.payload!.hookup.first.toJson());
           addUniqueUsers(response.payload!.hookup, hookUpList);
         }
 
@@ -2414,8 +2414,7 @@ class Controller extends GetxController {
       return false;
     }
   }
-        
- 
+
   Future<bool?> updateStatus(String status) async {
     try {
       UpdateStatusResponse? response =
@@ -2480,7 +2479,6 @@ class Controller extends GetxController {
       userHighlightedList,
       hookUpList,
       userSuggestionsList,
-      // Add more lists if needed
     ]) {
       for (var user in list) {
         if (user.userId != null && !seen.contains(user.userId)) {
@@ -2492,4 +2490,35 @@ class Controller extends GetxController {
     return all;
   }
 
+  List<SuggestedUser> getListByFilter(int filterIndex) {
+    switch (filterIndex) {
+      case 0:
+        return userNearByList;
+      case 1:
+        return userHighlightedList;
+      case 2:
+        return favourite.map(convertFavouriteToSuggestedUser).toList();
+      case 3:
+        return hookUpList;
+      case -1: // All
+        final Set<String?> seen = {};
+        final List<SuggestedUser> all = [];
+        for (var list in [
+          userNearByList,
+          userHighlightedList,
+          hookUpList,
+          userSuggestionsList,
+        ]) {
+          for (var user in list) {
+            if (user.userId != null && !seen.contains(user.userId)) {
+              all.add(user);
+              seen.add(user.userId);
+            }
+          }
+        }
+        return all;
+      default:
+        return userSuggestionsList;
+    }
+  }
 }

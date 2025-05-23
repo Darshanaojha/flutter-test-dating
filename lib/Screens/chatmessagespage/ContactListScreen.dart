@@ -245,8 +245,9 @@ class ContactListScreenState extends State<ContactListScreen> {
                                         ),
                                         child: GestureDetector(
                                           onTap: () {
-                                            if (controller.userData.isEmpty)
+                                            if (controller.userData.isEmpty) {
                                               return;
+                                            }
 
                                             debugPrint(
                                                 'User ID: ${controller.userData.first.id}');

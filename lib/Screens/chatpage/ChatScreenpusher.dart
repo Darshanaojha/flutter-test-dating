@@ -80,7 +80,7 @@ class ChatScreenState extends State<ChatScreen> {
     File? image,
   }) async {
     final sharedPreferences = EncryptedSharedPreferences.getInstance();
-    final token = await sharedPreferences
+    final token = sharedPreferences
         .getString('token'); // Await here if getString is async
 
     final request = http.MultipartRequest(

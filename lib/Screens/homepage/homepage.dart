@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/RequestModels/estabish_connection_request_model.dart';
@@ -13,11 +14,11 @@ import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:swipe_cards/swipe_cards.dart';
+
 import '../../Models/RequestModels/update_lat_long_request_model.dart';
 import '../../Models/ResponseModels/user_suggestions_response_model.dart';
 import '../../Providers/WebSocketService.dart';
 import '../../constants.dart';
-import '../settings/ContaintCreator/ContaintCreatorList/ContaintCreatorList.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -255,21 +256,21 @@ class HomePageState extends State<HomePage>
     return date?.trim() ?? '';
   }
 
-  String calculateAge(String dob) {
+  String calculateAge(String? dob) {
+    if (dob == null || dob.isEmpty || dob == 'Unknown Date') {
+      return 'Age not available';
+    }
     try {
       DateTime birthDate = DateFormat('dd/MM/yyyy').parse(dob);
-
       int age = DateTime.now().year - birthDate.year;
       if (DateTime.now().month < birthDate.month ||
           (DateTime.now().month == birthDate.month &&
               DateTime.now().day < birthDate.day)) {
         age--;
       }
-
       return '$age Years Old';
     } catch (e) {
-      print('Error parsing date: $e');
-      return 'Invalid Date';
+      return 'Age not available';
     }
   }
 
@@ -445,7 +446,7 @@ class HomePageState extends State<HomePage>
         controller.getCurrentList(filterIndex).cast<SuggestedUser>();
     for (var user in currentList) {
       swipeItems.add(SwipeItem(
-        content: user,
+        content: user, // <-- This must be the full SuggestedUser object!
         likeAction: () {
           matchEngine = MatchEngine(swipeItems: swipeItems);
           if (user.userId != null) {
@@ -583,14 +584,14 @@ class HomePageState extends State<HomePage>
                               Get.snackbar('HookUp',
                                   controller.hookUpList.length.toString());
                             }),
-                            buildFilterButton(
-                                2, 'Creators', FontAwesome.artstation_brand,
-                                (value) async {
-                              await controller.getAllCreators();
-                              setState(() {
-                                Get.to(CreatorListPage());
-                              });
-                            }),
+                            // buildFilterButton(
+                            //     2, 'Creators', FontAwesome.artstation_brand,
+                            //     (value) async {
+                            //   await controller.getAllCreators();
+                            //   setState(() {
+                            //     Get.to(CreatorListPage());
+                            //   });
+                            // }),
                           ],
                         ),
                       ),
@@ -613,58 +614,39 @@ class HomePageState extends State<HomePage>
                                           matchEngine: matchEngine,
                                           itemBuilder: (BuildContext context,
                                               int index) {
-                                            List<SuggestedUser> currentList =
-                                                controller
-                                                    .getCurrentList(
-                                                        selectedFilter.value)
-                                                    .cast<SuggestedUser>();
+                                            final size =
+                                                MediaQuery.of(context).size;
+                                            final filterIndex = selectedFilter
+                                                .value; // Use your filter state
+                                            final List<SuggestedUser>
+                                                currentList =
+                                                controller.getListByFilter(
+                                                    filterIndex);
+
                                             if (currentList.isEmpty ||
                                                 index >= currentList.length) {
                                               return Center(
                                                   child: Text(
                                                       "No users available"));
                                             }
-                                            SuggestedUser user =
-                                                currentList[index];
-                                            isLastCard = index ==
-                                                controller
-                                                        .getCurrentList(
-                                                            selectedFilter
-                                                                .value)
-                                                        .length -
-                                                    1;
+                                            final user = currentList[index];
 
                                             return Container(
-                                              decoration: BoxDecoration(
-                                                color: isLastCard
-                                                    ? const Color.fromARGB(
-                                                        255, 16, 16, 16)
-                                                    : Colors.transparent,
-                                                borderRadius:
-                                                    BorderRadius.circular(32),
-                                                border: Border.all(
-                                                  color: isLastCard
-                                                      ? const Color.fromARGB(
-                                                          255, 24, 24, 24)
-                                                      : const Color.fromARGB(
-                                                          255, 149, 151, 152),
-                                                  width: 1,
-                                                ),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.white
-                                                        .withOpacity(0.2),
-                                                    spreadRadius: 2,
-                                                    blurRadius: 5,
-                                                    offset: Offset(0, 3),
-                                                  ),
+                                              alignment: Alignment.center,
+                                              color: Colors.white,
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Text(user.name ?? "No Name",
+                                                      style: TextStyle(
+                                                          fontSize: 24)),
+                                                  Text(calculateAge(user.dob),
+                                                      style: TextStyle(
+                                                          fontSize: 16)),
+                                                  Text(user.city ?? "No City"),
+                                                  // Add more user info as needed
                                                 ],
-                                              ),
-                                              child: buildCardLayoutAll(
-                                                context,
-                                                user,
-                                                size,
-                                                isLastCard,
                                               ),
                                             );
                                           },
@@ -942,7 +924,7 @@ class HomePageState extends State<HomePage>
   Widget buildCardLayoutAll(
       BuildContext context, SuggestedUser user, Size size, bool isLastCard) {
     List<String> images = user.images;
-
+    print("User data: ${user.toJson()}");
     return user.id == ''
         ? Text("No users available")
         : Container(
