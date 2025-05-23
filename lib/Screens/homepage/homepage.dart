@@ -5,12 +5,15 @@ import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/RequestModels/estabish_connection_request_model.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:heart_overlay/heart_overlay.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:swipe_cards/swipe_cards.dart';
+import '../../Models/RequestModels/update_lat_long_request_model.dart';
 import '../../Models/ResponseModels/user_suggestions_response_model.dart';
 import '../../Providers/WebSocketService.dart';
 import '../../constants.dart';
@@ -79,6 +82,45 @@ class HomePageState extends State<HomePage>
     WebSocketService().connect(controller.token.value);
 
     await controller.updateStatus('online');
+
+    fetchLocation();
+  }
+
+  fetchLocation() async {
+    Position position = await _getUserLocation();
+    List<Placemark> placemarks =
+        await placemarkFromCoordinates(position.latitude, position.longitude);
+    Placemark place = placemarks.first;
+
+    UpdateLatLongRequest updateLatLongRequest = UpdateLatLongRequest(
+      latitude: position.latitude.toString(),
+      longitude: position.longitude.toString(),
+      city: place.locality ?? 'Unknown',
+      address: place.name ?? 'Unknown',
+    );
+    controller.updatelatlong(updateLatLongRequest);
+  }
+
+  Future<Position> _getUserLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      throw 'Location services are disabled.';
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.whileInUse &&
+          permission != LocationPermission.always) {
+        throw 'Location permission denied';
+      }
+    }
+
+    return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
   }
 
   Future<void> _storeLastUserForAllLists(SuggestedUser suggestedUser) async {
