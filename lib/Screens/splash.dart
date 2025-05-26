@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/RequestModels/update_activity_status_request_model.dart';
+import 'package:dating_application/Screens/auth.dart';
 import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
 import 'package:dating_application/Screens/navigationbar/unsubscribenavigation.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
@@ -78,7 +79,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
       await controller.fetchCountries();
       String? packageStatus;
       if (token == null || token.isEmpty) {
-        Get.offAll(() => Login());
+        Get.offAll(() => CombinedAuthScreen());
         return;
       } else {
         await controller.userSuggestions();
@@ -121,7 +122,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
     } catch (e) {
       failure("Error in fetchLocation", e.toString());
       print(e.toString());
-      Get.offAll(() => Login());
+      Get.offAll(() => CombinedAuthScreen());
     } finally {
       setState(() {
         _isLoading = false;

@@ -158,18 +158,23 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
       engine.registerEventHandler(
         RtcEngineEventHandler(
           onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
+            print("Local user joined: ${connection.localUid}");
             setState(() {
               localUid = connection.localUid;
             });
           },
           onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
+            print("Remote user joined: $remoteUid");
             setState(() {
               this.remoteUid = remoteUid;
             });
           },
           onUserOffline: (RtcConnection connection, int remoteUid,
               UserOfflineReasonType reason) {
-            // Handle user offline
+            print("Remote user offline: $remoteUid");
+            setState(() {
+              this.remoteUid = null;
+            });
           },
         ),
       );

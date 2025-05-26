@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:super_tooltip/super_tooltip.dart';
+
 import '../../../Controllers/controller.dart';
 import '../../../Controllers/razorpaycontroller.dart';
 
@@ -75,6 +76,7 @@ class PricingPageState extends State<PricingPage>
     await controller.fetchAllHeadlines();
     await controller.fetchAllPackages();
     await controller.fetchBenefits();
+    await controller.gettotalpoint();
   }
 
   double calculateOfferPercentage(String actualAmount, String offerAmount) {

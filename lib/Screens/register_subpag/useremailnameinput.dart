@@ -1,3 +1,4 @@
+import 'package:dating_application/Screens/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -11,15 +12,27 @@ class UserInputPage extends StatefulWidget {
   UserInputPageState createState() => UserInputPageState();
 }
 
-class UserInputPageState extends State<UserInputPage> {
+class UserInputPageState extends State<UserInputPage>
+    with SingleTickerProviderStateMixin {
   final formKey = GlobalKey<FormState>();
   final controller = Get.find<Controller>();
+  late AnimationController animationController;
+  late Animation<double> fadeInAnimation;
 
   @override
   void initState() {
     super.initState();
     initialize();
     controller.userRegistrationRequest.reset();
+
+    animationController = AnimationController(
+      duration: Duration(milliseconds: 360),
+      vsync: this,
+    )..forward();
+
+    fadeInAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: animationController, curve: Curves.easeIn),
+    );
   }
 
   initialize() {}
@@ -41,271 +54,195 @@ class UserInputPageState extends State<UserInputPage> {
       failure('Email', 'Please enter your email');
       return 'Please enter your email';
     }
-
-    // String pattern = r'^[a-zA-Z0-9._%+-]+@gmail\.com$';
     String pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
-
     RegExp regExp = RegExp(pattern);
-
     if (!regExp.hasMatch(value.trim())) {
       return 'Please enter a valid Gmail address';
     }
     return null;
   }
 
+  Widget buildTextField({
+    required String label,
+    required Function(String) onChanged,
+    required String? Function(String?)? validator,
+    TextInputType keyboardType = TextInputType.text,
+    int? maxLength,
+    List<TextInputFormatter>? inputFormatters,
+    bool obscureText = false,
+    Widget? suffixIcon,
+  }) {
+    double fontSize = MediaQuery.of(context).size.width * 0.03;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: TextFormField(
+        cursorColor: AppColors.cursorColor,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize, color: Colors.white),
+          filled: true,
+          fillColor: AppColors.formFieldColor,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.activeColor),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AppColors.textColor),
+          ),
+          suffixIcon: suffixIcon,
+        ),
+        style: TextStyle(fontSize: fontSize, color: Colors.white),
+        validator: validator,
+        onChanged: onChanged,
+        keyboardType: keyboardType,
+        maxLength: maxLength,
+        inputFormatters: inputFormatters,
+        obscureText: obscureText,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double fontSize = screenWidth * 0.02;
+    Size size = MediaQuery.of(context).size;
+    double fontSize = size.width * 0.03;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'User Information',
-          style:
-              TextStyle(fontSize: fontSize * 1.2, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: AppColors.primaryColor,
-      ),
-      body: Padding(
-        padding:
-            EdgeInsets.symmetric(horizontal: screenWidth * 0.1, vertical: 30),
-        child: SingleChildScrollView(
-          child: Form(
-            key: formKey,
-            child: Column(
-              children: [
-                Text(
-                  'Please provide your name and email.',
-                  style: TextStyle(
-                    fontSize: fontSize,
-                    color: AppColors.textColor,
-                  ),
-                  textAlign: TextAlign.center,
+    return Container(
+      color: AppColors.primaryColor,
+      child: AuthCard(
+        title: 'Register',
+        animation: fadeInAnimation,
+        maxHeight: size.height * 0.7,
+        child: Form(
+          key: formKey,
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              SizedBox(height: 8),
+              Text(
+                'Please provide your name, email, and other details.',
+                style: TextStyle(
+                  fontSize: fontSize,
+                  color: AppColors.textColor,
                 ),
-                SizedBox(height: 40),
-                TextFormField(
-                  cursorColor: AppColors.cursorColor,
-                  decoration: InputDecoration(
-                    labelText: 'Name',
-                    labelStyle: TextStyle(
-                      fontSize: fontSize,
-                      color: AppColors.textColor,
-                    ),
-                    filled: true,
-                    fillColor: AppColors.formFieldColor,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2.0),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 1.5),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  style: TextStyle(
-                      fontSize: fontSize, color: AppColors.primaryColor),
-                  validator: validateName,
-                  onChanged: (value) {
-                    controller.registrationOTPRequest.name = value;
-                    controller.userRegistrationRequest.name = value;
-                  },
-                  onSaved: (value) {
-                    controller.registrationOTPRequest.name = value ?? '';
-                  },
-                ),
-                SizedBox(height: 20),
-                TextFormField(
-                  cursorColor: AppColors.cursorColor,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    labelStyle: TextStyle(
-                      fontSize: fontSize,
-                      color: AppColors.textColor,
-                    ),
-                    filled: true,
-                    fillColor: AppColors.formFieldColor,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.green, width: 2.0),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 1.5),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  style: TextStyle(
-                      fontSize: fontSize, color: AppColors.primaryColor),
-                  validator: validateGmail,
-                  onChanged: (value) {
-                    controller.registrationOTPRequest.email = value;
-                    controller.userRegistrationRequest.email = value;
-                    controller.registrationOTPRequest.email =
-                        controller.registrationOTPRequest.email.trim();
-                    controller.userRegistrationRequest.email =
-                        controller.userRegistrationRequest.email.trim();
-                  },
-                  onSaved: (value) {
-                    controller.registrationOTPRequest.email = value ?? '';
-                    controller.userRegistrationRequest.email = value ?? '';
-                  },
-                ),
-                SizedBox(height: 20),
-                TextFormField(
-                  cursorColor: AppColors.cursorColor,
-                  decoration: InputDecoration(
-                    labelText: 'Mobile Number',
-                    labelStyle: TextStyle(
-                      fontSize: fontSize,
-                      color: AppColors.textColor,
-                    ),
-                    filled: true,
-                    fillColor: AppColors.formFieldColor,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.green, width: 2.0),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 1.5),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  style: TextStyle(
-                      fontSize: fontSize, color: AppColors.primaryColor),
-                  keyboardType: TextInputType.phone,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(10),
-                  ],
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a mobile number';
-                    } else if (value.length != 10) {
-                      return 'Mobile number must be 10 digits';
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 16),
+              buildTextField(
+                label: 'Name',
+                onChanged: (value) {
+                  controller.registrationOTPRequest.name = value;
+                  controller.userRegistrationRequest.name = value;
+                },
+                validator: validateName,
+              ),
+              buildTextField(
+                label: 'Email',
+                onChanged: (value) {
+                  controller.registrationOTPRequest.email = value.trim();
+                  controller.userRegistrationRequest.email = value.trim();
+                },
+                validator: validateGmail,
+                keyboardType: TextInputType.emailAddress,
+              ),
+              buildTextField(
+                label: 'Mobile Number',
+                onChanged: (value) {
+                  controller.registrationOTPRequest.mobile = value;
+                  controller.userRegistrationRequest.mobile = value;
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a mobile number';
+                  } else if (value.length != 10) {
+                    return 'Mobile number must be 10 digits';
+                  }
+                  return null;
+                },
+                keyboardType: TextInputType.phone,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(10),
+                ],
+              ),
+              buildTextField(
+                label: 'Referral Code',
+                onChanged: (value) {
+                  controller.registrationOTPRequest.referalcode = value;
+                  controller.userRegistrationRequest.referalcode = value;
+                },
+                validator: (value) {
+                  if (value != null && value.isNotEmpty) {
+                    if (!RegExp(r'^[a-zA-Z0-9]{6}$').hasMatch(value)) {
+                      return 'Referral code must be exactly 6 alphanumeric characters';
                     }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    controller.registrationOTPRequest.mobile = value;
-                    controller.userRegistrationRequest.mobile = value;
-                  },
-                  onSaved: (value) {
-                    controller.registrationOTPRequest.mobile = value ?? '';
-                  },
-                ),
-                SizedBox(height: 20),
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Referral Code',
-                    labelStyle: TextStyle(
-                      fontSize: fontSize,
-                      color: AppColors.textColor,
-                    ),
-                    filled: true,
-                    fillColor: AppColors.formFieldColor,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.green, width: 2.0),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white, width: 1.5),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+                  }
+                  return null;
+                },
+                maxLength: 6,
+              ),
+              SizedBox(height: 16),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment(0.8, 1),
+                    colors: <Color>[
+                      Color(0xff1f005c),
+                      Color(0xff5b0060),
+                      Color(0xff870160),
+                      Color(0xffac255e),
+                      Color(0xffca485c),
+                      Color(0xffe16b5c),
+                      Color(0xfff39060),
+                      Color(0xffffb56b),
+                    ],
                   ),
-                  maxLength: 6,
-                  validator: (value) {
-                    if (value != null && value.isNotEmpty) {
-                      if (!RegExp(r'^[a-zA-Z0-9]{6}$').hasMatch(value)) {
-                        return 'Referral code must be exactly 6 alphanumeric charactersrrr';
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (formKey.currentState?.validate() ?? false) {
+                      if (controller.registrationOTPRequest.validate()) {
+                        controller.getOtpForRegistration(
+                            controller.registrationOTPRequest);
                       }
+                      Get.snackbar('Email is',
+                          controller.registrationOTPRequest.email.toString());
+                    } else {
+                      failure(
+                        'Validation Failed',
+                        'Please check your inputs and try again.',
+                      );
                     }
-                    return null;
+                    Get.snackbar('',
+                        controller.userRegistrationRequest.toJson().toString());
                   },
-                  onChanged: (value) {
-                    controller.registrationOTPRequest.referalcode = value;
-                    controller.userRegistrationRequest.referalcode = value;
-                  },
-                  onSaved: (value) {
-                    controller.registrationOTPRequest.referalcode = value ?? '';
-                  },
-                ),
-
-                SizedBox(height: 40),
-                // Submit Button
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment(0.8, 1),
-                      colors: <Color>[
-                        Color(0xff1f005c),
-                        Color(0xff5b0060),
-                        Color(0xff870160),
-                        Color(0xffac255e),
-                        Color(0xffca485c),
-                        Color(0xffe16b5c),
-                        Color(0xfff39060),
-                        Color(0xffffb56b),
-                      ],
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: AppColors.textColor,
+                    backgroundColor: Colors.transparent,
+                    padding:
+                        EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
                     ),
-                    borderRadius: BorderRadius.circular(30),
+                    elevation: 0,
+                    shadowColor: Colors.transparent,
                   ),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (formKey.currentState?.validate() ?? false) {
-                        if (controller.registrationOTPRequest.validate()) {
-                          controller.getOtpForRegistration(
-                              controller.registrationOTPRequest);
-                        }
-
-                        Get.snackbar('Email is',
-                            controller.registrationOTPRequest.email.toString());
-                      } else {
-                        failure(
-                          'Validation Failed',
-                          'Please check your inputs and try again.',
-                        );
-                      }
-                      Get.snackbar(
-                          '',
-                          controller.userRegistrationRequest
-                              .toJson()
-                              .toString());
-                    },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: AppColors.textColor,
-                      backgroundColor: Colors.transparent,
-                      padding: EdgeInsets.symmetric(
-                          vertical: 16.0, horizontal: 32.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    child: Text(
-                      'Submit',
-                      style: TextStyle(
-                          fontSize: fontSize, fontWeight: FontWeight.bold),
-                    ),
+                  child: Text(
+                    'Register',
+                    style:
+                        AppTextStyles.buttonText.copyWith(fontSize: fontSize),
                   ),
                 ),
-              ],
-            ),
+              ),
+              SizedBox(height: 16),
+            ],
           ),
         ),
       ),

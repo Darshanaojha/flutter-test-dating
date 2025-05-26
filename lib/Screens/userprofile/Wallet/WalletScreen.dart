@@ -1,6 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'dart:math';
 
 import '../../../Controllers/controller.dart';
 import '../../../constants.dart';
@@ -161,7 +162,9 @@ class WalletPageState extends State<WalletPage>
           ),
           SizedBox(height: 10),
           Text(
-            controller.totalpoint.isNotEmpty ? controller.totalpoint.first.points : "0",
+            controller.totalpoint.isNotEmpty
+                ? controller.totalpoint.first.points
+                : "0",
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,

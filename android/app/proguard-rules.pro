@@ -9,3 +9,7 @@
 
 # Fix reflection-based R8 removals
 -keepattributes *Annotation*, InnerClasses, Signature, EnclosingMethod
+
+# Keep SLF4J classes
+-keep class org.slf4j.** { *; }
+-dontwarn org.slf4j.**

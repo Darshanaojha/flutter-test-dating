@@ -162,7 +162,7 @@ import '../Models/ResponseModels/verify_account_response_model.dart';
 import '../Providers/GetAllCreatorsProvider.dart';
 import '../Providers/GetPointAmountProvider.dart';
 import '../Providers/GetPointCreditedDebitedProvider.dart';
-import '../Providers/GetUserTotalpointsProvider.dart';
+import '../Providers/user_total_points_provider.dart';
 import '../Providers/add_user_to_creator_provider.dart';
 import '../Providers/block_user_provider.dart';
 import '../Providers/creator_transaction_history_provider.dart';
@@ -2170,7 +2170,7 @@ class Controller extends GetxController {
   Future<bool> gettotalpoint() async {
     try {
       GetUsersTotalPoints? response =
-          await GetUsertotalPointsProvider().Getusertotalpointsprovider();
+          await GetUsertotalPointsProvider().getusertotalpointsprovider();
       if (response != null) {
         totalpoint.assignAll([response.payload.point]);
         return true;
