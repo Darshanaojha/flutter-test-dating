@@ -137,8 +137,8 @@ class _CombinedAuthScreenState extends State<CombinedAuthScreen>
       ),
       body: AuthCard(
         title: showLogin ? 'Login' : 'Register',
-        child: showLogin ? const Login() : const UserInputPage(),
         animation: _animation,
+        child: showLogin ? const Login() : const UserInputPage(),
       ),
     );
   }

@@ -69,7 +69,8 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
     final defaultPinTheme = PinTheme(
       width: size.width * 0.13,
       height: size.width * 0.13,
-      textStyle: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize * 1.2),
+      textStyle:
+          AppTextStyles.inputFieldText.copyWith(fontSize: fontSize * 1.2),
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.textColor),
         borderRadius: BorderRadius.circular(16),
@@ -91,7 +92,8 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                 CircleAvatar(
                   radius: size.width * 0.16,
                   backgroundColor: AppColors.textColor,
-                  child: Icon(Icons.lock_outline, color: AppColors.primaryColor, size: size.width * 0.13),
+                  child: Icon(Icons.lock_outline,
+                      color: AppColors.primaryColor, size: size.width * 0.13),
                 ),
                 SizedBox(height: size.height * 0.03),
                 Text(
@@ -137,83 +139,114 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                     ),
                   ),
                 Row(
-                  children: [
+                    children: [
                     Expanded(
                       child: SizedBox(
-                        height: size.height * 0.055,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.buttonColor,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          onPressed: isResending
-                              ? null
-                              : () async {
-                                  await resendOtp();
-                                },
-                          child: isResending
-                              ? SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Text(
-                                  "Resend OTP",
-                                  style: AppTextStyles.buttonText.copyWith(fontSize: buttonFontSize),
-                                ),
+                      height: size.height * 0.055,
+                      child: Container(
+                        decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment(0.8, 1),
+                          colors: AppColors.gradientColor,
                         ),
+                        borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent, // Match Verify button
+                          foregroundColor: AppColors.textColor, // Match Verify button
+                          elevation: 0,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        onPressed: isResending
+                          ? null
+                          : () async {
+                            await resendOtp();
+                            },
+                        child: isResending
+                          ? SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                            )
+                          : Text(
+                            "Resend OTP",
+                            style: AppTextStyles.buttonText
+                              .copyWith(fontSize: buttonFontSize),
+                            ),
+                        ),
+                      ),
                       ),
                     ),
                     SizedBox(width: size.width * 0.02),
-
                     Expanded(
+                      child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment(0.8, 1),
+                        colors: AppColors.gradientColor,
+                        ),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
                       child: SizedBox(
                         height: size.height * 0.055,
                         child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            foregroundColor: AppColors.textColor,
-                            elevation: 0,
-                            shadowColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          onPressed: () async {
-                            if (registrationOtpVerificationRequest.otp.length != 6) {
-                              setState(() {
-                                isOtpValid = false;
-                              });
-                              failure("Invalid OTP", "Please enter a valid 6-digit OTP.");
-                              return;
-                            }
-                            Get.snackbar('OTP entered', registrationOtpVerificationRequest.otp.toString());
-                            controller
-                                .otpVerificationForRegistration(registrationOtpVerificationRequest)
-                                .then((value) {
-                              if (value) {
-                                success("Success", "OTP verified!");
-                              } else {
-                                setState(() {
-                                  isOtpValid = false;
-                                });
-                                failure("Error", "OTP verification failed. Please try again.");
-                              }
-                            });
-                          },
-                          child: Text(
-                            "Verify OTP",
-                            style: AppTextStyles.buttonText.copyWith(fontSize: buttonFontSize),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          foregroundColor: AppColors.textColor,
+                          elevation: 0,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
                           ),
                         ),
+                        onPressed: () async {
+                          if (registrationOtpVerificationRequest
+                              .otp.length !=
+                            6) {
+                          setState(() {
+                            isOtpValid = false;
+                          });
+                          failure("Invalid OTP",
+                            "Please enter a valid 6-digit OTP.");
+                          return;
+                          }
+                          Get.snackbar(
+                            'OTP entered',
+                            registrationOtpVerificationRequest.otp
+                              .toString());
+                          controller
+                            .otpVerificationForRegistration(
+                              registrationOtpVerificationRequest)
+                            .then((value) {
+                          if (value) {
+                            success("Success", "OTP verified!");
+                          } else {
+                            setState(() {
+                            isOtpValid = false;
+                            });
+                            failure("Error",
+                              "OTP verification failed. Please try again.");
+                          }
+                          });
+                        },
+                        child: Text(
+                          "Verify OTP",
+                          style: AppTextStyles.buttonText
+                            .copyWith(fontSize: buttonFontSize),
+                        ),
+                        ),
                       ),
-                    ),                    
+                      ),
+                    ),
                   ],
                 ),
                 SizedBox(height: size.height * 0.04),

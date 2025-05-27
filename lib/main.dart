@@ -23,7 +23,7 @@ void main() async {
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
     });
 
-    Controller controller = Get.put(Controller());
+    Get.put(Controller());
     runApp(const MainApp());
   } catch (e) {
     failure('Error', 'Error in the main method');
@@ -37,11 +37,38 @@ class MainApp extends StatefulWidget {
   MainAppState createState() => MainAppState();
 }
 
-class MainAppState extends State<MainApp> with WidgetsBindingObserver {
+class MainAppState extends State<MainApp>
+    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
+  late AnimationController animationController;
+  late Animation<double> opacityAnimation;
+  late Animation<double> scaleAnimation;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    animationController = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 3),
+    )..forward();
+
+    opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: animationController, curve: Curves.easeIn),
+    );
+
+    scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(parent: animationController, curve: Curves.easeInOut),
+    );
+
+    // Show the dialog after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (ipAddress.isEmpty || ipSpringAddress.isEmpty) {
+        await (context
+                .findAncestorStateOfType<MainAppState>()
+                ?.showIpDialog(context) ??
+            Future.value());
+      }
+    });
+
     EncryptedSharedPreferences.initialize(encryptionkey);
     Firebase.initializeApp(
       options: FirebaseConstants.firebaseOptions,
@@ -66,6 +93,49 @@ class MainAppState extends State<MainApp> with WidgetsBindingObserver {
           UpdateActivityStatusRequest(status: '1');
       controller.updateactivitystatus(updateOnlineRequest);
     }
+  }
+
+  Future<void> showIpDialog(BuildContext context) async {
+    final ipController = TextEditingController(text: ipAddress);
+    final springIpController = TextEditingController(text: ipSpringAddress);
+
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Enter Server IPs'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: ipController,
+                decoration: InputDecoration(labelText: 'Backend IP Address'),
+              ),
+              SizedBox(height: 12),
+              TextField(
+                controller: springIpController,
+                decoration:
+                    InputDecoration(labelText: 'Spring Boot IP Address'),
+              ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                if (ipController.text.isNotEmpty &&
+                    springIpController.text.isNotEmpty) {
+                  ipAddress = ipController.text.trim();
+                  ipSpringAddress = springIpController.text.trim();
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Text('Continue'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override

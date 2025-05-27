@@ -3,12 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+   String get baseurl =>
+      "http://$ipAddress/dating_backend_springboot/admin";
+   String get ip => "http://$ipAddress/dating_backend_springboot/";
+   String get springbooturl => "http://$ipSpringAddress:8080";
+   String ipAddress = "";
+   String ipSpringAddress = "";
+
 const encryptionkey = "flamrpisyst2024!";
 const secretkey = "ArqamzSnehaSadiq@flamrdating2024";
-const baseurl = "http://192.168.32.149/dating_backend_springboot/admin";
-const ip = "http://192.168.32.149/dating_backend_springboot/";
+// const baseurl = "http://172.20.10.6/dating_backend_springboot/admin";
+// const ip = "http://172.20.10.6/dating_backend_springboot/";
 
-const springbooturl = "http://192.168.32.149:8080";
+// const springbooturl = "http://192.168.65.156:8080";
 
 const registerUrl = "Authentication/register";
 const loginUrl = "Authentication/login";
@@ -64,6 +71,17 @@ class AppColors {
       Color(0xffffb56b),
     ],
   );
+
+  static List<Color> gradientColor = <Color>[
+    Color(0xff1f005c),
+    Color(0xff5b0060),
+    Color(0xff870160),
+    Color(0xffac255e),
+    Color(0xffca485c),
+    Color(0xffe16b5c),
+    Color(0xfff39060),
+    Color(0xffffb56b),
+  ];
 }
 
 class AppTextStyles {

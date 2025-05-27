@@ -353,7 +353,7 @@ class Controller extends GetxController {
               registrationOtpVerificationRequest);
       if (response != null) {
         success('success', response.payload.message);
-        Get.offAll(RegisterProfilePage());
+        Get.to(RegisterProfilePage());
         return true;
       }
       return false;

@@ -79,16 +79,7 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment(0.8, 1),
-                      colors: <Color>[
-                        Color(0xff1f005c),
-                        Color(0xff5b0060),
-                        Color(0xff870160),
-                        Color(0xffac255e),
-                        Color(0xffca485c),
-                        Color(0xffe16b5c),
-                        Color(0xfff39060),
-                        Color(0xffffb56b),
-                      ],
+                      colors: AppColors.gradientColor,
                     ),
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -112,16 +103,15 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                             String packagestatus =
                                 response.payload.packagestatus;
                             if (packagestatus == '0') {
+                              FCMService().subscribeToTopic("unsubscribed");
                               FCMService()
-                                  .subscribeToTopic("unsubscribed");
-                              FCMService().subscribeToTopic(
-                                  response.payload.userId);
+                                  .subscribeToTopic(response.payload.userId);
                               FCMService().subscribeToTopic("alluser");
                               Get.offAll(Unsubscribenavigation());
                             } else if (packagestatus == '1') {
                               FCMService().subscribeToTopic("subscribed");
-                              FCMService().subscribeToTopic(
-                                  response.payload.userId);
+                              FCMService()
+                                  .subscribeToTopic(response.payload.userId);
                               FCMService().subscribeToTopic("alluser");
                               Get.offAll(NavigationBottomBar());
                             }
@@ -148,7 +138,8 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                     ),
                     child: Text(
                       'Login',
-                      style: AppTextStyles.buttonText.copyWith(fontSize: fontSize),
+                      style:
+                          AppTextStyles.buttonText.copyWith(fontSize: fontSize),
                     ),
                   ),
                 ),
