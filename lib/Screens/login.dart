@@ -60,7 +60,7 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
         child: AuthCard(
           title: 'Login',
           animation: fadeInAnimation,
-          maxHeight: size.height * 0.6,
+          maxHeight: size.height * 1.0,
           child: Form(
             key: formKey,
             child: ListView(
@@ -79,7 +79,7 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment(0.8, 1),
-                      colors: AppColors.gradientColor,
+                      colors: AppColors.gradientBackgroundList,
                     ),
                     borderRadius: BorderRadius.circular(30),
                   ),

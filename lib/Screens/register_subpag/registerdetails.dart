@@ -365,6 +365,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
 
                         SizedBox(height: 20),
                         Container(
+                          width: double.infinity,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                                 begin: Alignment.topLeft,
@@ -432,7 +433,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                               backgroundColor: Colors.transparent,
                               foregroundColor: Colors.white,
                             ),
-                            child: Text("Submit",
+                            child: Text('Proceed',
                                 style: AppTextStyles.buttonText
                                     .copyWith(fontSize: fontSize)),
                           ),

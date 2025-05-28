@@ -142,12 +142,12 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             backgroundColor: AppColors.buttonColor,
             foregroundColor: AppColors.textColor,
           ),
-          child: Text('Submit', style: AppTextStyles.buttonText),
+          child: Text('Proceed', style: AppTextStyles.buttonText),
         ),
         ElevatedButton(
           onPressed: onBackPressed,
           style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+            padding: EdgeInsets.symmetric(vertical: 14, horizontal: 5),
             backgroundColor: AppColors.buttonColor,
             foregroundColor: AppColors.textColor,
           ),
@@ -166,176 +166,268 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
     double fontSize = screenWidth < 400 ? 18 : 20;
 
+    // Total number of steps (update if you change the number of steps)
+    final int totalSteps = 12;
+
     return PopScope(
       canPop: false,
       child: Scaffold(
         resizeToAvoidBottomInset: true,
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: Center(
-                child: Text(
-                  "$currentPage of 12",
-                  style: TextStyle(
-                    fontSize: isPortrait ? fontSize : fontSize + 2,
-                    fontWeight: FontWeight.bold,
-                  ),
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(kToolbarHeight),
+          child: AppBar(
+            automaticallyImplyLeading: false,
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: AppColors.gradientBackgroundList,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
               ),
             ),
-          ],
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: Center(
+                  child: Text(
+                    "$currentPage of $totalSteps",
+                    style: TextStyle(
+                      fontSize: isPortrait ? fontSize : fontSize + 2,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
         body: SafeArea(
-          child: PageView.builder(
-            controller: pageController,
-            onPageChanged: onPageChanged,
-            // onPageChanged: (index) {
-            //   setState(() {
-            //     currentPage = index + 1;
-            //   });
-            // },
-            itemCount: 14,
-            itemBuilder: (context, index) {
-              return buildStepWidget(index + 1, screenSize);
-            },
+          child: Column(
+            children: [
+              // Progress Indicator
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+                child: Container(
+                  height: 6,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    gradient: LinearGradient(
+                      colors: AppColors.gradientBackgroundList,
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: Stack(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                          ),
+                        ),
+                        FractionallySizedBox(
+                          alignment: Alignment.centerLeft,
+                          widthFactor: currentPage / totalSteps,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: AppColors.gradientBackgroundList,
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: PageView.builder(
+                  controller: pageController,
+                  onPageChanged: onPageChanged,
+                  itemCount: 14,
+                  itemBuilder: (context, index) {
+                    return buildStepWidget(index + 1, screenSize);
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
+  // Step 1: DOB Input
   Widget buildBirthdayStep(Size screenSize) {
-    double titleFontSize = screenSize.width * 0.03;
-    double subHeadingFontSize = screenSize.width * 0.02;
-    double datePickerFontSize = screenSize.width * 0.03;
+    double titleFontSize = screenSize.width * 0.065;
+    double subHeadingFontSize = screenSize.width * 0.035;
+    double datePickerFontSize = screenSize.width * 0.04;
 
-    return Card(
-      elevation: 12,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Obx(() {
-              return Text(
-                controller.headlines.isNotEmpty
-                    ? controller.headlines[0].title
-                    : 'Loading headlines...',
-                style: AppTextStyles.titleText.copyWith(
-                  fontSize: titleFontSize,
-                ),
-              );
-            }),
-            SizedBox(height: 40),
-            Obx(() {
-              return Text(
-                controller.headlines.isNotEmpty
-                    ? controller.headlines[0].description
-                    : 'Loading description...',
-                style: AppTextStyles.bodyText.copyWith(
-                  color: Colors.redAccent,
-                  fontSize: subHeadingFontSize,
-                ),
-              );
-            }),
-            SizedBox(height: screenSize.height * 0.05),
-            GestureDetector(
-              onTap: () async {
-                DateTime? pickedDate = await showDatePicker(
-                  context: context,
-                  initialDate: selectedDate,
-                  firstDate: DateTime(1900),
-                  lastDate: DateTime.now(),
-                );
-
-                if (pickedDate != null) {
-                  setState(() {
-                    selectedDate = pickedDate;
-                    date.value = selectedDate.toString();
-                  });
-                }
-              },
-              child: Obx(() => Container(
-                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 30),
-                    decoration: BoxDecoration(
-                      color: AppColors.formFieldColor,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.textColor),
-                    ),
+    return Stack(
+      children: [
+        Card(
+          elevation: 12,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start, // Align to top left
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Obx(() {
+                  return Center(
                     child: Text(
-                      'Select Date of Birth: ${date.value.split(' ')[0]}',
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: datePickerFontSize,
-                        color: AppColors.textColor,
+                      controller.headlines.isNotEmpty
+                          ? controller.headlines[0].title
+                          : 'Loading headlines...',
+                      style: AppTextStyles.titleText.copyWith(
+                        fontSize: titleFontSize,
                       ),
+                      textAlign: TextAlign.left,
                     ),
-                  )),
-            ),
-            SizedBox(height: screenSize.height * 0.02),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment(0.8, 1),
-                  colors: <Color>[
-                    Color(0xff1f005c),
-                    Color(0xff5b0060),
-                    Color(0xff870160),
-                    Color(0xffac255e),
-                    Color(0xffca485c),
-                    Color(0xffe16b5c),
-                    Color(0xfff39060),
-                    Color(0xffffb56b),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(
-                    30), // You can adjust the border radius here
-              ),
-              child: ElevatedButton(
-                onPressed: () {
-                  DateTime now = DateTime.now();
-                  int age = now.year - selectedDate.year;
-                  if (now.month < selectedDate.month ||
-                      (now.month == selectedDate.month &&
-                          now.day < selectedDate.day)) {
-                    age--;
-                  }
-                  if (age < 18) {
-                    failure('Failed',
-                        'You must be at least 18 years old to proceed.');
-                    return;
-                  }
-                  String formattedDate =
-                      '${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}';
-                  controller.userRegistrationRequest.dob = formattedDate;
-                  markStepAsCompleted(1);
-                  Get.snackbar(
-                      'dob', controller.userRegistrationRequest.dob.toString());
-                  print(controller.userRegistrationRequest.dob.toString());
-                  pageController.nextPage(
-                    duration: Duration(milliseconds: 300),
-                    curve: Curves.ease,
                   );
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                  backgroundColor:
-                      controller.userRegistrationRequest.dob.isEmpty
-                          ? AppColors.disabled
-                          : Colors.transparent,
-                  foregroundColor: AppColors.textColor,
+                }),
+                SizedBox(height: 28),
+                Obx(() {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Text(
+                      controller.headlines.isNotEmpty
+                          ? controller.headlines[0].description
+                          : 'Loading description...',
+                      style: AppTextStyles.bodyText.copyWith(
+                        color: Colors.redAccent,
+                        fontSize: subHeadingFontSize,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                  );
+                }),
+                SizedBox(height: 42),
+                Text(
+                  "Date of Birth",
+                  style: AppTextStyles.labelText.copyWith(
+                    fontSize: datePickerFontSize,
+                    color: AppColors.textColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.left,
                 ),
-                child: Text('Next', style: AppTextStyles.buttonText),
+                SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () async {
+                    DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: selectedDate,
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime.now(),
+                    );
+
+                    if (pickedDate != null) {
+                      setState(() {
+                        selectedDate = pickedDate;
+                        date.value = selectedDate.toString();
+                      });
+                    }
+                  },
+                  child: Obx(() => Container(
+                        width: double.infinity,
+                        padding:
+                            EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                        decoration: BoxDecoration(
+                          color: AppColors.formFieldColor,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.textColor),
+                        ),
+                        child: Text(
+                          date.value.isEmpty
+                              ? 'Select Date of Birth'
+                              : date.value.split(' ')[0],
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: datePickerFontSize,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                      )),
+                ),
+                SizedBox(height: 32),
+              ],
+            ),
+          ),
+        ),
+        // Bottom-aligned Next button
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 24,
+          child: Container(
+            width: double.infinity,
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment(0.8, 1),
+                colors: AppColors.gradientBackgroundList,
+              ),
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: ElevatedButton(
+              onPressed: () {
+                DateTime now = DateTime.now();
+                int age = now.year - selectedDate.year;
+                if (now.month < selectedDate.month ||
+                    (now.month == selectedDate.month &&
+                        now.day < selectedDate.day)) {
+                  age--;
+                }
+                if (age < 18) {
+                  failure('Failed',
+                      'You must be at least 18 years old to proceed.');
+                  return;
+                }
+                String formattedDate =
+                    '${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}';
+                controller.userRegistrationRequest.dob = formattedDate;
+                markStepAsCompleted(1);
+                Get.snackbar(
+                    'dob', controller.userRegistrationRequest.dob.toString());
+                print(controller.userRegistrationRequest.dob.toString());
+                pageController.nextPage(
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.ease,
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(double.infinity, 48),
+                padding: EdgeInsets.symmetric(vertical: 10),
+                backgroundColor: Colors.transparent,
+                foregroundColor: AppColors.textColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                elevation: 0,
+                shadowColor: Colors.transparent,
+              ),
+              child: Text(
+                'Next',
+                style: AppTextStyles.buttonText.copyWith(
+                  fontSize: screenSize.width * 0.05,
+                ),
               ),
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -353,301 +445,271 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
   // Step 2: Name Input
   Widget buildNameStep(Size screenSize) {
-    double titleFontSize = screenSize.width * 0.03;
-    double labelfontSize = screenSize.width * 0.03;
-    double inputTextFontSize = screenSize.width * 0.02;
+    double titleFontSize = screenSize.width * 0.065;
+    double labelfontSize = screenSize.width * 0.035;
+    double inputTextFontSize = screenSize.width * 0.04;
     TextEditingController nicknameController = TextEditingController(
       text: controller.userRegistrationRequest.nickname,
     );
 
-    return Card(
-      elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              controller.headlines.isNotEmpty
-                  ? controller.headlines[1].title
-                  : "Loading Title",
-              style: AppTextStyles.titleText.copyWith(
-                fontWeight: FontWeight.bold,
-                fontSize: titleFontSize,
-              ),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: nicknameController,
-              onChanged: (value) {
-                controller.userRegistrationRequest.nickname = value;
-                controller.userRegistrationRequest.nickname =
-                    controller.userRegistrationRequest.nickname.trim();
-              },
-              decoration: InputDecoration(
-                labelText: "Your Name",
-                labelStyle: AppTextStyles.labelText.copyWith(
-                  fontSize: labelfontSize,
-                  color: AppColors.textColor,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: AppColors.textColor),
-                ),
-                filled: true,
-                fillColor: AppColors.formFieldColor,
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: AppColors.activeColor),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: AppColors.textColor),
-                ),
-              ),
-              style: AppTextStyles.inputFieldText.copyWith(
-                fontSize: inputTextFontSize,
-                color: AppColors.textColor,
-              ),
-              cursorColor: AppColors.cursorColor,
-            ),
-            SizedBox(height: 40),
-            // Row to place the buttons on the left and right
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Stack(
+      children: [
+        Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start, // Align to top left
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                ElevatedButton(
-                  onPressed: onBackPressed,
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-                    backgroundColor: AppColors.activeColor,
-                    foregroundColor: AppColors.textColor,
+                Text(
+                  controller.headlines.isNotEmpty
+                      ? controller.headlines[1].title
+                      : "Loading Title",
+                  style: AppTextStyles.titleText.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: titleFontSize,
                   ),
-                  child: Text(
-                    'Back',
-                    style: AppTextStyles.buttonText.copyWith(
-                      fontSize: screenSize.width * 0.02,
-                    ),
-                  ),
+                  textAlign: TextAlign.left,
                 ),
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment(0.8, 1),
-                      colors: <Color>[
-                        Color(0xff1f005c),
-                        Color(0xff5b0060),
-                        Color(0xff870160),
-                        Color(0xffac255e),
-                        Color(0xffca485c),
-                        Color(0xffe16b5c),
-                        Color(0xfff39060),
-                        Color(0xffffb56b),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(30),
+                SizedBox(height: 24),
+                Text(
+                  controller.headlines.isNotEmpty
+                      ? controller.headlines[1].description
+                      : "",
+                  style: AppTextStyles.bodyText.copyWith(
+                    color: Colors.redAccent,
+                    fontSize: labelfontSize * 0.8,
                   ),
-                  child: ElevatedButton(
-                    onPressed: controller
-                            .userRegistrationRequest.nickname.isEmpty
-                        ? null
-                        : () {
-                            if (controller
-                                .userRegistrationRequest.nickname.isEmpty) {
-                              failure('Nickname', 'Enter Your Nickname');
-                              return;
-                            } else {
-                              if (_validateNickname(controller
-                                  .userRegistrationRequest.nickname)) {
-                                markStepAsCompleted(2);
-                                Get.snackbar(
-                                    'nickname',
-                                    controller.userRegistrationRequest.nickname
-                                        .toString());
-                                pageController.nextPage(
-                                  duration: Duration(milliseconds: 300),
-                                  curve: Curves.ease,
-                                );
-                              }
-                            }
-                          },
-                    style: ElevatedButton.styleFrom(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 14, horizontal: 30),
-                      backgroundColor: Colors.transparent,
-                      foregroundColor: AppColors.textColor,
-                    ),
-                    child: Text(
-                      'Next',
-                      style: AppTextStyles.buttonText.copyWith(
-                        fontSize: screenSize.width * 0.02,
-                      ),
-                    ),
-                  ),
+                  textAlign: TextAlign.left,
                 ),
+                SizedBox(height: 32),
+                Text(
+                  "Your Name",
+                  style: AppTextStyles.labelText.copyWith(
+                    fontSize: labelfontSize,
+                    color: AppColors.textColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.left,
+                ),
+                SizedBox(height: 8),
+                TextField(
+                  controller: nicknameController,
+                  onChanged: (value) {
+                    controller.userRegistrationRequest.nickname = value.trim();
+                  },
+                  decoration: InputDecoration(
+                    hintText: "Enter your name",
+                    labelStyle: AppTextStyles.labelText.copyWith(
+                      fontSize: labelfontSize,
+                      color: AppColors.textColor,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: AppColors.textColor),
+                    ),
+                    filled: true,
+                    fillColor: AppColors.formFieldColor,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: AppColors.activeColor),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: AppColors.textColor),
+                    ),
+                  ),
+                  style: AppTextStyles.inputFieldText.copyWith(
+                    fontSize: inputTextFontSize,
+                    color: AppColors.textColor,
+                  ),
+                  cursorColor: AppColors.cursorColor,
+                ),
+                SizedBox(height: 24),
               ],
             ),
-          ],
+          ),
         ),
-      ),
+        // Bottom-aligned button row
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: buildBottomButtonRow(
+            onBack: onBackPressed,
+            onNext: controller.userRegistrationRequest.nickname.isEmpty
+                ? null
+                : () {
+                    if (controller.userRegistrationRequest.nickname.isEmpty) {
+                      failure('Nickname', 'Enter Your Nickname');
+                      return;
+                    } else {
+                      if (_validateNickname(
+                          controller.userRegistrationRequest.nickname)) {
+                        markStepAsCompleted(2);
+                        Get.snackbar('nickname',
+                            controller.userRegistrationRequest.nickname);
+                        pageController.nextPage(
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.ease,
+                        );
+                      }
+                    }
+                  },
+            nextLabel: 'Next',
+            backLabel: 'Back',
+            nextEnabled: controller.userRegistrationRequest.nickname.isNotEmpty,
+            context: context,
+          ),
+        ),
+      ],
     );
   }
 
   // Step 3: Gender Selection
   Widget buildGenderStep(Size screenSize) {
-    double titleFontSize = screenSize.width * 0.03;
-    double optionFontSize = screenSize.width * 0.02;
+    double titleFontSize = screenSize.width * 0.065;
+    double optionFontSize = screenSize.width * 0.035;
+    double buttonFontSize = screenSize.width * 0.045;
 
-    return Card(
-      elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-            children: [
-              Text(
-                "Gender Selection",
-                style: AppTextStyles.titleText.copyWith(
-                  fontSize: titleFontSize,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textColor,
+    return Stack(
+      children: [
+        Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title
+                Text(
+                  controller.headlines.length > 2
+                      ? controller.headlines[2].title
+                      : "Gender Selection",
+                  style: AppTextStyles.titleText.copyWith(
+                    fontSize: titleFontSize,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textColor,
+                  ),
+                  textAlign: TextAlign.left,
                 ),
-              ),
-              const SizedBox(height: 20),
-              Obx(() {
-                if (controller.genders.isEmpty) {
-                  return Center(
-                    child: SpinKitCircle(
-                      size: 90,
-                      color: AppColors.progressColor,
-                    ),
-                  );
-                }
-                return Stack(
-                  children: [
-                    SizedBox(
-                      height: 400,
-                      child: Scrollbar(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: controller.genders.map((gender) {
-                              return RadioListTile<Gender?>(
-                                title: Text(
-                                  gender.title,
-                                  style: AppTextStyles.bodyText.copyWith(
-                                    fontSize: optionFontSize,
-                                    color: AppColors.textColor,
+                SizedBox(height: 12),
+                // Description
+                Text(
+                  controller.headlines.length > 2
+                      ? controller.headlines[2].description
+                      : "",
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: optionFontSize * 0.9,
+                    color: AppColors.textColor.withOpacity(0.7),
+                  ),
+                  textAlign: TextAlign.left,
+                ),
+                SizedBox(height: 24),
+                // Gender List
+                Expanded(
+                  child: Obx(() {
+                    if (controller.genders.isEmpty) {
+                      return Center(
+                        child: SpinKitCircle(
+                          size: 60,
+                          color: AppColors.progressColor,
+                        ),
+                      );
+                    }
+                    return ListView.builder(
+                      itemCount: controller.genders.length,
+                      itemBuilder: (context, index) {
+                        final gender = controller.genders[index];
+                        final isSelected = selectedGender.value?.id == gender.id;
+                        return GestureDetector(
+                          onTap: () {
+                            selectedGender.value = gender;
+                            controller.userRegistrationRequest.gender = gender.id;
+                            controller.fetchSubGender(SubGenderRequest(genderId: gender.id));
+                            // Force UI update for PageView (since Obx in PageView sometimes doesn't trigger setState)
+                            setState(() {});
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(vertical: 6),
+                            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                            decoration: BoxDecoration(
+                              gradient: isSelected
+                                  ? LinearGradient(
+                                      colors: AppColors.gradientBackgroundList,
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    )
+                                  : null,
+                              color: isSelected
+                                  ? null
+                                  : Colors.black.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(10),
+                              border: isSelected
+                                  ? Border.all(color: Colors.white, width: 2)
+                                  : null,
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    gender.title,
+                                    style: AppTextStyles.bodyText.copyWith(
+                                      fontSize: optionFontSize,
+                                      color: AppColors.textColor,
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                    ),
                                   ),
                                 ),
-                                value: gender,
-                                groupValue: selectedGender.value,
-                                onChanged: (Gender? value) {
-                                  selectedGender.value = value;
-                                  final parsedGenderId = value?.id ?? '';
-
-                                  controller.userRegistrationRequest.gender =
-                                      parsedGenderId;
-                                  controller.fetchSubGender(SubGenderRequest(
-                                      genderId: parsedGenderId));
-                                },
-                                activeColor: AppColors.buttonColor,
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              }),
-              SizedBox(height: 40),
-              Obx(() {
-                return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      ElevatedButton(
-                        onPressed: onBackPressed,
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 14, horizontal: 30),
-                          backgroundColor: AppColors.activeColor,
-                          foregroundColor: AppColors.textColor,
-                        ),
-                        child: Text(
-                          'Back',
-                          style: AppTextStyles.buttonText.copyWith(
-                            fontSize: screenSize.width * 0.03,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment(0.8, 1),
-                            colors: <Color>[
-                              Color(0xff1f005c),
-                              Color(0xff5b0060),
-                              Color(0xff870160),
-                              Color(0xffac255e),
-                              Color(0xffca485c),
-                              Color(0xffe16b5c),
-                              Color(0xfff39060),
-                              Color(0xffffb56b),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: ElevatedButton(
-                          onPressed: selectedGender.value == null
-                              ? null
-                              : () {
-                                  if (selectedGender.value == null) {
-                                    failure('Failed',
-                                        'Please select an option to proceed.');
-                                  } else {
-                                    markStepAsCompleted(3);
-                                    Get.snackbar(
-                                        'gender',
-                                        controller
-                                            .userRegistrationRequest.gender
-                                            .toString());
-                                    pageController.nextPage(
-                                      duration: Duration(milliseconds: 300),
-                                      curve: Curves.ease,
-                                    );
-                                  }
-                                },
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 14, horizontal: 30),
-                            backgroundColor: selectedGender.value != null
-                                ? Colors.transparent
-                                : AppColors.activeColor,
-                            foregroundColor: AppColors.textColor,
-                          ),
-                          child: Text(
-                            'Next',
-                            style: AppTextStyles.buttonText.copyWith(
-                              fontSize: screenSize.width * 0.03,
+                                if (isSelected)
+                                  Icon(Icons.check_circle, color: Colors.white)
+                              ],
                             ),
                           ),
-                        ),
-                      ),
-                    ]);
-              }),
-              SizedBox(height: 20),
-            ],
+                        );
+                      },
+                    );
+                  }),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
+        // Bottom-aligned button row
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: Obx(() => buildBottomButtonRow(
+            onBack: onBackPressed,
+            onNext: selectedGender.value == null
+                ? null
+                : () {
+                    if (selectedGender.value == null) {
+                      failure('Failed', 'Please select an option to proceed.');
+                    } else {
+                      markStepAsCompleted(3);
+                      Get.snackbar('gender', controller.userRegistrationRequest.gender.toString());
+                      pageController.nextPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.ease,
+                      );
+                    }
+                  },
+            nextLabel: 'Next',
+            backLabel: 'Back',
+            nextEnabled: selectedGender.value != null,
+            context: context,
+          )),
+        ),
+      ],
     );
   }
 
@@ -748,16 +810,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment(0.8, 1),
-                      colors: <Color>[
-                        Color(0xff1f005c),
-                        Color(0xff5b0060),
-                        Color(0xff870160),
-                        Color(0xffac255e),
-                        Color(0xffca485c),
-                        Color(0xffe16b5c),
-                        Color(0xfff39060),
-                        Color(0xffffb56b),
-                      ],
+                      colors: AppColors.gradientBackgroundList,
                     ),
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -897,16 +950,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment(0.8, 1),
-                      colors: <Color>[
-                        Color(0xff1f005c),
-                        Color(0xff5b0060),
-                        Color(0xff870160),
-                        Color(0xffac255e),
-                        Color(0xffca485c),
-                        Color(0xffe16b5c),
-                        Color(0xfff39060),
-                        Color(0xffffb56b),
-                      ],
+                      colors: AppColors.gradientBackgroundList,
                     ),
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -1134,7 +1178,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           child: Text(
                             'Cancel',
                             style: AppTextStyles.buttonText.copyWith(
-                              fontSize: AppTextStyles.textSize,
+                              fontSize: AppTextStyles.buttonSize,
                               color: AppColors.textColor,
                             ),
                           ),
@@ -1161,16 +1205,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                               gradient: LinearGradient(
                                 begin: Alignment.topLeft,
                                 end: Alignment(0.8, 1),
-                                colors: <Color>[
-                                  Color(0xff1f005c),
-                                  Color(0xff5b0060),
-                                  Color(0xff870160),
-                                  Color(0xffac255e),
-                                  Color(0xffca485c),
-                                  Color(0xffe16b5c),
-                                  Color(0xfff39060),
-                                  Color(0xffffb56b),
-                                ],
+                                colors: AppColors.gradientBackgroundList,
                               ),
                               borderRadius: BorderRadius.circular(30),
                             ),
@@ -1327,16 +1362,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment(0.8, 1),
-                    colors: <Color>[
-                      Color(0xff1f005c),
-                      Color(0xff5b0060),
-                      Color(0xff870160),
-                      Color(0xffac255e),
-                      Color(0xffca485c),
-                      Color(0xffe16b5c),
-                      Color(0xfff39060),
-                      Color(0xffffb56b),
-                    ],
+                    colors: AppColors.gradientBackgroundList,
                   ),
                   borderRadius: BorderRadius.circular(30),
                 ),
@@ -1417,16 +1443,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                               gradient: LinearGradient(
                                 begin: Alignment.topLeft,
                                 end: Alignment(0.8, 1),
-                                colors: <Color>[
-                                  Color(0xff1f005c),
-                                  Color(0xff5b0060),
-                                  Color(0xff870160),
-                                  Color(0xffac255e),
-                                  Color(0xffca485c),
-                                  Color(0xffe16b5c),
-                                  Color(0xfff39060),
-                                  Color(0xffffb56b),
-                                ],
+                                colors: AppColors.gradientBackgroundList,
                               ),
                               borderRadius: BorderRadius.circular(30),
                             ),
@@ -1630,16 +1647,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment(0.8, 1),
-                      colors: <Color>[
-                        Color(0xff1f005c),
-                        Color(0xff5b0060),
-                        Color(0xff870160),
-                        Color(0xffac255e),
-                        Color(0xffca485c),
-                        Color(0xffe16b5c),
-                        Color(0xfff39060),
-                        Color(0xffffb56b),
-                      ],
+                      colors: AppColors.gradientBackgroundList,
                     ),
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -1799,16 +1807,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment(0.8, 1),
-                        colors: <Color>[
-                          Color(0xff1f005c),
-                          Color(0xff5b0060),
-                          Color(0xff870160),
-                          Color(0xffac255e),
-                          Color(0xffca485c),
-                          Color(0xffe16b5c),
-                          Color(0xfff39060),
-                          Color(0xffffb56b),
-                        ],
+                        colors: AppColors.gradientBackgroundList,
                       ),
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -2072,16 +2071,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment(0.8, 1),
-                  colors: <Color>[
-                    Color(0xff1f005c),
-                    Color(0xff5b0060),
-                    Color(0xff870160),
-                    Color(0xffac255e),
-                    Color(0xffca485c),
-                    Color(0xffe16b5c),
-                    Color(0xfff39060),
-                    Color(0xffffb56b),
-                  ],
+                  colors: AppColors.gradientBackgroundList,
                 ),
                 borderRadius: BorderRadius.circular(30),
               ),
@@ -2544,16 +2534,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment(0.8, 1),
-                      colors: <Color>[
-                        Color(0xff1f005c),
-                        Color(0xff5b0060),
-                        Color(0xff870160),
-                        Color(0xffac255e),
-                        Color(0xffca485c),
-                        Color(0xffe16b5c),
-                        Color(0xfff39060),
-                        Color(0xffffb56b),
-                      ],
+                      colors: AppColors.gradientBackgroundList,
                     ),
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -2796,4 +2777,87 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       );
     }
   }
+}
+
+Widget buildBottomButtonRow({
+  required VoidCallback onBack,
+  required VoidCallback? onNext,
+  required String nextLabel,
+  required String backLabel,
+  required bool nextEnabled,
+  required BuildContext context,
+}) {
+  final screenWidth = MediaQuery.of(context).size.width;
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 24, left: 16, right: 16, top: 8),
+    child: Row(
+      children: [
+        SizedBox(
+          width: screenWidth * 0.42,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment(0.8, 1),
+                colors: AppColors.gradientBackgroundList,
+              ),
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: ElevatedButton(
+              onPressed: onBack,
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                backgroundColor: Colors.transparent,
+                foregroundColor: AppColors.textColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                shadowColor: Colors.transparent,
+                elevation: 0,
+              ),
+              child: Text(
+                backLabel,
+                style: AppTextStyles.buttonText.copyWith(
+                  fontSize: screenWidth * 0.045,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: screenWidth * 0.09),
+        SizedBox(
+          width: screenWidth * 0.42,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment(0.8, 1),
+                colors: AppColors.gradientBackgroundList,
+              ),
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: ElevatedButton(
+              onPressed: nextEnabled ? onNext : null,
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                backgroundColor: Colors.transparent,
+                foregroundColor: AppColors.textColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                shadowColor: Colors.transparent,
+                elevation: 0,
+              ),
+              child: Text(
+                nextLabel,
+                style: AppTextStyles.buttonText.copyWith(
+                  fontSize: screenWidth * 0.045,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }

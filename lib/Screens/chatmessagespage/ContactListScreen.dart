@@ -86,16 +86,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                     center:
                         Alignment.center, // Start the gradient at the center
                     radius: 0.8,
-                    colors: <Color>[
-                      Color(0xff1f005c),
-                      Color(0xff5b0060),
-                      Color(0xff870160),
-                      Color(0xffac255e),
-                      Color(0xffca485c),
-                      Color(0xffe16b5c),
-                      Color(0xfff39060),
-                      Color(0xffffb56b),
-                    ],
+                    colors: AppColors.gradientColor,
                     stops: [0.0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.0],
                   ),
                 ),
@@ -142,16 +133,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment(0.8, 1),
-                            colors: <Color>[
-                              Color(0xff1f005c),
-                              Color(0xff5b0060),
-                              Color(0xff870160),
-                              Color(0xffac255e),
-                              Color(0xffca485c),
-                              Color(0xffe16b5c),
-                              Color(0xfff39060),
-                              Color(0xffffb56b),
-                            ],
+                            colors: AppColors.gradientColor,
                           ),
                           borderRadius: BorderRadius.circular(60),
                         ),

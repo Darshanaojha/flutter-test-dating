@@ -37,9 +37,10 @@ class _CombinedAuthScreenState extends State<CombinedAuthScreen>
   @override
   Widget build(BuildContext context) {
     double fontSize = MediaQuery.of(context).size.width * 0.03;
+    Size size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: AppColors.primaryColor,
+      backgroundColor: AppColors.favouriteColor,
       appBar: AppBar(
         title: Text(
           '',
@@ -48,7 +49,7 @@ class _CombinedAuthScreenState extends State<CombinedAuthScreen>
         backgroundColor: AppColors.primaryColor,
         elevation: 0,
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(120),
+          preferredSize: Size.fromHeight(size.height * 0.22),
           child: Column(
             children: [
               SizedBox(height: 16),
@@ -62,8 +63,8 @@ class _CombinedAuthScreenState extends State<CombinedAuthScreen>
               SizedBox(height: 16),
               // Toggle buttons
               Container(
-                width: 240,
-                height: 44,
+                width: size.width * 0.5,
+                height: size.height * 0.04,
                 decoration: BoxDecoration(
                   color: Colors.white24,
                   borderRadius: BorderRadius.circular(30),
@@ -80,9 +81,8 @@ class _CombinedAuthScreenState extends State<CombinedAuthScreen>
                         },
                         child: Container(
                           decoration: BoxDecoration(
-                            color: showLogin
-                                ? Colors.white
-                                : Colors.transparent,
+                            color:
+                                showLogin ? Colors.white : Colors.transparent,
                             borderRadius: BorderRadius.circular(30),
                           ),
                           alignment: Alignment.center,
@@ -109,9 +109,8 @@ class _CombinedAuthScreenState extends State<CombinedAuthScreen>
                         },
                         child: Container(
                           decoration: BoxDecoration(
-                            color: !showLogin
-                                ? Colors.white
-                                : Colors.transparent,
+                            color:
+                                !showLogin ? Colors.white : Colors.transparent,
                             borderRadius: BorderRadius.circular(30),
                           ),
                           alignment: Alignment.center,
@@ -167,10 +166,10 @@ class AuthCard extends StatelessWidget {
       opacity: animation,
       child: Center(
         child: Container(
-          width: size.width * 0.90,
-          height: size.height * 0.65,
+          width: size.width * 1.0,
+          height: size.height * 1.0,
           constraints: BoxConstraints(
-              maxWidth: 500, maxHeight: maxHeight ?? size.height * 0.7),
+              maxWidth: 500, maxHeight: maxHeight ?? size.height),
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(0),
@@ -183,7 +182,8 @@ class AuthCard extends StatelessWidget {
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.all(14.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 14.0, vertical: 2.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -196,7 +196,6 @@ class AuthCard extends StatelessWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 16),
                 Expanded(child: child),
               ],
             ),

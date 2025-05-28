@@ -97,7 +97,7 @@ class AppColors {
   );
 
   static List<Color> gradientBackgroundList = <Color>[
-    Color(0xFF441752),
+    Color(0xFF441752), // Darkest purple
     Color.fromARGB(255, 74, 28, 88),
     Color.fromARGB(255, 78, 37, 91),
     Color.fromARGB(255, 102, 81, 152),
@@ -109,15 +109,27 @@ class AppColors {
   ];
 
   static List<Color> gradientColor = <Color>[
-    Color(0xff1f005c),
-    Color(0xff5b0060),
-    Color(0xff870160),
-    Color(0xffac255e),
-    Color(0xffca485c),
-    Color(0xffe16b5c),
-    Color(0xfff39060),
-    Color(0xffffb56b),
+    Color(0xFF441752), // Darkest purple
+    Color.fromARGB(255, 74, 28, 88),
+    Color.fromARGB(255, 78, 37, 91),
+    Color.fromARGB(255, 102, 81, 152),
+    Color.fromARGB(255, 107, 87, 152),
+    Color.fromARGB(255, 113, 96, 153),
+    Color(0xFF8174A0),
+    Color(0xFFA888B5),
+    Color(0xFFEFB6C8),
   ];
+
+  // static List<Color> gradientColor = <Color>[
+  //   Color(0xff1f005c),
+  //   Color(0xff5b0060),
+  //   Color(0xff870160),
+  //   Color(0xffac255e),
+  //   Color(0xffca485c),
+  //   Color(0xffe16b5c),
+  //   Color(0xfff39060),
+  //   Color(0xffffb56b),
+  // ];
 }
 
 class AppTextStyles {

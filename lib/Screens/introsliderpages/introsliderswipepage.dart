@@ -115,7 +115,7 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> {
                     backgroundColor: Colors.white.withOpacity(0.1),
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text("Skip to End"),
+                  child: const Text("Procced"),
                 ),
               ),
             ),

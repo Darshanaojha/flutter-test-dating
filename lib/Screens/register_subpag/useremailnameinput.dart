@@ -193,7 +193,7 @@ class UserInputPageState extends State<UserInputPage>
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment(0.8, 1),
-                    colors: AppColors.gradientColor,
+                    colors: AppColors.gradientBackgroundList,
                   ),
                   borderRadius: BorderRadius.circular(30),
                 ),
