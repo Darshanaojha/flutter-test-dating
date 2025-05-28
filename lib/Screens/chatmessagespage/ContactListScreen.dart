@@ -293,173 +293,192 @@ class ContactListScreenState extends State<ContactListScreen> {
                                               }
                                             });
                                           },
-                                          child: Row(
-                                            children: [
-                                              GestureDetector(
-                                                onTap: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          FullScreenImagePage(
-                                                        imageUrl: connection
-                                                            .profileImage,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                begin: Alignment.topLeft,
+                                                end: Alignment(0.8, 1),
+                                                colors: AppColors
+                                                    .gradientBackgroundList,
+                                              ),
+                                              borderRadius: BorderRadius.circular(
+                                                  30), // You can adjust the border radius here
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            FullScreenImagePage(
+                                                          imageUrl: connection
+                                                              .profileImage,
+                                                        ),
                                                       ),
+                                                    );
+                                                  },
+                                                  child: Hero(
+                                                    tag:
+                                                        connection.profileImage,
+                                                    child: CircleAvatar(
+                                                      radius: 20.0,
+                                                      backgroundImage:
+                                                          NetworkImage(connection
+                                                              .profileImage),
                                                     ),
-                                                  );
-                                                },
-                                                child: Hero(
-                                                  tag: connection.profileImage,
-                                                  child: CircleAvatar(
-                                                    radius: 20.0,
-                                                    backgroundImage:
-                                                        NetworkImage(connection
-                                                            .profileImage),
                                                   ),
                                                 ),
-                                              ),
-                                              SizedBox(width: 12),
+                                                SizedBox(width: 12),
 
-                                              // Entire row clickable except the profile image
-                                              Expanded(
-                                                child: GestureDetector(
-                                                  onTap: () {
-                                                    // Navigate to the chat screen when clicking anywhere in the row except the profile image
-                                                    if (controller
-                                                        .userData.isEmpty) {
-                                                      return;
-                                                    }
-
-                                                    debugPrint(
-                                                        'User ID: ${controller.userData.first.id}');
-                                                    debugPrint(
-                                                        'Connection ID: ${connection.conectionId}');
-                                                    debugPrint(
-                                                        'Connection Name: ${connection.name}');
-
-                                                    if (controller.userData
-                                                            .first.id ==
-                                                        connection
-                                                            .conectionId) {
-                                                      connection.conectionId =
-                                                          connection.userId;
-                                                      connection.userId =
-                                                          controller.userData
-                                                              .first.id;
-                                                    }
-
-                                                    controller.messages.clear();
-                                                    controller
-                                                        .fetchChats(connection
-                                                            .conectionId)
-                                                        .then((value) async {
-                                                      if (value == true) {
-                                                        EncryptedSharedPreferences
-                                                            preferences =
-                                                            EncryptedSharedPreferences
-                                                                .getInstance();
-                                                        String? token =
-                                                            preferences
-                                                                .getString(
-                                                                    'token');
-                                                        if (token != null &&
-                                                            token.isNotEmpty) {
-                                                          controller.token
-                                                              .value = token;
-                                                          Get.to(
-                                                              () => ChatScreen(
-                                                                    senderId: controller
-                                                                        .userData
-                                                                        .first
-                                                                        .id,
-                                                                    receiverId:
-                                                                        connection
-                                                                            .conectionId,
-                                                                    receiverName:
-                                                                        connection
-                                                                            .name,
-                                                                  ));
-                                                        }
+                                                // Entire row clickable except the profile image
+                                                Expanded(
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      // Navigate to the chat screen when clicking anywhere in the row except the profile image
+                                                      if (controller
+                                                          .userData.isEmpty) {
+                                                        return;
                                                       }
-                                                    });
-                                                  },
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Text(
-                                                            connection.name,
-                                                            style: AppTextStyles
-                                                                .customTextStyle(
-                                                                    color: Colors
-                                                                        .white),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      SizedBox(height: 4),
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          Text(
-                                                            maxLines: 3,
-                                                            connection.lastSeen,
-                                                            style: AppTextStyles
-                                                                .customTextStyle(
-                                                                    color: Colors
-                                                                        .grey),
-                                                          ),
-                                                          if (controller
-                                                              .messageRequest
-                                                              .isNotEmpty)
-                                                            Container(
-                                                              margin: EdgeInsets
-                                                                  .only(
-                                                                      left:
-                                                                          196),
-                                                              padding: EdgeInsets
-                                                                  .symmetric(
-                                                                      horizontal:
-                                                                          6,
-                                                                      vertical:
-                                                                          6),
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: Colors
-                                                                    .green,
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            12),
+
+                                                      debugPrint(
+                                                          'User ID: ${controller.userData.first.id}');
+                                                      debugPrint(
+                                                          'Connection ID: ${connection.conectionId}');
+                                                      debugPrint(
+                                                          'Connection Name: ${connection.name}');
+
+                                                      if (controller.userData
+                                                              .first.id ==
+                                                          connection
+                                                              .conectionId) {
+                                                        connection.conectionId =
+                                                            connection.userId;
+                                                        connection.userId =
+                                                            controller.userData
+                                                                .first.id;
+                                                      }
+
+                                                      controller.messages
+                                                          .clear();
+                                                      controller
+                                                          .fetchChats(connection
+                                                              .conectionId)
+                                                          .then((value) async {
+                                                        if (value == true) {
+                                                          EncryptedSharedPreferences
+                                                              preferences =
+                                                              EncryptedSharedPreferences
+                                                                  .getInstance();
+                                                          String? token =
+                                                              preferences
+                                                                  .getString(
+                                                                      'token');
+                                                          if (token != null &&
+                                                              token
+                                                                  .isNotEmpty) {
+                                                            controller.token
+                                                                .value = token;
+                                                            Get.to(() =>
+                                                                ChatScreen(
+                                                                  senderId:
+                                                                      controller
+                                                                          .userData
+                                                                          .first
+                                                                          .id,
+                                                                  receiverId:
+                                                                      connection
+                                                                          .conectionId,
+                                                                  receiverName:
+                                                                      connection
+                                                                          .name,
+                                                                ));
+                                                          }
+                                                        }
+                                                      });
+                                                    },
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            Text(
+                                                              connection.name,
+                                                              style: AppTextStyles
+                                                                  .customTextStyle(
+                                                                      color: Colors
+                                                                          .white),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        SizedBox(height: 4),
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Text(
+                                                              maxLines: 3,
+                                                              connection
+                                                                  .lastSeen,
+                                                              style: AppTextStyles
+                                                                  .customTextStyle(
+                                                                      color: Colors
+                                                                          .grey),
+                                                            ),
+                                                            if (controller
+                                                                .messageRequest
+                                                                .isNotEmpty)
+                                                              Container(
+                                                                margin: EdgeInsets
+                                                                    .only(
+                                                                        left:
+                                                                            196),
+                                                                padding: EdgeInsets
+                                                                    .symmetric(
+                                                                        horizontal:
+                                                                            6,
+                                                                        vertical:
+                                                                            6),
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  color: Colors
+                                                                      .green,
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              12),
+                                                                ),
+                                                              ),
+                                                            Text(
+                                                              connection.useractivestatus ==
+                                                                      "1"
+                                                                  ? "online"
+                                                                  : "offline",
+                                                              style: TextStyle(
+                                                                color: connection
+                                                                            .useractivestatus ==
+                                                                        "1"
+                                                                    ? Colors
+                                                                        .green
+                                                                    : Colors
+                                                                        .red,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
                                                               ),
                                                             ),
-                                                          Text(
-                                                            connection.useractivestatus ==
-                                                                    "1"
-                                                                ? "online"
-                                                                : "offline",
-                                                            style: TextStyle(
-                                                              color: connection
-                                                                          .useractivestatus ==
-                                                                      "1"
-                                                                  ? Colors.green
-                                                                  : Colors.red,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ],
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),

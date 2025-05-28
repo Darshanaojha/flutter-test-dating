@@ -145,7 +145,7 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                 ),
                 SizedBox(height: size.height * 0.02),
                 buildForgotPasswordButton(fontSize),
-                buildRegisterButton(size, fontSize),
+                // buildRegisterButton(size, fontSize),
               ],
             ),
           ),

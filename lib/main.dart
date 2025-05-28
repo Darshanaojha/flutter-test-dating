@@ -98,7 +98,8 @@ class MainAppState extends State<MainApp>
   Future<void> showIpDialog(BuildContext context) async {
     final ipController = TextEditingController(text: ipAddress);
     final springIpController = TextEditingController(text: ipSpringAddress);
-
+    ipController.text = '192.168.1.';
+    springIpController.text = '192.168.1.';
     return showDialog(
       context: context,
       barrierDismissible: false,
@@ -110,13 +111,16 @@ class MainAppState extends State<MainApp>
             children: [
               TextField(
                 controller: ipController,
-                decoration: InputDecoration(labelText: 'Backend IP Address'),
+                decoration: InputDecoration(
+                  labelText: 'Backend IP Address',
+                ),
               ),
               SizedBox(height: 12),
               TextField(
                 controller: springIpController,
-                decoration:
-                    InputDecoration(labelText: 'Spring Boot IP Address'),
+                decoration: InputDecoration(
+                  labelText: 'Spring Boot IP Address',
+                ),
               ),
             ],
           ),

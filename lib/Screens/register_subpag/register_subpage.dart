@@ -60,9 +60,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     await controller.fetchAllPackages();
     await controller.fetchlang();
     genderIds.addAll(controller.genders.map((gender) => gender.id));
-    for (String genderId in genderIds) {
-      await controller.fetchSubGender(SubGenderRequest(genderId: genderId));
-    }
+    // for (String genderId in genderIds) {
+    //   await controller.fetchSubGender(SubGenderRequest(genderId: genderId));
+    // }
     preferencesSelectedOptions.value =
         List<bool>.filled(controller.preferences.length, false);
   }

@@ -33,16 +33,19 @@ class Headline {
 
 class Payload {
   final String msg;
+  final String logo;
   final List<Headline> data;
 
   Payload({
     required this.msg,
+    required this.logo,
     required this.data,
   });
 
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
       msg: json['msg'],
+      logo: json['logo'],
       data: (json['data'] as List)
           .map((item) => Headline.fromJson(item))
           .toList(),
@@ -52,6 +55,7 @@ class Payload {
   Map<String, dynamic> toJson() {
     return {
       'msg': msg,
+      'logo': logo,
       'data': data.map((headline) => headline.toJson()).toList(),
     };
   }
