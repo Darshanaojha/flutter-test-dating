@@ -69,6 +69,7 @@ import 'package:dating_application/Providers/home_page_dislike_provider.dart';
 import 'package:dating_application/Providers/login_provider.dart';
 import 'package:dating_application/Providers/share_profile_provider.dart';
 import 'package:dating_application/Providers/user_profile_provider.dart';
+import 'package:dating_application/Screens/auth.dart';
 import 'package:dating_application/Screens/loginforgotpassword/forgotpasswordotp.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:encrypt_shared_preferences/provider.dart';
@@ -273,7 +274,7 @@ class Controller extends GetxController {
 
       if (response != null && response.success) {
         success('Success', response.payload.message);
-        Get.offAll(Login());
+        Get.offAll(CombinedAuthScreen());
         return true;
       } else {
         failure('Error', 'Registration failed. Please try again.');
@@ -782,7 +783,7 @@ class Controller extends GetxController {
           await ChangePasswordProvider().changePassword(request);
       if (response != null) {
         success('success', response.payload.message);
-        Get.to(Login());
+        Get.to(CombinedAuthScreen());
         return true;
       } else {
         failure('Error', 'Failed to change the password');
@@ -957,7 +958,7 @@ class Controller extends GetxController {
           .otpVerificationForgetPassword(forgetPasswordVerificationRequest);
       if (response != null) {
         success('success', response.payload.message);
-        Get.to(Login());
+        Get.to(CombinedAuthScreen());
         return true;
       } else {
         failure('Error', 'Failed to verify otp for forget password');

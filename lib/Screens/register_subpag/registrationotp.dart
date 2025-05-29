@@ -219,10 +219,10 @@ class OTPVerificationPageState extends State<OTPVerificationPage> {
                             "Please enter a valid 6-digit OTP.");
                           return;
                           }
-                          Get.snackbar(
-                            'OTP entered',
-                            registrationOtpVerificationRequest.otp
-                              .toString());
+                          // Get.snackbar(
+                          //   'OTP entered',
+                          //   registrationOtpVerificationRequest.otp
+                          //     .toString());
                           controller
                             .otpVerificationForRegistration(
                               registrationOtpVerificationRequest)

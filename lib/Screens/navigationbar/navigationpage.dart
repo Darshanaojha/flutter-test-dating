@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:dating_application/Screens/auth.dart';
 import 'package:dating_application/Screens/login.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -206,7 +207,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                     final preferences =
                         EncryptedSharedPreferences.getInstance();
                     preferences.clear();
-                    Get.offAll(() => Login());
+                    Get.offAll(() => CombinedAuthScreen());
 
                     UpdateActivityStatusRequest updateActivityStatusRequest =
                         UpdateActivityStatusRequest(status: '0');

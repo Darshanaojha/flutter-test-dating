@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:dating_application/Screens/auth.dart';
 import 'package:dating_application/Screens/homepage/unsubscribeuser.dart';
 import 'package:dating_application/Screens/login.dart';
 import 'package:dating_application/Screens/userprofile/userprofilepage.dart';
@@ -236,7 +237,7 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation>
                 EncryptedSharedPreferences preferences =
                     EncryptedSharedPreferences.getInstance();
                 preferences.clear();
-                Get.offAll(() => Login());
+                Get.offAll(() => CombinedAuthScreen());
                 UpdateActivityStatusRequest updateActivityStatusRequest =
                     UpdateActivityStatusRequest(status: '0');
                 controller.updateactivitystatus(updateActivityStatusRequest);

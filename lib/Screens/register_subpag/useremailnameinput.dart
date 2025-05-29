@@ -204,8 +204,8 @@ class UserInputPageState extends State<UserInputPage>
                         controller.getOtpForRegistration(
                             controller.registrationOTPRequest);
                       }
-                      Get.snackbar('Email is',
-                          controller.registrationOTPRequest.email.toString());
+                      // Get.snackbar('Email is',
+                      //     controller.registrationOTPRequest.email.toString());
                     } else {
                       failure(
                         'Validation Failed',

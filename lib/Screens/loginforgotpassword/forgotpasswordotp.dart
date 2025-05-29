@@ -1,5 +1,6 @@
 
 
+import 'package:dating_application/Screens/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Controllers/controller.dart';
@@ -65,7 +66,7 @@ class OTPInputPageState extends State<OTPInputPage> {
       controller.forgetPasswordVerificationRequest.otp = enteredOtp;
       bool success = await controller.otpVerificationForgetPassword(controller.forgetPasswordVerificationRequest);
       if (success) {
-        Get.to(Login());
+        Get.to(CombinedAuthScreen());
       } else {
         failure('Error', 'Failed to verify OTP');
       }
