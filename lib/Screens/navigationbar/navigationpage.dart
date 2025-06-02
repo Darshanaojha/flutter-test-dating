@@ -1,12 +1,14 @@
 import 'dart:math';
+
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:dating_application/Screens/auth.dart';
-import 'package:dating_application/Screens/login.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
+
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/update_activity_status_request_model.dart';
 import '../../constants.dart';
@@ -15,7 +17,6 @@ import '../homepage/homepage.dart';
 import '../likespages/userlikespage.dart';
 import '../settings/setting.dart';
 import '../userprofile/userprofilepage.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
 class NavigationController extends GetxController {
   final Rx<int> selectedIndex = 0.obs;
@@ -313,7 +314,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
               _animationController.forward(from: 0);
             },
             backgroundColor: Colors.transparent,
-            color: AppColors.navigationColor,
+            color: Colors.black,
             height: 60,
             animationDuration: Duration(milliseconds: 300),
             items: <Widget>[
@@ -328,7 +329,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                       FontAwesome.house_chimney_solid,
                       size: 30,
                       color: navigationcontroller.selectedIndex.value == 0
-                          ? AppColors.primaryColor
+                          ? AppColors.textColor
                           : AppColors.textColor,
                     ),
                   );
@@ -345,7 +346,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                       FontAwesome.heart_solid,
                       size: 30,
                       color: navigationcontroller.selectedIndex.value == 1
-                          ? AppColors.primaryColor
+                          ? AppColors.textColor
                           : AppColors.textColor,
                     ),
                   );
@@ -362,7 +363,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                       FontAwesome.message_solid,
                       size: 30,
                       color: navigationcontroller.selectedIndex.value == 2
-                          ? AppColors.primaryColor
+                          ? AppColors.textColor
                           : AppColors.textColor,
                     ),
                   );
@@ -379,7 +380,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                       FontAwesome.person_chalkboard_solid,
                       size: 30,
                       color: navigationcontroller.selectedIndex.value == 3
-                          ? AppColors.primaryColor
+                          ? AppColors.textColor
                           : AppColors.textColor,
                     ),
                   );

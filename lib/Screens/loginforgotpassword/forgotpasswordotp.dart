@@ -3,10 +3,10 @@
 import 'package:dating_application/Screens/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/forget_password_verification_request_model.dart';
 import '../../constants.dart';
-import '../login.dart';
 
 class OTPInputPage extends StatefulWidget {
   const OTPInputPage({super.key});

@@ -2,6 +2,7 @@ import 'package:dating_application/Screens/settings/appinfopages/licensepage.dar
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../constants.dart';
+
 class AppInfoPage extends StatefulWidget {
   const AppInfoPage({super.key});
 
@@ -23,7 +24,11 @@ class _AppInfoPageState extends State<AppInfoPage> {
 
   @override
   Widget build(BuildContext context) {
+    double fontSize = getResponsiveFontSize(0.04);
+    double cardRadius = 24;
+
     return Scaffold(
+      backgroundColor: AppColors.primaryColor,
       appBar: AppBar(
         title: Text(
           'App Information',
@@ -33,85 +38,108 @@ class _AppInfoPageState extends State<AppInfoPage> {
           ),
         ),
         backgroundColor: AppColors.primaryColor,
-        elevation: 4,
+        elevation: 0,
         centerTitle: true,
       ),
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // App Name
-              Text(
-                "App Name: $appName",
-                style: AppTextStyles.subheadingText.copyWith(
-                  fontSize: getResponsiveFontSize(0.04),
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primaryColor,
-                ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(18.0),
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(cardRadius),
               ),
-              SizedBox(height: 24),
-
-              // App Logo
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  logoUrl,
-                  height: 120,
-                  width: 120,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              SizedBox(height: 24),
-
-              // Release Date
-              Text(
-                "Release Date: $releaseDate",
-                style: AppTextStyles.bodyText.copyWith(
-                  fontSize: getResponsiveFontSize(0.03),
-                  color: AppColors.textColor.withOpacity(0.7),
-                ),
-              ),
-              SizedBox(height: 12),
-
-              // Version
-              Text(
-                "Version: $version",
-                style: AppTextStyles.bodyText.copyWith(
-                  fontSize: getResponsiveFontSize(0.03),
-                  color: AppColors.textColor.withOpacity(0.7),
-                ),
-              ),
-
-              SizedBox(height: 24),
-
-              // License Button
-              SizedBox(
-                width: 200,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white, backgroundColor: AppColors.buttonColor,
-                    padding: EdgeInsets.symmetric(vertical: 14.0, horizontal: 24.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    elevation: 6,
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: AppColors.gradientBackgroundList,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  onPressed: () {
-                    Get.to(LicenseDetailsPage());
-                  },
-                  child: Text(
-                    'View Licenses',
-                    style: AppTextStyles.buttonText.copyWith(
-                      fontSize: getResponsiveFontSize(0.035),
-                      fontWeight: FontWeight.w500,
+                  borderRadius: BorderRadius.circular(cardRadius),
+                ),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // App Logo
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.network(
+                        logoUrl,
+                        height: 150,
+                        width: 150,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Icon(Icons.image, size: 80, color: Colors.white54),
+                      ),
                     ),
-                  ),
+                    SizedBox(height: 20),
+
+                    // App Name
+                    Text(
+                      appName,
+                      style: AppTextStyles.headingText.copyWith(
+                        fontSize: fontSize * 1.3,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    SizedBox(height: 18),
+
+                    // Release Date
+                    Text(
+                      "Release Date: $releaseDate",
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: fontSize * 0.9,
+                        color: Colors.white.withOpacity(0.85),
+                      ),
+                    ),
+                    SizedBox(height: 8),
+
+                    // Version
+                    Text(
+                      "Version: $version",
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: fontSize * 0.9,
+                        color: Colors.white.withOpacity(0.85),
+                      ),
+                    ),
+                    SizedBox(height: 24),
+
+                    // License Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 16.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 0,
+                        ),
+                        onPressed: () {
+                          Get.to(LicenseDetailsPage());
+                        },
+                        child: Text(
+                          'View Licenses',
+                          style: AppTextStyles.buttonText.copyWith(
+                            fontSize: fontSize,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),

@@ -173,7 +173,8 @@ class EditProfilePageState extends State<EditProfilePage>
           //   genderId: genderFromUserData,
           // ));
         }
-      }  if (controller.genders.isNotEmpty) {
+      }
+      if (controller.genders.isNotEmpty) {
         selectedGender.value = controller.genders.first;
         print("Gender Id ${controller.genders.first.id}");
         await controller.fetchSubGender(SubGenderRequest(
@@ -529,7 +530,7 @@ class EditProfilePageState extends State<EditProfilePage>
               Text(
                 label,
                 style: AppTextStyles.buttonText.copyWith(
-                  fontSize: getResponsiveFontSize(0.02),
+                  fontSize: getResponsiveFontSize(0.03),
                 ),
               ),
               SizedBox(height: 10),
@@ -540,7 +541,7 @@ class EditProfilePageState extends State<EditProfilePage>
                     cursorColor: AppColors.cursorColor,
                     controller: controller,
                     style: AppTextStyles.bodyText.copyWith(
-                      fontSize: getResponsiveFontSize(0.02),
+                      fontSize: getResponsiveFontSize(0.03),
                     ),
                     decoration: InputDecoration(
                       filled: true,
@@ -579,7 +580,7 @@ class EditProfilePageState extends State<EditProfilePage>
     required String label,
     required String value,
     required Function(String) onChanged,
-    double fontSize = 12.0,
+    double fontSize = 15.0,
     bool isDisabled = false,
   }) {
     TextEditingController controller = TextEditingController(text: value);
@@ -643,7 +644,7 @@ class EditProfilePageState extends State<EditProfilePage>
     double screenWidth = screenSize.width;
     double screenheight = screenSize.height;
     // double titleFontSize = screenWidth * 0.03;
-    double bodyFontSize = screenWidth * 0.02;
+    double bodyFontSize = screenWidth * 0.03;
 
     // double chipFontSize = screenWidth * 0.03;
     final selectedGender = Rx<Gender?>(null);
@@ -820,13 +821,13 @@ class EditProfilePageState extends State<EditProfilePage>
                                             .fetchProfileUserPhotos();
                                         Get.to(EditPhotosPage());
                                       },
-                                      icon: Icon(Icons.edit,
-                                          color: AppColors.iconColor),
+                                      icon:
+                                          Icon(Icons.edit, color: Colors.white),
                                       label: Text(
                                         'Edit Photos',
                                         style:
                                             AppTextStyles.buttonText.copyWith(
-                                          color: AppColors.iconColor,
+                                          color: Colors.white,
                                           fontSize: getResponsiveFontSize(0.03),
                                         ),
                                       ),
@@ -867,7 +868,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                     Text(
                                       'Photos',
                                       style: AppTextStyles.textStyle.copyWith(
-                                        fontSize: getResponsiveFontSize(0.02),
+                                        fontSize: getResponsiveFontSize(0.03),
                                         color: AppColors.textColor,
                                       ),
                                     ),
@@ -976,7 +977,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                             Text(
                                               "Country: ${controller.selectedCountry.value?.name ?? 'None'}",
                                               style: const TextStyle(
-                                                  fontSize: 10.0),
+                                                  fontSize: 15.0),
                                             ),
                                             const SizedBox(height: 8.0),
                                             Obx(() {
@@ -1504,7 +1505,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                                   ..copyWith(
                                                       fontSize:
                                                           getResponsiveFontSize(
-                                                              0.02))),
+                                                              0.04))),
                                             SizedBox(height: 10),
                                             Obx(() {
                                               if (updatedSelectedInterests
@@ -1527,7 +1528,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                                       updatedSelectedInterests[
                                                           index],
                                                       style: TextStyle(
-                                                          fontSize: 9),
+                                                          fontSize: 15),
                                                     ),
                                                     backgroundColor:
                                                         AppColors.chipColor,
@@ -1560,7 +1561,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                                           .copyWith(
                                                               fontSize:
                                                                   getResponsiveFontSize(
-                                                                      0.02)),
+                                                                      0.03)),
                                                       filled: true,
                                                       fillColor: AppColors
                                                           .formFieldColor,
@@ -1638,7 +1639,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                     style: AppTextStyles.subheadingText
                                         .copyWith(
                                             fontSize:
-                                                getResponsiveFontSize(0.02))),
+                                                getResponsiveFontSize(0.03))),
                                 SizedBox(
                                   height: MediaQuery.of(context).size.height *
                                       0.001,
@@ -1695,166 +1696,194 @@ class EditProfilePageState extends State<EditProfilePage>
                         height: MediaQuery.of(context).size.height * 0.001,
                       ),
                       SizedBox(
-                        height: screenheight * 0.08,
+                        height: screenheight * 0.06,
                         width: screenWidth * 2,
                         child: DecoratedBoxTransition(
                           decoration:
                               decorationTween.animate(_animationController),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.buttonColor,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment(0.8, 1),
+                                colors: AppColors.gradientBackgroundList,
+                              ),
+                              borderRadius: BorderRadius.circular(
+                                  30), // You can adjust the border radius here
                             ),
-                            onPressed: () async {
-                              print(
-                                  'desires are : ${controller.userProfileUpdateRequest.desires}');
-                              if (_formKey.currentState?.validate() ?? false) {
-                                if (!preferencesSelectedOptions
-                                    .contains(true)) {
-                                  print("select preference");
-                                  return;
-                                }
-                                if (selectedLanguages.isEmpty) {
-                                  print("select language");
-                                  return;
-                                }
-                                List<String> selectedPreferences = [];
-                                for (int i = 0;
-                                    i < preferencesSelectedOptions.length;
-                                    i++) {
-                                  if (preferencesSelectedOptions[i]) {
-                                    selectedPreferences
-                                        .add(controller.preferences[i].id);
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                              ),
+                              onPressed: () async {
+                                print(
+                                    'desires are : ${controller.userProfileUpdateRequest.desires}');
+                                if (_formKey.currentState?.validate() ??
+                                    false) {
+                                  if (!preferencesSelectedOptions
+                                      .contains(true)) {
+                                    print("select preference");
+                                    return;
                                   }
-                                }
-                                controller.userProfileUpdateRequest
-                                    .preferences = selectedPreferences;
-                                UserProfileUpdateRequest
-                                    userProfileUpdateRequest =
-                                    UserProfileUpdateRequest(
-                                  name: controller.userProfileUpdateRequest.name
-                                          .isNotEmpty
-                                      ? controller.userProfileUpdateRequest.name
-                                      : controller.userData.first.name,
-                                  latitude: controller.userProfileUpdateRequest
-                                          .latitude.isNotEmpty
-                                      ? controller
-                                          .userProfileUpdateRequest.latitude
-                                      : controller.userData.first.latitude,
-                                  longitude: controller.userProfileUpdateRequest
-                                          .longitude.isNotEmpty
-                                      ? controller
-                                          .userProfileUpdateRequest.longitude
-                                      : controller.userData.first.longitude,
-                                  address: controller.userProfileUpdateRequest
-                                          .address.isNotEmpty
-                                      ? controller
-                                          .userProfileUpdateRequest.address
-                                      : controller.userData.first.address,
-                                  countryId: controller.userProfileUpdateRequest
-                                          .countryId.isNotEmpty
-                                      ? controller
-                                          .userProfileUpdateRequest.countryId
-                                      : controller.userData.first.countryId,
-                                  city: controller.userProfileUpdateRequest.city
-                                          .isNotEmpty
-                                      ? controller.userProfileUpdateRequest.city
-                                      : controller.userData.first.city,
-                                  dob: controller.userProfileUpdateRequest.dob
-                                          .isNotEmpty
-                                      ? controller.userProfileUpdateRequest.dob
-                                      : controller.userData.first.dob,
-                                  nickname: controller.userProfileUpdateRequest
-                                          .nickname.isNotEmpty
-                                      ? controller
-                                          .userProfileUpdateRequest.nickname
-                                      : controller.userData.first.nickname,
-                                  gender: controller.userProfileUpdateRequest
-                                          .gender.isNotEmpty
-                                      ? controller
-                                          .userProfileUpdateRequest.gender
-                                      : controller.userData.first.gender,
-                                  subGender: controller.userProfileUpdateRequest
-                                          .subGender.isNotEmpty
-                                      ? controller
-                                          .userProfileUpdateRequest.subGender
-                                      : controller.userData.first.subGender,
-                                  lang:
-                                      controller.userProfileUpdateRequest.lang,
-                                  interest: controller.userProfileUpdateRequest
-                                          .interest.isNotEmpty
-                                      ? controller
-                                          .userProfileUpdateRequest.interest
-                                      : controller.userData.first.interest,
-                                  bio: controller.userProfileUpdateRequest.bio
-                                          .isNotEmpty
-                                      ? controller.userProfileUpdateRequest.bio
-                                      : controller.userData.first.bio,
-                                  visibility: controller
-                                          .userProfileUpdateRequest
-                                          .visibility
-                                          .isNotEmpty
-                                      ? controller
-                                          .userProfileUpdateRequest.visibility
-                                      : controller
-                                          .userData.first.userActiveStatus,
-                                  emailAlerts: controller
-                                          .userProfileUpdateRequest
-                                          .emailAlerts
-                                          .isNotEmpty
-                                      ? controller
-                                          .userProfileUpdateRequest.emailAlerts
-                                      : controller.userData.first.emailAlerts,
-                                  lookingFor: controller
-                                          .userProfileUpdateRequest
-                                          .lookingFor
-                                          .isNotEmpty
-                                      ? controller
-                                          .userProfileUpdateRequest.lookingFor
-                                      : controller.userData.first.lookingFor,
-                                  preferences: controller
-                                      .userProfileUpdateRequest.preferences,
-                                  desires: controller.userProfileUpdateRequest
-                                          .desires.isNotEmpty
-                                      ? controller
-                                          .userProfileUpdateRequest.desires
-                                      : controller.userDesire,
-                                );
+                                  if (selectedLanguages.isEmpty) {
+                                    print("select language");
+                                    return;
+                                  }
+                                  List<String> selectedPreferences = [];
+                                  for (int i = 0;
+                                      i < preferencesSelectedOptions.length;
+                                      i++) {
+                                    if (preferencesSelectedOptions[i]) {
+                                      selectedPreferences
+                                          .add(controller.preferences[i].id);
+                                    }
+                                  }
+                                  controller.userProfileUpdateRequest
+                                      .preferences = selectedPreferences;
+                                  UserProfileUpdateRequest
+                                      userProfileUpdateRequest =
+                                      UserProfileUpdateRequest(
+                                    name: controller.userProfileUpdateRequest
+                                            .name.isNotEmpty
+                                        ? controller
+                                            .userProfileUpdateRequest.name
+                                        : controller.userData.first.name,
+                                    latitude: controller
+                                            .userProfileUpdateRequest
+                                            .latitude
+                                            .isNotEmpty
+                                        ? controller
+                                            .userProfileUpdateRequest.latitude
+                                        : controller.userData.first.latitude,
+                                    longitude: controller
+                                            .userProfileUpdateRequest
+                                            .longitude
+                                            .isNotEmpty
+                                        ? controller
+                                            .userProfileUpdateRequest.longitude
+                                        : controller.userData.first.longitude,
+                                    address: controller.userProfileUpdateRequest
+                                            .address.isNotEmpty
+                                        ? controller
+                                            .userProfileUpdateRequest.address
+                                        : controller.userData.first.address,
+                                    countryId: controller
+                                            .userProfileUpdateRequest
+                                            .countryId
+                                            .isNotEmpty
+                                        ? controller
+                                            .userProfileUpdateRequest.countryId
+                                        : controller.userData.first.countryId,
+                                    city: controller.userProfileUpdateRequest
+                                            .city.isNotEmpty
+                                        ? controller
+                                            .userProfileUpdateRequest.city
+                                        : controller.userData.first.city,
+                                    dob: controller.userProfileUpdateRequest.dob
+                                            .isNotEmpty
+                                        ? controller
+                                            .userProfileUpdateRequest.dob
+                                        : controller.userData.first.dob,
+                                    nickname: controller
+                                            .userProfileUpdateRequest
+                                            .nickname
+                                            .isNotEmpty
+                                        ? controller
+                                            .userProfileUpdateRequest.nickname
+                                        : controller.userData.first.nickname,
+                                    gender: controller.userProfileUpdateRequest
+                                            .gender.isNotEmpty
+                                        ? controller
+                                            .userProfileUpdateRequest.gender
+                                        : controller.userData.first.gender,
+                                    subGender: controller
+                                            .userProfileUpdateRequest
+                                            .subGender
+                                            .isNotEmpty
+                                        ? controller
+                                            .userProfileUpdateRequest.subGender
+                                        : controller.userData.first.subGender,
+                                    lang: controller
+                                        .userProfileUpdateRequest.lang,
+                                    interest: controller
+                                            .userProfileUpdateRequest
+                                            .interest
+                                            .isNotEmpty
+                                        ? controller
+                                            .userProfileUpdateRequest.interest
+                                        : controller.userData.first.interest,
+                                    bio: controller.userProfileUpdateRequest.bio
+                                            .isNotEmpty
+                                        ? controller
+                                            .userProfileUpdateRequest.bio
+                                        : controller.userData.first.bio,
+                                    visibility: controller
+                                            .userProfileUpdateRequest
+                                            .visibility
+                                            .isNotEmpty
+                                        ? controller
+                                            .userProfileUpdateRequest.visibility
+                                        : controller
+                                            .userData.first.userActiveStatus,
+                                    emailAlerts: controller
+                                            .userProfileUpdateRequest
+                                            .emailAlerts
+                                            .isNotEmpty
+                                        ? controller.userProfileUpdateRequest
+                                            .emailAlerts
+                                        : controller.userData.first.emailAlerts,
+                                    lookingFor: controller
+                                            .userProfileUpdateRequest
+                                            .lookingFor
+                                            .isNotEmpty
+                                        ? controller
+                                            .userProfileUpdateRequest.lookingFor
+                                        : controller.userData.first.lookingFor,
+                                    preferences: controller
+                                        .userProfileUpdateRequest.preferences,
+                                    desires: controller.userProfileUpdateRequest
+                                            .desires.isNotEmpty
+                                        ? controller
+                                            .userProfileUpdateRequest.desires
+                                        : controller.userDesire,
+                                  );
 
-                                emailAlerts.value == true
-                                    ? controller.userProfileUpdateRequest
-                                        .emailAlerts = "1"
-                                    : "0";
-                                visibility_status.value == true
-                                    ? controller.userProfileUpdateRequest
-                                        .visibility = '1'
-                                    : '0';
-                                if (userProfileUpdateRequest.validate()) {
-                                  controller
-                                      .updateProfile(userProfileUpdateRequest);
+                                  emailAlerts.value == true
+                                      ? controller.userProfileUpdateRequest
+                                          .emailAlerts = "1"
+                                      : "0";
+                                  visibility_status.value == true
+                                      ? controller.userProfileUpdateRequest
+                                          .visibility = '1'
+                                      : '0';
+                                  if (userProfileUpdateRequest.validate()) {
+                                    controller.updateProfile(
+                                        userProfileUpdateRequest);
+                                  }
+                                  return;
+                                } else {
+                                  failure("Invalid", 'Form is invalid');
+                                  return;
                                 }
-                                return;
-                              } else {
-                                failure("Invalid", 'Form is invalid');
-                                return;
-                              }
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.save,
-                                  color: Colors.white,
-                                  size: 24.0,
-                                ),
-                                SizedBox(width: 8.0),
-                                Text(
-                                  'Save',
-                                  style: AppTextStyles.headingText.copyWith(
-                                    fontSize: getResponsiveFontSize(0.04),
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.save,
                                     color: Colors.white,
+                                    size: 24.0,
                                   ),
-                                ),
-                              ],
+                                  SizedBox(width: 8.0),
+                                  Text(
+                                    'Save',
+                                    style: AppTextStyles.headingText.copyWith(
+                                      fontSize: getResponsiveFontSize(0.04),
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -2062,8 +2091,8 @@ class EditProfilePageState extends State<EditProfilePage>
     }
 
     double screenWidth = screenSize.width;
-    double bodyFontSize = screenWidth * 0.02;
-    double chipFontSize = screenWidth * 0.02;
+    double bodyFontSize = screenWidth * 0.03;
+    double chipFontSize = screenWidth * 0.03;
 
     return DecoratedBoxTransition(
       decoration: decorationTween.animate(_animationController),
@@ -2307,45 +2336,76 @@ class EditProfilePageState extends State<EditProfilePage>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Select Languages',
-                      style: TextStyle(fontSize: 9),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    colors: AppColors.gradientBackgroundList,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        side: BorderSide(
-                            color: Colors.blue.withOpacity(0.3), width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 8,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Select Languages',
+                        style: AppTextStyles.buttonText.copyWith(
+                          fontSize: getResponsiveFontSize(0.018),
+                          color: Colors.white,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    onPressed: () {
-                      showLanguageSelectionBottomSheet(context);
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Select Languages',
-                          style: TextStyle(fontSize: 9),
+                    SizedBox(width: 12),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.12),
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: BorderSide(
+                            color: Colors.white.withOpacity(0.5),
+                            width: 1.2,
+                          ),
                         ),
-                        SizedBox(width: 8),
-                        Icon(
-                          Icons.arrow_drop_down,
-                          color: Colors.blue.withOpacity(0.3),
-                        ),
-                      ],
+                      ),
+                      onPressed: () {
+                        showLanguageSelectionBottomSheet(context);
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Select',
+                            style: AppTextStyles.buttonText.copyWith(
+                              fontSize: getResponsiveFontSize(0.016),
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Icon(
+                            Icons.arrow_drop_down,
+                            color: Colors.white,
+                            size: getResponsiveFontSize(0.035),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               SizedBox(
                 height: MediaQuery.of(context).size.height *
@@ -2359,14 +2419,19 @@ class EditProfilePageState extends State<EditProfilePage>
                     runSpacing: 8,
                     children: selectedLanguages.map((language) {
                       return Chip(
-                        label: Text(language),
-                        deleteIcon:
-                            Icon(Icons.delete_forever_outlined, size: 18),
+                        label: Text(language,
+                            style:
+                                TextStyle(fontSize: 12, color: Colors.black)),
+                        deleteIcon: Icon(
+                          Icons.delete_forever_outlined,
+                          size: 18,
+                          color: Colors.black,
+                        ),
                         onDeleted: () {
                           selectedLanguages.remove(language);
                           updateSelectedLanguageIds();
                         },
-                        backgroundColor: Colors.blue.withOpacity(0.3),
+                        backgroundColor: Colors.white,
                         labelStyle: TextStyle(fontSize: 9),
                       );
                     }).toList(),
@@ -2618,7 +2683,7 @@ class InfoFieldState extends State<InfoField> with TickerProviderStateMixin {
               Text(
                 widget.label,
                 style: AppTextStyles.buttonText.copyWith(
-                  fontSize: getResponsiveFontSize(0.02),
+                  fontSize: getResponsiveFontSize(0.03),
                 ),
               ),
               SizedBox(height: 10),
@@ -2626,7 +2691,7 @@ class InfoFieldState extends State<InfoField> with TickerProviderStateMixin {
                 cursorColor: AppColors.cursorColor,
                 controller: controller,
                 style: AppTextStyles.bodyText.copyWith(
-                  fontSize: getResponsiveFontSize(0.02),
+                  fontSize: getResponsiveFontSize(0.03),
                 ),
                 decoration: InputDecoration(
                   filled: true,
@@ -2684,7 +2749,7 @@ class PrivacyToggle extends StatelessWidget {
         children: [
           Text(label,
               style: AppTextStyles.bodyText
-                  .copyWith(fontSize: getResponsiveFontSize(0.02))),
+                  .copyWith(fontSize: getResponsiveFontSize(0.03))),
           Transform.scale(
             scale: 0.6,
             child: Switch(

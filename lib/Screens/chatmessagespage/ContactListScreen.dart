@@ -2,7 +2,6 @@ import 'package:dating_application/Models/ResponseModels/get_all_chat_history_pa
 import 'package:dating_application/Screens/chatmessagespage/pinrequestpage.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
@@ -70,459 +69,289 @@ class ContactListScreenState extends State<ContactListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    double fontSize = size.width * 0.04;
+
     return Scaffold(
-      backgroundColor: AppColors.secondaryColor,
+      backgroundColor: AppColors.primaryColor,
+      appBar: AppBar(
+        title: Text(
+          'Contacts',
+          style: AppTextStyles.headingText.copyWith(
+            fontSize: fontSize * 1.2,
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: AppColors.primaryColor,
+        elevation: 0,
+      ),
       body: Stack(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius:
-                      BorderRadius.all(Radius.circular(8)), // Rounded corners
-                  gradient: RadialGradient(
-                    center:
-                        Alignment.center, // Start the gradient at the center
-                    radius: 0.8,
-                    colors: AppColors.gradientColor,
-                    stops: [0.0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.0],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Search Bar
+                Card(
+                  elevation: 6,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                ),
-                child: TextField(
-                  cursorColor: AppColors.cursorColor,
-                  onChanged: (query) {
-                    setState(() {
-                      searchQuery = query;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Search Contacts...',
-                    hintStyle:
-                        AppTextStyles.customTextStyle(color: Colors.grey),
-                    prefixIcon: Icon(Icons.search, color: AppColors.iconColor),
-                    filled: true,
-                    fillColor: Colors
-                        .transparent, // Keep transparent so the gradient shows through
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: AppColors.gradientBackgroundList,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    child: TextField(
+                      cursorColor: AppColors.cursorColor,
+                      onChanged: (query) {
+                        setState(() {
+                          searchQuery = query;
+                        });
+                      },
+                      style: AppTextStyles.inputFieldText.copyWith(
+                        fontSize: fontSize,
+                        color: Colors.white,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Search Contacts...',
+                        hintStyle: AppTextStyles.customTextStyle(
+                            color: Colors.white70),
+                        prefixIcon: Icon(Icons.search, color: Colors.white70),
+                        filled: true,
+                        fillColor: Colors.transparent,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding:
+                            EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.02,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '${getFilteredUsers().length} Member',
-                    style: AppTextStyles.customTextStyle(
-                        color: AppColors.textColor),
-                  ),
-                  Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment(0.8, 1),
-                            colors: AppColors.gradientColor,
-                          ),
-                          borderRadius: BorderRadius.circular(60),
+                SizedBox(height: 18),
+                // Section Buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${getFilteredUsers().length} Members',
+                      style: AppTextStyles.bodyText.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: fontSize * 1.05,
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: AppColors.gradientBackgroundList,
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Get.to(MessageRequestPage());
-                            print("Ping button pressed");
-                          },
-                          style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.transparent,
-                            shape: StadiumBorder(),
-                            minimumSize: Size(100, 45),
-                          ),
-                          child: Text(
-                            'Request',
-                            style: AppTextStyles.customTextStyle(
-                                color: AppColors.inactiveColor),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Get.to(MessageRequestPage());
+                        },
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: StadiumBorder(),
+                          minimumSize: Size(100, 45),
+                        ),
+                        child: Text(
+                          'Request',
+                          style: AppTextStyles.buttonText.copyWith(
+                            color: Colors.white,
+                            fontSize: fontSize,
                           ),
                         ),
                       ),
-                      if (controller.messageRequest.isNotEmpty)
-                        Positioned(
-                          top: -4,
-                          right: -4,
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 2, horizontal: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Text(
-                              '${controller.messageRequest.length}',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20),
+                // Contact List
+                Expanded(
+                  child: isLoading
+                      ? Center(
+                          child: Lottie.asset(
+                            "assets/animations/chatpageanimation.json",
+                            repeat: true,
+                            reverse: true,
                           ),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 20),
-              Expanded(
-                child: isLoading
-                    ? Center(
-                        child: Lottie.asset(
-                          "assets/animations/chatpageanimation.json",
-                          repeat: true,
-                          reverse: true,
-                        ),
-                      )
-                    : Builder(
-                        builder: (context) {
-                          if (selectedSection == 0) {
-                            return Obx(() => ListView.builder(
-                                  itemCount: getFilteredUsers().length,
-                                  itemBuilder: (context, index) {
-                                    final connection =
-                                        getFilteredUsers()[index];
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 6),
-                                      child: Slidable(
-                                        key: Key(connection.conectionId),
-                                        direction: Axis.horizontal,
-                                        endActionPane: ActionPane(
-                                          motion: const StretchMotion(),
-                                          children: [
-                                            SlidableAction(
-                                              backgroundColor: Colors.red,
-                                              icon: Icons.info,
-                                              onPressed:
-                                                  (BuildContext context) async {
-                                                showUserOptions(
-                                                  context,
-                                                  connection,
-                                                  controller
-                                                      .userConnections[index]
-                                                      .userId,
-                                                );
-                                              },
-                                              label: 'More',
-                                            ),
-                                          ],
+                        )
+                      : Builder(
+                          builder: (context) {
+                            if (selectedSection == 0) {
+                              return Obx(() => ListView.builder(
+                                    itemCount: getFilteredUsers().length,
+                                    itemBuilder: (context, index) {
+                                      final connection =
+                                          getFilteredUsers()[index];
+                                      return Card(
+                                        elevation: 6,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(24),
                                         ),
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            if (controller.userData.isEmpty) {
-                                              return;
-                                            }
-
-                                            debugPrint(
-                                                'User ID: ${controller.userData.first.id}');
-                                            debugPrint(
-                                                'Connection ID: ${connection.conectionId}');
-                                            debugPrint(
-                                                'Connection Name: ${connection.name}');
-
-                                            if (controller.userData.first.id ==
-                                                connection.conectionId) {
-                                              connection.conectionId =
-                                                  connection.userId;
-                                              connection.userId =
-                                                  controller.userData.first.id;
-                                            }
-
-                                            controller.messages.clear();
-                                            controller
-                                                .fetchChats(
-                                                    connection.conectionId)
-                                                .then((value) async {
-                                              if (value == true) {
-                                                EncryptedSharedPreferences
-                                                    preferences =
-                                                    EncryptedSharedPreferences
-                                                        .getInstance();
-                                                String? token = preferences
-                                                    .getString('token');
-                                                if (token != null &&
-                                                    token.isNotEmpty) {
-                                                  controller.token.value =
-                                                      token;
-
-                                                  Get.to(() => ChatScreen(
-                                                        senderId: controller
-                                                            .userData.first.id,
-                                                        receiverId: connection
-                                                            .conectionId,
-                                                        receiverName:
-                                                            connection.name,
-                                                      ));
-                                                }
-                                              }
-                                            });
-                                          },
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                begin: Alignment.topLeft,
-                                                end: Alignment(0.8, 1),
-                                                colors: AppColors
-                                                    .gradientBackgroundList,
-                                              ),
-                                              borderRadius: BorderRadius.circular(
-                                                  30), // You can adjust the border radius here
+                                        margin:
+                                            EdgeInsets.symmetric(vertical: 8),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: AppColors
+                                                  .gradientBackgroundList,
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
                                             ),
-                                            child: Row(
-                                              children: [
-                                                GestureDetector(
-                                                  onTap: () {
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            FullScreenImagePage(
-                                                          imageUrl: connection
-                                                              .profileImage,
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
-                                                  child: Hero(
-                                                    tag:
-                                                        connection.profileImage,
-                                                    child: CircleAvatar(
-                                                      radius: 20.0,
-                                                      backgroundImage:
-                                                          NetworkImage(connection
-                                                              .profileImage),
+                                            borderRadius:
+                                                BorderRadius.circular(24),
+                                          ),
+                                          child: ListTile(
+                                            leading: GestureDetector(
+                                              onTap: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        FullScreenImagePage(
+                                                      imageUrl: connection
+                                                          .profileImage,
                                                     ),
                                                   ),
+                                                );
+                                              },
+                                              child: Hero(
+                                                tag: connection.profileImage,
+                                                child: CircleAvatar(
+                                                  radius: 24.0,
+                                                  backgroundImage: NetworkImage(
+                                                      connection.profileImage),
                                                 ),
-                                                SizedBox(width: 12),
-
-                                                // Entire row clickable except the profile image
-                                                Expanded(
-                                                  child: GestureDetector(
-                                                    onTap: () {
-                                                      // Navigate to the chat screen when clicking anywhere in the row except the profile image
-                                                      if (controller
-                                                          .userData.isEmpty) {
-                                                        return;
-                                                      }
-
-                                                      debugPrint(
-                                                          'User ID: ${controller.userData.first.id}');
-                                                      debugPrint(
-                                                          'Connection ID: ${connection.conectionId}');
-                                                      debugPrint(
-                                                          'Connection Name: ${connection.name}');
-
-                                                      if (controller.userData
-                                                              .first.id ==
-                                                          connection
-                                                              .conectionId) {
-                                                        connection.conectionId =
-                                                            connection.userId;
-                                                        connection.userId =
-                                                            controller.userData
-                                                                .first.id;
-                                                      }
-
-                                                      controller.messages
-                                                          .clear();
-                                                      controller
-                                                          .fetchChats(connection
-                                                              .conectionId)
-                                                          .then((value) async {
-                                                        if (value == true) {
-                                                          EncryptedSharedPreferences
-                                                              preferences =
-                                                              EncryptedSharedPreferences
-                                                                  .getInstance();
-                                                          String? token =
-                                                              preferences
-                                                                  .getString(
-                                                                      'token');
-                                                          if (token != null &&
-                                                              token
-                                                                  .isNotEmpty) {
-                                                            controller.token
-                                                                .value = token;
-                                                            Get.to(() =>
-                                                                ChatScreen(
-                                                                  senderId:
-                                                                      controller
-                                                                          .userData
-                                                                          .first
-                                                                          .id,
-                                                                  receiverId:
-                                                                      connection
-                                                                          .conectionId,
-                                                                  receiverName:
-                                                                      connection
-                                                                          .name,
-                                                                ));
-                                                          }
-                                                        }
-                                                      });
-                                                    },
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Row(
-                                                          children: [
-                                                            Text(
-                                                              connection.name,
-                                                              style: AppTextStyles
-                                                                  .customTextStyle(
-                                                                      color: Colors
-                                                                          .white),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        SizedBox(height: 4),
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceBetween,
-                                                          children: [
-                                                            Text(
-                                                              maxLines: 3,
-                                                              connection
-                                                                  .lastSeen,
-                                                              style: AppTextStyles
-                                                                  .customTextStyle(
-                                                                      color: Colors
-                                                                          .grey),
-                                                            ),
-                                                            if (controller
-                                                                .messageRequest
-                                                                .isNotEmpty)
-                                                              Container(
-                                                                margin: EdgeInsets
-                                                                    .only(
-                                                                        left:
-                                                                            196),
-                                                                padding: EdgeInsets
-                                                                    .symmetric(
-                                                                        horizontal:
-                                                                            6,
-                                                                        vertical:
-                                                                            6),
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  color: Colors
-                                                                      .green,
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              12),
-                                                                ),
-                                                              ),
-                                                            Text(
-                                                              connection.useractivestatus ==
-                                                                      "1"
-                                                                  ? "online"
-                                                                  : "offline",
-                                                              style: TextStyle(
-                                                                color: connection
-                                                                            .useractivestatus ==
-                                                                        "1"
-                                                                    ? Colors
-                                                                        .green
-                                                                    : Colors
-                                                                        .red,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ],
-                                                    ),
+                                              ),
+                                            ),
+                                            title: Text(
+                                              connection.name,
+                                              style: AppTextStyles.labelText
+                                                  .copyWith(
+                                                color: Colors.white,
+                                                fontSize: fontSize * 1.1,
+                                              ),
+                                            ),
+                                            subtitle: Row(
+                                              children: [
+                                                Text(
+                                                  _formatLastSeen(connection.lastSeen),
+                                                  style: AppTextStyles.bodyText.copyWith(
+                                                  color: Colors.white70,
+                                                  fontSize: fontSize * 0.7,
+                                                  ),
+                                                ),
+                                                SizedBox(width: 58),
+                                                Text(
+                                                  connection.useractivestatus ==
+                                                          "1"
+                                                      ? "Online"
+                                                      : "Offline",
+                                                  style: TextStyle(
+                                                    color: connection
+                                                                .useractivestatus ==
+                                                            "1"
+                                                        ? const Color.fromARGB(255, 111, 255, 115)
+                                                        : Colors.redAccent,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: fontSize * 0.95,
                                                   ),
                                                 ),
                                               ],
                                             ),
+                                            trailing: Icon(
+                                                Icons.arrow_forward_ios,
+                                                color: Colors.white70),
+                                            onTap: () {
+                                              if (controller.userData.isEmpty) {
+                                                return;
+                                              }
+
+                                              debugPrint(
+                                                  'User ID: ${controller.userData.first.id}');
+                                              debugPrint(
+                                                  'Connection ID: ${connection.conectionId}');
+                                              debugPrint(
+                                                  'Connection Name: ${connection.name}');
+
+                                              if (controller
+                                                      .userData.first.id ==
+                                                  connection.conectionId) {
+                                                connection.conectionId =
+                                                    connection.userId;
+                                                connection.userId = controller
+                                                    .userData.first.id;
+                                              }
+
+                                              controller.messages.clear();
+                                              controller
+                                                  .fetchChats(
+                                                      connection.conectionId)
+                                                  .then((value) async {
+                                                if (value == true) {
+                                                  EncryptedSharedPreferences
+                                                      preferences =
+                                                      EncryptedSharedPreferences
+                                                          .getInstance();
+                                                  String? token = preferences
+                                                      .getString('token');
+                                                  if (token != null &&
+                                                      token.isNotEmpty) {
+                                                    controller.token.value =
+                                                        token;
+
+                                                    Get.to(() => ChatScreen(
+                                                          senderId: controller
+                                                              .userData
+                                                              .first
+                                                              .id,
+                                                          receiverId: connection
+                                                              .conectionId,
+                                                          receiverName:
+                                                              connection.name,
+                                                        ));
+                                                  }
+                                                }
+                                              });
+                                            },
                                           ),
                                         ),
-                                      ),
-                                    );
-                                  },
-                                )); // Your original list view
-                          } else if (selectedSection == 1) {
-                            return Center(
-                              child: Text('Recently'),
-                            ); // Create this
-                          } else {
-                            return Center(child: Text('HookUp')); // Create this
-                          }
-                        },
-                      ),
-              ),
-//                 // Rainbow-style mini FABs
-//                 if (isFabOpen)
-//                   Positioned(
-//                     bottom: 90,
-//                     right: 16,
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.end,
-//                       children: [
-//                         FloatingActionButton(
-//                           heroTag: "listBtn",
-//                           mini: true,
-//                           backgroundColor: Colors.deepPurple,
-//                           onPressed: () => selectSection(0),
-//                           child: Icon(Icons.list),
-//                         ),
-//                         SizedBox(height: 12),
-//                         FloatingActionButton(
-//                           heroTag: "recentsBtn",
-//                           mini: true,
-//                           backgroundColor: Colors.orange,
-//                           onPressed: () => selectSection(1),
-//                           child: Icon(Icons.history),
-//                         ),
-//                         SizedBox(height: 12),
-//                         FloatingActionButton(
-//                           heroTag: "hookupsBtn",
-//                           mini: true,
-//                           backgroundColor: Colors.pink,
-//                           onPressed: () => selectSection(2),
-//                           child: Icon(Icons.favorite),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-
-// // Main FAB
-//                 Positioned(
-//                   bottom: 16,
-//                   right: 10,
-//                   child: FloatingActionButton(
-//                     onPressed: toggleFab,
-//                     backgroundColor: Colors.white,
-//                     child: Icon(isFabOpen ? Icons.close : Icons.add),
-//                   ),
-//                 ),
-            ]),
+                                      );
+                                    },
+                                  ));
+                            } else if (selectedSection == 1) {
+                              return Center(
+                                  child: Text('Recently',
+                                      style: AppTextStyles.bodyText
+                                          .copyWith(color: Colors.white)));
+                            } else {
+                              return Center(
+                                  child: Text('HookUp',
+                                      style: AppTextStyles.bodyText
+                                          .copyWith(color: Colors.white)));
+                            }
+                          },
+                        ),
+                ),
+              ],
+            ),
           ),
           if (isLoading)
             Center(
@@ -533,7 +362,7 @@ class ContactListScreenState extends State<ContactListScreen> {
       ),
       floatingActionButton: SpeedDial(
         animatedIcon: AnimatedIcons.menu_close,
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: AppColors.buttonColor,
         foregroundColor: Colors.white,
         overlayColor: Colors.black,
         overlayOpacity: 0.3,
@@ -793,6 +622,29 @@ class ContactListScreenState extends State<ContactListScreen> {
   }
 
   // reportt dailog box ended.....................................................=================--------------------------------------------------
+
+  String _formatLastSeen(String lastSeen) {
+    // Example: parse and format the lastSeen string as needed
+    // You may need to adjust this logic based on your actual lastSeen format
+    if (lastSeen.isEmpty) return 'Last seen: Unknown';
+    try {
+      final dateTime = DateTime.parse(lastSeen);
+      final now = DateTime.now();
+      final difference = now.difference(dateTime);
+
+      if (difference.inMinutes < 1) {
+        return 'Last seen: just now';
+      } else if (difference.inMinutes < 60) {
+        return 'Last seen: ${difference.inMinutes} min ago';
+      } else if (difference.inHours < 24) {
+        return 'Last seen: ${difference.inHours} hr ago';
+      } else {
+        return 'Last seen: ${dateTime.day}/${dateTime.month}/${dateTime.year}';
+      }
+    } catch (e) {
+      return 'Last seen: $lastSeen';
+    }
+  }
 }
 
 class FullScreenImagePage extends StatelessWidget {

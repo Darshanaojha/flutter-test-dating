@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dating_application/Screens/auth.dart';
-import 'package:dating_application/Screens/login.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -2872,7 +2871,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             nextLabel: 'Next',
             backLabel: 'Back',
             nextEnabled: controller.userRegistrationRequest.photos
-                    .where((photo) => photo != null && photo.isNotEmpty)
+                    .where((photo) => photo.isNotEmpty)
                     .length >=
                 3,
             context: context,
