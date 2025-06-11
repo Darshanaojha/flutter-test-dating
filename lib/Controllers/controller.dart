@@ -920,7 +920,7 @@ class Controller extends GetxController {
 
       if (response != null) {
         String message = response.payload.message;
-        print(message);
+        // print(message);
 
         RegExp otpRegExp = RegExp(r'(\d{6})');
         Match? otpMatch = otpRegExp.firstMatch(message);

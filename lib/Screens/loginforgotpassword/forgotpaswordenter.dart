@@ -63,143 +63,212 @@ class PasswordInputPageState extends State<PasswordInputPage> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double fontSize = screenWidth * 0.03;
+    double fontSize = screenWidth * 0.04;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      backgroundColor: AppColors.primaryColor,
       appBar: AppBar(
-        title: Text('Set Password', style: AppTextStyles.headingText),
-        backgroundColor: AppColors.primaryColor,
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: AppColors.gradientBackgroundList,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        title: Text(
+          'Set Password',
+          style: AppTextStyles.headingText.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: fontSize * 1.2,
+          ),
+        ),
       ),
-      body: Padding(
-        padding:
-            EdgeInsets.symmetric(horizontal: screenWidth * 0.1, vertical: 30),
+      body: Center(
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Text(
-                'Set your password and confirm it.',
-                style: AppTextStyles.bodyText.copyWith(fontSize: fontSize),
-                textAlign: TextAlign.center,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: screenWidth * 0.07, vertical: 30),
+            child: Card(
+              elevation: 10,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
               ),
-              SizedBox(height: 30),
-              Form(
-                key: formKey,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: AppColors.gradientBackgroundList,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                padding: EdgeInsets.symmetric(vertical: 32, horizontal: 24),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    TextFormField(
-                      cursorColor: AppColors.cursorColor,
-                      style: AppTextStyles.inputFieldText
-                          .copyWith(fontSize: fontSize),
-                      obscureText: passwordvisibility,
-                      decoration: InputDecoration(
-                          labelText: 'Password',
-                          labelStyle: AppTextStyles.bodyText
-                              .copyWith(fontSize: fontSize),
-                          filled: true,
-                          fillColor: AppColors.formFieldColor,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide:
-                                BorderSide(color: AppColors.primaryColor),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide:
-                                BorderSide(color: AppColors.errorBorderColor),
-                          ),
-                          suffixIcon: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  passwordvisibility = !passwordvisibility;
-                                });
-                              },
-                              icon: Icon(passwordvisibility
-                                  ? Icons.visibility_off
-                                  : Icons.visibility))),
-                      validator: validatePassword,
-                      onChanged: (value) {
-                        controller.forgetPasswordRequest.newPassword = value;
-                      },
+                    Text(
+                      'Set your password and confirm it.',
+                      style: AppTextStyles.bodyText
+                          .copyWith(fontSize: fontSize, color: Colors.white),
+                      textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 20),
-                    TextFormField(
-                      cursorColor: AppColors.cursorColor,
-                      style: AppTextStyles.inputFieldText
-                          .copyWith(fontSize: fontSize),
-                      obscureText: conformpasswordvisibility,
-                      decoration: InputDecoration(
-                          labelText: 'Confirm Password',
-                          labelStyle: AppTextStyles.bodyText
-                              .copyWith(fontSize: fontSize),
-                          filled: true,
-                          fillColor: AppColors.formFieldColor,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none,
+                    SizedBox(height: 30),
+                    Form(
+                      key: formKey,
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            cursorColor: AppColors.cursorColor,
+                            style: AppTextStyles.inputFieldText.copyWith(
+                                fontSize: fontSize, color: Colors.white),
+                            obscureText: passwordvisibility,
+                            decoration: InputDecoration(
+                              labelText: 'Password',
+                              labelStyle: AppTextStyles.bodyText.copyWith(
+                                  fontSize: fontSize, color: Colors.white70),
+                              filled: true,
+                              fillColor: Colors.white.withOpacity(0.08),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(
+                                    color: AppColors.errorBorderColor),
+                              ),
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    passwordvisibility = !passwordvisibility;
+                                  });
+                                },
+                                icon: Icon(
+                                  passwordvisibility
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                  color: Colors.white70,
+                                ),
+                              ),
+                            ),
+                            validator: validatePassword,
+                            onChanged: (value) {
+                              controller.forgetPasswordRequest.newPassword =
+                                  value;
+                            },
                           ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide:
-                                BorderSide(color: AppColors.primaryColor),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide:
-                                BorderSide(color: AppColors.errorBorderColor),
-                          ),
-                          suffixIcon: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  conformpasswordvisibility =
-                                      !conformpasswordvisibility;
-                                });
-                              },
-                              icon: Icon(
+                          SizedBox(height: 20),
+                          TextFormField(
+                            cursorColor: AppColors.cursorColor,
+                            style: AppTextStyles.inputFieldText.copyWith(
+                                fontSize: fontSize, color: Colors.white),
+                            obscureText: conformpasswordvisibility,
+                            decoration: InputDecoration(
+                              labelText: 'Confirm Password',
+                              labelStyle: AppTextStyles.bodyText.copyWith(
+                                  fontSize: fontSize, color: Colors.white70),
+                              filled: true,
+                              fillColor: Colors.white.withOpacity(0.08),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(
+                                    color: AppColors.errorBorderColor),
+                              ),
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    conformpasswordvisibility =
+                                        !conformpasswordvisibility;
+                                  });
+                                },
+                                icon: Icon(
                                   conformpasswordvisibility
                                       ? Icons.visibility_off
                                       : Icons.visibility,
-                                  size: 20))),
-                      validator: validateConfirmPassword,
-                      onChanged: (value) {
-                        setState(() {
-                          confirmPassword = value;
-                        });
-                      },
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () async {
-                        if (formKey.currentState?.validate() ?? false) {
-                          formKey.currentState?.save();
-                          if (controller.forgetPasswordRequest.validate()) {
-                            await controller.getOtpForgetPassword(
-                                controller.forgetPasswordRequest);
-                          }
-                        } else {
-                          failure('password', '');
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.buttonColor,
-                        padding:
-                            EdgeInsets.symmetric(vertical: 15, horizontal: 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                                  color: Colors.white70,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                            validator: validateConfirmPassword,
+                            onChanged: (value) {
+                              setState(() {
+                                confirmPassword = value;
+                              });
+                            },
+                          ),
+                          SizedBox(height: 28),
+                          // Gradient Submit Button
+                          GestureDetector(
+                            onTap: () async {
+                              if (formKey.currentState?.validate() ?? false) {
+                                formKey.currentState?.save();
+                                if (controller.forgetPasswordRequest
+                                    .validate()) {
+                                  await controller.getOtpForgetPassword(
+                                      controller.forgetPasswordRequest);
+                                }
+                              } else {
+                                failure('password', '');
+                              }
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                // gradient: LinearGradient(
+                                //   colors: AppColors.gradientBackgroundList,
+                                //   begin: Alignment.topLeft,
+                                //   end: Alignment.bottomRight,
+                                // ),
+                                borderRadius: BorderRadius.circular(16),
+                                // boxShadow: [
+                                //   BoxShadow(
+                                //     color: Colors.deepPurple.withOpacity(0.18),
+                                //     blurRadius: 8,
+                                //     offset: Offset(0, 4),
+                                //   ),
+                                // ],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Submit',
+                                  style: AppTextStyles.buttonText.copyWith(
+                                    fontSize: fontSize * 0.8,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      child: Text('Submit',
-                          style: AppTextStyles.buttonText
-                              .copyWith(fontSize: fontSize)),
                     ),
                   ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),

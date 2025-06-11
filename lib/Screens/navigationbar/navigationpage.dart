@@ -147,92 +147,129 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return Dialog(
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          backgroundColor: Colors.white.withOpacity(0.95),
-          elevation: 10,
-          titlePadding: const EdgeInsets.only(top: 24, left: 24, right: 24),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-          actionsPadding: const EdgeInsets.only(bottom: 16, right: 16),
-          title: Column(
-            children: [
-              Icon(Icons.logout, size: 48, color: Colors.pinkAccent),
-              const SizedBox(height: 16),
-              Text(
-                'Log Out?',
-                textAlign: TextAlign.center,
-                style: AppTextStyles.headingText.copyWith(
-                  fontSize: getResponsiveFontSize(context, 0.05),
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: AppColors.gradientBackgroundList,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-            ],
-          ),
-          content: Text(
-            'Are you sure you want to log out of your account?',
-            textAlign: TextAlign.center,
-            style: AppTextStyles.headingText.copyWith(
-              fontSize: getResponsiveFontSize(context, 0.04),
-              fontWeight: FontWeight.w400,
-              color: Colors.black54,
-            ),
-          ),
-          actions: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () => Navigator.of(context).pop(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey.shade300,
-                    foregroundColor: Colors.black87,
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  icon: Icon(Icons.close),
-                  label: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                    child: Text('Cancel'),
-                  ),
-                ),
-
-                // Confirm Button
-                ElevatedButton.icon(
-                  onPressed: () async {
-                    final preferences =
-                        EncryptedSharedPreferences.getInstance();
-                    preferences.clear();
-                    Get.offAll(() => CombinedAuthScreen());
-
-                    UpdateActivityStatusRequest updateActivityStatusRequest =
-                        UpdateActivityStatusRequest(status: '0');
-                    controller
-                        .updateactivitystatus(updateActivityStatusRequest);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.pinkAccent,
-                    foregroundColor: Colors.white,
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  icon: Icon(Icons.check),
-                  label: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                    child: Text('Log Out'),
-                  ),
+              borderRadius: BorderRadius.circular(28),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.18),
+                  blurRadius: 24,
+                  offset: Offset(0, 8),
                 ),
               ],
             ),
-          ],
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: AppColors.reversedGradientColor,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  padding: EdgeInsets.all(16),
+                  child: Icon(Icons.logout, size: 48, color: Colors.white),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Log Out?',
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.headingText.copyWith(
+                    fontSize: getResponsiveFontSize(context, 0.055),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Are you sure you want to log out of your account?',
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.headingText.copyWith(
+                    fontSize: getResponsiveFontSize(context, 0.04),
+                    fontWeight: FontWeight.w400,
+                    color: Colors.white70,
+                  ),
+                ),
+                const SizedBox(height: 28),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white.withOpacity(0.85),
+                          foregroundColor: Colors.redAccent,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        icon: Icon(Icons.close),
+                        label: Text(
+                          'Cancel',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.redAccent,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          final preferences =
+                              EncryptedSharedPreferences.getInstance();
+                          preferences.clear();
+                          Get.offAll(() => CombinedAuthScreen());
+
+                          UpdateActivityStatusRequest
+                              updateActivityStatusRequest =
+                              UpdateActivityStatusRequest(status: '0');
+                          controller.updateactivitystatus(
+                              updateActivityStatusRequest);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        icon: Icon(Icons.check),
+                        label: Text(
+                          'Log Out',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         );
       },
     );

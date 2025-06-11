@@ -526,7 +526,7 @@ class HomePageState extends State<HomePage>
                 return Column(
                   children: [
                     Container(
-                      height: 80,
+                      height: size.height * 0.08,
                       padding: EdgeInsets.all(8),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -676,7 +676,7 @@ class HomePageState extends State<HomePage>
                                 child: Column(
                                   children: [
                                     SizedBox(
-                                      height: size.height * 0.7 -
+                                      height: size.height * 0.75 -
                                           MediaQuery.of(context)
                                               .viewInsets
                                               .bottom,
@@ -915,7 +915,12 @@ class HomePageState extends State<HomePage>
   Widget buildCardLayoutAll(
       BuildContext context, SuggestedUser user, Size size, bool isLastCard) {
     List<String> images = user.images;
-    print("User data: ${user.toJson()}");
+    List<String> interests = (user.interest ?? '')
+        .split(',')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+
     return user.id == ''
         ? Text("No users available")
         : Container(
@@ -925,19 +930,14 @@ class HomePageState extends State<HomePage>
                 end: Alignment(0.8, 1),
                 colors: AppColors.gradientBackgroundList,
               ),
-              borderRadius: BorderRadius.circular(
-                  30), // You can adjust the border radius here
+              borderRadius: BorderRadius.circular(30),
             ),
-            // alignment: Alignment.center,
-            // decoration: BoxDecoration(
-            //   color: Colors.black,
-            //   borderRadius: BorderRadius.circular(15),
-            // ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // User Images
                 SizedBox(
-                  height: size.height * 0.4,
+                  height: size.height * 0.35,
                   child: Stack(
                     children: [
                       SafeArea(
@@ -946,7 +946,7 @@ class HomePageState extends State<HomePage>
                           child: Scrollbar(
                             child: ListView.builder(
                               controller: _imagePageController,
-                              itemCount: user.images.length,
+                              itemCount: images.length,
                               itemBuilder: (BuildContext context, int index) {
                                 if (images.isEmpty) {
                                   return Center(
@@ -964,8 +964,6 @@ class HomePageState extends State<HomePage>
                                         placeholder: (context, url) => Center(
                                             child: CircularProgressIndicator()),
                                         errorWidget: (context, url, error) {
-                                          print(
-                                              "Failed to load image from URL: $url");
                                           return Icon(Icons.person_pin_outlined,
                                               color: const Color.fromARGB(
                                                   255, 150, 148, 148));
@@ -985,167 +983,255 @@ class HomePageState extends State<HomePage>
                     ],
                   ),
                 ),
-                Row(
-                  children: [
-                    SizedBox(width: 12),
-                    IconButton(
-                      onPressed: lastUser != null
-                          ? null
-                          : () {
-                              showmessageBottomSheet(user.userId.toString());
-                            },
-                      icon: Icon(Icons.messenger_outline, size: 30),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16),
+                SizedBox(height: size.height * 0.03),
+                // User Name, Age, City
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text(
-                    user.name ?? 'NA',
-                    style: TextStyle(
-                        fontSize: size.width * 0.03,
-                        fontWeight: FontWeight.bold),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          user.name ?? 'NA',
+                          style: AppTextStyles.headingText.copyWith(
+                            fontSize: size.width * 0.05,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (user.city != null && user.city!.isNotEmpty)
+                        Row(
+                          children: [
+                            Icon(Icons.location_on,
+                                color: Colors.white70, size: 18),
+                            SizedBox(width: 4),
+                            Text(
+                              user.city!,
+                              style: AppTextStyles.bodyText.copyWith(
+                                color: Colors.white70,
+                                fontSize: size.width * 0.035,
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
                   child: Row(
                     children: [
                       Text(
                         calculateAge(user.dob ?? 'Unknown Date'),
-                        style: TextStyle(fontSize: size.width * 0.03),
+                        style: AppTextStyles.bodyText.copyWith(
+                          color: Colors.white,
+                          fontSize: size.width * 0.04,
+                        ),
                       ),
-                      Text(
-                        '${user.city}',
-                        style: TextStyle(fontSize: size.width * 0.03),
+                      // if (user.genderName != null &&
+                      //     user.genderName!.isNotEmpty) ...[
+                      //   SizedBox(width: 12),
+                      //   Icon(Icons.person, color: Colors.white70, size: 18),
+                      //   SizedBox(width: 4),
+                      //   Text(
+                      //     user.genderName!,
+                      //     style: AppTextStyles.bodyText.copyWith(
+                      //       color: Colors.white70,
+                      //       fontSize: size.width * 0.035,
+                      //     ),
+                      //   ),
+                      // ],
+                    ],
+                  ),
+                ),
+                // Interests
+                if (interests.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 8),
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: interests
+                          .take(4)
+                          .map((interest) => Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.13),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: Colors.white24),
+                                ),
+                                child: Text(
+                                  interest,
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    color: Colors.white,
+                                    fontSize: size.width * 0.032,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ))
+                          .toList(),
+                    ),
+                  ),
+                // Action Buttons
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 30.0),
+                    child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Nope Button
+                      Column(
+                      children: [
+                        GestureDetector(
+                        onTap: () {
+                          setState(() {
+                          matchEngine.currentItem?.nope();
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                            color: Colors.black.withOpacity(0.15),
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                            ),
+                          ],
+                          color: Colors.white,
+                          ),
+                          padding: EdgeInsets.all(18),
+                          child: Icon(Icons.close_rounded,
+                            color: Colors.black87, size: 36),
+                        ),
+                        ),
+                        SizedBox(height: 6),
+                        Text(
+                        "Nope",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        ),
+                      ],
+                      ),
+                      // Favourite Button
+                      Column(
+                      children: [
+                        GestureDetector(
+                        onTap: () {
+                          setState(() {
+                          matchEngine.currentItem?.superLike();
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                            color: Colors.black.withOpacity(0.15),
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                            ),
+                          ],
+                          color: Colors.white,
+                          ),
+                          padding: EdgeInsets.all(18),
+                          child: Icon(Icons.favorite_rounded,
+                            color: Colors.black87, size: 36),
+                        ),
+                        ),
+                        SizedBox(height: 6),
+                        Text(
+                        "Favourite",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        ),
+                      ],
+                      ),
+                      // Like Button
+                      Column(
+                      children: [
+                        GestureDetector(
+                        onTap: () {
+                          setState(() {
+                          matchEngine.currentItem?.like();
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                            color: Colors.black.withOpacity(0.15),
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                            ),
+                          ],
+                          color: Colors.white,
+                          ),
+                          padding: EdgeInsets.all(18),
+                          child: Icon(Icons.thumb_up_rounded,
+                            color: Colors.black87, size: 36),
+                        ),
+                        ),
+                        SizedBox(height: 6),
+                        Text(
+                        "Like",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        ),
+                      ],
                       ),
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 30.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.5),
-                              blurRadius: 28,
-                              offset: Offset(2, 14),
-                            ),
-                          ],
+                // Connect Button
+                GestureDetector(
+                  onTap: () {
+                    showmessageBottomSheet(user.userId.toString());
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(18.0),
+                    child: Container(
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: AppColors.reversedGradientColor,
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                matchEngine.currentItem?.nope();
-                              });
-                              print("button pressed nope");
-                            },
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Image.asset(
-                                  'assets/images/dislike.png',
-                                  height: 60,
-                                  width: 60,
-                                ),
-                                SizedBox(height: 5),
-                                Text(
-                                  "Nope",
-                                  style: AppTextStyles.buttonText.copyWith(
-                                    fontSize: getResponsiveFontSize(0.015),
-                                  ),
-                                ),
-                              ],
-                            ),
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.deepPurple.withOpacity(0.2),
+                            blurRadius: 12,
+                            offset: Offset(0, 6),
                           ),
+                        ],
+                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                      child: Text(
+                        "Connect",
+                        style: AppTextStyles.buttonText.copyWith(
+                          color: Colors.white,
+                          fontSize: getResponsiveFontSize(0.03),
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.1,
                         ),
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.transparent.withOpacity(0.5),
-                              blurRadius: 28,
-                              offset: Offset(2, 14),
-                            ),
-                          ],
-                        ),
-                        child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  matchEngine.currentItem?.superLike();
-                                });
-                                print("button pressed super like");
-                              },
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Image.asset(
-                                    'assets/images/heart.png',
-                                    height: 60,
-                                    width: 60,
-                                  ),
-                                  SizedBox(height: 5),
-                                  Text(
-                                    "Favourite",
-                                    style: AppTextStyles.buttonText.copyWith(
-                                      fontSize: getResponsiveFontSize(0.015),
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.5),
-                              blurRadius: 28,
-                              offset: Offset(2, 14),
-                            ),
-                          ],
-                        ),
-                        child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  matchEngine.currentItem?.like();
-                                });
-                                print("button pressed like");
-                              },
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Image.asset(
-                                    'assets/images/like.png',
-                                    height: 60,
-                                    width: 60,
-                                  ),
-                                  SizedBox(height: 5),
-                                  Text(
-                                    "Like",
-                                    style: TextStyle(
-                                      fontSize: getResponsiveFontSize(0.015),
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ],

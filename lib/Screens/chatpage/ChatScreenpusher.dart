@@ -187,52 +187,94 @@ class ChatScreenState extends State<ChatScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Edit Message'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
+      return Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        elevation: 12,
+        backgroundColor: Colors.transparent, // Make dialog background transparent for gradient
+        child: Container(
+        padding: EdgeInsets.symmetric(vertical: 24, horizontal: 18),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+          colors: AppColors.gradientBackgroundList,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+          Container(
+            decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(18),
+            ),
+            padding: EdgeInsets.all(16),
+            child: Icon(Icons.chat, color: Colors.white, size: 48), // Changed to chat icon
+          ),
+          SizedBox(height: 18),
+          Text(
+            "Edit Message",
+            style: AppTextStyles.headingText.copyWith(
+            fontSize: 20,
+            color: AppColors.textColor,
+            fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 10),
+          TextField(
+            cursorColor: AppColors.activeColor,
+            controller: messageController,
+            decoration: InputDecoration(
+            hintText: "Edit your message",
+            hintStyle: TextStyle(color: Colors.grey),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: AppColors.buttonColor, width: 2.0),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey, width: 1.5),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            ),
+          ),
+          SizedBox(height: 22),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              TextField(
-                cursorColor: AppColors.activeColor,
-                controller: messageController,
-                decoration: InputDecoration(
-                  hintText: "Edit your message",
-                  hintMaxLines: null,
-                  enabled: isSentByUser,
-                  hintStyle: TextStyle(
-                    color: isSentByUser ? Colors.white : Colors.grey,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.green, width: 2.0),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white, width: 1.5),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
+            TextButton(
+              onPressed: () {
+              Navigator.of(context).pop();
+              },
+              style: TextButton.styleFrom(
+              foregroundColor: Colors.white,
+              textStyle: TextStyle(fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  if (isSentByUser)
-                    ElevatedButton(
-                      onPressed: () {
-                        _editMessage(messageController.text, index);
-                        Navigator.of(context).pop();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                      ),
-                      child: Text('Edit'),
-                    ),
-                ],
+              child: Text("Cancel"),
+            ),
+            SizedBox(width: 8),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.buttonColor,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
               ),
+              elevation: 4,
+              ),
+              icon: Icon(Icons.check),
+              label: Text("Save"),
+              onPressed: () {
+              _editMessage(messageController.text, index);
+              Navigator.of(context).pop();
+              },
+            ),
             ],
           ),
-        );
+          ],
+        ),
+        ),
+      );
       },
     );
   }
@@ -270,6 +312,17 @@ class ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         title: Text(widget.receiverName),
         centerTitle: true,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: AppColors.gradientBackgroundList,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         actions: [
           selectedMessages.isNotEmpty
               ? IconButton(
@@ -278,27 +331,108 @@ class ChatScreenState extends State<ChatScreen> {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text("Delete Messages"),
-                          content: Text("Choose an option to delete messages."),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                // Delete selected messages
-                                deleteSelectedMessages();
-                                Navigator.pop(context);
-                              },
-                              child: Text("Delete Selected Messages"),
+                        return Dialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          elevation: 12,
+                          backgroundColor: Colors
+                              .transparent, // Make dialog background transparent for gradient
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: AppColors.gradientBackgroundList,
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(24),
                             ),
-                            TextButton(
-                              onPressed: () {
-                                // Delete all messages
-                                deleteAllMessages();
-                                Navigator.pop(context);
-                              },
-                              child: Text("Delete All Messages"),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 24, horizontal: 18),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.15),
+                                    borderRadius: BorderRadius.circular(18),
+                                  ),
+                                  padding: EdgeInsets.all(16),
+                                  child: Icon(
+                                    Icons.chat, // Changed to chat icon
+                                    color: Colors.white,
+                                    size: 48,
+                                  ),
+                                ),
+                                SizedBox(height: 18),
+                                Text(
+                                  "Delete Messages",
+                                  style: AppTextStyles.headingText.copyWith(
+                                    fontSize: 20,
+                                    color: AppColors.textColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                Text(
+                                  "Choose an option to delete messages.",
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    color: Colors
+                                        .white, // Make text white for contrast
+                                    fontSize: 16,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                SizedBox(height: 22),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Expanded(
+                                      child: ElevatedButton.icon(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              AppColors.buttonColor,
+                                          foregroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                          ),
+                                          elevation: 4,
+                                        ),
+                                        icon: Icon(Icons.delete_sweep),
+                                        label: Text("Delete Selected"),
+                                        onPressed: () {
+                                          deleteSelectedMessages();
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                    ),
+                                    SizedBox(width: 12),
+                                    Expanded(
+                                      child: ElevatedButton.icon(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.redAccent,
+                                          foregroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                          ),
+                                          elevation: 4,
+                                        ),
+                                        icon: Icon(Icons.delete_forever),
+                                        label: Text("Delete All"),
+                                        onPressed: () {
+                                          deleteAllMessages();
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         );
                       },
                     );
@@ -367,23 +501,91 @@ class ChatScreenState extends State<ChatScreen> {
                                     showDialog(
                                       context: context,
                                       builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title: Text("Delete Message"),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () {
-                                                deleteSingleMessage(index);
-                                                Navigator.pop(context);
-                                              },
-                                              child: Text("Delete"),
+                                        return Dialog(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(24),
+                                          ),
+                                          elevation: 12,
+                                          backgroundColor: Colors.transparent,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: AppColors.gradientBackgroundList,
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              borderRadius: BorderRadius.circular(24),
                                             ),
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                              child: Text("Cancel"),
+                                            padding: EdgeInsets.symmetric(vertical: 24, horizontal: 18),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white.withOpacity(0.15),
+                                                    borderRadius: BorderRadius.circular(18),
+                                                  ),
+                                                  padding: EdgeInsets.all(16),
+                                                  child: Icon(
+                                                    Icons.chat,
+                                                    color: Colors.white,
+                                                    size: 48,
+                                                  ),
+                                                ),
+                                                SizedBox(height: 18),
+                                                Text(
+                                                  "Delete Message",
+                                                  style: AppTextStyles.headingText.copyWith(
+                                                    fontSize: 20,
+                                                    color: AppColors.textColor,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                SizedBox(height: 10),
+                                                Text(
+                                                  "Are you sure you want to delete this message?",
+                                                  style: AppTextStyles.bodyText.copyWith(
+                                                    color: Colors.white,
+                                                    fontSize: 16,
+                                                  ),
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                                SizedBox(height: 22),
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.end,
+                                                  children: [
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                      },
+                                                      style: TextButton.styleFrom(
+                                                        foregroundColor: Colors.white,
+                                                        textStyle: TextStyle(fontWeight: FontWeight.bold),
+                                                      ),
+                                                      child: Text("Cancel"),
+                                                    ),
+                                                    SizedBox(width: 8),
+                                                    ElevatedButton.icon(
+                                                      style: ElevatedButton.styleFrom(
+                                                        backgroundColor: AppColors.buttonColor,
+                                                        foregroundColor: Colors.white,
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius: BorderRadius.circular(14),
+                                                        ),
+                                                        elevation: 4,
+                                                      ),
+                                                      icon: Icon(Icons.delete),
+                                                      label: Text("Delete"),
+                                                      onPressed: () {
+                                                        deleteSingleMessage(index);
+                                                        Navigator.pop(context);
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
                                             ),
-                                          ],
+                                          ),
                                         );
                                       },
                                     );
@@ -530,92 +732,131 @@ class ChatScreenState extends State<ChatScreen> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
+                // Message input with rounded card and slight elevation
                 Expanded(
-                  child: TextField(
-                    cursorColor: AppColors.activeColor,
-                    controller: messageController,
-                    decoration: InputDecoration(
-                      hintText: 'Type a message...',
-                      border: OutlineInputBorder(
+                  child: Card(
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
+                        color: Colors.white,
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.green, width: 2.0),
-                        borderRadius: BorderRadius.circular(20),
+                      child: TextField(
+                        cursorColor: Colors.black87,
+                        controller: messageController,
+                        style: AppTextStyles.inputFieldText
+                            .copyWith(fontSize: 16, color: Colors.black),
+                        decoration: InputDecoration(
+                          hintText: 'Type a message...',
+                          hintStyle: AppTextStyles.bodyText
+                              .copyWith(color: Colors.grey),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 18, vertical: 14),
+                        ),
                       ),
                     ),
                   ),
                 ),
-                Row(
-                  children: [
-                    // Image picker icon (only selects and stores image)
-                    IconButton(
-                      icon: Icon(Icons.image),
-                      color: Colors.orange,
-                      onPressed: () async {
-                        final pickedFile = await showModalBottomSheet<XFile?>(
-                          context: context,
-                          builder: (context) => _buildImagePickerOptions(),
-                        );
-
-                        if (pickedFile != null) {
-                          setState(() {
-                            selectedImage = File(pickedFile.path);
-                          });
-                        }
-                      },
+                // Image picker icon with gradient background
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: AppColors.gradientBackgroundList,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                    if (selectedImage != null)
-                      GestureDetector(
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                              content: Image.file(selectedImage!),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text("Close"),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: CircleAvatar(
-                            radius: 24,
-                            backgroundImage: FileImage(selectedImage!),
-                          ),
-                        ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.deepPurple.withOpacity(0.18),
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
                       ),
-
-                    // Send button (sends text + selected image if any)
-                    IconButton(
-                      icon: Icon(Icons.send),
-                      color: Colors.green,
-                      onPressed: () async {
-                        final messageText = messageController.text.trim();
-
-                        if (messageText.isNotEmpty || selectedImage != null) {
-                          await _sendMessage(
-                            message: messageText,
-                            receiverId: widget.receiverId,
-                            image: selectedImage,
-                          );
-
-                          // Clear after sending
-                          messageController.clear();
-                          selectedImage = null;
-                          controller.fetchChats(widget.receiverId);
-                        } else {
-                          Get.snackbar("Empty Message",
-                              "Please type a message or select an image.");
-                        }
-                      },
+                    ],
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.image, color: Colors.white),
+                    onPressed: () async {
+                      final pickedFile = await showModalBottomSheet<XFile?>(
+                        context: context,
+                        builder: (context) => _buildImagePickerOptions(),
+                      );
+                      if (pickedFile != null) {
+                        setState(() {
+                          selectedImage = File(pickedFile.path);
+                        });
+                      }
+                    },
+                  ),
+                ),
+                // Show selected image as a small avatar
+                if (selectedImage != null)
+                  GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          content: Image.file(selectedImage!),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text("Close"),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: CircleAvatar(
+                        radius: 22,
+                        backgroundImage: FileImage(selectedImage!),
+                      ),
                     ),
-                  ],
-                )
+                  ),
+                // Send button with gradient background
+                Container(
+                  margin: EdgeInsets.only(left: 4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: AppColors.gradientBackgroundList,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.deepPurple.withOpacity(0.18),
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.send, color: Colors.white),
+                    onPressed: () async {
+                      final messageText = messageController.text.trim();
+                      if (messageText.isNotEmpty || selectedImage != null) {
+                        await _sendMessage(
+                          message: messageText,
+                          receiverId: widget.receiverId,
+                          image: selectedImage,
+                        );
+                        messageController.clear();
+                        selectedImage = null;
+                        controller.fetchChats(widget.receiverId);
+                      } else {
+                        Get.snackbar("Empty Message",
+                            "Please type a message or select an image.");
+                      }
+                    },
+                  ),
+                ),
               ],
             ),
           ),

@@ -284,52 +284,140 @@ class AudioCallPageState extends State<AudioCallPage> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    double fontSize = size.width * 0.045;
+
     return Scaffold(
+      backgroundColor: AppColors.primaryColor,
       appBar: AppBar(
-        title: const Text('Audio Call'),
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: AppColors.gradientBackgroundList,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        title: Text(
+          'Audio Call',
+          style: AppTextStyles.headingText.copyWith(
+            fontSize: fontSize * 1.1,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: Stack(
         children: [
-          // Display remote user's audio status (using an icon as placeholder)
+          // Remote user status
           Center(
             child: remoteUid != null
-                ? const Icon(Icons.volume_up, size: 50, color: Colors.green)
-                : const Text(
-                    'Waiting for remote user to join...',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 18),
+                ? Container(
+                    padding: EdgeInsets.all(32),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: AppColors.gradientBackgroundList,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.deepPurple.withOpacity(0.18),
+                          blurRadius: 24,
+                          offset: Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Icon(Icons.volume_up, size: 70, color: Colors.white),
+                  )
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.hourglass_empty,
+                          size: 60, color: Colors.white70),
+                      SizedBox(height: 18),
+                      Text(
+                        'Waiting for remote user to join...',
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.bodyText.copyWith(
+                          fontSize: fontSize,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
                   ),
           ),
-          // Local user controls (microphone mute/unmute)
+          // Local user controls
           Align(
             alignment: Alignment.bottomCenter,
-            child: SizedBox(
-              height: 100,
-              child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment
-                      .center, // Centers the icons horizontally
-                  children: [
-                    IconButton(
-                      icon: Icon(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 40),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Mute/Unmute Button
+                  GestureDetector(
+                    onTap: _toggleMute,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: isLocalAudioMuted
+                              ? [Colors.redAccent, Colors.deepOrange]
+                              : [Colors.green, Colors.lightGreen],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 12,
+                            offset: Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      padding: EdgeInsets.all(22),
+                      child: Icon(
                         isLocalAudioMuted ? Icons.mic_off : Icons.mic,
-                        size: 40,
-                        color: isLocalAudioMuted ? Colors.red : Colors.green,
+                        size: 36,
+                        color: Colors.white,
                       ),
-                      onPressed: _toggleMute,
                     ),
-                    SizedBox(width: 20), // Add some space between the two icons
-                    IconButton(
-                      icon: Icon(
+                  ),
+                  SizedBox(width: 40),
+                  // End Call Button
+                  GestureDetector(
+                    onTap: _endCall,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [Colors.red, Colors.deepOrange],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.redAccent.withOpacity(0.25),
+                            blurRadius: 12,
+                            offset: Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      padding: EdgeInsets.all(22),
+                      child: Icon(
                         Icons.call_end,
-                        size: 40,
-                        color: Colors.red, // Set color for end call button
+                        size: 36,
+                        color: Colors.white,
                       ),
-                      onPressed:
-                          _endCall, // Make sure you implement the _endCall method
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),

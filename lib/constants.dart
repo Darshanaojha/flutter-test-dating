@@ -120,6 +120,19 @@ class AppColors {
     Color(0xFFEFB6C8),
   ];
 
+  static List<Color> reversedGradientColor = <Color>[
+  Color(0xFFEFB6C8),
+  Color(0xFFA888B5),
+  Color(0xFF8174A0),
+  Color.fromARGB(255, 113, 96, 153),
+  Color.fromARGB(255, 107, 87, 152),
+  Color.fromARGB(255, 102, 81, 152),
+  Color.fromARGB(255, 78, 37, 91),
+  Color.fromARGB(255, 74, 28, 88),
+  Color(0xFF441752),
+];
+
+
   // static List<Color> gradientColor = <Color>[
   //   Color(0xff1f005c),
   //   Color(0xff5b0060),
@@ -140,7 +153,7 @@ class AppTextStyles {
   static const double buttonSize = 12.0;
   static const double labelSize = 14.0;
   static const double inputFieldSize = 16.0;
-  static const double textSize = 9.0;
+  static const double textSize = 16.0;
 
   static final TextStyle headingText = GoogleFonts.roboto(
     fontSize: headingSize,
