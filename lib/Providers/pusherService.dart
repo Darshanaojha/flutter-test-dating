@@ -36,7 +36,7 @@ class PusherService extends GetConnect {
             'Authorization': 'Bearer $token',
           },
         );
-        
+
         if (response.statusCode == null || response.body == null) {
           failure('Error', 'Server Failed To Respond');
           return null;
@@ -122,6 +122,7 @@ class PusherService extends GetConnect {
     pusher.disconnect();
   }
 
+// NOT IN USE
   Future<bool> sendMessageApi(
       SendMessageRequestModel sendMessageRequestModel) async {
     try {

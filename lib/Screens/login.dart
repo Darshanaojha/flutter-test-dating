@@ -1,4 +1,5 @@
 import 'package:dating_application/Models/ResponseModels/user_login_response_model.dart';
+import 'package:dating_application/Screens/auth.dart';
 import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
 import 'package:dating_application/Screens/navigationbar/unsubscribenavigation.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
     loginRequest = UserLoginRequest(email: '', password: '');
 
     animationController = AnimationController(
-      duration: Duration(seconds: 1),
+      duration: Duration(milliseconds: 360),
       vsync: this,
     )..forward();
 
@@ -56,123 +57,96 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
     return Scaffold(
       body: Container(
         color: AppColors.primaryColor,
-        child: Center(
-          child: FadeTransition(
-            opacity: fadeInAnimation,
-            child: Container(
-              width: size.width * 0.96,
-              height: size.height * 0.5,
-              decoration: BoxDecoration(
-                color: AppColors.secondaryColor,
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10,
-                    offset: Offset(0, 5),
+        child: AuthCard(
+          title: 'Login',
+          animation: fadeInAnimation,
+          maxHeight: size.height * 1.0,
+          child: Form(
+            key: formKey,
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                SizedBox(height: size.height * 0.03),
+                buildTextField('Email', (value) {
+                  loginRequest.email = value;
+                }, TextInputType.emailAddress, size, fontSize),
+                buildPasswordField('Password', (value) {
+                  loginRequest.password = value;
+                }, size, fontSize),
+                SizedBox(height: size.height * 0.03),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment(0.8, 1),
+                      colors: AppColors.gradientBackgroundList,
+                    ),
+                    borderRadius: BorderRadius.circular(30),
                   ),
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: formKey,
-                  child: ListView(
-                    children: [
-                      buildTextField('Email', (value) {
-                        loginRequest.email = value;
-                      }, TextInputType.emailAddress, size, fontSize),
-                      buildPasswordField('Password', (value) {
-                        loginRequest.password = value;
-                      }, size, fontSize),
-                      SizedBox(height: size.height * 0.05),
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment(0.8, 1),
-                            colors: <Color>[
-                              Color(0xff1f005c),
-                              Color(0xff5b0060),
-                              Color(0xff870160),
-                              Color(0xffac255e),
-                              Color(0xffca485c),
-                              Color(0xffe16b5c),
-                              Color(0xfff39060),
-                              Color(0xffffb56b),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(
-                              30), // You can adjust the border radius here
-                        ),
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            if (formKey.currentState!.validate()) {
-                              formKey.currentState!.save();
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (formKey.currentState!.validate()) {
+                        formKey.currentState!.save();
 
-                              setState(() {
-                                isLoading = true;
-                              });
-                              UserLoginResponse? response =
-                                  await controller.login(loginRequest);
+                        setState(() {
+                          isLoading = true;
+                        });
+                        UserLoginResponse? response =
+                            await controller.login(loginRequest);
 
-                              setState(() {
-                                isLoading = false;
-                              });
+                        setState(() {
+                          isLoading = false;
+                        });
 
-                              if (response != null) {
-                                if (response.success == true) {
-                                  String packagestatus =
-                                      response.payload.packagestatus;
-                                  if (packagestatus == '0') {
-                                    FCMService()
-                                        .subscribeToTopic("unsubscribed");
-                                    FCMService().subscribeToTopic(
-                                        response.payload.userId);
-                                    FCMService().subscribeToTopic("alluser");
-                                    Get.offAll(Unsubscribenavigation());
-                                  } else if (packagestatus == '1') {
-                                    FCMService().subscribeToTopic("subscribed");
-                                    FCMService().subscribeToTopic(
-                                        response.payload.userId);
-                                    FCMService().subscribeToTopic("alluser");
-                                    Get.offAll(NavigationBottomBar());
-                                  }
-                                } else {
-                                  Get.snackbar(
-                                    'Login Failed',
-                                    'Invalid credentials or network error.',
-                                    snackPosition: SnackPosition.BOTTOM,
-                                    backgroundColor: Colors.red,
-                                    colorText: Colors.white,
-                                  );
-                                }
-                              }
+                        if (response != null) {
+                          if (response.success == true) {
+                            String packagestatus =
+                                response.payload.packagestatus;
+                            if (packagestatus == '0') {
+                              FCMService().subscribeToTopic("unsubscribed");
+                              FCMService()
+                                  .subscribeToTopic(response.payload.userId);
+                              FCMService().subscribeToTopic("alluser");
+                              Get.offAll(Unsubscribenavigation());
+                            } else if (packagestatus == '1') {
+                              FCMService().subscribeToTopic("subscribed");
+                              FCMService()
+                                  .subscribeToTopic(response.payload.userId);
+                              FCMService().subscribeToTopic("alluser");
+                              Get.offAll(NavigationBottomBar());
                             }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            foregroundColor: AppColors.textColor,
-                            backgroundColor: Colors.transparent,
-                            padding: EdgeInsets.symmetric(
-                                vertical: 16.0, horizontal: 32.0),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          child: Text(
-                            'Login',
-                            style: AppTextStyles.buttonText
-                                .copyWith(fontSize: fontSize),
-                          ),
-                        ),
+                          } else {
+                            Get.snackbar(
+                              'Login Failed',
+                              'Invalid credentials or network error.',
+                              snackPosition: SnackPosition.BOTTOM,
+                              backgroundColor: Colors.red,
+                              colorText: Colors.white,
+                            );
+                          }
+                        }
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: AppColors.textColor,
+                      backgroundColor: Colors.transparent,
+                      padding: EdgeInsets.symmetric(
+                          vertical: 16.0, horizontal: 32.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
                       ),
-                      SizedBox(height: size.height * 0.02),
-                      buildForgotPasswordButton(fontSize),
-                      buildRegisterButton(size, fontSize),
-                    ],
+                    ),
+                    child: Text(
+                      'Login',
+                      style:
+                          AppTextStyles.buttonText.copyWith(fontSize: fontSize),
+                    ),
                   ),
                 ),
-              ),
+                SizedBox(height: size.height * 0.02),
+                buildForgotPasswordButton(fontSize),
+                // buildRegisterButton(size, fontSize),
+              ],
             ),
           ),
         ),

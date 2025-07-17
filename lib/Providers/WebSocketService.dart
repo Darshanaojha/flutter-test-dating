@@ -1,12 +1,10 @@
 import 'dart:convert';
 import 'package:dating_application/Models/ResponseModels/chat_history_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/user_status_model.dart';
-import 'package:dating_application/Screens/chatmessagespage/ContactListScreen.dart';
 import 'package:get/get.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 import '../Controllers/controller.dart';
-import '../Models/ResponseModels/get_all_chat_history_page.dart';
 import '../constants.dart';
 
 class WebSocketService {

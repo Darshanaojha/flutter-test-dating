@@ -24,6 +24,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
   String? selectedState;
   RxBool isLatLongFetched = false.obs;
   bool obscurePassword = true;
+  bool obscureConfirmPassword = true;
 
   late AnimationController animationController;
   late Animation<double> fadeInAnimation;
@@ -101,7 +102,9 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     final screenSize = MediaQuery.of(context).size;
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
-    double fontSize = screenSize.width * 0.02;
+    // Match login page font size
+    double fontSize = MediaQuery.of(context).size.width * 0.03;
+    double fieldHeight = 60; // Increased height for input fields
 
     return Scaffold(
       body: Container(
@@ -174,37 +177,49 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           enabled: false,
                         ),
 
-                        buildTextField(
+                        buildConsistentTextField(
                           "UserName",
-                          null,
-                          (value) {
-                            controller.userRegistrationRequest.username = value;
-                          },
-                          (value) {
-                            controller.userRegistrationRequest.username = value;
-                          },
+                          controller.userRegistrationRequest.username,
+                          (value) => controller
+                              .userRegistrationRequest.username = value,
                           fontSize,
-                          isusernameField: true,
+                          height: fieldHeight, // <-- pass height
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "UserName is required";
+                            }
+                            if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
+                              return "User name must only contain letters";
+                            }
+                            return null;
+                          },
                         ),
 
-                        buildTextField(
+                        buildConsistentTextField(
                           "Address",
-                          controller.userRegistrationRequest
-                              .address, // You can pass the initial value here
-                          (value) {
-                            // Handle onChanged
-                            controller.userRegistrationRequest.address = value;
+                          controller.userRegistrationRequest.address,
+                          (value) => controller
+                              .userRegistrationRequest.address = value,
+                          fontSize,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Address cannot be empty";
+                            }
+                            if (RegExp(r'^[0-9]+$').hasMatch(value)) {
+                              return "Address cannot contain only numbers.";
+                            }
+                            if (RegExp(r'^[^\w\s]+$').hasMatch(value)) {
+                              return "Address cannot contain only special characters.";
+                            }
+                            if (RegExp(r'(?=.*[0-9])(?=.*[^\w\s])')
+                                .hasMatch(value)) {
+                              return "Address cannot contain only special characters and numbers.";
+                            }
+                            return null;
                           },
-                          (value) {
-                            // Handle onSaved (this is typically used for form submission)
-                            controller.userRegistrationRequest.address = value;
-                          },
-                          fontSize, // fontSize
-                          isaddressfield:
-                              true, // Mark this field as the address field
                         ),
-                        // City Field
-                        buildTextField(
+
+                        buildConsistentTextField(
                           "City",
                           null,
                           (value) {
@@ -213,43 +228,45 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                               if (debounce?.isActive ?? false) {
                                 debounce?.cancel();
                               }
-
                               debounce =
                                   Timer(Duration(milliseconds: 1000), () {
                                 fetchLatLong();
                               });
                             });
                           },
-                          (value) {
-                            setState(() {
-                              controller.userRegistrationRequest.city = value;
-                            });
-                          },
                           fontSize,
-                          isCityField: true,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "City is required";
+                            }
+                            if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
+                              return "City name must only contain letters";
+                            }
+                            return null;
+                          },
                         ),
-                        Obx(() {
-                          if (isLatLongFetched.value) {
-                            return Column(
-                              children: [
-                                buildTextFieldForLatLong(
-                                  "Latitude",
-                                  controller.userRegistrationRequest.latitude,
-                                  fontSize,
-                                  enabled: false,
-                                ),
-                                buildTextFieldForLatLong(
-                                  "Longitude",
-                                  controller.userRegistrationRequest.longitude,
-                                  fontSize,
-                                  enabled: false,
-                                ),
-                              ],
-                            );
-                          } else {
-                            return Container();
-                          }
-                        }),
+                        // Obx(() {
+                        //   if (isLatLongFetched.value) {
+                        //     return Column(
+                        //       children: [
+                        //         buildTextFieldForLatLong(
+                        //           "Latitude",
+                        //           controller.userRegistrationRequest.latitude,
+                        //           fontSize,
+                        //           enabled: false,
+                        //         ),
+                        //         buildTextFieldForLatLong(
+                        //           "Longitude",
+                        //           controller.userRegistrationRequest.longitude,
+                        //           fontSize,
+                        //           enabled: false,
+                        //         ),
+                        //       ],
+                        //     );
+                        //   } else {
+                        //     return Container();
+                        //   }
+                        // }),
                         buildPasswordField(
                           "Password",
                           null,
@@ -262,13 +279,32 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                                 value.toString();
                           },
                           fontSize,
-                          obscureText: true,
+                          obscureText: obscurePassword,
+                          showObscureIcon: true,
+                          toggleObscure: () {
+                            setState(() {
+                              obscurePassword = !obscurePassword;
+                            });
+                          },
                         ),
-                        buildTextField("Confirm Password", null, (value) {
-                          confirmPassword.text = value;
-                        }, (value) {
-                          confirmPassword.text = value;
-                        }, fontSize, obscureText: true),
+                        buildPasswordField(
+                          "Confirm Password",
+                          null,
+                          (value) {
+                            confirmPassword.text = value ?? '';
+                          },
+                          (value) {
+                            confirmPassword.text = value ?? '';
+                          },
+                          fontSize,
+                          obscureText: obscureConfirmPassword,
+                          showObscureIcon: true,
+                          toggleObscure: () {
+                            setState(() {
+                              obscureConfirmPassword = !obscureConfirmPassword;
+                            });
+                          },
+                        ),
                         Obx(() {
                           if (controller.countries.isEmpty) {
                             return Center(
@@ -279,13 +315,22 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                             );
                           }
 
-                          return buildSelectableFieldCountry<Country>(
-                            "Country",
-                            controller.countries,
-                            selectedCountry,
-                            16.0,
-                            (Country? value) {
+                          return buildConsistentDropdownField<Country>(
+                            label: "Country",
+                            items: controller.countries,
+                            selectedValue: selectedCountry,
+                            fontSize: fontSize,
+                            height: fieldHeight,
+                            onChanged: (Country? value) {
                               setState(() {
+                                selectedCountry = value ??
+                                    Country(
+                                        id: '',
+                                        name: '',
+                                        countryCode: '',
+                                        status: '',
+                                        created: '',
+                                        updated: '');
                                 controller.userRegistrationRequest.countryId =
                                     value?.id ?? '';
                               });
@@ -294,14 +339,15 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           );
                         }),
 
-                        buildSelectableFieldRelationship<String>(
-                          "Relationship Type",
-                          ['1', '2'],
-                          controller.userRegistrationRequest.lookingFor.isEmpty
+                        buildConsistentDropdownField<String>(
+                          label: "Relationship Type",
+                          items: ['1', '2'],
+                          selectedValue: controller
+                                  .userRegistrationRequest.lookingFor.isEmpty
                               ? null
                               : controller.userRegistrationRequest.lookingFor,
-                          fontSize,
-                          (String? value) {
+                          fontSize: fontSize,
+                          onChanged: (String? value) {
                             setState(() {
                               controller.userRegistrationRequest.lookingFor =
                                   value ?? '';
@@ -319,21 +365,12 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
 
                         SizedBox(height: 20),
                         Container(
+                          width: double.infinity,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment(0.8, 1),
-                              colors: <Color>[
-                                Color(0xff1f005c),
-                                Color(0xff5b0060),
-                                Color(0xff870160),
-                                Color(0xffac255e),
-                                Color(0xffca485c),
-                                Color(0xffe16b5c),
-                                Color(0xfff39060),
-                                Color(0xffffb56b),
-                              ],
-                            ),
+                                begin: Alignment.topLeft,
+                                end: Alignment(0.8, 1),
+                                colors: AppColors.gradientColor),
                             borderRadius: BorderRadius.circular(30),
                           ),
                           child: ElevatedButton(
@@ -396,7 +433,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                               backgroundColor: Colors.transparent,
                               foregroundColor: Colors.white,
                             ),
-                            child: Text("Submit",
+                            child: Text('Proceed',
                                 style: AppTextStyles.buttonText
                                     .copyWith(fontSize: fontSize)),
                           ),
@@ -545,6 +582,8 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
         decoration: InputDecoration(
           labelText: label,
           labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
+          filled: true,
+          fillColor: AppColors.formFieldColor,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(color: AppColors.textColor),
@@ -557,8 +596,6 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(color: AppColors.textColor),
           ),
-          fillColor: AppColors.formFieldColor,
-          filled: true,
         ),
         initialValue: initialValue,
         onChanged: onChanged,
@@ -620,6 +657,8 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     double fontSize, {
     bool obscureText = true,
     bool enabled = true,
+    VoidCallback? toggleObscure,
+    bool showObscureIcon = false,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -630,7 +669,6 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           if (value == null || value.isEmpty) {
             return '$label is required';
           }
-
           if (value.length < 8) {
             return '$label must be at least 8 characters long.';
           }
@@ -642,7 +680,6 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                 "Password must contain at least one digit and one special character.");
             return "$label Password must contain at least one digit and one special character.";
           }
-
           return null;
         },
         style: TextStyle(fontSize: fontSize),
@@ -664,6 +701,15 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           ),
           fillColor: AppColors.formFieldColor,
           filled: true,
+          suffixIcon: showObscureIcon
+              ? IconButton(
+                  icon: Icon(
+                    obscureText ? Icons.visibility_off : Icons.visibility,
+                    color: AppColors.textColor,
+                  ),
+                  onPressed: toggleObscure,
+                )
+              : null,
         ),
         initialValue: initialValue,
         onChanged: onChanged,
@@ -698,6 +744,8 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
         decoration: InputDecoration(
           labelText: label,
           labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
+          filled: true,
+          fillColor: AppColors.formFieldColor,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(color: AppColors.textColor),
@@ -710,8 +758,6 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(color: AppColors.textColor),
           ),
-          fillColor: AppColors.formFieldColor,
-          filled: true,
         ),
       ),
     );
@@ -725,142 +771,112 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     return null;
   }
 
-  Widget buildSelectableFieldCountry<T>(
-    String label,
-    List<T> items,
-    T? selectedValue,
-    double fontSize,
-    Function(T?) onChanged, {
-    String Function(T)? displayValue,
+  Widget buildConsistentDropdownField<T>({
+    required String label,
+    required List<T> items,
+    required T? selectedValue,
+    required double fontSize,
+    required Function(T?) onChanged,
+    required String Function(T) displayValue,
+    double height = 60, // Match text field height
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: GestureDetector(
-        onTap: () =>
-            showBottomSheet<T>(items, selectedValue, onChanged, displayValue),
-        child: InputDecorator(
-          decoration: InputDecoration(
-            labelText: label,
-            labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
-            border: OutlineInputBorder(
-              borderSide: BorderSide(color: AppColors.formFieldColor),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: AppColors.activeColor),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.white),
-            ),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  selectedValue != null
-                      ? displayValue!(selectedValue)
-                      : 'Select Relationship Type',
-                  style:
-                      AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
-                ),
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      child: SizedBox(
+        height: height,
+        child: GestureDetector(
+          onTap: () => _showBottomSheet<T>(
+              items, selectedValue, onChanged, displayValue),
+          child: InputDecorator(
+            decoration: InputDecoration(
+              labelText: label,
+              labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
+              filled: true,
+              fillColor: AppColors.formFieldColor,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: AppColors.textColor),
               ),
-              Icon(Icons.arrow_drop_down, color: AppColors.activeColor),
-            ],
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: AppColors.activeColor),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: AppColors.textColor),
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                  vertical: 18, horizontal: 16), // Match text field padding
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    selectedValue != null
+                        ? displayValue(selectedValue)
+                        : 'Select Relationship Type',
+                    style: AppTextStyles.inputFieldText
+                        .copyWith(fontSize: fontSize),
+                  ),
+                ),
+                Icon(Icons.arrow_drop_down, color: AppColors.activeColor),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  void showBottomSheet<T>(
-    List<T> items,
-    T? selectedValue,
-    Function(T?) onChanged,
-    String Function(T)? displayValue,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Text("Select Country",
-                  style: Theme.of(context).textTheme.bodySmall),
-              SizedBox(height: 8.0),
-              Expanded(
-                child: SizedBox(
-                  height: 400,
-                  child: Scrollbar(
-                    child: ListView.builder(
-                      itemCount: items.length,
-                      itemBuilder: (context, index) {
-                        T item = items[index];
-                        return ListTile(
-                          title: Text(displayValue != null
-                              ? displayValue(item)
-                              : item.toString()),
-                          onTap: () {
-                            setState(() {
-                              selectedCountry = item as Country;
-                              onChanged(item);
-                            });
-                            Navigator.pop(context);
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget buildSelectableFieldRelationship<T>(
+  // Consistent text field builder
+  Widget buildConsistentTextField(
     String label,
-    List<T> items,
-    T? selectedValue,
-    double fontSize,
-    Function(T?) onChanged, {
-    String Function(T)? displayValue,
+    String? initialValue,
+    Function(String) onChanged,
+    double fontSize, {
+    bool obscureText = false,
+    bool enabled = true,
+    TextInputType keyboardType = TextInputType.text,
+    int? maxLength,
+    List<TextInputFormatter>? inputFormatters,
+    String? Function(String?)? validator,
+    double height = 60,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: GestureDetector(
-        onTap: () =>
-            _showBottomSheet<T>(items, selectedValue, onChanged, displayValue),
-        child: InputDecorator(
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      child: SizedBox(
+        height: height,
+        child: TextFormField(
+          initialValue: initialValue,
+          obscureText: obscureText,
+          enabled: enabled,
+          keyboardType: keyboardType,
+          maxLength: maxLength,
+          inputFormatters: inputFormatters,
+          style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
+          cursorColor: AppColors.cursorColor,
           decoration: InputDecoration(
             labelText: label,
             labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
+            filled: true,
+            fillColor: AppColors.formFieldColor,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide(color: AppColors.textColor),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.green),
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(color: AppColors.activeColor),
             ),
             enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.white),
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(color: AppColors.textColor),
             ),
+            contentPadding: EdgeInsets.symmetric(
+                vertical: 18, horizontal: 16), // Match dropdown padding
           ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  selectedValue != null
-                      ? displayValue!(selectedValue)
-                      : "Select Relationship Type",
-                  style: AppTextStyles.bodyText.copyWith(fontSize: fontSize),
-                ),
-              ),
-              Icon(Icons.arrow_drop_down, color: AppColors.activeColor),
-            ],
-          ),
+          onChanged: onChanged,
+          validator: validator,
         ),
       ),
     );
@@ -880,7 +896,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           padding: EdgeInsets.all(16.0),
           child: Column(
             children: [
-              Text("Select $selectedValue",
+              Text("Select Country",
                   style: Theme.of(context).textTheme.bodySmall),
               SizedBox(height: 8.0),
               Expanded(

@@ -1,14 +1,15 @@
 import 'dart:math';
 
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:dating_application/Screens/auth.dart';
 import 'package:dating_application/Screens/homepage/unsubscribeuser.dart';
-import 'package:dating_application/Screens/login.dart';
 import 'package:dating_application/Screens/userprofile/userprofilepage.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
+
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/update_activity_status_request_model.dart';
 import '../../constants.dart';
@@ -236,7 +237,7 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation>
                 EncryptedSharedPreferences preferences =
                     EncryptedSharedPreferences.getInstance();
                 preferences.clear();
-                Get.offAll(() => Login());
+                Get.offAll(() => CombinedAuthScreen());
                 UpdateActivityStatusRequest updateActivityStatusRequest =
                     UpdateActivityStatusRequest(status: '0');
                 controller.updateactivitystatus(updateActivityStatusRequest);

@@ -118,7 +118,7 @@ class UserProfilePageState extends State<UserProfilePage>
                         child: Column(
                           children: [
                             SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.2,
+                              height: MediaQuery.of(context).size.height * 0.18,
                               child: Scrollbar(
                                 child: (controller.userPhotos == null ||
                                         controller.userPhotos!.images.isEmpty)
@@ -135,7 +135,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                             0,
                                         itemBuilder: (context, index) {
                                           return Padding(
-                                            padding: const EdgeInsets.all(8.0),
+                                            padding: const EdgeInsets.all(6.0),
                                             child: GestureDetector(
                                               onTap: () => showFullImageDialog(
                                                   context,
@@ -158,7 +158,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                     context)
                                                                 .size
                                                                 .width *
-                                                            0.2,
+                                                            0.3,
                                                         height: MediaQuery.of(
                                                                     context)
                                                                 .size
@@ -276,7 +276,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                   ),
                                   IconButton(
                                     icon: Icon(Icons.edit,
-                                        size: 30, color: Colors.blue),
+                                        size: 30, color: Colors.white),
                                     onPressed: () {
                                       showDialog(
                                         context: context,
@@ -420,27 +420,32 @@ class UserProfilePageState extends State<UserProfilePage>
                                   const EdgeInsets.symmetric(horizontal: 22.0),
                               child: Row(
                                 children: [
-Text(
-  controller.userData.isNotEmpty
-      ? (() {
-          try {
-            // Extract date part before ' at ' if present
-            String dobString = controller.userData.first.dob;
-            if (dobString.contains(' at ')) {
-              dobString = dobString.split(' at ')[0];
-            }
-            DateTime dob = DateFormat('yyyy-MM-dd').parse(dobString);
-            int age = DateTime.now().year - dob.year;
-            return '$age years old | ${controller.userData.first.genderName}';
-          } catch (e) {
-            // Fallback if parsing fails
-            return 'NA';
-          }
-        })()
-      : 'NA',
-  style: AppTextStyles.labelText.copyWith(
-      fontSize: getResponsiveFontSize(0.03)),
-),
+                                  Text(
+                                    controller.userData.isNotEmpty
+                                        ? (() {
+                                            try {
+                                              // Extract date part before ' at ' if present
+                                              String dobString =
+                                                  controller.userData.first.dob;
+                                              if (dobString.contains(' at ')) {
+                                                dobString =
+                                                    dobString.split(' at ')[0];
+                                              }
+                                              DateTime dob =
+                                                  DateFormat('yyyy-MM-dd')
+                                                      .parse(dobString);
+                                              int age = DateTime.now().year -
+                                                  dob.year;
+                                              return '$age years old | ${controller.userData.first.genderName}';
+                                            } catch (e) {
+                                              // Fallback if parsing fails
+                                              return 'NA';
+                                            }
+                                          })()
+                                        : 'NA',
+                                    style: AppTextStyles.labelText.copyWith(
+                                        fontSize: getResponsiveFontSize(0.03)),
+                                  ),
                                 ],
                               ),
                             ),
@@ -466,16 +471,8 @@ Text(
                                       gradient: LinearGradient(
                                         begin: Alignment.topLeft,
                                         end: Alignment(0.8, 1),
-                                        colors: <Color>[
-                                          Color(0xff1f005c),
-                                          Color(0xff5b0060),
-                                          Color(0xff870160),
-                                          Color(0xffac255e),
-                                          Color(0xffca485c),
-                                          Color(0xffe16b5c),
-                                          Color(0xfff39060),
-                                          Color(0xffffb56b),
-                                        ],
+                                        colors:
+                                            AppColors.gradientBackgroundList,
                                       ),
                                       borderRadius: BorderRadius.circular(10.0),
                                       boxShadow: const <BoxShadow>[
@@ -498,25 +495,116 @@ Text(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              Text(
-                                                'Account Verification',
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: controller.userData
-                                                              .isNotEmpty &&
-                                                          controller
-                                                                  .userData
-                                                                  .first
-                                                                  .accountVerificationStatus ==
-                                                              '1'
-                                                      ? const Color.fromARGB(
-                                                          255, 0, 115, 4)
-                                                      : const Color.fromARGB(
-                                                          255, 97, 6, 0),
-                                                ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
+                                              Row(
+                                                children: [
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      color: controller.userData
+                                                                  .isNotEmpty &&
+                                                              controller
+                                                                      .userData
+                                                                      .first
+                                                                      .accountVerificationStatus ==
+                                                                  '1'
+                                                          ? Colors.green
+                                                              .withOpacity(0.15)
+                                                          : Colors.red
+                                                              .withOpacity(
+                                                                  0.15),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                    ),
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 4),
+                                                    child: Row(
+                                                      children: [
+                                                        Icon(
+                                                          controller.userData
+                                                                      .isNotEmpty &&
+                                                                  controller
+                                                                          .userData
+                                                                          .first
+                                                                          .accountVerificationStatus ==
+                                                                      '1'
+                                                              ? Icons.verified
+                                                              : Icons
+                                                                  .error_outline,
+                                                          color: controller
+                                                                      .userData
+                                                                      .isNotEmpty &&
+                                                                  controller
+                                                                          .userData
+                                                                          .first
+                                                                          .accountVerificationStatus ==
+                                                                      '1'
+                                                              ? Colors.green
+                                                              : Colors.red,
+                                                          size: 18,
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 6),
+                                                        Text(
+                                                          controller.userData
+                                                                      .isNotEmpty &&
+                                                                  controller
+                                                                          .userData
+                                                                          .first
+                                                                          .accountVerificationStatus ==
+                                                                      '1'
+                                                              ? 'Verified'
+                                                              : 'Not Verified',
+                                                          style: TextStyle(
+                                                            fontSize: 13,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color: controller
+                                                                        .userData
+                                                                        .isNotEmpty &&
+                                                                    controller
+                                                                            .userData
+                                                                            .first
+                                                                            .accountVerificationStatus ==
+                                                                        '1'
+                                                                ? Colors.green
+                                                                : Colors.red,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  if (controller.userData
+                                                          .isNotEmpty &&
+                                                      controller.userData.first
+                                                              .accountVerificationStatus !=
+                                                          '1')
+                                                    Container(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 8,
+                                                          vertical: 2),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.orange
+                                                            .withOpacity(0.15),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(12),
+                                                      ),
+                                                      child: Text(
+                                                        'Tap to verify',
+                                                        style: TextStyle(
+                                                          color: Colors
+                                                              .orange[800],
+                                                          fontSize: 11,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                ],
                                               ),
                                               SizedBox(height: 4),
                                               Text(
@@ -575,16 +663,7 @@ Text(
                                     gradient: LinearGradient(
                                       begin: Alignment.topLeft,
                                       end: Alignment(0.8, 1),
-                                      colors: <Color>[
-                                        Color(0xff1f005c),
-                                        Color(0xff5b0060),
-                                        Color(0xff870160),
-                                        Color(0xffac255e),
-                                        Color(0xffca485c),
-                                        Color(0xffe16b5c),
-                                        Color(0xfff39060),
-                                        Color(0xffffb56b),
-                                      ],
+                                      colors: AppColors.gradientBackgroundList,
                                     ),
                                     borderRadius: BorderRadius.circular(10.0),
                                     boxShadow: const <BoxShadow>[
@@ -817,24 +896,35 @@ Text(
                     SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          shareUserProfile();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.activeColor,
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment(0.8, 1),
+                            colors: AppColors.gradientBackgroundList,
                           ),
+                          borderRadius: BorderRadius.circular(
+                              30), // You can adjust the border radius here
                         ),
-                        child: Text(
-                          "Share",
-                          style: AppTextStyles.buttonText.copyWith(
-                            fontSize: getResponsiveFontSize(0.03),
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textColor,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            shareUserProfile();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text(
+                            "Share",
+                            style: AppTextStyles.buttonText.copyWith(
+                              fontSize: getResponsiveFontSize(0.03),
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textColor,
+                            ),
                           ),
                         ),
                       ),
@@ -842,23 +932,30 @@ Text(
                     SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.inactiveColor,
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                         color: const Color.fromARGB(255, 183, 183, 183),
+                          borderRadius: BorderRadius.circular(
+                              30), // You can adjust the border radius here
                         ),
-                        child: Text(
-                          "Cancel",
-                          style: AppTextStyles.buttonText.copyWith(
-                            fontSize: getResponsiveFontSize(0.03),
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textColor,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text(
+                            "Cancel",
+                            style: AppTextStyles.buttonText.copyWith(
+                              fontSize: getResponsiveFontSize(0.03),
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textColor,
+                            ),
                           ),
                         ),
                       ),
@@ -892,7 +989,7 @@ Text(
       case '0':
         return const Color.fromARGB(255, 61, 5, 0);
       case '1':
-        return const Color.fromARGB(255, 2, 38, 100);
+        return const Color.fromARGB(255, 255, 255, 255);
       case '2':
         return const Color.fromARGB(255, 59, 36, 1);
       default:
@@ -1291,16 +1388,7 @@ class SettingCard extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment(0.8, 1),
-              colors: <Color>[
-                Color(0xff1f005c),
-                Color(0xff5b0060),
-                Color(0xff870160),
-                Color(0xffac255e),
-                Color(0xffca485c),
-                Color(0xffe16b5c),
-                Color(0xfff39060),
-                Color(0xffffb56b),
-              ],
+              colors: AppColors.gradientBackgroundList,
             ),
             borderRadius: BorderRadius.circular(10.0), // Rounded corners
             boxShadow: const <BoxShadow>[

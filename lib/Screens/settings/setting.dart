@@ -169,10 +169,11 @@ class SettingsPageState extends State<SettingsPage>
 
   @override
   Widget build(BuildContext context) {
-    // final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+    final fontSize = getResponsiveFontSize(0.04);
 
     return Scaffold(
+      backgroundColor: AppColors.primaryColor,
       appBar: AppBar(
         title: Text(
           "Settings",
@@ -183,7 +184,7 @@ class SettingsPageState extends State<SettingsPage>
           ),
         ),
         backgroundColor: AppColors.primaryColor,
-        elevation: 4,
+        elevation: 0,
         actions: [
           IconButton(
             icon: Icon(Icons.info_outline, color: Colors.white),
@@ -198,72 +199,73 @@ class SettingsPageState extends State<SettingsPage>
             return const Center(child: CircularProgressIndicator());
           }
 
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: ListView(
-              children: [
-                // 🔥 Distance Setting Card
-                SettingsCard(
-                  icon: Icons.location_on,
-                  title: "Maximum Distance (km)",
-                  child: StatefulBuilder(
-                    builder: (context, setStateSB) {
-                      return Slider(
-                        value: maxDistance,
-                        min: 0,
-                        max: 500,
-                        divisions: 50,
-                        label: "${maxDistance.round()} km",
-                        activeColor: AppColors.activeColor,
-                        inactiveColor: AppColors.inactiveColor,
-                        onChanged: (value) {
-                          setStateSB(() {
-                            maxDistance = value;
-                            controller.appSettingRequest.rangeKm =
-                                value.toString();
-                          });
-                        },
-                      );
-                    },
-                  ),
+          return ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+            children: [
+              // 🔥 Distance Setting Card
+              SettingsCard(
+                icon: Icons.location_on,
+                title: "Maximum Distance (km)",
+                child: StatefulBuilder(
+                  builder: (context, setStateSB) {
+                    return Slider(
+                      value: maxDistance,
+                      min: 0,
+                      max: 500,
+                      divisions: 50,
+                      label: "${maxDistance.round()} km",
+                      activeColor: AppColors.activeColor,
+                      inactiveColor: AppColors.inactiveColor,
+                      onChanged: (value) {
+                        setStateSB(() {
+                          maxDistance = value;
+                          controller.appSettingRequest.rangeKm =
+                              value.toString();
+                        });
+                      },
+                    );
+                  },
                 ),
+              ),
 
-                // 🔥 Age Range Slider
-                SettingsCard(
-                  icon: Icons.favorite_border,
-                  title: "Age Range",
-                  child: StatefulBuilder(
-                    builder: (context, setStateSB) {
-                      return RangeSlider(
-                        values: ageRange,
-                        min: 18,
-                        max: 100,
-                        divisions: 82,
-                        labels: RangeLabels(
-                          "${ageRange.start.round()}",
-                          "${ageRange.end.round()}",
-                        ),
-                        activeColor: AppColors.activeColor,
-                        inactiveColor: AppColors.inactiveColor,
-                        onChanged: (RangeValues values) {
-                          setStateSB(() {
-                            ageRange = values;
-                            controller.appSettingRequest.minimumAge =
-                                values.start.round().toString();
-                            controller.appSettingRequest.maximumAge =
-                                values.end.round().toString();
-                          });
-                        },
-                      );
-                    },
-                  ),
+              // 🔥 Age Range Slider
+              SettingsCard(
+                icon: Icons.favorite_border,
+                title: "Age Range",
+                child: StatefulBuilder(
+                  builder: (context, setStateSB) {
+                    return RangeSlider(
+                      values: ageRange,
+                      min: 18,
+                      max: 100,
+                      divisions: 82,
+                      labels: RangeLabels(
+                        "${ageRange.start.round()}",
+                        "${ageRange.end.round()}",
+                      ),
+                      activeColor: AppColors.activeColor,
+                      inactiveColor: AppColors.inactiveColor,
+                      onChanged: (RangeValues values) {
+                        setStateSB(() {
+                          ageRange = values;
+                          controller.appSettingRequest.minimumAge =
+                              values.start.round().toString();
+                          controller.appSettingRequest.maximumAge =
+                              values.end.round().toString();
+                        });
+                      },
+                    );
+                  },
                 ),
+              ),
 
-                SizedBox(height: 20),
+              SizedBox(height: 20),
 
-                // 🌟 Apply Button
-                Center(
-                  child: ElevatedButton.icon(
+              // 🌟 Apply Button
+              Center(
+                child: SizedBox(
+                  width: double.infinity,
+                  child: GradientButton(
                     onPressed: () {
                       controller.appSettingRequest.rangeKm =
                           maxDistance.round().toString();
@@ -271,139 +273,169 @@ class SettingsPageState extends State<SettingsPage>
                           ageRange.start.round().toString();
                       controller.appSettingRequest.maximumAge =
                           ageRange.end.round().toString();
-                      // controller.highlightProfileStatusRequest.status =
-                      //     spotlightUser.value ? '1' : '0';
-                      // controller
-                      //     .updateIncognitoStatus(incognativeMode.value ? 1 : 0);
-                      // controller.updateHookupStatus(hookUpMode.value ? 1 : 0);
                       controller.appsetting(controller.appSettingRequest);
-                      // Navigator.pop(context);
                     },
-                    icon: Icon(Icons.check_circle_outline),
-                    label: Text("Apply Settings"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.buttonColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 14, horizontal: 36),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      elevation: 4,
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: 24),
-
-                // 💡 Privacy Toggles
-                _buildPrivacyToggle(
-                  title: "Spotlight Profile",
-                  icon: Icons.flash_on,
-                  value: spotlightUser.value,
-                  labelOn: "You're in the spotlight 🌟",
-                  labelOff: "Not visible in spotlight",
-                  onChanged: _onSwitchChanged,
-                ),
-                _buildPrivacyToggle(
-                  title: "Incognitō Mode",
-                  icon: Icons.visibility_off,
-                  value: incognativeMode.value,
-                  labelOn: "You're browsing secretly 🕵️‍♂️",
-                  labelOff: "Others can see you",
-                  onChanged: _onSwitchChangedIncognative,
-                ),
-                _buildPrivacyToggle(
-                  title: "HookUp Mode",
-                  icon: Icons.whatshot,
-                  value: hookUpMode.value,
-                  labelOn: "HookUp Active 🔥",
-                  labelOff: "HookUp Inactive",
-                  onChanged: _onSwitchChnagedHookUp,
-                ),
-
-                SizedBox(height: screenHeight * 0.04),
-
-                // 😎 Mood Section (Expandable)
-                GestureDetector(
-                  onTap: () => setState(() => isExpanded = !isExpanded),
-                  child: Card(
-                    color: Colors.deepPurpleAccent.withOpacity(0.85),
-                    elevation: 6,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: AnimatedContainer(
-                      duration: Duration(milliseconds: 400),
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.emoji_emotions, color: Colors.amberAccent),
-                          SizedBox(width: 12),
-                          Text(
-                            'Selected Mood',
-                            style: TextStyle(
-                              fontSize: 20,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
+                    borderRadius: 14,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 14, horizontal: 32),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.check_circle_outline, color: Colors.white),
+                        SizedBox(width: 8),
+                        Text(
+                          "Apply Settings",
+                          style: AppTextStyles.buttonText.copyWith(
+                            color: Colors.white,
+                            fontSize: 16,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
+                ),
+              ),
+
+              SizedBox(height: 28),
+
+              // 💡 Privacy Toggles
+              _buildPrivacyToggle(
+                title: "Spotlight Profile",
+                icon: Icons.flash_on,
+                value: spotlightUser.value,
+                labelOn: "You're in the spotlight 🌟",
+                labelOff: "Not visible in spotlight",
+                onChanged: _onSwitchChanged,
+              ),
+              _buildPrivacyToggle(
+                title: "Incognitō Mode",
+                icon: Icons.visibility_off,
+                value: incognativeMode.value,
+                labelOn: "You're browsing secretly 🕵️‍♂️",
+                labelOff: "Others can see you",
+                onChanged: _onSwitchChangedIncognative,
+              ),
+              _buildPrivacyToggle(
+                title: "HookUp Mode",
+                icon: Icons.whatshot,
+                value: hookUpMode.value,
+                labelOn: "HookUp Active 🔥",
+                labelOff: "HookUp Inactive",
+                onChanged: _onSwitchChnagedHookUp,
+              ),
+
+              SizedBox(height: screenHeight * 0.04),
+
+              // 😎 Mood Section (Expandable)
+                GestureDetector(
+                onTap: () => setState(() => isExpanded = !isExpanded),
+                child: Container(
+                  decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: AppColors.gradientBackgroundList,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Card(
+                  color: Colors.transparent,
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  margin: EdgeInsets.zero,
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 400),
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.emoji_emotions, color: Colors.amberAccent),
+                      SizedBox(width: 12),
+                      Text(
+                      'Selected Mood',
+                      style: TextStyle(
+                        fontSize: fontSize * 1.1,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      ),
+                    ],
+                    ),
+                  ),
+                  ),
+                ),
                 ),
 
                 SizedBox(height: screenHeight * 0.02),
                 GestureDetector(
-                  onTap: () {
-                    Get.to(PricingPage());
-                  },
+                onTap: () {
+                  Get.to(PricingPage());
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: AppColors.gradientBackgroundList,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(18),
+                  ),
                   child: Card(
-                    color: Colors.deepPurpleAccent.withOpacity(0.85),
-                    elevation: 6,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                  color: Colors.transparent,
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  margin: EdgeInsets.zero,
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 400),
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(18),
                     ),
-                    child: AnimatedContainer(
-                      duration: Duration(milliseconds: 400),
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.emoji_symbols_outlined,
-                              color: Colors.amberAccent),
-                          SizedBox(width: 12),
-                          Text(
-                            'Become Content Creator',
-                            style: TextStyle(
-                              fontSize: 20,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
+                    child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.emoji_symbols_outlined,
+                        color: Colors.amberAccent),
+                      SizedBox(width: 12),
+                      Text(
+                      'Become Content Creator',
+                      style: TextStyle(
+                        fontSize: fontSize * 1.1,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
                       ),
+                      ),
+                    ],
                     ),
                   ),
+                  ),
+                ),
                 ),
 
-                SizedBox(height: screenHeight * 0.02),
-                // 🔐 Change Password & Email
-                _buildSettingsButton(
-                  label: "Change Password",
-                  icon: Icons.lock_outline,
-                  onPressed: () => Get.to(ChangePasswordPage()),
-                ),
-                SizedBox(height: 12),
-                _buildSettingsButton(
-                  label: "Update Email",
-                  icon: Icons.email_outlined,
-                  onPressed: () => Get.to(UpdateEmailPage()),
-                ),
-              ],
-            ),
+              SizedBox(height: screenHeight * 0.02),
+              // 🔐 Change Password & Email
+              _buildSettingsButton(
+                label: "Change Password",
+                icon: Icons.lock_outline,
+                onPressed: () => Get.to(ChangePasswordPage()),
+              ),
+              SizedBox(height: 12),
+              _buildSettingsButton(
+                label: "Update Email",
+                icon: Icons.email_outlined,
+                onPressed: () => Get.to(UpdateEmailPage()),
+              ),
+            ],
           );
         },
       ),
@@ -414,18 +446,28 @@ class SettingsPageState extends State<SettingsPage>
       {required String label,
       required IconData icon,
       required VoidCallback onPressed}) {
-    return ElevatedButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon),
-      label: Text(label),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.buttonColor,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 32),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: AppColors.gradientBackgroundList,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        elevation: 4,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, color: Colors.white),
+        label: Text(label, style: TextStyle(color: Colors.white)),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 32),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          elevation: 0,
+        ),
       ),
     );
   }
@@ -446,7 +488,7 @@ class SettingsPageState extends State<SettingsPage>
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
-            Icon(icon, color: AppColors.primaryColor, size: 28),
+            Icon(icon, color: Colors.white, size: 28),
             SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -621,7 +663,7 @@ class SettingsCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, color: AppColors.primaryColor, size: 24),
+                Icon(icon, color: Colors.white, size: 24),
                 SizedBox(width: 8),
                 Text(
                   title,
@@ -635,6 +677,47 @@ class SettingsCard extends StatelessWidget {
             SizedBox(height: 8),
             child,
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// GradientButton widget
+class GradientButton extends StatelessWidget {
+  final Widget child;
+  final VoidCallback onPressed;
+  final double borderRadius;
+  final EdgeInsetsGeometry padding;
+  final List<Color>? gradientColors;
+
+  const GradientButton({
+    super.key,
+    required this.child,
+    required this.onPressed,
+    this.borderRadius = 18,
+    this.padding = const EdgeInsets.symmetric(vertical: 18),
+    this.gradientColors,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(borderRadius),
+      onTap: onPressed,
+      child: Ink(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: gradientColors ?? AppColors.gradientBackgroundList,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+        child: Container(
+          padding: padding,
+          alignment: Alignment.center,
+          child: child,
         ),
       ),
     );

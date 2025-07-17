@@ -69,6 +69,7 @@ import 'package:dating_application/Providers/home_page_dislike_provider.dart';
 import 'package:dating_application/Providers/login_provider.dart';
 import 'package:dating_application/Providers/share_profile_provider.dart';
 import 'package:dating_application/Providers/user_profile_provider.dart';
+import 'package:dating_application/Screens/auth.dart';
 import 'package:dating_application/Screens/loginforgotpassword/forgotpasswordotp.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:encrypt_shared_preferences/provider.dart';
@@ -162,7 +163,6 @@ import '../Models/ResponseModels/verify_account_response_model.dart';
 import '../Providers/GetAllCreatorsProvider.dart';
 import '../Providers/GetPointAmountProvider.dart';
 import '../Providers/GetPointCreditedDebitedProvider.dart';
-import '../Providers/GetUserTotalpointsProvider.dart';
 import '../Providers/add_user_to_creator_provider.dart';
 import '../Providers/block_user_provider.dart';
 import '../Providers/creator_transaction_history_provider.dart';
@@ -204,9 +204,9 @@ import '../Providers/update_visibility_status_provider.dart';
 import '../Providers/updating_package_provider.dart';
 import '../Providers/user_registration_provider.dart';
 import '../Providers/user_suggestions_provider.dart';
+import '../Providers/user_total_points_provider.dart';
 import '../Providers/usernameupdate_provider.dart';
 import '../Providers/verify_account_provider.dart';
-import '../Screens/login.dart';
 import '../Screens/navigationbar/navigationpage.dart';
 import '../Screens/register_subpag/registerdetails.dart';
 import '../Screens/register_subpag/registrationotp.dart';
@@ -273,7 +273,7 @@ class Controller extends GetxController {
 
       if (response != null && response.success) {
         success('Success', response.payload.message);
-        Get.offAll(Login());
+        Get.offAll(CombinedAuthScreen());
         return true;
       } else {
         failure('Error', 'Registration failed. Please try again.');
@@ -353,7 +353,7 @@ class Controller extends GetxController {
               registrationOtpVerificationRequest);
       if (response != null) {
         success('success', response.payload.message);
-        Get.offAll(RegisterProfilePage());
+        Get.to(RegisterProfilePage());
         return true;
       }
       return false;
@@ -782,7 +782,7 @@ class Controller extends GetxController {
           await ChangePasswordProvider().changePassword(request);
       if (response != null) {
         success('success', response.payload.message);
-        Get.to(Login());
+        Get.to(CombinedAuthScreen());
         return true;
       } else {
         failure('Error', 'Failed to change the password');
@@ -920,7 +920,7 @@ class Controller extends GetxController {
 
       if (response != null) {
         String message = response.payload.message;
-        print(message);
+        // print(message);
 
         RegExp otpRegExp = RegExp(r'(\d{6})');
         Match? otpMatch = otpRegExp.firstMatch(message);
@@ -957,7 +957,7 @@ class Controller extends GetxController {
           .otpVerificationForgetPassword(forgetPasswordVerificationRequest);
       if (response != null) {
         success('success', response.payload.message);
-        Get.to(Login());
+        Get.to(CombinedAuthScreen());
         return true;
       } else {
         failure('Error', 'Failed to verify otp for forget password');
@@ -1383,7 +1383,7 @@ class Controller extends GetxController {
 
         if (response.payload!.hookup.isNotEmpty) {
           print("Hookup is not empty");
-          print(response.payload!.hookup);
+          print(response.payload!.hookup.first.toJson());
           addUniqueUsers(response.payload!.hookup, hookUpList);
         }
 
@@ -2170,7 +2170,7 @@ class Controller extends GetxController {
   Future<bool> gettotalpoint() async {
     try {
       GetUsersTotalPoints? response =
-          await GetUsertotalPointsProvider().Getusertotalpointsprovider();
+          await GetUsertotalPointsProvider().getusertotalpointsprovider();
       if (response != null) {
         totalpoint.assignAll([response.payload.point]);
         return true;
@@ -2414,8 +2414,7 @@ class Controller extends GetxController {
       return false;
     }
   }
-        
- 
+
   Future<bool?> updateStatus(String status) async {
     try {
       UpdateStatusResponse? response =
@@ -2480,7 +2479,6 @@ class Controller extends GetxController {
       userHighlightedList,
       hookUpList,
       userSuggestionsList,
-      // Add more lists if needed
     ]) {
       for (var user in list) {
         if (user.userId != null && !seen.contains(user.userId)) {
@@ -2492,4 +2490,35 @@ class Controller extends GetxController {
     return all;
   }
 
+  List<SuggestedUser> getListByFilter(int filterIndex) {
+    switch (filterIndex) {
+      case 0:
+        return userNearByList;
+      case 1:
+        return userHighlightedList;
+      case 2:
+        return favourite.map(convertFavouriteToSuggestedUser).toList();
+      case 3:
+        return hookUpList;
+      case -1: // All
+        final Set<String?> seen = {};
+        final List<SuggestedUser> all = [];
+        for (var list in [
+          userNearByList,
+          userHighlightedList,
+          hookUpList,
+          userSuggestionsList,
+        ]) {
+          for (var user in list) {
+            if (user.userId != null && !seen.contains(user.userId)) {
+              all.add(user);
+              seen.add(user.userId);
+            }
+          }
+        }
+        return all;
+      default:
+        return userSuggestionsList;
+    }
+  }
 }

@@ -1,4 +1,4 @@
-import 'package:dating_application/Screens/login.dart';
+import 'package:dating_application/Screens/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:liquid_swipe/liquid_swipe.dart';
@@ -104,7 +104,7 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> {
                 padding: const EdgeInsets.all(25.0),
                 child: TextButton(
                   onPressed: () {
-                    Get.to(Login());
+                    Get.to(CombinedAuthScreen());
 
                     liquidController.animateToPage(
                       page: controller.sliderData.length - 1,
@@ -115,7 +115,7 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> {
                     backgroundColor: Colors.white.withOpacity(0.1),
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text("Skip to End"),
+                  child: const Text("Proceed"),
                 ),
               ),
             ),

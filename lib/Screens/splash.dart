@@ -1,20 +1,20 @@
 import 'dart:async';
+
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/RequestModels/update_activity_status_request_model.dart';
+import 'package:dating_application/Screens/auth.dart';
 import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
 import 'package:dating_application/Screens/navigationbar/unsubscribenavigation.dart';
+import 'package:dating_application/main.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:geocoding/geocoding.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import '../Models/RequestModels/update_lat_long_request_model.dart';
+
 import '../Providers/fcmService.dart';
 import '../constants.dart';
 import 'introsliderpages/introsliderswipepage.dart';
-import 'login.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
@@ -49,7 +49,16 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
       CurvedAnimation(parent: animationController, curve: Curves.easeInOut),
     );
 
-    intialize();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Show dialog if IPs are not set
+      if (ipAddress.isEmpty || ipSpringAddress.isEmpty) {
+        await (context
+                .findAncestorStateOfType<MainAppState>()
+                ?.showIpDialog(context) ??
+            Future.value());
+      }
+      intialize(); // Only call after IPs are set
+    });
   }
 
   intialize() async {
@@ -57,10 +66,9 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
 
-      String? token = await preferences.getString('token'); // <-- await here
+      String? token = preferences.getString('token'); // <-- await here
       debugPrint("Token: $token");
-      bool? value =
-          await preferences.getBoolean('isSeenUser'); // <-- await here
+      bool? value = preferences.getBoolean('isSeenUser'); // <-- await here
       if (value == null || value == false) {
         controller.fetchAllIntroSlider().then((value) {
           if (value == true) {
@@ -81,7 +89,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
       await controller.fetchCountries();
       String? packageStatus;
       if (token == null || token.isEmpty) {
-        Get.offAll(() => Login());
+        Get.offAll(() => CombinedAuthScreen());
         return;
       } else {
         await controller.userSuggestions();
@@ -124,7 +132,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
     } catch (e) {
       failure("Error in fetchLocation", e.toString());
       print(e.toString());
-      Get.offAll(() => Login());
+      Get.offAll(() => CombinedAuthScreen());
     } finally {
       setState(() {
         _isLoading = false;

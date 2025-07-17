@@ -43,8 +43,9 @@ class RegistrationProvider extends GetConnect {
           await post('$baseurl/Authentication/sendotp', requestBody, headers: {
         'Content-Type': 'application/json',
       });
-      print('Response status code: ${response.statusCode}');
+
       print('Response body: ${response.body}');
+
       if (response.statusCode == null || response.body == null) {
         failure('Error', 'Server Failed To Respond');
         return null;
@@ -58,8 +59,7 @@ class RegistrationProvider extends GetConnect {
           return null;
         }
       } else {
-        failure(
-            'Error', 'Received invalid status code: ${response.statusCode}');
+        failure('Error', response.body['error']['message']);
         return null;
       }
     } catch (e) {

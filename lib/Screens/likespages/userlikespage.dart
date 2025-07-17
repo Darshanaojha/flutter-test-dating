@@ -100,7 +100,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
       if (controller.likespage.isEmpty) {
         print("No likes in the list");
       } else {
-        print(controller.likespage.map((item) => item));
+        // print(controller.likespage.map((item) => item));
       }
 
       await controller.fetchGenders();
@@ -109,7 +109,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
       } else {
         genders
             .addAll(controller.genders.map((gender) => gender.title).toSet());
-        print(genders);
+        // print(genders);
       }
       desires = controller.categories
           .expand(
@@ -121,7 +121,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
           .map((preference) => preference.title)
           .toSet()
           .toList());
-      print(preferences);
+      // print(preferences);
 
       return true;
     } catch (e) {
@@ -575,6 +575,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                           itemCount: filteredLikesPage.length,
                           itemBuilder: (context, index) {
                             var user = filteredLikesPage[index];
+                            print("Image " + user.toString());
                             return Padding(
                               padding: const EdgeInsets.all(12.0),
                               child: Column(
@@ -593,9 +594,10 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                               margin:
                                                   EdgeInsets.only(right: 12),
                                               child: GestureDetector(
-                                                onTap: () =>
-                                                    showFullImageDialog(context,
-                                                        user.images[imgIndex]),
+                                                onTap: () {
+                                                  showFullImageDialog(context,
+                                                      user.images[imgIndex]);
+                                                },
                                                 child: ClipRRect(
                                                   borderRadius:
                                                       BorderRadius.circular(15),
@@ -651,7 +653,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                               .copyWith(
                                                   fontSize:
                                                       getResponsiveFontSize(
-                                                          0.02))),
+                                                          0.03))),
                                       Text(
                                           (user.likedByMe == 0)
                                               ? ' | Liked By ${user.name}'
@@ -660,36 +662,36 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                               .copyWith(
                                                   fontSize:
                                                       getResponsiveFontSize(
-                                                          0.02))),
+                                                          0.03))),
                                     ],
                                   ),
                                   Row(
                                     children: [
-                                      Text('${user.name} years old | ',
+                                      Text('${user.dob} years old | ',
                                           style: AppTextStyles.bodyText
                                               .copyWith(
                                                   fontSize:
                                                       getResponsiveFontSize(
-                                                          0.02))),
+                                                          0.03))),
                                       Text('${user.countryName} | ',
                                           style: AppTextStyles.bodyText
                                               .copyWith(
                                                   fontSize:
                                                       getResponsiveFontSize(
-                                                          0.02))),
+                                                          0.03))),
                                       Text('${user.gender} | ',
                                           style: AppTextStyles.bodyText
                                               .copyWith(
                                                   fontSize:
                                                       getResponsiveFontSize(
-                                                          0.02))),
+                                                          0.03))),
                                     ],
                                   ),
                                   SizedBox(height: 4),
                                   Text('Last Seen: ${user.updated}',
                                       style: AppTextStyles.bodyText.copyWith(
                                           fontSize:
-                                              getResponsiveFontSize(0.02))),
+                                              getResponsiveFontSize(0.03))),
                                   SizedBox(height: 4),
                                   Row(
                                     children: [
@@ -770,19 +772,9 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                 child: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment(0.8, 1),
-                      colors: <Color>[
-                        Color(0xff1f005c),
-                        Color(0xff5b0060),
-                        Color(0xff870160),
-                        Color(0xffac255e),
-                        Color(0xffca485c),
-                        Color(0xffe16b5c),
-                        Color(0xfff39060),
-                        Color(0xffffb56b),
-                      ],
-                    ),
+                        begin: Alignment.topLeft,
+                        end: Alignment(0.8, 1),
+                        colors: AppColors.gradientColor),
                     borderRadius: BorderRadius.circular(
                         30), // Ensure the button has rounded corners
                   ),
@@ -832,16 +824,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment(0.8, 1),
-              colors: <Color>[
-                Color(0xff1f005c),
-                Color(0xff5b0060),
-                Color(0xff870160),
-                Color(0xffac255e),
-                Color(0xffca485c),
-                Color(0xffe16b5c),
-                Color(0xfff39060),
-                Color(0xffffb56b),
-              ],
+              colors: AppColors.gradientColor,
             ),
             borderRadius: BorderRadius.circular(38),
           ),
@@ -862,6 +845,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
+                SizedBox(width: 2),
                 Text(
                   label,
                   style: AppTextStyles.textStyle,
@@ -869,7 +853,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                 SizedBox(width: 2),
                 Icon(
                   Icons.arrow_drop_down,
-                  color: AppColors.activeColor,
+                  color: Colors.white,
                 ),
               ],
             ),
@@ -907,7 +891,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                         Text(
                           '$label Filter',
                           style:
-                              AppTextStyles.headingText.copyWith(fontSize: 12),
+                              AppTextStyles.headingText.copyWith(fontSize: 16),
                         ),
                         SizedBox(height: 9),
                         CheckboxListTile(

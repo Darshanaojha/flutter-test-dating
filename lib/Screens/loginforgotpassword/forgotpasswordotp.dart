@@ -1,11 +1,11 @@
-
-
+import 'package:dating_application/Screens/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pinput/pinput.dart';
+
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/forget_password_verification_request_model.dart';
 import '../../constants.dart';
-import '../login.dart';
 
 class OTPInputPage extends StatefulWidget {
   const OTPInputPage({super.key});
@@ -16,7 +16,8 @@ class OTPInputPage extends StatefulWidget {
 
 class OTPInputPageState extends State<OTPInputPage> {
   final formKey = GlobalKey<FormState>();
-  List<TextEditingController> otpControllers = List.generate(6, (index) => TextEditingController());
+  List<TextEditingController> otpControllers =
+      List.generate(6, (index) => TextEditingController());
   Controller controller = Get.find();
 
   @override
@@ -27,15 +28,14 @@ class OTPInputPageState extends State<OTPInputPage> {
 
   initialize() async {
     if (controller.forgetPasswordRequest.email.isNotEmpty) {
-      controller.forgetPasswordVerificationRequest = ForgetPasswordVerificationRequest(
-        email: controller.forgetPasswordRequest.email,
-        password: controller.forgetPasswordRequest.newPassword,
-        otp: '' 
-      );
+      controller.forgetPasswordVerificationRequest =
+          ForgetPasswordVerificationRequest(
+              email: controller.forgetPasswordRequest.email,
+              password: controller.forgetPasswordRequest.newPassword,
+              otp: '');
     }
   }
 
- 
   String? validateOTP(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter a digit';
@@ -46,26 +46,24 @@ class OTPInputPageState extends State<OTPInputPage> {
     return null;
   }
 
-
   String getOtp() {
     return otpControllers.map((controller) => controller.text).join('');
   }
+
   void submitOtp() async {
     String enteredOtp = getOtp();
 
-  
     if (enteredOtp.length != 6) {
       failure('Error', 'Please enter a 6-digit OTP');
       return;
     }
 
-
     if (formKey.currentState?.validate() ?? false) {
-
       controller.forgetPasswordVerificationRequest.otp = enteredOtp;
-      bool success = await controller.otpVerificationForgetPassword(controller.forgetPasswordVerificationRequest);
+      bool success = await controller.otpVerificationForgetPassword(
+          controller.forgetPasswordVerificationRequest);
       if (success) {
-        Get.to(Login());
+        Get.to(CombinedAuthScreen());
       } else {
         failure('Error', 'Failed to verify OTP');
       }
@@ -77,105 +75,208 @@ class OTPInputPageState extends State<OTPInputPage> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double fontSize = screenWidth * 0.03;
+    double fontSize = screenWidth * 0.04;
 
     return Scaffold(
+      backgroundColor: AppColors.primaryColor,
       appBar: AppBar(
-        title: Text('Enter OTP', style: AppTextStyles.headingText),
-        backgroundColor: AppColors.primaryColor,
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: AppColors.gradientBackgroundList,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        title: Text(
+          'Forgot Password OTP',
+          style: AppTextStyles.headingText.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: fontSize * 1.2,
+          ),
+        ),
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1, vertical: 30),
+      body: Center(
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Text(
-                'Enter the 6-digit OTP sent to your email.',
-                style: AppTextStyles.bodyText.copyWith(fontSize: fontSize),
-                textAlign: TextAlign.center,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: screenWidth * 0.07, vertical: 30),
+            child: Card(
+              elevation: 10,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
               ),
-              SizedBox(height: 30),
-              Form(
-                key: formKey,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: AppColors.gradientBackgroundList,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                padding: EdgeInsets.symmetric(vertical: 32, horizontal: 24),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: List.generate(6, (index) {
-                        return SizedBox(
-                          width: screenWidth * 0.12,
-                          child: TextFormField(
-                            controller: otpControllers[index],
-                            cursorColor: AppColors.cursorColor,
-                            style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: AppColors.formFieldColor,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide.none,
+                    Text(
+                      'Enter the 6-digit OTP sent to your email.',
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: fontSize,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 30),
+                    Form(
+                      key: formKey,
+                      child: Column(
+                        children: [
+                          // Modern OTP Input using Pinput
+                          Pinput(
+                            length: 6,
+                            controller: TextEditingController(text: getOtp()),
+                            defaultPinTheme: PinTheme(
+                              width: 48,
+                              height: 56,
+                              textStyle: AppTextStyles.inputFieldText.copyWith(
+                                fontSize: fontSize * 1.2,
+                                color: Colors.white,
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(color: AppColors.primaryColor),
-                              ),
-                              errorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(color: AppColors.errorBorderColor),
+                              decoration: BoxDecoration(
+                                color: Colors.white60,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: Colors.white24),
                               ),
                             ),
-                            keyboardType: TextInputType.number,
-                            maxLength: 1,
-                            textAlign: TextAlign.center,
-                            validator: validateOTP,
-                            onChanged: (value) {
-                              if (value.isNotEmpty && index < otpControllers.length - 1) {
-                                FocusScope.of(context).nextFocus();
+                            focusedPinTheme: PinTheme(
+                              width: 48,
+                              height: 56,
+                              textStyle: AppTextStyles.inputFieldText.copyWith(
+                                fontSize: fontSize * 1.2,
+                                color: Colors.white,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.18),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: Colors.white),
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.length != 6) {
+                                return 'Enter 6 digits';
+                              }
+                              if (!RegExp(r'^[0-9]{6}$').hasMatch(value)) {
+                                return 'Digits only';
+                              }
+                              return null;
+                            },
+                            onCompleted: (value) {
+                              for (int i = 0; i < value.length; i++) {
+                                otpControllers[i].text = value[i];
                               }
                             },
+                            onChanged: (value) {
+                              for (int i = 0; i < value.length; i++) {
+                                if (i < otpControllers.length) {
+                                  otpControllers[i].text = value[i];
+                                }
+                              }
+                            },
+                            keyboardType: TextInputType.number,
+                            showCursor: true,
                           ),
-                        );
-                      }),
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: submitOtp,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.buttonColor,
-                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Text(
-                        'Submit',
-                        style: AppTextStyles.buttonText.copyWith(fontSize: fontSize),
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                      ElevatedButton(
-                      onPressed: ()async{
-                         if(controller.forgetPasswordRequest.validate()){
-                            await controller.getOtpForgetPassword(
-                              controller.forgetPasswordRequest);
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.buttonColor,
-                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Text(
-                        'Resend Otp',
-                        style: AppTextStyles.buttonText.copyWith(fontSize: fontSize),
+                          SizedBox(height: 28),
+                          // Gradient Submit OTP Button (Blue Variant)
+                          GestureDetector(
+                            onTap: submitOtp,
+                            child: Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.white,
+                                    Colors.white,
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.18),
+                                    blurRadius: 8,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Submit OTP',
+                                  style: AppTextStyles.buttonText.copyWith(
+                                    fontSize: fontSize * 0.8,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                          // Gradient Resend OTP Button (Black/White Variant)
+                          GestureDetector(
+                            onTap: () async {
+                              if (controller.forgetPasswordRequest.validate()) {
+                                await controller.getOtpForgetPassword(
+                                    controller.forgetPasswordRequest);
+                              }
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.white,
+                                    Colors.white,
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.13),
+                                    blurRadius: 8,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Resend OTP',
+                                  style: AppTextStyles.buttonText.copyWith(
+                                    fontSize: fontSize * 0.8,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),

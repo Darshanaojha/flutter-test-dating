@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import '../Models/ResponseModels/GetUsersTotalPointsResponse.dart';
 
 class GetUsertotalPointsProvider extends GetConnect {
-  Future<GetUsersTotalPoints?> Getusertotalpointsprovider() async {
+  Future<GetUsersTotalPoints?> getusertotalpointsprovider() async {
     try {
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();

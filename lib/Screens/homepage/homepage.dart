@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/RequestModels/estabish_connection_request_model.dart';
@@ -13,11 +14,11 @@ import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:swipe_cards/swipe_cards.dart';
+
 import '../../Models/RequestModels/update_lat_long_request_model.dart';
 import '../../Models/ResponseModels/user_suggestions_response_model.dart';
 import '../../Providers/WebSocketService.dart';
 import '../../constants.dart';
-import '../settings/ContaintCreator/ContaintCreatorList/ContaintCreatorList.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -255,21 +256,21 @@ class HomePageState extends State<HomePage>
     return date?.trim() ?? '';
   }
 
-  String calculateAge(String dob) {
+  String calculateAge(String? dob) {
+    if (dob == null || dob.isEmpty || dob == 'Unknown Date') {
+      return 'Age not available';
+    }
     try {
       DateTime birthDate = DateFormat('dd/MM/yyyy').parse(dob);
-
       int age = DateTime.now().year - birthDate.year;
       if (DateTime.now().month < birthDate.month ||
           (DateTime.now().month == birthDate.month &&
               DateTime.now().day < birthDate.day)) {
         age--;
       }
-
       return '$age Years Old';
     } catch (e) {
-      print('Error parsing date: $e');
-      return 'Invalid Date';
+      return 'Age not available';
     }
   }
 
@@ -385,16 +386,7 @@ class HomePageState extends State<HomePage>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment(0.8, 1),
-            colors: <Color>[
-              Color(0xff1f005c),
-              Color(0xff5b0060),
-              Color(0xff870160),
-              Color(0xffac255e),
-              Color(0xffca485c),
-              Color(0xffe16b5c),
-              Color(0xfff39060),
-              Color(0xffffb56b),
-            ],
+            colors: AppColors.gradientBackgroundList,
           ),
           borderRadius: BorderRadius.circular(
               30), // You can adjust the border radius here
@@ -445,7 +437,7 @@ class HomePageState extends State<HomePage>
         controller.getCurrentList(filterIndex).cast<SuggestedUser>();
     for (var user in currentList) {
       swipeItems.add(SwipeItem(
-        content: user,
+        content: user, // <-- This must be the full SuggestedUser object!
         likeAction: () {
           matchEngine = MatchEngine(swipeItems: swipeItems);
           if (user.userId != null) {
@@ -534,7 +526,7 @@ class HomePageState extends State<HomePage>
                 return Column(
                   children: [
                     Container(
-                      height: 80,
+                      height: size.height * 0.08,
                       padding: EdgeInsets.all(8),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -583,14 +575,14 @@ class HomePageState extends State<HomePage>
                               Get.snackbar('HookUp',
                                   controller.hookUpList.length.toString());
                             }),
-                            buildFilterButton(
-                                2, 'Creators', FontAwesome.artstation_brand,
-                                (value) async {
-                              await controller.getAllCreators();
-                              setState(() {
-                                Get.to(CreatorListPage());
-                              });
-                            }),
+                            // buildFilterButton(
+                            //     2, 'Creators', FontAwesome.artstation_brand,
+                            //     (value) async {
+                            //   await controller.getAllCreators();
+                            //   setState(() {
+                            //     Get.to(CreatorListPage());
+                            //   });
+                            // }),
                           ],
                         ),
                       ),
@@ -613,58 +605,39 @@ class HomePageState extends State<HomePage>
                                           matchEngine: matchEngine,
                                           itemBuilder: (BuildContext context,
                                               int index) {
-                                            List<SuggestedUser> currentList =
-                                                controller
-                                                    .getCurrentList(
-                                                        selectedFilter.value)
-                                                    .cast<SuggestedUser>();
+                                            final size =
+                                                MediaQuery.of(context).size;
+                                            final filterIndex = selectedFilter
+                                                .value; // Use your filter state
+                                            final List<SuggestedUser>
+                                                currentList =
+                                                controller.getListByFilter(
+                                                    filterIndex);
+
                                             if (currentList.isEmpty ||
                                                 index >= currentList.length) {
                                               return Center(
                                                   child: Text(
                                                       "No users available"));
                                             }
-                                            SuggestedUser user =
-                                                currentList[index];
-                                            isLastCard = index ==
-                                                controller
-                                                        .getCurrentList(
-                                                            selectedFilter
-                                                                .value)
-                                                        .length -
-                                                    1;
+                                            final user = currentList[index];
 
                                             return Container(
-                                              decoration: BoxDecoration(
-                                                color: isLastCard
-                                                    ? const Color.fromARGB(
-                                                        255, 16, 16, 16)
-                                                    : Colors.transparent,
-                                                borderRadius:
-                                                    BorderRadius.circular(32),
-                                                border: Border.all(
-                                                  color: isLastCard
-                                                      ? const Color.fromARGB(
-                                                          255, 24, 24, 24)
-                                                      : const Color.fromARGB(
-                                                          255, 149, 151, 152),
-                                                  width: 1,
-                                                ),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.white
-                                                        .withOpacity(0.2),
-                                                    spreadRadius: 2,
-                                                    blurRadius: 5,
-                                                    offset: Offset(0, 3),
-                                                  ),
+                                              alignment: Alignment.center,
+                                              color: Colors.white,
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Text(user.name ?? "No Name",
+                                                      style: TextStyle(
+                                                          fontSize: 24)),
+                                                  Text(calculateAge(user.dob),
+                                                      style: TextStyle(
+                                                          fontSize: 16)),
+                                                  Text(user.city ?? "No City"),
+                                                  // Add more user info as needed
                                                 ],
-                                              ),
-                                              child: buildCardLayoutAll(
-                                                context,
-                                                user,
-                                                size,
-                                                isLastCard,
                                               ),
                                             );
                                           },
@@ -703,7 +676,7 @@ class HomePageState extends State<HomePage>
                                 child: Column(
                                   children: [
                                     SizedBox(
-                                      height: size.height * 0.7 -
+                                      height: size.height * 0.75 -
                                           MediaQuery.of(context)
                                               .viewInsets
                                               .bottom,
@@ -942,6 +915,11 @@ class HomePageState extends State<HomePage>
   Widget buildCardLayoutAll(
       BuildContext context, SuggestedUser user, Size size, bool isLastCard) {
     List<String> images = user.images;
+    List<String> interests = (user.interest ?? '')
+        .split(',')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
 
     return user.id == ''
         ? Text("No users available")
@@ -950,30 +928,16 @@ class HomePageState extends State<HomePage>
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment(0.8, 1),
-                colors: <Color>[
-                  Color(0xff1f005c),
-                  Color(0xff5b0060),
-                  Color(0xff870160),
-                  Color(0xffac255e),
-                  Color(0xffca485c),
-                  Color(0xffe16b5c),
-                  Color(0xfff39060),
-                  Color(0xffffb56b),
-                ],
+                colors: AppColors.gradientBackgroundList,
               ),
-              borderRadius: BorderRadius.circular(
-                  30), // You can adjust the border radius here
+              borderRadius: BorderRadius.circular(30),
             ),
-            // alignment: Alignment.center,
-            // decoration: BoxDecoration(
-            //   color: Colors.black,
-            //   borderRadius: BorderRadius.circular(15),
-            // ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // User Images
                 SizedBox(
-                  height: size.height * 0.4,
+                  height: size.height * 0.35,
                   child: Stack(
                     children: [
                       SafeArea(
@@ -982,7 +946,7 @@ class HomePageState extends State<HomePage>
                           child: Scrollbar(
                             child: ListView.builder(
                               controller: _imagePageController,
-                              itemCount: user.images.length,
+                              itemCount: images.length,
                               itemBuilder: (BuildContext context, int index) {
                                 if (images.isEmpty) {
                                   return Center(
@@ -1000,8 +964,6 @@ class HomePageState extends State<HomePage>
                                         placeholder: (context, url) => Center(
                                             child: CircularProgressIndicator()),
                                         errorWidget: (context, url, error) {
-                                          print(
-                                              "Failed to load image from URL: $url");
                                           return Icon(Icons.person_pin_outlined,
                                               color: const Color.fromARGB(
                                                   255, 150, 148, 148));
@@ -1021,167 +983,255 @@ class HomePageState extends State<HomePage>
                     ],
                   ),
                 ),
-                Row(
-                  children: [
-                    SizedBox(width: 12),
-                    IconButton(
-                      onPressed: lastUser != null
-                          ? null
-                          : () {
-                              showmessageBottomSheet(user.userId.toString());
-                            },
-                      icon: Icon(Icons.messenger_outline, size: 30),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16),
+                SizedBox(height: size.height * 0.03),
+                // User Name, Age, City
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text(
-                    user.name ?? 'NA',
-                    style: TextStyle(
-                        fontSize: size.width * 0.03,
-                        fontWeight: FontWeight.bold),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          user.name ?? 'NA',
+                          style: AppTextStyles.headingText.copyWith(
+                            fontSize: size.width * 0.05,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (user.city != null && user.city!.isNotEmpty)
+                        Row(
+                          children: [
+                            Icon(Icons.location_on,
+                                color: Colors.white70, size: 18),
+                            SizedBox(width: 4),
+                            Text(
+                              user.city!,
+                              style: AppTextStyles.bodyText.copyWith(
+                                color: Colors.white70,
+                                fontSize: size.width * 0.035,
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
                   child: Row(
                     children: [
                       Text(
                         calculateAge(user.dob ?? 'Unknown Date'),
-                        style: TextStyle(fontSize: size.width * 0.03),
+                        style: AppTextStyles.bodyText.copyWith(
+                          color: Colors.white,
+                          fontSize: size.width * 0.04,
+                        ),
                       ),
-                      Text(
-                        '${user.city}',
-                        style: TextStyle(fontSize: size.width * 0.03),
+                      // if (user.genderName != null &&
+                      //     user.genderName!.isNotEmpty) ...[
+                      //   SizedBox(width: 12),
+                      //   Icon(Icons.person, color: Colors.white70, size: 18),
+                      //   SizedBox(width: 4),
+                      //   Text(
+                      //     user.genderName!,
+                      //     style: AppTextStyles.bodyText.copyWith(
+                      //       color: Colors.white70,
+                      //       fontSize: size.width * 0.035,
+                      //     ),
+                      //   ),
+                      // ],
+                    ],
+                  ),
+                ),
+                // Interests
+                if (interests.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 8),
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: interests
+                          .take(4)
+                          .map((interest) => Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.13),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: Colors.white24),
+                                ),
+                                child: Text(
+                                  interest,
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    color: Colors.white,
+                                    fontSize: size.width * 0.032,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ))
+                          .toList(),
+                    ),
+                  ),
+                // Action Buttons
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 30.0),
+                    child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Nope Button
+                      Column(
+                      children: [
+                        GestureDetector(
+                        onTap: () {
+                          setState(() {
+                          matchEngine.currentItem?.nope();
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                            color: Colors.black.withOpacity(0.15),
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                            ),
+                          ],
+                          color: Colors.white,
+                          ),
+                          padding: EdgeInsets.all(18),
+                          child: Icon(Icons.close_rounded,
+                            color: Colors.black87, size: 36),
+                        ),
+                        ),
+                        SizedBox(height: 6),
+                        Text(
+                        "Nope",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        ),
+                      ],
+                      ),
+                      // Favourite Button
+                      Column(
+                      children: [
+                        GestureDetector(
+                        onTap: () {
+                          setState(() {
+                          matchEngine.currentItem?.superLike();
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                            color: Colors.black.withOpacity(0.15),
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                            ),
+                          ],
+                          color: Colors.white,
+                          ),
+                          padding: EdgeInsets.all(18),
+                          child: Icon(Icons.favorite_rounded,
+                            color: Colors.black87, size: 36),
+                        ),
+                        ),
+                        SizedBox(height: 6),
+                        Text(
+                        "Favourite",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        ),
+                      ],
+                      ),
+                      // Like Button
+                      Column(
+                      children: [
+                        GestureDetector(
+                        onTap: () {
+                          setState(() {
+                          matchEngine.currentItem?.like();
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                            color: Colors.black.withOpacity(0.15),
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                            ),
+                          ],
+                          color: Colors.white,
+                          ),
+                          padding: EdgeInsets.all(18),
+                          child: Icon(Icons.thumb_up_rounded,
+                            color: Colors.black87, size: 36),
+                        ),
+                        ),
+                        SizedBox(height: 6),
+                        Text(
+                        "Like",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        ),
+                      ],
                       ),
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 30.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.5),
-                              blurRadius: 28,
-                              offset: Offset(2, 14),
-                            ),
-                          ],
+                // Connect Button
+                GestureDetector(
+                  onTap: () {
+                    showmessageBottomSheet(user.userId.toString());
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(18.0),
+                    child: Container(
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: AppColors.reversedGradientColor,
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                matchEngine.currentItem?.nope();
-                              });
-                              print("button pressed nope");
-                            },
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Image.asset(
-                                  'assets/images/dislike.png',
-                                  height: 60,
-                                  width: 60,
-                                ),
-                                SizedBox(height: 5),
-                                Text(
-                                  "Nope",
-                                  style: AppTextStyles.buttonText.copyWith(
-                                    fontSize: getResponsiveFontSize(0.015),
-                                  ),
-                                ),
-                              ],
-                            ),
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.deepPurple.withOpacity(0.2),
+                            blurRadius: 12,
+                            offset: Offset(0, 6),
                           ),
+                        ],
+                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                      child: Text(
+                        "Connect",
+                        style: AppTextStyles.buttonText.copyWith(
+                          color: Colors.white,
+                          fontSize: getResponsiveFontSize(0.03),
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.1,
                         ),
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.transparent.withOpacity(0.5),
-                              blurRadius: 28,
-                              offset: Offset(2, 14),
-                            ),
-                          ],
-                        ),
-                        child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  matchEngine.currentItem?.superLike();
-                                });
-                                print("button pressed super like");
-                              },
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Image.asset(
-                                    'assets/images/heart.png',
-                                    height: 60,
-                                    width: 60,
-                                  ),
-                                  SizedBox(height: 5),
-                                  Text(
-                                    "Favourite",
-                                    style: AppTextStyles.buttonText.copyWith(
-                                      fontSize: getResponsiveFontSize(0.015),
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.5),
-                              blurRadius: 28,
-                              offset: Offset(2, 14),
-                            ),
-                          ],
-                        ),
-                        child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  matchEngine.currentItem?.like();
-                                });
-                                print("button pressed like");
-                              },
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Image.asset(
-                                    'assets/images/like.png',
-                                    height: 60,
-                                    width: 60,
-                                  ),
-                                  SizedBox(height: 5),
-                                  Text(
-                                    "Like",
-                                    style: TextStyle(
-                                      fontSize: getResponsiveFontSize(0.015),
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ],
