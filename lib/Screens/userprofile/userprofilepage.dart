@@ -85,6 +85,8 @@ class UserProfilePageState extends State<UserProfilePage>
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: RefreshIndicator(
@@ -453,113 +455,57 @@ class UserProfilePageState extends State<UserProfilePage>
                             Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 20),
-                              child: Card(
-                                elevation: 5,
-                                color: Colors.transparent,
-                                // color: controller.userData.isNotEmpty &&
-                                //         controller.userData.first
-                                //                 .accountVerificationStatus ==
-                                //             '1'
-                                //     ? const Color.fromARGB(255, 0, 115, 4)
-                                //     : const Color.fromARGB(255, 97, 6, 0),
-                                child: InkWell(
-                                  onTap: () {
-                                    showVerificationDialog(context);
-                                  },
-                                  child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment(0.8, 1),
-                                        colors:
-                                            AppColors.gradientBackgroundList,
-                                      ),
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      boxShadow: const <BoxShadow>[
-                                        BoxShadow(
-                                          color: Color(0x66666666),
-                                          blurRadius: 10.0,
-                                          spreadRadius: 3.0,
-                                          offset: Offset(0, 6.0),
+                              child: SizedBox(
+                                width: screenWidth *
+                                    0.9, // Reduced width to 90% (i.e. 0.9 of screen width)
+                                child: Card(
+                                  elevation: 5,
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    onTap: () {
+                                      showVerificationDialog(context);
+                                    },
+                                    child: DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment(0.8, 1),
+                                          colors:
+                                              AppColors.gradientBackgroundList,
                                         ),
-                                      ],
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 16, horizontal: 20),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Container(
-                                                    decoration: BoxDecoration(
-                                                      color: controller.userData
-                                                                  .isNotEmpty &&
-                                                              controller
-                                                                      .userData
-                                                                      .first
-                                                                      .accountVerificationStatus ==
-                                                                  '1'
-                                                          ? Colors.green
-                                                              .withOpacity(0.15)
-                                                          : Colors.red
-                                                              .withOpacity(
-                                                                  0.15),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              20),
-                                                    ),
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 10,
-                                                        vertical: 4),
-                                                    child: Row(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        boxShadow: const <BoxShadow>[
+                                          BoxShadow(
+                                            color: Color(0x66666666),
+                                            blurRadius: 10.0,
+                                            spreadRadius: 3.0,
+                                            offset: Offset(0, 6.0),
+                                          ),
+                                        ],
+                                      ),
+                                      child: LayoutBuilder(
+                                        builder: (context, constraints) {
+                                          return Padding(
+                                            padding: EdgeInsets.symmetric(
+                                              vertical: screenWidth *
+                                                  0.05, // slightly reduced vertical padding
+                                              horizontal: screenWidth * 0.04,
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
                                                       children: [
-                                                        Icon(
-                                                          controller.userData
-                                                                      .isNotEmpty &&
-                                                                  controller
-                                                                          .userData
-                                                                          .first
-                                                                          .accountVerificationStatus ==
-                                                                      '1'
-                                                              ? Icons.verified
-                                                              : Icons
-                                                                  .error_outline,
-                                                          color: controller
-                                                                      .userData
-                                                                      .isNotEmpty &&
-                                                                  controller
-                                                                          .userData
-                                                                          .first
-                                                                          .accountVerificationStatus ==
-                                                                      '1'
-                                                              ? Colors.green
-                                                              : Colors.red,
-                                                          size: 18,
-                                                        ),
-                                                        const SizedBox(
-                                                            width: 6),
-                                                        Text(
-                                                          controller.userData
-                                                                      .isNotEmpty &&
-                                                                  controller
-                                                                          .userData
-                                                                          .first
-                                                                          .accountVerificationStatus ==
-                                                                      '1'
-                                                              ? 'Verified'
-                                                              : 'Not Verified',
-                                                          style: TextStyle(
-                                                            fontSize: 13,
-                                                            fontWeight:
-                                                                FontWeight.w600,
+                                                        Container(
+                                                          decoration:
+                                                              BoxDecoration(
                                                             color: controller
                                                                         .userData
                                                                         .isNotEmpty &&
@@ -569,78 +515,269 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                             .accountVerificationStatus ==
                                                                         '1'
                                                                 ? Colors.green
-                                                                : Colors.red,
+                                                                    .withOpacity(
+                                                                        0.15)
+                                                                : Colors.red
+                                                                    .withOpacity(
+                                                                        0.15),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        20),
+                                                          ),
+                                                          padding: EdgeInsets
+                                                              .symmetric(
+                                                            horizontal:
+                                                                screenWidth *
+                                                                    0.025,
+                                                            vertical:
+                                                                screenWidth *
+                                                                    0.01,
+                                                          ),
+                                                          child: Row(
+                                                            children: [
+                                                              Icon(
+                                                                controller.userData
+                                                                            .isNotEmpty &&
+                                                                        controller.userData.first.accountVerificationStatus ==
+                                                                            '1'
+                                                                    ? Icons
+                                                                        .verified
+                                                                    : Icons
+                                                                        .error_outline,
+                                                                color: controller
+                                                                            .userData
+                                                                            .isNotEmpty &&
+                                                                        controller.userData.first.accountVerificationStatus ==
+                                                                            '1'
+                                                                    ? Colors
+                                                                        .green
+                                                                    : Colors
+                                                                        .red,
+                                                                size:
+                                                                    screenWidth *
+                                                                        0.045,
+                                                              ),
+                                                              SizedBox(
+                                                                  width:
+                                                                      screenWidth *
+                                                                          0.015),
+                                                              Text(
+                                                                controller.userData
+                                                                            .isNotEmpty &&
+                                                                        controller.userData.first.accountVerificationStatus ==
+                                                                            '1'
+                                                                    ? 'Verified'
+                                                                    : 'Not Verified',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize:
+                                                                      screenWidth *
+                                                                          0.045,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  color: controller
+                                                                              .userData.isNotEmpty &&
+                                                                          controller.userData.first.accountVerificationStatus ==
+                                                                              '1'
+                                                                      ? Colors
+                                                                          .green
+                                                                      : Colors
+                                                                          .red,
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
                                                         ),
+                                                        SizedBox(
+                                                            width: screenWidth *
+                                                                0.02),
+                                                        if (controller.userData
+                                                                .isNotEmpty &&
+                                                            controller
+                                                                    .userData
+                                                                    .first
+                                                                    .accountVerificationStatus !=
+                                                                '1')
+                                                          Container(
+                                                            padding: EdgeInsets
+                                                                .symmetric(
+                                                              horizontal:
+                                                                  screenWidth *
+                                                                      0.02,
+                                                              vertical:
+                                                                  screenWidth *
+                                                                      0.005,
+                                                            ),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: Colors
+                                                                  .orange
+                                                                  .withOpacity(
+                                                                      0.15),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          12),
+                                                            ),
+                                                            child: Text(
+                                                              'Tap to verify',
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                        .orange[
+                                                                    800],
+                                                                fontSize:
+                                                                    screenWidth *
+                                                                        0.03,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                              ),
+                                                            ),
+                                                          ),
                                                       ],
                                                     ),
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  if (controller.userData
-                                                          .isNotEmpty &&
-                                                      controller.userData.first
-                                                              .accountVerificationStatus !=
-                                                          '1')
-                                                    Container(
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                          horizontal: 8,
-                                                          vertical: 2),
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.orange
-                                                            .withOpacity(0.15),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(12),
+                                                    SizedBox(
+                                                        height: screenWidth *
+                                                            0.008),
+                                                    Text(
+                                                      _getAccountVerificationMessage(
+                                                          controller
+                                                              .userData
+                                                              .first
+                                                              .accountVerificationStatus),
+                                                      style: TextStyle(
+                                                        fontSize:
+                                                            screenWidth * 0.027,
+                                                        color: _getAccountVerificationColor(
+                                                            controller
+                                                                .userData
+                                                                .first
+                                                                .accountVerificationStatus),
                                                       ),
-                                                      child: Text(
-                                                        'Tap to verify',
-                                                        style: TextStyle(
-                                                          color: Colors
-                                                              .orange[800],
-                                                          fontSize: 11,
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                        ),
-                                                      ),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
                                                     ),
-                                                ],
-                                              ),
-                                              SizedBox(height: 4),
-                                              Text(
-                                                _getAccountVerificationMessage(
-                                                    controller.userData.first
-                                                        .accountVerificationStatus),
-                                                style: TextStyle(
-                                                  fontSize: 10,
-                                                  color: _getAccountVerificationColor(
-                                                      controller.userData.first
-                                                          .accountVerificationStatus),
+                                                  ],
                                                 ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ],
+                                                AnimatedSwitcher(
+                                                  duration: const Duration(
+                                                      seconds: 1),
+                                                  child: controller.userData
+                                                              .isNotEmpty &&
+                                                          controller
+                                                                  .userData
+                                                                  .first
+                                                                  .accountVerificationStatus ==
+                                                              '1'
+                                                      ? Icon(
+                                                          Icons
+                                                              .verified_user_outlined,
+                                                          color: Colors.green,
+                                                          size: screenWidth *
+                                                              0.09,
+                                                          key: const ValueKey<
+                                                              int>(1),
+                                                        )
+                                                      : Icon(
+                                                          Icons.cancel_outlined,
+                                                          color: Colors.red,
+                                                          size: screenWidth *
+                                                              0.06,
+                                                          key: const ValueKey<
+                                                              int>(0),
+                                                        ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
+                              child: Card(
+                                elevation: 5,
+                                color: Colors.transparent,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(12),
+                                  onTap: () {
+                                    Get.to(PlanPage());
+                                  },
+                                  child: DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment(0.8, 1),
+                                        colors:
+                                            AppColors.gradientBackgroundList,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Color(0x66666666),
+                                          blurRadius: 10.0,
+                                          spreadRadius: 3.0,
+                                          offset: Offset(0, 6.0),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: screenWidth * 0.045,
+                                        horizontal: screenWidth * 0.045,
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.card_membership,
+                                            size: screenWidth *
+                                                0.075, // Matches setting card
+                                            color: Colors.white,
                                           ),
-                                          AnimatedSwitcher(
-                                            duration:
-                                                const Duration(seconds: 1),
-                                            child: controller
-                                                        .userData.isNotEmpty &&
-                                                    controller.userData.first
-                                                            .accountVerificationStatus ==
-                                                        '1'
-                                                ? Icon(
-                                                    Icons
-                                                        .verified_user_outlined,
-                                                    color: Colors.green,
-                                                    key: ValueKey<int>(1),
-                                                  )
-                                                : Icon(
-                                                    Icons.cancel_outlined,
-                                                    color: Colors.red,
-                                                    key: ValueKey<int>(0),
+                                          SizedBox(width: screenWidth * 0.045),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Membership',
+                                                  style: TextStyle(
+                                                    fontSize: screenWidth *
+                                                        0.045, // Matches title size
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.white,
                                                   ),
+                                                ),
+                                                SizedBox(
+                                                    height: screenWidth * 0.01),
+                                                Text(
+                                                  'View or upgrade your membership plan',
+                                                  style: TextStyle(
+                                                    fontSize: screenWidth *
+                                                        0.030, // Matches subtitle size
+                                                    color: Colors.white
+                                                        .withOpacity(0.85),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Icon(
+                                            Icons.arrow_forward_ios_rounded,
+                                            size: screenWidth * 0.045,
+                                            color: Colors.white,
                                           ),
                                         ],
                                       ),
@@ -649,129 +786,165 @@ class UserProfilePageState extends State<UserProfilePage>
                                 ),
                               ),
                             ),
-                            Card(
-                              elevation: 5,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: InkWell(
-                                onTap: () {
-                                  Get.to(PlanPage());
-                                },
-                                child: DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment(0.8, 1),
-                                      colors: AppColors.gradientBackgroundList,
-                                    ),
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    boxShadow: const <BoxShadow>[
-                                      BoxShadow(
-                                        color: Color(0x66666666),
-                                        blurRadius: 10.0,
-                                        spreadRadius: 3.0,
-                                        offset: Offset(0, 6.0),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 12, horizontal: 12),
-                                    width: MediaQuery.of(context).size.height *
-                                        0.4,
-                                    height: MediaQuery.of(context).size.height *
-                                        0.06,
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.card_membership,
-                                          size: 40,
-                                          color: Colors.white,
-                                        ),
-                                        const SizedBox(width: 40),
-                                        Text(
-                                          'Membership',
-                                          style:
-                                              AppTextStyles.titleText.copyWith(
-                                            fontSize:
-                                                getResponsiveFontSize(0.03),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 4),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.045, // ~16
+                                vertical: screenWidth * 0.01, // ~4
+                              ),
                               child: Column(
                                 children: [
-                                  SettingCard(
+                                  buildSettingCard(
+                                    context,
                                     title: 'Edit Profile',
                                     subtitle: 'Edit your profile details',
                                     icon: Icons.edit,
-                                    onTap: () {
-                                      Get.to(EditProfilePage());
-                                    },
+                                    onTap: () => Get.to(EditProfilePage()),
+                                    screenWidth: screenWidth,
                                   ),
-                                  SettingCard(
+                                  buildSettingCard(
+                                    context,
                                     title: 'Your Orders',
                                     subtitle: 'See Your All Orders',
                                     icon: Icons.plagiarism_outlined,
-                                    onTap: () {
-                                      Get.to(AllOrdersPage());
-                                    },
+                                    onTap: () => Get.to(AllOrdersPage()),
+                                    screenWidth: screenWidth,
                                   ),
-                                  SettingCard(
+                                  buildSettingCard(
+                                    context,
                                     title: 'Transactions',
                                     subtitle: 'See Your All Transactions',
                                     icon: Icons.monetization_on_outlined,
-                                    onTap: () {
-                                      Get.to(AllTransactionsPage());
-                                    },
+                                    onTap: () => Get.to(AllTransactionsPage()),
+                                    screenWidth: screenWidth,
                                   ),
-                                  SettingCard(
+                                  buildSettingCard(
+                                    context,
                                     title: 'Your Wallets',
                                     subtitle: 'See Your All Wallets Details',
                                     icon: Icons.wallet,
-                                    onTap: () {
-                                      Get.to(WalletPage());
-                                    },
+                                    onTap: () => Get.to(WalletPage()),
+                                    screenWidth: screenWidth,
                                   ),
-                                  SettingCard(
-                                    title: 'Generate Referal Code',
+                                  buildSettingCard(
+                                    context,
+                                    title: 'Generate Referral Code',
                                     subtitle:
-                                        'Generate Referal Code To Refer Your Frends',
+                                        'Refer your friends using referral code',
                                     icon: Icons.offline_share_outlined,
-                                    onTap: () {
-                                      Get.to(GenerateReferralPage());
-                                    },
+                                    onTap: () => Get.to(GenerateReferralPage()),
+                                    screenWidth: screenWidth,
                                   ),
-                                  SettingCard(
+                                  buildSettingCard(
+                                    context,
                                     title: 'Share The Application',
                                     subtitle:
-                                        'Share our Application with others',
+                                        'Share our application with others',
                                     icon: Icons.share,
                                     onTap: showShareProfileBottomSheet,
+                                    screenWidth: screenWidth,
                                   ),
-                                  SettingCard(
-                                      title: 'Help',
-                                      subtitle: 'helpline',
-                                      icon: Icons.help,
-                                      onTap: () {
-                                        showHelpBottomSheet(context);
-                                      }),
+                                  buildSettingCard(
+                                    context,
+                                    title: 'Help',
+                                    subtitle: 'Helpline support',
+                                    icon: Icons.help,
+                                    onTap: () => showHelpBottomSheet(context),
+                                    screenWidth: screenWidth,
+                                  ),
                                 ],
                               ),
-                            ),
+                            )
                           ],
                         ),
                       ));
                 }),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildSettingCard(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required VoidCallback onTap,
+    required double screenWidth,
+  }) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: screenWidth * 0.005),
+      child: Card(
+        elevation: 5,
+        color: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment(0.8, 1),
+                colors: AppColors.gradientBackgroundList,
+              ),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x66666666),
+                  blurRadius: 10.0,
+                  spreadRadius: 3.0,
+                  offset: Offset(0, 6.0),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: screenWidth * 0.045,
+                horizontal: screenWidth * 0.045,
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    icon,
+                    size: screenWidth * 0.075,
+                    color: Colors.white,
+                  ),
+                  SizedBox(width: screenWidth * 0.045),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.045,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(height: screenWidth * 0.01),
+                        Text(
+                          subtitle,
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.035,
+                            color: Colors.white.withOpacity(0.85),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: screenWidth * 0.045,
+                    color: Colors.white,
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -934,7 +1107,7 @@ class UserProfilePageState extends State<UserProfilePage>
                       width: double.infinity,
                       child: Container(
                         decoration: BoxDecoration(
-                         color: const Color.fromARGB(255, 183, 183, 183),
+                          color: const Color.fromARGB(255, 183, 183, 183),
                           borderRadius: BorderRadius.circular(
                               30), // You can adjust the border radius here
                         ),
