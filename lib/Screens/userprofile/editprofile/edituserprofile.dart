@@ -650,8 +650,51 @@ class EditProfilePageState extends State<EditProfilePage>
     final selectedGender = Rx<Gender?>(null);
     return Scaffold(
         appBar: AppBar(
-          title: Text('Edit Profile'),
-          backgroundColor: AppColors.primaryColor,
+          backgroundColor: Colors.transparent, // Transparent for gradient
+          elevation: 0, // Remove default shadow
+          centerTitle: true,
+
+          title: Builder(
+            builder: (context) {
+              double fontSize = MediaQuery.of(context).size.width *
+                  0.05; // ~5% of screen width
+              return Text(
+                'Edit Profile',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: fontSize,
+                  color: AppColors.textColor,
+                ),
+              );
+            },
+          ),
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment(0.8, 1),
+                colors: AppColors.gradientBackgroundList,
+              ),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(40.0),
+                bottomRight: Radius.circular(40.0),
+              ),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x66666666),
+                  blurRadius: 10.0,
+                  spreadRadius: 3.0,
+                  offset: Offset(0, 6.0),
+                ),
+              ],
+            ),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(40.0),
+              bottomRight: Radius.circular(40.0),
+            ),
+          ),
         ),
         body: FutureBuilder<bool>(
             future: _fetchProfileFuture, //controller.fetchProfile(),

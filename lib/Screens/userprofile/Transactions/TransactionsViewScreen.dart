@@ -41,9 +41,51 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('All Transactions'),
-        backgroundColor: AppColors.accentColor,
-        foregroundColor: AppColors.textColor,
+        title: Builder(
+          builder: (context) {
+            double fontSize =
+                MediaQuery.of(context).size.width * 0.05; // ~5% of screen width
+            return Text(
+              'All Transactions',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: fontSize,
+                color: AppColors.textColor,
+              ),
+            );
+          },
+        ),
+        centerTitle: true, // To center the title as in your SafeArea + Center
+        backgroundColor:
+            Colors.transparent, // Needed to show gradient from flexibleSpace
+        elevation: 0, // Remove default shadow to use custom shadow
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: AppColors.gradientBackgroundList,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(40.0),
+              bottomRight: Radius.circular(40.0),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 10,
+                spreadRadius: 3,
+                offset: Offset(0, 6),
+              ),
+            ],
+          ),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(40.0),
+            bottomRight: Radius.circular(40.0),
+          ),
+        ),
       ),
       body: FutureBuilder<void>(
         future: _fetchAllTransactions,

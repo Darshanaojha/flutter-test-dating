@@ -575,48 +575,56 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                           itemCount: filteredLikesPage.length,
                           itemBuilder: (context, index) {
                             var user = filteredLikesPage[index];
-                            print("Image " + user.toString());
                             return Padding(
                               padding: const EdgeInsets.all(12.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: AppColors.gradientBackgroundList,
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Card(
+                                  elevation: 5,
+                                  color: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
                                               0.1,
-                                      child: Scrollbar(
-                                        child: ListView.builder(
-                                          scrollDirection: Axis.horizontal,
-                                          itemCount: user.images.length,
-                                          itemBuilder: (context, imgIndex) {
-                                            return Container(
-                                              margin:
-                                                  EdgeInsets.only(right: 12),
-                                              child: GestureDetector(
-                                                onTap: () {
-                                                  showFullImageDialog(context,
-                                                      user.images[imgIndex]);
-                                                },
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(15),
-                                                  child: Image.network(
-                                                    user.images[imgIndex],
-                                                    fit: BoxFit.cover,
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            0.2,
-                                                    height:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .height *
-                                                            0.3,
-                                                    errorBuilder: (context,
-                                                        error, stackTrace) {
-                                                      return Container(
+                                          child: Scrollbar(
+                                            child: ListView.builder(
+                                              scrollDirection: Axis.horizontal,
+                                              itemCount: user.images.length,
+                                              itemBuilder: (context, imgIndex) {
+                                                return Container(
+                                                  margin: EdgeInsets.only(
+                                                      right: 12),
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      showFullImageDialog(
+                                                          context,
+                                                          user.images[
+                                                              imgIndex]);
+                                                    },
+                                                    child: ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15),
+                                                      child: Image.network(
+                                                        user.images[imgIndex],
+                                                        fit: BoxFit.cover,
                                                         width: MediaQuery.of(
                                                                     context)
                                                                 .size
@@ -627,140 +635,164 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                                                 .size
                                                                 .height *
                                                             0.3,
-                                                        alignment:
-                                                            Alignment.center,
-                                                        color: Colors
-                                                            .grey.shade200,
-                                                        child: Icon(
-                                                          Icons.broken_image,
-                                                          size: 48,
-                                                          color: Colors.grey,
-                                                        ),
-                                                      );
-                                                    },
+                                                        errorBuilder: (context,
+                                                            error, stackTrace) {
+                                                          return Container(
+                                                            width: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width *
+                                                                0.2,
+                                                            height: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .height *
+                                                                0.3,
+                                                            alignment: Alignment
+                                                                .center,
+                                                            color: Colors
+                                                                .grey.shade200,
+                                                            child: Icon(
+                                                              Icons
+                                                                  .broken_image,
+                                                              size: 48,
+                                                              color:
+                                                                  Colors.grey,
+                                                            ),
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
                                                   ),
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      )),
-                                  SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      Text(user.name.toString(),
-                                          style: AppTextStyles.titleText
-                                              .copyWith(
-                                                  fontSize:
-                                                      getResponsiveFontSize(
-                                                          0.03))),
-                                      Text(
-                                          (user.likedByMe == 0)
-                                              ? ' | Liked By ${user.name}'
-                                              : " | Liked By You",
-                                          style: AppTextStyles.bodyText
-                                              .copyWith(
-                                                  fontSize:
-                                                      getResponsiveFontSize(
-                                                          0.03))),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Text('${user.dob} years old | ',
-                                          style: AppTextStyles.bodyText
-                                              .copyWith(
-                                                  fontSize:
-                                                      getResponsiveFontSize(
-                                                          0.03))),
-                                      Text('${user.countryName} | ',
-                                          style: AppTextStyles.bodyText
-                                              .copyWith(
-                                                  fontSize:
-                                                      getResponsiveFontSize(
-                                                          0.03))),
-                                      Text('${user.gender} | ',
-                                          style: AppTextStyles.bodyText
-                                              .copyWith(
-                                                  fontSize:
-                                                      getResponsiveFontSize(
-                                                          0.03))),
-                                    ],
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text('Last Seen: ${user.updated}',
-                                      style: AppTextStyles.bodyText.copyWith(
-                                          fontSize:
-                                              getResponsiveFontSize(0.03))),
-                                  SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                        onPressed: () async {
-                                          showAnimation(); // Trigger the heart animation
-                                          setState(() {
-                                            user.likedByMe =
-                                                user.likedByMe == 0 ? 1 : 0;
-
-                                            if (user.likedByMe == 1) {
-                                              controller.profileLikeRequest
-                                                      .likedBy =
-                                                  user.userId.toString();
-                                              controller.profileLike(controller
-                                                  .profileLikeRequest);
-                                            } else {
-                                              controller.dislikeProfileRequest
-                                                  .id = user.id.toString();
-                                              controller.dislikeprofile(
-                                                  controller
-                                                      .dislikeProfileRequest);
-                                              controller.likesuserpage();
-                                            }
-                                          });
-                                        },
-                                        icon: Icon(
-                                          user.likedByMe == 1
-                                              ? Icons.favorite
-                                              : Icons.favorite_border,
-                                          size: 30,
-                                          color: user.likedByMe == 1
-                                              ? Colors.red
-                                              : Colors.white,
-                                        ),
-                                      ),
-
-                                      // Heart Animation
-                                      if (isAnimationVisible)
-                                        Positioned(
-                                          top:
-                                              200, // Adjust for desired vertical position
-                                          child: AnimatedOpacity(
-                                            duration:
-                                                Duration(milliseconds: 500),
-                                            opacity:
-                                                isAnimationVisible ? 1.0 : 0.0,
-                                            child: AnimatedScale(
-                                              duration:
-                                                  Duration(milliseconds: 500),
-                                              scale: isAnimationVisible
-                                                  ? 1.5
-                                                  : 0.0,
-                                              child: Icon(
-                                                Icons.favorite,
-                                                color: Colors.red,
-                                                size: 100, // Size of the heart
-                                              ),
+                                                );
+                                              },
                                             ),
                                           ),
                                         ),
-                                    ],
+                                        SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            Text(user.name.toString(),
+                                                style: AppTextStyles.titleText
+                                                    .copyWith(
+                                                        fontSize:
+                                                            getResponsiveFontSize(
+                                                                0.03))),
+                                            Text(
+                                                (user.likedByMe == 0)
+                                                    ? ' | Liked By ${user.name}'
+                                                    : " | Liked By You",
+                                                style: AppTextStyles.bodyText
+                                                    .copyWith(
+                                                        fontSize:
+                                                            getResponsiveFontSize(
+                                                                0.03))),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text('${getAgeFromDob(user.dob)} |',
+                                                style: AppTextStyles.bodyText
+                                                    .copyWith(
+                                                        fontSize:
+                                                            getResponsiveFontSize(
+                                                                0.03))),
+                                            Text('${user.countryName} |',
+                                                style: AppTextStyles.bodyText
+                                                    .copyWith(
+                                                        fontSize:
+                                                            getResponsiveFontSize(
+                                                                0.03))),
+                                            Text('${user.gender}',
+                                                style: AppTextStyles.bodyText
+                                                    .copyWith(
+                                                        fontSize:
+                                                            getResponsiveFontSize(
+                                                                0.03))),
+                                          ],
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text('Last Seen: ${user.updated}',
+                                            style: AppTextStyles.bodyText
+                                                .copyWith(
+                                                    fontSize:
+                                                        getResponsiveFontSize(
+                                                            0.03))),
+                                        SizedBox(height: 4),
+                                        Row(
+                                          children: [
+                                            IconButton(
+                                              onPressed: () async {
+                                                showAnimation(); // Trigger the heart animation
+                                                setState(() {
+                                                  user.likedByMe =
+                                                      user.likedByMe == 0
+                                                          ? 1
+                                                          : 0;
+
+                                                  if (user.likedByMe == 1) {
+                                                    controller
+                                                            .profileLikeRequest
+                                                            .likedBy =
+                                                        user.userId.toString();
+                                                    controller.profileLike(
+                                                        controller
+                                                            .profileLikeRequest);
+                                                  } else {
+                                                    controller
+                                                        .dislikeProfileRequest
+                                                        .id = user.id.toString();
+                                                    controller.dislikeprofile(
+                                                        controller
+                                                            .dislikeProfileRequest);
+                                                    controller.likesuserpage();
+                                                  }
+                                                });
+                                              },
+                                              icon: Icon(
+                                                user.likedByMe == 1
+                                                    ? Icons.favorite
+                                                    : Icons.favorite_border,
+                                                size: 30,
+                                                color: user.likedByMe == 1
+                                                    ? Colors.red
+                                                    : Colors.white,
+                                              ),
+                                            ),
+                                            if (isAnimationVisible)
+                                              Positioned(
+                                                top: 200,
+                                                child: AnimatedOpacity(
+                                                  duration: Duration(
+                                                      milliseconds: 500),
+                                                  opacity: isAnimationVisible
+                                                      ? 1.0
+                                                      : 0.0,
+                                                  child: AnimatedScale(
+                                                    duration: Duration(
+                                                        milliseconds: 500),
+                                                    scale: isAnimationVisible
+                                                        ? 1.5
+                                                        : 0.0,
+                                                    child: Icon(
+                                                      Icons.favorite,
+                                                      color: Colors.red,
+                                                      size: 100,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ],
+                                ),
                               ),
                             );
                           },
                         ),
-                ),
+                )
               ],
             ),
             Positioned(
@@ -807,6 +839,30 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
         ),
       ),
     );
+  }
+
+  String getAgeFromDob(String dob) {
+    try {
+      final parts = dob.split('/');
+      if (parts.length != 3) return 'Invalid DOB';
+
+      final day = int.parse(parts[0]);
+      final month = int.parse(parts[1]);
+      final year = int.parse(parts[2]);
+
+      final birthDate = DateTime(year, month, day);
+      final today = DateTime.now();
+
+      int age = today.year - birthDate.year;
+      if (today.month < birthDate.month ||
+          (today.month == birthDate.month && today.day < birthDate.day)) {
+        age--;
+      }
+
+      return '$age years old';
+    } catch (e) {
+      return 'Invalid DOB';
+    }
   }
 
   Widget buildFilterChip(

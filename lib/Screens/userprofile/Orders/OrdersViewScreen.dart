@@ -30,9 +30,43 @@ class AllOrdersPageState extends State<AllOrdersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('All Orders'),
-        backgroundColor: AppColors.accentColor,
+        centerTitle: true,
+        title: Builder(
+          builder: (context) {
+            double fontSize =
+                MediaQuery.of(context).size.width * 0.05; // ~5% of screen width
+            return Text(
+              'All Orders',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: fontSize,
+                color: AppColors.textColor,
+              ),
+            );
+          },
+        ),
         foregroundColor: AppColors.textColor,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: AppColors.gradientBackgroundList,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(40),
+              bottomRight: Radius.circular(40),
+            ),
+          ),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(40),
+            bottomRight: Radius.circular(40),
+          ),
+        ),
       ),
       body: FutureBuilder<bool>(
         future: _fetchallorders,

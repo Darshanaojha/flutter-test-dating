@@ -271,6 +271,8 @@ class Controller extends GetxController {
           await UserRegistrationProvider()
               .userRegistration(userRegistrationRequest);
 
+      print(response);
+
       if (response != null && response.success) {
         success('Success', response.payload.message);
         Get.offAll(CombinedAuthScreen());
@@ -351,6 +353,8 @@ class Controller extends GetxController {
       final RegistrationOtpVerificationResponse? response =
           await RegistrationProvider().otpVerificationForRegistration(
               registrationOtpVerificationRequest);
+
+      print(response);
       if (response != null) {
         success('success', response.payload.message);
         Get.to(RegisterProfilePage());
@@ -1879,6 +1883,7 @@ class Controller extends GetxController {
         // success('Success', response.payload.message);
         if (response.payload.data.isNotEmpty) {
           likespage.assignAll(response.payload.data);
+          print(response);
           return true;
         } else {
           return true;

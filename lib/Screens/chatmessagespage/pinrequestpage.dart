@@ -57,8 +57,43 @@ class MessageRequestPageState extends State<MessageRequestPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Message Requests', style: AppTextStyles.headingText),
-        backgroundColor: AppColors.primaryColor,
+        centerTitle: true,
+        title: Builder(
+          builder: (context) {
+            double fontSize =
+                MediaQuery.of(context).size.width * 0.05; // ~5% of screen width
+            return Text(
+              'Message Requests',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: fontSize,
+                color: AppColors.textColor,
+              ),
+            );
+          },
+        ),
+        foregroundColor: AppColors.textColor,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: AppColors.gradientBackgroundList,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(40),
+              bottomRight: Radius.circular(40),
+            ),
+          ),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(40),
+            bottomRight: Radius.circular(40),
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

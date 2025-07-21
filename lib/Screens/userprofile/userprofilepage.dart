@@ -464,19 +464,33 @@ class UserProfilePageState extends State<UserProfilePage>
                                     controller.userData.isNotEmpty
                                         ? (() {
                                             try {
-                                              String dobString =
-                                                  controller.userData.first.dob;
+                                              String dobString = controller
+                                                  .userData.first.dob
+                                                  .trim();
+
                                               if (dobString.contains(' at ')) {
-                                                dobString =
-                                                    dobString.split(' at ')[0];
+                                                dobString = dobString
+                                                    .split(' at ')[0]
+                                                    .trim();
                                               }
+
+                                              // Parse using correct format: dd/MM/yyyy
                                               DateTime dob =
-                                                  DateFormat('yyyy-MM-dd')
+                                                  DateFormat('dd/MM/yyyy')
                                                       .parse(dobString);
-                                              int age = DateTime.now().year -
-                                                  dob.year;
+
+                                              // Calculate age accurately
+                                              DateTime today = DateTime.now();
+                                              int age = today.year - dob.year;
+                                              if (today.month < dob.month ||
+                                                  (today.month == dob.month &&
+                                                      today.day < dob.day)) {
+                                                age--;
+                                              }
+
                                               return '$age years old | ${controller.userData.first.genderName}';
                                             } catch (e) {
+                                              print('DOB parsing error: $e');
                                               return 'NA';
                                             }
                                           })()

@@ -197,8 +197,8 @@ class RazorpayController extends GetxController {
     _paymentCompleter.complete(false);
   }
 
-  OrderRequestModel orderRequestModel =
-      OrderRequestModel(packageId: '', amount: '', points:'', ispointused: '', type: '');
+  OrderRequestModel orderRequestModel = OrderRequestModel(
+      packageId: '', amount: '', points: '', ispointused: '', type: '');
   Future<bool?> createOrder(OrderRequestModel orderRequestModel) async {
     try {
       OrderResponseModel? orderResponseModel =
@@ -208,6 +208,7 @@ class RazorpayController extends GetxController {
         failure("Failure", "No response from the server");
         return false;
       }
+      print(orderRequestModel);
       if (orderResponseModel.success) {
         var payload = orderResponseModel.payload;
         if (payload != null &&
@@ -252,7 +253,7 @@ class RazorpayController extends GetxController {
       paymentStatus: '',
       paymentMethod: '',
       amount: '',
-      points:'',
+      points: '',
       transactionId: '',
       message: '',
       created: DateTime.now(),

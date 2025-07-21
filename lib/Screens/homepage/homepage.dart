@@ -274,6 +274,34 @@ class HomePageState extends State<HomePage>
     }
   }
 
+  String getAgeFromDob(String? dob) {
+    if (dob == null || dob.trim().isEmpty) {
+      return 'Invalid DOB';
+    }
+
+    try {
+      final parts = dob.trim().split('/');
+      if (parts.length != 3) return 'Invalid DOB';
+
+      final day = int.parse(parts[0]);
+      final month = int.parse(parts[1]);
+      final year = int.parse(parts[2]);
+
+      final birthDate = DateTime(year, month, day);
+      final today = DateTime.now();
+
+      int age = today.year - birthDate.year;
+      if (today.month < birthDate.month ||
+          (today.month == birthDate.month && today.day < birthDate.day)) {
+        age--;
+      }
+
+      return '$age years old';
+    } catch (e) {
+      return 'Invalid DOB';
+    }
+  }
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -378,9 +406,22 @@ class HomePageState extends State<HomePage>
   }
 
   Widget buildFilterButton(
-      int button, String label, IconData icon, Function(String) onTap) {
+    BuildContext context,
+    int button,
+    String label,
+    IconData icon,
+    Function(String) onTap,
+  ) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    double fontSize = screenWidth * 0.025; // Example: 25 for 1000px width
+    double iconSize = screenWidth * 0.06; // Example: 60 for 1000px width
+    double buttonWidth = screenWidth * 0.22; // 22% of screen
+    double buttonHeight = screenHeight * 0.06; // 6% of screen height
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.015),
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -388,8 +429,7 @@ class HomePageState extends State<HomePage>
             end: Alignment(0.8, 1),
             colors: AppColors.gradientBackgroundList,
           ),
-          borderRadius: BorderRadius.circular(
-              30), // You can adjust the border radius here
+          borderRadius: BorderRadius.circular(30),
         ),
         child: ElevatedButton.icon(
           onPressed: () {
@@ -409,7 +449,7 @@ class HomePageState extends State<HomePage>
                     : 0,
                 child: Icon(
                   icon,
-                  size: 30,
+                  size: iconSize,
                   color: AppColors.textColor,
                 ),
               );
@@ -417,14 +457,18 @@ class HomePageState extends State<HomePage>
           ),
           label: Text(
             label,
-            style: TextStyle(fontSize: 10, color: AppColors.textColor),
+            style: TextStyle(fontSize: fontSize, color: AppColors.textColor),
           ),
           style: ElevatedButton.styleFrom(
             foregroundColor: Colors.white,
-            backgroundColor: Colors
-                .transparent, // Set to transparent since the gradient is applied on Container
-            shape: StadiumBorder(),
-            minimumSize: Size(100, 45),
+            backgroundColor: Colors.transparent,
+            shape: const StadiumBorder(),
+            minimumSize: Size(buttonWidth, buttonHeight),
+            elevation: 0,
+            padding: EdgeInsets.symmetric(
+              vertical: buttonHeight * 0.2,
+              horizontal: buttonWidth * 0.15,
+            ),
           ),
         ),
       ),
@@ -526,30 +570,31 @@ class HomePageState extends State<HomePage>
                 return Column(
                   children: [
                     Container(
-                      height: size.height * 0.08,
-                      padding: EdgeInsets.all(8),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
+                      height: MediaQuery.of(context).size.height * 0.08,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            buildFilterButton(-1, 'All', Icons.people, (value) {
+                            buildFilterButton(context, -1, 'All', Icons.people,
+                                (value) {
                               setState(() {
                                 selectedFilter.value = -1;
                                 rebuildSwipeItemsForFilter(-1);
                               });
                             }),
-                            buildFilterButton(2, 'Favourite', FontAwesome.heart,
+                            buildFilterButton(
+                                context, 2, 'Favourite', FontAwesome.heart,
                                 (value) {
                               setState(() {
                                 selectedFilter.value = 2;
                               });
-                              Get.snackbar('userfavourite',
+                              Get.snackbar('User Favourite',
                                   controller.favourite.length.toString());
                             }),
-                            buildFilterButton(
-                                0, 'NearBy', FontAwesome.map_location_dot_solid,
-                                (value) {
+                            buildFilterButton(context, 0, 'NearBy',
+                                FontAwesome.map_location_dot_solid, (value) {
                               setState(() {
                                 selectedFilter.value = 0;
                               });
@@ -557,7 +602,8 @@ class HomePageState extends State<HomePage>
                                   controller.userNearByList.length.toString());
                             }),
                             buildFilterButton(
-                                1, 'Highlighted', FontAwesome.star, (value) {
+                                context, 1, 'Highlighted', FontAwesome.star,
+                                (value) {
                               setState(() {
                                 selectedFilter.value = 1;
                               });
@@ -566,28 +612,19 @@ class HomePageState extends State<HomePage>
                                   controller.userHighlightedList.length
                                       .toString());
                             }),
-                            buildFilterButton(
-                                3, 'HookUp', FontAwesome.heart_pulse_solid,
-                                (value) {
+                            buildFilterButton(context, 3, 'HookUp',
+                                FontAwesome.heart_pulse_solid, (value) {
                               setState(() {
                                 selectedFilter.value = 3;
                               });
                               Get.snackbar('HookUp',
                                   controller.hookUpList.length.toString());
                             }),
-                            // buildFilterButton(
-                            //     2, 'Creators', FontAwesome.artstation_brand,
-                            //     (value) async {
-                            //   await controller.getAllCreators();
-                            //   setState(() {
-                            //     Get.to(CreatorListPage());
-                            //   });
-                            // }),
                           ],
                         ),
                       ),
                     ),
-                    selectedFilter.value == 0
+                    selectedFilter.value == 0 || selectedFilter.value == -1
                         ? SafeArea(
                             child: Column(
                               children: [
@@ -632,7 +669,7 @@ class HomePageState extends State<HomePage>
                                                   Text(user.name ?? "No Name",
                                                       style: TextStyle(
                                                           fontSize: 24)),
-                                                  Text(calculateAge(user.dob),
+                                                  Text(getAgeFromDob(user.dob),
                                                       style: TextStyle(
                                                           fontSize: 16)),
                                                   Text(user.city ?? "No City"),
@@ -676,7 +713,7 @@ class HomePageState extends State<HomePage>
                                 child: Column(
                                   children: [
                                     SizedBox(
-                                      height: size.height * 0.75 -
+                                      height: size.height * 0.7 -
                                           MediaQuery.of(context)
                                               .viewInsets
                                               .bottom,
@@ -914,6 +951,7 @@ class HomePageState extends State<HomePage>
 
   Widget buildCardLayoutAll(
       BuildContext context, SuggestedUser user, Size size, bool isLastCard) {
+    print(user);
     List<String> images = user.images;
     List<String> interests = (user.interest ?? '')
         .split(',')
@@ -932,309 +970,306 @@ class HomePageState extends State<HomePage>
               ),
               borderRadius: BorderRadius.circular(30),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // User Images
-                SizedBox(
-                  height: size.height * 0.35,
-                  child: Stack(
-                    children: [
-                      SafeArea(
-                        child: SizedBox(
-                          height: 400,
-                          child: Scrollbar(
-                            child: ListView.builder(
-                              controller: _imagePageController,
-                              itemCount: images.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                if (images.isEmpty) {
-                                  return Center(
-                                      child: Text('No Images Available'));
-                                }
-                                return GestureDetector(
-                                  onTap: () => showFullImageDialog(
-                                      context, images[index]),
-                                  child: Container(
-                                    margin: EdgeInsets.only(bottom: 12),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(15),
-                                      child: CachedNetworkImage(
-                                        imageUrl: images[index],
-                                        placeholder: (context, url) => Center(
-                                            child: CircularProgressIndicator()),
-                                        errorWidget: (context, url, error) {
-                                          return Icon(Icons.person_pin_outlined,
-                                              color: const Color.fromARGB(
-                                                  255, 150, 148, 148));
-                                        },
-                                        fit: BoxFit.cover,
-                                        width: size.width * 0.9,
-                                        height: size.height * 0.45,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding:
+                    const EdgeInsets.only(bottom: 20.0), // to avoid clipping
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // User Images
+                    SizedBox(
+                      height: size.height * 0.35,
+                      child: Stack(
+                        children: [
+                          SafeArea(
+                            child: SizedBox(
+                              height: 450,
+                              child: Scrollbar(
+                                child: ListView.builder(
+                                  controller: _imagePageController,
+                                  itemCount: images.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    if (images.isEmpty) {
+                                      return Center(
+                                          child: Text('No Images Available'));
+                                    }
+                                    return GestureDetector(
+                                      onTap: () => showFullImageDialog(
+                                          context, images[index]),
+                                      child: Container(
+                                        margin: EdgeInsets.only(bottom: 12),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          child: CachedNetworkImage(
+                                            imageUrl: images[index],
+                                            placeholder: (context, url) => Center(
+                                                child:
+                                                    CircularProgressIndicator()),
+                                            errorWidget: (context, url, error) {
+                                              return Icon(
+                                                  Icons.person_pin_outlined,
+                                                  color: const Color.fromARGB(
+                                                      255, 150, 148, 148));
+                                            },
+                                            fit: BoxFit.cover,
+                                            width: size.width * 0.9,
+                                            height: size.height * 0.45,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: size.height * 0.03),
-                // User Name, Age, City
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          user.name ?? 'NA',
-                          style: AppTextStyles.headingText.copyWith(
-                            fontSize: size.width * 0.05,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (user.city != null && user.city!.isNotEmpty)
-                        Row(
-                          children: [
-                            Icon(Icons.location_on,
-                                color: Colors.white70, size: 18),
-                            SizedBox(width: 4),
-                            Text(
-                              user.city!,
-                              style: AppTextStyles.bodyText.copyWith(
-                                color: Colors.white70,
-                                fontSize: size.width * 0.035,
+                                    );
+                                  },
+                                ),
                               ),
                             ),
-                          ],
-                        ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
-                  child: Row(
-                    children: [
-                      Text(
-                        calculateAge(user.dob ?? 'Unknown Date'),
-                        style: AppTextStyles.bodyText.copyWith(
-                          color: Colors.white,
-                          fontSize: size.width * 0.04,
-                        ),
-                      ),
-                      // if (user.genderName != null &&
-                      //     user.genderName!.isNotEmpty) ...[
-                      //   SizedBox(width: 12),
-                      //   Icon(Icons.person, color: Colors.white70, size: 18),
-                      //   SizedBox(width: 4),
-                      //   Text(
-                      //     user.genderName!,
-                      //     style: AppTextStyles.bodyText.copyWith(
-                      //       color: Colors.white70,
-                      //       fontSize: size.width * 0.035,
-                      //     ),
-                      //   ),
-                      // ],
-                    ],
-                  ),
-                ),
-                // Interests
-                if (interests.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 8),
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 4,
-                      children: interests
-                          .take(4)
-                          .map((interest) => Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.13),
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: Colors.white24),
-                                ),
-                                child: Text(
-                                  interest,
-                                  style: AppTextStyles.bodyText.copyWith(
-                                    color: Colors.white,
-                                    fontSize: size.width * 0.032,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                // Action Buttons
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 30.0),
-                    child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      // Nope Button
-                      Column(
-                      children: [
-                        GestureDetector(
-                        onTap: () {
-                          setState(() {
-                          matchEngine.currentItem?.nope();
-                          });
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
-                            blurRadius: 8,
-                            offset: Offset(0, 4),
-                            ),
-                          ],
-                          color: Colors.white,
-                          ),
-                          padding: EdgeInsets.all(18),
-                          child: Icon(Icons.close_rounded,
-                            color: Colors.black87, size: 36),
-                        ),
-                        ),
-                        SizedBox(height: 6),
-                        Text(
-                        "Nope",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        ),
-                      ],
-                      ),
-                      // Favourite Button
-                      Column(
-                      children: [
-                        GestureDetector(
-                        onTap: () {
-                          setState(() {
-                          matchEngine.currentItem?.superLike();
-                          });
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
-                            blurRadius: 8,
-                            offset: Offset(0, 4),
-                            ),
-                          ],
-                          color: Colors.white,
-                          ),
-                          padding: EdgeInsets.all(18),
-                          child: Icon(Icons.favorite_rounded,
-                            color: Colors.black87, size: 36),
-                        ),
-                        ),
-                        SizedBox(height: 6),
-                        Text(
-                        "Favourite",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        ),
-                      ],
-                      ),
-                      // Like Button
-                      Column(
-                      children: [
-                        GestureDetector(
-                        onTap: () {
-                          setState(() {
-                          matchEngine.currentItem?.like();
-                          });
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
-                            blurRadius: 8,
-                            offset: Offset(0, 4),
-                            ),
-                          ],
-                          color: Colors.white,
-                          ),
-                          padding: EdgeInsets.all(18),
-                          child: Icon(Icons.thumb_up_rounded,
-                            color: Colors.black87, size: 36),
-                        ),
-                        ),
-                        SizedBox(height: 6),
-                        Text(
-                        "Like",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        ),
-                      ],
-                      ),
-                    ],
-                  ),
-                ),
-                // Connect Button
-                GestureDetector(
-                  onTap: () {
-                    showmessageBottomSheet(user.userId.toString());
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(18.0),
-                    child: Container(
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: AppColors.reversedGradientColor,
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.deepPurple.withOpacity(0.2),
-                            blurRadius: 12,
-                            offset: Offset(0, 6),
                           ),
                         ],
                       ),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-                      child: Text(
-                        "Connect",
-                        style: AppTextStyles.buttonText.copyWith(
-                          color: Colors.white,
-                          fontSize: getResponsiveFontSize(0.03),
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.1,
+                    ),
+                    SizedBox(height: size.height * 0.04),
+                    // User Name, Age, City
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              user.name ?? 'NA',
+                              style: AppTextStyles.headingText.copyWith(
+                                fontSize: size.width * 0.05,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (user.city != null && user.city!.isNotEmpty)
+                            Row(
+                              children: [
+                                Icon(Icons.location_on,
+                                    color: Colors.white70, size: 18),
+                                SizedBox(width: 4),
+                                Text(
+                                  user.city!,
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    color: Colors.white70,
+                                    fontSize: size.width * 0.035,
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 4),
+                      child: Row(
+                        children: [
+                          Text(
+                            calculateAge(user.dob ?? 'Unknown Date'),
+                            style: AppTextStyles.bodyText.copyWith(
+                              color: Colors.white,
+                              fontSize: size.width * 0.04,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Interests
+                    if (interests.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 8),
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          children: interests
+                              .take(4)
+                              .map((interest) => Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.13),
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(color: Colors.white24),
+                                    ),
+                                    child: Text(
+                                      interest,
+                                      style: AppTextStyles.bodyText.copyWith(
+                                        color: Colors.white,
+                                        fontSize: size.width * 0.032,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ))
+                              .toList(),
+                        ),
+                      ),
+                    // Action Buttons
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 30.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          // Nope Button
+                          Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    matchEngine.currentItem?.nope();
+                                  });
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.15),
+                                        blurRadius: 8,
+                                        offset: Offset(0, 4),
+                                      ),
+                                    ],
+                                    color: Colors.white,
+                                  ),
+                                  padding: EdgeInsets.all(18),
+                                  child: Icon(Icons.close_rounded,
+                                      color: Colors.black87, size: 36),
+                                ),
+                              ),
+                              SizedBox(height: 6),
+                              Text(
+                                "Nope",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                          // Favourite Button
+                          Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    matchEngine.currentItem?.superLike();
+                                  });
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.15),
+                                        blurRadius: 8,
+                                        offset: Offset(0, 4),
+                                      ),
+                                    ],
+                                    color: Colors.white,
+                                  ),
+                                  padding: EdgeInsets.all(18),
+                                  child: Icon(Icons.favorite_rounded,
+                                      color: Colors.black87, size: 36),
+                                ),
+                              ),
+                              SizedBox(height: 6),
+                              Text(
+                                "Favourite",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                          // Like Button
+                          Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    matchEngine.currentItem?.like();
+                                  });
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.15),
+                                        blurRadius: 8,
+                                        offset: Offset(0, 4),
+                                      ),
+                                    ],
+                                    color: Colors.white,
+                                  ),
+                                  padding: EdgeInsets.all(18),
+                                  child: Icon(Icons.thumb_up_rounded,
+                                      color: Colors.black87, size: 36),
+                                ),
+                              ),
+                              SizedBox(height: 6),
+                              Text(
+                                "Like",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Connect Button
+                    GestureDetector(
+                      onTap: () {
+                        showmessageBottomSheet(user.userId.toString());
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(18.0),
+                        child: Container(
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: AppColors.reversedGradientColor,
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.deepPurple.withOpacity(0.2),
+                                blurRadius: 12,
+                                offset: Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 28, vertical: 14),
+                          child: Text(
+                            "Connect",
+                            style: AppTextStyles.buttonText.copyWith(
+                              color: Colors.white,
+                              fontSize: getResponsiveFontSize(0.03),
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.1,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           );
   }

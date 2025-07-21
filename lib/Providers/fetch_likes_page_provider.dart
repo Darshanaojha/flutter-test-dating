@@ -23,6 +23,8 @@ class FetchLikesPageProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+      print(response.statusCode);
+      print(response.body);
       if (response.statusCode == null || response.body == null) {
         failure('Error', 'Server Failed To Respond');
         return null;

@@ -45,6 +45,9 @@ class HomePageProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+
+      print(response.body);
+      print(response.statusCode);
       if (response.statusCode == null || response.body == null) {
         failure('Error', 'Server Failed To Respond');
         return null;

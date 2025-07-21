@@ -187,94 +187,98 @@ class ChatScreenState extends State<ChatScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-      return Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        elevation: 12,
-        backgroundColor: Colors.transparent, // Make dialog background transparent for gradient
-        child: Container(
-        padding: EdgeInsets.symmetric(vertical: 24, horizontal: 18),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-          colors: AppColors.gradientBackgroundList,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-          Container(
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          elevation: 12,
+          backgroundColor: Colors
+              .transparent, // Make dialog background transparent for gradient
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 24, horizontal: 18),
             decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(18),
-            ),
-            padding: EdgeInsets.all(16),
-            child: Icon(Icons.chat, color: Colors.white, size: 48), // Changed to chat icon
-          ),
-          SizedBox(height: 18),
-          Text(
-            "Edit Message",
-            style: AppTextStyles.headingText.copyWith(
-            fontSize: 20,
-            color: AppColors.textColor,
-            fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 10),
-          TextField(
-            cursorColor: AppColors.activeColor,
-            controller: messageController,
-            decoration: InputDecoration(
-            hintText: "Edit your message",
-            hintStyle: TextStyle(color: Colors.grey),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: AppColors.buttonColor, width: 2.0),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey, width: 1.5),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            ),
-          ),
-          SizedBox(height: 22),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-            TextButton(
-              onPressed: () {
-              Navigator.of(context).pop();
-              },
-              style: TextButton.styleFrom(
-              foregroundColor: Colors.white,
-              textStyle: TextStyle(fontWeight: FontWeight.bold),
+              gradient: LinearGradient(
+                colors: AppColors.gradientBackgroundList,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              child: Text("Cancel"),
+              borderRadius: BorderRadius.circular(24),
             ),
-            SizedBox(width: 8),
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.buttonColor,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-              elevation: 4,
-              ),
-              icon: Icon(Icons.check),
-              label: Text("Save"),
-              onPressed: () {
-              _editMessage(messageController.text, index);
-              Navigator.of(context).pop();
-              },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  padding: EdgeInsets.all(16),
+                  child: Icon(Icons.chat,
+                      color: Colors.white, size: 48), // Changed to chat icon
+                ),
+                SizedBox(height: 18),
+                Text(
+                  "Edit Message",
+                  style: AppTextStyles.headingText.copyWith(
+                    fontSize: 20,
+                    color: AppColors.textColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 10),
+                TextField(
+                  cursorColor: AppColors.activeColor,
+                  controller: messageController,
+                  decoration: InputDecoration(
+                    hintText: "Edit your message",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: AppColors.buttonColor, width: 2.0),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey, width: 1.5),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 22),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        textStyle: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      child: Text("Cancel"),
+                    ),
+                    SizedBox(width: 8),
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.buttonColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        elevation: 4,
+                      ),
+                      icon: Icon(Icons.check),
+                      label: Text("Save"),
+                      onPressed: () {
+                        _editMessage(messageController.text, index);
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
-            ],
           ),
-          ],
-        ),
-        ),
-      );
+        );
       },
     );
   }
@@ -310,8 +314,22 @@ class ChatScreenState extends State<ChatScreen> {
     final scrollController = ScrollController();
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.receiverName),
+        title: Builder(
+          builder: (context) {
+            double fontSize = MediaQuery.of(context).size.width * 0.05;
+            return Text(
+              widget.receiverName,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: fontSize,
+                color: AppColors.textColor,
+              ),
+            );
+          },
+        ),
         centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -319,10 +337,26 @@ class ChatScreenState extends State<ChatScreen> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(40.0),
+              bottomRight: Radius.circular(40.0),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 10,
+                spreadRadius: 3,
+                offset: Offset(0, 6),
+              ),
+            ],
           ),
         ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(40.0),
+            bottomRight: Radius.circular(40.0),
+          ),
+        ),
         actions: [
           selectedMessages.isNotEmpty
               ? IconButton(
@@ -336,8 +370,7 @@ class ChatScreenState extends State<ChatScreen> {
                             borderRadius: BorderRadius.circular(24),
                           ),
                           elevation: 12,
-                          backgroundColor: Colors
-                              .transparent, // Make dialog background transparent for gradient
+                          backgroundColor: Colors.transparent,
                           child: Container(
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
@@ -359,7 +392,7 @@ class ChatScreenState extends State<ChatScreen> {
                                   ),
                                   padding: EdgeInsets.all(16),
                                   child: Icon(
-                                    Icons.chat, // Changed to chat icon
+                                    Icons.chat,
                                     color: Colors.white,
                                     size: 48,
                                   ),
@@ -377,8 +410,7 @@ class ChatScreenState extends State<ChatScreen> {
                                 Text(
                                   "Choose an option to delete messages.",
                                   style: AppTextStyles.bodyText.copyWith(
-                                    color: Colors
-                                        .white, // Make text white for contrast
+                                    color: Colors.white,
                                     fontSize: 16,
                                   ),
                                   textAlign: TextAlign.center,
@@ -503,27 +535,34 @@ class ChatScreenState extends State<ChatScreen> {
                                       builder: (BuildContext context) {
                                         return Dialog(
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(24),
+                                            borderRadius:
+                                                BorderRadius.circular(24),
                                           ),
                                           elevation: 12,
                                           backgroundColor: Colors.transparent,
                                           child: Container(
                                             decoration: BoxDecoration(
                                               gradient: LinearGradient(
-                                                colors: AppColors.gradientBackgroundList,
+                                                colors: AppColors
+                                                    .gradientBackgroundList,
                                                 begin: Alignment.topLeft,
                                                 end: Alignment.bottomRight,
                                               ),
-                                              borderRadius: BorderRadius.circular(24),
+                                              borderRadius:
+                                                  BorderRadius.circular(24),
                                             ),
-                                            padding: EdgeInsets.symmetric(vertical: 24, horizontal: 18),
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 24, horizontal: 18),
                                             child: Column(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 Container(
                                                   decoration: BoxDecoration(
-                                                    color: Colors.white.withOpacity(0.15),
-                                                    borderRadius: BorderRadius.circular(18),
+                                                    color: Colors.white
+                                                        .withOpacity(0.15),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            18),
                                                   ),
                                                   padding: EdgeInsets.all(16),
                                                   child: Icon(
@@ -535,7 +574,9 @@ class ChatScreenState extends State<ChatScreen> {
                                                 SizedBox(height: 18),
                                                 Text(
                                                   "Delete Message",
-                                                  style: AppTextStyles.headingText.copyWith(
+                                                  style: AppTextStyles
+                                                      .headingText
+                                                      .copyWith(
                                                     fontSize: 20,
                                                     color: AppColors.textColor,
                                                     fontWeight: FontWeight.bold,
@@ -544,7 +585,8 @@ class ChatScreenState extends State<ChatScreen> {
                                                 SizedBox(height: 10),
                                                 Text(
                                                   "Are you sure you want to delete this message?",
-                                                  style: AppTextStyles.bodyText.copyWith(
+                                                  style: AppTextStyles.bodyText
+                                                      .copyWith(
                                                     color: Colors.white,
                                                     fontSize: 16,
                                                   ),
@@ -552,32 +594,46 @@ class ChatScreenState extends State<ChatScreen> {
                                                 ),
                                                 SizedBox(height: 22),
                                                 Row(
-                                                  mainAxisAlignment: MainAxisAlignment.end,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
                                                   children: [
                                                     TextButton(
                                                       onPressed: () {
                                                         Navigator.pop(context);
                                                       },
-                                                      style: TextButton.styleFrom(
-                                                        foregroundColor: Colors.white,
-                                                        textStyle: TextStyle(fontWeight: FontWeight.bold),
+                                                      style:
+                                                          TextButton.styleFrom(
+                                                        foregroundColor:
+                                                            Colors.white,
+                                                        textStyle: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
                                                       ),
                                                       child: Text("Cancel"),
                                                     ),
                                                     SizedBox(width: 8),
                                                     ElevatedButton.icon(
-                                                      style: ElevatedButton.styleFrom(
-                                                        backgroundColor: AppColors.buttonColor,
-                                                        foregroundColor: Colors.white,
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius: BorderRadius.circular(14),
+                                                      style: ElevatedButton
+                                                          .styleFrom(
+                                                        backgroundColor:
+                                                            AppColors
+                                                                .buttonColor,
+                                                        foregroundColor:
+                                                            Colors.white,
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(14),
                                                         ),
                                                         elevation: 4,
                                                       ),
                                                       icon: Icon(Icons.delete),
                                                       label: Text("Delete"),
                                                       onPressed: () {
-                                                        deleteSingleMessage(index);
+                                                        deleteSingleMessage(
+                                                            index);
                                                         Navigator.pop(context);
                                                       },
                                                     ),

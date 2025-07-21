@@ -125,12 +125,18 @@ class GenerateReferralPageState extends State<GenerateReferralPage> {
                 ),
                 SizedBox(height: 28),
                 // Phone Number Input
-                Card(
+                Material(
                   elevation: 6,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(cardRadius),
-                  ),
-                  child: Padding(
+                  borderRadius: BorderRadius.circular(cardRadius),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: AppColors.gradientBackgroundList,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(cardRadius),
+                    ),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 18.0, vertical: 16),
                     child: Form(
@@ -157,7 +163,7 @@ class GenerateReferralPageState extends State<GenerateReferralPage> {
                             borderRadius: BorderRadius.circular(16),
                             borderSide: BorderSide(color: AppColors.textColor),
                           ),
-                          contentPadding: EdgeInsets.symmetric(
+                          contentPadding: const EdgeInsets.symmetric(
                               vertical: 18, horizontal: 16),
                         ),
                         style: AppTextStyles.inputFieldText
@@ -174,6 +180,7 @@ class GenerateReferralPageState extends State<GenerateReferralPage> {
                     ),
                   ),
                 ),
+
                 SizedBox(height: 28),
                 // Generate Button
                 SizedBox(
