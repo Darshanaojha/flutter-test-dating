@@ -105,25 +105,60 @@ class MembershipPageState extends State<MembershipPage>
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // Container(
+            //   height: screenHeight * 0.5,
+            //   decoration: BoxDecoration(
+            //     image: DecorationImage(
+            //       image: NetworkImage(controller.userPhotos!.img1),
+            //       fit: BoxFit.cover,
+            //     ),
+            //   ),
+            // ),
             Container(
-              height: screenHeight * 0.4,
+              margin: const EdgeInsets.all(2),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: NetworkImage(controller.userPhotos!.img1),
-                  fit: BoxFit.cover,
+                gradient: LinearGradient(
+                  colors: AppColors.gradientBackgroundList,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 8,
+                    offset: Offset(0, 4),
+                  ),
+                ],
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Card(
+                    margin: const EdgeInsets.all(2), // Same margin as requested
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Container(
+                      height: screenHeight * 0.5,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: NetworkImage(controller.userPhotos!.img1),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   Text(
                     'Our Membership Services',
-                    style: AppTextStyles.titleText,
+                    style: AppTextStyles.titleText.copyWith(
+                      color: Colors.white, // Ensure text is visible on gradient
+                    ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   buildMembershipServiceItem(
                     title: 'Skip Profile',
                     free: true,
@@ -154,7 +189,7 @@ class MembershipPageState extends State<MembershipPage>
                     free: false,
                     paid: true,
                   ),
-                  SizedBox(height: 100),
+                  const SizedBox(height: 70),
                 ],
               ),
             ),
@@ -162,7 +197,7 @@ class MembershipPageState extends State<MembershipPage>
         ),
       ),
       floatingActionButton: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(22.0),
         child: SizedBox(
           width: MediaQuery.of(context).size.width * 0.9,
           child: AnimatedButton(
@@ -181,6 +216,7 @@ class MembershipPageState extends State<MembershipPage>
           ),
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 

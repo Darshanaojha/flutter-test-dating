@@ -18,7 +18,7 @@ class FetchAllActiveUserProvider extends GetConnect {
           },
         );
 
-        print(response.body);
+        print('sample ${response.body}');
         print(response.statusCode);
         if (response.statusCode == null || response.body == null) {
           failure('Error', 'Server Failed To Respond');

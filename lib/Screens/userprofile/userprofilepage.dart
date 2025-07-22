@@ -635,8 +635,8 @@ class UserProfilePageState extends State<UserProfilePage>
                                                         screenWidth * 0.005,
                                                   ),
                                                   decoration: BoxDecoration(
-                                                    color: Colors.orange
-                                                        .withOpacity(0.15),
+                                                    color:
+                                                        Colors.lightBlueAccent,
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             12),
@@ -644,7 +644,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                   child: Text(
                                                     'Tap to verify',
                                                     style: TextStyle(
-                                                      color: Colors.orange[800],
+                                                      color: Colors.white,
                                                       fontSize:
                                                           screenWidth * 0.03,
                                                       fontWeight:
@@ -1143,48 +1143,95 @@ class UserProfilePageState extends State<UserProfilePage>
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Account Verification',
-            style: AppTextStyles.titleText,
-            textAlign: TextAlign.center,
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
           ),
-          content: Text(
-            'To verify your account, you need to submit a photo. Choose one of the following options for your photo submission.',
-            style: AppTextStyles.textStyle,
-            textAlign: TextAlign.center,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: AppColors.gradientBackgroundList,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Text(
+                    'Account Verification',
+                    style:
+                        AppTextStyles.titleText.copyWith(color: Colors.white),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'To verify your account, you need to submit a photo. Choose one of the following options for your photo submission.',
+                  style:
+                      AppTextStyles.textStyle.copyWith(color: Colors.white70),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: AppColors.primaryColor,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 14),
+                        minimumSize: const Size(0, 36),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(
+                        'Cancel',
+                        style: AppTextStyles.textStyle.copyWith(
+                          fontSize: 14,
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: AppColors.primaryColor,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 14),
+                        minimumSize: const Size(0, 36),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      onPressed: () {
+                        controller.fetchAllverificationtype();
+                        Navigator.of(context).pop();
+                        Get.to(PhotoVerificationPage());
+                      },
+                      child: Text(
+                        'Confirm',
+                        style: AppTextStyles.textStyle.copyWith(
+                          fontSize: 14,
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          actions: <Widget>[
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.buttonColor,
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'Cancel',
-                style: AppTextStyles.textStyle,
-                textAlign: TextAlign.center,
-              ),
-            ),
-            SizedBox(width: 28),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.buttonColor,
-              ),
-              onPressed: () {
-                controller.fetchAllverificationtype();
-                Navigator.of(context).pop();
-                Get.to(PhotoVerificationPage());
-              },
-              child: Text(
-                'Confirm',
-                style: AppTextStyles.textStyle,
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
         );
       },
     );

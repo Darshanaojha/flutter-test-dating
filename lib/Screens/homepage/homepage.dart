@@ -624,7 +624,7 @@ class HomePageState extends State<HomePage>
                         ),
                       ),
                     ),
-                    selectedFilter.value == 0 || selectedFilter.value == -1
+                    selectedFilter.value == 0
                         ? SafeArea(
                             child: Column(
                               children: [

@@ -233,6 +233,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              const SizedBox(height: 40),
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
@@ -244,136 +245,173 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
+
+              // Card Container
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text(
-                  'You can use 24 hours and enjoy the features, '
-                  'and you can access earlier with premium benefits.',
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: getResponsiveFontSize(0.03),
-                    color: Colors.white,
+                child: Container(
+                  width: MediaQuery.of(Get.context!).size.width,
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(Get.context!).size.height * 0.6,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              SizedBox(height: 20),
-              Expanded(
-                child: Obx(() {
-                  if (controller.addon.isEmpty) {
-                    return Center(child: CircularProgressIndicator());
-                  }
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: AppColors.gradientBackgroundList,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'You can use 24 hours and enjoy the features, '
+                          'and you can access earlier with premium benefits.',
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: getResponsiveFontSize(0.03),
+                            color: Colors.white,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 20),
 
-                  return ListView.builder(
-                    itemCount: controller.addon.length,
-                    itemBuilder: (context, index) {
-                      Addon currentAddon = controller.addon[index];
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 8.0),
-                        child: GestureDetector(
-                          onTap: () {
-                            selectedIndex.value = index;
-                            showAddonDialog(currentAddon);
-                            selectedcard = true.obs;
-                            razorpaycontroller.orderRequestModel.amount =
-                                currentAddon.amount.toString();
-                            razorpaycontroller.orderRequestModel.packageId =
-                                currentAddon.id;
-                            razorpaycontroller.orderRequestModel.type = '1';
-                            print(razorpaycontroller.orderRequestModel
-                                .toJson()
-                                .toString());
-                          },
+                        // Addon List
+                        Expanded(
                           child: Obx(() {
-                            return DecoratedBoxTransition(
-                              decoration:
-                                  decorationTween.animate(_animationController),
-                              child: Card(
-                                elevation:
-                                    selectedIndex.value == index ? 12 : 8,
-                                color: selectedIndex.value == index
-                                    ? Colors.blueAccent
-                                    : Colors.black,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.calendar_today,
-                                        color: Colors.white,
-                                        size: 24,
-                                      ),
-                                      SizedBox(width: 10),
-                                      Expanded(
-                                        child: Text(
-                                          "${currentAddon.title}/${currentAddon.duration} - ₹${currentAddon.amount}",
-                                          style:
-                                              AppTextStyles.bodyText.copyWith(
-                                            fontSize:
-                                                getResponsiveFontSize(0.03),
-                                            color: Colors.white,
+                            if (controller.addon.isEmpty) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            }
+
+                            return ListView.builder(
+                              itemCount: controller.addon.length,
+                              itemBuilder: (context, index) {
+                                Addon currentAddon = controller.addon[index];
+
+                                return Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      selectedIndex.value = index;
+                                      showAddonDialog(currentAddon);
+                                      selectedcard = true.obs;
+                                      razorpaycontroller
+                                              .orderRequestModel.amount =
+                                          currentAddon.amount.toString();
+                                      razorpaycontroller.orderRequestModel
+                                          .packageId = currentAddon.id;
+                                      razorpaycontroller
+                                          .orderRequestModel.type = '1';
+                                    },
+                                    child: Obx(() {
+                                      return DecoratedBoxTransition(
+                                        decoration: decorationTween
+                                            .animate(_animationController),
+                                        child: Card(
+                                          elevation:
+                                              selectedIndex.value == index
+                                                  ? 12
+                                                  : 8,
+                                          color: selectedIndex.value == index
+                                              ? Colors.white
+                                              : Colors.black,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          child: Container(
+                                            width: MediaQuery.of(Get.context!)
+                                                    .size
+                                                    .width *
+                                                0.85, // Responsive width
+                                            padding: const EdgeInsets.all(16.0),
+                                            child: Row(
+                                              children: [
+                                                const Icon(Icons.calendar_today,
+                                                    color: Colors.grey,
+                                                    size: 24),
+                                                const SizedBox(width: 10),
+                                                Expanded(
+                                                  child: Text(
+                                                    "${currentAddon.title}/${currentAddon.duration} - ₹${currentAddon.amount}",
+                                                    style: AppTextStyles
+                                                        .bodyText
+                                                        .copyWith(
+                                                      fontSize:
+                                                          getResponsiveFontSize(
+                                                              0.03),
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
+                                                ),
+                                                IconButton(
+                                                  icon: const Icon(
+                                                      Icons.arrow_drop_down,
+                                                      color: Colors.grey),
+                                                  onPressed: () {
+                                                    showAddonPointsButton(
+                                                        currentAddon
+                                                            .addonPoints);
+                                                  },
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      IconButton(
-                                        icon: Icon(
-                                          Icons.arrow_drop_down,
-                                          color: Colors.white,
-                                        ),
-                                        onPressed: () {
-                                          showAddonPointsButton(
-                                              currentAddon.addonPoints);
-                                        },
-                                      ),
-                                    ],
+                                      );
+                                    }),
                                   ),
-                                ),
-                              ),
+                                );
+                              },
                             );
                           }),
                         ),
-                      );
-                    },
-                  );
-                }),
-              ),
-              SizedBox(height: 20),
-              Obx(() {
-                bool isAnyAddonSelected = selectedIndex.value != -1;
 
-                return Visibility(
-                  visible: isAnyAddonSelected,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Get.back();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Profile upgraded! Enjoy your 24 hours of premium access.',
+                        const SizedBox(height: 20),
+                        Obx(() {
+                          bool isAnyAddonSelected = selectedIndex.value != -1;
+
+                          return Visibility(
+                            visible: isAnyAddonSelected,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                Get.back();
+                                ScaffoldMessenger.of(Get.context!).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Profile upgraded! Enjoy your 24 hours of premium access.',
+                                    ),
+                                  ),
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(
+                                    color: Colors.white, width: 1.2),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 14, horizontal: 24),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: Text(
+                                'Purchase Now',
+                                style: AppTextStyles.buttonText
+                                    .copyWith(color: Colors.white),
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.buttonColor,
-                        padding: EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child:
-                          Text('Purchase Now', style: AppTextStyles.buttonText),
+                          );
+                        }),
+                      ],
                     ),
                   ),
-                );
-              }),
+                ),
+              ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -387,49 +425,89 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.black,
-          title: Text(
-            'Confirm Add-On Subscription',
-            style: AppTextStyles.titleText.copyWith(color: Colors.white),
+        return Dialog(
+          backgroundColor: Colors.transparent, // Make dialog fully custom
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-          content: Text(
-            'Do you want to subscribe to the "${currentAddon.title}" add-on for ₹${currentAddon.amount}?',
-            style: AppTextStyles.bodyText.copyWith(color: Colors.white),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: AppColors.gradientBackgroundList,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Confirm Add-On Subscription',
+                  style: AppTextStyles.titleText.copyWith(color: Colors.white),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Do you want to subscribe to the "${currentAddon.title}" add-on for ₹${currentAddon.amount}?',
+                  style: AppTextStyles.bodyText.copyWith(color: Colors.white),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () {
+                        Get.back();
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.red),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        'Cancel',
+                        style:
+                            AppTextStyles.bodyText.copyWith(color: Colors.red),
+                      ),
+                    ),
+                    OutlinedButton(
+                      onPressed: () async {
+                        Get.back();
+                        bool? isOrderCreated = await razorpaycontroller
+                            .createOrder(razorpaycontroller.orderRequestModel);
+                        if (isOrderCreated == true) {
+                          razorpaycontroller.initRazorpay();
+                          razorpaycontroller.openPayment(
+                              currentAddon.amount as double,
+                              currentAddon.title,
+                              controller.userData.first.name,
+                              controller.userData.first.mobile,
+                              controller.userData.first.email);
+                        } else {
+                          failure("Order", "Your Payment Order Is Not Created");
+                        }
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.green),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        'Subscribe',
+                        style: AppTextStyles.bodyText
+                            .copyWith(color: Colors.green),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Get.back();
-              },
-              child: Text(
-                'Cancel',
-                style: AppTextStyles.bodyText.copyWith(color: Colors.red),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                Get.back();
-                bool? isOrderCreated = await razorpaycontroller
-                    .createOrder(razorpaycontroller.orderRequestModel);
-                if (isOrderCreated == true) {
-                  razorpaycontroller.initRazorpay();
-                  razorpaycontroller.openPayment(
-                      currentAddon.amount as double,
-                      currentAddon.title,
-                      controller.userData.first.name,
-                      controller.userData.first.mobile,
-                      controller.userData.first.email);
-                } else {
-                  failure("Order", "Your Payment Order Is Not Created");
-                }
-              },
-              child: Text(
-                'Subscribe',
-                style: AppTextStyles.bodyText.copyWith(color: Colors.green),
-              ),
-            ),
-          ],
         );
       },
     );
@@ -444,6 +522,8 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              const SizedBox(height: 40), // Top spacing
+
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
@@ -455,50 +535,86 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizedBox(height: 20),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: addonPoints.length,
-                  itemBuilder: (context, index) {
-                    AddonPoint point = addonPoints[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12.0),
-                      child: DecoratedBoxTransition(
-                        decoration:
-                            decorationTween.animate(_animationController),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 6.0, horizontal: 10.0),
-                          child: ListTile(
-                            title: Text(
-                              point.title,
-                              style: AppTextStyles.textStyle
-                                  .copyWith(color: Colors.white),
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              SizedBox(height: 20),
+
+              const SizedBox(height: 20),
+
+              // Card wrapping list + close button
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Get.back();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.buttonColor,
-                    padding: EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                child: Container(
+                  width: MediaQuery.of(Get.context!).size.width,
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(Get.context!).size.height * 0.65,
                   ),
-                  child: Text('Close', style: AppTextStyles.buttonText),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: AppColors.gradientBackgroundList,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 10),
+                      Flexible(
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          padding: EdgeInsets.zero,
+                          itemCount: addonPoints.length,
+                          itemBuilder: (context, index) {
+                            AddonPoint point = addonPoints[index];
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 6.0, horizontal: 10.0),
+                              child: Card(
+                                color: Colors
+                                    .black, // You can use a gradient if needed
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 4,
+                                child: DecoratedBoxTransition(
+                                  decoration: decorationTween
+                                      .animate(_animationController),
+                                  child: ListTile(
+                                    title: Text(
+                                      point.title,
+                                      style: AppTextStyles.textStyle
+                                          .copyWith(color: Colors.white),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 10),
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Get.back();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            //backgroundColor: AppColors.buttonColor,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text('Close', style: AppTextStyles.buttonText),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
+
+              const SizedBox(height: 20),
             ],
           ),
         ),

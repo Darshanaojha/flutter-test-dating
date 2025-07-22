@@ -94,83 +94,102 @@ class AllOrdersPageState extends State<AllOrdersPage> {
                 var order = controller.orders[index];
                 return Padding(
                   padding: EdgeInsets.all(getResponsiveHeight(context, 0.01)),
-                  child: Card(
-                    elevation: 15,
-                    shadowColor: Colors.white,
-                    shape: RoundedRectangleBorder(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: AppColors.gradientBackgroundList,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Padding(
-                      padding:
-                          EdgeInsets.all(getResponsiveHeight(context, 0.02)),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            order.packageTitle,
-                            style: TextStyle(
-                              fontSize: getResponsiveFontSize(context, 0.045),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: getResponsiveHeight(context, 0.008)),
-                          Text(
-                            'Package Category: ${order.packageCategoryTitle}',
-                            style: TextStyle(
-                              fontSize: getResponsiveFontSize(context, 0.035),
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          SizedBox(height: getResponsiveHeight(context, 0.008)),
-                          Text(
-                            'Amount: ₹${order.actualAmount}',
-                            style: TextStyle(
-                              fontSize: getResponsiveFontSize(context, 0.035),
-                              color: Colors.grey[500],
-                            ),
-                          ),
-                          SizedBox(height: getResponsiveHeight(context, 0.008)),
-                          Text(
-                            'Days: ${order.days} ${order.unit}',
-                            style: TextStyle(
-                              fontSize: getResponsiveFontSize(context, 0.035),
-                              color: const Color.fromARGB(255, 0, 84, 152),
-                            ),
-                          ),
-                          SizedBox(height: getResponsiveHeight(context, 0.008)),
-                          Text(
-                            'Status: ${order.status == '1' ? 'Active' : 'Inactive'}',
-                            style: TextStyle(
-                              fontSize: getResponsiveFontSize(context, 0.035),
-                              color: order.status == '1'
-                                  ? Colors.green
-                                  : Colors.red,
-                            ),
-                          ),
-                          SizedBox(height: getResponsiveHeight(context, 0.012)),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Created: ${order.created}',
-                                style: TextStyle(
-                                  fontSize:
-                                      getResponsiveFontSize(context, 0.03),
-                                  color: Colors.grey[500],
-                                ),
+                    child: Card(
+                      color: const Color.fromARGB(0, 255, 255,
+                          255), // Important: Let gradient show through
+                      elevation: 15,
+                      //shadowColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Padding(
+                        padding:
+                            EdgeInsets.all(getResponsiveHeight(context, 0.02)),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              order.packageTitle,
+                              style: TextStyle(
+                                fontSize: getResponsiveFontSize(context, 0.045),
+                                fontWeight: FontWeight.bold,
+                                color: AppColors
+                                    .textColor, // Or AppColors.textColor if needed
                               ),
-                              IconButton(
-                                icon: Icon(Icons.info_outline,
-                                    size:
-                                        getResponsiveFontSize(context, 0.045)),
-                                onPressed: () {
-                                  print(
-                                      'View more details for order ${order.id}');
-                                },
+                            ),
+                            SizedBox(
+                                height: getResponsiveHeight(context, 0.008)),
+                            Text(
+                              'Package Category: ${order.packageCategoryTitle}',
+                              style: TextStyle(
+                                fontSize: getResponsiveFontSize(context, 0.035),
+                                color: Colors.white70,
                               ),
-                            ],
-                          ),
-                        ],
+                            ),
+                            SizedBox(
+                                height: getResponsiveHeight(context, 0.008)),
+                            Text(
+                              'Amount: ₹${order.actualAmount}',
+                              style: TextStyle(
+                                fontSize: getResponsiveFontSize(context, 0.035),
+                                color: Colors.white70,
+                              ),
+                            ),
+                            SizedBox(
+                                height: getResponsiveHeight(context, 0.008)),
+                            Text(
+                              'Days: ${order.days} ${order.unit}',
+                              style: TextStyle(
+                                fontSize: getResponsiveFontSize(context, 0.035),
+                                color: AppColors.textColor,
+                              ),
+                            ),
+                            SizedBox(
+                                height: getResponsiveHeight(context, 0.008)),
+                            Text(
+                              'Status: ${order.status == '1' ? 'Active' : 'Inactive'}',
+                              style: TextStyle(
+                                fontSize: getResponsiveFontSize(context, 0.035),
+                                color: order.status == '1'
+                                    ? Colors.greenAccent
+                                    : Colors.redAccent,
+                              ),
+                            ),
+                            // Row(
+                            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            //   children: [
+                            //     Text(
+                            //       'Created: ${order.created}',
+                            //       style: TextStyle(
+                            //         fontSize:
+                            //             getResponsiveFontSize(context, 0.03),
+                            //         color: Colors.white70,
+                            //       ),
+                            //     ),
+                            //     IconButton(
+                            //       icon: Icon(
+                            //         Icons.info_outline,
+                            //         size: getResponsiveFontSize(context, 0.045),
+                            //         color: Colors.white,
+                            //       ),
+                            //       onPressed: () {
+                            //         print(
+                            //             'View more details for order ${order.id}');
+                            //       },
+                            //     ),
+                            //   ],
+                            // ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
