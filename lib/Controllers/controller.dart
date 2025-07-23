@@ -1355,12 +1355,12 @@ class Controller extends GetxController {
 
         void addUniqueUsers(
             List<SuggestedUser> users, RxList<SuggestedUser> targetList) {
-          final newUsers = users
-              .where((user) =>
-                  user.userId != null && !seenUserIds.contains(user.userId))
-              .toList();
-          targetList.addAll(newUsers);
-          seenUserIds.addAll(newUsers.map((user) => user.userId!));
+          // final newUsers = users
+          //     .where((user) =>
+          //         user.userId != null && !seenUserIds.contains(user.userId))
+          //     .toList();
+          // targetList.addAll(newUsers);
+          // seenUserIds.addAll(newUsers.map((user) => user.userId!));
         }
 
         if (response.payload!.desireBase.isNotEmpty) {

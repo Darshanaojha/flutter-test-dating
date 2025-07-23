@@ -239,7 +239,7 @@ class SettingsPageState extends State<SettingsPage>
                       max: 500,
                       divisions: 50,
                       label: "${maxDistance.round()} km",
-                      activeColor: AppColors.activeColor,
+                      activeColor: AppColors.cursorColor,
                       inactiveColor: AppColors.inactiveColor,
                       onChanged: (value) {
                         setStateSB(() {
@@ -268,7 +268,7 @@ class SettingsPageState extends State<SettingsPage>
                         "${ageRange.start.round()}",
                         "${ageRange.end.round()}",
                       ),
-                      activeColor: AppColors.activeColor,
+                      activeColor: AppColors.cursorColor,
                       inactiveColor: AppColors.inactiveColor,
                       onChanged: (RangeValues values) {
                         setStateSB(() {

@@ -208,7 +208,7 @@ class HomePageState extends State<HomePage>
     for (int i = 0; i < controller.userSuggestionsList.length; i++) {
       swipeItems.add(SwipeItem(
         content: controller.userSuggestionsList[i].userId,
-        likeAction: () {
+        likeAction: () async {
           matchEngine = MatchEngine(swipeItems: swipeItems);
           if (controller.userSuggestionsList[i].userId != null) {
             print(
@@ -217,29 +217,30 @@ class HomePageState extends State<HomePage>
               controller.profileLikeRequest.likedBy =
                   controller.userSuggestionsList[i].userId.toString();
             });
-            controller.profileLike(controller.profileLikeRequest);
+            await controller.profileLike(controller.profileLikeRequest);
           } else {
             print("User ID is null");
             failure('Error', "Error: User ID is null.");
           }
         },
-        nopeAction: () {
+        nopeAction: () async {
           print(
               "Pressed dislike button for user: ${controller.userSuggestionsList[i].name}");
           matchEngine = MatchEngine(swipeItems: swipeItems);
           setState(() {
             controller.dislikeProfileRequest.id =
-                controller.userSuggestionsList[i].id.toString();
+                controller.userSuggestionsList[i].userId.toString();
           });
-          controller.dislikeprofile(controller.dislikeProfileRequest);
+           await  controller.dislikeprofile(controller.dislikeProfileRequest);
           print("User ${controller.userSuggestionsList[i].name} was 'nope'd");
         },
-        superlikeAction: () {
+        superlikeAction: () async {
           matchEngine = MatchEngine(swipeItems: swipeItems);
           if (controller.userSuggestionsList[i].userId != null) {
             controller.markFavouriteRequestModel.favouriteId =
                 controller.userSuggestionsList[i].userId;
-            controller.markasfavourite(controller.markFavouriteRequestModel);
+            await controller
+                .markasfavourite(controller.markFavouriteRequestModel);
           } else {
             failure('Error', "Error: User ID is null.");
           }
@@ -499,7 +500,7 @@ class HomePageState extends State<HomePage>
           print("Pressed dislike button for user: ${user.name}");
           matchEngine = MatchEngine(swipeItems: swipeItems);
           setState(() {
-            controller.dislikeProfileRequest.id = user.id.toString();
+            controller.dislikeProfileRequest.id = user.userId.toString();
           });
           controller.dislikeprofile(controller.dislikeProfileRequest);
           print("User ${user.name} was 'nope'd");

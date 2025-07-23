@@ -3065,109 +3065,108 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    backgroundColor: AppColors.formFieldColor,
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.verified_user,
-                              color: AppColors.activeColor, size: 48),
-                          SizedBox(height: 16),
-                          Text(
-                            "Acknowledge Safety Guidelines",
-                            style: AppTextStyles.titleText.copyWith(
-                              fontSize: titleFontSize * 0.7,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textColor,
+                    backgroundColor: Colors
+                        .transparent, // Make Dialog background transparent
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment(0.8, 1),
+                          colors: AppColors.gradientBackgroundList,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.verified_user,
+                                color: AppColors.activeColor, size: 48),
+                            SizedBox(height: 16),
+                            Text(
+                              "Acknowledge Safety Guidelines",
+                              style: AppTextStyles.titleText.copyWith(
+                                fontSize: titleFontSize * 0.7,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textColor,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(height: 12),
-                          Text(
-                            "By proceeding, you acknowledge that you have read and understood the safety guidelines.",
-                            style: AppTextStyles.bodyText.copyWith(
-                              fontSize: bodyFontSize,
-                              color: AppColors.textColor.withOpacity(0.8),
+                            SizedBox(height: 12),
+                            Text(
+                              "By proceeding, you acknowledge that you have read and understood the safety guidelines.",
+                              style: AppTextStyles.bodyText.copyWith(
+                                fontSize: bodyFontSize,
+                                color: AppColors.textColor.withOpacity(0.8),
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment(0.8, 1),
-                                      colors: AppColors.gradientBackgroundList,
-                                    ),
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.transparent,
-                                      foregroundColor: AppColors.textColor,
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 12),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
+                            SizedBox(height: 24),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    child: OutlinedButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        backgroundColor: Colors.transparent,
+                                        foregroundColor: AppColors.textColor,
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 12),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                        ),
+                                        elevation: 0,
+                                        shadowColor: Colors.transparent,
                                       ),
-                                      elevation: 0,
-                                      shadowColor: Colors.transparent,
-                                    ),
-                                    child: Text(
-                                      'Cancel',
-                                      style: AppTextStyles.buttonText.copyWith(
-                                        fontSize: buttonFontSize,
+                                      child: Text(
+                                        'Cancel',
+                                        style:
+                                            AppTextStyles.buttonText.copyWith(
+                                          fontSize: buttonFontSize,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(width: 16),
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment(0.8, 1),
-                                      colors: AppColors.gradientColor,
-                                    ),
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                      nextStep();
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.transparent,
-                                      foregroundColor: AppColors.textColor,
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 12),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
+                                SizedBox(width: 16),
+                                Expanded(
+                                  child: Container(
+                                    child: OutlinedButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                        nextStep();
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.transparent,
+                                        foregroundColor: AppColors.textColor,
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 12),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                        ),
+                                        elevation: 0,
+                                        shadowColor: Colors.transparent,
                                       ),
-                                      elevation: 0,
-                                      shadowColor: Colors.transparent,
-                                    ),
-                                    child: Text(
-                                      'Acknowledge',
-                                      style: AppTextStyles.buttonText.copyWith(
-                                        fontSize: buttonFontSize,
+                                      child: Text(
+                                        'Acknowledge',
+                                        style:
+                                            AppTextStyles.buttonText.copyWith(
+                                          fontSize: buttonFontSize,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );
@@ -3223,23 +3222,75 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Form Submitted'),
-          content: Text('Your details have been submitted successfully!'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
+          backgroundColor: Colors.transparent,
+          contentPadding: EdgeInsets.zero,
+          content: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment(0.8, 1),
+                colors: AppColors.gradientBackgroundList,
+              ),
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: () async {
-                await controller.register(controller.userRegistrationRequest);
-                Get.offAll(CombinedAuthScreen());
-              },
-              child: Text('Next'),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Form Submitted',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Your details have been submitted successfully!',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white70,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text(
+                        'OK',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    OutlinedButton(
+                      onPressed: () async {
+                        await controller
+                            .register(controller.userRegistrationRequest);
+                        Get.offAll(CombinedAuthScreen());
+                      },
+                      child: const Text(
+                        'Next',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       );
     }

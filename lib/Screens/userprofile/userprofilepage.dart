@@ -302,134 +302,200 @@ class UserProfilePageState extends State<UserProfilePage>
                                         context: context,
                                         builder: (BuildContext context) {
                                           return AlertDialog(
-                                            title: Text(
-                                              'Edit Username',
-                                              style: AppTextStyles.titleText
-                                                  .copyWith(
-                                                fontSize:
-                                                    getResponsiveFontSize(0.03),
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            content: SizedBox(
-                                              height: 80,
-                                              child: Scrollbar(
-                                                child: SingleChildScrollView(
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        TextField(
-                                                          cursorColor: AppColors
-                                                              .cursorColor,
-                                                          controller:
-                                                              TextEditingController(
-                                                            text: controller
-                                                                    .usernameUpdateRequest
-                                                                    .username
-                                                                    .isNotEmpty
-                                                                ? controller
-                                                                    .usernameUpdateRequest
-                                                                    .username
-                                                                : controller
-                                                                    .userData
-                                                                    .first
-                                                                    .username,
-                                                          ),
-                                                          onChanged: (value) {
-                                                            setState(() {
-                                                              controller
-                                                                  .usernameUpdateRequest
-                                                                  .username = value;
-                                                            });
-                                                          },
-                                                          decoration:
-                                                              InputDecoration(
-                                                            labelText:
-                                                                'Username',
-                                                            labelStyle:
-                                                                AppTextStyles
-                                                                    .labelText
-                                                                    .copyWith(
-                                                              fontSize:
-                                                                  getResponsiveFontSize(
-                                                                      0.03),
-                                                            ),
-                                                            filled: true,
-                                                            fillColor: AppColors
-                                                                .formFieldColor,
-                                                            border:
-                                                                OutlineInputBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10),
-                                                              borderSide:
-                                                                  BorderSide
-                                                                      .none,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        SizedBox(height: 20),
-                                                      ],
-                                                    ),
-                                                  ),
+                                            backgroundColor: Colors.transparent,
+                                            contentPadding: EdgeInsets.zero,
+                                            content: Container(
+                                              padding: const EdgeInsets.all(20),
+                                              decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: AppColors
+                                                      .gradientBackgroundList,
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
                                                 ),
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
                                               ),
-                                            ),
-                                            actions: <Widget>[
-                                              TextButton(
-                                                style: TextButton.styleFrom(
-                                                  foregroundColor:
-                                                      AppColors.textColor,
-                                                  backgroundColor:
-                                                      AppColors.inactiveColor,
-                                                ),
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: Text('Cancel',
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    'Edit Username',
                                                     style: AppTextStyles
-                                                        .buttonText
+                                                        .titleText
                                                         .copyWith(
                                                       fontSize:
                                                           getResponsiveFontSize(
                                                               0.03),
-                                                    )),
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 20),
+                                                  SizedBox(
+                                                    height: 80,
+                                                    child: Scrollbar(
+                                                      child:
+                                                          SingleChildScrollView(
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            TextField(
+                                                              cursorColor:
+                                                                  AppColors
+                                                                      .cursorColor,
+                                                              controller:
+                                                                  TextEditingController(
+                                                                text: controller
+                                                                        .usernameUpdateRequest
+                                                                        .username
+                                                                        .isNotEmpty
+                                                                    ? controller
+                                                                        .usernameUpdateRequest
+                                                                        .username
+                                                                    : controller
+                                                                        .userData
+                                                                        .first
+                                                                        .username,
+                                                              ),
+                                                              onChanged:
+                                                                  (value) {
+                                                                controller
+                                                                    .usernameUpdateRequest
+                                                                    .username = value;
+                                                              },
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .white),
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                labelText:
+                                                                    'Username',
+                                                                labelStyle:
+                                                                    AppTextStyles
+                                                                        .labelText
+                                                                        .copyWith(
+                                                                  fontSize:
+                                                                      getResponsiveFontSize(
+                                                                          0.03),
+                                                                  color: Colors
+                                                                      .white70,
+                                                                ),
+                                                                filled: true,
+                                                                fillColor: Colors
+                                                                    .white
+                                                                    .withOpacity(
+                                                                        0.1),
+                                                                border:
+                                                                    OutlineInputBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10),
+                                                                  borderSide:
+                                                                      BorderSide
+                                                                          .none,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 20),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.end,
+                                                    children: [
+                                                      TextButton(
+                                                        style: TextButton
+                                                            .styleFrom(
+                                                          foregroundColor:
+                                                              Colors.white,
+                                                          backgroundColor:
+                                                              AppColors
+                                                                  .inactiveColor,
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      16),
+                                                        ),
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                        },
+                                                        child: Text(
+                                                          'Cancel',
+                                                          style: AppTextStyles
+                                                              .buttonText
+                                                              .copyWith(
+                                                            fontSize:
+                                                                getResponsiveFontSize(
+                                                                    0.03),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 10),
+                                                      ElevatedButton(
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          backgroundColor:
+                                                              AppColors
+                                                                  .activeColor,
+                                                          foregroundColor:
+                                                              Colors.white,
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      20),
+                                                        ),
+                                                        onPressed: () {
+                                                          final updatedUsername =
+                                                              controller
+                                                                      .usernameUpdateRequest
+                                                                      .username
+                                                                      .isNotEmpty
+                                                                  ? controller
+                                                                      .usernameUpdateRequest
+                                                                      .username
+                                                                  : controller
+                                                                      .userData
+                                                                      .first
+                                                                      .username;
+
+                                                          controller
+                                                              .updateusername(
+                                                            UsernameUpdateRequest(
+                                                                username:
+                                                                    updatedUsername),
+                                                          );
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                        },
+                                                        child: Text(
+                                                          'Save',
+                                                          style: AppTextStyles
+                                                              .buttonText
+                                                              .copyWith(
+                                                            fontSize:
+                                                                getResponsiveFontSize(
+                                                                    0.03),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
                                               ),
-                                              ElevatedButton(
-                                                style: TextButton.styleFrom(
-                                                  foregroundColor:
-                                                      AppColors.textColor,
-                                                  backgroundColor:
-                                                      AppColors.activeColor,
-                                                ),
-                                                onPressed: () {
-                                                  UsernameUpdateRequest
-                                                      usernameUpdateRequest =
-                                                      UsernameUpdateRequest(
-                                                    username: controller
-                                                            .usernameUpdateRequest
-                                                            .username
-                                                            .isNotEmpty
-                                                        ? controller
-                                                            .usernameUpdateRequest
-                                                            .username
-                                                        : controller.userData
-                                                            .first.username,
-                                                  );
-                                                  controller.updateusername(
-                                                      usernameUpdateRequest);
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: Text('Save'),
-                                              ),
-                                            ],
+                                            ),
                                           );
                                         },
                                       );
