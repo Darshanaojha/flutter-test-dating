@@ -62,13 +62,13 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
   void submitVerification() async {
     if (isSelfieTaken) {
       setState(() {
-        isSubmitting = true; 
+        isSubmitting = true;
       });
       bool isVerified =
           await controller.verifyuseraccount(controller.requestToVerifyAccount);
 
       setState(() {
-        isSubmitting = false; 
+        isSubmitting = false;
       });
 
       if (isVerified) {
@@ -123,74 +123,98 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
               child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Verification Type: ${controller.verificationtype.title}",
-                        style: AppTextStyles.titleText,
-                        textAlign: TextAlign.center,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: AppColors.gradientBackgroundList,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                      SizedBox(height: 16),
-                      Text(
-                        'Description: ${controller.verificationtype.description}',
-                        style: AppTextStyles.textStyle,
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 50),
-                      if (isSelfieTaken)
-                        GestureDetector(
-                          onTap: () => showFullImageDialog(selfiePath),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8.0),
-                            child: Image.file(
-                              File(selfiePath),
-                              width: 200,
-                              height: 200,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        )
-                      else
-                        ElevatedButton(
-                          onPressed: takePhoto,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.buttonColor,
-                          ),
-                          child: Icon(
-                            Icons.camera_alt,
-                            color: AppColors.textColor,
-                            size: 30,
-                          ),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
                         ),
-                      SizedBox(height: 50),
-                      Center(
-                        child: SizedBox(
-                          width: 160,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              foregroundColor: AppColors.textColor,
-                              backgroundColor: AppColors.buttonColor,
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 16.0, horizontal: 20.0),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Verification Type: ${controller.verificationtype.title}",
+                          style: AppTextStyles.titleText
+                              .copyWith(color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Description: ${controller.verificationtype.description}',
+                          style: AppTextStyles.textStyle
+                              .copyWith(color: Colors.white70),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 50),
+                        if (isSelfieTaken)
+                          GestureDetector(
+                            onTap: () => showFullImageDialog(selfiePath),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8.0),
+                              child: Image.file(
+                                File(selfiePath),
+                                width: 200,
+                                height: 200,
+                                fit: BoxFit.cover,
                               ),
                             ),
-                            onPressed: isSubmitting
-                                ? null
-                                : submitVerification, 
-
-                            child: isSubmitting
-                                ? CircularProgressIndicator(
-                                    color: Colors.white,
-                                  )
-                                : Text('Submit Verification',
-                                    style: AppTextStyles.textStyle),
+                          )
+                        else
+                          ElevatedButton(
+                            onPressed: takePhoto,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: AppColors.primaryColor,
+                              shape: const CircleBorder(),
+                              padding: const EdgeInsets.all(16),
+                            ),
+                            child: Icon(
+                              Icons.camera_alt,
+                              color: AppColors.primaryColor,
+                              size: 30,
+                            ),
+                          ),
+                        const SizedBox(height: 50),
+                        Center(
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.6,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: AppColors.textColor,
+                                backgroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 14.0, horizontal: 20.0),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                              ),
+                              onPressed:
+                                  isSubmitting ? null : submitVerification,
+                              child: isSubmitting
+                                  ? const CircularProgressIndicator(
+                                      color: Colors.black)
+                                  : Text(
+                                      'Submit Verification',
+                                      style: AppTextStyles.textStyle.copyWith(
+                                          color: AppColors.primaryColor),
+                                    ),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

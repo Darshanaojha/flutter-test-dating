@@ -1149,299 +1149,304 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              controller.headlines.isNotEmpty
-                  ? controller.headlines[5].title
-                  : "Loading Title...",
-              style: AppTextStyles.titleText.copyWith(
-                fontSize: titleFontSize,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textColor,
-              ),
-            ),
-            SizedBox(height: 20),
-            Text(
-              controller.headlines.isNotEmpty
-                  ? controller.headlines[5].description
-                  : "",
-              style: AppTextStyles.bodyText.copyWith(
-                fontSize: bodyFontSize,
-                color: AppColors.textColor,
-              ),
-            ),
-            SizedBox(height: 20),
-            Obx(() {
-              return selectedStatus.isNotEmpty
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "You selected:",
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: bodyFontSize,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textColor,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Wrap(
-                            spacing: 8,
-                            children: selectedStatus.map((status) {
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
-                                child: Container(
+      child: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    controller.headlines.isNotEmpty
+                        ? controller.headlines[5].title
+                        : "Loading Title...",
+                    style: AppTextStyles.titleText.copyWith(
+                      fontSize: titleFontSize,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textColor,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    controller.headlines.isNotEmpty
+                        ? controller.headlines[5].description
+                        : "",
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: bodyFontSize,
+                      color: AppColors.textColor,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Obx(() {
+                    return selectedStatus.isNotEmpty
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "You selected:",
+                                style: AppTextStyles.bodyText.copyWith(
+                                  fontSize: bodyFontSize,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textColor,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Wrap(
+                                  spacing: 8,
+                                  children: selectedStatus.map((status) {
+                                    return Padding(
+                                      padding:
+                                          const EdgeInsets.only(right: 8.0),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 7),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 1,
+                                          ),
+                                          gradient: LinearGradient(
+                                            colors: AppColors
+                                                .gradientBackgroundList,
+                                            begin: Alignment.centerLeft,
+                                            end: Alignment.centerRight,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              status,
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: chipFontSize,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            SizedBox(width: 4),
+                                            GestureDetector(
+                                              onTap: () {
+                                                int index =
+                                                    options.indexOf(status);
+                                                selectedOptions[index] = false;
+                                                updateSelectedStatus();
+                                                selectedOptions.refresh();
+                                                selectedStatus.refresh();
+                                              },
+                                              child: Icon(
+                                                Icons.close,
+                                                color: Colors.white,
+                                                size: chipFontSize + 2,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                              SizedBox(height: 20),
+                            ],
+                          )
+                        : Container();
+                  }),
+                  Text(
+                    "Select your interests:",
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: bodyFontSize,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Obx(() => Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: List.generate(options.length, (index) {
+                          final isSelected = selectedOptions[index];
+                          return GestureDetector(
+                            onTap: () {
+                              handleChipSelection(index);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: isSelected
+                                      ? LinearGradient(
+                                          colors:
+                                              AppColors.gradientBackgroundList,
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        )
+                                      : null,
+                                  color: isSelected ? null : Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: isSelected
+                                      ? Border.all(
+                                          color: Colors.white, width: 1)
+                                      : null,
+                                ),
+                                child: Padding(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 7),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.white,
-                                      width: 1,
-                                    ),
-                                    gradient: LinearGradient(
-                                      colors: AppColors.gradientBackgroundList,
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                    ),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
+                                      horizontal: 14, vertical: 8),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
-                                        status,
+                                        options[index],
                                         style: TextStyle(
-                                          color: Colors.white,
+                                          color: isSelected
+                                              ? Colors.white
+                                              : Colors.black,
                                           fontSize: chipFontSize,
-                                          fontWeight: FontWeight.bold,
+                                          fontWeight: isSelected
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
                                         ),
                                       ),
-                                      SizedBox(width: 4),
-                                      GestureDetector(
-                                        onTap: () {
-                                          int index = options.indexOf(status);
-                                          selectedOptions[index] = false;
-                                          updateSelectedStatus();
-                                          selectedOptions.refresh();
-                                          selectedStatus.refresh();
-                                        },
-                                        child: Icon(
-                                          Icons.close,
-                                          color: Colors.white,
-                                          size: chipFontSize + 2,
-                                        ),
-                                      ),
+                                      if (isSelected) ...[
+                                        SizedBox(width: 6),
+                                        Icon(Icons.check_circle,
+                                            color: Colors.white, size: 18),
+                                      ]
                                     ],
                                   ),
                                 ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                      ],
-                    )
-                  : Container();
-            }),
-            Text(
-              "Select your interests:",
-              style: AppTextStyles.bodyText.copyWith(
-                fontSize: bodyFontSize,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-            SizedBox(height: 10),
-            // Wrap chips in a fixed-height container with vertical scrolling
-            SizedBox(
-              height: screenWidth * 0.985, // Adjust height as needed
-              child: Obx(() => SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: List.generate(options.length, (index) {
-                        final isSelected = selectedOptions[index];
-                        return GestureDetector(
-                          onTap: () {
-                            handleChipSelection(index); // Toggle selection
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                gradient: isSelected
-                                    ? LinearGradient(
-                                        colors:
-                                            AppColors.gradientBackgroundList,
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      )
-                                    : null,
-                                color: isSelected ? null : Colors.grey[300],
-                                borderRadius: BorderRadius.circular(20),
-                                border: isSelected
-                                    ? Border.all(color: Colors.white, width: 1)
-                                    : null,
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 14, vertical: 8),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      options[index],
-                                      style: TextStyle(
-                                        color: isSelected
-                                            ? Colors.white
-                                            : Colors.black,
-                                        fontSize: chipFontSize,
-                                        fontWeight: isSelected
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                      ),
-                                    ),
-                                    if (isSelected) ...[
-                                      SizedBox(width: 6),
-                                      Icon(Icons.check_circle,
-                                          color: Colors.white, size: 18),
-                                    ]
-                                  ],
+                            ),
+                          );
+                        }),
+                      )),
+                  SizedBox(height: 20),
+                  Obx(() {
+                    return selectedStatus.isNotEmpty
+                        ? Align(
+                            alignment: Alignment.centerRight,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                selectedOptions.value =
+                                    List.filled(options.length, false);
+                                updateSelectedStatus();
+                                selectedOptions.refresh();
+                                selectedStatus.refresh();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                foregroundColor: AppColors.textColor,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 22, vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
+                              child: Icon(
+                                Icons.delete_outline,
+                                color: Colors.pink,
+                                size: titleFontSize,
+                              ),
+                            ),
+                          )
+                        : Container();
+                  }),
+                ],
+              ),
+            ),
+          ),
+
+          // Footer Buttons
+          Padding(
+            padding:
+                const EdgeInsets.only(bottom: 24, left: 16, right: 16, top: 8),
+            child: Obx(() => Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment(0.8, 1),
+                            colors: AppColors.gradientBackgroundList,
+                          ),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: ElevatedButton(
+                          onPressed: onBackPressed,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            backgroundColor: Colors.transparent,
+                            foregroundColor: AppColors.textColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                            shadowColor: Colors.transparent,
+                            elevation: 0,
+                          ),
+                          child: Text(
+                            'Back',
+                            style: AppTextStyles.buttonText.copyWith(
+                              fontSize: screenSize.width * 0.045,
                             ),
                           ),
-                        );
-                      }),
+                        ),
+                      ),
                     ),
-                  )),
-            ),
-            Obx(() {
-              return selectedStatus.isNotEmpty
-                  ? Align(
-                      alignment: Alignment.centerRight,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          selectedOptions.value =
-                              List.filled(options.length, false);
-                          updateSelectedStatus();
-                          selectedOptions.refresh();
-                          selectedStatus.refresh();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          foregroundColor: AppColors.textColor,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 22, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment(0.8, 1),
+                            colors: AppColors.gradientBackgroundList,
                           ),
+                          borderRadius: BorderRadius.circular(30),
                         ),
-                        child: Icon(
-                          Icons.delete_outline, // or any other icon you prefer
-                          color: Colors.pink,
-                          size: titleFontSize,
-                        ),
-                      ),
-                    )
-                  : Container();
-            }),
-            SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.only(
-                  bottom: 24, left: 16, right: 16, top: 8),
-              child: Obx(() => Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment(0.8, 1),
-                              colors: AppColors.gradientBackgroundList,
+                        child: ElevatedButton(
+                          onPressed: selectedStatus.isNotEmpty
+                              ? () {
+                                  markStepAsCompleted(6);
+                                  Get.snackbar(
+                                      'desires',
+                                      controller.userRegistrationRequest.desires
+                                          .toString());
+                                  pageController.nextPage(
+                                    duration: Duration(milliseconds: 300),
+                                    curve: Curves.ease,
+                                  );
+                                }
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            backgroundColor: selectedStatus.isNotEmpty
+                                ? Colors.transparent
+                                : AppColors.disabled,
+                            foregroundColor: AppColors.textColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                            borderRadius: BorderRadius.circular(30),
+                            shadowColor: Colors.transparent,
+                            elevation: 0,
                           ),
-                          child: ElevatedButton(
-                            onPressed: onBackPressed,
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              backgroundColor: Colors.transparent,
-                              foregroundColor: AppColors.textColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(50),
-                              ),
-                              shadowColor: Colors.transparent,
-                              elevation: 0,
-                            ),
-                            child: Text(
-                              'Back',
-                              style: AppTextStyles.buttonText.copyWith(
-                                fontSize: screenSize.width * 0.045,
-                              ),
+                          child: Text(
+                            'Next',
+                            style: AppTextStyles.buttonText.copyWith(
+                              fontSize: screenSize.width * 0.045,
                             ),
                           ),
                         ),
                       ),
-                      SizedBox(width: 16),
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment(0.8, 1),
-                              colors: AppColors.gradientBackgroundList,
-                            ),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: ElevatedButton(
-                            onPressed: selectedStatus.isNotEmpty
-                                ? () {
-                                    markStepAsCompleted(6);
-                                    Get.snackbar(
-                                        'desires',
-                                        controller
-                                            .userRegistrationRequest.desires
-                                            .toString());
-                                    pageController.nextPage(
-                                      duration: Duration(milliseconds: 300),
-                                      curve: Curves.ease,
-                                    );
-                                  }
-                                : null,
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              backgroundColor: selectedStatus.isNotEmpty
-                                  ? Colors.transparent
-                                  : AppColors.disabled,
-                              foregroundColor: AppColors.textColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              shadowColor: Colors.transparent,
-                              elevation: 0,
-                            ),
-                            child: Text(
-                              'Next',
-                              style: AppTextStyles.buttonText.copyWith(
-                                fontSize: screenSize.width * 0.045,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )),
-            ),
-          ],
-        ),
+                    ),
+                  ],
+                )),
+          ),
+        ],
       ),
     );
   }
@@ -1480,193 +1485,194 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     double inputFontSize = screenWidth * 0.04;
     double buttonFontSize = screenWidth * 0.045;
 
-    return Stack(
+    return Column(
       children: [
-        Card(
-          elevation: 8,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  controller.headlines.isNotEmpty
-                      ? controller.headlines[6].title
-                      : "Loading Title...",
-                  style: AppTextStyles.titleText.copyWith(
-                    fontSize: titleFontSize,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textColor,
-                  ),
-                ),
-                SizedBox(height: 20),
-                Text(
-                  controller.headlines.isNotEmpty
-                      ? controller.headlines[6].description
-                      : "Loading Description...",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: bodyFontSize,
-                    color: AppColors.textColor.withOpacity(0.7),
-                  ),
-                ),
-                SizedBox(height: 20),
-                TextField(
-                  controller: interestController,
-                  focusNode: interestFocusNode,
-                  decoration: InputDecoration(
-                    labelText: "Enter interest",
-                    labelStyle: TextStyle(color: AppColors.textColor),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: AppColors.textColor),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+                16, 16, 16, 100), // leave space for bottom button
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      controller.headlines.isNotEmpty
+                          ? controller.headlines[6].title
+                          : "Loading Title...",
+                      style: AppTextStyles.titleText.copyWith(
+                        fontSize: titleFontSize,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textColor,
+                      ),
                     ),
-                    filled: true,
-                    fillColor: AppColors.formFieldColor,
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: AppColors.activeColor),
+                    SizedBox(height: 20),
+                    Text(
+                      controller.headlines.isNotEmpty
+                          ? controller.headlines[6].description
+                          : "Loading Description...",
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: bodyFontSize,
+                        color: AppColors.textColor.withOpacity(0.7),
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: AppColors.textColor),
+                    SizedBox(height: 20),
+                    TextField(
+                      controller: interestController,
+                      focusNode: interestFocusNode,
+                      decoration: InputDecoration(
+                        labelText: "Enter interest",
+                        labelStyle: TextStyle(color: AppColors.textColor),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: AppColors.textColor),
+                        ),
+                        filled: true,
+                        fillColor: AppColors.formFieldColor,
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: AppColors.activeColor),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: AppColors.textColor),
+                        ),
+                      ),
+                      style: TextStyle(
+                        color: AppColors.textColor,
+                        fontSize: inputFontSize,
+                      ),
+                      cursorColor: AppColors.textColor,
+                      onChanged: onInterestChanged,
+                      onSubmitted: (_) => addInterest(),
                     ),
-                  ),
-                  style: TextStyle(
-                      color: AppColors.textColor, fontSize: inputFontSize),
-                  cursorColor: AppColors.textColor,
-                  onChanged: onInterestChanged,
-                  onSubmitted: (_) {
-                    addInterest();
-                  },
-                ),
-                SizedBox(height: 16),
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment(0.8, 1),
-                      colors: AppColors.gradientBackgroundList,
-                    ),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: ElevatedButton(
-                    onPressed: addInterest,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      foregroundColor: AppColors.textColor,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      shape: RoundedRectangleBorder(
+                    SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment(0.8, 1),
+                          colors: AppColors.gradientBackgroundList,
+                        ),
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      elevation: 0,
-                      shadowColor: Colors.transparent,
-                    ),
-                    child: Text(
-                      'Add Interest',
-                      style: AppTextStyles.buttonText.copyWith(
-                        fontSize: buttonFontSize,
+                      child: ElevatedButton(
+                        onPressed: addInterest,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          foregroundColor: AppColors.textColor,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 0,
+                          shadowColor: Colors.transparent,
+                        ),
+                        child: Text(
+                          'Add Interest',
+                          style: AppTextStyles.buttonText.copyWith(
+                            fontSize: buttonFontSize,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    SizedBox(height: 20),
+                    Obx(() {
+                      return selectedInterests.isNotEmpty
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Your Interests:",
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    fontSize: bodyFontSize,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textColor,
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                Wrap(
+                                  spacing: 10,
+                                  runSpacing: 10,
+                                  children: selectedInterests.map((interest) {
+                                    return Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors:
+                                              AppColors.gradientBackgroundList,
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            interest,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: chipFontSize,
+                                            ),
+                                          ),
+                                          SizedBox(width: 4),
+                                          GestureDetector(
+                                            onTap: () {
+                                              selectedInterests
+                                                  .remove(interest);
+                                              updateUserInterests();
+                                            },
+                                            child: Icon(
+                                              Icons.close,
+                                              size: 16,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                                SizedBox(height: 20),
+                              ],
+                            )
+                          : Container();
+                    }),
+                  ],
                 ),
-                SizedBox(height: 20),
-                Obx(() {
-                  return selectedInterests.isNotEmpty
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Your Interests:",
-                              style: AppTextStyles.bodyText.copyWith(
-                                fontSize: bodyFontSize,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textColor,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Wrap(
-                              spacing: 10,
-                              runSpacing: 10,
-                              children: selectedInterests.map((interest) {
-                                return Container(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: AppColors.gradientBackgroundList,
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        interest,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: chipFontSize,
-                                        ),
-                                      ),
-                                      SizedBox(width: 4),
-                                      GestureDetector(
-                                        onTap: () {
-                                          selectedInterests.remove(interest);
-                                          updateUserInterests();
-                                        },
-                                        child: Icon(
-                                          Icons.close,
-                                          size: 16,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                            SizedBox(height: 20),
-                          ],
-                        )
-                      : Container();
-                }),
-              ],
+              ),
             ),
           ),
         ),
-        // Bottom-aligned button row
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: Obx(() => buildBottomButtonRow(
-                onBack: onBackPressed,
-                onNext: isSelectionValid()
-                    ? () {
-                        markStepAsCompleted(7);
-                        Get.snackbar(
-                            'interest',
-                            controller.userRegistrationRequest.interest
-                                .toString());
-                        pageController.nextPage(
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.ease,
-                        );
-                        controller.fetchlang();
-                      }
-                    : null,
-                nextLabel: 'Next',
-                backLabel: 'Back',
-                nextEnabled: isSelectionValid(),
-                context: context,
-              )),
-        ),
+        // Sticky Bottom Navigation
+        Obx(() => buildBottomButtonRow(
+              onBack: onBackPressed,
+              onNext: isSelectionValid()
+                  ? () {
+                      markStepAsCompleted(7);
+                      Get.snackbar('Interest',
+                          controller.userRegistrationRequest.interest ?? '');
+                      pageController.nextPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.ease,
+                      );
+                      controller.fetchlang();
+                    }
+                  : null,
+              nextLabel: 'Next',
+              backLabel: 'Back',
+              nextEnabled: isSelectionValid(),
+              context: context,
+            )),
       ],
     );
   }
@@ -1697,89 +1703,90 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     double titleFontSize = screenWidth * 0.065;
     double bodyFontSize = screenWidth * 0.035;
     double chipFontSize = screenWidth * 0.035;
-    double buttonFontSize = screenWidth * 0.045;
 
     return Stack(
       children: [
-        Card(
-          elevation: 8,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  controller.headlines.isNotEmpty
-                      ? controller.headlines[7].title
-                      : "Select Languages",
-                  style: AppTextStyles.titleText.copyWith(
-                    fontSize: titleFontSize,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textColor,
-                  ),
-                ),
-                SizedBox(height: 20),
-                Text(
-                  controller.headlines.isNotEmpty
-                      ? controller.headlines[7].description
-                      : "Choose the languages you speak.",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: bodyFontSize,
-                    color: AppColors.textColor.withOpacity(0.7),
-                  ),
-                ),
-                SizedBox(height: 20),
-                TextField(
-                  cursorColor: AppColors.cursorColor,
-                  onChanged: (query) {
-                    searchQuery.value = query;
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Search Languages...',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: AppColors.textColor),
+        Container(
+          padding:
+              EdgeInsets.only(bottom: 80), // Leave space for bottom buttons
+          child: SingleChildScrollView(
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              margin: EdgeInsets.all(16),
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      controller.headlines.isNotEmpty
+                          ? controller.headlines[7].title
+                          : "Select Languages",
+                      style: AppTextStyles.titleText.copyWith(
+                        fontSize: titleFontSize,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textColor,
+                      ),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          BorderSide(color: AppColors.activeColor, width: 2.0),
-                      borderRadius: BorderRadius.circular(20),
+                    SizedBox(height: 20),
+                    Text(
+                      controller.headlines.isNotEmpty
+                          ? controller.headlines[7].description
+                          : "Choose the languages you speak.",
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: bodyFontSize,
+                        color: AppColors.textColor.withOpacity(0.7),
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          BorderSide(color: AppColors.textColor, width: 1.5),
-                      borderRadius: BorderRadius.circular(20),
+                    SizedBox(height: 20),
+                    TextField(
+                      cursorColor: AppColors.cursorColor,
+                      onChanged: (query) {
+                        searchQuery.value = query;
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Search Languages...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide(color: AppColors.textColor),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: AppColors.activeColor, width: 2.0),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: AppColors.textColor, width: 1.5),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        contentPadding:
+                            EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                      ),
+                      style: TextStyle(
+                        color: AppColors.textColor,
+                        fontSize: chipFontSize,
+                      ),
                     ),
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                  ),
-                  style: TextStyle(
-                    color: AppColors.textColor,
-                    fontSize: chipFontSize,
-                  ),
-                ),
-                SizedBox(height: 16),
-                Obx(() {
-                  var filteredLanguages = controller.language
-                      .where((language) => language.title
-                          .toLowerCase()
-                          .contains(searchQuery.value.toLowerCase()))
-                      .toList();
+                    SizedBox(height: 16),
+                    Obx(() {
+                      var filteredLanguages = controller.language
+                          .where((language) => language.title
+                              .toLowerCase()
+                              .contains(searchQuery.value.toLowerCase()))
+                          .toList();
 
-                  return controller.language.isEmpty
-                      ? Center(
-                          child: SpinKitCircle(
-                          size: 60,
-                          color: AppColors.progressColor,
-                        ))
-                      : SizedBox(
-                          height: screenWidth * 0.9,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: Wrap(
+                      return controller.language.isEmpty
+                          ? Center(
+                              child: SpinKitCircle(
+                                size: 60,
+                                color: AppColors.progressColor,
+                              ),
+                            )
+                          : Wrap(
                               spacing: 10,
                               runSpacing: 10,
                               children: filteredLanguages.map((language) {
@@ -1837,30 +1844,24 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                   ),
                                 );
                               }).toList(),
-                            ),
-                          ),
-                        );
-                }),
-                SizedBox(height: 20),
-                Obx(() {
-                  return selectedLanguages.isNotEmpty
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Selected Languages:",
-                              style: AppTextStyles.bodyText.copyWith(
-                                fontSize: bodyFontSize,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textColor,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            SizedBox(
-                              height: 60,
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Wrap(
+                            );
+                    }),
+                    SizedBox(height: 20),
+                    Obx(() {
+                      return selectedLanguages.isNotEmpty
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Selected Languages:",
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    fontSize: bodyFontSize,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textColor,
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                Wrap(
                                   spacing: 10,
                                   runSpacing: 10,
                                   children: selectedLanguages.map((lang) {
@@ -1902,18 +1903,17 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                     );
                                   }).toList(),
                                 ),
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                          ],
-                        )
-                      : Container();
-                }),
-              ],
+                                SizedBox(height: 10),
+                              ],
+                            )
+                          : Container();
+                    }),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
-        // Bottom-aligned button row
         Positioned(
           left: 0,
           right: 0,
@@ -1928,8 +1928,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           return;
                         } else {
                           markStepAsCompleted(8);
-                          // Get.snackbar('lang',
-                          //     controller.userRegistrationRequest.lang.toString());
                           pageController.nextPage(
                             duration: Duration(milliseconds: 300),
                             curve: Curves.ease,
@@ -1961,86 +1959,98 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     double titleFontSize = screenWidth * 0.065;
     double bodyFontSize = screenWidth * 0.035;
     double inputFontSize = screenWidth * 0.04;
-    double buttonFontSize = screenWidth * 0.045;
 
     return Stack(
       children: [
-        Card(
-          elevation: 8,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+        SingleChildScrollView(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom + 100,
+            left: 16,
+            right: 16,
+            top: 16,
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  controller.headlines.isNotEmpty
-                      ? controller.headlines[7].title
-                      : "Loading Title...",
-                  style: AppTextStyles.titleText.copyWith(
-                    fontSize: titleFontSize,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textColor,
+          child: Column(
+            children: [
+              Card(
+                elevation: 8,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        controller.headlines.isNotEmpty
+                            ? controller.headlines[7].title
+                            : "Loading Title...",
+                        style: AppTextStyles.titleText.copyWith(
+                          fontSize: titleFontSize,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textColor,
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      Text(
+                        controller.headlines.isNotEmpty
+                            ? controller.headlines[7].description
+                            : "",
+                        style: AppTextStyles.bodyText.copyWith(
+                          fontSize: bodyFontSize,
+                          color: AppColors.textColor.withOpacity(0.7),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      TextField(
+                        controller: descriptionController,
+                        onChanged: onDescriptionChanged,
+                        maxLength: 1000,
+                        maxLines: 6,
+                        decoration: InputDecoration(
+                          labelText: "Your Description",
+                          labelStyle: TextStyle(color: AppColors.textColor),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: AppColors.textColor),
+                          ),
+                          filled: true,
+                          fillColor: AppColors.formFieldColor,
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide:
+                                BorderSide(color: AppColors.activeColor),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: AppColors.textColor),
+                          ),
+                        ),
+                        style: TextStyle(
+                          color: AppColors.textColor,
+                          fontSize: inputFontSize,
+                        ),
+                        cursorColor: AppColors.cursorColor,
+                        textInputAction: TextInputAction.done,
+                      ),
+                      SizedBox(height: 10),
+                      Obx(() {
+                        return Text(
+                          '${userDescription.value.length} / 1000 characters',
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: bodyFontSize,
+                            color: userDescription.value.length > 1000
+                                ? Colors.red
+                                : AppColors.textColor,
+                          ),
+                        );
+                      }),
+                      SizedBox(height: 80), // Spacer for bottom buttons
+                    ],
                   ),
                 ),
-                SizedBox(height: 20),
-                Text(
-                  controller.headlines.isNotEmpty
-                      ? controller.headlines[7].description
-                      : "",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: bodyFontSize,
-                    color: AppColors.textColor.withOpacity(0.7),
-                  ),
-                ),
-                SizedBox(height: 20),
-                TextField(
-                  controller: descriptionController,
-                  onChanged: onDescriptionChanged,
-                  maxLength: 1000,
-                  maxLines: 6,
-                  decoration: InputDecoration(
-                    labelText: "Your Description",
-                    labelStyle: TextStyle(color: AppColors.textColor),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: AppColors.textColor),
-                    ),
-                    filled: true,
-                    fillColor: AppColors.formFieldColor,
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: AppColors.activeColor),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: AppColors.textColor),
-                    ),
-                  ),
-                  style: TextStyle(
-                    color: AppColors.textColor,
-                    fontSize: inputFontSize,
-                  ),
-                  cursorColor: AppColors.cursorColor,
-                  textInputAction: TextInputAction.done,
-                ),
-                SizedBox(height: 10),
-                Obx(() {
-                  return Text(
-                    '${userDescription.value.length} / 1000 characters',
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: bodyFontSize,
-                      color: userDescription.value.length > 1000
-                          ? Colors.red
-                          : AppColors.textColor,
-                    ),
-                  );
-                }),
-                SizedBox(height: 10),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
         // Bottom-aligned button row
@@ -2170,188 +2180,218 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     double fontSize = screenSize.width * 0.035;
     double iconSize = screenSize.width * 0.07;
 
-    return Stack(
-      children: [
-        Card(
-          elevation: 8,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          margin: const EdgeInsets.all(24.0),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  controller.headlines.isNotEmpty
-                      ? controller.headlines[9].title
-                      : "Loading Title...",
-                  style: AppTextStyles.titleText.copyWith(
-                    fontSize: fontSize * 1.2,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textColor,
-                  ),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  controller.headlines.isNotEmpty
-                      ? controller.headlines[9].description
-                      : "",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: fontSize,
-                    color: AppColors.textColor.withOpacity(0.7),
-                  ),
-                ),
-                SizedBox(height: 28),
-                GestureDetector(
-                  onTap: () {
-                    showPermissionDialog(context, 'notification');
-                  },
-                  child: Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    color: AppColors.formFieldColor,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 18.0, horizontal: 16.0),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.notifications,
-                            color: Colors.white,
-                            size: iconSize,
-                          ),
-                          SizedBox(width: 14),
-                          Expanded(
-                            child: Text(
-                              "We need permission to send you notifications through email.",
-                              style: AppTextStyles.bodyText.copyWith(
-                                fontSize: fontSize,
+    return LayoutBuilder(builder: (context, constraints) {
+      return Stack(
+        children: [
+          SingleChildScrollView(
+            padding:
+                const EdgeInsets.only(bottom: 80), // leave space for button
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
+              ),
+              child: IntrinsicHeight(
+                child: Column(
+                  children: [
+                    Card(
+                      elevation: 8,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      margin: const EdgeInsets.all(24.0),
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              controller.headlines.isNotEmpty
+                                  ? controller.headlines[9].title
+                                  : "Loading Title...",
+                              style: AppTextStyles.titleText.copyWith(
+                                fontSize: fontSize * 1.2,
+                                fontWeight: FontWeight.bold,
                                 color: AppColors.textColor,
                               ),
                             ),
-                          ),
-                          Obx(() {
-                            return Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: notificationGranted.value
-                                    ? AppColors.activeColor
-                                    : Colors.grey.shade300,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Text(
-                                notificationGranted.value ? 'Granted' : 'Allow',
-                                style: AppTextStyles.bodyText.copyWith(
-                                  fontSize: fontSize * 0.95,
-                                  color: notificationGranted.value
-                                      ? Colors.white
-                                      : Colors.black54,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            );
-                          }),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-                GestureDetector(
-                  onTap: () {
-                    showPermissionDialog(context, 'location');
-                  },
-                  child: Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    color: AppColors.formFieldColor,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 18.0, horizontal: 16.0),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.location_on,
-                            color: Colors.white,
-                            size: iconSize,
-                          ),
-                          SizedBox(width: 14),
-                          Expanded(
-                            child: Text(
-                              "We need permission to access your location.",
+                            SizedBox(height: 16),
+                            Text(
+                              controller.headlines.isNotEmpty
+                                  ? controller.headlines[9].description
+                                  : "",
                               style: AppTextStyles.bodyText.copyWith(
                                 fontSize: fontSize,
-                                color: AppColors.textColor,
+                                color: AppColors.textColor.withOpacity(0.7),
                               ),
                             ),
-                          ),
-                          Obx(() {
-                            return Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: locationGranted.value
-                                    ? AppColors.activeColor
-                                    : Colors.grey.shade300,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Text(
-                                locationGranted.value ? 'Granted' : 'Allow',
-                                style: AppTextStyles.bodyText.copyWith(
-                                  fontSize: fontSize * 0.95,
-                                  color: locationGranted.value
-                                      ? Colors.white
-                                      : Colors.black54,
-                                  fontWeight: FontWeight.bold,
+                            SizedBox(height: 28),
+                            GestureDetector(
+                              onTap: () {
+                                showPermissionDialog(context, 'notification');
+                              },
+                              child: Card(
+                                elevation: 4,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                color: AppColors.formFieldColor,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 18.0, horizontal: 16.0),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.notifications,
+                                        color: Colors.white,
+                                        size: iconSize,
+                                      ),
+                                      SizedBox(width: 14),
+                                      Expanded(
+                                        child: Text(
+                                          "We need permission to send you notifications through email.",
+                                          style:
+                                              AppTextStyles.bodyText.copyWith(
+                                            fontSize: fontSize,
+                                            color: AppColors.textColor,
+                                          ),
+                                        ),
+                                      ),
+                                      Obx(() {
+                                        return Container(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 6),
+                                          decoration: BoxDecoration(
+                                            color: notificationGranted.value
+                                                ? AppColors.activeColor
+                                                : Colors.grey.shade300,
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                          ),
+                                          child: Text(
+                                            notificationGranted.value
+                                                ? 'Granted'
+                                                : 'Allow',
+                                            style:
+                                                AppTextStyles.bodyText.copyWith(
+                                              fontSize: fontSize * 0.95,
+                                              color: notificationGranted.value
+                                                  ? Colors.white
+                                                  : Colors.black54,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            );
-                          }),
-                        ],
+                            ),
+                            SizedBox(height: 20),
+                            GestureDetector(
+                              onTap: () {
+                                showPermissionDialog(context, 'location');
+                              },
+                              child: Card(
+                                elevation: 4,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                color: AppColors.formFieldColor,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 18.0, horizontal: 16.0),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.location_on,
+                                        color: Colors.white,
+                                        size: iconSize,
+                                      ),
+                                      SizedBox(width: 14),
+                                      Expanded(
+                                        child: Text(
+                                          "We need permission to access your location.",
+                                          style:
+                                              AppTextStyles.bodyText.copyWith(
+                                            fontSize: fontSize,
+                                            color: AppColors.textColor,
+                                          ),
+                                        ),
+                                      ),
+                                      Obx(() {
+                                        return Container(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 6),
+                                          decoration: BoxDecoration(
+                                            color: locationGranted.value
+                                                ? AppColors.activeColor
+                                                : Colors.grey.shade300,
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                          ),
+                                          child: Text(
+                                            locationGranted.value
+                                                ? 'Granted'
+                                                : 'Allow',
+                                            style:
+                                                AppTextStyles.bodyText.copyWith(
+                                              fontSize: fontSize * 0.95,
+                                              color: locationGranted.value
+                                                  ? Colors.white
+                                                  : Colors.black54,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 24),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-                SizedBox(height: 24),
-              ],
+              ),
             ),
           ),
-        ),
-        // Bottom-aligned button row
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: Obx(() => buildBottomButtonRow(
-                onBack: onBackPressed,
-                onNext: notificationGranted.value && locationGranted.value
-                    ? () {
-                        markStepAsCompleted(10);
-                        Get.snackbar(
+
+          // Bottom-aligned button row (unchanged)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Obx(() => buildBottomButtonRow(
+                  onBack: onBackPressed,
+                  onNext: notificationGranted.value && locationGranted.value
+                      ? () {
+                          markStepAsCompleted(10);
+                          Get.snackbar(
                             'permission',
                             controller.userRegistrationRequest.emailAlerts
-                                .toString());
-                        pageController.nextPage(
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.ease,
-                        );
-                      }
-                    : null,
-                nextLabel: 'Next',
-                backLabel: 'Back',
-                nextEnabled: notificationGranted.value && locationGranted.value,
-                context: context,
-              )),
-        ),
-      ],
-    );
+                                .toString(),
+                          );
+                          pageController.nextPage(
+                            duration: Duration(milliseconds: 300),
+                            curve: Curves.ease,
+                          );
+                        }
+                      : null,
+                  nextLabel: 'Next',
+                  backLabel: 'Back',
+                  nextEnabled:
+                      notificationGranted.value && locationGranted.value,
+                  context: context,
+                )),
+          ),
+        ],
+      );
+    });
   }
 
   RxList<File?> images = RxList<File?>(List.filled(6, null));
@@ -2379,9 +2419,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     Future<void> pickImage(int index, ImageSource source) async {
       if (index > 0 &&
           images[index - 1] == null &&
-          controller.userRegistrationRequest.photos.length <= index) {
-        // Get.snackbar(
-        //     "Error", "Please take a photo for the previous position first.");
+          (controller.userRegistrationRequest.photos.length <= index - 1 ||
+              controller.userRegistrationRequest.photos[index - 1].isEmpty)) {
+        Get.snackbar(
+            "Error", "Please take a photo for the previous position first.");
         return;
       }
 
@@ -2396,6 +2437,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
       if (pickedFile != null) {
         File imageFile = File(pickedFile.path);
+
         final compressedImage = await FlutterImageCompress.compressWithFile(
           imageFile.path,
           quality: 50,
@@ -2403,15 +2445,18 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
         if (compressedImage != null) {
           String base64Image = base64Encode(compressedImage);
-          if (index < controller.userRegistrationRequest.photos.length) {
-            controller.userRegistrationRequest.photos[index] = base64Image;
-          } else {
-            controller.userRegistrationRequest.photos.add(base64Image);
+
+          /// ✅ Ensure the photos list has at least `index + 1` items
+          if (controller.userRegistrationRequest.photos.length <= index) {
+            while (controller.userRegistrationRequest.photos.length <= index) {
+              controller.userRegistrationRequest.photos.add('');
+            }
           }
 
+          controller.userRegistrationRequest.photos[index] = base64Image;
           images[index] = imageFile;
         } else {
-          // Get.snackbar("Error", "Image compression failed");
+          Get.snackbar("Error", "Image compression failed.");
         }
       }
     }
@@ -3020,109 +3065,108 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    backgroundColor: AppColors.formFieldColor,
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.verified_user,
-                              color: AppColors.activeColor, size: 48),
-                          SizedBox(height: 16),
-                          Text(
-                            "Acknowledge Safety Guidelines",
-                            style: AppTextStyles.titleText.copyWith(
-                              fontSize: titleFontSize * 0.7,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textColor,
+                    backgroundColor: Colors
+                        .transparent, // Make Dialog background transparent
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment(0.8, 1),
+                          colors: AppColors.gradientBackgroundList,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.verified_user,
+                                color: AppColors.activeColor, size: 48),
+                            SizedBox(height: 16),
+                            Text(
+                              "Acknowledge Safety Guidelines",
+                              style: AppTextStyles.titleText.copyWith(
+                                fontSize: titleFontSize * 0.7,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textColor,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(height: 12),
-                          Text(
-                            "By proceeding, you acknowledge that you have read and understood the safety guidelines.",
-                            style: AppTextStyles.bodyText.copyWith(
-                              fontSize: bodyFontSize,
-                              color: AppColors.textColor.withOpacity(0.8),
+                            SizedBox(height: 12),
+                            Text(
+                              "By proceeding, you acknowledge that you have read and understood the safety guidelines.",
+                              style: AppTextStyles.bodyText.copyWith(
+                                fontSize: bodyFontSize,
+                                color: AppColors.textColor.withOpacity(0.8),
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment(0.8, 1),
-                                      colors: AppColors.gradientBackgroundList,
-                                    ),
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.transparent,
-                                      foregroundColor: AppColors.textColor,
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 12),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
+                            SizedBox(height: 24),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    child: OutlinedButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        backgroundColor: Colors.transparent,
+                                        foregroundColor: AppColors.textColor,
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 12),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                        ),
+                                        elevation: 0,
+                                        shadowColor: Colors.transparent,
                                       ),
-                                      elevation: 0,
-                                      shadowColor: Colors.transparent,
-                                    ),
-                                    child: Text(
-                                      'Cancel',
-                                      style: AppTextStyles.buttonText.copyWith(
-                                        fontSize: buttonFontSize,
+                                      child: Text(
+                                        'Cancel',
+                                        style:
+                                            AppTextStyles.buttonText.copyWith(
+                                          fontSize: buttonFontSize,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(width: 16),
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment(0.8, 1),
-                                      colors: AppColors.gradientColor,
-                                    ),
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                      nextStep();
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.transparent,
-                                      foregroundColor: AppColors.textColor,
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 12),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
+                                SizedBox(width: 16),
+                                Expanded(
+                                  child: Container(
+                                    child: OutlinedButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                        nextStep();
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.transparent,
+                                        foregroundColor: AppColors.textColor,
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 12),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                        ),
+                                        elevation: 0,
+                                        shadowColor: Colors.transparent,
                                       ),
-                                      elevation: 0,
-                                      shadowColor: Colors.transparent,
-                                    ),
-                                    child: Text(
-                                      'Acknowledge',
-                                      style: AppTextStyles.buttonText.copyWith(
-                                        fontSize: buttonFontSize,
+                                      child: Text(
+                                        'Acknowledge',
+                                        style:
+                                            AppTextStyles.buttonText.copyWith(
+                                          fontSize: buttonFontSize,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );
@@ -3178,23 +3222,75 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Form Submitted'),
-          content: Text('Your details have been submitted successfully!'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
+          backgroundColor: Colors.transparent,
+          contentPadding: EdgeInsets.zero,
+          content: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment(0.8, 1),
+                colors: AppColors.gradientBackgroundList,
+              ),
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: () async {
-                await controller.register(controller.userRegistrationRequest);
-                Get.offAll(CombinedAuthScreen());
-              },
-              child: Text('Next'),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Form Submitted',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Your details have been submitted successfully!',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white70,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text(
+                        'OK',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    OutlinedButton(
+                      onPressed: () async {
+                        await controller
+                            .register(controller.userRegistrationRequest);
+                        Get.offAll(CombinedAuthScreen());
+                      },
+                      child: const Text(
+                        'Next',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       );
     }
@@ -3210,17 +3306,21 @@ Widget buildBottomButtonRow({
   required BuildContext context,
 }) {
   final screenWidth = MediaQuery.of(context).size.width;
+  final isSmallScreen = screenWidth < 350;
+
   return Padding(
-    padding: const EdgeInsets.only(bottom: 24, left: 16, right: 16, top: 8),
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        SizedBox(
-          width: screenWidth * 0.42,
+        /// 🔙 Back Button
+        Expanded(
           child: Container(
+            height: 48,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
-                end: Alignment(0.8, 1),
+                end: Alignment.bottomRight,
                 colors: AppColors.gradientBackgroundList,
               ),
               borderRadius: BorderRadius.circular(30),
@@ -3228,7 +3328,6 @@ Widget buildBottomButtonRow({
             child: ElevatedButton(
               onPressed: onBack,
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 10),
                 backgroundColor: Colors.transparent,
                 foregroundColor: AppColors.textColor,
                 shape: RoundedRectangleBorder(
@@ -3236,24 +3335,28 @@ Widget buildBottomButtonRow({
                 ),
                 shadowColor: Colors.transparent,
                 elevation: 0,
+                padding: const EdgeInsets.symmetric(vertical: 10),
               ),
               child: Text(
                 backLabel,
                 style: AppTextStyles.buttonText.copyWith(
-                  fontSize: screenWidth * 0.045,
+                  fontSize: isSmallScreen ? 13 : screenWidth * 0.045,
                 ),
               ),
             ),
           ),
         ),
-        SizedBox(width: screenWidth * 0.09),
-        SizedBox(
-          width: screenWidth * 0.42,
+
+        const SizedBox(width: 12), // 🧱 Responsive Gap
+
+        /// ⏭️ Next Button
+        Expanded(
           child: Container(
+            height: 48,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
-                end: Alignment(0.8, 1),
+                end: Alignment.bottomRight,
                 colors: AppColors.gradientBackgroundList,
               ),
               borderRadius: BorderRadius.circular(30),
@@ -3261,19 +3364,19 @@ Widget buildBottomButtonRow({
             child: ElevatedButton(
               onPressed: nextEnabled ? onNext : null,
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 10),
                 backgroundColor: Colors.transparent,
                 foregroundColor: AppColors.textColor,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(50),
                 ),
                 shadowColor: Colors.transparent,
                 elevation: 0,
+                padding: const EdgeInsets.symmetric(vertical: 10),
               ),
               child: Text(
                 nextLabel,
                 style: AppTextStyles.buttonText.copyWith(
-                  fontSize: screenWidth * 0.045,
+                  fontSize: isSmallScreen ? 13 : screenWidth * 0.045,
                 ),
               ),
             ),

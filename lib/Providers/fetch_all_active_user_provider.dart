@@ -17,6 +17,9 @@ class FetchAllActiveUserProvider extends GetConnect {
             'Authorization': 'Bearer $token',
           },
         );
+
+        print('sample ${response.body}');
+        print(response.statusCode);
         if (response.statusCode == null || response.body == null) {
           failure('Error', 'Server Failed To Respond');
           return null;

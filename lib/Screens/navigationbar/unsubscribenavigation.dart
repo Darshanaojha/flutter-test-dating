@@ -31,63 +31,108 @@ class UnSubscribeNavigationController extends GetxController {
   }
 
   void showPackagesDialog() {
+    final context = Get.context!;
+    final size = MediaQuery.of(context).size;
+    final screenWidth = size.width;
+    final screenHeight = size.height;
+
+    double baseFont = screenWidth * 0.065; // Roughly responsive
+    double smallFont = screenWidth * 0.035;
+    double buttonFont = screenWidth * 0.04;
+    double buttonPaddingH = screenWidth * 0.05;
+    double buttonPaddingV = screenHeight * 0.012;
+
     Get.defaultDialog(
-      title: 'Subscribe to Enjoy',
-      titleStyle: TextStyle(
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-        color: AppColors.primaryColor,
-      ),
-      backgroundColor: AppColors.disabled,
+      title: '',
+      backgroundColor: Colors.transparent,
       barrierDismissible: false,
       radius: 15.0,
-      contentPadding: EdgeInsets.all(20),
-      content: Column(
-        children: [
-          Text(
-            "Choose a Subscription Plan",
-            style: AppTextStyles.titleText.copyWith(
-              fontSize: 18,
-              color: AppColors.textColor,
-            ),
+      contentPadding: EdgeInsets.zero,
+      content: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: AppColors.gradientBackgroundList,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
+          borderRadius: BorderRadius.circular(15),
+        ),
+        padding: EdgeInsets.all(screenWidth * 0.05),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Subscribe to Enjoy',
+              style: TextStyle(
+                fontSize: baseFont,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(height: screenHeight * 0.01),
+            Text(
+              "Choose a Subscription Plan",
+              style: AppTextStyles.titleText.copyWith(
+                fontSize: smallFont,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(height: screenHeight * 0.05),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                OutlinedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: Colors.white),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: buttonPaddingH,
+                      vertical: buttonPaddingV,
+                    ),
+                  ),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      fontSize: buttonFont,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                SizedBox(width: screenWidth * 0.03),
+                ElevatedButton(
+                  onPressed: () {
+                    Get.to(MembershipPage());
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.buttonColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: buttonPaddingH,
+                      vertical: buttonPaddingV,
+                    ),
+                  ),
+                  child: Text(
+                    'Subscribe',
+                    style: TextStyle(
+                      fontSize: buttonFont,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Get.back();
-          },
-          child: Text(
-            'Cancel',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppColors.buttonColor,
-            ),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            Get.to(MembershipPage());
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.buttonColor,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          ),
-          child: Text(
-            'Confirm Subscription',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
@@ -259,96 +304,125 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation>
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(60),
-        child: AppBar(
-          elevation: 5,
-          title: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'FlamR',
-                style: AppTextStyles.headingText.copyWith(
-                  fontSize: getResponsiveFontSize(context, 0.08),
-                ),
-              ),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: AppColors.gradientBackgroundList,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-          ),
-          backgroundColor: AppColors.navigationColor,
-          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(30),
               bottomRight: Radius.circular(30),
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 5,
+                offset: Offset(0, 3),
+              ),
+            ],
           ),
-          leading: IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SettingsPage()),
-              );
-            },
-          ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.exit_to_app),
+          child: AppBar(
+            elevation: 0,
+            backgroundColor: Colors.transparent, // Transparent to show gradient
+            title: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'FlamR',
+                  style: AppTextStyles.headingText.copyWith(
+                    fontSize: getResponsiveFontSize(context, 0.08),
+                  ),
+                ),
+              ),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+              ),
+            ),
+            leading: IconButton(
+              icon: Icon(Icons.settings),
               onPressed: () {
-                showLogoutDialog(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage()),
+                );
               },
             ),
-          ],
+            actions: [
+              IconButton(
+                icon: Icon(Icons.exit_to_app),
+                onPressed: () {
+                  showLogoutDialog(context);
+                },
+              ),
+            ],
+          ),
         ),
       ),
       body: Obx(() {
         return navigationcontroller
             .screens[navigationcontroller.selectedIndex.value];
       }),
-      bottomNavigationBar: CurvedNavigationBar(
-        index: selectedIndex,
-        height: 60.0,
-        items: <Widget>[
-          AnimatedBuilder(
-            animation: _animationController,
-            builder: (context, child) {
-              return Transform.rotate(
-                angle: selectedIndex == 0 ? _rotationAnimation.value : 0.0,
-                child: Icon(
-                  Icons.home,
-                  size: 30,
-                  color: selectedIndex == 0
-                      ? AppColors.primaryColor
-                      : Colors.white,
-                ),
-              );
-            },
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: AppColors.gradientBackgroundList,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          AnimatedBuilder(
-            animation: _animationController,
-            builder: (context, child) {
-              return Transform.rotate(
-                angle: selectedIndex == 1 ? _rotationAnimation.value : 0.0,
-                child: Icon(
-                  Icons.account_circle,
-                  size: 30,
-                  color: selectedIndex == 1
-                      ? AppColors.primaryColor
-                      : Colors.white,
-                ),
-              );
-            },
-          ),
-        ],
-        color: AppColors.navigationColor,
-        buttonBackgroundColor: AppColors.acceptColor,
-        backgroundColor: Colors.transparent,
-        animationCurve: Curves.easeInOut,
-        animationDuration: Duration(milliseconds: 300),
-        onTap: (index) {
-          setState(() {
-            selectedIndex = index;
-            _animationController.forward(from: 0);
-          });
-          navigationcontroller.navigateTo(index);
-        },
+        ),
+        child: CurvedNavigationBar(
+          index: selectedIndex,
+          height: 60.0,
+          items: <Widget>[
+            AnimatedBuilder(
+              animation: _animationController,
+              builder: (context, child) {
+                return Transform.rotate(
+                  angle: selectedIndex == 0 ? _rotationAnimation.value : 0.0,
+                  child: Icon(
+                    Icons.home,
+                    size: 30,
+                    color: selectedIndex == 0
+                        ? AppColors.primaryColor
+                        : Colors.white,
+                  ),
+                );
+              },
+            ),
+            AnimatedBuilder(
+              animation: _animationController,
+              builder: (context, child) {
+                return Transform.rotate(
+                  angle: selectedIndex == 1 ? _rotationAnimation.value : 0.0,
+                  child: Icon(
+                    Icons.account_circle,
+                    size: 30,
+                    color: selectedIndex == 1
+                        ? AppColors.primaryColor
+                        : Colors.white,
+                  ),
+                );
+              },
+            ),
+          ],
+          color: Colors.transparent, // Make bar see-through for gradient
+          buttonBackgroundColor: AppColors.acceptColor,
+          backgroundColor: Colors.transparent,
+          animationCurve: Curves.easeInOut,
+          animationDuration: Duration(milliseconds: 300),
+          onTap: (index) {
+            setState(() {
+              selectedIndex = index;
+              _animationController.forward(from: 0);
+            });
+            navigationcontroller.navigateTo(index);
+          },
+        ),
       ),
     );
   }

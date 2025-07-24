@@ -89,14 +89,49 @@ class PricingPageState extends State<PricingPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent, // Transparent to show gradient
+        elevation: 0,
+        centerTitle: true,
         title: Obx(() {
+          double fontSize = MediaQuery.of(context).size.width * 0.05;
           return Text(
             controller.headlines.length > 10
                 ? controller.headlines[10].title
                 : "Loading Title...",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: fontSize,
+              color: AppColors.textColor,
+            ),
           );
         }),
-        backgroundColor: AppColors.primaryColor,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment(0.8, 1),
+              colors: AppColors.gradientBackgroundList,
+            ),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(40.0),
+              bottomRight: Radius.circular(40.0),
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x66666666),
+                blurRadius: 10.0,
+                spreadRadius: 3.0,
+                offset: Offset(0, 6.0),
+              ),
+            ],
+          ),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(40.0),
+            bottomRight: Radius.circular(40.0),
+          ),
+        ),
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -132,10 +167,16 @@ class PricingPageState extends State<PricingPage>
                 const SizedBox(height: 20),
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.85),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment(0.8, 1),
+                      colors: AppColors.gradientBackgroundList,
+                    ),
                     borderRadius: BorderRadius.circular(15),
-                    border:
-                        Border.all(color: const Color(0xff870160), width: 2),
+                    // border: Border.all(
+                    //   color: const Color(0xff870160),
+                    //   width: 2,
+                    // ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.pinkAccent.withOpacity(0.3),
@@ -151,13 +192,14 @@ class PricingPageState extends State<PricingPage>
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          FaIcon(FontAwesomeIcons.crown,
+                        children: [
+                          const FaIcon(FontAwesomeIcons.crown,
                               color: Colors.amber, size: 30),
-                          SizedBox(height: 12),
+                          const SizedBox(height: 12),
                           SizedBox(
-                            width: 200,
-                            child: Text(
+                            width: MediaQuery.of(context).size.width *
+                                0.55, // ~55% of screen width
+                            child: const Text(
                               "Your Best Match is One Upgrade Away!",
                               style: TextStyle(
                                 color: Colors.white,
@@ -189,60 +231,73 @@ class PricingPageState extends State<PricingPage>
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               // Title & Description
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 18, vertical: 15),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.85),
-                                  borderRadius: BorderRadius.circular(15),
-                                  border: Border.all(
-                                      color: const Color(0xff870160), width: 2),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.pinkAccent.withOpacity(0.3),
-                                      blurRadius: 6,
-                                      spreadRadius: 1,
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width *
+                                    0.9, // 90% of screen width
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 18, vertical: 15),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment(0.8, 1),
+                                      colors: AppColors.gradientBackgroundList,
                                     ),
-                                  ],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const Icon(Icons.workspace_premium,
-                                            color: Colors.amber, size: 24),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            package.status,
-                                            style: const TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 6),
-                                    const Divider(
-                                        color: Colors.pinkAccent, thickness: 1),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      package.packagecategory,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.white70,
+                                    borderRadius: BorderRadius.circular(15),
+                                    // border: Border.all(
+                                    //   color: const Color(0xff870160),
+                                    //   width: 2,
+                                    // ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color:
+                                            Colors.pinkAccent.withOpacity(0.3),
+                                        blurRadius: 6,
+                                        spreadRadius: 1,
                                       ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
+                                    ],
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.workspace_premium,
+                                              color: Colors.amber, size: 24),
+                                          const SizedBox(width: 9),
+                                          Expanded(
+                                            child: Text(
+                                              package.status,
+                                              style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 6),
+                                      const Divider(
+                                          color: Colors.white, thickness: 1),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        package.packagecategory,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.white70,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
+
                               const SizedBox(height: 10),
 
                               // Features
@@ -250,10 +305,16 @@ class PricingPageState extends State<PricingPage>
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 18, vertical: 15),
                                 decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.85),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment(0.8, 1),
+                                    colors: AppColors.gradientBackgroundList,
+                                  ),
                                   borderRadius: BorderRadius.circular(15),
-                                  border: Border.all(
-                                      color: const Color(0xff870160), width: 2),
+                                  // border: Border.all(
+                                  //   color: const Color(0xff870160),
+                                  //   width: 2,
+                                  // ),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.pinkAccent.withOpacity(0.3),
@@ -298,10 +359,16 @@ class PricingPageState extends State<PricingPage>
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 18, vertical: 15),
                                 decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.85),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment(0.8, 1),
+                                    colors: AppColors.gradientBackgroundList,
+                                  ),
                                   borderRadius: BorderRadius.circular(15),
-                                  border: Border.all(
-                                      color: const Color(0xff870160), width: 2),
+                                  // border: Border.all(
+                                  //   color: Colors.black,
+                                  //   width: 2,
+                                  // ),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.pinkAccent.withOpacity(0.3),
@@ -342,7 +409,7 @@ class PricingPageState extends State<PricingPage>
                                           style: const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
-                                            color: Colors.greenAccent,
+                                            color: Colors.white,
                                           ),
                                         ),
                                       ],
@@ -354,7 +421,7 @@ class PricingPageState extends State<PricingPage>
                             ]));
                   },
                   options: CarouselOptions(
-                    height: 420,
+                    height: 380,
                     enlargeCenterPage: true,
                     enableInfiniteScroll: false,
                     viewportFraction: 0.90,
@@ -378,18 +445,9 @@ class PricingPageState extends State<PricingPage>
                       height: 70,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [
-                            Color(0xff1f005c).withOpacity(0.6),
-                            Color(0xff5b0060).withOpacity(0.6),
-                            Color(0xff870160).withOpacity(0.6),
-                            Color(0xffac255e).withOpacity(0.6),
-                            Color(0xffca485c).withOpacity(0.6),
-                            Color(0xffe16b5c).withOpacity(0.6),
-                            Color(0xfff39060).withOpacity(0.6),
-                            Color(0xfffffb56b).withOpacity(0.6),
-                          ],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
+                          begin: Alignment.topLeft,
+                          end: Alignment(0.8, 1),
+                          colors: AppColors.gradientBackgroundList,
                         ),
                         borderRadius: BorderRadius.circular(50),
                       ),

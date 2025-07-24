@@ -175,19 +175,44 @@ class SettingsPageState extends State<SettingsPage>
     return Scaffold(
       backgroundColor: AppColors.primaryColor,
       appBar: AppBar(
-        title: Text(
-          "Settings",
-          style: AppTextStyles.headingText.copyWith(
-            fontSize: getResponsiveFontSize(0.035),
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
+        centerTitle: true,
+        title: Builder(
+          builder: (context) {
+            double fontSize = MediaQuery.of(context).size.width * 0.05;
+            return Text(
+              "Settings",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: fontSize,
+                color: AppColors.textColor,
+              ),
+            );
+          },
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: AppColors.gradientBackgroundList,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(40),
+              bottomRight: Radius.circular(40),
+            ),
           ),
         ),
-        backgroundColor: AppColors.primaryColor,
-        elevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(40),
+            bottomRight: Radius.circular(40),
+          ),
+        ),
         actions: [
           IconButton(
-            icon: Icon(Icons.info_outline, color: Colors.white),
+            icon: const Icon(Icons.info_outline, color: Colors.white),
             onPressed: () => Get.to(AppInfoPage()),
           ),
         ],
@@ -214,7 +239,7 @@ class SettingsPageState extends State<SettingsPage>
                       max: 500,
                       divisions: 50,
                       label: "${maxDistance.round()} km",
-                      activeColor: AppColors.activeColor,
+                      activeColor: AppColors.cursorColor,
                       inactiveColor: AppColors.inactiveColor,
                       onChanged: (value) {
                         setStateSB(() {
@@ -243,7 +268,7 @@ class SettingsPageState extends State<SettingsPage>
                         "${ageRange.start.round()}",
                         "${ageRange.end.round()}",
                       ),
-                      activeColor: AppColors.activeColor,
+                      activeColor: AppColors.cursorColor,
                       inactiveColor: AppColors.inactiveColor,
                       onChanged: (RangeValues values) {
                         setStateSB(() {
@@ -328,99 +353,99 @@ class SettingsPageState extends State<SettingsPage>
               SizedBox(height: screenHeight * 0.04),
 
               // 😎 Mood Section (Expandable)
-                GestureDetector(
+              GestureDetector(
                 onTap: () => setState(() => isExpanded = !isExpanded),
                 child: Container(
                   decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: AppColors.gradientBackgroundList,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(18),
+                    gradient: LinearGradient(
+                      colors: AppColors.gradientBackgroundList,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(18),
                   ),
                   child: Card(
-                  color: Colors.transparent,
-                  elevation: 8,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  margin: EdgeInsets.zero,
-                  child: AnimatedContainer(
-                    duration: Duration(milliseconds: 400),
-                    padding: const EdgeInsets.all(18),
-                    decoration: BoxDecoration(
                     color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(18),
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
                     ),
-                    child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.emoji_emotions, color: Colors.amberAccent),
-                      SizedBox(width: 12),
-                      Text(
-                      'Selected Mood',
-                      style: TextStyle(
-                        fontSize: fontSize * 1.1,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
+                    margin: EdgeInsets.zero,
+                    child: AnimatedContainer(
+                      duration: Duration(milliseconds: 400),
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(18),
                       ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.emoji_emotions, color: Colors.amberAccent),
+                          SizedBox(width: 12),
+                          Text(
+                            'Selected Mood',
+                            style: TextStyle(
+                              fontSize: fontSize * 1.1,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
                     ),
                   ),
-                  ),
                 ),
-                ),
+              ),
 
-                SizedBox(height: screenHeight * 0.02),
-                GestureDetector(
+              SizedBox(height: screenHeight * 0.02),
+              GestureDetector(
                 onTap: () {
                   Get.to(PricingPage());
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: AppColors.gradientBackgroundList,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(18),
+                    gradient: LinearGradient(
+                      colors: AppColors.gradientBackgroundList,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(18),
                   ),
                   child: Card(
-                  color: Colors.transparent,
-                  elevation: 8,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  margin: EdgeInsets.zero,
-                  child: AnimatedContainer(
-                    duration: Duration(milliseconds: 400),
-                    padding: const EdgeInsets.all(18),
-                    decoration: BoxDecoration(
                     color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(18),
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
                     ),
-                    child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.emoji_symbols_outlined,
-                        color: Colors.amberAccent),
-                      SizedBox(width: 12),
-                      Text(
-                      'Become Content Creator',
-                      style: TextStyle(
-                        fontSize: fontSize * 1.1,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
+                    margin: EdgeInsets.zero,
+                    child: AnimatedContainer(
+                      duration: Duration(milliseconds: 400),
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(18),
                       ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.emoji_symbols_outlined,
+                              color: Colors.amberAccent),
+                          SizedBox(width: 12),
+                          Text(
+                            'Become Content Creator',
+                            style: TextStyle(
+                              fontSize: fontSize * 1.1,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
                     ),
                   ),
-                  ),
                 ),
-                ),
+              ),
 
               SizedBox(height: screenHeight * 0.02),
               // 🔐 Change Password & Email
@@ -656,25 +681,35 @@ class SettingsCard extends StatelessWidget {
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       margin: const EdgeInsets.symmetric(vertical: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+      color: Colors.transparent, // Make card transparent
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: AppColors.gradientBackgroundList,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        padding: const EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Icon(icon, color: Colors.white, size: 24),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
                   title,
                   style: AppTextStyles.subheadingText.copyWith(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
+                    color: Colors.white, // Make title white for contrast
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             child,
           ],
         ),

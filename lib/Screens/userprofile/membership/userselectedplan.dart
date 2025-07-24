@@ -66,13 +66,51 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Your Plans',
-          style: AppTextStyles.headingText.copyWith(
-            fontSize: getResponsiveFontSize(context, 0.05),
+        backgroundColor:
+            Colors.transparent, // Make background transparent for gradient
+        elevation: 0, // Remove default shadow
+        centerTitle: true,
+        title: Builder(
+          builder: (context) {
+            double fontSize =
+                MediaQuery.of(context).size.width * 0.05; // ~5% of screen width
+            return Text(
+              'Your Plans',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: fontSize,
+                color: AppColors.textColor,
+              ),
+            );
+          },
+        ),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment(0.8, 1),
+              colors: AppColors.gradientBackgroundList,
+            ),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(40.0),
+              bottomRight: Radius.circular(40.0),
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x66666666),
+                blurRadius: 10.0,
+                spreadRadius: 3.0,
+                offset: Offset(0, 6.0),
+              ),
+            ],
           ),
         ),
-        backgroundColor: AppColors.primaryColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(40.0),
+            bottomRight: Radius.circular(40.0),
+          ),
+        ),
       ),
       body: Obx(() {
         if (controller.subscripted.isEmpty) {

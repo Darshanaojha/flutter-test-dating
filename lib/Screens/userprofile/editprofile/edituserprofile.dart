@@ -36,6 +36,7 @@ class EditProfilePageState extends State<EditProfilePage>
   RxBool emailAlerts = true.obs;
   RxBool visibility_status = true.obs;
   bool optOutOfPingNote = true;
+  RxBool showAddHint = false.obs;
 
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -58,6 +59,11 @@ class EditProfilePageState extends State<EditProfilePage>
   RxList<String> selectedPreferences = <String>[].obs;
   TextEditingController interestController = TextEditingController();
   RxList<String> updatedSelectedInterests = <String>[].obs;
+  final RxString interestError = ''.obs;
+  RxString errorMessage = ''.obs; // Declare this at the top of your class
+  RxBool preferencesError = false.obs;
+  RxBool languageError = false.obs; // reactive bool to track error
+  RxString interestInstruction = ''.obs;
 
   void addInterest() {
     String newInterest = interestController.text.trim();
@@ -83,8 +89,14 @@ class EditProfilePageState extends State<EditProfilePage>
 
   void deleteInterest(int index) {
     updatedSelectedInterests.removeAt(index);
-
     controller.userData.first.interest = updatedSelectedInterests.join(',');
+
+    // Show error if list becomes empty
+    if (updatedSelectedInterests.isEmpty) {
+      interestError.value = "Interest is required";
+    } else {
+      interestError.value = '';
+    }
 
     print("Updated backend interest: ${controller.userData.first.interest}");
   }
@@ -136,6 +148,16 @@ class EditProfilePageState extends State<EditProfilePage>
     );
     selectedOptions = RxList<bool>.filled(controller.desires.length, false);
     selectedDesires = controller.userDesire;
+    interestController.addListener(() {
+      showAddHint.value = interestController.text.trim().isNotEmpty;
+    });
+    interestController.addListener(() {
+      if (interestController.text.trim().isNotEmpty) {
+        interestInstruction.value = "Click on add to save";
+      } else {
+        interestInstruction.value = "";
+      }
+    });
   }
 
   Future<bool> fetchAllData() async {
@@ -253,7 +275,7 @@ class EditProfilePageState extends State<EditProfilePage>
     if (debounce?.isActive ?? false) {
       debounce?.cancel();
     }
-    debounce = Timer(Duration(milliseconds: 100), () {
+    debounce = Timer(Duration(milliseconds: 800), () {
       fetchLatLong();
     });
   }
@@ -435,20 +457,24 @@ class EditProfilePageState extends State<EditProfilePage>
 
     DateTime dob = DateFormat('dd/MM/yyyy').parse(value);
     DateTime now = DateTime.now();
-    // selectedDate = dob;
     int age = now.year - dob.year;
 
+    // Adjust for month and day
     if (now.month < dob.month ||
         (now.month == dob.month && now.day < dob.day)) {
       age--;
     }
 
+    // ❌ Don't allow future DOB
+    if (dob.isAfter(now)) {
+      return 'Date of birth cannot be in the future';
+    }
+
     if (age < 18) {
-      failure("Invalid DOB", 'You must be at least 18 years old to proceed.');
       return 'You must be at least 18 years old to proceed.';
     }
 
-    return '';
+    return null;
   }
 
   Future<void> fetchLatLong() async {
@@ -494,19 +520,39 @@ class EditProfilePageState extends State<EditProfilePage>
     }
 
     Future<void> selectDate() async {
+      DateTime now = DateTime.now();
+      DateTime today = DateTime(now.year, now.month, now.day);
+      DateTime eighteenYearsAgo = today.subtract(Duration(days: 18 * 365));
+
+      DateTime defaultInitial = eighteenYearsAgo; // default to 18 years ago
+
+      // Try parsing initialValue or fallback
+      DateTime? initialDate;
+      try {
+        if (initialValue.isNotEmpty) {
+          DateTime parsed = DateFormat('dd/MM/yyyy').parseStrict(initialValue);
+          // Don't allow future or underage initial value
+          initialDate =
+              parsed.isAfter(eighteenYearsAgo) ? defaultInitial : parsed;
+        }
+      } catch (_) {
+        initialDate = defaultInitial;
+      }
+
+      print('Initial DOB: $initialValue');
+      print('18 years ago limit: $eighteenYearsAgo');
+
       DateTime? pickedDate = await showDatePicker(
         context: context,
-        initialDate: initialValue.isNotEmpty
-            ? DateFormat('dd/MM/yyyy').parse(initialValue)
-            : DateTime.now(),
+        initialDate: initialDate ?? defaultInitial,
         firstDate: DateTime(1900),
-        lastDate: DateTime.now().subtract(Duration(days: 18 * 365)),
+        lastDate: eighteenYearsAgo, // ✅ must be 18+ years old
+        helpText: "Select your Date of Birth",
       );
 
       if (pickedDate != null) {
         String formattedDate = DateFormat('dd/MM/yyyy').format(pickedDate);
         controller.text = formattedDate;
-        selectedDate = pickedDate;
         onChanged(formattedDate);
         errorText = null;
       }
@@ -517,60 +563,57 @@ class EditProfilePageState extends State<EditProfilePage>
       return screenWidth * scale;
     }
 
-    return DecoratedBoxTransition(
-      decoration: decorationTween.animate(_animationController),
-      child: Card(
-        color: Colors.transparent,
-        elevation: 5,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: AppTextStyles.buttonText.copyWith(
-                  fontSize: getResponsiveFontSize(0.03),
-                ),
+    return Card(
+      color: Colors.transparent,
+      elevation: 5,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: AppTextStyles.buttonText.copyWith(
+                fontSize: getResponsiveFontSize(0.03),
               ),
-              SizedBox(height: 10),
-              GestureDetector(
-                onTap: selectDate,
-                child: AbsorbPointer(
-                  child: TextField(
-                    cursorColor: AppColors.cursorColor,
-                    controller: controller,
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: getResponsiveFontSize(0.03),
-                    ),
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: AppColors.formFieldColor,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.green, width: 2.0),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide:
-                            BorderSide(color: AppColors.textColor, width: 1.5),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      errorText: errorText,
-                      hintText: "Select your Date of Birth",
-                    ),
-                    onChanged: (value) {
-                      onChanged(value);
-                      validateInput(value);
-                    },
+            ),
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTap: selectDate,
+              child: AbsorbPointer(
+                child: TextField(
+                  controller: controller,
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
                   ),
+                  cursorColor: AppColors.cursorColor,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: AppColors.formFieldColor,
+                    hintText: "Select your Date of Birth",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.green, width: 2.0),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: AppColors.textColor, width: 1.5),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    errorText: errorText,
+                  ),
+                  onChanged: (value) {
+                    onChanged(value);
+                    validateInput(value);
+                  },
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -650,8 +693,51 @@ class EditProfilePageState extends State<EditProfilePage>
     final selectedGender = Rx<Gender?>(null);
     return Scaffold(
         appBar: AppBar(
-          title: Text('Edit Profile'),
-          backgroundColor: AppColors.primaryColor,
+          backgroundColor: Colors.transparent, // Transparent for gradient
+          elevation: 0, // Remove default shadow
+          centerTitle: true,
+
+          title: Builder(
+            builder: (context) {
+              double fontSize = MediaQuery.of(context).size.width *
+                  0.05; // ~5% of screen width
+              return Text(
+                'Edit Profile',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: fontSize,
+                  color: AppColors.textColor,
+                ),
+              );
+            },
+          ),
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment(0.8, 1),
+                colors: AppColors.gradientBackgroundList,
+              ),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(40.0),
+                bottomRight: Radius.circular(40.0),
+              ),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x66666666),
+                  blurRadius: 10.0,
+                  spreadRadius: 3.0,
+                  offset: Offset(0, 6.0),
+                ),
+              ],
+            ),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(40.0),
+              bottomRight: Radius.circular(40.0),
+            ),
+          ),
         ),
         body: FutureBuilder<bool>(
             future: _fetchProfileFuture, //controller.fetchProfile(),
@@ -693,10 +779,18 @@ class EditProfilePageState extends State<EditProfilePage>
                           DecoratedBoxTransition(
                             decoration:
                                 decorationTween.animate(_animationController),
-                            child: Card(
-                              color: Colors.transparent,
+                            child: Material(
                               elevation: 5,
-                              child: Padding(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: AppColors.gradientBackgroundList,
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                                 padding: const EdgeInsets.all(12.0),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -710,9 +804,10 @@ class EditProfilePageState extends State<EditProfilePage>
                                       child: (controller.userPhotos == null ||
                                               controller
                                                   .userPhotos!.images.isEmpty)
-                                          ? Center(
-                                              child:
-                                                  Text("No images available"))
+                                          ? const Center(
+                                              child: Text("No images available",
+                                                  style: TextStyle(
+                                                      color: Colors.white)))
                                           : Scrollbar(
                                               child: ListView.builder(
                                                 scrollDirection: Axis.vertical,
@@ -722,7 +817,6 @@ class EditProfilePageState extends State<EditProfilePage>
                                                   String imageUrl = controller
                                                       .userPhotos!
                                                       .images[index];
-
                                                   return Padding(
                                                     padding: const EdgeInsets
                                                         .symmetric(
@@ -735,7 +829,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                                           onTap: () =>
                                                               showFullImageDialog(
                                                                   context,
-                                                                  imageUrl), // Show full image on tap
+                                                                  imageUrl),
                                                           child: ClipRRect(
                                                             borderRadius:
                                                                 BorderRadius
@@ -763,15 +857,9 @@ class EditProfilePageState extends State<EditProfilePage>
                                                                     null) {
                                                                   return child;
                                                                 } else {
-                                                                  return Center(
+                                                                  return const Center(
                                                                     child:
-                                                                        CircularProgressIndicator(
-                                                                      value: loadingProgress.expectedTotalBytes !=
-                                                                              null
-                                                                          ? loadingProgress.cumulativeBytesLoaded /
-                                                                              (loadingProgress.expectedTotalBytes ?? 1)
-                                                                          : null,
-                                                                    ),
+                                                                        CircularProgressIndicator(),
                                                                   );
                                                                 }
                                                               },
@@ -796,7 +884,8 @@ class EditProfilePageState extends State<EditProfilePage>
                                                                   color: Colors
                                                                       .grey
                                                                       .shade200,
-                                                                  child: Icon(
+                                                                  child:
+                                                                      const Icon(
                                                                     Icons
                                                                         .broken_image,
                                                                     size: 48,
@@ -821,8 +910,8 @@ class EditProfilePageState extends State<EditProfilePage>
                                             .fetchProfileUserPhotos();
                                         Get.to(EditPhotosPage());
                                       },
-                                      icon:
-                                          Icon(Icons.edit, color: Colors.white),
+                                      icon: const Icon(Icons.edit,
+                                          color: Colors.white),
                                       label: Text(
                                         'Edit Photos',
                                         style:
@@ -880,7 +969,7 @@ class EditProfilePageState extends State<EditProfilePage>
                         ],
                       ),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.001,
+                        height: MediaQuery.of(context).size.height * 0.02,
                       ),
                       isLoading
                           ? Center(
@@ -906,29 +995,45 @@ class EditProfilePageState extends State<EditProfilePage>
                                   ),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.001,
+                                        0.01,
                                   ),
-                                  dobPicker(
-                                    context: context,
-                                    initialValue:
-                                        controller.userData.first.dob.isNotEmpty
-                                            ? controller.userData.first.dob
-                                            : controller
-                                                .userProfileUpdateRequest.dob,
-                                    onChanged: (value) {
-                                      controller.userProfileUpdateRequest.dob =
-                                          value;
-
-                                      print("Date of Birth: $value");
-                                    },
-                                    validator: (value) {
-                                      return validateDob(value);
-                                    },
-                                    label: 'Date of Birth',
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors:
+                                            AppColors.gradientBackgroundList,
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black12,
+                                          blurRadius: 6,
+                                          offset: Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: dobPicker(
+                                      context: context,
+                                      initialValue: controller
+                                              .userData.first.dob.isNotEmpty
+                                          ? controller.userData.first.dob
+                                          : controller
+                                              .userProfileUpdateRequest.dob,
+                                      onChanged: (value) {
+                                        controller.userProfileUpdateRequest
+                                            .dob = value;
+                                        print("Date of Birth: $value");
+                                      },
+                                      validator: (value) => validateDob(value),
+                                      label: 'Date of Birth',
+                                    ),
                                   ),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.001,
+                                        0.01,
                                   ),
                                   InfoField(
                                     initialValue: controller
@@ -944,7 +1049,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                   ),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.001,
+                                        0.01,
                                   ),
                                   InfoField(
                                     initialValue:
@@ -960,60 +1065,85 @@ class EditProfilePageState extends State<EditProfilePage>
                                   ),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.001,
+                                        0.01,
                                   ),
                                   DecoratedBoxTransition(
                                     decoration: decorationTween
                                         .animate(_animationController),
-                                    child: Card(
-                                      elevation: 5,
-                                      color: Colors.transparent,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(12.0),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "Country: ${controller.selectedCountry.value?.name ?? 'None'}",
-                                              style: const TextStyle(
-                                                  fontSize: 15.0),
-                                            ),
-                                            const SizedBox(height: 8.0),
-                                            Obx(() {
-                                              if (controller
-                                                  .countries.isEmpty) {
-                                                return Center(
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    color:
-                                                        AppColors.progressColor,
-                                                  ),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors:
+                                              AppColors.gradientBackgroundList,
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(
+                                            12), // Match Card's shape
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black26,
+                                            blurRadius: 5,
+                                            offset: Offset(0, 3),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Card(
+                                        elevation:
+                                            0, // Remove elevation as Container has shadow
+                                        color: Colors
+                                            .transparent, // Make card transparent
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(12.0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Country: ${controller.selectedCountry.value?.name ?? 'None'}",
+                                                style: const TextStyle(
+                                                    fontSize: 15.0),
+                                              ),
+                                              const SizedBox(height: 8.0),
+                                              Obx(() {
+                                                if (controller
+                                                    .countries.isEmpty) {
+                                                  return Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      color: AppColors
+                                                          .progressColor,
+                                                    ),
+                                                  );
+                                                }
+                                                return buildDropdownWithBottomSheet<
+                                                    Country>(
+                                                  context,
+                                                  "Country",
+                                                  controller.countries,
+                                                  controller.initialCountry,
+                                                  controller.selectedCountry,
+                                                  12.0,
+                                                  (Country? value) {
+                                                    if (value != null) {
+                                                      controller
+                                                          .userProfileUpdateRequest
+                                                          .countryId = value.id;
+                                                      Get.snackbar('Selected',
+                                                          value.name);
+                                                    }
+                                                  },
+                                                  displayValue:
+                                                      (Country country) =>
+                                                          country.name,
                                                 );
-                                              }
-                                              return buildDropdownWithBottomSheet<
-                                                  Country>(
-                                                context,
-                                                "Country",
-                                                controller.countries,
-                                                controller.initialCountry,
-                                                controller.selectedCountry,
-                                                12.0,
-                                                (Country? value) {
-                                                  if (value != null) {
-                                                    controller
-                                                        .userProfileUpdateRequest
-                                                        .countryId = value.id;
-                                                    Get.snackbar(
-                                                        'Selected', value.name);
-                                                  }
-                                                },
-                                                displayValue:
-                                                    (Country country) =>
-                                                        country.name,
-                                              );
-                                            }),
-                                          ],
+                                              }),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -1036,7 +1166,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                   ),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.001,
+                                        0.01,
                                   ),
                                   InfoField(
                                     initialValue: controller
@@ -1054,7 +1184,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                   ),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.001,
+                                        0.01,
                                   ),
                                   Obx(() {
                                     if (isLatLongFetched.value) {
@@ -1103,68 +1233,272 @@ class EditProfilePageState extends State<EditProfilePage>
                                   languages(context),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.001,
+                                        0.01,
                                   ),
                                   DecoratedBoxTransition(
                                     decoration: decorationTween
                                         .animate(_animationController),
-                                    child: Card(
-                                      color: Colors.transparent,
-                                      elevation: 8,
-                                      shape: RoundedRectangleBorder(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors:
+                                              AppColors.gradientBackgroundList,
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
                                         borderRadius: BorderRadius.circular(12),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.08),
+                                            blurRadius: 8,
+                                            offset: Offset(0, 4),
+                                          ),
+                                        ],
                                       ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16.0),
-                                        child: Center(
-                                          child: Column(
-                                            children: [
-                                              Text('Gender'),
-                                              Obx(() {
-                                                if (controller
-                                                    .genders.isEmpty) {
-                                                  return Center(
-                                                    child:
-                                                        CircularProgressIndicator(
-                                                      color: AppColors
-                                                          .progressColor,
+                                      child: Card(
+                                        color: Colors
+                                            .transparent, // Keep transparent so gradient is visible
+                                        elevation: 8,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: Center(
+                                            child: Column(
+                                              children: [
+                                                Text('Gender'),
+                                                Obx(() {
+                                                  if (controller
+                                                      .genders.isEmpty) {
+                                                    return Center(
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                        color: AppColors
+                                                            .progressColor,
+                                                      ),
+                                                    );
+                                                  }
+                                                  if (selectedGender.value ==
+                                                          null &&
+                                                      controller.userData
+                                                          .isNotEmpty) {
+                                                    String? genderFromUserData =
+                                                        controller.userData
+                                                            .first.gender;
+                                                    if (genderFromUserData
+                                                        .isNotEmpty) {
+                                                      selectedGender.value =
+                                                          controller.genders
+                                                              .firstWhere(
+                                                        (gender) =>
+                                                            gender.id ==
+                                                            genderFromUserData,
+                                                        orElse: () => controller
+                                                            .genders.first,
+                                                      );
+                                                    }
+                                                  }
+                                                  return SizedBox(
+                                                    height: 200,
+                                                    child: Scrollbar(
+                                                      child:
+                                                          SingleChildScrollView(
+                                                        child: Column(
+                                                          children: controller
+                                                              .genders
+                                                              .map((gender) {
+                                                            return RadioListTile<
+                                                                Gender?>(
+                                                              title: Text(
+                                                                gender.title,
+                                                                style: AppTextStyles
+                                                                    .bodyText
+                                                                    .copyWith(
+                                                                  fontSize:
+                                                                      bodyFontSize,
+                                                                  color: AppColors
+                                                                      .textColor,
+                                                                ),
+                                                              ),
+                                                              value: gender,
+                                                              groupValue:
+                                                                  selectedGender
+                                                                      .value,
+                                                              onChanged:
+                                                                  (Gender?
+                                                                      value) {
+                                                                selectedGender
+                                                                        .value =
+                                                                    value;
+
+                                                                final parsedGenderId =
+                                                                    value?.id ??
+                                                                        '';
+
+                                                                controller
+                                                                        .userProfileUpdateRequest
+                                                                        .gender =
+                                                                    parsedGenderId
+                                                                        .toString();
+
+                                                                controller
+                                                                    .fetchSubGender(
+                                                                        SubGenderRequest(
+                                                                  genderId:
+                                                                      parsedGenderId
+                                                                          .toString(),
+                                                                ));
+                                                              },
+                                                              activeColor:
+                                                                  AppColors
+                                                                      .buttonColor,
+                                                            );
+                                                          }).toList(),
+                                                        ),
+                                                      ),
                                                     ),
                                                   );
-                                                }
-                                                if (selectedGender.value ==
-                                                        null &&
-                                                    controller
-                                                        .userData.isNotEmpty) {
-                                                  String? genderFromUserData =
-                                                      controller.userData.first
-                                                          .gender;
-                                                  if (genderFromUserData
-                                                      .isNotEmpty) {
-                                                    selectedGender.value =
-                                                        controller.genders
-                                                            .firstWhere(
-                                                                (gender) =>
-                                                                    gender.id ==
-                                                                    genderFromUserData,
-                                                                orElse: () =>
-                                                                    controller
-                                                                        .genders
-                                                                        .first);
-                                                  }
-                                                }
-                                                return SizedBox(
+                                                }),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.01,
+                                  ),
+                                  Obx(() {
+                                    String initialLookingFor = controller
+                                            .userProfileUpdateRequest
+                                            .lookingFor
+                                            .isNotEmpty
+                                        ? controller
+                                            .userProfileUpdateRequest.lookingFor
+                                        : controller.userData.first.lookingFor;
+
+                                    return DecoratedBoxTransition(
+                                      decoration: decorationTween
+                                          .animate(_animationController),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: AppColors
+                                                .gradientBackgroundList,
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black
+                                                  .withOpacity(0.08),
+                                              blurRadius: 8,
+                                              offset: Offset(0, 4),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Card(
+                                          color: Colors
+                                              .transparent, // Transparent to show gradient from Container
+                                          elevation: 8,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(16.0),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                buildSelectableFieldRelationship<
+                                                    String>(
+                                                  "Relationship Type",
+                                                  ['1', '2'],
+                                                  initialLookingFor.isEmpty
+                                                      ? null
+                                                      : initialLookingFor,
+                                                  bodyFontSize,
+                                                  (String? value) {
+                                                    setState(() {
+                                                      controller
+                                                          .userProfileUpdateRequest
+                                                          .lookingFor = value ?? '';
+                                                    });
+                                                  },
+                                                  displayValue: (String value) {
+                                                    if (value == '1') {
+                                                      return 'Serious Relationship';
+                                                    } else if (value == '2') {
+                                                      return 'Hookup';
+                                                    }
+                                                    return '';
+                                                  },
+                                                  context: context,
+                                                ),
+                                                SizedBox(height: 20),
+                                                Center(
+                                                  child: Text(
+                                                    'Sub Gender',
+                                                    style: AppTextStyles
+                                                        .bodyText
+                                                        .copyWith(
+                                                      fontSize: bodyFontSize,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color:
+                                                          AppColors.textColor,
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(height: 10),
+                                                SizedBox(
                                                   height: 200,
                                                   child: Scrollbar(
                                                     child:
                                                         SingleChildScrollView(
                                                       child: Column(
-                                                        children: controller
-                                                            .genders
-                                                            .map((gender) {
+                                                        children: List.generate(
+                                                            controller
+                                                                .subGenders
+                                                                .length,
+                                                            (index) {
+                                                          if (selectedSubGender
+                                                                      .value ==
+                                                                  '' &&
+                                                              controller
+                                                                  .userData
+                                                                  .isNotEmpty) {
+                                                            String?
+                                                                subGenderFromUserData =
+                                                                controller
+                                                                    .userData
+                                                                    .first
+                                                                    .subGender;
+                                                            if (subGenderFromUserData
+                                                                .isNotEmpty) {
+                                                              selectedSubGender
+                                                                      .value =
+                                                                  subGenderFromUserData;
+                                                            }
+                                                          }
+
                                                           return RadioListTile<
-                                                              Gender?>(
+                                                              String>(
                                                             title: Text(
-                                                              gender.title,
+                                                              controller
+                                                                  .subGenders[
+                                                                      index]
+                                                                  .title,
                                                               style:
                                                                   AppTextStyles
                                                                       .bodyText
@@ -1175,180 +1509,36 @@ class EditProfilePageState extends State<EditProfilePage>
                                                                     .textColor,
                                                               ),
                                                             ),
-                                                            value: gender,
+                                                            value: controller
+                                                                .subGenders[
+                                                                    index]
+                                                                .id,
                                                             groupValue:
-                                                                selectedGender
+                                                                selectedSubGender
                                                                     .value,
-                                                            onChanged: (Gender?
+                                                            onChanged: (String?
                                                                 value) {
-                                                              selectedGender
+                                                              selectedSubGender
                                                                       .value =
-                                                                  value;
-
-                                                              final parsedGenderId =
-                                                                  value?.id ??
-                                                                      '';
-
+                                                                  value ?? '';
                                                               controller
                                                                       .userProfileUpdateRequest
-                                                                      .gender =
-                                                                  parsedGenderId
-                                                                      .toString();
-
-                                                              controller.fetchSubGender(
-                                                                  SubGenderRequest(
-                                                                      genderId:
-                                                                          parsedGenderId
-                                                                              .toString()));
+                                                                      .subGender =
+                                                                  value ?? '';
                                                             },
                                                             activeColor:
                                                                 AppColors
                                                                     .buttonColor,
+                                                            contentPadding:
+                                                                EdgeInsets.zero,
                                                           );
-                                                        }).toList(),
+                                                        }),
                                                       ),
                                                     ),
                                                   ),
-                                                );
-                                              }),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.001,
-                                  ),
-                                  Obx(() {
-                                    String initialLookingFor = controller
-                                            .userProfileUpdateRequest
-                                            .lookingFor
-                                            .isNotEmpty
-                                        ? controller
-                                            .userProfileUpdateRequest.lookingFor
-                                        : controller.userData.first.lookingFor;
-                                    return DecoratedBoxTransition(
-                                      decoration: decorationTween
-                                          .animate(_animationController),
-                                      child: Card(
-                                        color: Colors.transparent,
-                                        elevation: 8,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(16.0),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              buildSelectableFieldRelationship<
-                                                  String>(
-                                                "Relationship Type",
-                                                ['1', '2'],
-                                                initialLookingFor.isEmpty
-                                                    ? null
-                                                    : initialLookingFor,
-                                                bodyFontSize,
-                                                (String? value) {
-                                                  setState(() {
-                                                    controller
-                                                        .userProfileUpdateRequest
-                                                        .lookingFor = value ?? '';
-                                                  });
-                                                },
-                                                displayValue: (String value) {
-                                                  if (value == '1') {
-                                                    return 'Serious Relationship';
-                                                  } else if (value == '2') {
-                                                    return 'Hookup';
-                                                  }
-                                                  return '';
-                                                },
-                                                context: context,
-                                              ),
-                                              SizedBox(height: 20),
-                                              Center(
-                                                child: Text(
-                                                  'Sub Gender',
                                                 ),
-                                              ),
-                                              SizedBox(height: 10),
-                                              SizedBox(
-                                                height: 200,
-                                                child: Scrollbar(
-                                                  child: SingleChildScrollView(
-                                                    child: Column(
-                                                      children: List.generate(
-                                                          controller.subGenders
-                                                              .length, (index) {
-                                                        if (selectedSubGender
-                                                                    .value ==
-                                                                '' &&
-                                                            controller.userData
-                                                                .isNotEmpty) {
-                                                          String?
-                                                              subGenderFromUserData =
-                                                              controller
-                                                                  .userData
-                                                                  .first
-                                                                  .subGender;
-                                                          if (subGenderFromUserData
-                                                              .isNotEmpty) {
-                                                            selectedSubGender
-                                                                    .value =
-                                                                subGenderFromUserData;
-                                                          }
-                                                        }
-
-                                                        return RadioListTile<
-                                                            String>(
-                                                          title: Text(
-                                                            controller
-                                                                .subGenders[
-                                                                    index]
-                                                                .title,
-                                                            style: AppTextStyles
-                                                                .bodyText
-                                                                .copyWith(
-                                                              fontSize:
-                                                                  bodyFontSize,
-                                                              color: AppColors
-                                                                  .textColor,
-                                                            ),
-                                                          ),
-                                                          value: controller
-                                                              .subGenders[index]
-                                                              .id,
-                                                          groupValue:
-                                                              selectedSubGender
-                                                                  .value,
-                                                          onChanged:
-                                                              (String? value) {
-                                                            selectedSubGender
-                                                                    .value =
-                                                                value ?? '';
-                                                            controller
-                                                                    .userProfileUpdateRequest
-                                                                    .subGender =
-                                                                value ?? '';
-                                                          },
-                                                          activeColor: AppColors
-                                                              .buttonColor,
-                                                          contentPadding:
-                                                              EdgeInsets.zero,
-                                                        );
-                                                      }),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -1356,7 +1546,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                   }),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.001,
+                                        0.01,
                                   ),
                                   Obx(() {
                                     if (controller.preferences.isEmpty) {
@@ -1399,86 +1589,125 @@ class EditProfilePageState extends State<EditProfilePage>
                                           borderRadius:
                                               BorderRadius.circular(12),
                                         ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(12.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "Your Selected Preferences",
-                                                style: AppTextStyles
-                                                    .subheadingText
-                                                    .copyWith(
-                                                  fontSize: 14,
-                                                  color: AppColors.textColor,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: AppColors
+                                                  .gradientBackgroundList,
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(12.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Your Selected Preferences",
+                                                  style: AppTextStyles
+                                                      .subheadingText
+                                                      .copyWith(
+                                                    fontSize: 14,
+                                                    color: AppColors.textColor,
+                                                  ),
+                                                  textAlign: TextAlign.left,
                                                 ),
-                                                textAlign: TextAlign.left,
-                                              ),
-                                              const SizedBox(height: 20),
-                                              SizedBox(
-                                                height: 300,
-                                                child: Scrollbar(
-                                                  child: SingleChildScrollView(
-                                                    child: ListView.builder(
-                                                      shrinkWrap: true,
-                                                      physics:
-                                                          NeverScrollableScrollPhysics(),
-                                                      itemCount: controller
-                                                          .preferences.length,
-                                                      itemBuilder:
-                                                          (context, index) {
-                                                        return CheckboxListTile(
-                                                          title: Text(
-                                                            controller
-                                                                .preferences[
-                                                                    index]
-                                                                .title,
-                                                            style: AppTextStyles
-                                                                .bodyText
-                                                                .copyWith(
-                                                              fontSize:
-                                                                  bodyFontSize,
-                                                              color: AppColors
-                                                                  .textColor,
-                                                            ),
+                                                Obx(() => preferencesError.value
+                                                    ? Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(top: 4.0),
+                                                        child: Text(
+                                                          "Preference is required",
+                                                          style: TextStyle(
+                                                            color: Colors.red,
+                                                            fontSize: 12,
+                                                            fontWeight:
+                                                                FontWeight.w500,
                                                           ),
-                                                          value:
+                                                        ),
+                                                      )
+                                                    : SizedBox.shrink()),
+                                                const SizedBox(height: 20),
+                                                SizedBox(
+                                                  height: 300,
+                                                  child: Scrollbar(
+                                                    child:
+                                                        SingleChildScrollView(
+                                                      child: ListView.builder(
+                                                        shrinkWrap: true,
+                                                        physics:
+                                                            NeverScrollableScrollPhysics(),
+                                                        itemCount: controller
+                                                            .preferences.length,
+                                                        itemBuilder:
+                                                            (context, index) {
+                                                          return CheckboxListTile(
+                                                            title: Text(
+                                                              controller
+                                                                  .preferences[
+                                                                      index]
+                                                                  .title,
+                                                              style:
+                                                                  AppTextStyles
+                                                                      .bodyText
+                                                                      .copyWith(
+                                                                fontSize:
+                                                                    bodyFontSize,
+                                                                color: AppColors
+                                                                    .textColor,
+                                                              ),
+                                                            ),
+                                                            value:
+                                                                preferencesSelectedOptions[
+                                                                    index],
+                                                            onChanged:
+                                                                (bool? value) {
                                                               preferencesSelectedOptions[
-                                                                  index],
-                                                          onChanged:
-                                                              (bool? value) {
-                                                            preferencesSelectedOptions[
-                                                                    index] =
-                                                                value ?? false;
-                                                            if (preferencesSelectedOptions[
-                                                                index]) {
-                                                              selectedPreferences
-                                                                  .add(controller
-                                                                      .preferences[
-                                                                          index]
-                                                                      .id);
-                                                            } else {
-                                                              selectedPreferences
-                                                                  .remove(controller
-                                                                      .preferences[
-                                                                          index]
-                                                                      .id);
-                                                            }
-                                                          },
-                                                          activeColor: AppColors
-                                                              .buttonColor,
-                                                          checkColor:
-                                                              Colors.white,
-                                                          contentPadding:
-                                                              EdgeInsets.zero,
-                                                        );
-                                                      },
+                                                                      index] =
+                                                                  value ??
+                                                                      false;
+
+                                                              if (preferencesSelectedOptions[
+                                                                  index]) {
+                                                                selectedPreferences
+                                                                    .add(controller
+                                                                        .preferences[
+                                                                            index]
+                                                                        .id);
+                                                              } else {
+                                                                selectedPreferences
+                                                                    .remove(controller
+                                                                        .preferences[
+                                                                            index]
+                                                                        .id);
+                                                              }
+
+                                                              preferencesError
+                                                                      .value =
+                                                                  !preferencesSelectedOptions
+                                                                      .contains(
+                                                                          true);
+                                                            },
+                                                            activeColor:
+                                                                AppColors
+                                                                    .buttonColor,
+                                                            checkColor:
+                                                                Colors.white,
+                                                            contentPadding:
+                                                                EdgeInsets.zero,
+                                                          );
+                                                        },
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -1486,48 +1715,196 @@ class EditProfilePageState extends State<EditProfilePage>
                                   }),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.001,
+                                        0.01,
                                   ),
                                   DecoratedBoxTransition(
                                     decoration: decorationTween
                                         .animate(_animationController),
-                                    child: Card(
-                                      color: Colors.transparent,
+                                    child: Material(
                                       elevation: 5,
-                                      child: Padding(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: AppColors
+                                                .gradientBackgroundList,
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
                                         padding: const EdgeInsets.all(10.0),
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Text("Interests",
-                                                style: AppTextStyles.textStyle
-                                                  ..copyWith(
-                                                      fontSize:
-                                                          getResponsiveFontSize(
-                                                              0.04))),
-                                            SizedBox(height: 10),
+                                            // Title
+                                            Text(
+                                              "Interests",
+                                              style: AppTextStyles.textStyle
+                                                  .copyWith(
+                                                fontSize:
+                                                    getResponsiveFontSize(0.04),
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 10),
+
+                                            // Input field + Add button
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      TextField(
+                                                        controller:
+                                                            interestController,
+                                                        cursorColor: AppColors
+                                                            .cursorColor,
+                                                        decoration:
+                                                            InputDecoration(
+                                                          labelText:
+                                                              'Update Interest',
+                                                          labelStyle:
+                                                              AppTextStyles
+                                                                  .buttonText
+                                                                  .copyWith(
+                                                            fontSize:
+                                                                getResponsiveFontSize(
+                                                                    0.03),
+                                                          ),
+                                                          filled: true,
+                                                          fillColor: AppColors
+                                                              .formFieldColor,
+                                                          border:
+                                                              OutlineInputBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                            borderSide:
+                                                                BorderSide.none,
+                                                          ),
+                                                          focusedBorder:
+                                                              OutlineInputBorder(
+                                                            borderSide:
+                                                                const BorderSide(
+                                                              color:
+                                                                  Colors.green,
+                                                              width: 2.0,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        20),
+                                                          ),
+                                                          enabledBorder:
+                                                              OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                              color: AppColors
+                                                                  .textColor,
+                                                              width: 1.5,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        20),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Obx(() {
+                                                        return interestInstruction
+                                                                .value
+                                                                .isNotEmpty
+                                                            ? Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .only(
+                                                                        top:
+                                                                            6.0),
+                                                                child: Text(
+                                                                  interestInstruction
+                                                                      .value,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Colors
+                                                                        .orange,
+                                                                    fontSize:
+                                                                        12,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            : SizedBox.shrink();
+                                                      }),
+                                                      Obx(() {
+                                                        return interestError
+                                                                .value
+                                                                .isNotEmpty
+                                                            ? Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .only(
+                                                                        top:
+                                                                            6.0),
+                                                                child: Text(
+                                                                  interestError
+                                                                      .value,
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .red,
+                                                                      fontSize:
+                                                                          12),
+                                                                ),
+                                                              )
+                                                            : SizedBox.shrink();
+                                                      }),
+                                                    ],
+                                                  ),
+                                                ),
+                                                IconButton(
+                                                  icon: Icon(Icons.add,
+                                                      color: Colors.white),
+                                                  onPressed: addInterest,
+                                                ),
+                                              ],
+                                            ),
+
+                                            const SizedBox(height: 10),
+
+                                            // Chips display
                                             Obx(() {
                                               if (updatedSelectedInterests
                                                       .isEmpty &&
                                                   controller.userData.first
                                                       .interest.isNotEmpty) {
                                                 updatedSelectedInterests.addAll(
-                                                    controller
-                                                        .userData.first.interest
-                                                        .split(',')
-                                                        .toSet());
+                                                  controller
+                                                      .userData.first.interest
+                                                      .split(',')
+                                                      .toSet(),
+                                                );
                                               }
+
                                               return Wrap(
                                                 spacing: 8.0,
                                                 children: List.generate(
                                                     updatedSelectedInterests
                                                         .length, (index) {
+                                                  final interest =
+                                                      updatedSelectedInterests[
+                                                          index];
                                                   return Chip(
                                                     label: Text(
-                                                      updatedSelectedInterests[
-                                                          index],
-                                                      style: TextStyle(
+                                                      interest,
+                                                      style: const TextStyle(
                                                           fontSize: 15),
                                                     ),
                                                     backgroundColor:
@@ -1544,65 +1921,6 @@ class EditProfilePageState extends State<EditProfilePage>
                                                 }),
                                               );
                                             }),
-                                            SizedBox(height: 10),
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: TextField(
-                                                    controller:
-                                                        interestController,
-                                                    cursorColor:
-                                                        AppColors.cursorColor,
-                                                    decoration: InputDecoration(
-                                                      labelText:
-                                                          'update Interest',
-                                                      labelStyle: AppTextStyles
-                                                          .buttonText
-                                                          .copyWith(
-                                                              fontSize:
-                                                                  getResponsiveFontSize(
-                                                                      0.03)),
-                                                      filled: true,
-                                                      fillColor: AppColors
-                                                          .formFieldColor,
-                                                      border:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                        borderSide:
-                                                            BorderSide.none,
-                                                      ),
-                                                      focusedBorder:
-                                                          OutlineInputBorder(
-                                                        borderSide: BorderSide(
-                                                            color: Colors.green,
-                                                            width: 2.0),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(20),
-                                                      ),
-                                                      enabledBorder:
-                                                          OutlineInputBorder(
-                                                        borderSide: BorderSide(
-                                                            color: AppColors
-                                                                .textColor,
-                                                            width: 1.5),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(20),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                IconButton(
-                                                  icon: Icon(Icons.add,
-                                                      color: AppColors
-                                                          .activeColor),
-                                                  onPressed: addInterest,
-                                                ),
-                                              ],
-                                            ),
                                           ],
                                         ),
                                       ),
@@ -1610,7 +1928,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                   ),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.001,
+                                        0.01,
                                   ),
                                   buildRelationshipStatusInterestStep(
                                       context, MediaQuery.of(context).size),
@@ -1622,78 +1940,95 @@ class EditProfilePageState extends State<EditProfilePage>
                               ),
                             ),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.001,
+                        height: MediaQuery.of(context).size.height * 0.01,
                       ),
                       DecoratedBoxTransition(
                         decoration:
                             decorationTween.animate(_animationController),
-                        child: Card(
-                          color: Colors.transparent,
-                          elevation: 2,
-                          child: Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Privacy Settings",
-                                    style: AppTextStyles.subheadingText
-                                        .copyWith(
-                                            fontSize:
-                                                getResponsiveFontSize(0.03))),
-                                SizedBox(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.001,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: AppColors.gradientBackgroundList,
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 6,
+                                offset: Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Card(
+                              elevation: 2,
+                              margin: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: AppColors.gradientBackgroundList,
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
                                 ),
-                                PrivacyToggle(
-                                  label: "Email Alert",
-                                  value: emailAlerts.value,
-                                  onChanged: (val) =>
-                                      setState(() => emailAlerts.value = val),
+                                padding: const EdgeInsets.all(12.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Privacy Settings",
+                                      style:
+                                          AppTextStyles.subheadingText.copyWith(
+                                        fontSize: getResponsiveFontSize(0.03),
+                                        color: Colors
+                                            .white, // Ensure it's readable on gradient
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.01,
+                                    ),
+                                    PrivacyToggle(
+                                      label: "Email Alert",
+                                      value: emailAlerts.value,
+                                      onChanged: (val) => setState(
+                                          () => emailAlerts.value = val),
+                                    ),
+                                    SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.01,
+                                    ),
+                                    PrivacyToggle(
+                                      label: visibility_status.value
+                                          ? "Online Visible"
+                                          : "Hide Online",
+                                      value: visibility_status.value,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          visibility_status.value = val;
+                                          controller.userProfileUpdateRequest
+                                              .visibility = val ? '1' : '0';
+                                        });
+                                      },
+                                    ),
+                                    // Add other toggles here if needed
+                                  ],
                                 ),
-                                SizedBox(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.001,
-                                ),
-                                PrivacyToggle(
-                                  label: visibility_status.value
-                                      ? "Online Visible"
-                                      : "Hide Online ",
-                                  value: visibility_status.value,
-                                  onChanged: (val) => setState(() {
-                                    visibility_status.value = val;
-                                    visibility_status.value == true
-                                        ? controller.userProfileUpdateRequest
-                                            .visibility = '1'
-                                        : '0';
-                                  }),
-                                ),
-                                // PrivacyToggle(
-                                //   label: "Hide me on Flame",
-                                //   value: hideMeOnFlame,
-                                //   onChanged: (val) =>
-                                //       setState(() => hideMeOnFlame = val),
-                                // ),
-                                // SizedBox(height: 10),
-                                // PrivacyToggle(
-                                //   label: "Incognito Mode",
-                                //   value: incognitoMode,
-                                //   onChanged: (val) =>
-                                //       setState(() => incognitoMode = val),
-                                // ),
-                                // SizedBox(height: 10),
-                                // PrivacyToggle(
-                                //   label: "Opt out of Ping + Note",
-                                //   value: optOutOfPingNote,
-                                //   onChanged: (val) =>
-                                //       setState(() => optOutOfPingNote = val),
-                                // ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
                       ),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.001,
+                        height: MediaQuery.of(context).size.height * 0.02,
                       ),
                       SizedBox(
                         height: screenheight * 0.06,
@@ -1722,7 +2057,8 @@ class EditProfilePageState extends State<EditProfilePage>
                                     false) {
                                   if (!preferencesSelectedOptions
                                       .contains(true)) {
-                                    print("select preference");
+                                    failure('Validation Error',
+                                        'Preference is required. Please select at least one.');
                                     return;
                                   }
                                   if (selectedLanguages.isEmpty) {
@@ -2082,6 +2418,7 @@ class EditProfilePageState extends State<EditProfilePage>
 
     controller.userProfileUpdateRequest.desires =
         selectedDesires.map((userDesire) => userDesire.desiresId).toList();
+
     for (var userDesire in controller.userDesire) {
       int index =
           controller.desires.indexWhere((d) => d.id == userDesire.desiresId);
@@ -2091,220 +2428,237 @@ class EditProfilePageState extends State<EditProfilePage>
     }
 
     double screenWidth = screenSize.width;
-    double bodyFontSize = screenWidth * 0.03;
+    double bodyFontSize = screenWidth * 0.04;
     double chipFontSize = screenWidth * 0.03;
 
     return DecoratedBoxTransition(
       decoration: decorationTween.animate(_animationController),
-      child: Card(
-        color: Colors.transparent,
-        elevation: 8,
-        shape: RoundedRectangleBorder(
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: AppColors.gradientBackgroundList,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Obx(() {
-                  return selectedDesires.isNotEmpty
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "You selected:",
-                              style: AppTextStyles.bodyText.copyWith(
-                                fontSize: bodyFontSize,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textColor,
-                              ),
-                            ),
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height *
-                                  0.02, // 2% of screen height
-                            ),
-                            SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                children: selectedDesires.map((desire) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(right: 8.0),
-                                    child: Chip(
-                                      label: Text(desire.title),
-                                      backgroundColor: AppColors.chipColor,
-                                      labelStyle: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: chipFontSize,
-                                      ),
-                                      deleteIcon: Icon(
-                                        Icons.delete,
-                                        color: AppColors.deniedColor,
-                                      ),
-                                      onDeleted: () {
-                                        selectedDesires.remove(desire);
-                                        int index = controller.desires
-                                            .indexWhere((d) =>
-                                                d.id == desire.desiresId);
-                                        if (index != -1) {
-                                          selectedOptions[index] = false;
-                                        }
-                                        controller.userProfileUpdateRequest
-                                                .desires =
-                                            selectedDesires
-                                                .map((userDesire) =>
-                                                    userDesire.desiresId)
-                                                .toList();
-                                      },
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.02,
-                            ),
-                          ],
-                        )
-                      : Container();
-                }),
-                Text(
-                  "Select your Desires: ${controller.desires.length}",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: bodyFontSize,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textColor,
-                  ),
-                ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.02,
-                ),
-                Obx(() {
-                  return controller.desires.isNotEmpty
-                      ? SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          child: Wrap(
-                            spacing: 10,
-                            runSpacing: 10,
-                            children: List.generate(controller.desires.length,
-                                (index) {
-                              return GestureDetector(
-                                onTap: () {
-                                  UserDesire userDesire = UserDesire(
-                                    desiresId: controller.desires[index].id,
-                                    title: controller.desires[index].title,
-                                  );
-                                  if (!selectedDesires.any((desire) =>
-                                      desire.desiresId ==
-                                      userDesire.desiresId)) {
-                                    selectedDesires.add(userDesire);
-                                    selectedOptions[index] = true;
-                                    controller
-                                            .userProfileUpdateRequest.desires =
-                                        selectedDesires
-                                            .map((userDesire) =>
-                                                userDesire.desiresId)
-                                            .toList();
-                                  }
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.only(bottom: 8.0),
-                                  child: Chip(
-                                    label:
-                                        Text(controller.desires[index].title),
-                                    backgroundColor: selectedOptions[index]
-                                        ? AppColors.buttonColor
-                                        : AppColors.formFieldColor,
-                                    labelStyle: TextStyle(
-                                      color: selectedOptions[index]
-                                          ? Colors.white
-                                          : AppColors.textColor,
-                                      fontSize: chipFontSize,
-                                    ),
-                                  ),
+        child: Card(
+          elevation: 8,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          color: Colors.transparent,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Obx(() {
+                    return selectedDesires.isNotEmpty
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "You selected:",
+                                style: AppTextStyles.bodyText.copyWith(
+                                  fontSize: bodyFontSize,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textColor,
                                 ),
-                              );
-                            }),
+                              ),
+                              SizedBox(height: screenSize.height * 0.02),
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: selectedDesires.map((desire) {
+                                    return Padding(
+                                      padding:
+                                          const EdgeInsets.only(right: 8.0),
+                                      child: Chip(
+                                        label: Text(desire.title),
+                                        backgroundColor: AppColors.chipColor,
+                                        labelStyle: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: chipFontSize,
+                                        ),
+                                        deleteIcon: Icon(Icons.delete,
+                                            color: AppColors.deniedColor),
+                                        onDeleted: () {
+                                          selectedDesires.remove(desire);
+                                          int index = controller.desires
+                                              .indexWhere((d) =>
+                                                  d.id == desire.desiresId);
+                                          if (index != -1) {
+                                            selectedOptions[index] = false;
+                                          }
+                                          controller.userProfileUpdateRequest
+                                                  .desires =
+                                              selectedDesires
+                                                  .map((userDesire) =>
+                                                      userDesire.desiresId)
+                                                  .toList();
+
+                                          if (selectedDesires.isEmpty) {
+                                            errorMessage.value =
+                                                'Desires are required';
+                                          }
+                                        },
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                              SizedBox(height: screenSize.height * 0.02),
+                            ],
+                          )
+                        : Container();
+                  }),
+                  Obx(() => errorMessage.value.isNotEmpty
+                      ? Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Text(
+                            errorMessage.value,
+                            style: TextStyle(
+                                color: Colors.red, fontSize: bodyFontSize),
                           ),
                         )
-                      : Container();
-                }),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.01,
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.inactiveColor,
+                      : Container()),
+                  Text(
+                    "Select your Desires: ${controller.desires.length}",
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: bodyFontSize,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textColor,
                     ),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text(
-                              'Confirm Reset',
-                              style: AppTextStyles.bodyText.copyWith(
-                                fontSize: bodyFontSize,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textColor,
-                              ),
-                            ),
-                            content: Text(
-                              'Are you sure you want to clear your selections?',
-                              style: AppTextStyles.bodyText.copyWith(
-                                fontSize: bodyFontSize,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textColor,
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Text(
-                                  'Cancel',
-                                  style: AppTextStyles.bodyText.copyWith(
-                                    fontSize: bodyFontSize,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.textColor,
+                  ),
+                  SizedBox(height: screenSize.height * 0.02),
+                  Obx(() {
+                    return controller.desires.isNotEmpty
+                        ? SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            child: Wrap(
+                              spacing: 10,
+                              runSpacing: 10,
+                              children: List.generate(controller.desires.length,
+                                  (index) {
+                                return GestureDetector(
+                                  onTap: () {
+                                    UserDesire userDesire = UserDesire(
+                                      desiresId: controller.desires[index].id,
+                                      title: controller.desires[index].title,
+                                    );
+
+                                    if (!selectedDesires.any((desire) =>
+                                        desire.desiresId ==
+                                        userDesire.desiresId)) {
+                                      selectedDesires.add(userDesire);
+                                      selectedOptions[index] = true;
+                                      controller.userProfileUpdateRequest
+                                              .desires =
+                                          selectedDesires
+                                              .map((userDesire) =>
+                                                  userDesire.desiresId)
+                                              .toList();
+                                      errorMessage.value = ''; // Clear error
+                                    }
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0),
+                                    child: Chip(
+                                      label:
+                                          Text(controller.desires[index].title),
+                                      backgroundColor: selectedOptions[index]
+                                          ? AppColors.buttonColor
+                                          : AppColors.formFieldColor,
+                                      labelStyle: TextStyle(
+                                        color: selectedOptions[index]
+                                            ? Colors.white
+                                            : AppColors.textColor,
+                                        fontSize: chipFontSize,
+                                      ),
+                                    ),
                                   ),
+                                );
+                              }),
+                            ),
+                          )
+                        : Container();
+                  }),
+                  SizedBox(height: screenSize.height * 0.01),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.inactiveColor,
+                      ),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text(
+                                'Confirm Reset',
+                                style: AppTextStyles.bodyText.copyWith(
+                                  fontSize: bodyFontSize,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textColor,
                                 ),
                               ),
-                              TextButton(
-                                onPressed: () {
-                                  selectedOptions.value = List.filled(
-                                      selectedOptions.length, false);
-                                  selectedDesires.clear();
-                                  Navigator.pop(context);
-                                },
-                                child: Text(
-                                  'Confirm',
-                                  style: AppTextStyles.bodyText.copyWith(
-                                    fontSize: bodyFontSize,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.textColor,
-                                  ),
+                              content: Text(
+                                'Are you sure you want to clear your selections?',
+                                style: AppTextStyles.bodyText.copyWith(
+                                  fontSize: bodyFontSize,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textColor,
                                 ),
                               ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    child: Text(
-                      'Cancel',
-                      style: AppTextStyles.buttonText.copyWith(
-                        fontSize: bodyFontSize,
-                        color: AppColors.textColor,
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text(
+                                    'Cancel',
+                                    style: AppTextStyles.bodyText.copyWith(
+                                      fontSize: bodyFontSize,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.textColor,
+                                    ),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    selectedOptions.value = List.filled(
+                                        selectedOptions.length, false);
+                                    selectedDesires.clear();
+                                    errorMessage.value = 'Desires are required';
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text(
+                                    'Confirm',
+                                    style: AppTextStyles.bodyText.copyWith(
+                                      fontSize: bodyFontSize,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.textColor,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: Text(
+                        'Cancel',
+                        style: AppTextStyles.buttonText.copyWith(
+                          fontSize: bodyFontSize,
+                          color: AppColors.textColor,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -2317,33 +2671,44 @@ class EditProfilePageState extends State<EditProfilePage>
   RxString searchQuery = ''.obs;
 
   Widget languages(BuildContext context) {
+    // Initialize selectedLanguages if empty
     if (selectedLanguages.isEmpty) {
       selectedLanguages.addAll(controller.userLang.map((lang) => lang.title));
     }
     updateSelectedLanguageIds();
     controller.userProfileUpdateRequest.lang = selectedLanguagesId;
 
+    // Update error state whenever languages list changes
+    languageError.value = selectedLanguages.isEmpty;
+
     return DecoratedBoxTransition(
       decoration: decorationTween.animate(_animationController),
-      child: Card(
-        color: Colors.transparent,
-        elevation: 8,
-        shape: RoundedRectangleBorder(
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: AppColors.gradientBackgroundList,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 8,
+              offset: Offset(0, 4),
+            ),
+          ],
         ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              /// White header section
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  gradient: LinearGradient(
-                    colors: AppColors.gradientBackgroundList,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  color: AppColors.formFieldColor,
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.08),
@@ -2361,13 +2726,13 @@ class EditProfilePageState extends State<EditProfilePage>
                       child: Text(
                         'Select Languages',
                         style: AppTextStyles.buttonText.copyWith(
-                          fontSize: getResponsiveFontSize(0.018),
+                          fontSize: getResponsiveFontSize(0.028),
                           color: Colors.white,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white.withOpacity(0.12),
@@ -2377,7 +2742,7 @@ class EditProfilePageState extends State<EditProfilePage>
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                           side: BorderSide(
-                            color: Colors.white.withOpacity(0.5),
+                            color: Colors.white.withOpacity(0.4),
                             width: 1.2,
                           ),
                         ),
@@ -2391,14 +2756,14 @@ class EditProfilePageState extends State<EditProfilePage>
                           Text(
                             'Select',
                             style: AppTextStyles.buttonText.copyWith(
-                              fontSize: getResponsiveFontSize(0.016),
+                              fontSize: getResponsiveFontSize(0.026),
                               color: Colors.white,
                             ),
                           ),
                           const SizedBox(width: 4),
                           Icon(
                             Icons.arrow_drop_down,
-                            color: Colors.white,
+                            color: Colors.black,
                             size: getResponsiveFontSize(0.035),
                           ),
                         ],
@@ -2407,10 +2772,26 @@ class EditProfilePageState extends State<EditProfilePage>
                   ],
                 ),
               ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height *
-                    0.01, // 2% of screen height
-              ),
+
+              // Show error message if no languages selected
+              Obx(() {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 6, bottom: 8),
+                  child: languageError.value
+                      ? Text(
+                          'Language is required',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        )
+                      : SizedBox(height: 0),
+                );
+              }),
+
+              SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+
               Obx(() {
                 return SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -2419,10 +2800,12 @@ class EditProfilePageState extends State<EditProfilePage>
                     runSpacing: 8,
                     children: selectedLanguages.map((language) {
                       return Chip(
-                        label: Text(language,
-                            style:
-                                TextStyle(fontSize: 12, color: Colors.black)),
-                        deleteIcon: Icon(
+                        label: Text(
+                          language,
+                          style: const TextStyle(
+                              fontSize: 12, color: Colors.black),
+                        ),
+                        deleteIcon: const Icon(
                           Icons.delete_forever_outlined,
                           size: 18,
                           color: Colors.black,
@@ -2430,9 +2813,12 @@ class EditProfilePageState extends State<EditProfilePage>
                         onDeleted: () {
                           selectedLanguages.remove(language);
                           updateSelectedLanguageIds();
+
+                          // Update error when user deletes
+                          languageError.value = selectedLanguages.isEmpty;
                         },
                         backgroundColor: Colors.white,
-                        labelStyle: TextStyle(fontSize: 9),
+                        labelStyle: const TextStyle(fontSize: 9),
                       );
                     }).toList(),
                   ),
@@ -2672,11 +3058,19 @@ class InfoFieldState extends State<InfoField> with TickerProviderStateMixin {
 
     return DecoratedBoxTransition(
       decoration: decorationTween.animate(_animationController),
-      child: Card(
-        color: Colors.transparent,
+      child: Material(
         elevation: 5,
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
+        borderRadius: BorderRadius.circular(12), // match your border radius
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: AppColors.gradientBackgroundList,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.all(14.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -2692,10 +3086,11 @@ class InfoFieldState extends State<InfoField> with TickerProviderStateMixin {
                 controller: controller,
                 style: AppTextStyles.bodyText.copyWith(
                   fontSize: getResponsiveFontSize(0.03),
+                  color: Colors.white, // Text color for contrast on gradient
                 ),
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: AppColors.formFieldColor,
+                  fillColor: AppColors.formFieldColor, // keep or adjust
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide.none,
@@ -2755,7 +3150,7 @@ class PrivacyToggle extends StatelessWidget {
             child: Switch(
               value: value,
               onChanged: onChanged,
-              activeColor: AppColors.progressColor,
+              activeColor: AppColors.accentColor,
               inactiveThumbColor: AppColors.progressColor,
             ),
           ),
