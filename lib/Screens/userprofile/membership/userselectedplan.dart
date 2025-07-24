@@ -114,7 +114,11 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
       ),
       body: Obx(() {
         if (controller.subscripted.isEmpty) {
-          return Center(child: CircularProgressIndicator());
+          // return Center(child: CircularProgressIndicator());
+          return Center(child: Text("No plans found", style: AppTextStyles.headingText.copyWith(
+            fontSize: getResponsiveFontSize(context, 0.03),
+            color: Colors.white,
+          )));
         }
 
         return Column(

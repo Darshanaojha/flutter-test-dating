@@ -1037,7 +1037,10 @@ class UserProfilePageState extends State<UserProfilePage>
                 title: Text('App Info'),
                 trailing: Icon(Icons.arrow_forward),
                 onTap: () {
-                  Get.to(AppInfoPage());
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => AppInfoPage()),
+                  );
+                  // Get.to(AppInfoPage());
                 },
               ),
               Divider(),

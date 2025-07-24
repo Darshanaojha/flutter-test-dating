@@ -691,6 +691,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                           itemCount: filteredLikesPage.length,
                           itemBuilder: (context, index) {
                             var user = filteredLikesPage[index];
+
                             return Padding(
                               padding: const EdgeInsets.all(12.0),
                               child: Container(
