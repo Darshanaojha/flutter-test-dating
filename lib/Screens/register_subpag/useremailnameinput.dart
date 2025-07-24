@@ -2,6 +2,7 @@ import 'package:dating_application/Screens/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:country_code_picker/country_code_picker.dart';
 import '../../Controllers/controller.dart';
 import '../../constants.dart';
 
@@ -18,6 +19,8 @@ class UserInputPageState extends State<UserInputPage>
   final controller = Get.find<Controller>();
   late AnimationController animationController;
   late Animation<double> fadeInAnimation;
+
+  String selectedCountryCode = '+1';
 
   @override
   void initState() {
@@ -151,25 +154,116 @@ class UserInputPageState extends State<UserInputPage>
                 validator: validateGmail,
                 keyboardType: TextInputType.emailAddress,
               ),
-              buildTextField(
-                label: 'Mobile Number',
-                onChanged: (value) {
-                  controller.registrationOTPRequest.mobile = value;
-                  controller.userRegistrationRequest.mobile = value;
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a mobile number';
-                  } else if (value.length != 10) {
-                    return 'Mobile number must be 10 digits';
-                  }
-                  return null;
-                },
-                keyboardType: TextInputType.phone,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(10),
-                ],
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: Row(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.formFieldColor,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColors.textColor),
+                      ),
+                      child: CountryCodePicker(
+                        onChanged: (country) {
+                          setState(() {
+                            selectedCountryCode = country.dialCode ?? '+1';
+                            controller.userRegistrationRequest.countryCode =
+                                selectedCountryCode;
+                          });
+                        },
+                        initialSelection: selectedCountryCode,
+                        favorite: ['+91'],
+                        textStyle: AppTextStyles.inputFieldText.copyWith(
+                          fontSize: fontSize * 1, // Larger text
+                          color: Colors.white,
+                        ),
+                        dialogTextStyle: AppTextStyles.bodyText.copyWith(
+                          fontSize: fontSize * 1.15, // Larger text in dialog
+                          color: Colors.white,
+                        ),
+                        dialogBackgroundColor: Colors.black, // Popup background
+                        searchStyle: AppTextStyles.bodyText.copyWith(
+                          fontSize: fontSize * 1.1,
+                          color: Colors.white,
+                        ),
+                        searchDecoration: InputDecoration(
+                          hintText: 'Search country',
+                          hintStyle: TextStyle(
+                              color: Colors.white70, fontSize: fontSize * 1.1),
+                          filled: true,
+                          fillColor: Colors.black,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: Colors.white24),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: Colors.white24),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                        ),
+                        showCountryOnly: false,
+                        showOnlyCountryWhenClosed: false,
+                        alignLeft: false,
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        flagWidth: 25,
+                        showFlag: true,
+                        showDropDownButton: true,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: TextFormField(
+                        cursorColor: AppColors.cursorColor,
+                        decoration: InputDecoration(
+                          labelText: 'Mobile Number',
+                          labelStyle: AppTextStyles.labelText.copyWith(
+                            fontSize: fontSize,
+                            color: Colors.white,
+                          ),
+                          filled: true,
+                          fillColor: AppColors.formFieldColor,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: AppColors.textColor),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide:
+                                BorderSide(color: AppColors.activeColor),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: AppColors.textColor),
+                          ),
+                        ),
+                        style:
+                            TextStyle(fontSize: fontSize, color: Colors.white),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a mobile number';
+                          } else if (value.length != 10) {
+                            return 'Mobile number must be 10 digits';
+                          }
+                          return null;
+                        },
+                        keyboardType: TextInputType.phone,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(10),
+                        ],
+                        onChanged: (value) {
+                          controller.registrationOTPRequest.mobile = value;
+                          controller.userRegistrationRequest.mobile = value;
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
               buildTextField(
                 label: 'Referral Code',

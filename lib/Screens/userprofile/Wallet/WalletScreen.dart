@@ -206,56 +206,58 @@ class WalletPageState extends State<WalletPage>
                               var transaction = controller.transactions[index];
                               bool isCredited = false;
 
-                              return Card(
-                                margin: EdgeInsets.symmetric(vertical: 8.0),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15),
-                                  side: BorderSide(
-                                      color: isCredited
-                                          ? Colors.green
-                                          : Colors.red,
-                                      width: 2),
-                                ),
-                                elevation: 5,
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 10,
-                                      height: 60,
-                                      decoration: BoxDecoration(
+                              if (transaction.coin == "0") {
+                                return Card(
+                                  margin: EdgeInsets.symmetric(vertical: 8.0),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                    side: BorderSide(
                                         color: isCredited
                                             ? Colors.green
                                             : Colors.red,
-                                        borderRadius: BorderRadius.only(
-                                          topRight: Radius.circular(15),
-                                          bottomRight: Radius.circular(15),
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: ListTile(
-                                        contentPadding: EdgeInsets.symmetric(
-                                            vertical: 8, horizontal: 16),
-                                        title: Text(
-                                          isCredited ? 'Credited' : 'Debited',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        subtitle: Text(
-                                            'Transaction ID: ${transaction.id}'),
-                                        trailing: Icon(
-                                          isCredited
-                                              ? Icons.arrow_downward
-                                              : Icons.arrow_upward,
+                                        width: 2),
+                                  ),
+                                  elevation: 5,
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 10,
+                                        height: 60,
+                                        decoration: BoxDecoration(
                                           color: isCredited
                                               ? Colors.green
                                               : Colors.red,
+                                          borderRadius: BorderRadius.only(
+                                            topRight: Radius.circular(15),
+                                            bottomRight: Radius.circular(15),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              );
+                                      Expanded(
+                                        child: ListTile(
+                                          contentPadding: EdgeInsets.symmetric(
+                                              vertical: 8, horizontal: 16),
+                                          title: Text(
+                                            isCredited ? 'Credited' : 'Debited',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          subtitle: Text(
+                                              'Transaction ID: ${transaction.id}'),
+                                          trailing: Icon(
+                                            isCredited
+                                                ? Icons.arrow_downward
+                                                : Icons.arrow_upward,
+                                            color: isCredited
+                                                ? Colors.green
+                                                : Colors.red,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
                             },
                             childCount: controller.transactions.length,
                           ),

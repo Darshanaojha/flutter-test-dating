@@ -829,7 +829,10 @@ class UserProfilePageState extends State<UserProfilePage>
                 title: Text('App Info'),
                 trailing: Icon(Icons.arrow_forward),
                 onTap: () {
-                  Get.to(AppInfoPage());
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => AppInfoPage()),
+                  );
+                  // Get.to(AppInfoPage());
                 },
               ),
               Divider(),
@@ -934,7 +937,7 @@ class UserProfilePageState extends State<UserProfilePage>
                       width: double.infinity,
                       child: Container(
                         decoration: BoxDecoration(
-                         color: const Color.fromARGB(255, 183, 183, 183),
+                          color: const Color.fromARGB(255, 183, 183, 183),
                           borderRadius: BorderRadius.circular(
                               30), // You can adjust the border radius here
                         ),
