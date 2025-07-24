@@ -134,9 +134,10 @@ class MembershipPageState extends State<MembershipPage>
               Get.to(PricingPage());
             },
             transitionType: TransitionType.LEFT_TO_RIGHT,
-            textStyle: AppTextStyles.buttonText.copyWith(fontSize: 12),
+            textStyle: AppTextStyles.buttonText.copyWith(fontSize: 12, color: Colors.white),
             backgroundColor: AppColors.favouriteColor,
-            selectedBackgroundColor: AppColors.activeColor,
+            selectedBackgroundColor: AppColors.favouriteColor,
+            selectedTextColor: Colors.white,
             borderRadius: 16.0,
             height: 50,
             width: MediaQuery.of(context).size.width * 0.9,
@@ -170,23 +171,23 @@ class MembershipPageState extends State<MembershipPage>
                 ),
                 Row(
                   children: [
-                    if (free)
-                      Icon(
-                        Icons.check,
-                        color: AppColors.acceptColor,
-                        size: 20,
-                      ),
-                    if (!free)
-                      Icon(
-                        Icons.close,
-                        color: AppColors.deniedColor,
-                        size: 20,
-                      ),
+                    // if (free)
+                    //   Icon(
+                    //     Icons.check,
+                    //     color: AppColors.acceptColor,
+                    //     size: 20,
+                    //   ),
+                    // if (!free)
+                    //   Icon(
+                    //     Icons.close,
+                    //     color: AppColors.deniedColor,
+                    //     size: 20,
+                    //   ),
                     SizedBox(width: 10),
                     if (paid)
                       Icon(
                         Icons.check,
-                        color: AppColors.acceptColor,
+                        color: Colors.green,
                         size: 20,
                       ),
                     if (!paid)

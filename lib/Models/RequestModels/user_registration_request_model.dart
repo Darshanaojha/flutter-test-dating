@@ -4,6 +4,7 @@ class UserRegistrationRequest {
   String name;
   String email;
   String mobile;
+  String countryCode;
   String referalcode;
   String latitude;
   String longitude;
@@ -30,6 +31,7 @@ class UserRegistrationRequest {
     required this.name,
     required this.email,
     required this.mobile,
+    required this.countryCode,
     required this.referalcode,
     required this.latitude,
     required this.longitude,
@@ -58,6 +60,7 @@ class UserRegistrationRequest {
       name: json['name'],
       email: json['email'],
       mobile: json['mobile'],
+      countryCode: json['country_code'],
       referalcode: json['referal_code'],
       latitude: json['latitude'],
       longitude: json['longitude'],
@@ -86,6 +89,7 @@ class UserRegistrationRequest {
     name = '';
     email = '';
     mobile = '';
+    countryCode = '';
     referalcode = '';
     latitude = '';
     longitude = '';
@@ -114,7 +118,8 @@ class UserRegistrationRequest {
       'name': name,
       'email': email,
       'mobile': mobile,
-      'referal_code':referalcode,
+      'country_code': countryCode,
+      'referal_code': referalcode,
       'latitude': latitude,
       'longitude': longitude,
       'address': address,

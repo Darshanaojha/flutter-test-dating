@@ -242,6 +242,7 @@ class Controller extends GetxController {
     name: '',
     email: '',
     mobile: '',
+    countryCode: '',
     referalcode: '',
     latitude: '',
     longitude: '',
@@ -2128,13 +2129,7 @@ class Controller extends GetxController {
         success("Success", response.payload.referralCode);
         String referralMessage =
             "Check out my referral code: ${response.payload.referralCode}";
-        String url = "whatsapp://send?text=$referralMessage";
-        if (await canLaunch(url)) {
-          await launch(url);
-        } else {
-          failure("Error", "Could not open WhatsApp");
-          return false;
-        }
+        await Share.share(referralMessage); // This opens the native share sheet
         return true;
       } else {
         failure("error", response!.error.message);

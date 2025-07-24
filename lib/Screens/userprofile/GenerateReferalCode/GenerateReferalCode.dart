@@ -104,7 +104,7 @@ class GenerateReferralPageState extends State<GenerateReferralPage> {
                     child: Column(
                       children: [
                         Text(
-                          'Your Referral Code',
+                          'Sample Referral Code',
                           style: AppTextStyles.labelText.copyWith(
                             color: Colors.white,
                             fontSize: fontSize * 1.1,

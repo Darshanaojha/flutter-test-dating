@@ -176,7 +176,7 @@ class AppTextStyles {
   static final TextStyle bodyText = GoogleFonts.roboto(
     fontSize: bodySize,
     fontWeight: FontWeight.normal,
-    color: Colors.white,
+    color: Colors.black,
   );
 
   static final TextStyle buttonText = GoogleFonts.roboto(
