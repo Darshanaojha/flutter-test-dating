@@ -36,6 +36,7 @@ class EditProfilePageState extends State<EditProfilePage>
   RxBool emailAlerts = true.obs;
   RxBool visibility_status = true.obs;
   bool optOutOfPingNote = true;
+  RxBool showAddHint = false.obs;
 
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -58,6 +59,11 @@ class EditProfilePageState extends State<EditProfilePage>
   RxList<String> selectedPreferences = <String>[].obs;
   TextEditingController interestController = TextEditingController();
   RxList<String> updatedSelectedInterests = <String>[].obs;
+  final RxString interestError = ''.obs;
+  RxString errorMessage = ''.obs; // Declare this at the top of your class
+  RxBool preferencesError = false.obs;
+  RxBool languageError = false.obs; // reactive bool to track error
+  RxString interestInstruction = ''.obs;
 
   void addInterest() {
     String newInterest = interestController.text.trim();
@@ -83,8 +89,14 @@ class EditProfilePageState extends State<EditProfilePage>
 
   void deleteInterest(int index) {
     updatedSelectedInterests.removeAt(index);
-
     controller.userData.first.interest = updatedSelectedInterests.join(',');
+
+    // Show error if list becomes empty
+    if (updatedSelectedInterests.isEmpty) {
+      interestError.value = "Interest is required";
+    } else {
+      interestError.value = '';
+    }
 
     print("Updated backend interest: ${controller.userData.first.interest}");
   }
@@ -136,6 +148,16 @@ class EditProfilePageState extends State<EditProfilePage>
     );
     selectedOptions = RxList<bool>.filled(controller.desires.length, false);
     selectedDesires = controller.userDesire;
+    interestController.addListener(() {
+      showAddHint.value = interestController.text.trim().isNotEmpty;
+    });
+    interestController.addListener(() {
+      if (interestController.text.trim().isNotEmpty) {
+        interestInstruction.value = "Click on add to save";
+      } else {
+        interestInstruction.value = "";
+      }
+    });
   }
 
   Future<bool> fetchAllData() async {
@@ -253,7 +275,7 @@ class EditProfilePageState extends State<EditProfilePage>
     if (debounce?.isActive ?? false) {
       debounce?.cancel();
     }
-    debounce = Timer(Duration(milliseconds: 100), () {
+    debounce = Timer(Duration(milliseconds: 800), () {
       fetchLatLong();
     });
   }
@@ -435,20 +457,24 @@ class EditProfilePageState extends State<EditProfilePage>
 
     DateTime dob = DateFormat('dd/MM/yyyy').parse(value);
     DateTime now = DateTime.now();
-    // selectedDate = dob;
     int age = now.year - dob.year;
 
+    // Adjust for month and day
     if (now.month < dob.month ||
         (now.month == dob.month && now.day < dob.day)) {
       age--;
     }
 
+    // ❌ Don't allow future DOB
+    if (dob.isAfter(now)) {
+      return 'Date of birth cannot be in the future';
+    }
+
     if (age < 18) {
-      failure("Invalid DOB", 'You must be at least 18 years old to proceed.');
       return 'You must be at least 18 years old to proceed.';
     }
 
-    return '';
+    return null;
   }
 
   Future<void> fetchLatLong() async {
@@ -494,19 +520,39 @@ class EditProfilePageState extends State<EditProfilePage>
     }
 
     Future<void> selectDate() async {
+      DateTime now = DateTime.now();
+      DateTime today = DateTime(now.year, now.month, now.day);
+      DateTime eighteenYearsAgo = today.subtract(Duration(days: 18 * 365));
+
+      DateTime defaultInitial = eighteenYearsAgo; // default to 18 years ago
+
+      // Try parsing initialValue or fallback
+      DateTime? initialDate;
+      try {
+        if (initialValue.isNotEmpty) {
+          DateTime parsed = DateFormat('dd/MM/yyyy').parseStrict(initialValue);
+          // Don't allow future or underage initial value
+          initialDate =
+              parsed.isAfter(eighteenYearsAgo) ? defaultInitial : parsed;
+        }
+      } catch (_) {
+        initialDate = defaultInitial;
+      }
+
+      print('Initial DOB: $initialValue');
+      print('18 years ago limit: $eighteenYearsAgo');
+
       DateTime? pickedDate = await showDatePicker(
         context: context,
-        initialDate: initialValue.isNotEmpty
-            ? DateFormat('dd/MM/yyyy').parse(initialValue)
-            : DateTime.now(),
+        initialDate: initialDate ?? defaultInitial,
         firstDate: DateTime(1900),
-        lastDate: DateTime.now().subtract(Duration(days: 18 * 365)),
+        lastDate: eighteenYearsAgo, // ✅ must be 18+ years old
+        helpText: "Select your Date of Birth",
       );
 
       if (pickedDate != null) {
         String formattedDate = DateFormat('dd/MM/yyyy').format(pickedDate);
         controller.text = formattedDate;
-        selectedDate = pickedDate;
         onChanged(formattedDate);
         errorText = null;
       }
@@ -517,60 +563,57 @@ class EditProfilePageState extends State<EditProfilePage>
       return screenWidth * scale;
     }
 
-    return DecoratedBoxTransition(
-      decoration: decorationTween.animate(_animationController),
-      child: Card(
-        color: Colors.transparent,
-        elevation: 5,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: AppTextStyles.buttonText.copyWith(
-                  fontSize: getResponsiveFontSize(0.03),
-                ),
+    return Card(
+      color: Colors.transparent,
+      elevation: 5,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: AppTextStyles.buttonText.copyWith(
+                fontSize: getResponsiveFontSize(0.03),
               ),
-              SizedBox(height: 10),
-              GestureDetector(
-                onTap: selectDate,
-                child: AbsorbPointer(
-                  child: TextField(
-                    cursorColor: AppColors.cursorColor,
-                    controller: controller,
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: getResponsiveFontSize(0.03),
-                    ),
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: AppColors.formFieldColor,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.green, width: 2.0),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide:
-                            BorderSide(color: AppColors.textColor, width: 1.5),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      errorText: errorText,
-                      hintText: "Select your Date of Birth",
-                    ),
-                    onChanged: (value) {
-                      onChanged(value);
-                      validateInput(value);
-                    },
+            ),
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTap: selectDate,
+              child: AbsorbPointer(
+                child: TextField(
+                  controller: controller,
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
                   ),
+                  cursorColor: AppColors.cursorColor,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: AppColors.formFieldColor,
+                    hintText: "Select your Date of Birth",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.green, width: 2.0),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: AppColors.textColor, width: 1.5),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    errorText: errorText,
+                  ),
+                  onChanged: (value) {
+                    onChanged(value);
+                    validateInput(value);
+                  },
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -1573,6 +1616,22 @@ class EditProfilePageState extends State<EditProfilePage>
                                                   ),
                                                   textAlign: TextAlign.left,
                                                 ),
+                                                Obx(() => preferencesError.value
+                                                    ? Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(top: 4.0),
+                                                        child: Text(
+                                                          "Preference is required",
+                                                          style: TextStyle(
+                                                            color: Colors.red,
+                                                            fontSize: 12,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                          ),
+                                                        ),
+                                                      )
+                                                    : SizedBox.shrink()),
                                                 const SizedBox(height: 20),
                                                 SizedBox(
                                                   height: 300,
@@ -1612,6 +1671,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                                                       index] =
                                                                   value ??
                                                                       false;
+
                                                               if (preferencesSelectedOptions[
                                                                   index]) {
                                                                 selectedPreferences
@@ -1626,6 +1686,12 @@ class EditProfilePageState extends State<EditProfilePage>
                                                                             index]
                                                                         .id);
                                                               }
+
+                                                              preferencesError
+                                                                      .value =
+                                                                  !preferencesSelectedOptions
+                                                                      .contains(
+                                                                          true);
                                                             },
                                                             activeColor:
                                                                 AppColors
@@ -1673,17 +1739,147 @@ class EditProfilePageState extends State<EditProfilePage>
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
+                                            // Title
                                             Text(
                                               "Interests",
                                               style: AppTextStyles.textStyle
                                                   .copyWith(
                                                 fontSize:
                                                     getResponsiveFontSize(0.04),
-                                                color: Colors
-                                                    .white, // Ensure text is readable
+                                                color: Colors.white,
                                               ),
                                             ),
-                                            SizedBox(height: 10),
+                                            const SizedBox(height: 10),
+
+                                            // Input field + Add button
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      TextField(
+                                                        controller:
+                                                            interestController,
+                                                        cursorColor: AppColors
+                                                            .cursorColor,
+                                                        decoration:
+                                                            InputDecoration(
+                                                          labelText:
+                                                              'Update Interest',
+                                                          labelStyle:
+                                                              AppTextStyles
+                                                                  .buttonText
+                                                                  .copyWith(
+                                                            fontSize:
+                                                                getResponsiveFontSize(
+                                                                    0.03),
+                                                          ),
+                                                          filled: true,
+                                                          fillColor: AppColors
+                                                              .formFieldColor,
+                                                          border:
+                                                              OutlineInputBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                            borderSide:
+                                                                BorderSide.none,
+                                                          ),
+                                                          focusedBorder:
+                                                              OutlineInputBorder(
+                                                            borderSide:
+                                                                const BorderSide(
+                                                              color:
+                                                                  Colors.green,
+                                                              width: 2.0,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        20),
+                                                          ),
+                                                          enabledBorder:
+                                                              OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                              color: AppColors
+                                                                  .textColor,
+                                                              width: 1.5,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        20),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Obx(() {
+                                                        return interestInstruction
+                                                                .value
+                                                                .isNotEmpty
+                                                            ? Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .only(
+                                                                        top:
+                                                                            6.0),
+                                                                child: Text(
+                                                                  interestInstruction
+                                                                      .value,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Colors
+                                                                        .orange,
+                                                                    fontSize:
+                                                                        12,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            : SizedBox.shrink();
+                                                      }),
+                                                      Obx(() {
+                                                        return interestError
+                                                                .value
+                                                                .isNotEmpty
+                                                            ? Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .only(
+                                                                        top:
+                                                                            6.0),
+                                                                child: Text(
+                                                                  interestError
+                                                                      .value,
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .red,
+                                                                      fontSize:
+                                                                          12),
+                                                                ),
+                                                              )
+                                                            : SizedBox.shrink();
+                                                      }),
+                                                    ],
+                                                  ),
+                                                ),
+                                                IconButton(
+                                                  icon: Icon(Icons.add,
+                                                      color: Colors.white),
+                                                  onPressed: addInterest,
+                                                ),
+                                              ],
+                                            ),
+
+                                            const SizedBox(height: 10),
+
+                                            // Chips display
                                             Obx(() {
                                               if (updatedSelectedInterests
                                                       .isEmpty &&
@@ -1696,16 +1892,19 @@ class EditProfilePageState extends State<EditProfilePage>
                                                       .toSet(),
                                                 );
                                               }
+
                                               return Wrap(
                                                 spacing: 8.0,
                                                 children: List.generate(
                                                     updatedSelectedInterests
                                                         .length, (index) {
+                                                  final interest =
+                                                      updatedSelectedInterests[
+                                                          index];
                                                   return Chip(
                                                     label: Text(
-                                                      updatedSelectedInterests[
-                                                          index],
-                                                      style: TextStyle(
+                                                      interest,
+                                                      style: const TextStyle(
                                                           fontSize: 15),
                                                     ),
                                                     backgroundColor:
@@ -1722,66 +1921,6 @@ class EditProfilePageState extends State<EditProfilePage>
                                                 }),
                                               );
                                             }),
-                                            SizedBox(height: 10),
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: TextField(
-                                                    controller:
-                                                        interestController,
-                                                    cursorColor:
-                                                        AppColors.cursorColor,
-                                                    decoration: InputDecoration(
-                                                      labelText:
-                                                          'Update Interest',
-                                                      labelStyle: AppTextStyles
-                                                          .buttonText
-                                                          .copyWith(
-                                                        fontSize:
-                                                            getResponsiveFontSize(
-                                                                0.03),
-                                                      ),
-                                                      filled: true,
-                                                      fillColor: AppColors
-                                                          .formFieldColor,
-                                                      border:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                        borderSide:
-                                                            BorderSide.none,
-                                                      ),
-                                                      focusedBorder:
-                                                          OutlineInputBorder(
-                                                        borderSide: BorderSide(
-                                                            color: Colors.green,
-                                                            width: 2.0),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(20),
-                                                      ),
-                                                      enabledBorder:
-                                                          OutlineInputBorder(
-                                                        borderSide: BorderSide(
-                                                            color: AppColors
-                                                                .textColor,
-                                                            width: 1.5),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(20),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                IconButton(
-                                                  icon: Icon(Icons.add,
-                                                      color: AppColors
-                                                          .activeColor),
-                                                  onPressed: addInterest,
-                                                ),
-                                              ],
-                                            ),
                                           ],
                                         ),
                                       ),
@@ -1918,7 +2057,8 @@ class EditProfilePageState extends State<EditProfilePage>
                                     false) {
                                   if (!preferencesSelectedOptions
                                       .contains(true)) {
-                                    print("select preference");
+                                    failure('Validation Error',
+                                        'Preference is required. Please select at least one.');
                                     return;
                                   }
                                   if (selectedLanguages.isEmpty) {
@@ -2278,6 +2418,7 @@ class EditProfilePageState extends State<EditProfilePage>
 
     controller.userProfileUpdateRequest.desires =
         selectedDesires.map((userDesire) => userDesire.desiresId).toList();
+
     for (var userDesire in controller.userDesire) {
       int index =
           controller.desires.indexWhere((d) => d.id == userDesire.desiresId);
@@ -2287,7 +2428,7 @@ class EditProfilePageState extends State<EditProfilePage>
     }
 
     double screenWidth = screenSize.width;
-    double bodyFontSize = screenWidth * 0.03;
+    double bodyFontSize = screenWidth * 0.04;
     double chipFontSize = screenWidth * 0.03;
 
     return DecoratedBoxTransition(
@@ -2303,10 +2444,9 @@ class EditProfilePageState extends State<EditProfilePage>
         ),
         child: Card(
           elevation: 8,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          color: Colors.transparent, // Keep transparent so gradient shows
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          color: Colors.transparent,
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: SingleChildScrollView(
@@ -2326,9 +2466,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                   color: AppColors.textColor,
                                 ),
                               ),
-                              SizedBox(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.02),
+                              SizedBox(height: screenSize.height * 0.02),
                               SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                                 child: Row(
@@ -2343,10 +2481,8 @@ class EditProfilePageState extends State<EditProfilePage>
                                           color: Colors.white,
                                           fontSize: chipFontSize,
                                         ),
-                                        deleteIcon: Icon(
-                                          Icons.delete,
-                                          color: AppColors.deniedColor,
-                                        ),
+                                        deleteIcon: Icon(Icons.delete,
+                                            color: AppColors.deniedColor),
                                         onDeleted: () {
                                           selectedDesires.remove(desire);
                                           int index = controller.desires
@@ -2361,19 +2497,32 @@ class EditProfilePageState extends State<EditProfilePage>
                                                   .map((userDesire) =>
                                                       userDesire.desiresId)
                                                   .toList();
+
+                                          if (selectedDesires.isEmpty) {
+                                            errorMessage.value =
+                                                'Desires are required';
+                                          }
                                         },
                                       ),
                                     );
                                   }).toList(),
                                 ),
                               ),
-                              SizedBox(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.02),
+                              SizedBox(height: screenSize.height * 0.02),
                             ],
                           )
                         : Container();
                   }),
+                  Obx(() => errorMessage.value.isNotEmpty
+                      ? Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Text(
+                            errorMessage.value,
+                            style: TextStyle(
+                                color: Colors.red, fontSize: bodyFontSize),
+                          ),
+                        )
+                      : Container()),
                   Text(
                     "Select your Desires: ${controller.desires.length}",
                     style: AppTextStyles.bodyText.copyWith(
@@ -2382,7 +2531,7 @@ class EditProfilePageState extends State<EditProfilePage>
                       color: AppColors.textColor,
                     ),
                   ),
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                  SizedBox(height: screenSize.height * 0.02),
                   Obx(() {
                     return controller.desires.isNotEmpty
                         ? SingleChildScrollView(
@@ -2398,6 +2547,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                       desiresId: controller.desires[index].id,
                                       title: controller.desires[index].title,
                                     );
+
                                     if (!selectedDesires.any((desire) =>
                                         desire.desiresId ==
                                         userDesire.desiresId)) {
@@ -2409,6 +2559,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                               .map((userDesire) =>
                                                   userDesire.desiresId)
                                               .toList();
+                                      errorMessage.value = ''; // Clear error
                                     }
                                   },
                                   child: Padding(
@@ -2433,7 +2584,7 @@ class EditProfilePageState extends State<EditProfilePage>
                           )
                         : Container();
                   }),
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+                  SizedBox(height: screenSize.height * 0.01),
                   Align(
                     alignment: Alignment.centerRight,
                     child: ElevatedButton(
@@ -2480,6 +2631,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                     selectedOptions.value = List.filled(
                                         selectedOptions.length, false);
                                     selectedDesires.clear();
+                                    errorMessage.value = 'Desires are required';
                                     Navigator.pop(context);
                                   },
                                   child: Text(
@@ -2519,11 +2671,15 @@ class EditProfilePageState extends State<EditProfilePage>
   RxString searchQuery = ''.obs;
 
   Widget languages(BuildContext context) {
+    // Initialize selectedLanguages if empty
     if (selectedLanguages.isEmpty) {
       selectedLanguages.addAll(controller.userLang.map((lang) => lang.title));
     }
     updateSelectedLanguageIds();
     controller.userProfileUpdateRequest.lang = selectedLanguagesId;
+
+    // Update error state whenever languages list changes
+    languageError.value = selectedLanguages.isEmpty;
 
     return DecoratedBoxTransition(
       decoration: decorationTween.animate(_animationController),
@@ -2552,8 +2708,7 @@ class EditProfilePageState extends State<EditProfilePage>
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  color:
-                      AppColors.formFieldColor, // ← white instead of gradient
+                  color: AppColors.formFieldColor,
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.08),
@@ -2617,9 +2772,26 @@ class EditProfilePageState extends State<EditProfilePage>
                   ],
                 ),
               ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.01,
-              ),
+
+              // Show error message if no languages selected
+              Obx(() {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 6, bottom: 8),
+                  child: languageError.value
+                      ? Text(
+                          'Language is required',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        )
+                      : SizedBox(height: 0),
+                );
+              }),
+
+              SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+
               Obx(() {
                 return SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -2641,6 +2813,9 @@ class EditProfilePageState extends State<EditProfilePage>
                         onDeleted: () {
                           selectedLanguages.remove(language);
                           updateSelectedLanguageIds();
+
+                          // Update error when user deletes
+                          languageError.value = selectedLanguages.isEmpty;
                         },
                         backgroundColor: Colors.white,
                         labelStyle: const TextStyle(fontSize: 9),
@@ -2975,7 +3150,7 @@ class PrivacyToggle extends StatelessWidget {
             child: Switch(
               value: value,
               onChanged: onChanged,
-              activeColor: AppColors.progressColor,
+              activeColor: AppColors.accentColor,
               inactiveThumbColor: AppColors.progressColor,
             ),
           ),

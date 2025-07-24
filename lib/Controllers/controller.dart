@@ -1321,21 +1321,47 @@ class Controller extends GetxController {
     }
   }
 
-  RxList<Object> getCurrentList(int filterIndex) {
-    if (filterIndex == -1) {
-      return RxList<Object>(getAllUsers());
-    }
+  // RxList<Object> getCurrentList(int filterIndex) {
+  //   if (filterIndex == -1) {
+  //     //return RxList<Object>(getAllUsers());
+  //     return userSuggestionsList;
+  //   }
+
+  //   if (filterIndex == 3) {
+  //     //return RxList<Object>(getAllUsers());
+  //     return hookUpList;
+  //   }
+  //   switch (filterIndex) {
+  //     case 0:
+  //       return userNearByList;
+  //     case 1:
+  //       return userHighlightedList;
+  //     case 2:
+  //       return favourite;
+  //     case 3:
+  //       return hookUpList;
+  //     default:
+  //       return userSuggestionsList;
+  //   }
+  // }
+
+  RxList<SuggestedUser> getCurrentList(int filterIndex) {
     switch (filterIndex) {
+      case -1:
+        return userSuggestionsList;
       case 0:
         return userNearByList;
       case 1:
         return userHighlightedList;
       case 2:
-        return favourite;
+        return favourite
+            .map((fav) => convertFavouriteToSuggestedUser(fav))
+            .toList()
+            .obs;
       case 3:
         return hookUpList;
       default:
-        return userSuggestionsList;
+        return <SuggestedUser>[].obs;
     }
   }
 
@@ -1351,45 +1377,37 @@ class Controller extends GetxController {
           await UserSuggestionsProvider().userSuggestions();
 
       if (response != null && response.payload != null) {
-        // print('User fetched successfully');
-
-        void addUniqueUsers(
-            List<SuggestedUser> users, RxList<SuggestedUser> targetList) {
-          // final newUsers = users
-          //     .where((user) =>
-          //         user.userId != null && !seenUserIds.contains(user.userId))
-          //     .toList();
-          // targetList.addAll(newUsers);
-          // seenUserIds.addAll(newUsers.map((user) => user.userId!));
-        }
-
+        // Directly assign without filtering out duplicates
         if (response.payload!.desireBase.isNotEmpty) {
-          addUniqueUsers(response.payload!.desireBase, userSuggestionsList);
+          userSuggestionsList.value = response.payload!.desireBase;
         }
 
         if (response.payload!.locationBase.isNotEmpty) {
-          addUniqueUsers(response.payload!.locationBase, userNearByList);
-          addUniqueUsers(response.payload!.locationBase, userSuggestionsList);
+          userNearByList.value = response.payload!.locationBase;
+          userSuggestionsList.addAll(response.payload!.locationBase);
         }
 
         if (response.payload!.preferenceBase.isNotEmpty) {
-          addUniqueUsers(response.payload!.preferenceBase, userSuggestionsList);
+          userSuggestionsList.addAll(response.payload!.preferenceBase);
         }
 
         if (response.payload!.languageBase.isNotEmpty) {
-          addUniqueUsers(response.payload!.languageBase, userSuggestionsList);
+          userSuggestionsList.addAll(response.payload!.languageBase);
         }
 
         if (response.payload!.highlightedAccount.isNotEmpty) {
-          addUniqueUsers(
-              response.payload!.highlightedAccount, userHighlightedList);
+          userHighlightedList.value = response.payload!.highlightedAccount;
         }
 
         if (response.payload!.hookup.isNotEmpty) {
-          print("Hookup is not empty");
-          print(response.payload!.hookup.first.toJson());
-          addUniqueUsers(response.payload!.hookup, hookUpList);
+          hookUpList.value = response.payload!.hookup;
         }
+
+        print("All user lists:");
+        print("Nearby: ${userNearByList.length}");
+        print("Desire: ${userSuggestionsList.length}");
+        print("Hookup: ${hookUpList.length}");
+        print("Highlight: ${userHighlightedList.length}");
 
         return true;
       } else {
@@ -2521,6 +2539,7 @@ class Controller extends GetxController {
             }
           }
         }
+        print(" Total users in ALL: ${all.length}");
         return all;
       default:
         return userSuggestionsList;

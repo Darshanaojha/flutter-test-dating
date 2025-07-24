@@ -11,8 +11,9 @@ class ChatMessagePageProvider extends GetConnect {
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
+      print(token);
+      print("zzzzz ${chatHistoryRequestModel.toJson()}");
       if (token != null && token.isNotEmpty) {
-        
         Response response = await post(
           '$baseurl/Chats/chat_history',
           chatHistoryRequestModel.toJson(),
@@ -21,6 +22,8 @@ class ChatMessagePageProvider extends GetConnect {
             'Authorization': 'Bearer $token',
           },
         );
+        print("zzzzz ${chatHistoryRequestModel.toJson()}");
+        print("kkkkkk ${response.body}");
         if (response.statusCode == null || response.body == null) {
           failure('Error', 'Server Failed To Respond');
           return null;
