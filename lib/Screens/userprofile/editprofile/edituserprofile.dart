@@ -514,8 +514,7 @@ class EditProfilePageState extends State<EditProfilePage>
 
     void validateInput(String value) {
       if (validator != null) {
-        String? error = validator(value);
-        errorText = error;
+        errorText = validator(value);
       }
     }
 
@@ -526,12 +525,10 @@ class EditProfilePageState extends State<EditProfilePage>
 
       DateTime defaultInitial = eighteenYearsAgo; // default to 18 years ago
 
-      // Try parsing initialValue or fallback
       DateTime? initialDate;
       try {
         if (initialValue.isNotEmpty) {
           DateTime parsed = DateFormat('dd/MM/yyyy').parseStrict(initialValue);
-          // Don't allow future or underage initial value
           initialDate =
               parsed.isAfter(eighteenYearsAgo) ? defaultInitial : parsed;
         }
@@ -539,14 +536,11 @@ class EditProfilePageState extends State<EditProfilePage>
         initialDate = defaultInitial;
       }
 
-      print('Initial DOB: $initialValue');
-      print('18 years ago limit: $eighteenYearsAgo');
-
       DateTime? pickedDate = await showDatePicker(
         context: context,
         initialDate: initialDate ?? defaultInitial,
         firstDate: DateTime(1900),
-        lastDate: eighteenYearsAgo, // ✅ must be 18+ years old
+        lastDate: eighteenYearsAgo,
         helpText: "Select your Date of Birth",
       );
 
@@ -554,7 +548,7 @@ class EditProfilePageState extends State<EditProfilePage>
         String formattedDate = DateFormat('dd/MM/yyyy').format(pickedDate);
         controller.text = formattedDate;
         onChanged(formattedDate);
-        errorText = null;
+        validateInput(formattedDate);
       }
     }
 
@@ -563,57 +557,54 @@ class EditProfilePageState extends State<EditProfilePage>
       return screenWidth * scale;
     }
 
-    return Card(
-      color: Colors.transparent,
-      elevation: 5,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: AppTextStyles.buttonText.copyWith(
-                fontSize: getResponsiveFontSize(0.03),
-              ),
+    return GestureDetector(
+      onTap: selectDate,
+      child: AbsorbPointer(
+        child: TextFormField(
+          controller: controller,
+          cursorColor: AppColors.cursorColor,
+          style: AppTextStyles.bodyText.copyWith(
+            fontSize: getResponsiveFontSize(0.03),
+            color: Colors.white,
+          ),
+          decoration: InputDecoration(
+            labelText: label, // <--- Floating label inside input
+            labelStyle: AppTextStyles.labelText.copyWith(
+              fontSize: getResponsiveFontSize(0.03),
+              color: Colors.white70,
             ),
-            const SizedBox(height: 10),
-            GestureDetector(
-              onTap: selectDate,
-              child: AbsorbPointer(
-                child: TextField(
-                  controller: controller,
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: getResponsiveFontSize(0.03),
-                  ),
-                  cursorColor: AppColors.cursorColor,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: AppColors.formFieldColor,
-                    hintText: "Select your Date of Birth",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2.0),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          BorderSide(color: AppColors.textColor, width: 1.5),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    errorText: errorText,
-                  ),
-                  onChanged: (value) {
-                    onChanged(value);
-                    validateInput(value);
-                  },
-                ),
-              ),
+            floatingLabelStyle: AppTextStyles.labelText.copyWith(
+              fontSize: getResponsiveFontSize(0.028),
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
-          ],
+            hintText: "Select your Date of Birth",
+            filled: true,
+            fillColor: AppColors.formFieldColor,
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.green, width: 2.0),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: AppColors.textColor, width: 1.5),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.red, width: 1.5),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            errorText: errorText,
+          ),
+          onChanged: (value) {
+            onChanged(value);
+            validateInput(value);
+          },
         ),
       ),
     );
@@ -904,20 +895,40 @@ class EditProfilePageState extends State<EditProfilePage>
                                               ),
                                             ),
                                     ),
-                                    TextButton.icon(
+                                    SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.02,
+                                    ),
+                                    OutlinedButton.icon(
                                       onPressed: () async {
                                         await controller
                                             .fetchProfileUserPhotos();
                                         Get.to(EditPhotosPage());
                                       },
-                                      icon: const Icon(Icons.edit,
-                                          color: Colors.white),
+                                      icon: Builder(
+                                        builder: (context) {
+                                          double iconSize =
+                                              MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.04; // 4% of screen width
+                                          return Icon(
+                                            Icons.edit,
+                                            color: Colors.white,
+                                            size: iconSize,
+                                          );
+                                        },
+                                      ),
                                       label: Text(
                                         'Edit Photos',
                                         style:
                                             AppTextStyles.buttonText.copyWith(
                                           color: Colors.white,
-                                          fontSize: getResponsiveFontSize(0.03),
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.02, // 2% font size as example
                                         ),
                                       ),
                                     ),
@@ -935,7 +946,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 2, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: AppColors.formFieldColor,
+                                  color: AppColors.textColor,
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
@@ -954,11 +965,26 @@ class EditProfilePageState extends State<EditProfilePage>
                                       size: 12,
                                     ),
                                     const SizedBox(width: 8),
+                                    // Text(
+                                    //   'Photos',
+                                    //   style: AppTextStyles.textStyle.copyWith(
+                                    //     fontSize: getResponsiveFontSize(0.03),
+                                    //     color: AppColors.textColor,
+                                    //   ),
+                                    // ),
+
                                     Text(
                                       'Photos',
-                                      style: AppTextStyles.textStyle.copyWith(
-                                        fontSize: getResponsiveFontSize(0.03),
-                                        color: AppColors.textColor,
+                                      style: AppTextStyles.titleText.copyWith(
+                                        fontSize: 4,
+                                        foreground: Paint()
+                                          ..shader = LinearGradient(
+                                            colors: AppColors
+                                                .gradientBackgroundList,
+                                          ).createShader(
+                                            Rect.fromLTWH(0, 0, 200,
+                                                70), // You can adjust size
+                                          ),
                                       ),
                                     ),
                                   ],
@@ -1098,15 +1124,15 @@ class EditProfilePageState extends State<EditProfilePage>
                                               BorderRadius.circular(12),
                                         ),
                                         child: Padding(
-                                          padding: const EdgeInsets.all(12.0),
+                                          padding: const EdgeInsets.all(8.0),
                                           child: Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                "Country: ${controller.selectedCountry.value?.name ?? 'None'}",
+                                                "Country: ${controller.selectedCountry.value?.name ?? ''}",
                                                 style: const TextStyle(
-                                                    fontSize: 15.0),
+                                                    fontSize: 12.0),
                                               ),
                                               const SizedBox(height: 8.0),
                                               Obx(() {
@@ -1190,30 +1216,30 @@ class EditProfilePageState extends State<EditProfilePage>
                                     if (isLatLongFetched.value) {
                                       return Column(
                                         children: [
-                                          buildTextFieldForLatLong(
-                                            label: 'Latitude',
-                                            value: controller
-                                                .userProfileUpdateRequest
-                                                .latitude,
-                                            onChanged: (value) {
-                                              setState(() {
-                                                onLatitudeChnage(value);
-                                              });
-                                            },
-                                            isDisabled: true,
-                                          ),
-                                          buildTextFieldForLatLong(
-                                            label: 'Longitude',
-                                            value: controller
-                                                .userProfileUpdateRequest
-                                                .longitude,
-                                            onChanged: (value) {
-                                              setState(() {
-                                                onLongitudeChnage(value);
-                                              });
-                                            },
-                                            isDisabled: true,
-                                          ),
+                                          // buildTextFieldForLatLong(
+                                          //   label: 'Latitude',
+                                          //   value: controller
+                                          //       .userProfileUpdateRequest
+                                          //       .latitude,
+                                          //   onChanged: (value) {
+                                          //     setState(() {
+                                          //       onLatitudeChnage(value);
+                                          //     });
+                                          //   },
+                                          //   isDisabled: true,
+                                          // ),
+                                          // buildTextFieldForLatLong(
+                                          //   label: 'Longitude',
+                                          //   value: controller
+                                          //       .userProfileUpdateRequest
+                                          //       .longitude,
+                                          //   onChanged: (value) {
+                                          //     setState(() {
+                                          //       onLongitudeChnage(value);
+                                          //     });
+                                          //   },
+                                          //   isDisabled: true,
+                                          // ),
                                         ],
                                       );
                                     } else {
@@ -1269,7 +1295,17 @@ class EditProfilePageState extends State<EditProfilePage>
                                           child: Center(
                                             child: Column(
                                               children: [
-                                                Text('Gender'),
+                                                Text(
+                                                  'Gender',
+                                                  style: TextStyle(
+                                                    color: Colors
+                                                        .white, // Set text color to white
+                                                    fontWeight: FontWeight
+                                                        .bold, // Make text bold
+                                                    fontSize:
+                                                        16, // Optional: set font size
+                                                  ),
+                                                ),
                                                 Obx(() {
                                                   if (controller
                                                       .genders.isEmpty) {
@@ -1740,13 +1776,18 @@ class EditProfilePageState extends State<EditProfilePage>
                                               CrossAxisAlignment.start,
                                           children: [
                                             // Title
-                                            Text(
-                                              "Interests",
-                                              style: AppTextStyles.textStyle
-                                                  .copyWith(
-                                                fontSize:
-                                                    getResponsiveFontSize(0.04),
-                                                color: Colors.white,
+                                            Center(
+                                              child: Text(
+                                                "Interests",
+                                                style: AppTextStyles.textStyle
+                                                    .copyWith(
+                                                  fontSize:
+                                                      getResponsiveFontSize(
+                                                          0.04),
+                                                  color: Colors.white,
+                                                ),
+                                                textAlign: TextAlign
+                                                    .center, // optional for safety
                                               ),
                                             ),
                                             const SizedBox(height: 10),
@@ -1979,17 +2020,21 @@ class EditProfilePageState extends State<EditProfilePage>
                                 ),
                                 padding: const EdgeInsets.all(12.0),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Text(
-                                      "Privacy Settings",
-                                      style:
-                                          AppTextStyles.subheadingText.copyWith(
-                                        fontSize: getResponsiveFontSize(0.03),
-                                        color: Colors
-                                            .white, // Ensure it's readable on gradient
+                                    Center(
+                                      child: Text(
+                                        "Privacy Settings",
+                                        style: AppTextStyles.subheadingText
+                                            .copyWith(
+                                          fontSize: getResponsiveFontSize(0.04),
+                                          color: Colors
+                                              .white, // Ensure it's readable on gradient
+                                        ),
+                                        textAlign: TextAlign.center,
                                       ),
                                     ),
+
                                     SizedBox(
                                       height:
                                           MediaQuery.of(context).size.height *
@@ -2700,7 +2745,7 @@ class EditProfilePageState extends State<EditProfilePage>
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(10.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -2718,7 +2763,7 @@ class EditProfilePageState extends State<EditProfilePage>
                   ],
                 ),
                 padding:
-                    const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                    const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -2927,16 +2972,37 @@ class EditProfilePageState extends State<EditProfilePage>
                       Navigator.pop(context);
                       print("Languages: ${selectedLanguages.toList()}");
                     },
-                    hslColor: HSLColor.fromColor(Colors.blue.withOpacity(0.3)),
+                    // Required by the widget, provide a dummy solid color
+                    hslColor: HSLColor.fromColor(
+                        AppColors.gradientBackgroundList.first),
                     height: 50.0,
                     elevation: 8.0,
                     shadow: BoxShadow(
                       color: Colors.black.withOpacity(0.2),
                       blurRadius: 4.0,
                       spreadRadius: 2.0,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
-                    child: Text('Done'),
+                    child: Container(
+                      width: double.infinity,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: AppColors.gradientBackgroundList,
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text(
+                        'Done',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -2953,7 +3019,7 @@ void showFullImageDialog(BuildContext context, String imagePath) {
     context: context,
     builder: (context) {
       return Dialog(
-        backgroundColor: Colors.black.withOpacity(0.9),
+        backgroundColor: Colors.transparent,
         child: GestureDetector(
           onTap: () => Navigator.of(context).pop(),
           child: Center(
@@ -3070,29 +3136,44 @@ class InfoFieldState extends State<InfoField> with TickerProviderStateMixin {
             ),
             borderRadius: BorderRadius.circular(12),
           ),
-          padding: const EdgeInsets.all(14.0),
+          padding: const EdgeInsets.all(10.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                widget.label,
-                style: AppTextStyles.buttonText.copyWith(
-                  fontSize: getResponsiveFontSize(0.03),
-                ),
-              ),
-              SizedBox(height: 10),
-              TextField(
+              // Text(
+              //   widget.label,
+              //   style: AppTextStyles.buttonText.copyWith(
+              //     fontSize: getResponsiveFontSize(0.03),
+              //   ),
+              // ),
+              //SizedBox(height: 10),
+              TextFormField(
+                // ✅ Changed from TextField to TextFormField
                 cursorColor: AppColors.cursorColor,
                 controller: controller,
                 style: AppTextStyles.bodyText.copyWith(
                   fontSize: getResponsiveFontSize(0.03),
-                  color: Colors.white, // Text color for contrast on gradient
+                  color: Colors.white,
                 ),
                 decoration: InputDecoration(
+                  // ✅ Floating label added here
+                  labelText: widget.label,
+                  labelStyle: AppTextStyles.labelText.copyWith(
+                    fontSize: getResponsiveFontSize(0.03),
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  floatingLabelStyle: AppTextStyles.labelText.copyWith(
+                    fontSize: getResponsiveFontSize(0.028),
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                   filled: true,
-                  fillColor: AppColors.formFieldColor, // keep or adjust
+                  fillColor: AppColors.formFieldColor,
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(20),
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(

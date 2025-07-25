@@ -177,39 +177,43 @@ class PricingPageState extends State<PricingPage>
                     //   color: const Color(0xff870160),
                     //   width: 2,
                     // ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.pinkAccent.withOpacity(0.3),
-                        blurRadius: 6,
-                        spreadRadius: 1,
-                      ),
-                    ],
+                    // boxShadow: [
+                    //   BoxShadow(
+                    //     color: Colors.pinkAccent.withOpacity(0.3),
+                    //     blurRadius: 6,
+                    //     spreadRadius: 1,
+                    //   ),
+                    // ],
                   ),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      Row(
                         children: [
-                          const FaIcon(FontAwesomeIcons.crown,
-                              color: Colors.amber, size: 30),
-                          const SizedBox(height: 12),
+                          const FaIcon(
+                            FontAwesomeIcons.crown,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 12),
                           SizedBox(
-                            width: MediaQuery.of(context).size.width *
-                                0.55, // ~55% of screen width
+                            width: MediaQuery.of(context).size.width * 0.7,
                             child: const Text(
                               "Your Best Match is One Upgrade Away!",
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 18,
+                                fontSize: 11,
                                 fontWeight: FontWeight.bold,
                               ),
+                              overflow: TextOverflow
+                                  .ellipsis, // Ensures it doesn't overflow
                             ),
                           ),
                         ],
                       ),
+                      // Optional: Add another widget on the right if needed, e.g., a button
                     ],
                   ),
                 ),
@@ -248,14 +252,14 @@ class PricingPageState extends State<PricingPage>
                                     //   color: const Color(0xff870160),
                                     //   width: 2,
                                     // ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color:
-                                            Colors.pinkAccent.withOpacity(0.3),
-                                        blurRadius: 6,
-                                        spreadRadius: 1,
-                                      ),
-                                    ],
+                                    // boxShadow: [
+                                    //   BoxShadow(
+                                    //     color:
+                                    //         Colors.pinkAccent.withOpacity(0.3),
+                                    //     blurRadius: 6,
+                                    //     spreadRadius: 1,
+                                    //   ),
+                                    // ],
                                   ),
                                   child: Column(
                                     crossAxisAlignment:
@@ -264,35 +268,36 @@ class PricingPageState extends State<PricingPage>
                                       Row(
                                         children: [
                                           const Icon(Icons.workspace_premium,
-                                              color: Colors.amber, size: 24),
+                                              color: Colors.white, size: 24),
                                           const SizedBox(width: 9),
                                           Expanded(
                                             child: Text(
-                                              package.status,
+                                              package.packagecategory,
                                               style: const TextStyle(
-                                                fontSize: 18,
+                                                fontSize: 16,
                                                 fontWeight: FontWeight.bold,
                                                 color: Colors.white,
                                               ),
+                                              maxLines: 2,
                                               overflow: TextOverflow.ellipsis,
-                                              maxLines: 1,
                                             ),
                                           ),
                                         ],
                                       ),
-                                      const SizedBox(height: 6),
-                                      const Divider(
-                                          color: Colors.white, thickness: 1),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        package.packagecategory,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.white70,
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
+                                      //const SizedBox(height: 6),
+                                      // const Divider(
+                                      //     color: Colors.white, thickness: 1),
+                                      //const SizedBox(height: 6),
+                                      // Text(
+                                      //         package.status,
+                                      //         style: const TextStyle(
+                                      //           fontSize: 18,
+                                      //           fontWeight: FontWeight.bold,
+                                      //           color: Colors.white,
+                                      //         ),
+                                      //         overflow: TextOverflow.ellipsis,
+                                      //         maxLines: 1,
+                                      //       ),
                                     ],
                                   ),
                                 ),
@@ -315,13 +320,13 @@ class PricingPageState extends State<PricingPage>
                                   //   color: const Color(0xff870160),
                                   //   width: 2,
                                   // ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.pinkAccent.withOpacity(0.3),
-                                      blurRadius: 6,
-                                      spreadRadius: 1,
-                                    ),
-                                  ],
+                                  // boxShadow: [
+                                  //   BoxShadow(
+                                  //     color: Colors.pinkAccent.withOpacity(0.3),
+                                  //     blurRadius: 6,
+                                  //     spreadRadius: 1,
+                                  //   ),
+                                  // ],
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -334,7 +339,7 @@ class PricingPageState extends State<PricingPage>
                                         children: [
                                           const Icon(
                                               FontAwesomeIcons.checkCircle,
-                                              color: Color(0xff870160),
+                                              color: Colors.white,
                                               size: 16),
                                           const SizedBox(width: 6),
                                           Expanded(
@@ -369,13 +374,13 @@ class PricingPageState extends State<PricingPage>
                                   //   color: Colors.black,
                                   //   width: 2,
                                   // ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.pinkAccent.withOpacity(0.3),
-                                      blurRadius: 6,
-                                      spreadRadius: 1,
-                                    ),
-                                  ],
+                                  // boxShadow: [
+                                  //   BoxShadow(
+                                  //     color: Colors.pinkAccent.withOpacity(0.3),
+                                  //     blurRadius: 6,
+                                  //     spreadRadius: 1,
+                                  //   ),
+                                  // ],
                                 ),
                                 child: Row(
                                   mainAxisAlignment:
@@ -442,7 +447,7 @@ class PricingPageState extends State<PricingPage>
 
                     return Container(
                       width: double.infinity,
-                      height: 70,
+                      height: 50, // Reduced height
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
@@ -453,36 +458,12 @@ class PricingPageState extends State<PricingPage>
                       ),
                       child: TextButton(
                         onPressed: () {
-                          final selectedPackage =
-                              controller.packages[selectedIndex];
-                          final selectedAmount =
-                              double.tryParse(selectedPackage.offerAmount) ??
-                                  0.0;
                           _showSubscriptionDialog(
                               context, selectedPackage, selectedAmount);
-
-                          // setState(() {
-                          //   planId.value = selectedPackage.id;
-                          //   selectedPlan.value = selectedPackage.id;
-                          // });
-
-                          // showPaymentConfirmationDialog(
-                          //   context,
-                          //   selectedPackage.days,
-                          //   selectedAmount,
-                          // );
-
-                          // razorpaycontroller.orderRequestModel.amount =
-                          //     selectedPackage.offerAmount.toString();
-                          // razorpaycontroller.orderRequestModel.packageId =
-                          //     selectedPackage.id;
-                          // razorpaycontroller.orderRequestModel.type = '2';
-
-                          // print(
-                          //     "ORDER: ${razorpaycontroller.orderRequestModel.toJson()}");
                         },
                         child: const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 14),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 10), // Reduced padding
                           child: Text(
                             "Subscribe Now",
                             style: TextStyle(
@@ -516,8 +497,7 @@ class PricingPageState extends State<PricingPage>
             BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
               child: Container(
-                color: Colors.black
-                    .withOpacity(0.5), // Semi-transparent black overlay
+                color: Colors.black.withOpacity(0.5),
               ),
             ),
 
@@ -527,19 +507,21 @@ class PricingPageState extends State<PricingPage>
               child: Center(
                 child: Container(
                   padding: EdgeInsets.all(20),
-                  width: MediaQuery.of(context).size.width *
-                      0.85, // Responsive width
+                  width: MediaQuery.of(context).size.width * 0.85,
                   decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Color(0xff870160), width: 1.5),
+                    gradient: LinearGradient(
+                      colors: AppColors.gradientBackgroundList,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Icon at the Top
+                      // Icon
                       Icon(Icons.workspace_premium,
-                          color: Colors.amber, size: 50),
+                          color: Colors.white, size: 50),
                       SizedBox(height: 10),
 
                       // Title
@@ -552,43 +534,59 @@ class PricingPageState extends State<PricingPage>
                       ),
                       SizedBox(height: 10),
 
-                      // Content
+                      // Description
                       Text(
                         "You have not yet subscribed!",
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 16, color: Colors.white70),
+                        style: TextStyle(fontSize: 12, color: Colors.white),
                       ),
                       SizedBox(height: 20),
 
-                      // Buttons Row
+                      // Buttons
                       Row(
                         children: [
-                          // Subscribe Later Button
+                          // Subscribe Later Button (white with gradient text)
                           Expanded(
-                            child: TextButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              style: TextButton.styleFrom(
-                                padding: EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  side: BorderSide(color: Colors.redAccent),
-                                ),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Text(
-                                "Subscribe Later",
-                                style: TextStyle(
-                                    color: Colors.redAccent,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500),
+                              child: TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                style: TextButton.styleFrom(
+                                  padding: EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: ShaderMask(
+                                  shaderCallback: (bounds) => LinearGradient(
+                                    colors: AppColors.gradientBackgroundList,
+                                  ).createShader(
+                                    Rect.fromLTWH(
+                                        0, 0, bounds.width, bounds.height),
+                                  ),
+                                  child: Text(
+                                    "Subscribe Later",
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors
+                                          .white, // Required for ShaderMask
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                           SizedBox(width: 10),
 
-                          // Subscribe Now Button
+                          // Subscribe Now Button (outline with white border)
                           Expanded(
-                            child: ElevatedButton(
+                            child: OutlinedButton(
                               onPressed: () {
+                                // Your state update logic
                                 setState(() {
                                   planId.value = selectedPackage.id;
                                   selectedPlan.value = selectedPackage.id;
@@ -609,18 +607,21 @@ class PricingPageState extends State<PricingPage>
                                 print(
                                     "ORDER: ${razorpaycontroller.orderRequestModel.toJson()}");
                               },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xff870160),
-                                padding: EdgeInsets.symmetric(vertical: 14),
+                              style: OutlinedButton.styleFrom(
+                                side:
+                                    BorderSide(color: Colors.white, width: 1.5),
                                 shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12)),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                padding: EdgeInsets.symmetric(vertical: 14),
                               ),
                               child: Text(
                                 "Subscribe Now",
                                 style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500),
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
