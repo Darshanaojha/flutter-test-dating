@@ -245,8 +245,11 @@ class UserProfilePageState extends State<UserProfilePage>
                             ),
                             Container(
                               margin: const EdgeInsets.symmetric(
-                                  horizontal: 18, vertical: 8),
-                              padding: const EdgeInsets.all(12),
+                                  horizontal: 18, vertical: 6),
+                              padding: EdgeInsets.symmetric(
+                                vertical: screenWidth * 0.015,
+                                horizontal: screenWidth * 0.045,
+                              ),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: AppColors.gradientBackgroundList,
@@ -254,7 +257,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                   end: Alignment.bottomRight,
                                 ),
                                 borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
+                                boxShadow: const [
                                   BoxShadow(
                                     color: Colors.black12,
                                     blurRadius: 8,
@@ -284,19 +287,12 @@ class UserProfilePageState extends State<UserProfilePage>
                                           color: Colors.white,
                                         ),
                                       ),
-                                      // SizedBox(height: 8),
-                                      // Text(
-                                      //   'Click to change username',
-                                      //   style: AppTextStyles.textStyle.copyWith(
-                                      //     fontSize: getResponsiveFontSize(0.02),
-                                      //     color: Colors.white70,
-                                      //   ),
-                                      // ),
                                     ],
                                   ),
                                   IconButton(
                                     icon: Icon(Icons.edit,
-                                        size: 20, color: Colors.white),
+                                        size: screenWidth * 0.05,
+                                        color: Colors.white),
                                     onPressed: () {
                                       showDialog(
                                         context: context,
@@ -369,7 +365,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                     .usernameUpdateRequest
                                                                     .username = value;
                                                               },
-                                                              style: TextStyle(
+                                                              style: const TextStyle(
                                                                   color: Colors
                                                                       .white),
                                                               decoration:
@@ -596,7 +592,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                 borderRadius: BorderRadius.circular(10.0),
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(
-                                    vertical: screenWidth * 0.045,
+                                    vertical: screenWidth * 0.025,
                                     horizontal: screenWidth * 0.045,
                                   ),
                                   child: Row(
@@ -620,8 +616,8 @@ class UserProfilePageState extends State<UserProfilePage>
                                                               '1'
                                                       ? Colors.green
                                                           .withOpacity(0.15)
-                                                      : Colors.red
-                                                          .withOpacity(0.15),
+                                                      : Colors.white
+                                                          .withOpacity(0.25),
                                                   borderRadius:
                                                       BorderRadius.circular(20),
                                                 ),
@@ -764,7 +760,7 @@ class UserProfilePageState extends State<UserProfilePage>
                               margin: const EdgeInsets.symmetric(
                                   horizontal: 18, vertical: 6),
                               padding: EdgeInsets.symmetric(
-                                vertical: screenWidth * 0.045,
+                                vertical: screenWidth * 0.025,
                                 horizontal: screenWidth * 0.045,
                               ),
                               decoration: BoxDecoration(
@@ -921,7 +917,7 @@ class UserProfilePageState extends State<UserProfilePage>
         width: double.infinity, // forces full width inside Column
         margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         padding: EdgeInsets.symmetric(
-          vertical: screenWidth * 0.045,
+          vertical: screenWidth * 0.025,
           horizontal: screenWidth * 0.035,
         ),
         decoration: BoxDecoration(
@@ -990,7 +986,7 @@ class UserProfilePageState extends State<UserProfilePage>
       context: context,
       builder: (context) {
         return Dialog(
-          backgroundColor: Colors.black.withOpacity(0.9),
+          backgroundColor: Colors.transparent,
           child: GestureDetector(
             onTap: () => Navigator.of(context).pop(),
             child: Center(

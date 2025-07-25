@@ -92,7 +92,7 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
       context: context,
       builder: (context) {
         return Dialog(
-          backgroundColor: Colors.black.withOpacity(0.9),
+          backgroundColor: Colors.transparent,
           child: GestureDetector(
             onTap: () => Navigator.of(context).pop(),
             child: Center(

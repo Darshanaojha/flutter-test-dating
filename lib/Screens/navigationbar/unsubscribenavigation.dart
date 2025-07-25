@@ -81,11 +81,12 @@ class UnSubscribeNavigationController extends GetxController {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                OutlinedButton(
+                ElevatedButton(
                   onPressed: () {
                     Get.back();
                   },
-                  style: OutlinedButton.styleFrom(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
                     side: BorderSide(color: Colors.white),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
@@ -97,26 +98,32 @@ class UnSubscribeNavigationController extends GetxController {
                   ),
                   child: Text(
                     'Cancel',
-                    style: TextStyle(
-                      fontSize: buttonFont,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                    style: AppTextStyles.titleText.copyWith(
+                      fontSize: smallFont,
+                      foreground: Paint()
+                        ..shader = LinearGradient(
+                          colors: AppColors.gradientBackgroundList,
+                        ).createShader(
+                          Rect.fromLTWH(0, 0, 200, 70), // You can adjust size
+                        ),
                     ),
                   ),
                 ),
                 SizedBox(width: screenWidth * 0.03),
-                ElevatedButton(
+                OutlinedButton(
                   onPressed: () {
                     Get.to(MembershipPage());
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.buttonColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
+                    backgroundColor: Colors.transparent,
+                    shadowColor:
+                        Colors.transparent, // Optional: removes button shadow
                     padding: EdgeInsets.symmetric(
                       horizontal: buttonPaddingH,
                       vertical: buttonPaddingV,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
                     ),
                   ),
                   child: Text(

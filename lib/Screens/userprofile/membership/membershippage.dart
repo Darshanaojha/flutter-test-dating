@@ -198,8 +198,19 @@ class MembershipPageState extends State<MembershipPage>
       ),
       floatingActionButton: Padding(
         padding: EdgeInsets.all(22.0),
-        child: SizedBox(
+        child: Container(
           width: MediaQuery.of(context).size.width * 0.9,
+          height: 50,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: AppColors.gradientBackgroundList,
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Colors.white, // White outline
+              width: 2.0, // Thickness of the outline
+            ),
+          ),
           child: AnimatedButton(
             text: 'Starting from ₹99',
             onPress: () {
@@ -207,8 +218,11 @@ class MembershipPageState extends State<MembershipPage>
             },
             transitionType: TransitionType.LEFT_TO_RIGHT,
             textStyle: AppTextStyles.buttonText.copyWith(fontSize: 12),
-            backgroundColor: AppColors.favouriteColor,
-            selectedBackgroundColor: AppColors.activeColor,
+            backgroundColor: Colors.transparent,
+            selectedBackgroundColor:
+                Colors.transparent, // Keep transparent for gradient effect
+
+            selectedTextColor: Colors.white,
             borderRadius: 16.0,
             height: 50,
             width: MediaQuery.of(context).size.width * 0.9,
