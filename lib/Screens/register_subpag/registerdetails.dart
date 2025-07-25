@@ -161,20 +161,81 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           fontSize,
                           enabled: false,
                         ),
-                        buildTextFieldNameEmailMobile(
-                          "Mobile",
-                          controller.userRegistrationRequest.mobile.isNotEmpty
-                              ? controller.userRegistrationRequest.mobile
-                              : null,
-                          (value) {
-                            controller.userRegistrationRequest.mobile = value;
-                          },
-                          (value) {
-                            controller.userRegistrationRequest.mobile = value;
-                          },
-                          fontSize,
-                          isMobileField: true,
-                          enabled: false,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Row(
+                            children: [
+                              // Country code (read-only)
+                              SizedBox(
+                                width: 60,
+                                child: TextFormField(
+                                  enabled: false,
+                                  readOnly: true,
+                                  initialValue: controller
+                                          .userRegistrationRequest
+                                          .countryCode ??
+                                      '+91',
+                                  style: AppTextStyles.inputFieldText.copyWith(
+                                    fontSize: fontSize,
+                                    color: AppColors.disabled,
+                                  ),
+                                  decoration: InputDecoration(
+                                    labelText: "Code",
+                                    labelStyle:
+                                        AppTextStyles.labelText.copyWith(
+                                      fontSize: fontSize,
+                                      color: Colors.grey,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide:
+                                          BorderSide(color: Colors.grey),
+                                    ),
+                                    filled: true,
+                                    fillColor: AppColors.primaryColor,
+                                    contentPadding: EdgeInsets.symmetric(
+                                        vertical: 18, horizontal: 12),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              // Mobile number (read-only)
+                              Expanded(
+                                child: TextFormField(
+                                  enabled: false,
+                                  readOnly: true,
+                                  initialValue: controller
+                                          .userRegistrationRequest
+                                          .mobile
+                                          .isNotEmpty
+                                      ? controller
+                                          .userRegistrationRequest.mobile
+                                      : null,
+                                  style: AppTextStyles.inputFieldText.copyWith(
+                                    fontSize: fontSize,
+                                    color: AppColors.disabled,
+                                  ),
+                                  decoration: InputDecoration(
+                                    labelText: "Mobile",
+                                    labelStyle:
+                                        AppTextStyles.labelText.copyWith(
+                                      fontSize: fontSize,
+                                      color: Colors.grey,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide:
+                                          BorderSide(color: Colors.grey),
+                                    ),
+                                    filled: true,
+                                    fillColor: AppColors.primaryColor,
+                                    contentPadding: EdgeInsets.symmetric(
+                                        vertical: 18, horizontal: 12),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
 
                         buildConsistentTextField(
@@ -188,8 +249,8 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                             if (value == null || value.isEmpty) {
                               return "UserName is required";
                             }
-                            if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
-                              return "User name must only contain letters";
+                            if (!RegExp(r'^[a-zA-Z_\s]+$').hasMatch(value)) {
+                              return "User name must only contain letters and underscore";
                             }
                             return null;
                           },
@@ -376,6 +437,16 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           child: ElevatedButton(
                             onPressed: () {
                               if (formKey.currentState!.validate()) {
+                                if (selectedCountry.id.isEmpty) {
+                                  failure('Country', 'Country cannot be empty');
+                                  return;
+                                }
+                                if (controller.userRegistrationRequest
+                                    .lookingFor.isEmpty) {
+                                  failure('Relationship Type',
+                                      'Relationship Type cannot be empty');
+                                  return;
+                                }
                                 if (controller
                                         .userRegistrationRequest.password !=
                                     confirmPassword.text) {

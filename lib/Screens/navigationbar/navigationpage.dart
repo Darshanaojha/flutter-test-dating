@@ -182,7 +182,8 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                     ),
                   ),
                   padding: EdgeInsets.all(16),
-                  child: Icon(Icons.logout, size: 48, color: Colors.white),
+                  child:
+                      Icon(Icons.heart_broken, size: 48, color: Colors.white),
                 ),
                 const SizedBox(height: 20),
                 Text(
@@ -197,7 +198,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Are you sure you want to log out of your account?',
+                  'Are you sure you want to log out ?',
                   textAlign: TextAlign.center,
                   style: AppTextStyles.headingText.copyWith(
                     fontSize: getResponsiveFontSize(context, 0.04),
@@ -210,57 +211,87 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white.withOpacity(0.85),
-                          foregroundColor: Colors.redAccent,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment(0.8, 1),
+                            colors: AppColors
+                                .gradientColor, // Use the same gradient as Log Out
                           ),
-                          padding: EdgeInsets.symmetric(vertical: 12),
+                          borderRadius: BorderRadius.circular(30),
                         ),
-                        icon: Icon(Icons.close),
-                        label: Text(
-                          'Cancel',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.redAccent,
+                        child: ElevatedButton.icon(
+                          onPressed: () => Navigator.of(context).pop(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            shadowColor: Colors.transparent,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          icon: Icon(
+                            Icons.close,
+                            color: Colors.black,
+                          ),
+                          label: Text(
+                            'Cancel',
+                            style: AppTextStyles.buttonText.copyWith(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                              letterSpacing: 1.1,
+                            ),
                           ),
                         ),
                       ),
                     ),
                     SizedBox(width: 16),
                     Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () async {
-                          final preferences =
-                              EncryptedSharedPreferences.getInstance();
-                          preferences.clear();
-                          Get.offAll(() => CombinedAuthScreen());
-
-                          UpdateActivityStatusRequest
-                              updateActivityStatusRequest =
-                              UpdateActivityStatusRequest(status: '0');
-                          controller.updateactivitystatus(
-                              updateActivityStatusRequest);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.redAccent,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment(0.8, 1),
+                            colors: AppColors
+                                .gradientColor, 
                           ),
-                          padding: EdgeInsets.symmetric(vertical: 12),
+                          borderRadius: BorderRadius.circular(30),
                         ),
-                        icon: Icon(Icons.check),
-                        label: Text(
-                          'Log Out',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            final preferences =
+                                EncryptedSharedPreferences.getInstance();
+                            preferences.clear();
+                            Get.offAll(() => CombinedAuthScreen());
+
+                            UpdateActivityStatusRequest
+                                updateActivityStatusRequest =
+                                UpdateActivityStatusRequest(status: '0');
+                            controller.updateactivitystatus(
+                                updateActivityStatusRequest);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            elevation: 0,
+                          ),
+                          child: Text(
+                            "Log Out",
+                            style: AppTextStyles.buttonText.copyWith(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.1,
+                            ),
                           ),
                         ),
                       ),

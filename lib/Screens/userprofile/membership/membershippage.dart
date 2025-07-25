@@ -221,7 +221,6 @@ class MembershipPageState extends State<MembershipPage>
             backgroundColor: Colors.transparent,
             selectedBackgroundColor:
                 Colors.transparent, // Keep transparent for gradient effect
-
             selectedTextColor: Colors.white,
             borderRadius: 16.0,
             height: 50,
@@ -257,23 +256,23 @@ class MembershipPageState extends State<MembershipPage>
                 ),
                 Row(
                   children: [
-                    if (free)
-                      Icon(
-                        Icons.check,
-                        color: AppColors.acceptColor,
-                        size: 20,
-                      ),
-                    if (!free)
-                      Icon(
-                        Icons.close,
-                        color: AppColors.deniedColor,
-                        size: 20,
-                      ),
+                    // if (free)
+                    //   Icon(
+                    //     Icons.check,
+                    //     color: AppColors.acceptColor,
+                    //     size: 20,
+                    //   ),
+                    // if (!free)
+                    //   Icon(
+                    //     Icons.close,
+                    //     color: AppColors.deniedColor,
+                    //     size: 20,
+                    //   ),
                     SizedBox(width: 10),
                     if (paid)
                       Icon(
                         Icons.check,
-                        color: AppColors.acceptColor,
+                        color: Colors.green,
                         size: 20,
                       ),
                     if (!paid)

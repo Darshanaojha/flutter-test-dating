@@ -1055,9 +1055,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           controller.userRegistrationRequest.preferences =
                               selectedPreferences;
 
-                          if (selectedPreferences.isEmpty) {
+                          if (selectedPreferences.length < 3) {
                             failure('Failed',
-                                'Please select at least one preference.');
+                                'Please select at least three preferences.');
                           } else {
                             markStepAsCompleted(5);
                             Get.snackbar(
@@ -2085,8 +2085,32 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
   RxBool notificationGranted = false.obs;
   RxBool locationGranted = false.obs;
+  RxBool cameraGranted = false.obs;
 
-  // step 10
+// Helper to request notification permission
+  Future<void> requestNotificationPermission() async {
+    var status = await Permission.notification.request();
+    notificationGranted.value = status.isGranted;
+    if (notificationGranted.value) {
+      controller.userRegistrationRequest.emailAlerts = '1';
+    } else {
+      controller.userRegistrationRequest.emailAlerts = '0';
+    }
+  }
+
+// Helper to request location permission
+  Future<void> requestLocationPermission() async {
+    var status = await Permission.location.request();
+    locationGranted.value = status.isGranted;
+  }
+
+// Helper to request camera/gallery permission
+  Future<void> requestCameraPermission() async {
+    var status = await Permission.camera.request();
+    cameraGranted.value = status.isGranted;
+  }
+
+  // step 10 Permissions
   Widget buildPermissionRequestStep(Size screenSize) {
     Future<void> showPermissionDialog(
         BuildContext context, String permissionType) async {
@@ -2226,8 +2250,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                             ),
                             SizedBox(height: 28),
                             GestureDetector(
-                              onTap: () {
-                                showPermissionDialog(context, 'notification');
+                              onTap: () async {
+                                // showPermissionDialog(context, 'notification');
+                                await requestNotificationPermission();
                               },
                               child: Card(
                                 elevation: 4,
@@ -2289,8 +2314,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                             ),
                             SizedBox(height: 20),
                             GestureDetector(
-                              onTap: () {
-                                showPermissionDialog(context, 'location');
+                              onTap: () async {
+                                // showPermissionDialog(context, 'location');
+                                await requestLocationPermission();
                               },
                               child: Card(
                                 elevation: 4,
@@ -2351,6 +2377,69 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                               ),
                             ),
                             SizedBox(height: 24),
+                            GestureDetector(
+                              onTap: () async {
+                                await requestCameraPermission();
+                              },
+                              child: Card(
+                                elevation: 4,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                color: AppColors.formFieldColor,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 18.0, horizontal: 16.0),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.camera_alt,
+                                        color: Colors.white,
+                                        size: iconSize,
+                                      ),
+                                      SizedBox(width: 14),
+                                      Expanded(
+                                        child: Text(
+                                          "We need permission to access your camera and images.",
+                                          style:
+                                              AppTextStyles.bodyText.copyWith(
+                                            fontSize: fontSize,
+                                            color: AppColors.textColor,
+                                          ),
+                                        ),
+                                      ),
+                                      Obx(() {
+                                        return Container(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 6),
+                                          decoration: BoxDecoration(
+                                            color: cameraGranted.value
+                                                ? AppColors.activeColor
+                                                : Colors.grey.shade300,
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                          ),
+                                          child: Text(
+                                            cameraGranted.value
+                                                ? 'Granted'
+                                                : 'Allow',
+                                            style:
+                                                AppTextStyles.bodyText.copyWith(
+                                              fontSize: fontSize * 0.95,
+                                              color: cameraGranted.value
+                                                  ? Colors.white
+                                                  : Colors.black54,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 24),
                           ],
                         ),
                       ),
@@ -2368,7 +2457,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             bottom: 0,
             child: Obx(() => buildBottomButtonRow(
                   onBack: onBackPressed,
-                  onNext: notificationGranted.value && locationGranted.value
+                  // onNext: notificationGranted.value && locationGranted.value && cameraGranted.value
+                  onNext: true
                       ? () {
                           markStepAsCompleted(10);
                           Get.snackbar(
@@ -3082,7 +3172,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(Icons.verified_user,
-                                color: AppColors.activeColor, size: 48),
+                                color: AppColors.iconColor, size: 48),
                             SizedBox(height: 16),
                             Text(
                               "Acknowledge Safety Guidelines",
@@ -3106,59 +3196,53 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                             Row(
                               children: [
                                 Expanded(
-                                  child: Container(
-                                    child: OutlinedButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      style: OutlinedButton.styleFrom(
-                                        backgroundColor: Colors.transparent,
-                                        foregroundColor: AppColors.textColor,
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 12),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                        ),
-                                        elevation: 0,
-                                        shadowColor: Colors.transparent,
+                                  child: OutlinedButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    style: OutlinedButton.styleFrom(
+                                      backgroundColor: Colors.transparent,
+                                      foregroundColor: AppColors.textColor,
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 12),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
                                       ),
-                                      child: Text(
-                                        'Cancel',
-                                        style:
-                                            AppTextStyles.buttonText.copyWith(
-                                          fontSize: buttonFontSize,
-                                        ),
+                                      elevation: 0,
+                                      shadowColor: Colors.transparent,
+                                    ),
+                                    child: Text(
+                                      'Cancel',
+                                      style: AppTextStyles.buttonText.copyWith(
+                                        fontSize: buttonFontSize,
                                       ),
                                     ),
                                   ),
                                 ),
                                 SizedBox(width: 16),
                                 Expanded(
-                                  child: Container(
-                                    child: OutlinedButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                        nextStep();
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.transparent,
-                                        foregroundColor: AppColors.textColor,
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 12),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                        ),
-                                        elevation: 0,
-                                        shadowColor: Colors.transparent,
+                                  child: OutlinedButton(
+                                    onPressed: () async {
+                                      Navigator.of(context).pop();
+                                      await controller.register(
+                                          controller.userRegistrationRequest);
+                                      Get.offAll(CombinedAuthScreen());
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.transparent,
+                                      foregroundColor: AppColors.textColor,
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 12),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
                                       ),
-                                      child: Text(
-                                        'Acknowledge',
-                                        style:
-                                            AppTextStyles.buttonText.copyWith(
-                                          fontSize: buttonFontSize,
-                                        ),
+                                      elevation: 0,
+                                      shadowColor: Colors.transparent,
+                                    ),
+                                    child: Text(
+                                      'Acknowledge',
+                                      style: AppTextStyles.buttonText.copyWith(
+                                        fontSize: buttonFontSize,
                                       ),
                                     ),
                                   ),
