@@ -70,7 +70,10 @@ import 'package:dating_application/Providers/login_provider.dart';
 import 'package:dating_application/Providers/share_profile_provider.dart';
 import 'package:dating_application/Providers/user_profile_provider.dart';
 import 'package:dating_application/Screens/auth.dart';
+import 'package:dating_application/Screens/login.dart';
 import 'package:dating_application/Screens/loginforgotpassword/forgotpasswordotp.dart';
+import 'package:dating_application/Screens/navigationbar/unsubscribenavigation.dart'
+    show Unsubscribenavigation;
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
@@ -104,6 +107,7 @@ import '../Models/RequestModels/update_emailid_request_model.dart';
 import '../Models/RequestModels/update_lat_long_request_model.dart';
 import '../Models/RequestModels/update_profile_photo_request_model.dart';
 import '../Models/RequestModels/update_visibility_status_request_model.dart';
+import '../Models/RequestModels/user_login_request_model.dart';
 import '../Models/RequestModels/user_profile_update_request_model.dart';
 import '../Models/RequestModels/user_registration_request_model.dart';
 import '../Models/RequestModels/usernameupdate_request_model.dart';
@@ -170,6 +174,7 @@ import '../Providers/deletefavourite_provider_model.dart';
 import '../Providers/dislike_profile_provider.dart';
 import '../Providers/edit_message_provider.dart';
 import '../Providers/established_connection_message_provider.dart';
+import '../Providers/fcmService.dart';
 import '../Providers/fetch_all_active_user_provider.dart';
 import '../Providers/fetch_all_countries_provider.dart';
 import '../Providers/fetch_all_genders_provider.dart';
@@ -265,7 +270,8 @@ class Controller extends GetxController {
     lookingFor: '',
   );
 
-  Future<bool> register(UserRegistrationRequest userRegistrationRequest) async {
+  Future<Map<String, String>?> register(
+      UserRegistrationRequest userRegistrationRequest) async {
     try {
       final UserRegistrationResponse? response =
           await UserRegistrationProvider()
@@ -275,16 +281,53 @@ class Controller extends GetxController {
 
       if (response != null && response.success) {
         success('Success', response.payload.message);
-        Get.offAll(CombinedAuthScreen());
-        return true;
+
+        // Assuming request has email & password fields
+        // return {
+        //   'email': userRegistrationRequest.email,
+        //   'password': userRegistrationRequest.password,
+        // };
+        final loginRequest = UserLoginRequest(
+          email: userRegistrationRequest.email,
+          password: userRegistrationRequest.password,
+        );
+        print("loginRequest.email");
+        print(loginRequest.email);
+        print("ginRequest.pasword");
+        print(loginRequest.password);
+        UserLoginResponse? responses = await login(loginRequest);
+        if (responses != null) {
+          if (responses.success == true) {
+            String packagestatus = responses.payload.packagestatus;
+            if (packagestatus == '0') {
+              FCMService().subscribeToTopic("unsubscribed");
+              FCMService().subscribeToTopic(responses.payload.userId);
+              FCMService().subscribeToTopic("alluser");
+              Get.offAll(Unsubscribenavigation());
+            } else if (packagestatus == '1') {
+              FCMService().subscribeToTopic("subscribed");
+              FCMService().subscribeToTopic(responses.payload.userId);
+              FCMService().subscribeToTopic("alluser");
+              Get.offAll(NavigationBottomBar());
+            }
+          } else {
+            Get.snackbar(
+              'Login Failed',
+              'Invalid credentials or network error.',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.red,
+              colorText: Colors.white,
+            );
+          }
+        }
       } else {
         failure('Error', 'Registration failed. Please try again.');
-        return false;
+        return null;
       }
     } catch (e) {
       failure(
           'Error register', 'An unexpected error occurred: ${e.toString()}');
-      return false;
+      return null;
     }
   }
 

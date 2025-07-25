@@ -109,7 +109,7 @@ class AppColors {
   ];
 
   static var shader = LinearGradient(colors: gradientBackgroundList)
-    .createShader(const Rect.fromLTWH(0, 0, 200, 40));
+      .createShader(const Rect.fromLTWH(0, 0, 200, 40));
 
   static List<Color> gradientColor = <Color>[
     Color(0xFF441752), // Darkest purple
@@ -124,17 +124,16 @@ class AppColors {
   ];
 
   static List<Color> reversedGradientColor = <Color>[
-  Color(0xFFEFB6C8),
-  Color(0xFFA888B5),
-  Color(0xFF8174A0),
-  Color.fromARGB(255, 113, 96, 153),
-  Color.fromARGB(255, 107, 87, 152),
-  Color.fromARGB(255, 102, 81, 152),
-  Color.fromARGB(255, 78, 37, 91),
-  Color.fromARGB(255, 74, 28, 88),
-  Color(0xFF441752),
-];
-
+    Color(0xFFEFB6C8),
+    Color(0xFFA888B5),
+    Color(0xFF8174A0),
+    Color.fromARGB(255, 113, 96, 153),
+    Color.fromARGB(255, 107, 87, 152),
+    Color.fromARGB(255, 102, 81, 152),
+    Color.fromARGB(255, 78, 37, 91),
+    Color.fromARGB(255, 74, 28, 88),
+    Color(0xFF441752),
+  ];
 
   // static List<Color> gradientColor = <Color>[
   //   Color(0xff1f005c),
