@@ -239,7 +239,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                 child: Text(
                   'Found Add ON',
                   style: AppTextStyles.titleText.copyWith(
-                    fontSize: getResponsiveFontSize(0.03),
+                    fontSize: getResponsiveFontSize(0.035),
                     color: Colors.white,
                   ),
                   textAlign: TextAlign.center,
@@ -645,7 +645,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                     children: [
                       Text('Likes: ${filteredLikesPage.length}',
                           style: AppTextStyles.textStyle),
-                      Text('Pings: $pingCount', style: AppTextStyles.textStyle),
+                      // Text('Pings: $pingCount', style: AppTextStyles.textStyle),
                     ],
                   ),
                 ),
@@ -820,7 +820,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                                         fontSize:
                                                             getResponsiveFontSize(
                                                                 0.03))),
-                                            Text('${user.gender}',
+                                            Text(user.gender,
                                                 style: AppTextStyles.bodyText
                                                     .copyWith(
                                                         fontSize:

@@ -131,21 +131,17 @@ class LikeRequestPages {
       email: json['email']?.toString(),
       profileImage: json['profile_image']?.toString() ?? '',
       dob: json['DOB']?.toString() ?? '',
-      likedByMe: json['likeed_by_me'] is int
-          ? json['likeed_by_me']
-          : int.tryParse(json['likeed_by_me']?.toString() ?? '0') ?? 0,
+      likedByMe: json['liked_by_me'] is int
+          ? json['liked_by_me']
+          : int.tryParse(json['liked_by_me']?.toString() ?? '0') ?? 0,
       gender: json['gender']?.toString() ?? '',
       countryName: json['countryname']?.toString() ?? '',
-      images:
-          (json['images'] as List?)?.map((e) => e.toString()).toList() ?? [],
-      desires:
-          (json['desires'] as List?)?.map((e) => e.toString()).toList() ?? [],
-      preferences:
-          (json['preferences'] as List?)?.map((e) => e.toString()).toList() ??
-              [],
+      images: imagesList, // <-- FIXED HERE
+      desires: desiresList,
+      preferences: preferencesList,
     );
   }
-
+  
   Map<String, dynamic> toJson() {
     return {
       'id': id,

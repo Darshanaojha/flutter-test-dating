@@ -150,28 +150,28 @@ class HomePageState extends State<HomePage>
     Map<String, String> lastUsersMap = {};
     if (controller.getCurrentList(0).isNotEmpty) {
       SuggestedUser lastUserNearby =
-          controller.getCurrentList(0).last as SuggestedUser;
+          controller.getCurrentList(0).last;
       lastUsersMap['nearBy'] = jsonEncode(lastUserNearby.toJson());
     }
 
     // Save last user for 'highlighted' list
     if (controller.getCurrentList(1).isNotEmpty) {
       SuggestedUser lastUserHighlighted =
-          controller.getCurrentList(1).last as SuggestedUser;
+          controller.getCurrentList(1).last;
       lastUsersMap['highlighted'] = jsonEncode(lastUserHighlighted.toJson());
     }
 
     // Save last user for 'favourite' list
     if (controller.getCurrentList(2).isNotEmpty) {
       SuggestedUser lastUserFavourite =
-          controller.getCurrentList(2).last as SuggestedUser;
+          controller.getCurrentList(2).last;
       lastUsersMap['favourite'] = jsonEncode(lastUserFavourite.toJson());
     }
 
     // Save last user for 'hookup' list
     if (controller.getCurrentList(3).isNotEmpty) {
       SuggestedUser lastUserHookUp =
-          controller.getCurrentList(3).last as SuggestedUser;
+          controller.getCurrentList(3).last;
       lastUsersMap['hookup'] = jsonEncode(lastUserHookUp.toJson());
     }
 
@@ -496,12 +496,12 @@ class HomePageState extends State<HomePage>
     swipeItems.clear();
 
     List<SuggestedUser> currentList = controller.getListByFilter(filterIndex);
-    print(
-        "🔄 Rebuilding SwipeItems for Filter $filterIndex → Found: ${currentList.length}");
+    // print(
+    //     "🔄 Rebuilding SwipeItems for Filter $filterIndex → Found: ${currentList.length}");
 
-    if (currentList.isEmpty) {
-      print("⚠️ No users found for this filter");
-    }
+    // if (currentList.isEmpty) {
+    //   print("⚠️ No users found for this filter");
+    // }
 
     for (var user in currentList) {
       swipeItems.add(SwipeItem(
@@ -618,16 +618,39 @@ class HomePageState extends State<HomePage>
                                 }
                               });
                             }),
+                            // buildFilterButton(
+                            //     context, 2, 'Favourite', FontAwesome.heart,
+                            //     (value) {
+                            //   setState(() {
+                            //     selectedFilter.value = 2;
+                            //     rebuildSwipeItemsForFilter(2);
+                            //   });
+                            //   Get.snackbar('User Favourite',
+                            //       controller.favourite.length.toString());
+                            // }),
                             buildFilterButton(
-                                context, 2, 'Favourite', FontAwesome.heart,
-                                (value) {
-                              setState(() {
-                                selectedFilter.value = 2;
-                                rebuildSwipeItemsForFilter(2);
-                              });
-                              Get.snackbar('User Favourite',
-                                  controller.favourite.length.toString());
-                            }),
+                              context,
+                              2,
+                              'Favourite',
+                              FontAwesome.heart,
+                              (value) async {
+                                setState(() {
+                                  selectedFilter.value = 2;
+                                  isLoading = true;
+                                });
+                                // Fetch favourites from API
+                                bool success =
+                                    await controller.fetchallfavourites();
+                                setState(() {
+                                  isLoading = false;
+                                  if (success) {
+                                    rebuildSwipeItemsForFilter(2);
+                                  }
+                                });
+                                Get.snackbar('User Favourite',
+                                    controller.favourite.length.toString());
+                              },
+                            ),
                             buildFilterButton(context, 0, 'NearBy',
                                 FontAwesome.map_location_dot_solid, (value) {
                               setState(() {
