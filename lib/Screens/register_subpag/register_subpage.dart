@@ -3226,7 +3226,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                       Navigator.of(context).pop();
                                       await controller.register(
                                           controller.userRegistrationRequest);
-                                      Get.offAll(CombinedAuthScreen());
+                                      //Get.offAll(CombinedAuthScreen());
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.transparent,

@@ -110,28 +110,38 @@ class UnSubscribeNavigationController extends GetxController {
                   ),
                 ),
                 SizedBox(width: screenWidth * 0.03),
-                OutlinedButton(
-                  onPressed: () {
-                    Get.to(MembershipPage());
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor:
-                        Colors.transparent, // Optional: removes button shadow
-                    padding: EdgeInsets.symmetric(
-                      horizontal: buttonPaddingH,
-                      vertical: buttonPaddingV,
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment(0.8, 1),
+                      colors: AppColors.reversedGradientColor,
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
+                    borderRadius: BorderRadius.circular(38),
                   ),
-                  child: Text(
-                    'Subscribe',
-                    style: TextStyle(
-                      fontSize: buttonFont,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Get.to(MembershipPage());
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor:
+                          Colors.transparent, // Optional: removes button shadow
+                      padding: EdgeInsets.symmetric(
+                        horizontal: buttonPaddingH,
+                        vertical: buttonPaddingV,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: Text(
+                      'Subscribe',
+                      style: TextStyle(
+                        fontSize: buttonFont,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
