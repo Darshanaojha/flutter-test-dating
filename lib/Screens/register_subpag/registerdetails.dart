@@ -249,8 +249,8 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                             if (value == null || value.isEmpty) {
                               return "UserName is required";
                             }
-                            if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
-                              return "User name must only contain letters";
+                            if (!RegExp(r'^[a-zA-Z_\s]+$').hasMatch(value)) {
+                              return "User name must only contain letters and underscore";
                             }
                             return null;
                           },
@@ -437,6 +437,16 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           child: ElevatedButton(
                             onPressed: () {
                               if (formKey.currentState!.validate()) {
+                                if (selectedCountry.id.isEmpty) {
+                                  failure('Country', 'Country cannot be empty');
+                                  return;
+                                }
+                                if (controller.userRegistrationRequest
+                                    .lookingFor.isEmpty) {
+                                  failure('Relationship Type',
+                                      'Relationship Type cannot be empty');
+                                  return;
+                                }
                                 if (controller
                                         .userRegistrationRequest.password !=
                                     confirmPassword.text) {

@@ -37,7 +37,7 @@ class AppColors {
   static Color cursorColor = Colors.white;
   static Color acceptColor = const Color.fromARGB(255, 119, 120, 119);
   static Color deniedColor = const Color.fromARGB(255, 195, 167, 165);
-  static Color iconColor = const Color.fromARGB(255, 0, 59, 107);
+  static Color iconColor = const Color.fromARGB(255, 253, 174, 47);
   static Color buttonColor = const Color.fromARGB(255, 0, 64, 117);
   static Color chipColor = Colors.grey;
   static Color formFieldColor = Color.fromARGB(255, 85, 84, 84);
@@ -108,6 +108,9 @@ class AppColors {
     Color(0xFFEFB6C8),
   ];
 
+  static var shader = LinearGradient(colors: gradientBackgroundList)
+    .createShader(const Rect.fromLTWH(0, 0, 200, 40));
+
   static List<Color> gradientColor = <Color>[
     Color(0xFF441752), // Darkest purple
     Color.fromARGB(255, 74, 28, 88),
@@ -153,7 +156,7 @@ class AppTextStyles {
   static const double buttonSize = 12.0;
   static const double labelSize = 14.0;
   static const double inputFieldSize = 16.0;
-  static const double textSize = 16.0;
+  static const double textSize = 14.0;
 
   static final TextStyle headingText = GoogleFonts.roboto(
     fontSize: headingSize,
@@ -176,7 +179,7 @@ class AppTextStyles {
   static final TextStyle bodyText = GoogleFonts.roboto(
     fontSize: bodySize,
     fontWeight: FontWeight.normal,
-    color: Colors.black,
+    color: Colors.white,
   );
 
   static final TextStyle buttonText = GoogleFonts.roboto(
@@ -204,7 +207,7 @@ class AppTextStyles {
   );
 
   static final TextStyle textStyle = GoogleFonts.roboto(
-    fontSize: textSize,
+    fontSize: textSize - 2,
     fontWeight: FontWeight.bold,
     color: Colors.white,
   );

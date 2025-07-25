@@ -35,10 +35,19 @@ class UserProfilePageState extends State<UserProfilePage>
   }
 
   late final DecorationTween decorationTween;
+  late TextEditingController _usernameController;
+
   @override
   void initState() {
     super.initState();
     _fetchprofilepage = fetchAllData();
+    _usernameController = TextEditingController(
+      text: controller.usernameUpdateRequest.username.isNotEmpty
+          ? controller.usernameUpdateRequest.username
+          : (controller.userData.isNotEmpty
+              ? controller.userData.first.username
+              : ''),
+    );
 
     decorationTween = DecorationTween(
       begin: BoxDecoration(
@@ -350,19 +359,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                   AppColors
                                                                       .cursorColor,
                                                               controller:
-                                                                  TextEditingController(
-                                                                text: controller
-                                                                        .usernameUpdateRequest
-                                                                        .username
-                                                                        .isNotEmpty
-                                                                    ? controller
-                                                                        .usernameUpdateRequest
-                                                                        .username
-                                                                    : controller
-                                                                        .userData
-                                                                        .first
-                                                                        .username,
-                                                              ),
+                                                                  _usernameController,
                                                               onChanged:
                                                                   (value) {
                                                                 controller
@@ -457,7 +454,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                   horizontal:
                                                                       20),
                                                         ),
-                                                        onPressed: () {
+                                                        onPressed: () async{
                                                           final updatedUsername =
                                                               controller
                                                                       .usernameUpdateRequest
@@ -477,6 +474,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                 username:
                                                                     updatedUsername),
                                                           );
+                                                          await controller.fetchProfile(); // Refresh user data from backend
                                                           Navigator.of(context)
                                                               .pop();
                                                         },
@@ -1198,7 +1196,7 @@ class UserProfilePageState extends State<UserProfilePage>
   Color _getAccountVerificationColor(String status) {
     switch (status) {
       case '0':
-        return const Color.fromARGB(255, 61, 5, 0);
+        return const Color.fromARGB(255, 255, 255, 255);
       case '1':
         return const Color.fromARGB(255, 255, 255, 255);
       case '2':

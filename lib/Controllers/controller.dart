@@ -79,7 +79,6 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../Models/RequestModels/ReferalCodeRequestModel.dart';
 import '../Models/RequestModels/app_setting_request_model.dart';
@@ -1710,14 +1709,25 @@ class Controller extends GetxController {
       if (response != null && response.payload.data.isNotEmpty) {
         print('Successfully fetched all the favourites');
 
+        // void addUniqueFavourites(
+        //     List<Favourite> favourites, RxList<Favourite> targetList) {
+        //   for (var favouriteItem in favourites) {
+        //     if (favouriteItem.userId != null &&
+        //         !seenFavouriteIds.contains(favouriteItem.userId)) {
+        //       targetList.assignAll(favouriteItem as Iterable<Favourite>);
+        //       seenFavouriteIds
+        //           .assignAll(favouriteItem.userId as Iterable<String?>);
+        //     }
+        //   }
+        // }
+
         void addUniqueFavourites(
             List<Favourite> favourites, RxList<Favourite> targetList) {
           for (var favouriteItem in favourites) {
             if (favouriteItem.userId != null &&
                 !seenFavouriteIds.contains(favouriteItem.userId)) {
-              targetList.assignAll(favouriteItem as Iterable<Favourite>);
-              seenFavouriteIds
-                  .assignAll(favouriteItem.userId as Iterable<String?>);
+              targetList.add(favouriteItem); // ✅ Add single item
+              seenFavouriteIds.add(favouriteItem.userId); // ✅ Add single id
             }
           }
         }
@@ -1929,7 +1939,7 @@ class Controller extends GetxController {
         success('Success', response.payload.message);
         return true;
       }
-      failure('Error', 'Failed to process the dislike request.');
+      // failure('Error', 'Failed to process the dislike request.');
       return false;
     } catch (e) {
       failure('Error', e.toString());

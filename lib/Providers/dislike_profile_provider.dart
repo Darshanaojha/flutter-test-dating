@@ -40,7 +40,7 @@ class DislikeProfileProvider extends GetConnect {
       }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
-          return DislikeProfileResponse.fromJson(response.body);
+          return DislikeProfileResponse.fromMap(response.body);
         } else {
           failure('Error', response.body['error']['message']);
           return null;
@@ -50,7 +50,8 @@ class DislikeProfileProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      print("Error in DislikeProfileProvider: $e");
+      failure('Errorrr', e.toString());
       return null;
     }
   }

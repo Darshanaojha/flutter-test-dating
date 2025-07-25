@@ -438,6 +438,7 @@ class WalletPageState extends State<WalletPage>
                                   ),
                                 );
                               }
+                              return null;
                             },
                             childCount: controller.transactions.length,
                           ),
