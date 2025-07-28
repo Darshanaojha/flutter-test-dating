@@ -180,7 +180,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
       context: context,
       builder: (context) {
         return Dialog(
-          backgroundColor: Colors.black.withOpacity(0.9),
+          backgroundColor: Colors.transparent,
           child: GestureDetector(
             onTap: () => Navigator.of(context).pop(),
             child: Center(
@@ -806,6 +806,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                                                 0.03))),
                                           ],
                                         ),
+                                         SizedBox(height: 4),
                                         Row(
                                           children: [
                                             Text('${getAgeFromDob(user.dob)} |',
@@ -828,77 +829,97 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                                                 0.03))),
                                           ],
                                         ),
-                                        SizedBox(height: 4),
-                                        Text('Last Seen: ${user.updated}',
-                                            style: AppTextStyles.bodyText
-                                                .copyWith(
-                                                    fontSize:
-                                                        getResponsiveFontSize(
-                                                            0.03))),
-                                        SizedBox(height: 4),
+                                        // SizedBox(height: 4),
                                         Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
                                           children: [
-                                            IconButton(
-                                              onPressed: () async {
-                                                showAnimation(); // Trigger the heart animation
-                                                setState(() {
-                                                  user.likedByMe =
-                                                      user.likedByMe == 0
-                                                          ? 1
-                                                          : 0;
-
-                                                  if (user.likedByMe == 1) {
-                                                    controller
-                                                            .profileLikeRequest
-                                                            .likedBy =
-                                                        user.userId.toString();
-                                                    controller.profileLike(
-                                                        controller
-                                                            .profileLikeRequest);
-                                                  } else {
-                                                    controller
-                                                        .dislikeProfileRequest
-                                                        .id = user.id.toString();
-                                                    controller.dislikeprofile(
-                                                        controller
-                                                            .dislikeProfileRequest);
-                                                    controller.likesuserpage();
-                                                  }
-                                                });
-                                              },
-                                              icon: Icon(
-                                                user.likedByMe == 1
-                                                    ? Icons.favorite
-                                                    : Icons.favorite_border,
-                                                size: 30,
-                                                color: user.likedByMe == 1
-                                                    ? Colors.red
-                                                    : Colors.white,
+                                            // Left side: Last Seen text
+                                            Text(
+                                              'Last Seen: ${user.updated}',
+                                              style: AppTextStyles.bodyText
+                                                  .copyWith(
+                                                fontSize:
+                                                    getResponsiveFontSize(0.03),
                                               ),
                                             ),
-                                            if (isAnimationVisible)
-                                              Positioned(
-                                                top: 200,
-                                                child: AnimatedOpacity(
-                                                  duration: Duration(
-                                                      milliseconds: 500),
-                                                  opacity: isAnimationVisible
-                                                      ? 1.0
-                                                      : 0.0,
-                                                  child: AnimatedScale(
-                                                    duration: Duration(
-                                                        milliseconds: 500),
-                                                    scale: isAnimationVisible
-                                                        ? 1.5
-                                                        : 0.0,
-                                                    child: Icon(
-                                                      Icons.favorite,
-                                                      color: Colors.red,
-                                                      size: 100,
-                                                    ),
+
+                                            // Right side: Like button + animation
+                                            Stack(
+                                              alignment: Alignment.center,
+                                              children: [
+                                                IconButton(
+                                                  onPressed: () async {
+                                                    showAnimation(); // Trigger the heart animation
+                                                    setState(() {
+                                                      user.likedByMe =
+                                                          user.likedByMe == 0
+                                                              ? 1
+                                                              : 0;
+
+                                                      if (user.likedByMe == 1) {
+                                                        controller
+                                                                .profileLikeRequest
+                                                                .likedBy =
+                                                            user.userId
+                                                                .toString();
+                                                        controller.profileLike(
+                                                            controller
+                                                                .profileLikeRequest);
+                                                      } else {
+                                                        controller
+                                                                .dislikeProfileRequest
+                                                                .id =
+                                                            user.userId
+                                                                .toString();
+                                                        success(
+                                                            user.id.toString(),
+                                                            'dislike id');
+                                                        controller.dislikeprofile(
+                                                            controller
+                                                                .dislikeProfileRequest);
+                                                        controller
+                                                            .likesuserpage();
+                                                      }
+                                                    });
+                                                  },
+                                                  icon: Icon(
+                                                    user.likedByMe == 1
+                                                        ? Icons.favorite
+                                                        : Icons.favorite_border,
+                                                    size: 30,
+                                                    color: user.likedByMe == 1
+                                                        ? Colors.red
+                                                        : Colors.white,
                                                   ),
                                                 ),
-                                              ),
+
+                                                // Heart animation
+                                                if (isAnimationVisible)
+                                                  AnimatedOpacity(
+                                                    duration: Duration(
+                                                        milliseconds: 500),
+                                                    opacity: isAnimationVisible
+                                                        ? 1.0
+                                                        : 0.0,
+                                                    child: AnimatedScale(
+                                                      duration: Duration(
+                                                          milliseconds: 500),
+                                                      scale: isAnimationVisible
+                                                          ? 1.5
+                                                          : 0.0,
+                                                      child: Icon(
+                                                        Icons.favorite,
+                                                        color: Colors.red
+                                                            .withOpacity(0.6),
+                                                        size: 50,
+                                                      ),
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
                                           ],
                                         ),
                                       ],
@@ -912,39 +933,39 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                 )
               ],
             ),
-            Positioned(
-              bottom: 16,
-              right: 16,
-              child: SizedBox(
-                width: 120,
-                height: 40,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment(0.8, 1),
-                        colors: AppColors.gradientColor),
-                    borderRadius: BorderRadius.circular(
-                        30), // Ensure the button has rounded corners
-                  ),
-                  child: FloatingActionButton(
-                    onPressed: () {
-                      showUpgradeBottomSheet();
-                    },
-                    backgroundColor: Colors
-                        .transparent, // Set to transparent as the gradient is applied via Container
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Text(
-                      "Add On",
-                      style: AppTextStyles.textStyle,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            // Positioned(
+            //   bottom: 16,
+            //   right: 16,
+            //   child: SizedBox(
+            //     width: 120,
+            //     height: 40,
+            //     child: Container(
+            //       decoration: BoxDecoration(
+            //         gradient: LinearGradient(
+            //             begin: Alignment.topLeft,
+            //             end: Alignment(0.8, 1),
+            //             colors: AppColors.gradientColor),
+            //         borderRadius: BorderRadius.circular(
+            //             30), // Ensure the button has rounded corners
+            //       ),
+            //       // child: FloatingActionButton(
+            //       //   onPressed: () {
+            //       //     showUpgradeBottomSheet();
+            //       //   },
+            //       //   backgroundColor: Colors
+            //       //       .transparent, // Set to transparent as the gradient is applied via Container
+            //       //   shape: RoundedRectangleBorder(
+            //       //     borderRadius: BorderRadius.circular(30),
+            //       //   ),
+            //       //   child: Text(
+            //       //     "Add On",
+            //       //     style: AppTextStyles.textStyle,
+            //       //     textAlign: TextAlign.center,
+            //       //   ),
+            //       // ),
+            //     ),
+            //   ),
+            // ),
             if (isLoading)
               Center(
                 child: SpinKitCircle(

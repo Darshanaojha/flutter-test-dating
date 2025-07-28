@@ -7,6 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:lottie/lottie.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../Controllers/controller.dart';
@@ -182,8 +183,17 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                     ),
                   ),
                   padding: EdgeInsets.all(16),
-                  child:
-                      Icon(Icons.heart_broken, size: 48, color: Colors.white),
+                  // child:
+                  //     Icon(Icons.heart_broken, size: 48, color: Colors.white),
+                  child: SizedBox(
+                    height: 60,
+                    width: 60,
+                    child: Lottie.asset(
+                      'assets/animations/broken-heart.json',
+                      repeat: true,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Text(
@@ -257,23 +267,21 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment(0.8, 1),
-                            colors: AppColors
-                                .gradientColor, 
+                            colors: AppColors.gradientColor,
                           ),
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: ElevatedButton(
                           onPressed: () async {
+                            UpdateActivityStatusRequest
+                                updateActivityStatusRequest =
+                                UpdateActivityStatusRequest(status: '0');
+                            // controller.updateactivitystatus(
+                            //     updateActivityStatusRequest);
                             final preferences =
                                 EncryptedSharedPreferences.getInstance();
                             preferences.clear();
                             Get.offAll(() => CombinedAuthScreen());
-
-                            UpdateActivityStatusRequest
-                                updateActivityStatusRequest =
-                                UpdateActivityStatusRequest(status: '0');
-                            controller.updateactivitystatus(
-                                updateActivityStatusRequest);
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent,

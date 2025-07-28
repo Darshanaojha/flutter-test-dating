@@ -3201,8 +3201,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                       Navigator.of(context).pop();
                                     },
                                     style: OutlinedButton.styleFrom(
-                                      backgroundColor: Colors.transparent,
-                                      foregroundColor: AppColors.textColor,
+                                      backgroundColor: Colors.white,
                                       padding:
                                           EdgeInsets.symmetric(vertical: 12),
                                       shape: RoundedRectangleBorder(
@@ -3215,34 +3214,53 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                       'Cancel',
                                       style: AppTextStyles.buttonText.copyWith(
                                         fontSize: buttonFontSize,
+                                        foreground: Paint()
+                                          ..shader = LinearGradient(
+                                            colors: AppColors
+                                                .gradientBackgroundList,
+                                          ).createShader(
+                                            Rect.fromLTWH(0, 0, 200, 70),
+                                          ),
                                       ),
                                     ),
                                   ),
                                 ),
                                 SizedBox(width: 16),
                                 Expanded(
-                                  child: OutlinedButton(
-                                    onPressed: () async {
-                                      Navigator.of(context).pop();
-                                      await controller.register(
-                                          controller.userRegistrationRequest);
-                                      //Get.offAll(CombinedAuthScreen());
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.transparent,
-                                      foregroundColor: AppColors.textColor,
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 12),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: AppColors.reversedGradientColor,
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
                                       ),
-                                      elevation: 0,
-                                      shadowColor: Colors.transparent,
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
-                                    child: Text(
-                                      'Acknowledge',
-                                      style: AppTextStyles.buttonText.copyWith(
-                                        fontSize: buttonFontSize,
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        Navigator.of(context).pop();
+                                        await controller.register(
+                                            controller.userRegistrationRequest);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors
+                                            .transparent, // Transparent to show gradient
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 12),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                        ),
+                                        elevation: 0,
+                                        shadowColor: Colors.transparent,
+                                      ),
+                                      child: Text(
+                                        'Acknowledge',
+                                        style:
+                                            AppTextStyles.buttonText.copyWith(
+                                          fontSize: buttonFontSize,
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     ),
                                   ),

@@ -26,6 +26,8 @@ class MarkasfavouriteProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+      // print("fav id : " + markFavouriteRequestModel.toJson().toString());
+
       if (response.statusCode == null || response.body == null) {
         failure('Error', 'Server Failed To Respond');
         return null;
@@ -33,17 +35,18 @@ class MarkasfavouriteProvider extends GetConnect {
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
+          // print("Response Fav : " + response.body);
           return MarkFavouriteResponse.fromJson(response.body);
         } else {
           failure('Error', response.body['error']['message']);
           return null;
         }
       } else {
-        failure(response.statusCode, response.body['error']['message']);
+        failure(response.statusCode.toString(), response.body['error']['message']);
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in provider', e.toString());
       return null;
     }
   }

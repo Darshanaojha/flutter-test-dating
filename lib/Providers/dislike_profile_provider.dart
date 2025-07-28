@@ -46,7 +46,8 @@ class DislikeProfileProvider extends GetConnect {
           return null;
         }
       } else {
-        failure(response.statusCode, response.body['error']['message']);
+        failure(
+            response.statusCode.toString(), response.body['error']['message']);
         return null;
       }
     } catch (e) {

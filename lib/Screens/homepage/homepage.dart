@@ -149,29 +149,25 @@ class HomePageState extends State<HomePage>
 
     Map<String, String> lastUsersMap = {};
     if (controller.getCurrentList(0).isNotEmpty) {
-      SuggestedUser lastUserNearby =
-          controller.getCurrentList(0).last;
+      SuggestedUser lastUserNearby = controller.getCurrentList(0).last;
       lastUsersMap['nearBy'] = jsonEncode(lastUserNearby.toJson());
     }
 
     // Save last user for 'highlighted' list
     if (controller.getCurrentList(1).isNotEmpty) {
-      SuggestedUser lastUserHighlighted =
-          controller.getCurrentList(1).last;
+      SuggestedUser lastUserHighlighted = controller.getCurrentList(1).last;
       lastUsersMap['highlighted'] = jsonEncode(lastUserHighlighted.toJson());
     }
 
     // Save last user for 'favourite' list
     if (controller.getCurrentList(2).isNotEmpty) {
-      SuggestedUser lastUserFavourite =
-          controller.getCurrentList(2).last;
+      SuggestedUser lastUserFavourite = controller.getCurrentList(2).last;
       lastUsersMap['favourite'] = jsonEncode(lastUserFavourite.toJson());
     }
 
     // Save last user for 'hookup' list
     if (controller.getCurrentList(3).isNotEmpty) {
-      SuggestedUser lastUserHookUp =
-          controller.getCurrentList(3).last;
+      SuggestedUser lastUserHookUp = controller.getCurrentList(3).last;
       lastUsersMap['hookup'] = jsonEncode(lastUserHookUp.toJson());
     }
 
@@ -255,6 +251,8 @@ class HomePageState extends State<HomePage>
           if (controller.userSuggestionsList[i].userId != null) {
             controller.markFavouriteRequestModel.favouriteId =
                 controller.userSuggestionsList[i].userId.toString();
+
+            print("id ${controller.userSuggestionsList[i].userId}");
             await controller
                 .markasfavourite(controller.markFavouriteRequestModel);
           } else {
@@ -337,7 +335,7 @@ class HomePageState extends State<HomePage>
       context: context,
       builder: (context) {
         return Dialog(
-          backgroundColor: Colors.black.withOpacity(0.9),
+          backgroundColor: Colors.transparent,
           child: GestureDetector(
             onTap: () => Navigator.of(context).pop(),
             child: Center(
@@ -526,6 +524,7 @@ class HomePageState extends State<HomePage>
           if (user.userId != null) {
             controller.markFavouriteRequestModel.favouriteId =
                 user.userId.toString();
+
             controller.markasfavourite(controller.markFavouriteRequestModel);
           } else {
             failure('Error', "User ID is null.");

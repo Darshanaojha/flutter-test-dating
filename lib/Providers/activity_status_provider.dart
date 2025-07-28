@@ -11,7 +11,7 @@ class ActivityStatusProvider extends GetConnect {
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
-
+      
       if (token == null || token.isEmpty) {
         failure('Error', 'Token not found');
         return null;
