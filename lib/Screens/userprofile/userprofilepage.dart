@@ -450,7 +450,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                   horizontal:
                                                                       20),
                                                         ),
-                                                        onPressed: () async{
+                                                        onPressed: () async {
                                                           final updatedUsername =
                                                               controller
                                                                       .usernameUpdateRequest
@@ -470,7 +470,8 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                 username:
                                                                     updatedUsername),
                                                           );
-                                                          await controller.fetchProfile(); // Refresh user data from backend
+                                                          await controller
+                                                              .fetchProfile(); // Refresh user data from backend
                                                           Navigator.of(context)
                                                               .pop();
                                                         },

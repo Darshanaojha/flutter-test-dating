@@ -152,7 +152,7 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
       engine = createAgoraRtcEngine();
       await engine.initialize(RtcEngineContext(
         appId: AgoraConstants.AGORAAPPID,
-        channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
+        channelProfile: ChannelProfileType.channelProfileCommunication,
       ));
 
       engine.registerEventHandler(

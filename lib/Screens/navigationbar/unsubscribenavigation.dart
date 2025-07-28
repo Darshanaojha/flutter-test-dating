@@ -8,6 +8,7 @@ import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../Controllers/controller.dart';
@@ -89,7 +90,7 @@ class UnSubscribeNavigationController extends GetxController {
                     backgroundColor: Colors.white,
                     side: BorderSide(color: Colors.white),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(38),
                     ),
                     padding: EdgeInsets.symmetric(
                       horizontal: buttonPaddingH,
@@ -270,45 +271,160 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation>
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Logout',
-              style: AppTextStyles.headingText
-                  .copyWith(fontSize: getResponsiveFontSize(context, 0.04))),
-          content: Text('Are you sure you want to log out?',
-              style: AppTextStyles.headingText
-                  .copyWith(fontSize: getResponsiveFontSize(context, 0.04))),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.textColor,
-                backgroundColor: AppColors.primaryColor,
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: AppColors.gradientBackgroundList,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('No',
-                  style: AppTextStyles.headingText.copyWith(
-                      fontSize: getResponsiveFontSize(context, 0.04))),
+              borderRadius: BorderRadius.circular(28),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.18),
+                  blurRadius: 24,
+                  offset: Offset(0, 8),
+                ),
+              ],
             ),
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.textColor,
-                backgroundColor: AppColors.inactiveColor,
-              ),
-              onPressed: () {
-                EncryptedSharedPreferences preferences =
-                    EncryptedSharedPreferences.getInstance();
-                preferences.clear();
-                Get.offAll(() => CombinedAuthScreen());
-                UpdateActivityStatusRequest updateActivityStatusRequest =
-                    UpdateActivityStatusRequest(status: '0');
-                controller.updateactivitystatus(updateActivityStatusRequest);
-              },
-              child: Text('Yes',
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: AppColors.reversedGradientColor,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  padding: EdgeInsets.all(16),
+                  child: SizedBox(
+                    height: 60,
+                    width: 60,
+                    child: Lottie.asset(
+                      'assets/animations/broken-heart.json',
+                      repeat: true,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Log Out?',
+                  textAlign: TextAlign.center,
                   style: AppTextStyles.headingText.copyWith(
-                      fontSize: getResponsiveFontSize(context, 0.04))),
+                    fontSize: getResponsiveFontSize(context, 0.055),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Are you sure you want to log out?',
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.headingText.copyWith(
+                    fontSize: getResponsiveFontSize(context, 0.04),
+                    fontWeight: FontWeight.w400,
+                    color: Colors.white70,
+                  ),
+                ),
+                const SizedBox(height: 28),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment(0.8, 1),
+                            colors: AppColors.gradientColor,
+                          ),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: ElevatedButton.icon(
+                          onPressed: () => Navigator.of(context).pop(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            shadowColor: Colors.transparent,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          label: Text(
+                            'Cancel',
+                            style: AppTextStyles.buttonText.copyWith(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                              letterSpacing: 1.1,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment(0.8, 1),
+                            colors: AppColors.reversedGradientColor,
+                          ),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            EncryptedSharedPreferences preferences =
+                                EncryptedSharedPreferences.getInstance();
+
+                            UpdateActivityStatusRequest
+                                updateActivityStatusRequest =
+                                UpdateActivityStatusRequest(status: '0');
+                            // controller.updateactivitystatus(
+                            //     updateActivityStatusRequest);
+
+                            preferences.clear();
+                            Get.offAll(() => CombinedAuthScreen());
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            elevation: 0,
+                          ),
+                          child: Text(
+                            "Log Out",
+                            style: AppTextStyles.buttonText.copyWith(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.1,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );

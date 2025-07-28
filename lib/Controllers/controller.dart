@@ -1767,10 +1767,11 @@ class Controller extends GetxController {
         void addUniqueFavourites(
             List<Favourite> favourites, RxList<Favourite> targetList) {
           for (var favouriteItem in favourites) {
-            if (favouriteItem.userId != null &&
-                !seenFavouriteIds.contains(favouriteItem.userId)) {
-              targetList.add(favouriteItem); // ✅ Add single item
-              seenFavouriteIds.add(favouriteItem.userId); // ✅ Add single id
+            if (favouriteItem.userId.toString() != " " &&
+                !seenFavouriteIds.contains(favouriteItem.userId.toString())) {
+              targetList.add(favouriteItem);
+              seenFavouriteIds
+                  .add(favouriteItem.userId.toString()); 
             }
           }
         }
@@ -1879,7 +1880,7 @@ class Controller extends GetxController {
         return false;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in controllerr', e.toString());
       return false;
     }
   }
@@ -1917,7 +1918,7 @@ class Controller extends GetxController {
         Get.close(1);
         return true;
       } else {
-        failure('Error', 'Failed to submit the mark as favourite request');
+        failure('Error', 'Failed to submit appsetting');
         Get.close(1);
         return false;
       }

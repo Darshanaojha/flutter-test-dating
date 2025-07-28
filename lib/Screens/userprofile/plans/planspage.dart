@@ -29,6 +29,7 @@ class PricingPageState extends State<PricingPage>
   late final DecorationTween decorationTween;
   final RxInt selectedCoins = 0.obs;
   int selectedIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -173,17 +174,6 @@ class PricingPageState extends State<PricingPage>
                       colors: AppColors.gradientBackgroundList,
                     ),
                     borderRadius: BorderRadius.circular(15),
-                    // border: Border.all(
-                    //   color: const Color(0xff870160),
-                    //   width: 2,
-                    // ),
-                    // boxShadow: [
-                    //   BoxShadow(
-                    //     color: Colors.pinkAccent.withOpacity(0.3),
-                    //     blurRadius: 6,
-                    //     spreadRadius: 1,
-                    //   ),
-                    // ],
                   ),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
@@ -207,13 +197,11 @@ class PricingPageState extends State<PricingPage>
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
                               ),
-                              overflow: TextOverflow
-                                  .ellipsis, // Ensures it doesn't overflow
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
                       ),
-                      // Optional: Add another widget on the right if needed, e.g., a button
                     ],
                   ),
                 ),
@@ -234,10 +222,8 @@ class PricingPageState extends State<PricingPage>
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              // Title & Description
                               SizedBox(
-                                width: MediaQuery.of(context).size.width *
-                                    0.9, // 90% of screen width
+                                width: MediaQuery.of(context).size.width * 0.9,
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 18, vertical: 15),
@@ -248,18 +234,6 @@ class PricingPageState extends State<PricingPage>
                                       colors: AppColors.gradientBackgroundList,
                                     ),
                                     borderRadius: BorderRadius.circular(15),
-                                    // border: Border.all(
-                                    //   color: const Color(0xff870160),
-                                    //   width: 2,
-                                    // ),
-                                    // boxShadow: [
-                                    //   BoxShadow(
-                                    //     color:
-                                    //         Colors.pinkAccent.withOpacity(0.3),
-                                    //     blurRadius: 6,
-                                    //     spreadRadius: 1,
-                                    //   ),
-                                    // ],
                                   ),
                                   child: Column(
                                     crossAxisAlignment:
@@ -284,28 +258,11 @@ class PricingPageState extends State<PricingPage>
                                           ),
                                         ],
                                       ),
-                                      //const SizedBox(height: 6),
-                                      // const Divider(
-                                      //     color: Colors.white, thickness: 1),
-                                      //const SizedBox(height: 6),
-                                      // Text(
-                                      //         package.status,
-                                      //         style: const TextStyle(
-                                      //           fontSize: 18,
-                                      //           fontWeight: FontWeight.bold,
-                                      //           color: Colors.white,
-                                      //         ),
-                                      //         overflow: TextOverflow.ellipsis,
-                                      //         maxLines: 1,
-                                      //       ),
                                     ],
                                   ),
                                 ),
                               ),
-
                               const SizedBox(height: 10),
-
-                              // Features
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 18, vertical: 15),
@@ -316,17 +273,6 @@ class PricingPageState extends State<PricingPage>
                                     colors: AppColors.gradientBackgroundList,
                                   ),
                                   borderRadius: BorderRadius.circular(15),
-                                  // border: Border.all(
-                                  //   color: const Color(0xff870160),
-                                  //   width: 2,
-                                  // ),
-                                  // boxShadow: [
-                                  //   BoxShadow(
-                                  //     color: Colors.pinkAccent.withOpacity(0.3),
-                                  //     blurRadius: 6,
-                                  //     spreadRadius: 1,
-                                  //   ),
-                                  // ],
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -358,8 +304,6 @@ class PricingPageState extends State<PricingPage>
                                 ),
                               ),
                               const SizedBox(height: 10),
-
-                              // Pricing
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 18, vertical: 15),
@@ -370,17 +314,6 @@ class PricingPageState extends State<PricingPage>
                                     colors: AppColors.gradientBackgroundList,
                                   ),
                                   borderRadius: BorderRadius.circular(15),
-                                  // border: Border.all(
-                                  //   color: Colors.black,
-                                  //   width: 2,
-                                  // ),
-                                  // boxShadow: [
-                                  //   BoxShadow(
-                                  //     color: Colors.pinkAccent.withOpacity(0.3),
-                                  //     blurRadius: 6,
-                                  //     spreadRadius: 1,
-                                  //   ),
-                                  // ],
                                 ),
                                 child: Row(
                                   mainAxisAlignment:
@@ -447,7 +380,7 @@ class PricingPageState extends State<PricingPage>
 
                     return Container(
                       width: double.infinity,
-                      height: 50, // Reduced height
+                      height: 50,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
@@ -462,8 +395,7 @@ class PricingPageState extends State<PricingPage>
                               context, selectedPackage, selectedAmount);
                         },
                         child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 10), // Reduced padding
+                          padding: EdgeInsets.symmetric(vertical: 10),
                           child: Text(
                             "Subscribe Now",
                             style: TextStyle(
@@ -493,15 +425,12 @@ class PricingPageState extends State<PricingPage>
       builder: (BuildContext context) {
         return Stack(
           children: [
-            // Blurred Background
             BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
               child: Container(
                 color: Colors.black.withOpacity(0.5),
               ),
             ),
-
-            // Dialog Box at Center
             Dialog(
               backgroundColor: Colors.transparent,
               child: Center(
@@ -519,12 +448,9 @@ class PricingPageState extends State<PricingPage>
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Icon
                       Icon(Icons.workspace_premium,
                           color: Colors.white, size: 50),
                       SizedBox(height: 10),
-
-                      // Title
                       Text(
                         "Subscription",
                         style: TextStyle(
@@ -533,19 +459,14 @@ class PricingPageState extends State<PricingPage>
                             color: Colors.white),
                       ),
                       SizedBox(height: 10),
-
-                      // Description
                       Text(
                         "You have not yet subscribed!",
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 12, color: Colors.white),
                       ),
                       SizedBox(height: 20),
-
-                      // Buttons
                       Row(
                         children: [
-                          // Subscribe Later Button (white with gradient text)
                           Expanded(
                             child: Container(
                               decoration: BoxDecoration(
@@ -572,8 +493,7 @@ class PricingPageState extends State<PricingPage>
                                     style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
-                                      color: Colors
-                                          .white, // Required for ShaderMask
+                                      color: Colors.white,
                                     ),
                                   ),
                                 ),
@@ -581,46 +501,56 @@ class PricingPageState extends State<PricingPage>
                             ),
                           ),
                           SizedBox(width: 10),
-
-                          // Subscribe Now Button (outline with white border)
                           Expanded(
-                            child: OutlinedButton(
-                              onPressed: () {
-                                // Your state update logic
-                                setState(() {
-                                  planId.value = selectedPackage.id;
-                                  selectedPlan.value = selectedPackage.id;
-                                });
-
-                                showPaymentConfirmationDialog(
-                                  context,
-                                  selectedPackage.days,
-                                  selectedAmount,
-                                );
-
-                                razorpaycontroller.orderRequestModel.amount =
-                                    selectedPackage.offerAmount.toString();
-                                razorpaycontroller.orderRequestModel.packageId =
-                                    selectedPackage.id;
-                                razorpaycontroller.orderRequestModel.type = '2';
-
-                                print(
-                                    "ORDER: ${razorpaycontroller.orderRequestModel.toJson()}");
-                              },
-                              style: OutlinedButton.styleFrom(
-                                side:
-                                    BorderSide(color: Colors.white, width: 1.5),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: AppColors.reversedGradientColor,
                                 ),
-                                padding: EdgeInsets.symmetric(vertical: 14),
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Text(
-                                "Subscribe Now",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    planId.value = selectedPackage.id;
+                                    selectedPlan.value = selectedPackage.id;
+                                  });
+
+                                  showPaymentConfirmationDialog(
+                                    context,
+                                    selectedPackage.days,
+                                    selectedAmount,
+                                  );
+
+                                  razorpaycontroller.orderRequestModel.amount =
+                                      selectedPackage.offerAmount.toString();
+                                  razorpaycontroller.orderRequestModel
+                                      .packageId = selectedPackage.id;
+                                  razorpaycontroller.orderRequestModel.type =
+                                      '2';
+
+                                  print(
+                                      "ORDER: ${razorpaycontroller.orderRequestModel.toJson()}");
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  elevation: 0,
+                                  shadowColor: Colors.transparent,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Text(
+                                  "Subscribe Now",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ),
@@ -638,126 +568,27 @@ class PricingPageState extends State<PricingPage>
     );
   }
 
-  Widget buildPaymentWidget(BuildContext context) {
-    double fontSize = MediaQuery.of(context).size.width * 0.04;
-    double cardWidth = MediaQuery.of(context).size.width * 0.4;
-
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 22),
-      child: Column(
-        children: [
-          Obx(() {
-            return SizedBox(
-              height: 500,
-              child: Scrollbar(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: controller.packages.length,
-                  itemBuilder: (context, index) {
-                    final package = controller.packages[index];
-                    double offerPercentage = calculateOfferPercentage(
-                        package.actualAmount, package.offerAmount);
-                    double amount = double.tryParse(package.offerAmount) ?? 0.0;
-                    return Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 3),
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            planId.value = package.id;
-                            selectedPlan.value = package.id;
-                          });
-                          showPaymentConfirmationDialog(
-                              context, package.days, amount);
-                          razorpaycontroller.orderRequestModel.packageId =
-                              package.id;
-                        },
-                        child: Obx(() {
-                          bool isSelected = selectedPlan.value == package.id;
-                          return Container(
-                            width: cardWidth,
-                            margin: EdgeInsets.only(bottom: 16),
-                            child: DecoratedBoxTransition(
-                              decoration:
-                                  decorationTween.animate(_animationController),
-                              child: Card(
-                                elevation: 6,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                color: isSelected
-                                    ? Colors.green.shade500
-                                    : Colors.black,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.calendar_today,
-                                        color: AppColors.iconColor,
-                                        size: fontSize * 1.5,
-                                      ),
-                                      SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          "${package.unit} Plan  ₹${package.offerAmount}",
-                                          style:
-                                              AppTextStyles.bodyText.copyWith(
-                                            fontSize: fontSize - 4,
-                                            color: AppColors.textColor,
-                                          ),
-                                        ),
-                                      ),
-                                      Text(
-                                        "${offerPercentage.toStringAsFixed(0)}% OFF",
-                                        style: AppTextStyles.bodyText.copyWith(
-                                          fontSize: fontSize - 2,
-                                          color: Colors.red,
-                                        ),
-                                      ),
-                                      IconButton(
-                                          onPressed: () {
-                                            showBenefitsBottomSheet(context);
-                                          },
-                                          icon: Icon(Icons
-                                              .arrow_drop_down_circle_outlined))
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        }),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
   Future<void> showPaymentConfirmationDialog(
       BuildContext context, String planId, double amount) async {
     double fontSize = MediaQuery.of(context).size.width * 0.03;
 
-    // Fetch conversion values from API response
-    int coinValue = int.tryParse(controller.pointamount.first.points) ?? 0;
-    double amountValue =
-        double.tryParse(controller.pointamount.first.amount) ?? 0.0;
-    double coinPrice = amountValue / coinValue; // ₹0.10 per coin
+    double coinValue = controller.pointamount.isNotEmpty
+        ? double.tryParse(controller.pointamount.first.points) ?? 0.0
+        : 0.0;
+    double amountValue = controller.pointamount.isNotEmpty
+        ? double.tryParse(controller.pointamount.first.amount) ?? 0.0
+        : 0.0;
+    double coinPrice = coinValue > 0 ? amountValue / coinValue : 0.0;
 
-    double availableCoins =
-        double.tryParse(controller.totalpoint.first.points) ?? 0.0;
-    RxBool useCoins = false.obs; // Checkbox state
-    RxDouble discountedAmount = amount.obs; // Reactive discounted amount
+    double availableCoins = controller.totalpoint.isNotEmpty
+        ? double.tryParse(controller.totalpoint.first.points) ?? 0.0
+        : 0.0;
+    RxBool useCoins = false.obs;
+    RxDouble discountedAmount = amount.obs;
 
-    // Get the percentage threshold for max coin usage
-    double thresholdPercentage =
-        double.tryParse(controller.packages.first.threshold) ?? 0;
+    double thresholdPercentage = controller.packages.isNotEmpty
+        ? double.tryParse(controller.packages.first.threshold) ?? 0
+        : 0;
     int maxCoinsAllowed = ((thresholdPercentage / 100) * amount).toInt();
     maxCoinsAllowed = maxCoinsAllowed.clamp(0, availableCoins.toInt());
 
@@ -766,159 +597,217 @@ class PricingPageState extends State<PricingPage>
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Obx(() {
-          // Apply discount if checkbox is selected
           selectedCoins.value = useCoins.value ? maxCoinsAllowed : 0;
           double discountAmount = selectedCoins.value * coinPrice;
           double totalPayable = discountedAmount.value - discountAmount;
 
           return AlertDialog(
-            title: Text(
-              "Confirm Subscription",
-              style: AppTextStyles.titleText.copyWith(
-                fontSize: fontSize,
-                color: AppColors.textColor,
+            backgroundColor: Colors.transparent,
+            contentPadding: EdgeInsets.zero,
+            content: Container(
+              width: double.maxFinite,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment(0.8, 1),
+                  colors: AppColors.gradientBackgroundList,
+                ),
+                borderRadius: BorderRadius.circular(16),
               ),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "Do you want to subscribe to the selected plan?",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: fontSize - 2,
-                    color: AppColors.textColor,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 15),
-
-                // Available Coins Display
-                Text(
-                  "Available Coins: ${availableCoins - selectedCoins.value}",
-                  style: AppTextStyles.titleText.copyWith(
-                    fontSize: fontSize,
-                    color: AppColors.textColor,
-                  ),
-                ),
-                const SizedBox(height: 5),
-
-                if (availableCoins >= maxCoinsAllowed && maxCoinsAllowed > 0)
-                  Row(
-                    children: [
-                      Obx(() => Checkbox(
-                            value: useCoins.value,
-                            onChanged: (bool? value) {
-                              ispointused.value = true;
-                              useCoins.value = value ?? false;
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Confirm Subscription",
+                      style: AppTextStyles.titleText.copyWith(
+                        fontSize: fontSize,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      "Do you want to subscribe to the selected plan?",
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: fontSize - 2,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 15),
+                    Text(
+                      "Available Coins: ${availableCoins - selectedCoins.value}",
+                      style: AppTextStyles.titleText.copyWith(
+                        fontSize: fontSize,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    if (availableCoins >= maxCoinsAllowed &&
+                        maxCoinsAllowed > 0)
+                      Row(
+                        children: [
+                          Obx(() => Checkbox(
+                                value: useCoins.value,
+                                onChanged: (bool? value) {
+                                  ispointused.value = true;
+                                  useCoins.value = value ?? false;
+                                },
+                              )),
+                          Expanded(
+                            child: Text(
+                              "Redeem ${thresholdPercentage.toInt()}% using coins",
+                              style: AppTextStyles.bodyText.copyWith(
+                                fontSize: fontSize,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          SuperTooltip(
+                            popupDirection: TooltipDirection.up,
+                            content: Text(
+                              "Use up to ${thresholdPercentage.toInt()}% of the amount using coins.",
+                              style: AppTextStyles.bodyText
+                                  .copyWith(fontSize: fontSize),
+                            ),
+                            child:
+                                Icon(Icons.info, color: Colors.white, size: 12),
+                          ),
+                        ],
+                      )
+                    else
+                      Text(
+                        "Not enough coins to apply a discount.",
+                        style: AppTextStyles.bodyText.copyWith(
+                          fontSize: fontSize,
+                          color: Colors.redAccent,
+                        ),
+                      ),
+                    if (useCoins.value)
+                      Text(
+                        "Coins Used: ${selectedCoins.value} (₹${discountAmount.toStringAsFixed(2)} discount)",
+                        style: AppTextStyles.bodyText.copyWith(
+                          fontSize: fontSize,
+                          color: Colors.lightGreenAccent,
+                        ),
+                      ),
+                    const SizedBox(height: 10),
+                    Text(
+                      "Total Payable: ₹${totalPayable.toStringAsFixed(2)}",
+                      style: AppTextStyles.titleText.copyWith(
+                        fontSize: fontSize,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.3,
+                          child: TextButton(
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            onPressed: () {
+                              Get.snackbar('', planId.toString());
+                              Navigator.of(context).pop();
                             },
-                          )),
-                      Expanded(
-                        child: Text(
-                          "Redeem ${thresholdPercentage.toInt()}% of your payable amount using coins",
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: fontSize,
-                            color: AppColors.textColor,
+                            child: ShaderMask(
+                              shaderCallback: (bounds) => LinearGradient(
+                                colors: AppColors.reversedGradientColor,
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ).createShader(Rect.fromLTWH(
+                                  0, 0, bounds.width, bounds.height)),
+                              child: Text(
+                                'Cancel',
+                                style: AppTextStyles.bodyText.copyWith(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 5),
-                      SuperTooltip(
-                        popupDirection: TooltipDirection.up,
-                        content: Text(
-                          "You can use up to ${thresholdPercentage.toInt()}% of your payable amount using available coins.",
-                          style: AppTextStyles.bodyText
-                              .copyWith(fontSize: fontSize),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.3,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: AppColors.reversedGradientColor,
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: () async {
+                                razorpaycontroller.orderRequestModel.amount =
+                                    totalPayable.toString();
+                                razorpaycontroller
+                                        .orderRequestModel.ispointused =
+                                    ispointused.value == true ? "1" : "0";
+                                razorpaycontroller.orderRequestModel.points =
+                                    selectedCoins.value.toString();
+                                razorpaycontroller.orderRequestModel.type = '2';
+
+                                print(razorpaycontroller.orderRequestModel
+                                    .toJson()
+                                    .toString());
+
+                                bool? isOrderCreated =
+                                    await razorpaycontroller.createOrder(
+                                  razorpaycontroller.orderRequestModel,
+                                );
+
+                                if (isOrderCreated == true) {
+                                  razorpaycontroller.initRazorpay();
+                                  razorpaycontroller.openPayment(
+                                    totalPayable,
+                                    controller.userData.first.name,
+                                    planId,
+                                    controller.userData.first.mobile,
+                                    controller.userData.first.email,
+                                  );
+                                } else {
+                                  failure("Order",
+                                      "Your Payment Order Is Not Created");
+                                }
+                                Navigator.of(context).pop();
+                                print("Subscribed to plan id $planId");
+                              },
+                              child: Text(
+                                'Subscribe',
+                                style: AppTextStyles.bodyText.copyWith(
+                                  color: Colors.white,
+                                  fontSize: fontSize,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
-                        child: Icon(Icons.info, color: Colors.blue, size: 12),
-                      ),
-                    ],
-                  )
-                else
-                  Text(
-                    "Not enough coins to apply a discount.",
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize,
-                      color: Colors.red,
+                      ],
                     ),
-                  ),
-
-                if (useCoins.value)
-                  Text(
-                    "Coins Used: $selectedCoins (₹${discountAmount.toStringAsFixed(2)} discount)",
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: fontSize,
-                      color: Colors.green,
-                    ),
-                  ),
-
-                const SizedBox(height: 10),
-
-                // Updated Amount after Discount
-                Text(
-                  "Total Payable: ₹${totalPayable.toStringAsFixed(2)}",
-                  style: AppTextStyles.titleText.copyWith(
-                    fontSize: fontSize,
-                    color: AppColors.textColor,
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
-            actions: <Widget>[
-              // Cancel Button
-              TextButton(
-                onPressed: () {
-                  Get.snackbar('', planId.toString());
-                  Navigator.of(context).pop();
-                },
-                child: Text(
-                  'Cancel',
-                  style: AppTextStyles.bodyText.copyWith(
-                    color: AppColors.deniedColor,
-                  ),
-                ),
-              ),
-
-              // Subscribe Button
-              TextButton(
-                onPressed: () async {
-                  razorpaycontroller.orderRequestModel.amount =
-                      totalPayable.toString();
-                  razorpaycontroller.orderRequestModel.ispointused =
-                      ispointused.value == true ? "1" : "0";
-
-                  razorpaycontroller.orderRequestModel.points =
-                      selectedCoins.value.toString();
-                  razorpaycontroller.orderRequestModel.type = '2';
-                  print(
-                      razorpaycontroller.orderRequestModel.toJson().toString());
-                  bool? isOrderCreated = await razorpaycontroller.createOrder(
-                    razorpaycontroller.orderRequestModel,
-                  );
-
-                  if (isOrderCreated == true) {
-                    razorpaycontroller.initRazorpay();
-                    razorpaycontroller.openPayment(
-                      totalPayable,
-                      controller.userData.first.name,
-                      planId,
-                      controller.userData.first.mobile,
-                      controller.userData.first.email,
-                    );
-                  } else {
-                    failure("Order", "Your Payment Order Is Not Created");
-                  }
-                  Navigator.of(context).pop();
-                  print("Subscribed to plan id $planId");
-                },
-                child: Text(
-                  'Subscribe',
-                  style: AppTextStyles.bodyText.copyWith(
-                    color: AppColors.acceptColor,
-                    fontSize: fontSize,
-                  ),
-                ),
-              ),
-            ],
           );
         });
       },

@@ -2,6 +2,7 @@ import 'package:dating_application/Screens/login.dart';
 import 'package:dating_application/Screens/register_subpag/useremailnameinput.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class CombinedAuthScreen extends StatefulWidget {
   const CombinedAuthScreen({super.key});
@@ -54,13 +55,16 @@ class _CombinedAuthScreenState extends State<CombinedAuthScreen>
             children: [
               SizedBox(height: 16),
               // Add your logo here
-              CircleAvatar(
-                radius: 36,
-                backgroundColor: Colors.white,
-                child: Icon(Icons.favorite,
-                    color: AppColors.primaryColor, size: 40),
+              SizedBox(
+                height: 160,
+                width: 160,
+                child: Lottie.asset(
+                  'assets/animations/LoginPageheart.json',
+                  repeat: true,
+                  fit: BoxFit.contain,
+                ),
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 10),
               // Toggle buttons
               Container(
                 width: size.width * 0.5,

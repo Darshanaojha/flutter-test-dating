@@ -203,7 +203,9 @@ class MembershipPageState extends State<MembershipPage>
           height: 50,
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: AppColors.gradientBackgroundList,
+              begin: Alignment.topLeft,
+              end: Alignment(0.8, 1),
+              colors: AppColors.reversedGradientColor,
             ),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
