@@ -36,7 +36,7 @@ class AllOrdersPageState extends State<AllOrdersPage> {
             double fontSize =
                 MediaQuery.of(context).size.width * 0.05; // ~5% of screen width
             return Text(
-              'All Orders',
+              'Subscription History',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: fontSize,
@@ -92,105 +92,174 @@ class AllOrdersPageState extends State<AllOrdersPage> {
               itemCount: controller.orders.length,
               itemBuilder: (context, index) {
                 var order = controller.orders[index];
+                bool isActive = order.status == '1';
+
                 return Padding(
-                  padding: EdgeInsets.all(getResponsiveHeight(context, 0.01)),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: AppColors.gradientBackgroundList,
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Card(
-                      color: const Color.fromARGB(0, 255, 255,
-                          255), // Important: Let gradient show through
-                      elevation: 15,
-                      //shadowColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Padding(
-                        padding:
-                            EdgeInsets.all(getResponsiveHeight(context, 0.02)),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              order.packageTitle,
-                              style: TextStyle(
-                                fontSize: getResponsiveFontSize(context, 0.045),
-                                fontWeight: FontWeight.bold,
-                                color: AppColors
-                                    .textColor, // Or AppColors.textColor if needed
-                              ),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: getResponsiveHeight(context, 0.02),
+                      vertical: getResponsiveHeight(context, 0.008)),
+                  child: GestureDetector(
+                    onTap: () {
+                      // Add any onTap action here if needed
+                    },
+                    child: Stack(
+                      children: [
+                        AnimatedContainer(
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment(0.8, 1),
+                              colors: AppColors.gradientBackgroundList,
                             ),
-                            SizedBox(
-                                height: getResponsiveHeight(context, 0.008)),
-                            Text(
-                              'Package Category: ${order.packageCategoryTitle}',
-                              style: TextStyle(
-                                fontSize: getResponsiveFontSize(context, 0.035),
-                                color: Colors.white70,
+                          ),
+                          padding: EdgeInsets.all(
+                              getResponsiveHeight(context, 0.03)),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Row for avatar icon + title
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  CircleAvatar(
+                                    radius: getResponsiveHeight(context, 0.035),
+                                    backgroundColor: Colors.white24,
+                                    child: Icon(
+                                      Icons.card_giftcard,
+                                      color: Colors.white,
+                                      size: getResponsiveHeight(context, 0.035),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                      width:
+                                          getResponsiveHeight(context, 0.02)),
+                                  Expanded(
+                                    child: Text(
+                                      order.packageTitle,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: getResponsiveFontSize(
+                                            context, 0.055),
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                        shadows: [
+                                          Shadow(
+                                            offset: Offset(0, 1),
+                                            blurRadius: 5,
+                                            color: Colors.black54,
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            SizedBox(
-                                height: getResponsiveHeight(context, 0.008)),
-                            Text(
-                              'Amount: ₹${order.actualAmount}',
-                              style: TextStyle(
-                                fontSize: getResponsiveFontSize(context, 0.035),
-                                color: Colors.white70,
+                              SizedBox(
+                                  height: getResponsiveHeight(context, 0.02)),
+                              Text(
+                                'Category: ${order.packageCategoryTitle}',
+                                style: TextStyle(
+                                  fontSize:
+                                      getResponsiveFontSize(context, 0.037),
+                                  color: Colors.white70,
+                                ),
                               ),
-                            ),
-                            SizedBox(
-                                height: getResponsiveHeight(context, 0.008)),
-                            Text(
-                              'Days: ${order.days} ${order.unit}',
-                              style: TextStyle(
-                                fontSize: getResponsiveFontSize(context, 0.035),
-                                color: AppColors.textColor,
+                              SizedBox(
+                                  height: getResponsiveHeight(context, 0.015)),
+                              Row(
+                                children: [
+                                  Icon(Icons.currency_rupee,
+                                      color: Colors.white70,
+                                      size: getResponsiveFontSize(
+                                          context, 0.045)),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    ' ${order.actualAmount}',
+                                    style: TextStyle(
+                                      fontSize:
+                                          getResponsiveFontSize(context, 0.037),
+                                      color: Colors.white70,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  Icon(Icons.schedule,
+                                      color: Colors.white70,
+                                      size: getResponsiveFontSize(
+                                          context, 0.045)),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    '${order.days} ${order.unit}',
+                                    style: TextStyle(
+                                      fontSize:
+                                          getResponsiveFontSize(context, 0.037),
+                                      color: Colors.white70,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            SizedBox(
-                                height: getResponsiveHeight(context, 0.008)),
-                            Text(
-                              'Status: ${order.status == '1' ? 'Active' : 'Inactive'}',
-                              style: TextStyle(
-                                fontSize: getResponsiveFontSize(context, 0.035),
-                                color: order.status == '1'
-                                    ? Colors.greenAccent
-                                    : Colors.redAccent,
+                              SizedBox(
+                                  height: getResponsiveHeight(context, 0.02)),
+                              Divider(
+                                color: Colors.white30,
+                                thickness: 1,
+                                height: 1,
                               ),
-                            ),
-                            // Row(
-                            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            //   children: [
-                            //     Text(
-                            //       'Created: ${order.created}',
-                            //       style: TextStyle(
-                            //         fontSize:
-                            //             getResponsiveFontSize(context, 0.03),
-                            //         color: Colors.white70,
-                            //       ),
-                            //     ),
-                            //     IconButton(
-                            //       icon: Icon(
-                            //         Icons.info_outline,
-                            //         size: getResponsiveFontSize(context, 0.045),
-                            //         color: Colors.white,
-                            //       ),
-                            //       onPressed: () {
-                            //         print(
-                            //             'View more details for order ${order.id}');
-                            //       },
-                            //     ),
-                            //   ],
-                            // ),
-                          ],
+                              // SizedBox(
+                              //     height: getResponsiveHeight(context, 0.02)),
+                            ],
+                          ),
                         ),
-                      ),
+                        Positioned(
+                          top: getResponsiveHeight(context, 0.015),
+                          right: getResponsiveHeight(context, 0.015),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors
+                                  .transparent, // or Colors.white.withOpacity(0.1) if you want slight fill
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: isActive
+                                    ? Colors.amber.shade400
+                                    : Colors.amber.shade400,
+                                width: 2,
+                              ),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              vertical: getResponsiveHeight(context, 0.005),
+                              horizontal: getResponsiveHeight(context, 0.009),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // Optional Icon here
+                                // Icon(
+                                //   isActive ? Icons.check_circle : Icons.cancel,
+                                //   color: isActive ? Colors.greenAccent : Colors.redAccent,
+                                //   size: getResponsiveFontSize(context, 0.045),
+                                // ),
+                                // SizedBox(width: 6),
+                                Text(
+                                  isActive ? 'Active' : 'Inactive',
+                                  style: TextStyle(
+                                    fontSize:
+                                        getResponsiveFontSize(context, 0.038),
+                                    //fontWeight: FontWeight.bold,
+                                    color: isActive
+                                        ? Colors.greenAccent
+                                        : Colors.amber.shade400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 );
