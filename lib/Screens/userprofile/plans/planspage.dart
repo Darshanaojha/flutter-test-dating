@@ -518,6 +518,8 @@ class PricingPageState extends State<PricingPage>
                                     selectedPlan.value = selectedPackage.id;
                                   });
 
+                                  Navigator.of(context).pop();
+
                                   showPaymentConfirmationDialog(
                                     context,
                                     selectedPackage.days,
@@ -601,214 +603,223 @@ class PricingPageState extends State<PricingPage>
           double discountAmount = selectedCoins.value * coinPrice;
           double totalPayable = discountedAmount.value - discountAmount;
 
-          return AlertDialog(
-            backgroundColor: Colors.transparent,
-            contentPadding: EdgeInsets.zero,
-            content: Container(
-              width: double.maxFinite,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment(0.8, 1),
-                  colors: AppColors.gradientBackgroundList,
-                ),
-                borderRadius: BorderRadius.circular(16),
+          return Stack(children: [
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+              child: Container(
+                color: Colors.black.withOpacity(0.5),
               ),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "Confirm Subscription",
-                      style: AppTextStyles.titleText.copyWith(
-                        fontSize: fontSize,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      "Do you want to subscribe to the selected plan?",
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize - 2,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 15),
-                    Text(
-                      "Available Coins: ${availableCoins - selectedCoins.value}",
-                      style: AppTextStyles.titleText.copyWith(
-                        fontSize: fontSize,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    if (availableCoins >= maxCoinsAllowed &&
-                        maxCoinsAllowed > 0)
-                      Row(
-                        children: [
-                          Obx(() => Checkbox(
-                                value: useCoins.value,
-                                onChanged: (bool? value) {
-                                  ispointused.value = true;
-                                  useCoins.value = value ?? false;
-                                },
-                              )),
-                          Expanded(
-                            child: Text(
-                              "Redeem ${thresholdPercentage.toInt()}% using coins",
-                              style: AppTextStyles.bodyText.copyWith(
-                                fontSize: fontSize,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 5),
-                          SuperTooltip(
-                            popupDirection: TooltipDirection.up,
-                            content: Text(
-                              "Use up to ${thresholdPercentage.toInt()}% of the amount using coins.",
-                              style: AppTextStyles.bodyText
-                                  .copyWith(fontSize: fontSize),
-                            ),
-                            child:
-                                Icon(Icons.info, color: Colors.white, size: 12),
-                          ),
-                        ],
-                      )
-                    else
+            ),
+            AlertDialog(
+              backgroundColor: Colors.transparent,
+              contentPadding: EdgeInsets.zero,
+              content: Container(
+                width: double.maxFinite,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment(0.8, 1),
+                    colors: AppColors.gradientBackgroundList,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                       Text(
-                        "Not enough coins to apply a discount.",
-                        style: AppTextStyles.bodyText.copyWith(
+                        "Confirm Subscription",
+                        style: AppTextStyles.titleText.copyWith(
                           fontSize: fontSize,
-                          color: Colors.redAccent,
+                          color: Colors.white,
                         ),
                       ),
-                    if (useCoins.value)
+                      const SizedBox(height: 10),
                       Text(
-                        "Coins Used: ${selectedCoins.value} (₹${discountAmount.toStringAsFixed(2)} discount)",
+                        "Do you want to subscribe to the selected plan?",
                         style: AppTextStyles.bodyText.copyWith(
+                          fontSize: fontSize - 2,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 15),
+                      Text(
+                        "Available Coins: ${availableCoins - selectedCoins.value}",
+                        style: AppTextStyles.titleText.copyWith(
                           fontSize: fontSize,
-                          color: Colors.lightGreenAccent,
+                          color: Colors.white,
                         ),
                       ),
-                    const SizedBox(height: 10),
-                    Text(
-                      "Total Payable: ₹${totalPayable.toStringAsFixed(2)}",
-                      style: AppTextStyles.titleText.copyWith(
-                        fontSize: fontSize,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.3,
-                          child: TextButton(
-                            style: TextButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            onPressed: () {
-                              Get.snackbar('', planId.toString());
-                              Navigator.of(context).pop();
-                            },
-                            child: ShaderMask(
-                              shaderCallback: (bounds) => LinearGradient(
-                                colors: AppColors.reversedGradientColor,
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ).createShader(Rect.fromLTWH(
-                                  0, 0, bounds.width, bounds.height)),
+                      const SizedBox(height: 5),
+                      if (availableCoins >= maxCoinsAllowed &&
+                          maxCoinsAllowed > 0)
+                        Row(
+                          children: [
+                            Obx(() => Checkbox(
+                                  value: useCoins.value,
+                                  onChanged: (bool? value) {
+                                    ispointused.value = true;
+                                    useCoins.value = value ?? false;
+                                  },
+                                )),
+                            Expanded(
                               child: Text(
-                                'Cancel',
+                                "Redeem ${thresholdPercentage.toInt()}% using coins",
                                 style: AppTextStyles.bodyText.copyWith(
+                                  fontSize: fontSize,
                                   color: Colors.white,
                                 ),
                               ),
                             ),
+                            const SizedBox(width: 5),
+                            SuperTooltip(
+                              popupDirection: TooltipDirection.up,
+                              content: Text(
+                                "Use up to ${thresholdPercentage.toInt()}% of the amount using coins.",
+                                style: AppTextStyles.bodyText
+                                    .copyWith(fontSize: fontSize),
+                              ),
+                              child: Icon(Icons.info,
+                                  color: Colors.white, size: 12),
+                            ),
+                          ],
+                        )
+                      else
+                        Text(
+                          "Not enough coins to apply a discount.",
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: fontSize,
+                            color: Colors.redAccent,
                           ),
                         ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.3,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: AppColors.reversedGradientColor,
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                      if (useCoins.value)
+                        Text(
+                          "Coins Used: ${selectedCoins.value} (₹${discountAmount.toStringAsFixed(2)} discount)",
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: fontSize,
+                            color: Colors.lightGreenAccent,
+                          ),
+                        ),
+                      const SizedBox(height: 10),
+                      Text(
+                        "Total Payable: ₹${totalPayable.toStringAsFixed(2)}",
+                        style: AppTextStyles.titleText.copyWith(
+                          fontSize: fontSize,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.3,
                             child: TextButton(
                               style: TextButton.styleFrom(
-                                backgroundColor: Colors.transparent,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
+                                backgroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 16),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                              onPressed: () async {
-                                razorpaycontroller.orderRequestModel.amount =
-                                    totalPayable.toString();
-                                razorpaycontroller
-                                        .orderRequestModel.ispointused =
-                                    ispointused.value == true ? "1" : "0";
-                                razorpaycontroller.orderRequestModel.points =
-                                    selectedCoins.value.toString();
-                                razorpaycontroller.orderRequestModel.type = '2';
-
-                                print(razorpaycontroller.orderRequestModel
-                                    .toJson()
-                                    .toString());
-
-                                bool? isOrderCreated =
-                                    await razorpaycontroller.createOrder(
-                                  razorpaycontroller.orderRequestModel,
-                                );
-
-                                if (isOrderCreated == true) {
-                                  razorpaycontroller.initRazorpay();
-                                  razorpaycontroller.openPayment(
-                                    totalPayable,
-                                    controller.userData.first.name,
-                                    planId,
-                                    controller.userData.first.mobile,
-                                    controller.userData.first.email,
-                                  );
-                                } else {
-                                  failure("Order",
-                                      "Your Payment Order Is Not Created");
-                                }
+                              onPressed: () {
+                                Get.snackbar('', planId.toString());
                                 Navigator.of(context).pop();
-                                print("Subscribed to plan id $planId");
                               },
-                              child: Text(
-                                'Subscribe',
-                                style: AppTextStyles.bodyText.copyWith(
-                                  color: Colors.white,
-                                  fontSize: fontSize,
+                              child: ShaderMask(
+                                shaderCallback: (bounds) => LinearGradient(
+                                  colors: AppColors.reversedGradientColor,
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ).createShader(Rect.fromLTWH(
+                                    0, 0, bounds.width, bounds.height)),
+                                child: Text(
+                                  'Cancel',
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.3,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: AppColors.reversedGradientColor,
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  razorpaycontroller.orderRequestModel.amount =
+                                      totalPayable.toString();
+                                  razorpaycontroller
+                                          .orderRequestModel.ispointused =
+                                      ispointused.value == true ? "1" : "0";
+                                  razorpaycontroller.orderRequestModel.points =
+                                      selectedCoins.value.toString();
+                                  razorpaycontroller.orderRequestModel.type =
+                                      '2';
+
+                                  print(razorpaycontroller.orderRequestModel
+                                      .toJson()
+                                      .toString());
+
+                                  bool? isOrderCreated =
+                                      await razorpaycontroller.createOrder(
+                                    razorpaycontroller.orderRequestModel,
+                                  );
+
+                                  if (isOrderCreated == true) {
+                                    razorpaycontroller.initRazorpay();
+                                    razorpaycontroller.openPayment(
+                                      totalPayable,
+                                      controller.userData.first.name,
+                                      planId,
+                                      controller.userData.first.mobile,
+                                      controller.userData.first.email,
+                                    );
+                                  } else {
+                                    failure("Order",
+                                        "Your Payment Order Is Not Created");
+                                  }
+                                  Navigator.of(context).pop();
+                                  print("Subscribed to plan id $planId");
+                                },
+                                child: Text(
+                                  'Subscribe',
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    color: Colors.white,
+                                    fontSize: fontSize,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          );
+          ]);
         });
       },
     );

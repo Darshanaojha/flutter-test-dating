@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:dating_application/Providers/fcmService.dart';
 import 'package:dating_application/Screens/auth.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -276,8 +277,9 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                             UpdateActivityStatusRequest
                                 updateActivityStatusRequest =
                                 UpdateActivityStatusRequest(status: '0');
-                            // controller.updateactivitystatus(
-                            //     updateActivityStatusRequest);
+                            controller.updateactivitystatus(
+                                updateActivityStatusRequest);
+                            FCMService().subscribeToTopic("unsubscribed");
                             final preferences =
                                 EncryptedSharedPreferences.getInstance();
                             preferences.clear();

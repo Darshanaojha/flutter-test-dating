@@ -114,6 +114,7 @@ class MainAppState extends State<MainApp>
                 decoration: InputDecoration(
                   labelText: 'Backend IP Address',
                 ),
+                keyboardType: TextInputType.number,
               ),
               SizedBox(height: 12),
               TextField(
@@ -121,6 +122,7 @@ class MainAppState extends State<MainApp>
                 decoration: InputDecoration(
                   labelText: 'Spring Boot IP Address',
                 ),
+                keyboardType: TextInputType.number,
               ),
             ],
           ),
