@@ -283,7 +283,7 @@ class HomePageState extends State<HomePage>
               DateTime.now().day < birthDate.day)) {
         age--;
       }
-      return '$age Years Old';
+      return '$age';
     } catch (e) {
       return 'Age not available';
     }
@@ -430,59 +430,80 @@ class HomePageState extends State<HomePage>
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    double fontSize = screenWidth * 0.025; // Example: 25 for 1000px width
-    double iconSize = screenWidth * 0.06; // Example: 60 for 1000px width
-    double buttonWidth = screenWidth * 0.22; // 22% of screen
-    double buttonHeight = screenHeight * 0.06; // 6% of screen height
+    double fontSize = screenWidth * 0.025;
+    double iconSize = screenWidth * 0.06;
+    double buttonWidth = screenWidth * 0.22;
+    double buttonHeight = screenHeight * 0.02;
+
+    bool isSelected = selectedFilter.value == button;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.015),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment(0.8, 1),
-            colors: AppColors.gradientBackgroundList,
+      child: AnimatedScale(
+        scale: isSelected ? 1.08 : 1.0,
+        duration: Duration(milliseconds: 200),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment(0.8, 1),
+              colors: AppColors.gradientBackgroundList,
+            ),
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: Colors.white.withOpacity(0.4),
+                      blurRadius: 8,
+                      spreadRadius: 1,
+                      offset: Offset(0, 2),
+                    ),
+                  ]
+                : [],
+            border: isSelected
+                ? Border.all(color: Colors.white, width: 2)
+                : Border.all(color: Colors.transparent),
           ),
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: ElevatedButton.icon(
-          onPressed: () {
-            setState(() {
-              selectedFilter.value = button;
-              rebuildSwipeItemsForFilter(button);
-            });
-            _animationController.forward(from: 0);
-            onTap(label);
-          },
-          icon: AnimatedBuilder(
-            animation: _animationController,
-            builder: (context, child) {
-              return Transform.rotate(
-                angle: selectedFilter.value == button
-                    ? _rotationAnimation.value
-                    : 0,
-                child: Icon(
-                  icon,
-                  size: iconSize,
-                  color: AppColors.textColor,
-                ),
-              );
+          child: ElevatedButton.icon(
+            onPressed: () {
+              setState(() {
+                selectedFilter.value = button;
+                rebuildSwipeItemsForFilter(button);
+              });
+              _animationController.forward(from: 0);
+              onTap(label);
             },
-          ),
-          label: Text(
-            label,
-            style: TextStyle(fontSize: fontSize, color: AppColors.textColor),
-          ),
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white,
-            backgroundColor: Colors.transparent,
-            shape: const StadiumBorder(),
-            minimumSize: Size(buttonWidth, buttonHeight),
-            elevation: 0,
-            padding: EdgeInsets.symmetric(
-              vertical: buttonHeight * 0.2,
-              horizontal: buttonWidth * 0.15,
+            icon: AnimatedBuilder(
+              animation: _animationController,
+              builder: (context, child) {
+                return Transform.rotate(
+                  angle: isSelected ? _rotationAnimation.value : 0,
+                  child: Icon(
+                    icon,
+                    size: iconSize,
+                    color: AppColors.textColor,
+                  ),
+                );
+              },
+            ),
+            label: Text(
+              label,
+              style: TextStyle(
+                fontSize: fontSize,
+                color: AppColors.textColor,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              foregroundColor: Colors.white,
+              shape: const StadiumBorder(),
+              minimumSize: Size(buttonWidth, buttonHeight),
+              elevation: 0,
+              padding: EdgeInsets.symmetric(
+                vertical: buttonHeight * 0.2,
+                horizontal: buttonWidth * 0.15,
+              ),
             ),
           ),
         ),
@@ -685,7 +706,7 @@ class HomePageState extends State<HomePage>
                       ),
                     ),
 
-                    // SwipeCards Area
+                    //  `1Cards Area
                     Expanded(
                       child: Obx(() {
                         final currentList =
@@ -813,7 +834,7 @@ class HomePageState extends State<HomePage>
                                         margin: EdgeInsets.only(bottom: 12),
                                         child: ClipRRect(
                                           borderRadius:
-                                              BorderRadius.circular(15),
+                                              BorderRadius.circular(28),
                                           child: CachedNetworkImage(
                                             imageUrl: images[index],
                                             placeholder: (context, url) => Center(
@@ -848,7 +869,7 @@ class HomePageState extends State<HomePage>
                         children: [
                           Expanded(
                             child: Text(
-                              user.name ?? 'NA',
+                              '${user.name ?? 'NA'}, ${calculateAge(user.dob ?? 'Unknown Date')}',
                               style: AppTextStyles.headingText.copyWith(
                                 fontSize: size.width * 0.05,
                                 fontWeight: FontWeight.bold,
@@ -881,7 +902,8 @@ class HomePageState extends State<HomePage>
                       child: Row(
                         children: [
                           Text(
-                            calculateAge(user.dob ?? 'Unknown Date'),
+                            user.bio ?? 'Unknown bio',
+                            //'${user.bio ?? 'NA'}, ${user.dob ?? 'Unknown Date'}',
                             style: AppTextStyles.bodyText.copyWith(
                               color: Colors.white,
                               fontSize: size.width * 0.04,
@@ -890,36 +912,180 @@ class HomePageState extends State<HomePage>
                         ],
                       ),
                     ),
+                    SizedBox(height: size.height * 0.02),
+                    Center(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width *
+                            0.9, // Set your desired width here
+                        child: Divider(
+                          color: Colors.white30,
+                          thickness: 1,
+                          height: 1,
+                        ),
+                      ),
+                    ),
+
                     // Interests
                     if (interests.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16.0, vertical: 8),
-                        child: Wrap(
-                          spacing: 8,
-                          runSpacing: 4,
-                          children: interests
-                              .take(4)
-                              .map((interest) => Container(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.13),
-                                      borderRadius: BorderRadius.circular(16),
-                                      border: Border.all(color: Colors.white24),
-                                    ),
-                                    child: Text(
-                                      interest,
-                                      style: AppTextStyles.bodyText.copyWith(
-                                        color: Colors.white,
-                                        fontSize: size.width * 0.032,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ))
-                              .toList(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Interests',
+                              style: AppTextStyles.headingText.copyWith(
+                                color: Colors.white,
+                                fontSize: size.width * 0.045,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 8), // Space below the title
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 4,
+                              children: interests
+                                  .take(4)
+                                  .map((interest) => Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16.0, vertical: 8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.13),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Text(
+                                          interest,
+                                          style:
+                                              AppTextStyles.bodyText.copyWith(
+                                            color: Colors.white,
+                                            fontSize: size.width * 0.040,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ))
+                                  .toList(),
+                            ),
+                          ],
                         ),
                       ),
+                    //looking for
+                    SizedBox(height: size.height * 0.02),
+                    Center(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width *
+                            0.9, // Set your desired width here
+                        child: Divider(
+                          color: Colors.white30,
+                          thickness: 1,
+                          height: 1,
+                        ),
+                      ),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Looking For',
+                            style: AppTextStyles.headingText.copyWith(
+                              color: Colors.white,
+                              fontSize: size.width * 0.045,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          ElevatedButton(
+                            onPressed: () {},
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white.withOpacity(0.13),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 10),
+                              elevation: 0,
+                            ),
+                            child: Text(
+                              user.lookingFor == "1"
+                                  ? "Serious Relationship"
+                                  : user.lookingFor == "2"
+                                      ? "Hookup"
+                                      : "Unknown",
+                              style: AppTextStyles.bodyText.copyWith(
+                                fontSize: size.width * 0.038,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    //subgender
+                    SizedBox(height: size.height * 0.02),
+                    Center(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width *
+                            0.9, // Set your desired width here
+                        child: Divider(
+                          color: Colors.white30,
+                          thickness: 1,
+                          height: 1,
+                        ),
+                      ),
+                    ),
+
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: size.width * 0.04, // media query based
+                        vertical: size.height * 0.01,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Sub gender',
+                            style: AppTextStyles.headingText.copyWith(
+                              color: Colors.white,
+                              fontSize: size.width * 0.045,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: size.height * 0.01),
+                          ElevatedButton(
+                            onPressed: () {},
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white.withOpacity(0.13),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: size.width * 0.04,
+                                vertical: size.height * 0.012,
+                              ),
+                              elevation: 0,
+                            ),
+                            child: Text(
+                              user.subGenderName ?? 'Unknown',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.bodyText.copyWith(
+                                fontSize: size.width * 0.038,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
                     // Action Buttons
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 30.0),

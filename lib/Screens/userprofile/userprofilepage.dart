@@ -277,6 +277,7 @@ class UserProfilePageState extends State<UserProfilePage>
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Column(
                                     crossAxisAlignment:
@@ -292,7 +293,54 @@ class UserProfilePageState extends State<UserProfilePage>
                                                     .userData.first.username
                                                 : 'NA'),
                                         style: AppTextStyles.titleText.copyWith(
-                                          fontSize: getResponsiveFontSize(0.04),
+                                          fontSize: getResponsiveFontSize(0.05),
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        controller.userData.isNotEmpty
+                                            ? (() {
+                                                try {
+                                                  String dobString = controller
+                                                      .userData.first.dob
+                                                      .trim();
+
+                                                  if (dobString
+                                                      .contains(' at ')) {
+                                                    dobString = dobString
+                                                        .split(' at ')[0]
+                                                        .trim();
+                                                  }
+
+                                                  DateTime dob =
+                                                      DateFormat('dd/MM/yyyy')
+                                                          .parse(dobString);
+
+                                                  DateTime today =
+                                                      DateTime.now();
+                                                  int age =
+                                                      today.year - dob.year;
+                                                  if (today.month < dob.month ||
+                                                      (today.month ==
+                                                              dob.month &&
+                                                          today.day <
+                                                              dob.day)) {
+                                                    age--;
+                                                  }
+
+                                                  return '$age years old | ${controller.userData.first.genderName}';
+                                                } catch (e) {
+                                                  print(
+                                                      'DOB parsing error: $e');
+                                                  return 'NA';
+                                                }
+                                              })()
+                                            : 'NA',
+                                        style: AppTextStyles.labelText.copyWith(
+                                          fontSize:
+                                              getResponsiveFontSize(0.029),
                                           color: Colors.white,
                                         ),
                                       ),
@@ -333,7 +381,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                         .copyWith(
                                                       fontSize:
                                                           getResponsiveFontSize(
-                                                              0.03),
+                                                              0.04),
                                                       fontWeight:
                                                           FontWeight.bold,
                                                       color: Colors.white,
@@ -377,7 +425,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                       getResponsiveFontSize(
                                                                           0.03),
                                                                   color: Colors
-                                                                      .white70,
+                                                                      .white,
                                                                 ),
                                                                 filled: true,
                                                                 fillColor: Colors
@@ -404,55 +452,120 @@ class UserProfilePageState extends State<UserProfilePage>
                                                   const SizedBox(height: 20),
                                                   Row(
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment.end,
+                                                        MainAxisAlignment
+                                                            .center,
                                                     children: [
-                                                      TextButton(
-                                                        style: TextButton
-                                                            .styleFrom(
-                                                          foregroundColor:
-                                                              Colors.white,
-                                                          backgroundColor:
-                                                              AppColors
-                                                                  .inactiveColor,
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
-                                                                  horizontal:
-                                                                      16),
-                                                        ),
-                                                        onPressed: () {
-                                                          Navigator.of(context)
-                                                              .pop();
-                                                        },
-                                                        child: Text(
-                                                          'Cancel',
-                                                          style: AppTextStyles
-                                                              .buttonText
-                                                              .copyWith(
-                                                            fontSize:
-                                                                getResponsiveFontSize(
-                                                                    0.03),
+                                                      // Cancel Button with Gradient Text
+                                                      SizedBox(
+                                                        height: screenHeight *
+                                                            0.055,
+                                                        width:
+                                                            screenWidth * 0.28,
+                                                        child: ElevatedButton(
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                            backgroundColor:
+                                                                Colors.white,
+                                                            elevation: 0,
+                                                            padding:
+                                                                EdgeInsets.zero,
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          46),
+                                                            ),
+                                                          ),
+                                                          onPressed: () {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                          },
+                                                          child: ShaderMask(
+                                                            shaderCallback:
+                                                                (bounds) =>
+                                                                    LinearGradient(
+                                                              colors: AppColors
+                                                                  .gradientBackgroundList,
+                                                              begin: Alignment
+                                                                  .topLeft,
+                                                              end: Alignment
+                                                                  .bottomRight,
+                                                            ).createShader(
+                                                              Rect.fromLTWH(
+                                                                  0,
+                                                                  0,
+                                                                  bounds.width,
+                                                                  bounds
+                                                                      .height),
+                                                            ),
+                                                            blendMode:
+                                                                BlendMode.srcIn,
+                                                            child: Text(
+                                                              'Cancel',
+                                                              style:
+                                                                  AppTextStyles
+                                                                      .buttonText
+                                                                      .copyWith(
+                                                                fontSize:
+                                                                    getResponsiveFontSize(
+                                                                        0.03),
+                                                                color: Colors
+                                                                    .white, // Required for ShaderMask to work
+                                                              ),
+                                                            ),
                                                           ),
                                                         ),
                                                       ),
                                                       const SizedBox(width: 10),
-                                                      ElevatedButton(
-                                                        style: ElevatedButton
-                                                            .styleFrom(
-                                                          backgroundColor:
-                                                              AppColors
-                                                                  .activeColor,
-                                                          foregroundColor:
-                                                              Colors.white,
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
-                                                                  horizontal:
-                                                                      20),
-                                                        ),
-                                                        onPressed: () async {
-                                                          final updatedUsername =
-                                                              controller
+                                                      // Save Button with Gradient Background
+                                                      SizedBox(
+                                                        height: screenHeight *
+                                                            0.055,
+                                                        width:
+                                                            screenWidth * 0.28,
+                                                        child: Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            gradient:
+                                                                LinearGradient(
+                                                              colors: AppColors
+                                                                  .reversedGradientColor,
+                                                              begin: Alignment
+                                                                  .topLeft,
+                                                              end: Alignment
+                                                                  .bottomRight,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        46),
+                                                          ),
+                                                          child: ElevatedButton(
+                                                            style:
+                                                                ElevatedButton
+                                                                    .styleFrom(
+                                                              elevation: 0,
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .transparent,
+                                                              shadowColor: Colors
+                                                                  .transparent,
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .zero,
+                                                              shape:
+                                                                  RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            46),
+                                                              ),
+                                                            ),
+                                                            onPressed:
+                                                                () async {
+                                                              final updatedUsername = controller
                                                                       .usernameUpdateRequest
                                                                       .username
                                                                       .isNotEmpty
@@ -464,30 +577,34 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                       .first
                                                                       .username;
 
-                                                          controller
-                                                              .updateusername(
-                                                            UsernameUpdateRequest(
-                                                                username:
-                                                                    updatedUsername),
-                                                          );
-                                                          await controller
-                                                              .fetchProfile(); // Refresh user data from backend
-                                                          Navigator.of(context)
-                                                              .pop();
-                                                        },
-                                                        child: Text(
-                                                          'Save',
-                                                          style: AppTextStyles
-                                                              .buttonText
-                                                              .copyWith(
-                                                            fontSize:
-                                                                getResponsiveFontSize(
-                                                                    0.03),
+                                                              controller
+                                                                  .updateusername(
+                                                                UsernameUpdateRequest(
+                                                                    username:
+                                                                        updatedUsername),
+                                                              );
+                                                              await controller
+                                                                  .fetchProfile();
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                            },
+                                                            child: Text(
+                                                              'Save',
+                                                              style:
+                                                                  AppTextStyles
+                                                                      .buttonText
+                                                                      .copyWith(
+                                                                fontSize:
+                                                                    getResponsiveFontSize(
+                                                                        0.03),
+                                                              ),
+                                                            ),
                                                           ),
                                                         ),
                                                       ),
                                                     ],
-                                                  ),
+                                                  )
                                                 ],
                                               ),
                                             ),
@@ -499,96 +616,88 @@ class UserProfilePageState extends State<UserProfilePage>
                                 ],
                               ),
                             ),
+                            // Container(
+                            //   margin: const EdgeInsets.symmetric(
+                            //       horizontal: 16, vertical: 6),
+                            //   padding: const EdgeInsets.symmetric(
+                            //       horizontal: 22, vertical: 16),
+                            //   decoration: BoxDecoration(
+                            //     gradient: LinearGradient(
+                            //       colors: AppColors.gradientBackgroundList,
+                            //       begin: Alignment.topLeft,
+                            //       end: Alignment.bottomRight,
+                            //     ),
+                            //     borderRadius: BorderRadius.circular(16),
+                            //     boxShadow: [
+                            //       BoxShadow(
+                            //         color: Colors.black12,
+                            //         blurRadius: 8,
+                            //         offset: Offset(0, 4),
+                            //       ),
+                            //     ],
+                            //   ),
+                            //   child: Row(
+                            //     children: [
+                            //       Text(
+                            //         controller.userData.isNotEmpty
+                            //             ? (() {
+                            //                 try {
+                            //                   String dobString = controller
+                            //                       .userData.first.dob
+                            //                       .trim();
+
+                            //                   if (dobString.contains(' at ')) {
+                            //                     dobString = dobString
+                            //                         .split(' at ')[0]
+                            //                         .trim();
+                            //                   }
+
+                            //                   // Parse using correct format: dd/MM/yyyy
+                            //                   DateTime dob =
+                            //                       DateFormat('dd/MM/yyyy')
+                            //                           .parse(dobString);
+
+                            //                   // Calculate age accurately
+                            //                   DateTime today = DateTime.now();
+                            //                   int age = today.year - dob.year;
+                            //                   if (today.month < dob.month ||
+                            //                       (today.month == dob.month &&
+                            //                           today.day < dob.day)) {
+                            //                     age--;
+                            //                   }
+
+                            //                   return '$age years old | ${controller.userData.first.genderName}';
+                            //                 } catch (e) {
+                            //                   print('DOB parsing error: $e');
+                            //                   return 'NA';
+                            //                 }
+                            //               })()
+                            //             : 'NA',
+                            //         style: AppTextStyles.labelText.copyWith(
+                            //           fontSize: getResponsiveFontSize(0.03),
+                            //           color: Colors.white,
+                            //         ),
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
+                            //SizedBox(height: 2),
                             Container(
                               margin: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 6),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 22, vertical: 16),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: AppColors.gradientBackgroundList,
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 8,
-                                    offset: Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    controller.userData.isNotEmpty
-                                        ? (() {
-                                            try {
-                                              String dobString = controller
-                                                  .userData.first.dob
-                                                  .trim();
-
-                                              if (dobString.contains(' at ')) {
-                                                dobString = dobString
-                                                    .split(' at ')[0]
-                                                    .trim();
-                                              }
-
-                                              // Parse using correct format: dd/MM/yyyy
-                                              DateTime dob =
-                                                  DateFormat('dd/MM/yyyy')
-                                                      .parse(dobString);
-
-                                              // Calculate age accurately
-                                              DateTime today = DateTime.now();
-                                              int age = today.year - dob.year;
-                                              if (today.month < dob.month ||
-                                                  (today.month == dob.month &&
-                                                      today.day < dob.day)) {
-                                                age--;
-                                              }
-
-                                              return '$age years old | ${controller.userData.first.genderName}';
-                                            } catch (e) {
-                                              print('DOB parsing error: $e');
-                                              return 'NA';
-                                            }
-                                          })()
-                                        : 'NA',
-                                    style: AppTextStyles.labelText.copyWith(
-                                      fontSize: getResponsiveFontSize(0.03),
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 2),
-                            Container(
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 18, vertical: 6),
+                                  horizontal: 18, vertical: 0),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   begin: Alignment.topLeft,
                                   end: Alignment(0.8, 1),
                                   colors: AppColors.gradientBackgroundList,
                                 ),
-                                borderRadius: BorderRadius.circular(10.0),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Color(0x66666666),
-                                    blurRadius: 10.0,
-                                    spreadRadius: 3.0,
-                                    offset: Offset(0, 6.0),
-                                  ),
-                                ],
+                                borderRadius: BorderRadius.circular(16.0),
                               ),
                               child: InkWell(
                                 onTap: () {
                                   showVerificationDialog(context);
                                 },
-                                borderRadius: BorderRadius.circular(10.0),
+                                borderRadius: BorderRadius.circular(16.0),
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(
                                     vertical: screenWidth * 0.025,
@@ -604,6 +713,13 @@ class UserProfilePageState extends State<UserProfilePage>
                                         children: [
                                           Row(
                                             children: [
+                                              Icon(
+                                                Icons.verified_user_outlined,
+                                                size: screenWidth * 0.075,
+                                                color: Colors.white,
+                                              ),
+                                              SizedBox(
+                                                  width: screenWidth * 0.025),
                                               Container(
                                                 decoration: BoxDecoration(
                                                   color: controller.userData
@@ -616,7 +732,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                       ? Colors.green
                                                           .withOpacity(0.15)
                                                       : Colors.white
-                                                          .withOpacity(0.25),
+                                                          .withOpacity(0.65),
                                                   borderRadius:
                                                       BorderRadius.circular(20),
                                                 ),
@@ -660,7 +776,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                       .accountVerificationStatus ==
                                                                   '1'
                                                           ? 'Verified'
-                                                          : 'Not Verified',
+                                                          : 'Verification Pending',
                                                       style: TextStyle(
                                                         fontSize:
                                                             screenWidth * 0.045,
@@ -681,149 +797,149 @@ class UserProfilePageState extends State<UserProfilePage>
                                                   ],
                                                 ),
                                               ),
-                                              SizedBox(
-                                                  width: screenWidth * 0.02),
-                                              if (controller
-                                                      .userData.isNotEmpty &&
-                                                  controller.userData.first
-                                                          .accountVerificationStatus !=
-                                                      '1')
-                                                Container(
-                                                  padding: EdgeInsets.symmetric(
-                                                    horizontal:
-                                                        screenWidth * 0.02,
-                                                    vertical:
-                                                        screenWidth * 0.005,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color:
-                                                        Colors.lightBlueAccent,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            12),
-                                                  ),
-                                                  child: Text(
-                                                    'Tap to verify',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize:
-                                                          screenWidth * 0.03,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                ),
+                                              // SizedBox(
+                                              //     width: screenWidth * 0.02),
+                                              // if (controller
+                                              //         .userData.isNotEmpty &&
+                                              //     controller.userData.first
+                                              //             .accountVerificationStatus !=
+                                              //         '1')
+                                              // Container(
+                                              //   padding: EdgeInsets.symmetric(
+                                              //     horizontal:
+                                              //         screenWidth * 0.02,
+                                              //     vertical:
+                                              //         screenWidth * 0.005,
+                                              //   ),
+                                              //   decoration: BoxDecoration(
+                                              //     color:
+                                              //         Colors.lightBlueAccent,
+                                              //     borderRadius:
+                                              //         BorderRadius.circular(
+                                              //             12),
+                                              //   ),
+                                              //   child: Text(
+                                              //     'Tap to verify',
+                                              //     style: TextStyle(
+                                              //       color: Colors.white,
+                                              //       fontSize:
+                                              //           screenWidth * 0.03,
+                                              //       fontWeight:
+                                              //           FontWeight.w500,
+                                              //     ),
+                                              //   ),
+                                              // ),
                                             ],
                                           ),
                                           SizedBox(height: screenWidth * 0.010),
-                                          Text(
-                                            _getAccountVerificationMessage(
-                                                controller.userData.first
-                                                    .accountVerificationStatus),
-                                            style: TextStyle(
-                                              fontSize: screenWidth * 0.025,
-                                              color: _getAccountVerificationColor(
-                                                  controller.userData.first
-                                                      .accountVerificationStatus),
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
+                                          // Text(
+                                          //   _getAccountVerificationMessage(
+                                          //       controller.userData.first
+                                          //           .accountVerificationStatus),
+                                          //   style: TextStyle(
+                                          //     fontSize: screenWidth * 0.025,
+                                          //     color: _getAccountVerificationColor(
+                                          //         controller.userData.first
+                                          //             .accountVerificationStatus),
+                                          //   ),
+                                          //   maxLines: 1,
+                                          //   overflow: TextOverflow.ellipsis,
+                                          // ),
                                         ],
                                       ),
-                                      AnimatedSwitcher(
-                                        duration: const Duration(seconds: 1),
-                                        child: controller.userData.isNotEmpty &&
-                                                controller.userData.first
-                                                        .accountVerificationStatus ==
-                                                    '1'
-                                            ? Icon(
-                                                Icons.verified_user_outlined,
-                                                color: Colors.green,
-                                                size: screenWidth * 0.09,
-                                                key: const ValueKey<int>(1),
-                                              )
-                                            : Icon(
-                                                Icons.cancel_outlined,
-                                                color: Colors.red,
-                                                size: screenWidth * 0.06,
-                                                key: const ValueKey<int>(0),
-                                              ),
-                                      ),
+                                      // AnimatedSwitcher(
+                                      //   duration: const Duration(seconds: 1),
+                                      //   child: controller.userData.isNotEmpty &&
+                                      //           controller.userData.first
+                                      //                   .accountVerificationStatus ==
+                                      //               '1'
+                                      //       ? Icon(
+                                      //           Icons.verified_user_outlined,
+                                      //           color: Colors.green,
+                                      //           size: screenWidth * 0.09,
+                                      //           key: const ValueKey<int>(1),
+                                      //         )
+                                      //       : Icon(
+                                      //           Icons.cancel_outlined,
+                                      //           color: Colors.red,
+                                      //           size: screenWidth * 0.06,
+                                      //           key: const ValueKey<int>(0),
+                                      //         ),
+                                      // ),
                                     ],
                                   ),
                                 ),
                               ),
                             ),
-                            Container(
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 18, vertical: 6),
-                              padding: EdgeInsets.symmetric(
-                                vertical: screenWidth * 0.025,
-                                horizontal: screenWidth * 0.045,
-                              ),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: AppColors.gradientBackgroundList,
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 8,
-                                    offset: Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(16),
-                                onTap: () {
-                                  Get.to(PlanPage());
-                                },
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.card_membership,
-                                      size: screenWidth * 0.075,
-                                      color: Colors.white,
-                                    ),
-                                    SizedBox(width: screenWidth * 0.045),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Membership',
-                                            style: TextStyle(
-                                              fontSize: screenWidth * 0.04,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          SizedBox(height: screenWidth * 0.01),
-                                          Text(
-                                            'View or upgrade your membership plan',
-                                            style: TextStyle(
-                                              fontSize: screenWidth * 0.03,
-                                              color: Colors.white
-                                                  .withOpacity(0.85),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Icon(
-                                      Icons.arrow_forward_ios_rounded,
-                                      size: screenWidth * 0.045,
-                                      color: Colors.white,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                            // Container(
+                            //   margin: const EdgeInsets.symmetric(
+                            //       horizontal: 18, vertical: 6),
+                            //   padding: EdgeInsets.symmetric(
+                            //     vertical: screenWidth * 0.025,
+                            //     horizontal: screenWidth * 0.045,
+                            //   ),
+                            //   decoration: BoxDecoration(
+                            //     gradient: LinearGradient(
+                            //       colors: AppColors.gradientBackgroundList,
+                            //       begin: Alignment.topLeft,
+                            //       end: Alignment.bottomRight,
+                            //     ),
+                            //     borderRadius: BorderRadius.circular(16),
+                            //     boxShadow: const [
+                            //       BoxShadow(
+                            //         color: Colors.black12,
+                            //         blurRadius: 8,
+                            //         offset: Offset(0, 4),
+                            //       ),
+                            //     ],
+                            //   ),
+                            //   child: InkWell(
+                            //     borderRadius: BorderRadius.circular(16),
+                            //     onTap: () {
+                            //       Get.to(PlanPage());
+                            //     },
+                            //     child: Row(
+                            //       children: [
+                            //         Icon(
+                            //           Icons.card_membership,
+                            //           size: screenWidth * 0.075,
+                            //           color: Colors.white,
+                            //         ),
+                            //         SizedBox(width: screenWidth * 0.045),
+                            //         Expanded(
+                            //           child: Column(
+                            //             crossAxisAlignment:
+                            //                 CrossAxisAlignment.start,
+                            //             children: [
+                            //               Text(
+                            //                 'Membership',
+                            //                 style: TextStyle(
+                            //                   fontSize: screenWidth * 0.04,
+                            //                   fontWeight: FontWeight.bold,
+                            //                   color: Colors.white,
+                            //                 ),
+                            //               ),
+                            //               SizedBox(height: screenWidth * 0.01),
+                            //               Text(
+                            //                 'View or upgrade your membership plan',
+                            //                 style: TextStyle(
+                            //                   fontSize: screenWidth * 0.03,
+                            //                   color: Colors.white
+                            //                       .withOpacity(0.85),
+                            //                 ),
+                            //               ),
+                            //             ],
+                            //           ),
+                            //         ),
+                            //         Icon(
+                            //           Icons.arrow_forward_ios_rounded,
+                            //           size: screenWidth * 0.045,
+                            //           color: Colors.white,
+                            //         ),
+                            //       ],
+                            //     ),
+                            //   ),
+                            // ),
                             Padding(
                               padding: EdgeInsets.symmetric(
                                 horizontal: screenWidth * 0.025, // ~16
@@ -841,7 +957,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                   ),
                                   buildSettingCard(
                                     context,
-                                    title: 'Your Orders',
+                                    title: 'Subscription History',
                                     subtitle: 'See Your All Orders',
                                     icon: Icons.plagiarism_outlined,
                                     onTap: () => Get.to(AllOrdersPage()),
@@ -914,7 +1030,7 @@ class UserProfilePageState extends State<UserProfilePage>
       alignment: Alignment.center,
       child: Container(
         width: double.infinity, // forces full width inside Column
-        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
         padding: EdgeInsets.symmetric(
           vertical: screenWidth * 0.025,
           horizontal: screenWidth * 0.035,
@@ -934,22 +1050,67 @@ class UserProfilePageState extends State<UserProfilePage>
             ),
           ],
         ),
+        // child: InkWell(
+        //   borderRadius: BorderRadius.circular(16),
+        //   onTap: onTap,
+        //   child: Row(
+        //     children: [
+        //       Icon(
+        //         icon,
+        //         size: screenWidth * 0.075,
+        //         color: Colors.white,
+        //       ),
+        //       SizedBox(width: screenWidth * 0.045),
+        //       Expanded(
+        //         child: Column(
+        //           crossAxisAlignment: CrossAxisAlignment.start,
+        //           children: [
+        //             Text(
+        //               title,
+        //               style: TextStyle(
+        //                 fontSize: screenWidth * 0.04,
+        //                 fontWeight: FontWeight.bold,
+        //                 color: Colors.white,
+        //               ),
+        //             ),
+        //             SizedBox(height: screenWidth * 0.01),
+        //             // Text(
+        //             //   subtitle,
+        //             //   style: TextStyle(
+        //             //     fontSize: screenWidth * 0.027,
+        //             //     color: Colors.white.withOpacity(0.85),
+        //             //   ),
+        //             // ),
+        //           ],
+        //         ),
+        //       ),
+        //       Icon(
+        //         Icons.arrow_forward_ios_rounded,
+        //         size: screenWidth * 0.045,
+        //         color: Colors.white,
+        //       ),
+        //     ],
+        //   ),
+        // ),
+
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: onTap,
-          child: Row(
-            children: [
-              Icon(
-                icon,
-                size: screenWidth * 0.075,
-                color: Colors.white,
-              ),
-              SizedBox(width: screenWidth * 0.045),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: screenWidth * 0.015),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  size: screenWidth * 0.075,
+                  color: Colors.white,
+                ),
+                SizedBox(width: screenWidth * 0.045),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
                       title,
                       style: TextStyle(
                         fontSize: screenWidth * 0.04,
@@ -957,23 +1118,15 @@ class UserProfilePageState extends State<UserProfilePage>
                         color: Colors.white,
                       ),
                     ),
-                    SizedBox(height: screenWidth * 0.01),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.03,
-                        color: Colors.white.withOpacity(0.85),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: screenWidth * 0.045,
-                color: Colors.white,
-              ),
-            ],
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: screenWidth * 0.045,
+                  color: Colors.white,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -1204,6 +1357,9 @@ class UserProfilePageState extends State<UserProfilePage>
   }
 
   void showVerificationDialog(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double buttonWidth = screenWidth * 0.3;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1242,57 +1398,100 @@ class UserProfilePageState extends State<UserProfilePage>
                 ),
                 const SizedBox(height: 20),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: AppColors.primaryColor,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 14),
-                        minimumSize: const Size(0, 36),
-                        shape: RoundedRectangleBorder(
+                    // Cancel Button
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width *
+                          0.28, // 36% of screen width
+                      height: MediaQuery.of(context).size.height *
+                          0.055, // 5.5% of screen height
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text(
-                        'Cancel',
-                        style: AppTextStyles.textStyle.copyWith(
-                          fontSize: 14,
-                          color: AppColors.primaryColor,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            padding: EdgeInsets.zero,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Center(
+                            child: ShaderMask(
+                              shaderCallback: (bounds) => LinearGradient(
+                                colors: AppColors.gradientBackgroundList,
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ).createShader(Rect.fromLTWH(
+                                  0, 0, bounds.width, bounds.height)),
+                              blendMode: BlendMode.srcIn,
+                              child: Text(
+                                'Cancel',
+                                style: AppTextStyles.textStyle.copyWith(
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.035,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: AppColors.primaryColor,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 14),
-                        minimumSize: const Size(0, 36),
-                        shape: RoundedRectangleBorder(
+
+                    SizedBox(width: MediaQuery.of(context).size.width * 0.04),
+
+                    // Confirm Button
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width *
+                          0.28, // same as Cancel
+                      height: MediaQuery.of(context).size.height *
+                          0.055, // same as Cancel
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: AppColors.reversedGradientColor,
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                      ),
-                      onPressed: () {
-                        controller.fetchAllverificationtype();
-                        Navigator.of(context).pop();
-                        Get.to(PhotoVerificationPage());
-                      },
-                      child: Text(
-                        'Confirm',
-                        style: AppTextStyles.textStyle.copyWith(
-                          fontSize: 14,
-                          color: AppColors.primaryColor,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            padding: EdgeInsets.zero,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed: () {
+                            controller.fetchAllverificationtype();
+                            Navigator.of(context).pop();
+                            Get.to(PhotoVerificationPage());
+                          },
+                          child: Center(
+                            child: Text(
+                              'Confirm',
+                              style: AppTextStyles.textStyle.copyWith(
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.035,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ],
-                ),
+                )
               ],
             ),
           ),

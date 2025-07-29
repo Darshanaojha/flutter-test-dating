@@ -94,69 +94,70 @@ class ContactListScreenState extends State<ContactListScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Search Bar
-                Card(
-                  elevation: 6,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: AppColors.gradientBackgroundList,
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: TextField(
-                      cursorColor: AppColors.cursorColor,
-                      onChanged: (query) {
-                        setState(() {
-                          searchQuery = query;
-                        });
-                      },
-                      style: AppTextStyles.inputFieldText.copyWith(
-                        fontSize: fontSize,
-                        color: Colors.white,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: 'Search Contacts...',
-                        hintStyle: AppTextStyles.customTextStyle(
-                            color: Colors.white70),
-                        prefixIcon: Icon(Icons.search, color: Colors.white70),
-                        filled: true,
-                        fillColor: Colors.transparent,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 18),
-                // Section Buttons
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      '${getFilteredUsers().length} Members',
-                      style: AppTextStyles.bodyText.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: fontSize * 1.05,
+                    // Search Input Field
+                    Expanded(
+                      child: Card(
+                        elevation: 6,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: AppColors.gradientBackgroundList,
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: TextField(
+                            cursorColor: AppColors.cursorColor,
+                            onChanged: (query) {
+                              setState(() {
+                                searchQuery = query;
+                              });
+                            },
+                            style: AppTextStyles.inputFieldText.copyWith(
+                              fontSize: fontSize,
+                              color: Colors.white,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: 'Search Contacts...',
+                              hintStyle: AppTextStyles.customTextStyle(
+                                color: Colors.white70,
+                                fontSize: 16,
+                              ),
+                              prefixIcon:
+                                  Icon(Icons.search, color: Colors.white70),
+                              filled: true,
+                              fillColor: Colors.transparent,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide.none,
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 14, horizontal: 16),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
+
+                    const SizedBox(
+                        width: 12), // Space between search and button
+
+                    // Request Button
                     Container(
+                      height: 55,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: AppColors.gradientBackgroundList,
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
-                        borderRadius: BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(18),
                       ),
                       child: ElevatedButton(
                         onPressed: () {
@@ -166,8 +167,8 @@ class ContactListScreenState extends State<ContactListScreen> {
                           foregroundColor: Colors.white,
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
-                          shape: StadiumBorder(),
-                          minimumSize: Size(100, 45),
+                          shape: const StadiumBorder(),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
                         ),
                         child: Text(
                           'Request',
@@ -180,7 +181,23 @@ class ContactListScreenState extends State<ContactListScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
+
+                SizedBox(height: 8),
+                // Section Buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${getFilteredUsers().length} Members',
+                      style: AppTextStyles.bodyText.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: fontSize * 1.0,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 1),
                 // Contact List
                 Expanded(
                   child: isLoading
@@ -200,13 +217,13 @@ class ContactListScreenState extends State<ContactListScreen> {
                                       final connection =
                                           getFilteredUsers()[index];
                                       return Card(
-                                        elevation: 6,
+                                        elevation: 4,
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(24),
                                         ),
                                         margin:
-                                            EdgeInsets.symmetric(vertical: 8),
+                                            EdgeInsets.symmetric(vertical: 4),
                                         child: Container(
                                           decoration: BoxDecoration(
                                             gradient: LinearGradient(
@@ -237,7 +254,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                                 child: Stack(
                                                   children: [
                                                     CircleAvatar(
-                                                      radius: 24.0,
+                                                      radius: 18.0,
                                                       backgroundImage:
                                                           NetworkImage(connection
                                                               .profileImage),
@@ -373,39 +390,39 @@ class ContactListScreenState extends State<ContactListScreen> {
             ),
         ],
       ),
-      floatingActionButton: SpeedDial(
-        animatedIcon: AnimatedIcons.menu_close,
-        backgroundColor: AppColors.buttonColor,
-        foregroundColor: Colors.white,
-        overlayColor: Colors.black,
-        overlayOpacity: 0.3,
-        spacing: 12,
-        spaceBetweenChildren: 8,
-        elevation: 8,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-        ),
-        children: [
-          SpeedDialChild(
-            child: const Icon(Icons.list),
-            label: 'All',
-            onTap: () => selectSection(0),
-            backgroundColor: Colors.deepPurple,
-          ),
-          SpeedDialChild(
-            child: const Icon(Icons.history),
-            label: 'Recent',
-            onTap: () => selectSection(1),
-            backgroundColor: Colors.orange,
-          ),
-          SpeedDialChild(
-            child: const Icon(Icons.favorite),
-            label: 'HookUp',
-            onTap: () => selectSection(2),
-            backgroundColor: Colors.pink,
-          ),
-        ],
-      ),
+      // floatingActionButton: SpeedDial(
+      //   animatedIcon: AnimatedIcons.menu_close,
+      //   backgroundColor: AppColors.buttonColor,
+      //   foregroundColor: Colors.white,
+      //   overlayColor: Colors.black,
+      //   overlayOpacity: 0.3,
+      //   spacing: 12,
+      //   spaceBetweenChildren: 8,
+      //   elevation: 8,
+      //   shape: const RoundedRectangleBorder(
+      //     borderRadius: BorderRadius.all(Radius.circular(16)),
+      //   ),
+      //   children: [
+      //     SpeedDialChild(
+      //       child: const Icon(Icons.list),
+      //       label: 'All',
+      //       onTap: () => selectSection(0),
+      //       backgroundColor: Colors.deepPurple,
+      //     ),
+      //     SpeedDialChild(
+      //       child: const Icon(Icons.history),
+      //       label: 'Recent',
+      //       onTap: () => selectSection(1),
+      //       backgroundColor: Colors.orange,
+      //     ),
+      //     SpeedDialChild(
+      //       child: const Icon(Icons.favorite),
+      //       label: 'HookUp',
+      //       onTap: () => selectSection(2),
+      //       backgroundColor: Colors.pink,
+      //     ),
+      //   ],
+      // ),
     );
   }
 

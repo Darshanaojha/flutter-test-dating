@@ -160,11 +160,30 @@ class WalletPageState extends State<WalletPage>
 
                 Align(
                   alignment: Alignment.centerRight,
-                  child: TextButton(
+                  child: ElevatedButton(
                     onPressed: () => Navigator.pop(context),
-                    child: Text(
-                      'Close',
-                      style: TextStyle(color: Colors.white),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      elevation: 0,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: ShaderMask(
+                      shaderCallback: (bounds) => LinearGradient(
+                        colors: AppColors
+                            .gradientBackgroundList, // Your custom gradient colors
+                      ).createShader(
+                          Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+                      child: Text(
+                        'Close',
+                        style: TextStyle(
+                          color: Colors.white, // Required for ShaderMask
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -304,98 +323,48 @@ class WalletPageState extends State<WalletPage>
                     ));
                   }
 
-                  return CustomScrollView(
-                    slivers: [
-                      SliverPadding(
-                        padding: EdgeInsets.all(16.0),
-                        sliver: SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              var transaction = controller.transactions[index];
-                              bool isCredited = false;
+                  return Obx(() {
+                    // Filter transactions with coin == "0.0"
+                    var filteredTransactions = controller.transactions
+                        .where((transaction) => transaction.coin == "0.0")
+                        .toList();
 
-//                               return Padding(
-//                                 padding:
-//                                     const EdgeInsets.symmetric(vertical: 8.0),
-//                                 child: Container(
-//                                   // decoration: BoxDecoration(
-//                                   //   gradient: LinearGradient(
-//                                   //     colors: AppColors.gradientBackgroundList,
-//                                   //     begin: Alignment.topLeft,
-//                                   //     end: Alignment.bottomRight,
-//                                   //   ),
-//                                   //   borderRadius: BorderRadius.circular(
-//                                   //       15), // same as Card's borderRadius
-//                                   // ),
-//                                   child: Card(
-//                                     // color: Colors
-//                                     //     .transparent, // make card transparent to show gradient
-//                                     elevation: 5,
-//                                     shape: RoundedRectangleBorder(
-//                                       borderRadius: BorderRadius.circular(15),
-//                                       side: BorderSide(
-//                                         color: isCredited
-//                                             ? Colors.green
-//                                             : Colors.red,
-//                                         width: 2,
-//                                       ),
-//                                     ),
-//                                     child: Row(
-//                                       children: [
-//                                         Container(
-//                                           width: 10,
-//                                           height: 60,
-//                                           decoration: BoxDecoration(
-//                                             color: isCredited
-//                                                 ? Colors.green
-//                                                 : Colors.red,
-//                                             borderRadius: BorderRadius.only(
-//                                               topRight: Radius.circular(15),
-//                                               bottomRight: Radius.circular(15),
-//                                             ),
-//                                           ),
-//                                         ),
-//                                         Expanded(
-//                                           child: ListTile(
-//                                             contentPadding:
-//                                                 EdgeInsets.symmetric(
-//                                                     vertical: 8,
-//                                                     horizontal: 16),
-//                                             title: Text(
-//                                               isCredited
-//                                                   ? 'Credited'
-//                                                   : 'Debited',
-//                                               style: TextStyle(
-//                                                   fontWeight: FontWeight.bold),
-//                                             ),
-//                                             subtitle: Text(
-//                                                 'Transaction ID: ${transaction.id}'),
-//                                             trailing: Icon(
-//                                               isCredited
-//                                                   ? Icons.arrow_downward
-//                                                   : Icons.arrow_upward,
-//                                               color: isCredited
-//                                                   ? Colors.green
-//                                                   : Colors.red,
-//                                             ),
-//                                           ),
-//                                         ),
-//                                       ],
-//                                     ),
-//                                   ),
-//                                 ),
-//                               );
-                              
-                              if (transaction.coin == "0") {
+                    if (filteredTransactions.isEmpty) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 32),
+                          child: Text(
+                            "No transactions found",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+
+                    return CustomScrollView(
+                      slivers: [
+                        SliverPadding(
+                          padding: const EdgeInsets.all(16.0),
+                          sliver: SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                                var transaction = filteredTransactions[index];
+                                bool isCredited = false;
+
                                 return Card(
                                   margin: EdgeInsets.symmetric(vertical: 8.0),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15),
                                     side: BorderSide(
-                                        color: isCredited
-                                            ? Colors.green
-                                            : Colors.red,
-                                        width: 2),
+                                      color: isCredited
+                                          ? Colors.green
+                                          : Colors.red,
+                                      width: 2,
+                                    ),
                                   ),
                                   elevation: 5,
                                   child: Row(
@@ -437,15 +406,14 @@ class WalletPageState extends State<WalletPage>
                                     ],
                                   ),
                                 );
-                              }
-                              return null;
-                            },
-                            childCount: controller.transactions.length,
+                              },
+                              childCount: filteredTransactions.length,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  );
+                      ],
+                    );
+                  });
                 },
               ),
             ),

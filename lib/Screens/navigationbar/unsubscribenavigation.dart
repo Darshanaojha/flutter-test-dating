@@ -80,68 +80,83 @@ class UnSubscribeNavigationController extends GetxController {
             ),
             SizedBox(height: screenHeight * 0.05),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Get.back();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    side: BorderSide(color: Colors.white),
-                    shape: RoundedRectangleBorder(
+                // Cancel Button with same styling structure
+                SizedBox(
+                    width: screenWidth * 0.28,
+                    height: screenWidth * 0.12, // Consistent height
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(38),
+                        border: Border.all(color: Colors.white),
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          padding: EdgeInsets.zero,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(38),
+                          ),
+                        ),
+                        child: ShaderMask(
+                          shaderCallback: (Rect bounds) {
+                            return LinearGradient(
+                              colors: AppColors.gradientBackgroundList,
+                            ).createShader(bounds);
+                          },
+                          child: Text(
+                            'Cancel',
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.titleText.copyWith(
+                              fontSize: buttonFont,
+                              color: Colors.white, // overridden by ShaderMask
+                            ),
+                          ),
+                        ),
+                      ),
+                    )),
+
+                SizedBox(width: screenWidth * 0.03),
+
+                // Subscribe Button
+                SizedBox(
+                  width: screenWidth * 0.28,
+                  height: screenWidth * 0.12, // Same height
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment(0.8, 1),
+                        colors: AppColors.reversedGradientColor,
+                      ),
                       borderRadius: BorderRadius.circular(38),
                     ),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: buttonPaddingH,
-                      vertical: buttonPaddingV,
-                    ),
-                  ),
-                  child: Text(
-                    'Cancel',
-                    style: AppTextStyles.titleText.copyWith(
-                      fontSize: smallFont,
-                      foreground: Paint()
-                        ..shader = LinearGradient(
-                          colors: AppColors.gradientBackgroundList,
-                        ).createShader(
-                          Rect.fromLTWH(0, 0, 200, 70), // You can adjust size
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.to(MembershipPage());
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(38),
                         ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: screenWidth * 0.03),
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment(0.8, 1),
-                      colors: AppColors.reversedGradientColor,
-                    ),
-                    borderRadius: BorderRadius.circular(38),
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Get.to(MembershipPage());
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor:
-                          Colors.transparent, // Optional: removes button shadow
-                      padding: EdgeInsets.symmetric(
-                        horizontal: buttonPaddingH,
-                        vertical: buttonPaddingV,
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    child: Text(
-                      'Subscribe',
-                      style: TextStyle(
-                        fontSize: buttonFont,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                      child: Text(
+                        'Subscribe',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: buttonFont,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
