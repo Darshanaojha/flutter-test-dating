@@ -48,6 +48,8 @@ class VideoCallPageState extends State<VideoCallPage> {
         failure('Error', 'Failed to fetch token from server');
       } else {
         agoraToken = value;
+        print("[Flutter] USing Token : $agoraToken");
+        print("[Flutter] Using UUID : $localUid");
         initializeAgora();
       }
     });
@@ -241,10 +243,11 @@ class VideoCallPageState extends State<VideoCallPage> {
 
       print("Enabling Video...");
 
-      // await engine.enableVideo();
+      await engine.enableVideo();
+      await Future.delayed(const Duration(seconds: 1));
       await engine.startPreview();
 
-      await engine.setupLocalVideo(VideoCanvas(uid: 0));
+      // await engine.setupLocalVideo(VideoCanvas(uid: localUid ?? 0));
 
       /// 🎥 **Join the Channel**
       await engine.joinChannel(
@@ -260,6 +263,8 @@ class VideoCallPageState extends State<VideoCallPage> {
           channelProfile: ChannelProfileType.channelProfileCommunication,
         ),
       );
+      await engine.muteLocalVideoStream(false);
+      await engine.muteLocalAudioStream(false);
 
       print("Successfully joined the channel");
 
@@ -322,7 +327,7 @@ class VideoCallPageState extends State<VideoCallPage> {
                     ? AgoraVideoView(
                         controller: VideoViewController(
                           rtcEngine: engine,
-                          canvas: VideoCanvas(uid: 0),
+                          canvas: VideoCanvas(uid: localUid ?? 0),
                         ),
                       )
                     : const CircularProgressIndicator(),

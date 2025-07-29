@@ -25,7 +25,44 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
   @override
   void initState() {
     super.initState();
-    _requestPermissions();
+    // _requestPermissions();
+    _startCallIfPermitted();
+    fetchAgoraToken(widget.channelName).then((value) {
+      if (value == null) {
+        failure('Error', 'Failed to fetch Agora token');
+      } else {
+        agoraToken = value;
+        print("[Flutter] USing Token : $agoraToken");
+        print("[Flutter] Using UUID : $localUid");
+        initializeAgora();
+      }
+    });
+  }
+
+  Future<bool> _ensurePermissions() async {
+    final camera = await Permission.camera.request();
+    final mic = await Permission.microphone.request();
+    // Add storage/location if needed
+
+    if (camera.isGranted && mic.isGranted) {
+      return true;
+    } else {
+      // Optionally show a dialog here
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                'Camera and microphone permissions are required for video calls.')),
+      );
+      return false;
+    }
+  }
+
+  void _startCallIfPermitted() async {
+    bool permitted = await _ensurePermissions();
+    if (!permitted) {
+      Navigator.of(context).pop(); // or show a blocking UI
+      return;
+    }
     fetchAgoraToken(widget.channelName).then((value) {
       if (value == null) {
         failure('Error', 'Failed to fetch Agora token');
@@ -182,6 +219,7 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
       // Set client role to Broadcaster and enable video
       await engine.setClientRole(role: ClientRoleType.clientRoleBroadcaster);
       await engine.enableVideo();
+      await engine.enableLocalVideo(true);
       await engine.startPreview();
 
       // Join the channel
@@ -192,8 +230,15 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
         options: const ChannelMediaOptions(
           clientRoleType: ClientRoleType.clientRoleBroadcaster,
           channelProfile: ChannelProfileType.channelProfileCommunication,
+          publishCameraTrack: true,
+          publishMicrophoneTrack: true,
+          autoSubscribeVideo: true,
+          autoSubscribeAudio: true,
         ),
       );
+
+      await engine.muteLocalVideoStream(false);
+      await engine.muteLocalAudioStream(false);
 
       // Set video encoder configuration for lower resolution and frame rate
       await engine.setVideoEncoderConfiguration(VideoEncoderConfiguration(
@@ -245,12 +290,24 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
                   ? AgoraVideoView(
                       controller: VideoViewController(
                         rtcEngine: engine,
-                        canvas: VideoCanvas(uid: localUid ?? 0),
+                        canvas: VideoCanvas(uid: localUid!),
                       ),
                     )
                   : const CircularProgressIndicator(),
             ),
           ),
+
+          Center(
+            child: remoteUid != null
+                ? AgoraVideoView(
+                    controller: VideoViewController.remote(
+                      rtcEngine: engine,
+                      canvas: VideoCanvas(uid: remoteUid!),
+                      connection: RtcConnection(channelId: widget.channelName),
+                    ),
+                  )
+                : const CircularProgressIndicator(),
+          )
         ],
       ),
     );

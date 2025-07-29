@@ -1,6 +1,8 @@
+import 'package:dating_application/Controllers/controller.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
@@ -23,6 +25,7 @@ class ReceiverAudioCallPageState extends State<ReceiverAudioCallPage> {
   int? remoteUid;
   bool isLocalAudioMuted = false;
   late RtcEngine engine;
+  Controller controller = Get.put(Controller());
 
   @override
   void initState() {
@@ -37,7 +40,8 @@ class ReceiverAudioCallPageState extends State<ReceiverAudioCallPage> {
       }
     });
   }
-void _requestPermissions() async {
+
+  void _requestPermissions() async {
     // Request notification permission
     FirebaseMessaging messaging = FirebaseMessaging.instance;
     NotificationSettings notificationSettings =
@@ -60,6 +64,9 @@ void _requestPermissions() async {
 
     // Request camera permission
     var cameraStatus = await Permission.camera.request();
+    if(cameraStatus.isPermanentlyDenied) {
+      controller.showPermissionDialog('Camera',context);
+    }
     if (cameraStatus.isGranted) {
       print('Camera permission granted');
     } else if (cameraStatus.isDenied) {
@@ -68,6 +75,9 @@ void _requestPermissions() async {
 
     // Request location permission
     var locationStatus = await Permission.location.request();
+    if(locationStatus.isPermanentlyDenied) {
+      controller.showPermissionDialog('Location',context);
+    }
     if (locationStatus.isGranted) {
       print('Location permission granted');
     } else if (locationStatus.isDenied) {
@@ -84,7 +94,9 @@ void _requestPermissions() async {
       // Handle Android 13+ permissions
       var manageStorageStatus =
           await Permission.manageExternalStorage.request();
-
+      if(manageStorageStatus.isPermanentlyDenied){
+        controller.showPermissionDialog('Manage External Storage',context);
+      }
       if (manageStorageStatus.isGranted) {
         print('Manage external storage permission granted');
       } else if (manageStorageStatus.isPermanentlyDenied) {
@@ -96,6 +108,9 @@ void _requestPermissions() async {
 
     // Request microphone permission
     var microphoneStatus = await Permission.microphone.request();
+    if (microphoneStatus.isPermanentlyDenied) {
+      controller.showPermissionDialog('Microphone',context);
+    }
     if (microphoneStatus.isGranted) {
       print('Microphone permission granted');
     } else if (microphoneStatus.isDenied) {
@@ -106,9 +121,8 @@ void _requestPermissions() async {
     // There's no specific permission for speaker access in Flutter.
     // Just ensure that the app can play audio properly, and you'll usually be good to go.
     print('Speaker permission is assumed granted when playing audio.');
-
-   
   }
+
   Future<String?> fetchAgoraToken(String channelName) async {
     try {
       final preferences = EncryptedSharedPreferences.getInstance();
@@ -211,7 +225,6 @@ void _requestPermissions() async {
         ),
       );
       print("Successfully joined the channel");
-      
     } catch (e) {
       print("Error joining channel: $e");
     }

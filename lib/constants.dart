@@ -35,7 +35,7 @@ class AppColors {
   static Color textColor = Colors.white;
   static Color accentColor = Colors.black;
   static Color cursorColor = Colors.white;
-  static Color acceptColor = const Color.fromARGB(255, 119, 120, 119);
+  static Color acceptColor = const Color.fromARGB(255, 255, 255, 255);
   static Color deniedColor = const Color.fromARGB(255, 195, 167, 165);
   static Color iconColor = const Color.fromARGB(255, 253, 174, 47);
   static Color buttonColor = const Color.fromARGB(255, 0, 64, 117);

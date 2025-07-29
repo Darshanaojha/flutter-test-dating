@@ -65,7 +65,9 @@ class RazorpayController extends GetxController {
       razorpay.open(options);
     } catch (e) {
       print("Error opening Razorpay: $e");
-      _paymentCompleter.complete(false);
+      if (!_paymentCompleter.isCompleted) {
+        _paymentCompleter.complete(false);
+      }
     }
   }
 
@@ -116,7 +118,9 @@ class RazorpayController extends GetxController {
       _paymentCompleter.complete(true);
     } catch (e) {
       print("Error handling payment success: $e");
-      _paymentCompleter.complete(false);
+      if (!_paymentCompleter.isCompleted) {
+        _paymentCompleter.complete(false);
+      }
     }
   }
 
@@ -124,7 +128,10 @@ class RazorpayController extends GetxController {
     print(response.toString());
     print(
         "Payment Failed: Code: ${response.code}, Message: ${response.message}");
-    String errorMessage = 'Payment Failed. Please try again later.';
+    String errorMessage = response.message == "undefined"
+        ? 'Payment Failed. Please try again later.'
+        : response.message ?? 'Payment Failed. Please try again later.';
+
     switch (response.code) {
       case Razorpay.NETWORK_ERROR:
         errorMessage =
@@ -189,12 +196,16 @@ class RazorpayController extends GetxController {
       print("Error Details: ${response.error}");
     }
 
-    _paymentCompleter.complete(false);
+    if (!_paymentCompleter.isCompleted) {
+      _paymentCompleter.complete(false);
+    }
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
     print("External Wallet Selected: ${response.walletName}");
-    _paymentCompleter.complete(false);
+    if (!_paymentCompleter.isCompleted) {
+      _paymentCompleter.complete(false);
+    }
   }
 
   OrderRequestModel orderRequestModel = OrderRequestModel(

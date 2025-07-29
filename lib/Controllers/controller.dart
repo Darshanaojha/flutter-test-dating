@@ -70,7 +70,6 @@ import 'package:dating_application/Providers/login_provider.dart';
 import 'package:dating_application/Providers/share_profile_provider.dart';
 import 'package:dating_application/Providers/user_profile_provider.dart';
 import 'package:dating_application/Screens/auth.dart';
-import 'package:dating_application/Screens/login.dart';
 import 'package:dating_application/Screens/loginforgotpassword/forgotpasswordotp.dart';
 import 'package:dating_application/Screens/navigationbar/unsubscribenavigation.dart'
     show Unsubscribenavigation;
@@ -329,6 +328,7 @@ class Controller extends GetxController {
           'Error register', 'An unexpected error occurred: ${e.toString()}');
       return null;
     }
+    return null;
   }
 
   Future<UserLoginResponse?> login(dynamic userLoginRequest) async {
@@ -2593,5 +2593,30 @@ class Controller extends GetxController {
       default:
         return userSuggestionsList;
     }
+  }
+
+  void showPermissionDialog(String permissionName, BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('$permissionName Permission Required'),
+        content: Text(
+          'This permission is required for audio/video calls. Please enable it in app settings.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              openAppSettings(); // Opens the app settings
+            },
+            child: Text('Open Settings'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('Cancel'),
+          ),
+        ],
+      ),
+    );
   }
 }

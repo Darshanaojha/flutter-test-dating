@@ -36,6 +36,41 @@ class AudioCallPageState extends State<AudioCallPage> {
   bool isLocalAudioMuted = false; // Mute state for local user
 
   late RtcEngine engine;
+
+  Future<bool> _ensurePermissions() async {
+    var mic = await Permission.microphone.request();
+    // Add camera if needed for video call
+    if (mic.isGranted) {
+      return true;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text('Microphone permission is required for audio calls.')),
+      );
+      return false;
+    }
+  }
+
+  void _startCallIfPermitted() async {
+    bool permitted = await _ensurePermissions();
+    if (!permitted) {
+      Navigator.of(context).pop(); // or show a blocking UI
+      return;
+    }
+    channelName = generateChannelName(widget.caller, widget.receiver);
+    print('channel name is $channelName');
+    fetchAgoraToken().then((value) {
+      if (value == null) {
+        failure('Error',
+            'An Error Occured while fetching the token from the server');
+      } else {
+        agoraToken = value;
+        initializeAgora();
+      }
+    });
+  }
+
   void _requestPermissions() async {
     // Request notification permission
     FirebaseMessaging messaging = FirebaseMessaging.instance;
@@ -58,47 +93,69 @@ class AudioCallPageState extends State<AudioCallPage> {
     }
 
     // Request camera permission
-    var cameraStatus = await Permission.camera.request();
-    if (cameraStatus.isGranted) {
-      print('Camera permission granted');
-    } else if (cameraStatus.isDenied) {
-      print('Camera permission denied');
+    if (await Permission.camera.isGranted) {
+      print('Camera permission already granted');
+    } else {
+      var cameraStatus = await Permission.camera.request();
+      if (cameraStatus.isPermanentlyDenied) {
+        controller.showPermissionDialog('Camera', context);
+      } else if (cameraStatus.isGranted) {
+        print('Camera permission granted');
+      } else if (cameraStatus.isDenied) {
+        print('Camera permission denied');
+      }
     }
 
     // Request location permission
-    var locationStatus = await Permission.location.request();
-    if (locationStatus.isGranted) {
-      print('Location permission granted');
-    } else if (locationStatus.isDenied) {
-      print('Location permission denied');
+    if (await Permission.location.isGranted) {
+      print('Location permission already granted');
+    } else {
+      var locationStatus = await Permission.location.request();
+      if (locationStatus.isPermanentlyDenied) {
+        controller.showPermissionDialog('Location', context);
+      } else if (locationStatus.isGranted) {
+        print('Location permission granted');
+      } else if (locationStatus.isDenied) {
+        print('Location permission denied');
+      }
     }
 
     // Request storage permission
-    var storageStatus = await Permission.storage.request();
-    if (storageStatus.isGranted) {
-      print('Storage permission granted');
-    } else if (await Permission.storage.isRestricted) {
-      print('Storage permission is restricted');
+    if (await Permission.storage.isGranted) {
+      print('Storage permission already granted');
     } else {
-      // Handle Android 13+ permissions
-      var manageStorageStatus =
-          await Permission.manageExternalStorage.request();
-
-      if (manageStorageStatus.isGranted) {
-        print('Manage external storage permission granted');
-      } else if (manageStorageStatus.isPermanentlyDenied) {
-        openAppSettings();
+      var storageStatus = await Permission.storage.request();
+      if (storageStatus.isPermanentlyDenied) {
+        controller.showPermissionDialog('Storage', context);
+      } else if (storageStatus.isGranted) {
+        print('Storage permission granted');
+      } else if (await Permission.storage.isRestricted) {
+        print('Storage permission is restricted');
       } else {
-        print('Manage external storage permission denied');
+        var manageStorageStatus =
+            await Permission.manageExternalStorage.request();
+        if (manageStorageStatus.isPermanentlyDenied) {
+          controller.showPermissionDialog('Manage External Storage', context);
+        } else if (manageStorageStatus.isGranted) {
+          print('Manage external storage permission granted');
+        } else {
+          print('Manage external storage permission denied');
+        }
       }
     }
 
     // Request microphone permission
-    var microphoneStatus = await Permission.microphone.request();
-    if (microphoneStatus.isGranted) {
-      print('Microphone permission granted');
-    } else if (microphoneStatus.isDenied) {
-      print('Microphone permission denied');
+    if (await Permission.microphone.isGranted) {
+      print('Microphone permission already granted');
+    } else {
+      var microphoneStatus = await Permission.microphone.request();
+      if (microphoneStatus.isPermanentlyDenied) {
+        controller.showPermissionDialog('Microphone', context);
+      } else if (microphoneStatus.isGranted) {
+        print('Microphone permission granted');
+      } else if (microphoneStatus.isDenied) {
+        print('Microphone permission denied');
+      }
     }
 
     // Speaker permission (typically implicitly granted when using audio output)
@@ -253,7 +310,9 @@ class AudioCallPageState extends State<AudioCallPage> {
   @override
   void initState() {
     super.initState();
-    _requestPermissions();
+    // _requestPermissions();
+    _startCallIfPermitted();
+
     channelName = generateChannelName(widget.caller, widget.receiver);
     print('channel name is $channelName');
     fetchAgoraToken().then((value) {

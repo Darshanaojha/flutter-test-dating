@@ -71,6 +71,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
         isLatLongFetched.value = true;
         print('set to true');
       } else {
+        isLatLongFetched.value = false;
         showErrorDialog('No location found for the provided address..');
       }
     } catch (e) {
@@ -451,6 +452,10 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                                         .userRegistrationRequest.password !=
                                     confirmPassword.text) {
                                   failure('Failed', 'Passwords do not match!');
+                                  return;
+                                }
+                                if(isLatLongFetched.value == false) {
+                                  failure('Location', 'Please enter valid city/address.');
                                   return;
                                 }
                                 Get.to(MultiStepFormPage());

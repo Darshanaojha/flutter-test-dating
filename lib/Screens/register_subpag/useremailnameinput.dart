@@ -20,7 +20,7 @@ class UserInputPageState extends State<UserInputPage>
   late AnimationController animationController;
   late Animation<double> fadeInAnimation;
 
-  String selectedCountryCode = '+1';
+  String selectedCountryCode = '+91';
 
   @override
   void initState() {
@@ -167,7 +167,7 @@ class UserInputPageState extends State<UserInputPage>
                       child: CountryCodePicker(
                         onChanged: (country) {
                           setState(() {
-                            selectedCountryCode = country.dialCode ?? '+1';
+                            selectedCountryCode = country.dialCode ?? '+91';
                             controller.userRegistrationRequest.countryCode =
                                 selectedCountryCode;
                           });
