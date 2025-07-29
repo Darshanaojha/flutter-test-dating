@@ -65,7 +65,7 @@ class HomePageState extends State<HomePage>
   @override
   void initState() {
     super.initState();
-
+    
     _animationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 300),
@@ -94,6 +94,7 @@ class HomePageState extends State<HomePage>
       }
     });
   }
+
 
   initialize() async {
     WebSocketService().connect(controller.token.value);
@@ -914,7 +915,7 @@ class HomePageState extends State<HomePage>
                     ),
                     SizedBox(height: size.height * 0.02),
                     Center(
-                      child: Container(
+                      child: SizedBox(
                         width: MediaQuery.of(context).size.width *
                             0.9, // Set your desired width here
                         child: Divider(
@@ -973,7 +974,7 @@ class HomePageState extends State<HomePage>
                     //looking for
                     SizedBox(height: size.height * 0.02),
                     Center(
-                      child: Container(
+                      child: SizedBox(
                         width: MediaQuery.of(context).size.width *
                             0.9, // Set your desired width here
                         child: Divider(
@@ -1029,7 +1030,7 @@ class HomePageState extends State<HomePage>
                     //subgender
                     SizedBox(height: size.height * 0.02),
                     Center(
-                      child: Container(
+                      child: SizedBox(
                         width: MediaQuery.of(context).size.width *
                             0.9, // Set your desired width here
                         child: Divider(
@@ -1130,6 +1131,7 @@ class HomePageState extends State<HomePage>
                             ],
                           ),
                           // Favourite Button
+                          if(selectedFilter.value != 2)
                           Column(
                             children: [
                               GestureDetector(

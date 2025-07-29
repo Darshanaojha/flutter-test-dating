@@ -14,7 +14,6 @@ import 'Orders/OrdersViewScreen.dart';
 import 'Transactions/TransactionsViewScreen.dart';
 import 'Wallet/WalletScreen.dart';
 import 'editprofile/edituserprofile.dart';
-import 'membership/userselectedplan.dart';
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});

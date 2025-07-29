@@ -1770,8 +1770,7 @@ class Controller extends GetxController {
             if (favouriteItem.userId.toString() != " " &&
                 !seenFavouriteIds.contains(favouriteItem.userId.toString())) {
               targetList.add(favouriteItem);
-              seenFavouriteIds
-                  .add(favouriteItem.userId.toString()); 
+              seenFavouriteIds.add(favouriteItem.userId.toString());
             }
           }
         }
@@ -1823,6 +1822,18 @@ class Controller extends GetxController {
   // }
 
   SuggestedUser convertFavouriteToSuggestedUser(Favourite favourite) {
+    // Fix status mapping for UI compatibility
+    String? status = favourite.status == "1"
+        ? "online"
+        : (favourite.status == "0" ? "offline" : favourite.status);
+
+    // Fix profile image URL if needed
+    String? profileImage = favourite.profileImage;
+    if (profileImage != null && !profileImage.startsWith('http')) {
+      profileImage =
+          "http://192.168.1.27/dating_backend_springboot/uploads/user_pics/$profileImage";
+    }
+
     return SuggestedUser(
       id: favourite.id,
       userId: favourite.userId,
@@ -1830,37 +1841,37 @@ class Controller extends GetxController {
       dob: favourite.dob,
       username: favourite.username,
       city: favourite.city,
-      images: favourite.images ?? [],
-      status: favourite.status,
+      images: favourite.images,
+      status: status,
       created: favourite.created,
       updated: favourite.updated,
-      email: null,
-      mobile: null,
-      address: null,
-      gender: null,
-      subGender: null,
-      countryId: null,
-      password: null,
-      latitude: null,
-      longitude: null,
-      otp: null,
-      type: null,
-      nickname: null,
-      interest: null,
-      bio: null,
-      emailAlerts: null,
-      lookingFor: null,
-      profileImage: null,
-      userActiveStatus: null,
-      statusSetting: null,
-      accountVerificationStatus: null,
-      accountHighlightStatus: null,
-      genderName: null,
-      subGenderName: null,
-      countryName: null,
-      preferenceId: null,
-      desiresId: null,
-      langId: null,
+      email: favourite.email,
+      mobile: favourite.mobile,
+      address: favourite.address,
+      gender: favourite.gender,
+      subGender: favourite.subGender,
+      countryId: favourite.countryId,
+      password: favourite.password,
+      latitude: favourite.latitude,
+      longitude: favourite.longitude,
+      otp: favourite.otp,
+      type: favourite.type,
+      nickname: favourite.nickname,
+      interest: favourite.interest,
+      bio: favourite.bio,
+      emailAlerts: favourite.emailAlerts,
+      lookingFor: favourite.lookingFor,
+      profileImage: profileImage,
+      userActiveStatus: favourite.userActiveStatus,
+      statusSetting: favourite.statusSetting,
+      accountVerificationStatus: favourite.accountVerificationStatus,
+      accountHighlightStatus: favourite.accountHighlightStatus,
+      genderName: favourite.genderName,
+      subGenderName: favourite.subGenderName,
+      countryName: favourite.countryName,
+      preferenceId: favourite.preferenceId,
+      desiresId: favourite.desiresId,
+      langId: favourite.langId,
     );
   }
 
