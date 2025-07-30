@@ -135,6 +135,10 @@ class AppColors {
     Color(0xFF441752),
   ];
 
+  static Color darkGradientColor = Color(0xFF441752); // Darkest purple
+  static Color mediumGradientColor = Color(0xFFA888B5); // Medium purple
+  static Color lightGradientColor = Color(0xFFEFB6C8); // Lightest pink
+
   // static List<Color> gradientColor = <Color>[
   //   Color(0xff1f005c),
   //   Color(0xff5b0060),

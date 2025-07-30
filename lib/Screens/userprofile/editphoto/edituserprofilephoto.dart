@@ -281,7 +281,13 @@ class EditPhotosPageState extends State<EditPhotosPage> {
     UpdateProfilePhotoRequest updateProfilePhotoRequest =
         UpdateProfilePhotoRequest();
 
+    print('updatedImages length is ${updatedImages.length}');
+
     for (int i = 0; i < updatedImages.length; i++) {
+      if (updatedImages[i].value.isEmpty) {
+        failure("Error", "Please upload all 6 photos.");
+        return;
+      }
       if (!indexUpdated.contains(i)) {
         String imageUrl = updatedImages[i].toString();
         String base64Image = await getAndSetImageAsBase64(imageUrl);
@@ -571,14 +577,23 @@ class EditPhotosPageState extends State<EditPhotosPage> {
             ),
             SizedBox(height: screenSize.height * 0.06),
             Center(
-              child: ElevatedButton(
-                onPressed: onSubmit,
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 18, horizontal: 40),
-                  backgroundColor: AppColors.buttonColor,
-                  foregroundColor: AppColors.textColor,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment(0.8, 1),
+                      colors: AppColors.gradientColor),
+                  borderRadius: BorderRadius.circular(30),
                 ),
-                child: Text('Submit', style: AppTextStyles.buttonText),
+                child: ElevatedButton(
+                  onPressed: onSubmit,
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 18, horizontal: 40),
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: AppColors.textColor,
+                  ),
+                  child: Text('Submit', style: AppTextStyles.buttonText),
+                ),
               ),
             ),
           ],

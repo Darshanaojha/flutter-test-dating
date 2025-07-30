@@ -124,13 +124,13 @@ class MessageRequestPageState extends State<MessageRequestPage> {
                       final messageRequest = controller.messageRequest[index];
 
                       return Card(
-                        margin: EdgeInsets.only(bottom: 10),
+                        // margin: EdgeInsets.only(bottom: 5),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                         elevation: 4,
                         child: ListTile(
-                          contentPadding: EdgeInsets.all(10),
+                          contentPadding: EdgeInsets.all(5),
                           leading: GestureDetector(
                             onTap: () =>
                                 showImageDialog(messageRequest.profileImage),

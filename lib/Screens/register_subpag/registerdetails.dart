@@ -33,6 +33,11 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
       id: '', name: '', countryCode: '', status: '', created: '', updated: '');
   TextEditingController confirmPassword = TextEditingController();
   Timer? debounce;
+
+  // Add search controller and query for bottom sheet search
+  TextEditingController bottomSheetSearchController = TextEditingController();
+  String bottomSheetSearchQuery = '';
+
   @override
   void initState() {
     super.initState();
@@ -76,7 +81,8 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
       }
     } catch (e) {
       print('location error -> ${e.toString()}');
-      showErrorDialog('Error fetching location: $e');
+      showErrorDialog(
+          'Error fetching location: Please enter valid city/address.');
     }
   }
 
@@ -454,8 +460,9 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                                   failure('Failed', 'Passwords do not match!');
                                   return;
                                 }
-                                if(isLatLongFetched.value == false) {
-                                  failure('Location', 'Please enter valid city/address.');
+                                if (isLatLongFetched.value == false) {
+                                  failure('Location',
+                                      'Please enter valid city/address.');
                                   return;
                                 }
                                 Get.to(MultiStepFormPage());
@@ -958,6 +965,8 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     );
   }
 
+  Timer? _searchDebounce;
+
   // Method to show the bottom sheet
   void _showBottomSheet<T>(
     List<T> items,
@@ -965,35 +974,99 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     Function(T?) onChanged,
     String Function(T)? displayValue,
   ) {
+    bottomSheetSearchController.clear();
+    bottomSheetSearchQuery = '';
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return Container(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Text("Select Country",
-                  style: Theme.of(context).textTheme.bodySmall),
-              SizedBox(height: 8.0),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    T item = items[index];
-                    return ListTile(
-                      title: Text(displayValue != null
-                          ? displayValue(item)
-                          : item.toString()),
-                      onTap: () {
-                        onChanged(item);
-                        Navigator.pop(context);
-                      },
-                    );
-                  },
-                ),
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            // Filter items based on search query
+            List<T> filteredItems = items.where((item) {
+              if (bottomSheetSearchQuery.isEmpty) return true;
+              final itemText =
+                  displayValue != null ? displayValue(item) : item.toString();
+              return itemText
+                  .toLowerCase()
+                  .contains(bottomSheetSearchQuery.toLowerCase());
+            }).toList();
+
+            return Container(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Text("Select Country",
+                      style: Theme.of(context).textTheme.bodySmall),
+                  SizedBox(height: 8.0),
+                  // Add search box
+                  TextField(
+                    controller: bottomSheetSearchController,
+                    cursorColor: AppColors.lightGradientColor,
+                    decoration: InputDecoration(
+                      floatingLabelStyle: TextStyle(
+                        color: AppColors.lightGradientColor,
+                      ),
+                      labelText: 'Search country',
+                      prefixIcon: Icon(Icons.search),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide:
+                            BorderSide(color: AppColors.lightGradientColor),
+                      ),
+                      focusColor: AppColors.lightGradientColor,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onChanged: (value) {
+                      if (_searchDebounce?.isActive ?? false) {
+                        _searchDebounce?.cancel();
+                      }
+                      _searchDebounce =
+                          Timer(const Duration(milliseconds: 300), () {
+                        setModalState(() {
+                          bottomSheetSearchQuery = value.trim();
+                        });
+                      });
+                    },
+                  ),
+                  SizedBox(height: 8.0),
+                  Expanded(
+                    child: filteredItems.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No results found',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: filteredItems.length,
+                            itemBuilder: (context, index) {
+                              T item = filteredItems[index];
+                              return ListTile(
+                                title: Text(displayValue != null
+                                    ? displayValue(item)
+                                    : item.toString()),
+                                onTap: () {
+                                  onChanged(item);
+                                  Navigator.pop(context);
+                                  // Clear search query and controller when closing
+                                  setState(() {
+                                    bottomSheetSearchQuery = '';
+                                    bottomSheetSearchController.clear();
+                                  });
+                                },
+                              );
+                            },
+                          ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );

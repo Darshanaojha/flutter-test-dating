@@ -48,7 +48,6 @@ class ChatHistoryPayload {
 }
 
 class UserConnections {
-
   String id;
   String userId;
   String conectionId;
@@ -61,7 +60,7 @@ class UserConnections {
   String profileImage;
   String lastSeen;
   String useractivestatus;
-
+  String isOnline;
 
   UserConnections({
     required this.id,
@@ -76,6 +75,7 @@ class UserConnections {
     required this.profileImage,
     required this.lastSeen,
     required this.useractivestatus,
+    required this.isOnline,
   });
 
   factory UserConnections.fromJson(Map<String, dynamic> json) {
@@ -92,6 +92,7 @@ class UserConnections {
       profileImage: json['profile_image'],
       lastSeen: json['last_seen'],
       useractivestatus: json['user_active_status'],
+      isOnline: json['is_online'] ?? "offline", 
     );
   }
 }

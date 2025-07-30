@@ -53,6 +53,8 @@ class EditProfilePageState extends State<EditProfilePage>
   RxList<SubGenderRequest> subGenders = <SubGenderRequest>[].obs;
   Rx<String> selectedOption = ''.obs;
   Rx<Gender?> selectedGender = Rx<Gender?>(null);
+
+  // Removed duplicate initState method to fix duplicate definition error
   RxString selectedSubGender = ''.obs;
   List<String> interestsList = [];
   RxList<bool> preferencesSelectedOptions = <bool>[].obs;
@@ -102,17 +104,20 @@ class EditProfilePageState extends State<EditProfilePage>
   }
 
   late Future<bool> _fetchProfileFuture;
+
+  Future<bool> _loadProfileData() async {
+    bool success = await fetchAllData();
+    if (success) {
+      await initialize();
+    }
+    return success;
+  }
+
   @override
   void initState() {
     super.initState();
-    _fetchProfileFuture = fetchAllData();
-    _fetchProfileFuture.then((success) {
-      if (success) {
-        initialize();
-      } else {
-        failure('Error', 'Failed to fetch all data.');
-      }
-    });
+    _fetchProfileFuture = _loadProfileData();
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
@@ -146,7 +151,6 @@ class EditProfilePageState extends State<EditProfilePage>
         ],
       ),
     );
-    selectedOptions = RxList<bool>.filled(controller.desires.length, false);
     selectedDesires = controller.userDesire;
     interestController.addListener(() {
       showAddHint.value = interestController.text.trim().isNotEmpty;
@@ -161,15 +165,12 @@ class EditProfilePageState extends State<EditProfilePage>
   }
 
   Future<bool> fetchAllData() async {
-    controller.fetchProfile().then((value) {
-      if (value == true) {
-        controller.userProfileUpdateRequest.preferences =
-            controller.userPreferences.map((p) => p.preferenceId).toList();
-        controller.userProfileUpdateRequest.lang =
-            controller.userLang.map((l) => l.langId).toList();
-      }
-      return false;
-    });
+    if (await controller.fetchProfile()) {
+      controller.userProfileUpdateRequest.preferences =
+          controller.userPreferences.map((p) => p.preferenceId).toList();
+      controller.userProfileUpdateRequest.lang =
+          controller.userLang.map((l) => l.langId).toList();
+    }
     if (!await controller.fetchCountries()) return false;
     if (!await controller.fetchGenders()) return false;
     if (!await controller.fetchPreferences()) return false;
@@ -184,23 +185,23 @@ class EditProfilePageState extends State<EditProfilePage>
       debounce?.cancel();
       isLatLongFetched.value = false;
 
-      if (controller.userData.isNotEmpty) {
-        String? genderFromUserData = controller.userData.first.gender;
-        if (genderFromUserData.isNotEmpty) {
-          selectedGender.value = controller.genders.firstWhere(
-            (gender) => gender.id == genderFromUserData,
-            orElse: () => controller.genders.first,
-          );
-          // await controller.fetchSubGender(SubGenderRequest(
-          //   genderId: genderFromUserData,
-          // ));
-        }
+      Gender? initialGender;
+      if (controller.userData.isNotEmpty &&
+          controller.userData.first.gender.isNotEmpty) {
+        final userGenderId = controller.userData.first.gender;
+        initialGender = controller.genders.firstWhere(
+          (g) => g.id == userGenderId,
+          orElse: () => controller.genders.first,
+        );
+      } else if (controller.genders.isNotEmpty) {
+        initialGender = controller.genders.first;
       }
-      if (controller.genders.isNotEmpty) {
-        selectedGender.value = controller.genders.first;
-        print("Gender Id ${controller.genders.first.id}");
+
+      selectedGender.value = initialGender;
+
+      if (selectedGender.value != null) {
         await controller.fetchSubGender(SubGenderRequest(
-          genderId: controller.genders.first.id,
+          genderId: selectedGender.value!.id,
         ));
       }
 
@@ -230,6 +231,9 @@ class EditProfilePageState extends State<EditProfilePage>
       longitudeController.text = controller.userData.first.longitude.isNotEmpty
           ? controller.userData.first.longitude
           : controller.userProfileUpdateRequest.longitude;
+
+      selectedOptions = RxList<bool>.filled(controller.desires.length, false);
+      selectedDesires = controller.userDesire;
     } catch (e) {
       failure('Error', e.toString());
     }
@@ -681,7 +685,6 @@ class EditProfilePageState extends State<EditProfilePage>
     double bodyFontSize = screenWidth * 0.03;
 
     // double chipFontSize = screenWidth * 0.03;
-    final selectedGender = Rx<Gender?>(null);
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.transparent, // Transparent for gradient
@@ -750,7 +753,7 @@ class EditProfilePageState extends State<EditProfilePage>
                   ),
                 );
               }
-              if (!snapshot.hasData || snapshot.data == null) {
+              if (!snapshot.hasData || snapshot.data != true) {
                 return Center(
                   child: Text(
                     'No data available.',
@@ -2459,7 +2462,7 @@ class EditProfilePageState extends State<EditProfilePage>
 // RxList<UserDesire> selectedDesires = controller.userDesire;
   Widget buildRelationshipStatusInterestStep(
       BuildContext context, Size screenSize) {
-    Controller controller = Get.put(Controller());
+    // Removed initialization here to avoid late initialization error
 
     controller.userProfileUpdateRequest.desires =
         selectedDesires.map((userDesire) => userDesire.desiresId).toList();
