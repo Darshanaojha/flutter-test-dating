@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:swipe_cards/draggable_card.dart';
 import 'package:swipe_cards/swipe_cards.dart';
 import 'package:intl/intl.dart';
-
 import '../../Models/ResponseModels/user_suggestions_response_model.dart';
 
 class MySwipePage extends StatefulWidget {

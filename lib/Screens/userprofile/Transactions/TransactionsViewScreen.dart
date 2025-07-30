@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart'; // To format the currency
-import 'package:timeago/timeago.dart' as timeago;
-
+import 'package:intl/intl.dart';
 import '../../../Controllers/controller.dart';
 import '../../../constants.dart';
 
@@ -24,55 +22,72 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
   }
 
   Future<bool> initializeData() async {
-    if (!await controller.allTransactions()) return false;
-    return true;
+    return await controller.allTransactions();
   }
 
   double getResponsiveFontSize(BuildContext context, double scale) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    return screenWidth * scale;
+    return MediaQuery.of(context).size.width * scale;
   }
 
   double getResponsiveHeight(BuildContext context, double scale) {
-    double screenHeight = MediaQuery.of(context).size.height;
-    return screenHeight * scale;
+    return MediaQuery.of(context).size.height * scale;
   }
 
   Icon getStatusIcon(String status) {
     switch (status.toLowerCase()) {
-      case '1':
-        return Icon(Icons.arrow_upward_rounded, color: Colors.green, size: 28);
-      case '2':
-        return Icon(Icons.arrow_upward_rounded, color: Colors.amber, size: 28);
-      case '3':
-        return Icon(Icons.arrow_upward_rounded, color: Colors.red, size: 28);
+      case '1': // success
+        return Icon(Icons.arrow_upward_rounded, color: Colors.green, size: 22);
+      case '2': // pending
+        return Icon(Icons.arrow_upward_rounded, color: Colors.amber, size: 22);
+      case '3': // failed
+        return Icon(Icons.arrow_upward_rounded, color: Colors.red, size: 22);
       default:
-        return Icon(Icons.arrow_upward_rounded, color: Colors.grey, size: 28);
+        return Icon(Icons.arrow_upward_rounded, color: Colors.grey, size: 22);
+    }
+  }
+
+  String getStatusText(String status) {
+    switch (status.toLowerCase()) {
+      case '1':
+        return 'Active';
+      case '2':
+        return 'Pending';
+      case '3':
+        return 'Failed';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  Color getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case '1':
+        return Colors.green;
+      case '2':
+        return Colors.amber;
+      case '3':
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Builder(
-          builder: (context) {
-            double fontSize =
-                MediaQuery.of(context).size.width * 0.05; // ~5% of screen width
-            return Text(
-              'All Transactions',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: fontSize,
-                color: AppColors.textColor,
-              ),
-            );
-          },
+        title: Text(
+          'All Transactions',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: getResponsiveFontSize(context, 0.05),
+            color: AppColors.textColor,
+          ),
         ),
-        centerTitle: true, // To center the title as in your SafeArea + Center
-        backgroundColor:
-            Colors.transparent, // Needed to show gradient from flexibleSpace
-        elevation: 0, // Remove default shadow to use custom shadow
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -107,91 +122,227 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
-
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(
+                child: Text('Error: \${snapshot.error}',
+                    style: TextStyle(color: Colors.white)));
           }
-
           if (controller.transactions.isEmpty) {
-            return Center(child: Text('No Transaction Found.'));
+            return Center(
+                child: Text('No Transaction Found.',
+                    style: TextStyle(color: Colors.white)));
           }
 
-          return ListView.separated(
+          return ListView.builder(
             itemCount: controller.transactions.length,
-            separatorBuilder: (context, index) => SizedBox(
-              height: getResponsiveHeight(
-                  context, 0.004), // smaller space between cards
-            ),
             itemBuilder: (context, index) {
               var transaction = controller.transactions[index];
               double amount = double.tryParse(transaction.amount) ?? 0.0;
               var formattedAmount =
                   NumberFormat.currency(symbol: '₹').format(amount);
 
-              return InkWell(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (_) => Dialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6),
+                child: Stack(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: AppColors.gradientBackgroundList,
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                       child: Container(
+                        margin: EdgeInsets.all(2.5),
+                        padding: EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: AppColors.gradientBackgroundList,
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        padding: EdgeInsets.all(16),
-                        child: SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Center(
-                                child: Text(
-                                  "Transaction Details",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
+                        child: InkWell(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => Dialog(
+                                backgroundColor: Colors.transparent,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: AppColors.gradientBackgroundList,
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  padding:
+                                      EdgeInsets.all(2.5), // Border thickness
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.black,
+                                      borderRadius: BorderRadius.circular(18),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 24),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Center(
+                                          child: Text(
+                                            "Transaction Details",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: getResponsiveFontSize(
+                                                  context, 0.05),
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(height: 16),
+                                        Text(
+                                            'Transaction ID: ${transaction.razorpayOrderId ?? "-"}',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16)),
+                                        SizedBox(height: 6),
+                                        Text('Order ID: ${transaction.orderId}',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16)),
+                                        SizedBox(height: 6),
+                                        Text('Amount: $formattedAmount',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16)),
+                                        SizedBox(height: 6),
+                                        Text(
+                                            'Payment Status: ${getStatusText(transaction.paymentStatus)}',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16)),
+                                        SizedBox(height: 6),
+                                        Text(
+                                            'Time: ${DateFormat('dd MMM yyyy, hh:mm a').format(DateTime.parse(transaction.created))}',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16)),
+                                        SizedBox(height: 6),
+                                        // Text('Updated: ${transaction.updated}',
+                                        // style: TextStyle(color: Colors.white, fontSize: 16)),
+                                        SizedBox(height: 20),
+                                        InkWell(
+                                          onTap: () => Navigator.pop(context),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          child: Container(
+                                            padding: EdgeInsets.all(
+                                                2.5), // Border thickness
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: AppColors
+                                                    .gradientBackgroundList,
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            child: Container(
+                                              width: double.infinity,
+                                              height: getResponsiveHeight(
+                                                  context, 0.04),
+                                              padding: EdgeInsets.symmetric(
+                                                  vertical: 6),
+                                              decoration: BoxDecoration(
+                                                color: Colors.black,
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                "Close",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize:
+                                                      getResponsiveFontSize(
+                                                          context, 0.038),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                              SizedBox(height: 12),
-                              Text(
-                                  'Transaction ID: ${transaction.razorpayOrderId ?? "-"}',
-                                  style: TextStyle(color: Colors.white)),
-                              Text('Order ID: ${transaction.orderId}',
-                                  style: TextStyle(color: Colors.white)),
-                              // Text(
-                              //     'Payment Method: ${transaction.paymentMethod ?? "-"}',
-                              //     style: TextStyle(color: Colors.white)),
-                              Text('Amount: $formattedAmount',
-                                  style: TextStyle(color: Colors.white)),
-                              Text(
-                                'Payment Status: ${transaction.paymentStatus == '1' ? 'Success' : transaction.paymentStatus == '2' ? 'Pending' : transaction.paymentStatus == '3' ? 'Cancel' : 'Unknown'}',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              // Text('Message: ${transaction.message}',
-                              //     style: TextStyle(color: Colors.white)),
-                              Text('Created: ${transaction.created}',
-                                  style: TextStyle(color: Colors.white)),
-                              Text('Updated: ${transaction.updated}',
-                                  style: TextStyle(color: Colors.white)),
-                              SizedBox(height: 16),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: OutlinedButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text(
-                                    "Close",
-                                    style:
-                                        TextStyle(color: AppColors.textColor),
+                            );
+                          },
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 6,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: AppColors.gradientBackgroundList,
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
                                   ),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              CircleAvatar(
+                                backgroundColor: Colors.white.withOpacity(0.15),
+                                radius: 20,
+                                child: getStatusIcon(transaction.paymentStatus),
+                              ),
+                              SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'ID: ${transaction.razorpayOrderId ?? "-"}',
+                                      style: TextStyle(
+                                        fontSize: getResponsiveFontSize(
+                                            context, 0.034),
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      formattedAmount,
+                                      style: TextStyle(
+                                        fontSize: getResponsiveFontSize(
+                                            context, 0.032),
+                                        color: Colors.white70,
+                                      ),
+                                    ),
+                                    SizedBox(height: 6),
+                                    Align(
+                                      alignment: Alignment.bottomRight,
+                                      child: Text(
+                                        DateFormat('dd MMM yyyy').format(
+                                            DateTime.parse(
+                                                transaction.updated)),
+                                        style: TextStyle(
+                                          fontSize: getResponsiveFontSize(
+                                              context, 0.025),
+                                          color: Colors.white54,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -199,98 +350,28 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
                         ),
                       ),
                     ),
-                  );
-                },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: getResponsiveHeight(context, 0.015),
-                    vertical:
-                        getResponsiveHeight(context, 0.0001), // reduced spacing
-                  ),
-                  child: Card(
-                    elevation: 8,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: AppColors.gradientBackgroundList,
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: getStatusColor(transaction.paymentStatus),
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(12),
+                            bottomLeft: Radius.circular(12),
+                          ),
                         ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding:
-                          EdgeInsets.all(getResponsiveHeight(context, 0.018)),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // Status icon on left
-                          Padding(
-                            padding: EdgeInsets.only(
-                              right: getResponsiveHeight(context, 0.018),
-                            ),
-                            child: CircleAvatar(
-                              radius: getResponsiveHeight(context, 0.035),
-                              backgroundColor: Colors.white.withOpacity(0.2),
-                              child: getStatusIcon(transaction.paymentStatus),
-                            ),
-                          ),
-
-                          // Right side content
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'ID : ${transaction.razorpayOrderId ?? "-"}',
-                                  style: TextStyle(
-                                    fontSize:
-                                        getResponsiveFontSize(context, 0.036),
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                SizedBox(
-                                    height:
-                                        getResponsiveHeight(context, 0.008)),
-                                Text(
-                                  formattedAmount,
-                                  style: TextStyle(
-                                    fontSize:
-                                        getResponsiveFontSize(context, 0.035),
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                SizedBox(
-                                    height:
-                                        getResponsiveHeight(context, 0.008)),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      timeago.format(
-                                        DateTime.parse(transaction.updated),
-                                        locale: 'en_short_numeric',
-                                        allowFromNow: true,
-                                      ),
-                                      style: TextStyle(
-                                        fontSize: getResponsiveFontSize(
-                                            context, 0.025),
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                        child: Text(
+                          getStatusText(transaction.paymentStatus),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: getResponsiveFontSize(context, 0.035)),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               );
             },

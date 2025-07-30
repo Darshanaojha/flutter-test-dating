@@ -1,8 +1,9 @@
-import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../../Controllers/controller.dart';
+import 'package:dating_application/constants.dart';
+import 'package:intl/intl.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class AllOrdersPage extends StatefulWidget {
   const AllOrdersPage({super.key});
@@ -22,8 +23,7 @@ class AllOrdersPageState extends State<AllOrdersPage> {
   }
 
   Future<bool> initializeData() async {
-    if (!await controller.allOrders()) return false;
-    return true;
+    return await controller.allOrders();
   }
 
   @override
@@ -31,19 +31,13 @@ class AllOrdersPageState extends State<AllOrdersPage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Builder(
-          builder: (context) {
-            double fontSize =
-                MediaQuery.of(context).size.width * 0.05; // ~5% of screen width
-            return Text(
-              'Subscription History',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: fontSize,
-                color: AppColors.textColor,
-              ),
-            );
-          },
+        title: Text(
+          'Subscription History',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: MediaQuery.of(context).size.width * 0.05,
+            color: AppColors.textColor,
+          ),
         ),
         foregroundColor: AppColors.textColor,
         backgroundColor: Colors.transparent,
@@ -55,13 +49,13 @@ class AllOrdersPageState extends State<AllOrdersPage> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.only(
+            borderRadius: const BorderRadius.only(
               bottomLeft: Radius.circular(40),
               bottomRight: Radius.circular(40),
             ),
           ),
         ),
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(40),
             bottomRight: Radius.circular(40),
@@ -72,7 +66,7 @@ class AllOrdersPageState extends State<AllOrdersPage> {
         future: _fetchallorders,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.hasError) {
@@ -80,188 +74,37 @@ class AllOrdersPageState extends State<AllOrdersPage> {
           }
 
           if (!snapshot.hasData || !snapshot.data!) {
-            return Center(child: Text('No Orders Found.'));
+            return const Center(child: Text('No Orders Found.'));
           }
 
           return Obx(() {
             if (controller.orders.isEmpty) {
-              return Center(child: Text('No Orders Found.'));
+              return const Center(child: Text('No Orders Found.'));
             }
 
-            return ListView.builder(
-              itemCount: controller.orders.length,
-              itemBuilder: (context, index) {
-                var order = controller.orders[index];
-                bool isActive = order.status == '1';
+            final reversedOrders = controller.orders.reversed.toList();
 
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: getResponsiveHeight(context, 0.02),
-                      vertical: getResponsiveHeight(context, 0.008)),
-                  child: GestureDetector(
-                    onTap: () {
-                      // Add any onTap action here if needed
-                    },
-                    child: Stack(
-                      children: [
-                        AnimatedContainer(
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment(0.8, 1),
-                              colors: AppColors.gradientBackgroundList,
-                            ),
-                          ),
-                          padding: EdgeInsets.all(
-                              getResponsiveHeight(context, 0.03)),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Row for avatar icon + title
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  CircleAvatar(
-                                    radius: getResponsiveHeight(context, 0.035),
-                                    backgroundColor: Colors.white24,
-                                    child: Icon(
-                                      Icons.card_giftcard,
-                                      color: Colors.white,
-                                      size: getResponsiveHeight(context, 0.035),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                      width:
-                                          getResponsiveHeight(context, 0.02)),
-                                  Expanded(
-                                    child: Text(
-                                      order.packageTitle,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: getResponsiveFontSize(
-                                            context, 0.055),
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                        shadows: [
-                                          Shadow(
-                                            offset: Offset(0, 1),
-                                            blurRadius: 5,
-                                            color: Colors.black54,
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                  height: getResponsiveHeight(context, 0.02)),
-                              Text(
-                                'Category: ${order.packageCategoryTitle}',
-                                style: TextStyle(
-                                  fontSize:
-                                      getResponsiveFontSize(context, 0.037),
-                                  color: Colors.white70,
-                                ),
-                              ),
-                              SizedBox(
-                                  height: getResponsiveHeight(context, 0.015)),
-                              Row(
-                                children: [
-                                  Icon(Icons.currency_rupee,
-                                      color: Colors.white70,
-                                      size: getResponsiveFontSize(
-                                          context, 0.045)),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    ' ${order.actualAmount}',
-                                    style: TextStyle(
-                                      fontSize:
-                                          getResponsiveFontSize(context, 0.037),
-                                      color: Colors.white70,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Spacer(),
-                                  Icon(Icons.schedule,
-                                      color: Colors.white70,
-                                      size: getResponsiveFontSize(
-                                          context, 0.045)),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    '${order.days} ${order.unit}',
-                                    style: TextStyle(
-                                      fontSize:
-                                          getResponsiveFontSize(context, 0.037),
-                                      color: Colors.white70,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                  height: getResponsiveHeight(context, 0.02)),
-                              Divider(
-                                color: Colors.white30,
-                                thickness: 1,
-                                height: 1,
-                              ),
-                              // SizedBox(
-                              //     height: getResponsiveHeight(context, 0.02)),
-                            ],
-                          ),
-                        ),
-                        Positioned(
-                          top: getResponsiveHeight(context, 0.015),
-                          right: getResponsiveHeight(context, 0.015),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors
-                                  .transparent, // or Colors.white.withOpacity(0.1) if you want slight fill
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
-                                color: isActive
-                                    ? Colors.amber.shade400
-                                    : Colors.amber.shade400,
-                                width: 2,
-                              ),
-                            ),
-                            padding: EdgeInsets.symmetric(
-                              vertical: getResponsiveHeight(context, 0.005),
-                              horizontal: getResponsiveHeight(context, 0.009),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                // Optional Icon here
-                                // Icon(
-                                //   isActive ? Icons.check_circle : Icons.cancel,
-                                //   color: isActive ? Colors.greenAccent : Colors.redAccent,
-                                //   size: getResponsiveFontSize(context, 0.045),
-                                // ),
-                                // SizedBox(width: 6),
-                                Text(
-                                  isActive ? 'Active' : 'Inactive',
-                                  style: TextStyle(
-                                    fontSize:
-                                        getResponsiveFontSize(context, 0.038),
-                                    //fontWeight: FontWeight.bold,
-                                    color: isActive
-                                        ? Colors.greenAccent
-                                        : Colors.amber.shade400,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+            return ListView.builder(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              itemCount: reversedOrders.length,
+              itemBuilder: (context, index) {
+                var order = reversedOrders[index];
+
+                DateTime startDate = DateTime.parse(order.created);
+                DateTime endDate = order.unit.toLowerCase().contains('day')
+                    ? startDate.add(Duration(days: int.tryParse(order.days) ?? 0))
+                    : startDate;
+
+                String formattedStartDate = DateFormat('d-MM-yy').format(startDate);
+                String formattedEndDate = DateFormat('d-MM-yy').format(endDate);
+
+                bool isActive = DateTime.now().isBefore(endDate);
+
+                return SubscriptionTile(
+                  isActive: isActive,
+                  from: formattedStartDate,
+                  to: formattedEndDate,
+                  title: order.packageTitle,
                 );
               },
             );
@@ -272,12 +115,142 @@ class AllOrdersPageState extends State<AllOrdersPage> {
   }
 }
 
-double getResponsiveFontSize(BuildContext context, double scale) {
-  double screenWidth = MediaQuery.of(context).size.width;
-  return screenWidth * scale;
-}
+class SubscriptionTile extends StatelessWidget {
+  final bool isActive;
+  final String from;
+  final String to;
+  final String title;
 
-double getResponsiveHeight(BuildContext context, double scale) {
-  double screenHeight = MediaQuery.of(context).size.height;
-  return screenHeight * scale;
+  const SubscriptionTile({
+    Key? key,
+    required this.isActive,
+    required this.from,
+    required this.to,
+    required this.title,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    Widget labelBadge() {
+      return isActive
+          ? Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: AppColors.gradientBackgroundList,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(12),
+                  bottomLeft: Radius.circular(8),
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              child: const Text(
+                'Active',
+                style: TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            )
+          : Container(
+              decoration: BoxDecoration(
+                color: AppColors.disabled,
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(12),
+                  bottomLeft: Radius.circular(8),
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              child: const Text(
+                'Expired',
+                style: TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            );
+    }
+
+    Widget innerContent(Color textColor) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const FaIcon(
+                        FontAwesomeIcons.crown,
+                        color: Colors.yellow,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 60),
+                          child: Text(
+                            title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: textColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Text('from ', style: TextStyle(fontStyle: FontStyle.italic)),
+                      Text(from, style: const TextStyle(color: Colors.white)),
+                      const Spacer(),
+                      const Text('to ', style: TextStyle(fontStyle: FontStyle.italic)),
+                      Text(to, style: const TextStyle(color: Colors.white)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              top: 0,
+              right: 0,
+              child: labelBadge(),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: isActive
+          ? Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: AppColors.gradientBackgroundList,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: innerContent(Colors.white),
+            )
+          : Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.disabled),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: innerContent(AppColors.disabled),
+            ),
+    );
+  }
 }
