@@ -167,11 +167,16 @@ class UserInputPageState extends State<UserInputPage>
                       child: CountryCodePicker(
                         onChanged: (country) {
                           setState(() {
-                            selectedCountryCode = country.dialCode ?? '+91';
+                            selectedCountryCode = country.dialCode ?? '+1';
                             controller.userRegistrationRequest.countryCode =
                                 selectedCountryCode;
                           });
                         },
+                        onInit: (value) => setState(() {
+                          selectedCountryCode = '+91';
+                          controller.userRegistrationRequest.countryCode =
+                              selectedCountryCode;
+                        }),
                         initialSelection: selectedCountryCode,
                         favorite: ['+91'],
                         textStyle: AppTextStyles.inputFieldText.copyWith(

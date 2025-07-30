@@ -1677,7 +1677,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
-  // languages 8
+  // Step 8 languages
   Widget buildUserLanguageStep(BuildContext context) {
     void updateSelectedStatus() {
       selectedLanguagesId.clear();
@@ -1945,7 +1945,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
-// step 9
+// step 9 bio
   RxString userDescription = ''.obs;
   final TextEditingController descriptionController = TextEditingController();
 
@@ -2091,6 +2091,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   Future<void> requestNotificationPermission() async {
     var status = await Permission.notification.request();
     notificationGranted.value = status.isGranted;
+    if (status.isPermanentlyDenied) {
+      // Open app settings if permanently denied
+      await openAppSettings();
+    }
     if (notificationGranted.value) {
       controller.userRegistrationRequest.emailAlerts = '1';
     } else {
@@ -2102,12 +2106,18 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   Future<void> requestLocationPermission() async {
     var status = await Permission.location.request();
     locationGranted.value = status.isGranted;
+    if (status.isPermanentlyDenied) {
+      await openAppSettings();
+    }
   }
 
 // Helper to request camera/gallery permission
   Future<void> requestCameraPermission() async {
     var status = await Permission.camera.request();
     cameraGranted.value = status.isGranted;
+    if (status.isPermanentlyDenied) {
+      await openAppSettings();
+    }
   }
 
   // step 10 Permissions

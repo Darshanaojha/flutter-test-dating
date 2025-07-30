@@ -256,7 +256,7 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
                                     height:
                                         getResponsiveHeight(context, 0.008)),
                                 Text(
-                                  '$formattedAmount',
+                                  formattedAmount,
                                   style: TextStyle(
                                     fontSize:
                                         getResponsiveFontSize(context, 0.035),
