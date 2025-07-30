@@ -283,12 +283,12 @@ class CreatorListPageState extends State<CreatorListPage> {
       int number =
           numVal is int ? numVal : int.tryParse(numVal.toString()) ?? 0;
 
-      if (number >= 1_000_000_000) {
-        return "${(number / 1_000_000_000).toStringAsFixed(1)}B";
-      } else if (number >= 1_000_000) {
-        return "${(number / 1_000_000).toStringAsFixed(1)}M";
-      } else if (number >= 1_000) {
-        return "${(number / 1_000).toStringAsFixed(1)}K";
+      if (number >= 1000000000) {
+        return "${(number / 1000000000).toStringAsFixed(1)}B";
+      } else if (number >= 1000000) {
+        return "${(number / 1000000).toStringAsFixed(1)}M";
+      } else if (number >= 1000) {
+        return "${(number / 1000).toStringAsFixed(1)}K";
       } else {
         return number.toString();
       }
