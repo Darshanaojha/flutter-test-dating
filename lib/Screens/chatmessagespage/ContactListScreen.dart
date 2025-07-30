@@ -38,6 +38,7 @@ class ContactListScreenState extends State<ContactListScreen> {
   Future<void> initialize() async {
     await controller.fetchalluserconnections();
     await controller.fetchProfile();
+    await controller.fetchallpingrequestmessage();
     setState(() {
       isLoading = false;
     });
@@ -69,7 +70,7 @@ class ContactListScreenState extends State<ContactListScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    double fontSize = size.width * 0.04;
+    double fontSize = size.width * 0.038;
 
     return Scaffold(
       backgroundColor: AppColors.primaryColor,
@@ -88,7 +89,7 @@ class ContactListScreenState extends State<ContactListScreen> {
       body: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -126,7 +127,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                               hintText: 'Search Contacts...',
                               hintStyle: AppTextStyles.customTextStyle(
                                 color: Colors.white70,
-                                fontSize: 16,
+                                fontSize: 14,
                               ),
                               prefixIcon:
                                   Icon(Icons.search, color: Colors.white70),
@@ -137,7 +138,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                 borderSide: BorderSide.none,
                               ),
                               contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 14, horizontal: 16),
+                                  vertical: 12, horizontal: 12),
                             ),
                           ),
                         ),
@@ -145,11 +146,11 @@ class ContactListScreenState extends State<ContactListScreen> {
                     ),
 
                     const SizedBox(
-                        width: 12), // Space between search and button
+                        width: 10), // Space between search and button
 
                     // Request Button
                     Container(
-                      height: 55,
+                      height: 50,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: AppColors.gradientBackgroundList,
@@ -167,13 +168,13 @@ class ContactListScreenState extends State<ContactListScreen> {
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
                           shape: const StadiumBorder(),
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
                         ),
                         child: Text(
-                          'Request',
+                          'Requests (${controller.messageRequest.length})',
                           style: AppTextStyles.buttonText.copyWith(
                             color: Colors.white,
-                            fontSize: fontSize,
+                            fontSize: fontSize - 3,
                           ),
                         ),
                       ),
@@ -181,7 +182,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                   ],
                 ),
 
-                SizedBox(height: 8),
+                SizedBox(height: 5),
                 // Section Buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -190,13 +191,12 @@ class ContactListScreenState extends State<ContactListScreen> {
                       '${getFilteredUsers().length} Members',
                       style: AppTextStyles.bodyText.copyWith(
                         color: Colors.white,
-                        fontWeight: FontWeight.bold,
                         fontSize: fontSize * 1.0,
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 1),
+                SizedBox(height: 5),
                 // Contact List
                 Expanded(
                   child: isLoading
@@ -207,176 +207,184 @@ class ContactListScreenState extends State<ContactListScreen> {
                             reverse: true,
                           ),
                         )
-                      : Builder(
-                          builder: (context) {
-                            if (selectedSection == 0) {
-                              return Obx(() => ListView.builder(
-                                    itemCount: getFilteredUsers().length,
-                                    itemBuilder: (context, index) {
-                                      final connection =
-                                          getFilteredUsers()[index];
-                                      return Card(
-                                        elevation: 4,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(24),
-                                        ),
-                                        margin:
-                                            EdgeInsets.symmetric(vertical: 4),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            gradient: LinearGradient(
-                                              colors: AppColors
-                                                  .gradientBackgroundList,
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
+                      : RefreshIndicator(
+                          color: AppColors.mediumGradientColor,
+                          onRefresh: initialize,
+                          child: Builder(
+                            builder: (context) {
+                              if (selectedSection == 0) {
+                                return Obx(() => ListView.builder(
+                                      itemCount: getFilteredUsers().length,
+                                      itemBuilder: (context, index) {
+                                        final connection =
+                                            getFilteredUsers()[index];
+                                        return Card(
+                                          elevation: 4,
+                                          shape: RoundedRectangleBorder(
                                             borderRadius:
                                                 BorderRadius.circular(24),
                                           ),
-                                          child: ListTile(
-                                            leading: GestureDetector(
-                                              onTap: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        FullScreenImagePage(
-                                                      imageUrl: connection
-                                                          .profileImage,
+                                          margin:
+                                              EdgeInsets.symmetric(vertical: 4),
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: AppColors
+                                                    .gradientBackgroundList,
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(24),
+                                            ),
+                                            child: ListTile(
+                                              leading: GestureDetector(
+                                                onTap: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          FullScreenImagePage(
+                                                        imageUrl: connection
+                                                            .profileImage,
+                                                      ),
                                                     ),
-                                                  ),
-                                                );
-                                              },
-                                              child: Hero(
-                                                tag: connection.profileImage,
-                                                child: Stack(
-                                                  children: [
-                                                    CircleAvatar(
-                                                      radius: 18.0,
-                                                      backgroundImage:
-                                                          NetworkImage(connection
-                                                              .profileImage),
-                                                    ),
-                                                    if (connection
-                                                            .useractivestatus ==
-                                                        "1")
-                                                      Positioned(
-                                                        top: 2,
-                                                        right: 2,
-                                                        child: Container(
-                                                          width: 12,
-                                                          height: 12,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Colors.green,
-                                                            shape:
-                                                                BoxShape.circle,
-                                                            border: Border.all(
+                                                  );
+                                                },
+                                                child: Hero(
+                                                  tag: connection.profileImage,
+                                                  child: Stack(
+                                                    children: [
+                                                      CircleAvatar(
+                                                        radius: 18.0,
+                                                        backgroundImage:
+                                                            NetworkImage(connection
+                                                                .profileImage),
+                                                      ),
+                                                      if (connection
+                                                              .isOnline ==
+                                                          "online")
+                                                        Positioned(
+                                                          top: 0,
+                                                          right: 2,
+                                                          child: Container(
+                                                            width: 12,
+                                                            height: 12,
+                                                            decoration:
+                                                                BoxDecoration(
                                                               color:
-                                                                  Colors.white,
-                                                              width: 1,
+                                                                  Colors.green,
+                                                              shape: BoxShape
+                                                                  .circle,
+                                                              border:
+                                                                  Border.all(
+                                                                color: Colors
+                                                                    .white,
+                                                                width: 1,
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
-                                                      ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                            title: Text(
-                                              connection.name,
-                                              style: AppTextStyles.labelText
-                                                  .copyWith(
-                                                color: Colors.white,
-                                                fontSize: fontSize * 1.1,
-                                              ),
-                                            ),
-                                            subtitle: Row(
-                                              children: [
-                                                Text(
-                                                  _formatLastSeen(
-                                                      connection.lastSeen),
-                                                  style: AppTextStyles.bodyText
-                                                      .copyWith(
-                                                    color: Colors.white70,
-                                                    fontSize: fontSize * 0.7,
+                                                    ],
                                                   ),
                                                 ),
-                                              ],
-                                            ),
-                                            trailing: Icon(
-                                                Icons.arrow_forward_ios,
-                                                color: Colors.white70),
-                                            onTap: () {
-                                              if (controller.userData.isEmpty) {
-                                                return;
-                                              }
-
-                                              debugPrint(
-                                                  'User ID: ${controller.userData.first.id}');
-                                              debugPrint(
-                                                  'Connection ID: ${connection.conectionId}');
-                                              debugPrint(
-                                                  'Connection Name: ${connection.name}');
-
-                                              if (controller
-                                                      .userData.first.id ==
-                                                  connection.conectionId) {
-                                                connection.conectionId =
-                                                    connection.userId;
-                                                connection.userId = controller
-                                                    .userData.first.id;
-                                              }
-
-                                              controller.messages.clear();
-                                              controller
-                                                  .fetchChats(
-                                                      connection.conectionId)
-                                                  .then((value) async {
-                                                if (value == true) {
-                                                  EncryptedSharedPreferences
-                                                      preferences =
-                                                      EncryptedSharedPreferences
-                                                          .getInstance();
-                                                  String? token = preferences
-                                                      .getString('token');
-                                                  if (token != null &&
-                                                      token.isNotEmpty) {
-                                                    controller.token.value =
-                                                        token;
-
-                                                    Get.to(() => ChatScreen(
-                                                          senderId: controller
-                                                              .userData
-                                                              .first
-                                                              .id,
-                                                          receiverId: connection
-                                                              .conectionId,
-                                                          receiverName:
-                                                              connection.name,
-                                                        ));
-                                                  }
+                                              ),
+                                              title: Text(
+                                                connection.name,
+                                                style: AppTextStyles.labelText
+                                                    .copyWith(
+                                                  color: Colors.white,
+                                                  fontSize: fontSize * 1.1,
+                                                ),
+                                              ),
+                                              subtitle: Row(
+                                                children: [
+                                                  Text(
+                                                    _formatLastSeen(
+                                                        connection.lastSeen),
+                                                    style: AppTextStyles
+                                                        .bodyText
+                                                        .copyWith(
+                                                      color: Colors.white70,
+                                                      fontSize: fontSize * 0.7,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              trailing: Icon(Icons.chat_sharp,
+                                                  color: Colors.white),
+                                              onTap: () {
+                                                if (controller
+                                                    .userData.isEmpty) {
+                                                  return;
                                                 }
-                                              });
-                                            },
+
+                                                debugPrint(
+                                                    'User ID: ${controller.userData.first.id}');
+                                                debugPrint(
+                                                    'Connection ID: ${connection.conectionId}');
+                                                debugPrint(
+                                                    'Connection Name: ${connection.name}');
+
+                                                if (controller
+                                                        .userData.first.id ==
+                                                    connection.conectionId) {
+                                                  connection.conectionId =
+                                                      connection.userId;
+                                                  connection.userId = controller
+                                                      .userData.first.id;
+                                                }
+
+                                                controller.messages.clear();
+                                                controller
+                                                    .fetchChats(
+                                                        connection.conectionId)
+                                                    .then((value) async {
+                                                  if (value == true) {
+                                                    EncryptedSharedPreferences
+                                                        preferences =
+                                                        EncryptedSharedPreferences
+                                                            .getInstance();
+                                                    String? token = preferences
+                                                        .getString('token');
+                                                    if (token != null &&
+                                                        token.isNotEmpty) {
+                                                      controller.token.value =
+                                                          token;
+
+                                                      Get.to(() => ChatScreen(
+                                                            senderId: controller
+                                                                .userData
+                                                                .first
+                                                                .id,
+                                                            receiverId:
+                                                                connection
+                                                                    .conectionId,
+                                                            receiverName:
+                                                                connection.name,
+                                                          ));
+                                                    }
+                                                  }
+                                                });
+                                              },
+                                            ),
                                           ),
-                                        ),
-                                      );
-                                    },
-                                  ));
-                            } else if (selectedSection == 1) {
-                              return Center(
-                                  child: Text('Recently',
-                                      style: AppTextStyles.bodyText
-                                          .copyWith(color: Colors.white)));
-                            } else {
-                              return Center(
-                                  child: Text('HookUp',
-                                      style: AppTextStyles.bodyText
-                                          .copyWith(color: Colors.white)));
-                            }
-                          },
+                                        );
+                                      },
+                                    ));
+                              } else if (selectedSection == 1) {
+                                return Center(
+                                    child: Text('Recently',
+                                        style: AppTextStyles.bodyText
+                                            .copyWith(color: Colors.white)));
+                              } else {
+                                return Center(
+                                    child: Text('HookUp',
+                                        style: AppTextStyles.bodyText
+                                            .copyWith(color: Colors.white)));
+                              }
+                            },
+                          ),
                         ),
                 ),
               ],
@@ -653,20 +661,30 @@ class ContactListScreenState extends State<ContactListScreen> {
   // reportt dailog box ended.....................................................=================--------------------------------------------------
 
   String _formatLastSeen(String lastSeen) {
-    // Example: parse and format the lastSeen string as needed
-    // You may need to adjust this logic based on your actual lastSeen format
     if (lastSeen.isEmpty) return 'Last seen: Unknown';
     try {
       final dateTime = DateTime.parse(lastSeen);
       final now = DateTime.now();
       final difference = now.difference(dateTime);
 
+      if (difference.isNegative) {
+        return 'Last seen: just now';
+      }
+
       if (difference.inMinutes < 1) {
         return 'Last seen: just now';
-      } else if (difference.inMinutes < 60) {
-        return 'Last seen: ${difference.inMinutes} min ago';
-      } else if (difference.inHours < 24) {
-        return 'Last seen: ${difference.inHours} hr ago';
+      } else if (difference.inHours < 1) {
+        final minutes = difference.inMinutes;
+        return 'Last seen: $minutes min ago';
+      } else if (difference.inDays < 1) {
+        final hours = difference.inHours;
+        return 'Last seen: $hours hr ago';
+      } else if (difference.inDays < 7) {
+        final days = difference.inDays;
+        return 'Last seen: $days ${days == 1 ? "day" : "days"} ago';
+      } else if (difference.inDays < 30) {
+        final weeks = (difference.inDays / 7).floor();
+        return 'Last seen: $weeks ${weeks == 1 ? "week" : "weeks"} ago';
       } else {
         return 'Last seen: ${dateTime.day}/${dateTime.month}/${dateTime.year}';
       }

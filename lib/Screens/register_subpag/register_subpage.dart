@@ -43,10 +43,19 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   RxList<String> selectedInterests = <String>[].obs;
   RxString selectedPlan = 'None'.obs;
   TextEditingController interestController = TextEditingController();
+  final TextEditingController nicknameController = TextEditingController();
+  final RxString nickname = ''.obs;
 
   @override
   void initState() {
     super.initState();
+    nicknameController.text = controller.userRegistrationRequest.nickname;
+    nickname.value = controller.userRegistrationRequest.nickname;
+    nicknameController.addListener(() {
+      nickname.value = nicknameController.text;
+      controller.userRegistrationRequest.nickname =
+          nicknameController.text.trim();
+    });
     intialize();
   }
 
@@ -448,9 +457,9 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     double titleFontSize = screenSize.width * 0.065;
     double labelfontSize = screenSize.width * 0.035;
     double inputTextFontSize = screenSize.width * 0.04;
-    TextEditingController nicknameController = TextEditingController(
-      text: controller.userRegistrationRequest.nickname,
-    );
+    // TextEditingController nicknameController = TextEditingController(
+    //   text: controller.userRegistrationRequest.nickname,
+    // );
 
     return Stack(
       children: [
@@ -502,9 +511,12 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   onChanged: (value) {
                     nicknameController.text = value;
                     controller.userRegistrationRequest.nickname = value.trim();
+                    if (value.isEmpty) {
+                      failure('Nickname', 'Enter Your Nickname');
+                    }
                   },
                   decoration: InputDecoration(
-                    hintText: "Enter your name",
+                    hintText: "Enter your nick name",
                     labelStyle: AppTextStyles.labelText.copyWith(
                       fontSize: labelfontSize,
                       color: AppColors.textColor,
@@ -540,32 +552,28 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           left: 0,
           right: 0,
           bottom: 0,
-          child: buildBottomButtonRow(
-            onBack: onBackPressed,
-            onNext: controller.userRegistrationRequest.nickname.isEmpty
-                ? null
-                : () {
-                    if (controller.userRegistrationRequest.nickname.isEmpty) {
-                      failure('Nickname', 'Enter Your Nickname');
-                      return;
-                    } else {
-                      if (_validateNickname(
-                          controller.userRegistrationRequest.nickname)) {
-                        markStepAsCompleted(2);
-                        Get.snackbar('nickname',
-                            controller.userRegistrationRequest.nickname);
-                        pageController.nextPage(
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.ease,
-                        );
-                      }
+          child: Obx(() => buildBottomButtonRow(
+                onBack: onBackPressed,
+                onNext: () {
+                  if (nickname.value.isEmpty) {
+                    failure('Nickname', 'Enter Your Nickname');
+                    return;
+                  } else {
+                    if (_validateNickname(nickname.value)) {
+                      markStepAsCompleted(2);
+                      Get.snackbar('nickname', nickname.value);
+                      pageController.nextPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.ease,
+                      );
                     }
-                  },
-            nextLabel: 'Next',
-            backLabel: 'Back',
-            nextEnabled: nicknameController.text.isNotEmpty,
-            context: context,
-          ),
+                  }
+                },
+                nextLabel: 'Next',
+                backLabel: 'Back',
+                nextEnabled: nickname.value.isNotEmpty,
+                context: context,
+              )),
         ),
       ],
     );
@@ -2500,7 +2508,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     images.addAll(List.filled(6, null));
   }
 
-  // photos 11
+  // Step 11 photos
   Widget buildPhotosOfUser(Size screenSize) {
     Future<void> requestCameraPermission() async {
       var status = await Permission.camera.request();
@@ -2871,104 +2879,146 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                                               MainAxisAlignment
                                                                   .spaceEvenly,
                                                           children: [
-                                                            ElevatedButton.icon(
-                                                              icon: Icon(
-                                                                  Icons
-                                                                      .camera_alt,
-                                                                  color: Colors
-                                                                      .white),
-                                                              label: Text(
-                                                                "Camera",
-                                                                style: AppTextStyles
-                                                                    .buttonText
-                                                                    .copyWith(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontSize:
-                                                                      screenWidth *
-                                                                          0.04,
-                                                                ),
+                                                            Container(
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                gradient: LinearGradient(
+                                                                    begin: Alignment
+                                                                        .topLeft,
+                                                                    end:
+                                                                        Alignment(
+                                                                            0.8,
+                                                                            1),
+                                                                    colors: AppColors
+                                                                        .gradientColor),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            30),
                                                               ),
-                                                              style:
+                                                              child:
                                                                   ElevatedButton
-                                                                      .styleFrom(
-                                                                backgroundColor:
-                                                                    AppColors
-                                                                        .favouriteColor,
-                                                                foregroundColor:
-                                                                    Colors
+                                                                      .icon(
+                                                                icon: Icon(
+                                                                    Icons
+                                                                        .camera_alt,
+                                                                    color: Colors
+                                                                        .white),
+                                                                label: Text(
+                                                                  "Camera",
+                                                                  style: AppTextStyles
+                                                                      .buttonText
+                                                                      .copyWith(
+                                                                    color: Colors
                                                                         .white,
-                                                                shape:
-                                                                    RoundedRectangleBorder(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              12),
+                                                                    fontSize:
+                                                                        screenWidth *
+                                                                            0.04,
+                                                                  ),
                                                                 ),
-                                                                padding: EdgeInsets
-                                                                    .symmetric(
-                                                                        horizontal:
-                                                                            18,
-                                                                        vertical:
+                                                                style: ElevatedButton
+                                                                    .styleFrom(
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .transparent,
+                                                                  foregroundColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  shape:
+                                                                      RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
                                                                             12),
+                                                                  ),
+                                                                  padding: EdgeInsets.symmetric(
+                                                                      horizontal:
+                                                                          18,
+                                                                      vertical:
+                                                                          12),
+                                                                  elevation: 0,
+                                                                  shadowColor:
+                                                                      Colors
+                                                                          .transparent,
+                                                                ),
+                                                                onPressed: () {
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                  pickImage(
+                                                                      index,
+                                                                      ImageSource
+                                                                          .camera);
+                                                                },
                                                               ),
-                                                              onPressed: () {
-                                                                Navigator.pop(
-                                                                    context);
-                                                                pickImage(
-                                                                    index,
-                                                                    ImageSource
-                                                                        .camera);
-                                                              },
                                                             ),
-                                                            ElevatedButton.icon(
-                                                              icon: Icon(
-                                                                  Icons.photo,
-                                                                  color: Colors
-                                                                      .white),
-                                                              label: Text(
-                                                                "Gallery",
-                                                                style: AppTextStyles
-                                                                    .buttonText
-                                                                    .copyWith(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontSize:
-                                                                      screenWidth *
-                                                                          0.04,
-                                                                ),
+                                                            Container(
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                gradient: LinearGradient(
+                                                                    begin: Alignment
+                                                                        .topLeft,
+                                                                    end:
+                                                                        Alignment(
+                                                                            0.8,
+                                                                            1),
+                                                                    colors: AppColors
+                                                                        .gradientColor),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            30),
                                                               ),
-                                                              style:
+                                                              child:
                                                                   ElevatedButton
-                                                                      .styleFrom(
-                                                                backgroundColor:
-                                                                    AppColors
-                                                                        .favouriteColor,
-                                                                foregroundColor:
-                                                                    Colors
+                                                                      .icon(
+                                                                icon: Icon(
+                                                                    Icons.photo,
+                                                                    color: Colors
+                                                                        .white),
+                                                                label: Text(
+                                                                  "Gallery",
+                                                                  style: AppTextStyles
+                                                                      .buttonText
+                                                                      .copyWith(
+                                                                    color: Colors
                                                                         .white,
-                                                                shape:
-                                                                    RoundedRectangleBorder(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              12),
+                                                                    fontSize:
+                                                                        screenWidth *
+                                                                            0.04,
+                                                                  ),
                                                                 ),
-                                                                padding: EdgeInsets
-                                                                    .symmetric(
-                                                                        horizontal:
-                                                                            18,
-                                                                        vertical:
+                                                                style: ElevatedButton
+                                                                    .styleFrom(
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .transparent,
+                                                                  foregroundColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  shape:
+                                                                      RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
                                                                             12),
+                                                                  ),
+                                                                  padding: EdgeInsets.symmetric(
+                                                                      horizontal:
+                                                                          18,
+                                                                      vertical:
+                                                                          12),
+                                                                  elevation: 0,
+                                                                  shadowColor:
+                                                                      Colors
+                                                                          .transparent,
+                                                                ),
+                                                                onPressed: () {
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                  pickImage(
+                                                                      index,
+                                                                      ImageSource
+                                                                          .gallery);
+                                                                },
                                                               ),
-                                                              onPressed: () {
-                                                                Navigator.pop(
-                                                                    context);
-                                                                pickImage(
-                                                                    index,
-                                                                    ImageSource
-                                                                        .gallery);
-                                                              },
                                                             ),
                                                           ],
                                                         ),
@@ -3459,7 +3509,7 @@ Widget buildBottomButtonRow({
           ),
         ),
 
-        const SizedBox(width: 12), // 🧱 Responsive Gap
+        const SizedBox(width: 12),
 
         /// ⏭️ Next Button
         Expanded(

@@ -778,7 +778,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                           : 'Verification Pending',
                                                       style: TextStyle(
                                                         fontSize:
-                                                            screenWidth * 0.045,
+                                                            screenWidth * 0.025,
                                                         fontWeight:
                                                             FontWeight.w600,
                                                         color: controller
