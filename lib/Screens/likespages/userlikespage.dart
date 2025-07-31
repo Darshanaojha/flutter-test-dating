@@ -11,6 +11,8 @@ import '../../Models/ResponseModels/get_all_addon_response_model.dart';
 import '../../Models/ResponseModels/get_all_likes_pages_response.dart';
 import '../../constants.dart';
 
+import 'package:intl/intl.dart';
+
 class LikesPage extends StatefulWidget {
   const LikesPage({super.key});
 
@@ -23,7 +25,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
   List<String> selectedGender = [];
   String selectedLocation = 'All';
   bool isLoading = true;
-  bool isAnimationVisible = false;
+  String? _animatingUserId;
   late final AnimationController _animationController;
   late final DecorationTween decorationTween;
   Controller controller = Get.put(Controller());
@@ -47,6 +49,8 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
 
   final HeartOverlayController heartOverlayController =
       HeartOverlayController();
+  final RxInt likeCount = 0.obs;
+
   @override
   void initState() {
     super.initState();
@@ -94,13 +98,15 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
 
       await Future.delayed(Duration(seconds: 2));
 
-      filteredLikesPage = controller.likespage;
       await controller.fetchAllAddOn();
       await controller.likesuserpage();
+
+      // Filter for likes received
+      filteredLikesPage = controller.likespage.where((user) => user.likedByMe == 0).toList();
+      likeCount.value = filteredLikesPage.length;
+
       if (controller.likespage.isEmpty) {
         print("No likes in the list");
-      } else {
-        // print(controller.likespage.map((item) => item));
       }
 
       await controller.fetchGenders();
@@ -109,7 +115,6 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
       } else {
         genders
             .addAll(controller.genders.map((gender) => gender.title).toSet());
-        // print(genders);
       }
       desires = controller.categories
           .expand(
@@ -121,7 +126,6 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
           .map((preference) => preference.title)
           .toSet()
           .toList());
-      // print(preferences);
 
       return true;
     } catch (e) {
@@ -136,15 +140,15 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
     }
   }
 
-  void showAnimation() {
+  void showAnimation(String userId) {
     setState(() {
-      isAnimationVisible = true;
+      _animatingUserId = userId;
     });
 
     // Hide the animation after 2 seconds
     Timer(Duration(seconds: 2), () {
       setState(() {
-        isAnimationVisible = false;
+        _animatingUserId = null;
       });
     });
   }
@@ -172,6 +176,8 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                 (preference) => selectedPreferenceFilters.contains(preference)))
             .toList();
       }
+
+      likeCount.value = filteredLikesPage.where((user) => user.likedByMe == 0).length;
     });
   }
 
@@ -629,6 +635,28 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
     await controller.likesuserpage();
   }
 
+  String formatLastSeen(String lastSeen) {
+    try {
+      final dateTime = DateTime.parse(lastSeen);
+      final now = DateTime.now();
+      final difference = now.difference(dateTime);
+
+      if (difference.inDays > 7) {
+        return DateFormat('dd/MM/yyyy hh:mm a').format(dateTime);
+      } else if (difference.inDays > 0) {
+        return '${difference.inDays} days ago';
+      } else if (difference.inHours > 0) {
+        return '${difference.inHours} hours ago';
+      } else if (difference.inMinutes > 0) {
+        return '${difference.inMinutes} minutes ago';
+      } else {
+        return 'Just now';
+      }
+    } catch (e) {
+      return 'Invalid date';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -641,41 +669,58 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Likes: ${filteredLikesPage.length}',
-                          style: AppTextStyles.textStyle),
-                      // Text('Pings: $pingCount', style: AppTextStyles.textStyle),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 40,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      buildFilterChip('Gender', genders, selectedGenderFilters,
-                          (value) {
-                        setState(() {
-                          selectedGenderFilters = value;
-                        });
-                        applyFilters();
-                      }),
-                      buildFilterChip('Desires', desires, selectedDesireFilters,
-                          (value) {
-                        setState(() {
-                          selectedDesireFilters = value;
-                        });
-                        applyFilters();
-                      }),
-                      buildFilterChip(
-                          'Preferences', preferences, selectedPreferenceFilters,
-                          (value) {
-                        setState(() {
-                          selectedPreferenceFilters = value;
-                        });
-                        applyFilters();
-                      })
+                      Expanded(
+                        child: SizedBox(
+                          height: 40,
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            children: [
+                              buildFilterChip(
+                                  'Gender', genders, selectedGenderFilters,
+                                  (value) {
+                                setState(() {
+                                  selectedGenderFilters = value;
+                                });
+                                applyFilters();
+                              }),
+                              buildFilterChip(
+                                  'Desires', desires, selectedDesireFilters,
+                                  (value) {
+                                setState(() {
+                                  selectedDesireFilters = value;
+                                });
+                                applyFilters();
+                              }),
+                              buildFilterChip('Preferences', preferences,
+                                  selectedPreferenceFilters, (value) {
+                                setState(() {
+                                  selectedPreferenceFilters = value;
+                                });
+                                applyFilters();
+                              })
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Obx(() => Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Icon(
+                            Icons.favorite,
+                            color: AppColors.mediumGradientColor,
+                            size: 50,
+                          ),
+                          Text(
+                            '${likeCount.value}',
+                            style: AppTextStyles.textStyle.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      )),
                     ],
                   ),
                 ),
@@ -806,7 +851,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                                                 0.03))),
                                           ],
                                         ),
-                                         SizedBox(height: 4),
+                                        SizedBox(height: 4),
                                         Row(
                                           children: [
                                             Text('${getAgeFromDob(user.dob)} |',
@@ -838,7 +883,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                           children: [
                                             // Left side: Last Seen text
                                             Text(
-                                              'Last Seen: ${user.updated}',
+                                              'Last Seen: ${formatLastSeen(user.updated)}',
                                               style: AppTextStyles.bodyText
                                                   .copyWith(
                                                 fontSize:
@@ -852,7 +897,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                               children: [
                                                 IconButton(
                                                   onPressed: () async {
-                                                    showAnimation(); // Trigger the heart animation
+                                                    showAnimation(user.userId); // Trigger the heart animation
                                                     setState(() {
                                                       user.likedByMe =
                                                           user.likedByMe == 0
@@ -897,17 +942,17 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                                 ),
 
                                                 // Heart animation
-                                                if (isAnimationVisible)
+                                                if (_animatingUserId == user.userId)
                                                   AnimatedOpacity(
                                                     duration: Duration(
                                                         milliseconds: 500),
-                                                    opacity: isAnimationVisible
+                                                    opacity: _animatingUserId == user.userId
                                                         ? 1.0
                                                         : 0.0,
                                                     child: AnimatedScale(
                                                       duration: Duration(
                                                           milliseconds: 500),
-                                                      scale: isAnimationVisible
+                                                      scale: _animatingUserId == user.userId
                                                           ? 1.5
                                                           : 0.0,
                                                       child: Icon(

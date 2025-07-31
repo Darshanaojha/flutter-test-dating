@@ -157,7 +157,7 @@ class MessageRequestPageState extends State<MessageRequestPage> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           trailing: IconButton(
-                            icon: Icon(Icons.reply, color: AppColors.iconColor),
+                            icon: Icon(Icons.reply, color: AppColors.lightGradientColor),
                             onPressed: () {
                               Navigator.push(
                                 context,

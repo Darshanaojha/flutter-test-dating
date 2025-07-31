@@ -259,7 +259,7 @@ class ChatScreenState extends State<ChatScreen> {
                     SizedBox(width: 8),
                     ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.buttonColor,
+                        backgroundColor: AppColors.darkGradientColor,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -267,7 +267,7 @@ class ChatScreenState extends State<ChatScreen> {
                         elevation: 4,
                       ),
                       icon: Icon(Icons.check),
-                      label: Text("Save"),
+                      label: Text("Update"),
                       onPressed: () {
                         _editMessage(messageController.text, index);
                         Navigator.of(context).pop();
@@ -424,7 +424,7 @@ class ChatScreenState extends State<ChatScreen> {
                                       child: ElevatedButton.icon(
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor:
-                                              AppColors.buttonColor,
+                                              AppColors.mediumGradientColor,
                                           foregroundColor: Colors.white,
                                           shape: RoundedRectangleBorder(
                                             borderRadius:
@@ -503,7 +503,7 @@ class ChatScreenState extends State<ChatScreen> {
                     return Slidable(
                       key: Key(message.id ?? ''),
                       // Specify the start-to-end action pane (Edit button)
-                      startActionPane: isSentByUser
+                      startActionPane: isSentByUser && message.imagePath == null
                           ? ActionPane(
                               motion: DrawerMotion(),
                               extentRatio: 0.25,
@@ -618,7 +618,7 @@ class ChatScreenState extends State<ChatScreen> {
                                                           .styleFrom(
                                                         backgroundColor:
                                                             AppColors
-                                                                .buttonColor,
+                                                                .darkGradientColor,
                                                         foregroundColor:
                                                             Colors.white,
                                                         shape:
@@ -904,7 +904,9 @@ class ChatScreenState extends State<ChatScreen> {
                           image: selectedImage,
                         );
                         messageController.clear();
-                        selectedImage = null;
+                        setState(() {
+                          selectedImage = null;
+                        });
                         controller.fetchChats(widget.receiverId);
                       } else {
                         Get.snackbar("Empty Message",
@@ -948,44 +950,7 @@ class ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  FutureBuilder<Uint8List> buildImageWithAuth(
-      String imagePath, String bearerToken) {
-    return FutureBuilder<Uint8List>(
-      future: _fetchImageBytes(imagePath, bearerToken),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        } else if (snapshot.hasError) {
-          return Icon(Icons.broken_image);
-        } else if (snapshot.hasData) {
-          return GestureDetector(
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (_) => Dialog(
-                  backgroundColor: Colors.transparent,
-                  child: InteractiveViewer(
-                    child: Image.memory(snapshot.data!),
-                  ),
-                ),
-              );
-            },
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.memory(
-                snapshot.data!,
-                width: 180,
-                height: 180,
-                fit: BoxFit.cover,
-              ),
-            ),
-          );
-        } else {
-          return SizedBox.shrink();
-        }
-      },
-    );
-  }
+  
 
   Future<Uint8List> _fetchImageBytes(
       String imagePath, String bearerToken) async {
@@ -1025,11 +990,27 @@ class SensitiveImageWidget extends StatefulWidget {
 
 class _SensitiveImageWidgetState extends State<SensitiveImageWidget> {
   bool _showBlur = true;
+  late Future<Uint8List> _imageFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _imageFuture = _fetchImageBytes(widget.imagePath, widget.bearerToken);
+  }
+
+  @override
+  void didUpdateWidget(covariant SensitiveImageWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.imagePath != oldWidget.imagePath ||
+        widget.bearerToken != oldWidget.bearerToken) {
+      _imageFuture = _fetchImageBytes(widget.imagePath, widget.bearerToken);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Uint8List>(
-      future: _fetchImageBytes(widget.imagePath, widget.bearerToken),
+      future: _imageFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();

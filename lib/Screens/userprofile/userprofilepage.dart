@@ -292,7 +292,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                     .userData.first.username
                                                 : 'NA'),
                                         style: AppTextStyles.titleText.copyWith(
-                                          fontSize: getResponsiveFontSize(0.05),
+                                          fontSize: getResponsiveFontSize(0.045),
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -339,7 +339,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                             : 'NA',
                                         style: AppTextStyles.labelText.copyWith(
                                           fontSize:
-                                              getResponsiveFontSize(0.029),
+                                              getResponsiveFontSize(0.025),
                                           color: Colors.white,
                                         ),
                                       ),
@@ -644,18 +644,15 @@ class UserProfilePageState extends State<UserProfilePage>
                             //                   String dobString = controller
                             //                       .userData.first.dob
                             //                       .trim();
-
                             //                   if (dobString.contains(' at ')) {
                             //                     dobString = dobString
                             //                         .split(' at ')[0]
                             //                         .trim();
                             //                   }
-
                             //                   // Parse using correct format: dd/MM/yyyy
                             //                   DateTime dob =
                             //                       DateFormat('dd/MM/yyyy')
                             //                           .parse(dobString);
-
                             //                   // Calculate age accurately
                             //                   DateTime today = DateTime.now();
                             //                   int age = today.year - dob.year;
@@ -664,7 +661,6 @@ class UserProfilePageState extends State<UserProfilePage>
                             //                           today.day < dob.day)) {
                             //                     age--;
                             //                   }
-
                             //                   return '$age years old | ${controller.userData.first.genderName}';
                             //                 } catch (e) {
                             //                   print('DOB parsing error: $e');
@@ -714,7 +710,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                             children: [
                                               Icon(
                                                 Icons.verified_user_outlined,
-                                                size: screenWidth * 0.075,
+                                                size: screenWidth * 0.07,
                                                 color: Colors.white,
                                               ),
                                               SizedBox(
@@ -1029,10 +1025,10 @@ class UserProfilePageState extends State<UserProfilePage>
       alignment: Alignment.center,
       child: Container(
         width: double.infinity, // forces full width inside Column
-        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
         padding: EdgeInsets.symmetric(
-          vertical: screenWidth * 0.025,
-          horizontal: screenWidth * 0.035,
+          vertical: screenWidth * 0.02,
+          horizontal: screenWidth * 0.055,
         ),
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -1096,13 +1092,13 @@ class UserProfilePageState extends State<UserProfilePage>
           borderRadius: BorderRadius.circular(16),
           onTap: onTap,
           child: Container(
-            padding: EdgeInsets.symmetric(vertical: screenWidth * 0.015),
+            padding: EdgeInsets.symmetric(vertical: screenWidth * 0.0125),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Icon(
                   icon,
-                  size: screenWidth * 0.075,
+                  size: screenWidth * 0.065,
                   color: Colors.white,
                 ),
                 SizedBox(width: screenWidth * 0.045),
@@ -1112,7 +1108,7 @@ class UserProfilePageState extends State<UserProfilePage>
                     child: Text(
                       title,
                       style: TextStyle(
-                        fontSize: screenWidth * 0.04,
+                        fontSize: screenWidth * 0.038,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
