@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import '../../constants.dart';
-import 'ContaintCreator/creatorPlansScreen.dart';
 import 'changepassword/changepasswordnewpassword.dart';
 import 'updateemailid/updateemailidpage.dart';
 
@@ -399,53 +398,53 @@ class SettingsPageState extends State<SettingsPage>
               ),
 
               SizedBox(height: screenHeight * 0.02),
-              GestureDetector(
-                onTap: () {
-                  Get.to(PricingPage());
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: AppColors.gradientBackgroundList,
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: Card(
-                    color: Colors.transparent,
-                    elevation: 8,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    margin: EdgeInsets.zero,
-                    child: AnimatedContainer(
-                      duration: Duration(milliseconds: 400),
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.emoji_symbols_outlined,
-                              color: Colors.amberAccent),
-                          SizedBox(width: 12),
-                          Text(
-                            'Become Content Creator',
-                            style: TextStyle(
-                              fontSize: fontSize * 1.1,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              // GestureDetector(
+              //   onTap: () {
+              //     Get.to(PricingPage());
+              //   },
+              //   child: Container(
+              //     decoration: BoxDecoration(
+              //       gradient: LinearGradient(
+              //         colors: AppColors.gradientBackgroundList,
+              //         begin: Alignment.topLeft,
+              //         end: Alignment.bottomRight,
+              //       ),
+              //       borderRadius: BorderRadius.circular(18),
+              //     ),
+              //     child: Card(
+              //       color: Colors.transparent,
+              //       elevation: 8,
+              //       shape: RoundedRectangleBorder(
+              //         borderRadius: BorderRadius.circular(18),
+              //       ),
+              //       margin: EdgeInsets.zero,
+              //       child: AnimatedContainer(
+              //         duration: Duration(milliseconds: 400),
+              //         padding: const EdgeInsets.all(18),
+              //         decoration: BoxDecoration(
+              //           color: Colors.transparent,
+              //           borderRadius: BorderRadius.circular(18),
+              //         ),
+              //         child: Row(
+              //           mainAxisAlignment: MainAxisAlignment.center,
+              //           children: [
+              //             Icon(Icons.emoji_symbols_outlined,
+              //                 color: Colors.amberAccent),
+              //             SizedBox(width: 12),
+              //             Text(
+              //               'Become Content Creator',
+              //               style: TextStyle(
+              //                 fontSize: fontSize * 1.1,
+              //                 color: Colors.white,
+              //                 fontWeight: FontWeight.w600,
+              //               ),
+              //             ),
+              //           ],
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
 
               SizedBox(height: screenHeight * 0.02),
               // 🔐 Change Password & Email

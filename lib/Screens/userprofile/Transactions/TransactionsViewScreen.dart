@@ -222,7 +222,7 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
                                             SizedBox(width: 8),
                                             Expanded(
                                               child: Text(
-                                                '${transaction.razorpayOrderId ?? "-"}',
+                                                transaction.razorpayOrderId ?? "-",
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 16),
@@ -239,7 +239,7 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
                                             SizedBox(width: 8),
                                             Expanded(
                                               child: Text(
-                                                '${transaction.orderId}',
+                                                transaction.orderId,
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 16),
@@ -256,7 +256,7 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
                                             SizedBox(width: 8),
                                             Expanded(
                                               child: Text(
-                                                '$formattedAmount',
+                                                formattedAmount,
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 16),
@@ -273,7 +273,7 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
                                             SizedBox(width: 8),
                                             Expanded(
                                               child: Text(
-                                                '${getStatusText(transaction.paymentStatus)}',
+                                                getStatusText(transaction.paymentStatus),
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 16),
@@ -290,7 +290,7 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
                                             SizedBox(width: 8),
                                             Expanded(    
                                               child: Text(
-                                                '${DateFormat('dd MMM yyyy, hh:mm a').format(DateTime.parse(transaction.created))}',
+                                                DateFormat('dd MMM yyyy, hh:mm a').format(DateTime.parse(transaction.created)),
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 16),

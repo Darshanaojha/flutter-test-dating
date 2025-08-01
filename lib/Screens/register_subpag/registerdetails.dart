@@ -404,6 +404,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                               });
                             },
                             displayValue: (Country country) => country.name,
+                            isSearchable: true
                           );
                         }),
 
@@ -429,6 +430,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                             }
                             return '';
                           },
+                          isSearchable: false
                         ),
 
                         SizedBox(height: 20),
@@ -862,6 +864,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     required Function(T?) onChanged,
     required String Function(T) displayValue,
     double height = 60, // Match text field height
+    bool isSearchable = true,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -869,7 +872,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
         height: height,
         child: GestureDetector(
           onTap: () => _showBottomSheet<T>(
-              items, selectedValue, onChanged, displayValue),
+              items, selectedValue, onChanged, displayValue,label,isSearchable),
           child: InputDecorator(
             decoration: InputDecoration(
               labelText: label,
@@ -973,6 +976,8 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     T? selectedValue,
     Function(T?) onChanged,
     String Function(T)? displayValue,
+    String label,
+    bool isSearchable,
   ) {
     bottomSheetSearchController.clear();
     bottomSheetSearchQuery = '';
@@ -995,10 +1000,11 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
               padding: EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  Text("Select Country",
+                  Text("Select $label",
                       style: Theme.of(context).textTheme.bodySmall),
                   SizedBox(height: 8.0),
                   // Add search box
+                  if(isSearchable)
                   TextField(
                     controller: bottomSheetSearchController,
                     cursorColor: AppColors.lightGradientColor,

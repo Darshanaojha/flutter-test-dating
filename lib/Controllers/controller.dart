@@ -2035,7 +2035,7 @@ class Controller extends GetxController {
         print('Successfully fetched all the chat history page');
         return true;
       } else {
-        failure('Error', 'Failed to fetch the chat history page');
+        // failure('Error', 'Failed to fetch the chat history page');
         return false;
       }
     } catch (e) {

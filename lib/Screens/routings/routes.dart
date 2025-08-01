@@ -18,17 +18,29 @@ import '../userprofile/editphoto/edituserprofilephoto.dart';
 import '../userprofile/editprofile/edituserprofile.dart';
 
 final routes = [
-  GetPage(name: '/', page: () => Splash(),transition: Transition.fadeIn,),
-  GetPage(name: '/login', page: () => Login(), transition: Transition.rightToLeftWithFade,),
+  GetPage(
+    name: '/',
+    page: () => Splash(),
+    transition: Transition.fadeIn,
+  ),
+  GetPage(
+    name: '/login',
+    page: () => Login(),
+    transition: Transition.rightToLeftWithFade,
+  ),
   GetPage(name: '/register', page: () => RegisterProfilePage()),
   GetPage(name: '/subregistration', page: () => MultiStepFormPage()),
   GetPage(name: '/registrationotp', page: () => OTPVerificationPage()),
-  GetPage(name: '/homepage', page: () => HomePage(), transition: Transition.rightToLeftWithFade,),
+  GetPage(
+    name: '/homepage',
+    page: () => HomePage(),
+    transition: Transition.rightToLeftWithFade,
+  ),
   GetPage(name: '/navigationbar', page: () => NavigationBottomBar()),
   GetPage(name: '/settings', page: () => SettingsPage()),
   GetPage(name: '/likes', page: () => LikesPage()),
   GetPage(name: '/messages', page: () => ContactListScreen()),
-    //GetPage(name: '/messages', page: () => ChatHistoryPage()),
+  //GetPage(name: '/messages', page: () => ChatHistoryPage()),
 
   GetPage(name: '/profile', page: () => UserProfilePage()),
   GetPage(name: '/editprofile', page: () => EditProfilePage()),

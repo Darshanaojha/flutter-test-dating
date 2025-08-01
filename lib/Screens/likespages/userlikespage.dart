@@ -21,7 +21,7 @@ class LikesPage extends StatefulWidget {
 }
 
 class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
-  RazorpayController razorpaycontroller = Get.put(RazorpayController());
+  RazorpayController razorpayController = Get.put(RazorpayController());
   List<String> selectedGender = [];
   String selectedLocation = 'All';
   bool isLoading = true;
@@ -32,11 +32,11 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
   List<String> genders = [];
   List<String> desires = [];
   List<String> preferences = [];
-  List<String> selectedPreference = [];
-  List<String> selectedGenderFilters = [];
-  List<String> selectedPreferenceFilters = [];
-  List<String> selectedDesireFilters = [];
-  List<LikeRequestPages> filteredLikesPage = [];
+  List<String> selectedGenderFilters = []; // Initialize as empty
+  List<String> selectedPreferenceFilters = []; // Initialize as empty
+  List<String> selectedDesireFilters = []; // Initialize as empty
+  List<LikeRequestPages> filteredLikesPage =
+      []; // Will be populated by fetchData initially
   bool isLiked = false;
   bool isShare = false;
   bool isSms = false;
@@ -96,29 +96,23 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
         isLoading = true;
       });
 
-      await Future.delayed(Duration(seconds: 2));
+      // Simulate network delay or actual API call
+      await Future.delayed(const Duration(seconds: 2));
 
-      await controller.fetchAllAddOn();
+      // Fetch main data
+      await controller
+          .fetchAllAddOn(); // Assuming this is needed on the page too
       await controller.likesuserpage();
 
-      // Filter for likes received
-      filteredLikesPage = controller.likespage.where((user) => user.likedByMe == 0).toList();
-      likeCount.value = filteredLikesPage.length;
-
-      if (controller.likespage.isEmpty) {
-        print("No likes in the list");
-      }
-
+      // Fetch filter options
       await controller.fetchGenders();
-      if (controller.genders.isEmpty) {
-        print("No genders in the list");
-      } else {
+      if (controller.genders.isNotEmpty) {
         genders
             .addAll(controller.genders.map((gender) => gender.title).toSet());
       }
+
       desires = controller.categories
-          .expand(
-              (category) => category.desires.map((desires) => desires.title))
+          .expand((category) => category.desires.map((desire) => desire.title))
           .toList();
 
       await controller.fetchPreferences();
@@ -127,17 +121,38 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
           .toSet()
           .toList());
 
+      // IMPORTANT: Initialize filteredLikesPage with ALL fetched likes
+      // and update the UI
+      if (mounted) {
+        setState(() {
+          // Create a new list from the source to avoid modifying the original
+          filteredLikesPage = List.from(controller.likespage);
+          // Update like count based on the unfiltered list initially
+          likeCount.value =
+              controller.likespage.where((user) => user.likedByMe == 0).length;
+          isLoading = false; // Set loading to false after data is ready
+        });
+      }
+
+      if (controller.likespage.isEmpty) {
+        print("No likes in the list");
+      }
+      if (controller.genders.isEmpty) {
+        print("No genders in the list");
+      }
+
       return true;
     } catch (e) {
       print("Error during data fetching: $e");
-      return false;
-    } finally {
       if (mounted) {
         setState(() {
-          isLoading = false;
+          isLoading = false; // Also set loading to false on error
         });
       }
+      return false;
     }
+    // Removed the finally block for setting isLoading to false here,
+    // as it's now handled within the try and catch for more precise control.
   }
 
   void showAnimation(String userId) {
@@ -155,29 +170,33 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
 
   void applyFilters() {
     setState(() {
-      filteredLikesPage = controller.likespage;
+      // Start with the original, complete list of likes
+      List<LikeRequestPages> tempFilteredList = List.from(controller.likespage);
 
       if (selectedGenderFilters.isNotEmpty) {
-        filteredLikesPage = filteredLikesPage
+        tempFilteredList = tempFilteredList
             .where((user) => selectedGenderFilters.contains(user.gender))
             .toList();
       }
 
       if (selectedDesireFilters.isNotEmpty) {
-        filteredLikesPage = filteredLikesPage
+        tempFilteredList = tempFilteredList
             .where((user) => user.desires
                 .any((desire) => selectedDesireFilters.contains(desire)))
             .toList();
       }
 
       if (selectedPreferenceFilters.isNotEmpty) {
-        filteredLikesPage = filteredLikesPage
+        tempFilteredList = tempFilteredList
             .where((user) => user.preferences.any(
                 (preference) => selectedPreferenceFilters.contains(preference)))
             .toList();
       }
 
-      likeCount.value = filteredLikesPage.where((user) => user.likedByMe == 0).length;
+      // Update the displayed list and the like count
+      filteredLikesPage = tempFilteredList;
+      likeCount.value =
+          filteredLikesPage.where((user) => user.likedByMe == 0).length;
     });
   }
 
@@ -306,12 +325,12 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                       selectedIndex.value = index;
                                       showAddonDialog(currentAddon);
                                       selectedcard = true.obs;
-                                      razorpaycontroller
+                                      razorpayController
                                               .orderRequestModel.amount =
                                           currentAddon.amount.toString();
-                                      razorpaycontroller.orderRequestModel
+                                      razorpayController.orderRequestModel
                                           .packageId = currentAddon.id;
-                                      razorpaycontroller
+                                      razorpayController
                                           .orderRequestModel.type = '1';
                                     },
                                     child: Obx(() {
@@ -483,11 +502,11 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                     OutlinedButton(
                       onPressed: () async {
                         Get.back();
-                        bool? isOrderCreated = await razorpaycontroller
-                            .createOrder(razorpaycontroller.orderRequestModel);
+                        bool? isOrderCreated = await razorpayController
+                            .createOrder(razorpayController.orderRequestModel);
                         if (isOrderCreated == true) {
-                          razorpaycontroller.initRazorpay();
-                          razorpaycontroller.openPayment(
+                          razorpayController.initRazorpay();
+                          razorpayController.openPayment(
                               currentAddon.amount as double,
                               currentAddon.title,
                               controller.userData.first.name,
@@ -705,22 +724,22 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                       ),
                       SizedBox(width: 12),
                       Obx(() => Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Icon(
-                            Icons.favorite,
-                            color: AppColors.mediumGradientColor,
-                            size: 50,
-                          ),
-                          Text(
-                            '${likeCount.value}',
-                            style: AppTextStyles.textStyle.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      )),
+                            alignment: Alignment.center,
+                            children: [
+                              Icon(
+                                Icons.favorite,
+                                color: AppColors.mediumGradientColor,
+                                size: 50,
+                              ),
+                              Text(
+                                '${likeCount.value}',
+                                style: AppTextStyles.textStyle.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          )),
                     ],
                   ),
                 ),
@@ -897,7 +916,8 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                               children: [
                                                 IconButton(
                                                   onPressed: () async {
-                                                    showAnimation(user.userId); // Trigger the heart animation
+                                                    showAnimation(user
+                                                        .userId); // Trigger the heart animation
                                                     setState(() {
                                                       user.likedByMe =
                                                           user.likedByMe == 0
@@ -915,16 +935,22 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                                                 .profileLikeRequest);
                                                       } else {
                                                         controller
-                                                                .dislikeProfileRequest
-                                                                .id =
+                                                                .homepageDislikeRequest
+                                                                .userId =
                                                             user.userId
+                                                                .toString();
+                                                        controller
+                                                                .homepageDislikeRequest
+                                                                .connectionId =
+                                                            user.conectionId
                                                                 .toString();
                                                         success(
                                                             user.id.toString(),
                                                             'dislike id');
-                                                        controller.dislikeprofile(
-                                                            controller
-                                                                .dislikeProfileRequest);
+                                                        controller
+                                                            .homepagedislikeprofile(
+                                                                controller
+                                                                    .homepageDislikeRequest);
                                                         controller
                                                             .likesuserpage();
                                                       }
@@ -942,17 +968,20 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                                 ),
 
                                                 // Heart animation
-                                                if (_animatingUserId == user.userId)
+                                                if (_animatingUserId ==
+                                                    user.userId)
                                                   AnimatedOpacity(
                                                     duration: Duration(
                                                         milliseconds: 500),
-                                                    opacity: _animatingUserId == user.userId
+                                                    opacity: _animatingUserId ==
+                                                            user.userId
                                                         ? 1.0
                                                         : 0.0,
                                                     child: AnimatedScale(
                                                       duration: Duration(
                                                           milliseconds: 500),
-                                                      scale: _animatingUserId == user.userId
+                                                      scale: _animatingUserId ==
+                                                              user.userId
                                                           ? 1.5
                                                           : 0.0,
                                                       child: Icon(
@@ -1164,21 +1193,26 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                           );
                         }),
                         SizedBox(height: 6),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.buttonColor,
-                            foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 12),
-                          ),
-                          onPressed: () {
-                            onSelected(selectedOptions);
-                            Navigator.pop(context);
-                          },
-                          child: Text(
-                            "Apply",
-                            style: TextStyle(fontSize: 9),
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.mediumGradientColor,
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 12, horizontal: 22),
+                              ),
+                              onPressed: () {
+                                onSelected(selectedOptions);
+                                Navigator.pop(context);
+                              },
+                              child: Text(
+                                "Apply",
+                                style: TextStyle(fontSize: 12),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

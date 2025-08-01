@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:vibration/vibration.dart';
 
 import '../../Models/ResponseModels/chat_history_response_model.dart';
@@ -616,9 +617,8 @@ class ChatScreenState extends State<ChatScreen> {
                                                     ElevatedButton.icon(
                                                       style: ElevatedButton
                                                           .styleFrom(
-                                                        backgroundColor:
-                                                            AppColors
-                                                                .darkGradientColor,
+                                                        backgroundColor: AppColors
+                                                            .darkGradientColor,
                                                         foregroundColor:
                                                             Colors.white,
                                                         shape:
@@ -931,8 +931,7 @@ class ChatScreenState extends State<ChatScreen> {
             leading: Icon(Icons.photo_library),
             title: Text('Gallery'),
             onTap: () async {
-              final picked =
-                  await ImagePicker().pickImage(source: ImageSource.gallery);
+              final picked = await _pickImage(ImageSource.gallery);
               Navigator.pop(context, picked);
             },
           ),
@@ -940,8 +939,7 @@ class ChatScreenState extends State<ChatScreen> {
             leading: Icon(Icons.camera_alt),
             title: Text('Camera'),
             onTap: () async {
-              final picked =
-                  await ImagePicker().pickImage(source: ImageSource.camera);
+              final picked = await _pickImage(ImageSource.camera);
               Navigator.pop(context, picked);
             },
           ),
@@ -950,7 +948,30 @@ class ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  
+  Future<XFile?> _pickImage(ImageSource source) async {
+    PermissionStatus status;
+    if (source == ImageSource.camera) {
+      status = await Permission.camera.request();
+    } else {
+      status = await Permission.photos.request();
+    }
+
+    if (status.isGranted) {
+      return await ImagePicker().pickImage(source: source);
+    } else if (status.isPermanentlyDenied) {
+      await openAppSettings();
+    } else {
+      Get.snackbar(
+        'Permission Denied',
+        'Please grant permission to access the ${source == ImageSource.camera ? 'camera' : 'gallery'}.',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: 2),
+      );
+      await Future.delayed(Duration(seconds: 2));
+      openAppSettings();
+    }
+    return null;
+  }
 
   Future<Uint8List> _fetchImageBytes(
       String imagePath, String bearerToken) async {
