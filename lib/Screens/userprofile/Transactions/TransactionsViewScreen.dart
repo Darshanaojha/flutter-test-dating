@@ -35,11 +35,11 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
 
   Icon getStatusIcon(String status) {
     switch (status.toLowerCase()) {
-      case '1': // success
+      case '1':
         return Icon(Icons.arrow_upward_rounded, color: Colors.green, size: 22);
-      case '2': // pending
+      case '2':
         return Icon(Icons.arrow_upward_rounded, color: Colors.amber, size: 22);
-      case '3': // failed
+      case '3':
         return Icon(Icons.arrow_upward_rounded, color: Colors.red, size: 22);
       default:
         return Icon(Icons.arrow_upward_rounded, color: Colors.grey, size: 22);
@@ -124,7 +124,7 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
           }
           if (snapshot.hasError) {
             return Center(
-                child: Text('Error: \${snapshot.error}',
+                child: Text('Error: ${snapshot.error}',
                     style: TextStyle(color: Colors.white)));
           }
           if (controller.transactions.isEmpty) {
@@ -179,8 +179,7 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
                                     ),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
-                                  padding:
-                                      EdgeInsets.all(2.5), // Border thickness
+                                  padding: EdgeInsets.all(2.5),
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: Colors.black,
@@ -194,55 +193,118 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Center(
-                                          child: Text(
-                                            "Transaction Details",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: getResponsiveFontSize(
-                                                  context, 0.05),
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                          child: Column(
+                                            children: [
+                                              Icon(Icons.receipt_long,
+                                                  size: getResponsiveHeight(
+                                                      context, 0.06),
+                                                  color: Colors.white),
+                                              SizedBox(height: 8),
+                                              Text(
+                                                "Transaction Details",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize:
+                                                      getResponsiveFontSize(
+                                                          context, 0.05),
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        SizedBox(height: 16),
-                                        Text(
-                                            'Transaction ID: ${transaction.razorpayOrderId ?? "-"}',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 16)),
+                                        SizedBox(height: 20),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.confirmation_number,
+                                                color: Colors.white70,
+                                                size: 20),
+                                            SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                '${transaction.razorpayOrderId ?? "-"}',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 16),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                         SizedBox(height: 6),
-                                        Text('Order ID: ${transaction.orderId}',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 16)),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.assignment,
+                                                color: Colors.white70,
+                                                size: 20),
+                                            SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                '${transaction.orderId}',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 16),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                         SizedBox(height: 6),
-                                        Text('Amount: $formattedAmount',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 16)),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.currency_rupee,
+                                                color: Colors.white70,
+                                                size: 20),
+                                            SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                '$formattedAmount',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 16),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                         SizedBox(height: 6),
-                                        Text(
-                                            'Payment Status: ${getStatusText(transaction.paymentStatus)}',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 16)),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.info_outline,
+                                                color: Colors.white70,
+                                                size: 20),
+                                            SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                '${getStatusText(transaction.paymentStatus)}',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 16),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                         SizedBox(height: 6),
-                                        Text(
-                                            'Time: ${DateFormat('dd MMM yyyy, hh:mm a').format(DateTime.parse(transaction.created))}',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 16)),
-                                        SizedBox(height: 6),
-                                        // Text('Updated: ${transaction.updated}',
-                                        // style: TextStyle(color: Colors.white, fontSize: 16)),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.access_time,
+                                                color: Colors.white70,
+                                                size: 20),
+                                            SizedBox(width: 8),
+                                            Expanded(    
+                                              child: Text(
+                                                '${DateFormat('dd MMM yyyy, hh:mm a').format(DateTime.parse(transaction.created))}',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 16),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                         SizedBox(height: 20),
                                         InkWell(
                                           onTap: () => Navigator.pop(context),
                                           borderRadius:
                                               BorderRadius.circular(10),
                                           child: Container(
-                                            padding: EdgeInsets.all(
-                                                2.5), // Border thickness
+                                            padding: EdgeInsets.all(2.5),
                                             decoration: BoxDecoration(
                                               gradient: LinearGradient(
                                                 colors: AppColors
