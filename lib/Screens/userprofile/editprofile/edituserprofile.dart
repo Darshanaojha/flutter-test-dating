@@ -947,13 +947,13 @@ class EditProfilePageState extends State<EditProfilePage>
                               angle: 0.5,
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 2, vertical: 2),
+                                    horizontal: 4, vertical: 2),
                                 decoration: BoxDecoration(
                                   color: AppColors.textColor,
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),
+                                      color: Colors.black38,
                                       blurRadius: 4,
                                       offset: Offset(0, 2),
                                     ),
@@ -964,32 +964,32 @@ class EditProfilePageState extends State<EditProfilePage>
                                   children: [
                                     Icon(
                                       Icons.photo_library,
-                                      color: AppColors.textColor,
-                                      size: 12,
+                                      color: Colors.black87,
+                                      size: 16,
                                     ),
-                                    const SizedBox(width: 8),
-                                    // Text(
-                                    //   'Photos',
-                                    //   style: AppTextStyles.textStyle.copyWith(
-                                    //     fontSize: getResponsiveFontSize(0.03),
-                                    //     color: AppColors.textColor,
-                                    //   ),
-                                    // ),
-
+                                    const SizedBox(width: 4),
                                     Text(
                                       'Photos',
-                                      style: AppTextStyles.titleText.copyWith(
-                                        fontSize: 4,
-                                        foreground: Paint()
-                                          ..shader = LinearGradient(
-                                            colors: AppColors
-                                                .gradientBackgroundList,
-                                          ).createShader(
-                                            Rect.fromLTWH(0, 0, 200,
-                                                70), // You can adjust size
-                                          ),
+                                      style: AppTextStyles.textStyle.copyWith(
+                                        fontSize: getResponsiveFontSize(0.03),
+                                        color: Colors.black87,
                                       ),
                                     ),
+
+                                    // Text(
+                                    //   'Photos',
+                                    //   style: AppTextStyles.titleText.copyWith(
+                                    //     fontSize: 10,
+                                    //     foreground: Paint()
+                                    //       ..shader = LinearGradient(
+                                    //         colors: AppColors
+                                    //             .gradientBackgroundList,
+                                    //       ).createShader(
+                                    //         Rect.fromLTWH(0, 0, 200,
+                                    //             70), // You can adjust size
+                                    //       ),
+                                    //   ),
+                                    // ),
                                   ],
                                 ),
                               ),
@@ -1012,10 +1012,11 @@ class EditProfilePageState extends State<EditProfilePage>
                                 children: [
                                   InfoField(
                                     initialValue: controller
-                                            .userData.first.name.isNotEmpty
-                                        ? controller.userData.first.name
-                                        : controller
-                                            .userProfileUpdateRequest.name,
+                                            .userProfileUpdateRequest
+                                            .name
+                                            .isNotEmpty
+                                        ? controller.userProfileUpdateRequest.name
+                                        : controller.userData.first.name,
                                     label: 'Name',
                                     onChanged: onUserNameChanged,
                                     validator: (value) {
@@ -1047,10 +1048,11 @@ class EditProfilePageState extends State<EditProfilePage>
                                     child: dobPicker(
                                       context: context,
                                       initialValue: controller
-                                              .userData.first.dob.isNotEmpty
-                                          ? controller.userData.first.dob
-                                          : controller
-                                              .userProfileUpdateRequest.dob,
+                                              .userProfileUpdateRequest
+                                              .dob
+                                              .isNotEmpty
+                                          ? controller.userProfileUpdateRequest.dob
+                                          : controller.userData.first.dob,
                                       onChanged: (value) {
                                         controller.userProfileUpdateRequest
                                             .dob = value;
@@ -1066,10 +1068,12 @@ class EditProfilePageState extends State<EditProfilePage>
                                   ),
                                   InfoField(
                                     initialValue: controller
-                                            .userData.first.nickname.isNotEmpty
-                                        ? controller.userData.first.nickname
-                                        : controller
-                                            .userProfileUpdateRequest.nickname,
+                                            .userProfileUpdateRequest
+                                            .nickname
+                                            .isNotEmpty
+                                        ? controller
+                                            .userProfileUpdateRequest.nickname
+                                        : controller.userData.first.nickname,
                                     label: 'Nick name',
                                     onChanged: onNickNameChanged,
                                     validator: (value) {
@@ -1081,11 +1085,12 @@ class EditProfilePageState extends State<EditProfilePage>
                                         0.01,
                                   ),
                                   InfoField(
-                                    initialValue:
-                                        controller.userData.first.bio.isNotEmpty
-                                            ? controller.userData.first.bio
-                                            : controller
-                                                .userProfileUpdateRequest.bio,
+                                    initialValue: controller
+                                            .userProfileUpdateRequest
+                                            .bio
+                                            .isNotEmpty
+                                        ? controller.userProfileUpdateRequest.bio
+                                        : controller.userData.first.bio,
                                     label: 'About',
                                     onChanged: onAboutChanged,
                                     validator: (value) {
@@ -1183,10 +1188,11 @@ class EditProfilePageState extends State<EditProfilePage>
                                   ),
                                   InfoField(
                                     initialValue: controller
-                                            .userData.first.address.isNotEmpty
-                                        ? controller.userData.first.address
-                                        : controller
-                                            .userProfileUpdateRequest.address,
+                                            .userProfileUpdateRequest
+                                            .address
+                                            .isNotEmpty
+                                        ? controller.userProfileUpdateRequest.address
+                                        : controller.userData.first.address,
                                     label: 'Address',
                                     onChanged: onAddressChnaged,
                                     validator: (value) {
@@ -1199,10 +1205,11 @@ class EditProfilePageState extends State<EditProfilePage>
                                   ),
                                   InfoField(
                                     initialValue: controller
-                                            .userData.first.city.isNotEmpty
-                                        ? controller.userData.first.city
-                                        : controller
-                                            .userProfileUpdateRequest.city,
+                                            .userProfileUpdateRequest
+                                            .city
+                                            .isNotEmpty
+                                        ? controller.userProfileUpdateRequest.city
+                                        : controller.userData.first.city,
                                     label: 'City',
                                     onChanged: (value) {
                                       onCityChanged(value);
@@ -2929,8 +2936,8 @@ class EditProfilePageState extends State<EditProfilePage>
                   return GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 5,
+                      mainAxisSpacing: 5,
                     ),
                     itemCount: filteredLanguages.length,
                     itemBuilder: (context, index) {
