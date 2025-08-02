@@ -263,48 +263,62 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                                                 borderRadius:
                                                     BorderRadius.circular(10),
                                               ),
-                                              color: isSelected
-                                                  ? Colors.green.shade500
-                                                  : Colors.black,
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(10.0),
-                                                child: Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.calendar_today,
-                                                      color:
-                                                          AppColors.iconColor,
-                                                      size: fontSize * 1.5,
-                                                    ),
-                                                    SizedBox(width: 8),
-                                                    Expanded(
-                                                      child: Text(
-                                                        "${package.unit} Plan  ₹${package.offerAmount}",
+                                              clipBehavior: Clip.antiAlias,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  gradient: isSelected
+                                                      ? LinearGradient(
+                                                          colors: AppColors
+                                                              .reversedGradientColor)
+                                                      : null,
+                                                  color: isSelected
+                                                      ? null
+                                                      : Colors.black,
+                                                ),
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(
+                                                      10.0),
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.calendar_today,
+                                                        color: isSelected
+                                                            ? AppColors
+                                                                .darkGradientColor
+                                                            : AppColors
+                                                                .lightGradientColor,
+                                                        size: fontSize * 1.5,
+                                                      ),
+                                                      SizedBox(width: 8),
+                                                      Expanded(
+                                                        child: Text(
+                                                          "${toBeginningOfSentenceCase(package.unit.toLowerCase())} Plan  ₹${package.offerAmount}",
+                                                          style: AppTextStyles
+                                                              .bodyText
+                                                              .copyWith(
+                                                            fontSize:
+                                                                fontSize - 4,
+                                                            color: AppColors
+                                                                .textColor,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        "${offerPercentage.toStringAsFixed(0)}% OFF",
                                                         style: AppTextStyles
                                                             .bodyText
                                                             .copyWith(
                                                           fontSize:
-                                                              fontSize - 4,
-                                                          color: AppColors
-                                                              .textColor,
+                                                              fontSize - 6,
+                                                          color: Colors.white,
                                                         ),
                                                       ),
-                                                    ),
-                                                    Text(
-                                                      "${offerPercentage.toStringAsFixed(0)}% OFF",
-                                                      style: AppTextStyles
-                                                          .bodyText
-                                                          .copyWith(
-                                                        fontSize: fontSize - 2,
-                                                        color: Colors.red,
-                                                      ),
-                                                    ),
-                                                    IconButton(
-                                                        onPressed: () {},
-                                                        icon: Icon(Icons
-                                                            .arrow_drop_down_circle_outlined))
-                                                  ],
+                                                      // IconButton(
+                                                      //     onPressed: () {},
+                                                      //     icon: Icon(Icons
+                                                      //         .arrow_drop_down_circle_outlined))
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
                                             ),
@@ -409,42 +423,70 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
             ),
           ),
           actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                "Cancel",
-                style: AppTextStyles.buttonText.copyWith(
-                  fontSize: fontSize,
-                  color: AppColors.buttonColor,
+            Container(
+              // decoration: BoxDecoration(
+              //   gradient: LinearGradient(
+              //     colors: AppColors.gradientColor,
+              //     begin: Alignment.topLeft,
+              //     end: Alignment.bottomRight,
+              //   ),
+              //   borderRadius: BorderRadius.circular(8),
+              // ),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey[400],
+                  shadowColor: Colors.transparent,
+                ),
+                child: Text(
+                  "Cancel",
+                  style: AppTextStyles.buttonText.copyWith(
+                    fontSize: fontSize,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
-            TextButton(
-              onPressed: () async {
-                bool? isOrderCreated = await razorpaycontroller
-                    .createOrder(razorpaycontroller.orderRequestModel);
-                if (isOrderCreated == true) {
-                  razorpaycontroller.initRazorpay();
-                  razorpaycontroller.openPayment(
-                    double.tryParse(amount) ?? 0.0,
-                    controller.userData.first.name,
-                    planId,
-                    controller.userData.first.mobile,
-                    controller.userData.first.email,
-                  );
-                } else {
-                  failure("Order", "Your Payment Order Is Not Created");
-                }
-                controller.updatinguserpackage(
-                    controller.updateNewPackageRequestModel);
-              },
-              child: Text(
-                "Confirm",
-                style: AppTextStyles.buttonText.copyWith(
-                  fontSize: fontSize,
-                  color: AppColors.buttonColor,
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: AppColors.gradientColor,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(50),
+              ),
+              child: ElevatedButton(
+                onPressed: () async {
+                  bool? isOrderCreated = await razorpaycontroller
+                      .createOrder(razorpaycontroller.orderRequestModel);
+                  if (isOrderCreated == true) {
+                    razorpaycontroller.initRazorpay();
+                    razorpaycontroller.openPayment(
+                      double.tryParse(amount) ?? 0.0,
+                      controller.userData.first.name,
+                      planId,
+                      controller.userData.first.mobile,
+                      controller.userData.first.email,
+                    );
+                  } else {
+                    failure("Order", "Your Payment Order Is Not Created");
+                  }
+                  controller.updatinguserpackage(
+                      controller.updateNewPackageRequestModel);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                ),
+                child: Text(
+                  "Confirm",
+                  style: AppTextStyles.buttonText.copyWith(
+                    fontSize: fontSize,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),

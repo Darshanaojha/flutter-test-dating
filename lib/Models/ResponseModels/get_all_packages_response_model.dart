@@ -59,6 +59,7 @@ class Package {
   String packageTitle;
   String packageCategoryId;
   String packagecategory;
+  String packageDescription;
   String days;
   String actualAmount;
   String offerAmount;
@@ -73,6 +74,7 @@ class Package {
   Package({
     required this.id,
     required this.packageTitle,
+    required this.packageDescription,
     required this.packageCategoryId,
     required this.packagecategory,
     required this.days,
@@ -93,6 +95,7 @@ class Package {
       packageTitle: json['package_title'] ?? '',
       packageCategoryId: json['package_category_id'] ?? '',
       packagecategory: json['packagecategory'] ?? '',
+      packageDescription: json['description'] ?? '',
       days: json['days'].toString(),
       actualAmount: json['actual_amount'].toString(),
       offerAmount: json['offer_amount'].toString(),
@@ -112,6 +115,7 @@ class Package {
       'package_title': packageTitle,
       'package_category_id': packageCategoryId,
       'packagecategory': packagecategory,
+      'description': packageDescription,
       'days': days,
       'actual_amount': actualAmount,
       'offer_amount': offerAmount,

@@ -94,6 +94,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
     try {
       setState(() {
         isLoading = true;
+        filteredLikesPage.clear();
       });
 
       // Simulate network delay or actual API call

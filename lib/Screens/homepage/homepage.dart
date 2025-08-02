@@ -404,7 +404,7 @@ class HomePageState extends State<HomePage>
                       .sendConnectionMessage(establishConnectionMessageRequest);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.buttonColor,
+                  backgroundColor: AppColors.mediumGradientColor,
                 ),
                 child: Text('Send Message', style: AppTextStyles.buttonText),
               ),
@@ -513,7 +513,7 @@ class HomePageState extends State<HomePage>
   void rebuildSwipeItemsForFilter(int filterIndex) {
     swipeItems.clear();
 
-    List<SuggestedUser> currentList = controller.getListByFilter(filterIndex);
+    List<SuggestedUser> currentList = controller.getCurrentList(filterIndex);
     // print(
     //     "🔄 Rebuilding SwipeItems for Filter $filterIndex → Found: ${currentList.length}");
 
@@ -624,7 +624,7 @@ class HomePageState extends State<HomePage>
                               setState(() {
                                 selectedFilter.value = -1;
 
-                                final allList = controller.getListByFilter(-1);
+                                final allList = controller.getCurrentList(-1);
                                 print(
                                     "📣 Filter ALL clicked → total ${allList.length} users");
 
@@ -709,7 +709,7 @@ class HomePageState extends State<HomePage>
                     Expanded(
                       child: Obx(() {
                         final currentList =
-                            controller.getListByFilter(selectedFilter.value);
+                            controller.getCurrentList(selectedFilter.value);
 
                         return currentList.isEmpty && lastUser != null
                             ? buildCardLayoutAll(
