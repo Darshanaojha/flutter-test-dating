@@ -90,6 +90,12 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
     );
   }
 
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
   Future<bool> fetchData() async {
     try {
       setState(() {
@@ -651,8 +657,9 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
   }
 
   Future<void> _onRefresh() async {
-    await Future.delayed(Duration(seconds: 2));
-    await controller.likesuserpage();
+    // await Future.delayed(Duration(seconds: 2));
+    fetchData();
+    // await controller.likesuserpage();
   }
 
   String formatLastSeen(String lastSeen) {

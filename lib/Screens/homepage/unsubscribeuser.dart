@@ -1,4 +1,5 @@
 import 'package:dating_application/Controllers/controller.dart';
+import 'package:dating_application/Screens/userprofile/userprofilesummary.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -143,55 +144,69 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      height: 600,
-                      child: Scrollbar(
-                        child: ListView.builder(
-                          scrollDirection: Axis.vertical,
-                          itemCount: controller.userPhotos!.images.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: GestureDetector(
-                                onTap: () => showFullImageDialog(
-                                  context,
-                                  controller.userPhotos!.images[index]
-                                      .toString(),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(15),
-                                  child: Image.network(
-                                    controller.userPhotos!.images[index],
-                                    fit: BoxFit.cover,
-                                    width: 150,
-                                    height: 350,
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      controller.userData.first.name,
-                      style: AppTextStyles.headingText.copyWith(
-                        fontSize: fontSize,
-                      ),
-                    ),
-                    Row(
+                    // SizedBox(
+                    //   height: 600,
+                    //   child: Scrollbar(
+                    //     child: ListView.builder(
+                    //       scrollDirection: Axis.vertical,
+                    //       itemCount: controller.userPhotos!.images.length,
+                    //       itemBuilder: (context, index) {
+                    //         return Padding(
+                    //           padding: const EdgeInsets.all(8.0),
+                    //           child: GestureDetector(
+                    //             onTap: () => showFullImageDialog(
+                    //               context,
+                    //               controller.userPhotos!.images[index]
+                    //                   .toString(),
+                    //             ),
+                    //             child: ClipRRect(
+                    //               borderRadius: BorderRadius.circular(15),
+                    //               child: Image.network(
+                    //                 controller.userPhotos!.images[index],
+                    //                 fit: BoxFit.cover,
+                    //                 width: 150,
+                    //                 height: 350,
+                    //               ),
+                    //             ),
+                    //           ),
+                    //         );
+                    //       },
+                    //     ),
+                    //   ),
+                    // ),
+                    // SizedBox(height: 16),
+                    // Text(
+                    //   controller.userData.first.name,
+                    //   style: AppTextStyles.headingText.copyWith(
+                    //     fontSize: fontSize,
+                    //   ),
+                    // ),
+                    // Row(
+                    //   children: [
+                    //     Text(
+                    //       '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userData.first.dob).year} years old | ',
+                    //       style: AppTextStyles.bodyText.copyWith(
+                    //         fontSize: bodyFontSize,
+                    //       ),
+                    //     ),
+                    //     Text(
+                    //       '${controller.userData.first.city} | ',
+                    //       style: AppTextStyles.bodyText.copyWith(
+                    //         fontSize: bodyFontSize,
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
+                    UserProfileSummary(),
+                    SizedBox(height: 20),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userData.first.dob).year} years old | ',
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: bodyFontSize,
-                          ),
-                        ),
-                        Text(
-                          '${controller.userData.first.city} | ',
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: bodyFontSize,
+                          "Available Packages",
+                          style: AppTextStyles.headingText.copyWith(
+                            fontSize: fontSize,
+                            color: AppColors.textColor,
                           ),
                         ),
                       ],
@@ -338,6 +353,7 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                 ),
               ),
             );
+            // return UserProfileSummary();
           }
           return Center(
             child: Text(

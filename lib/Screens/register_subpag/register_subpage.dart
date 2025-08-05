@@ -49,7 +49,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   @override
   void initState() {
     super.initState();
-    nicknameController.text = controller.userRegistrationRequest.nickname;
+    nicknameController.text = controller.userRegistrationRequest.name;
     nickname.value = controller.userRegistrationRequest.nickname;
     nicknameController.addListener(() {
       nickname.value = nicknameController.text;
@@ -2508,6 +2508,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     images.addAll(List.filled(6, null));
   }
 
+  final RxInt photoUpdateTrigger = 0.obs;
   // Step 11 photos
   Widget buildPhotosOfUser(Size screenSize) {
     Future<void> requestCameraPermission() async {
@@ -2563,6 +2564,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
           controller.userRegistrationRequest.photos[index] = base64Image;
           images[index] = imageFile;
+          photoUpdateTrigger.value++;
         } else {
           Get.snackbar("Error", "Image compression failed.");
         }
@@ -3060,17 +3062,20 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           left: 0,
           right: 0,
           bottom: 0,
-          child: buildBottomButtonRow(
-            onBack: onBackPressed,
-            onNext: onNextButtonPressed,
-            nextLabel: 'Next',
-            backLabel: 'Back',
-            nextEnabled: controller.userRegistrationRequest.photos
-                    .where((photo) => photo.isNotEmpty)
-                    .length >=
-                3,
-            context: context,
-          ),
+          child: Obx(() {
+            photoUpdateTrigger.value; // listen for changes
+            return buildBottomButtonRow(
+              onBack: onBackPressed,
+              onNext: onNextButtonPressed,
+              nextLabel: 'Next',
+              backLabel: 'Back',
+              nextEnabled: controller.userRegistrationRequest.photos
+                      .where((photo) => photo.isNotEmpty)
+                      .length >=
+                  3,
+              context: context,
+            );
+          }),
         ),
       ],
     );

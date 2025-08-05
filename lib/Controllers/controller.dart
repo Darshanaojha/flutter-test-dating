@@ -46,6 +46,7 @@ import 'package:dating_application/Providers/add_user_to_hookup_provider.dart';
 import 'package:dating_application/Providers/app_setting_provider.dart';
 import 'package:dating_application/Providers/change_password_provider.dart';
 import 'package:dating_application/Providers/chat_provider.dart';
+import 'package:dating_application/Providers/check_package_provider.dart';
 import 'package:dating_application/Providers/creator_order_provider.dart';
 import 'package:dating_application/Providers/creators_all_content_provider.dart';
 import 'package:dating_application/Providers/creators_all_orders_provider.dart';
@@ -641,7 +642,7 @@ class Controller extends GetxController {
   RxList<UserDesire> userDesire = <UserDesire>[].obs;
   RxList<UserPreferences> userPreferences = <UserPreferences>[].obs;
   RxList<UserLang> userLang = <UserLang>[].obs;
-  Future<bool> fetchProfile() async {
+  Future<bool> fetchProfile([String id = ""]) async {
     try {
       UserProfileResponse? response = await HomePageProvider().fetchProfile();
       if (response != null) {
@@ -1418,8 +1419,10 @@ class Controller extends GetxController {
   RxList<SuggestedUser> userNearByList = <SuggestedUser>[].obs;
   Set<String?> seenUserIds = {};
   SuggestedUser? lastUser;
+  RxBool isCardLoading = false.obs;
   Future<bool> userSuggestions() async {
     try {
+      isCardLoading.value = true;
       userSuggestionsList.clear();
       userNearByList.clear();
       userHighlightedList.clear();
@@ -1719,7 +1722,7 @@ class Controller extends GetxController {
   RequestToVerifyAccount requestToVerifyAccount =
       RequestToVerifyAccount(identifyImage: '', identifyNo: '');
 
-  Future<bool> verifyuseraccount(
+  Future<int> verifyuseraccount(
       RequestToVerifyAccount requestToVerifyAccount) async {
     try {
       RequestToVerifyAccountResponse? response = await VerifyAccountProvider()
@@ -1727,16 +1730,16 @@ class Controller extends GetxController {
       if (response != null) {
         success('success', response.payload.message);
         Get.close(1);
-        return true;
+        return response.payload.packageStatus;
       } else {
         failure('Error', 'Failed to submit the verification request');
         Get.close(1);
-        return false;
+        return 0;
       }
     } catch (e) {
       failure('Error', e.toString());
       Get.close(1);
-      return false;
+      return 0;
     }
   }
 
@@ -2489,6 +2492,18 @@ class Controller extends GetxController {
       }
     } catch (e) {
       failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxBool isuserPackage = false.obs;
+  Future<bool> userPackage() async {
+    try {
+      bool response = await CheckPackageProvider().checkUserPackage();
+      isuserPackage.value = response;
+      return response;
+    } catch (e) {
+      failure('Error in userPackage', e.toString());
       return false;
     }
   }

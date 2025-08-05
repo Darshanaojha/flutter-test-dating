@@ -64,8 +64,9 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
   Future<void> fetchLatLong() async {
     try {
       print(controller.userRegistrationRequest.city);
-      List<Location> locations =
-          await locationFromAddress(controller.userRegistrationRequest.city);
+      List<Location> locations = await locationFromAddress(
+        controller.userRegistrationRequest.city,
+      );
       print(locations.first.toString());
       if (locations.isNotEmpty) {
         print('not empty');
@@ -79,6 +80,18 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
         isLatLongFetched.value = false;
         showErrorDialog('No location found for the provided address..');
       }
+    } on PlatformException catch (e) {
+      if (e.code == 'IO_ERROR') {
+        showErrorDialog(
+          'A network error occurred. Please check your connection and try again.',
+          showRetry: true,
+        );
+      } else {
+        showErrorDialog(
+          'An unexpected error occurred while fetching the location.',
+          showRetry: true,
+        );
+      }
     } catch (e) {
       print('location error -> ${e.toString()}');
       showErrorDialog(
@@ -86,7 +99,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     }
   }
 
-  void showErrorDialog(String message) {
+  void showErrorDialog(String message, {bool showRetry = false}) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -99,6 +112,14 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
             },
             child: Text('OK', style: AppTextStyles.bodyText),
           ),
+          if (showRetry)
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                fetchLatLong();
+              },
+              child: Text('Retry', style: AppTextStyles.bodyText),
+            ),
         ],
       ),
     );
@@ -291,15 +312,12 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           "City",
                           null,
                           (value) {
-                            setState(() {
-                              controller.userRegistrationRequest.city = value;
-                              if (debounce?.isActive ?? false) {
-                                debounce?.cancel();
-                              }
-                              debounce =
-                                  Timer(Duration(milliseconds: 1000), () {
+                            if (debounce?.isActive ?? false) debounce?.cancel();
+                            debounce = Timer(const Duration(milliseconds: 1200), () {
+                              if (value.isNotEmpty) {
+                                controller.userRegistrationRequest.city = value;
                                 fetchLatLong();
-                              });
+                              }
                             });
                           },
                           fontSize,

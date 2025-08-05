@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dating_application/Screens/navigationbar/navigationpage.dart';
+import 'package:dating_application/Screens/navigationbar/unsubscribenavigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
@@ -64,17 +65,20 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
       setState(() {
         isSubmitting = true;
       });
-      bool isVerified =
+      int isVerified =
           await controller.verifyuseraccount(controller.requestToVerifyAccount);
 
       setState(() {
         isSubmitting = false;
       });
 
-      if (isVerified) {
+      if (isVerified == 1) {
+        print('Verification successful');
         Get.offAll(NavigationBottomBar());
       } else {
-        failure('Error', "Verification failed. Please try again.");
+        print('Verification failed');
+        Get.offAll(Unsubscribenavigation());
+        // failure('Error', "Verification failed. Please try again.");
       }
     } else {
       failure('Error', "Please take a selfie to complete the verification.");

@@ -28,7 +28,7 @@ class HomePageProvider extends GetConnect {
     }
   }
 
-  Future<UserProfileResponse?> fetchProfile() async {
+  Future<UserProfileResponse?> fetchProfile([String id = ""]) async {
     try {
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
@@ -39,7 +39,7 @@ class HomePageProvider extends GetConnect {
       }
 
       Response response = await get(
-        '$baseurl/Profile/profile',
+        '$baseurl/Profile/profile/$id',
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
