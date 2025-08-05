@@ -6,7 +6,10 @@ import '../../../Controllers/controller.dart';
 import '../../../constants.dart';
 
 class UserProfileSummary extends StatefulWidget {
-  const UserProfileSummary({super.key});
+  // optional prameter for user id
+  final String? userId;
+  final List<String>? imageUrls;
+  const UserProfileSummary({super.key, this.userId, this.imageUrls});
 
   @override
   State<UserProfileSummary> createState() => _UserProfileSummaryState();
@@ -19,7 +22,11 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
   @override
   void initState() {
     super.initState();
-    _fetchProfileFuture = controller.fetchProfile();
+    if (widget.userId != null) {
+      _fetchProfileFuture = controller.fetchProfile(widget.userId ?? "");
+    } else {
+      _fetchProfileFuture = controller.fetchProfile();
+    }
   }
 
   @override
@@ -51,45 +58,55 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
         double valueFontSize = fontSize * 0.85;
 
         return SingleChildScrollView(
-      child: Column(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                height: 350,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: controller.userPhotos!.images.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(15),
-                        child: Image.network(
-                          controller.userPhotos!.images[index],
-                          fit: BoxFit.cover,
-                          width: 250,
+              if (widget.imageUrls != null && widget.imageUrls!.isNotEmpty)
+                SizedBox(
+                  height: 350,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: widget.imageUrls!.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Image.network(
+                            widget.imageUrls![index],
+                            fit: BoxFit.cover,
+                            width: 250,
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
-              ),
               const SizedBox(height: 18),
-
               Card(
                 color: AppColors.secondaryColor,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      _profileField(Icons.person_outline, "Nickname", user.nickname, valueFontSize),
-                      _profileField(Icons.person, "Username", user.username, valueFontSize),
-                      _profileField(Icons.info_outline, "Bio", user.bio, valueFontSize),
-                      _profileField(Icons.interests, "Interests", user.interest, valueFontSize),
-                      _profileField(Icons.favorite_border, "Looking For", (user.lookingFor == "1") ? "Serious Relationship" : "Hookup", valueFontSize),
+                      _profileField(Icons.person_outline, "Nickname",
+                          user.nickname, valueFontSize),
+                      _profileField(Icons.person, "Username", user.username,
+                          valueFontSize),
+                      _profileField(
+                          Icons.info_outline, "Bio", user.bio, valueFontSize),
+                      _profileField(Icons.interests, "Interests", user.interest,
+                          valueFontSize),
+                      _profileField(
+                          Icons.favorite_border,
+                          "Looking For",
+                          (user.lookingFor == "1")
+                              ? "Serious Relationship"
+                              : "Hookup",
+                          valueFontSize),
                       if (desires.isNotEmpty)
                         _profileField(
-                          Icons.explore, 
+                          Icons.explore,
                           "Desires",
                           desires.map((d) => d.title).join(", "),
                           valueFontSize,
@@ -112,7 +129,7 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
                     ],
                   ),
                 ),
-              ),  
+              ),
             ],
           ),
         );
@@ -120,11 +137,13 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
     );
   }
 
-  Widget _profileField(IconData icon, String label, String value, double valueFontSize) {
+  Widget _profileField(
+      IconData icon, String label, String value, double valueFontSize) {
     if (value.isEmpty) return const SizedBox.shrink();
     return ListTile(
       leading: Icon(icon, size: 28, color: AppColors.activeColor),
-      title: Text(label, style: AppTextStyles.bodyText.copyWith(fontWeight: FontWeight.bold)),
+      title: Text(label,
+          style: AppTextStyles.bodyText.copyWith(fontWeight: FontWeight.bold)),
       subtitle: Text(
         value,
         style: AppTextStyles.bodyText.copyWith(
@@ -142,7 +161,8 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
       final date = DateFormat('dd/MM/yyyy').parse(dob);
       final now = DateTime.now();
       int age = now.year - date.year;
-      if (now.month < date.month || (now.month == date.month && now.day < date.day)) {
+      if (now.month < date.month ||
+          (now.month == date.month && now.day < date.day)) {
         age--;
       }
       return age;

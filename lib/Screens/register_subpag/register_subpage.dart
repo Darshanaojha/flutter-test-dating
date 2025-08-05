@@ -7,6 +7,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/subgender_request_model.dart';
@@ -345,7 +346,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     if (pickedDate != null) {
                       setState(() {
                         selectedDate = pickedDate;
-                        date.value = selectedDate.toString();
+                        date.value = DateFormat('dd/MM/yyyy').format(pickedDate);
                       });
                     }
                   },
@@ -360,8 +361,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                         ),
                         child: Text(
                           date.value.isEmpty
-                              ? 'Select Date of Birth'
-                              : date.value.split(' ')[0],
+                              ? 'DD/MM/YYYY'
+                              : date.value,
                           style: AppTextStyles.bodyText.copyWith(
                             fontSize: datePickerFontSize,
                             color: AppColors.textColor,
@@ -405,7 +406,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   return;
                 }
                 String formattedDate =
-                    '${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}';
+                    DateFormat('dd/MM/yyyy').format(selectedDate);
                 controller.userRegistrationRequest.dob = formattedDate;
                 markStepAsCompleted(1);
                 Get.snackbar(
@@ -497,7 +498,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 ),
                 SizedBox(height: 32),
                 Text(
-                  "Your Name",
+                  "Your Nick Name",
                   style: AppTextStyles.labelText.copyWith(
                     fontSize: labelfontSize,
                     color: AppColors.textColor,

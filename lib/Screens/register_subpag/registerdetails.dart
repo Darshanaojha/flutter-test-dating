@@ -272,7 +272,6 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           (value) => controller
                               .userRegistrationRequest.username = value,
                           fontSize,
-                          height: fieldHeight, // <-- pass height
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return "UserName is required";
@@ -291,19 +290,25 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                               .userRegistrationRequest.address = value,
                           fontSize,
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
+                            if (value == null || value.trim().isEmpty) {
                               return "Address cannot be empty";
                             }
+
+                            // Allow only letters, numbers, spaces, and commas
+                            if (!RegExp(r'^[a-zA-Z0-9 ,]+$').hasMatch(value)) {
+                              return "Address can only contain letters, numbers, spaces, and commas.";
+                            }
+
+                            // Reject if address is only numbers
                             if (RegExp(r'^[0-9]+$').hasMatch(value)) {
                               return "Address cannot contain only numbers.";
                             }
-                            if (RegExp(r'^[^\w\s]+$').hasMatch(value)) {
-                              return "Address cannot contain only special characters.";
-                            }
-                            if (RegExp(r'(?=.*[0-9])(?=.*[^\w\s])')
-                                .hasMatch(value)) {
-                              return "Address cannot contain only special characters and numbers.";
-                            }
+
+                            // Reject if address is only letters (optional, remove if you allow)
+                            // if (RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+                            //   return "Address should include numbers or commas for validity.";
+                            // }
+
                             return null;
                           },
                         ),
@@ -313,7 +318,8 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           null,
                           (value) {
                             if (debounce?.isActive ?? false) debounce?.cancel();
-                            debounce = Timer(const Duration(milliseconds: 1200), () {
+                            debounce =
+                                Timer(const Duration(milliseconds: 1200), () {
                               if (value.isNotEmpty) {
                                 controller.userRegistrationRequest.city = value;
                                 fetchLatLong();
@@ -402,54 +408,52 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                           }
 
                           return buildConsistentDropdownField<Country>(
-                            label: "Country",
-                            items: controller.countries,
-                            selectedValue: selectedCountry,
-                            fontSize: fontSize,
-                            height: fieldHeight,
-                            onChanged: (Country? value) {
-                              setState(() {
-                                selectedCountry = value ??
-                                    Country(
-                                        id: '',
-                                        name: '',
-                                        countryCode: '',
-                                        status: '',
-                                        created: '',
-                                        updated: '');
-                                controller.userRegistrationRequest.countryId =
-                                    value?.id ?? '';
-                              });
-                            },
-                            displayValue: (Country country) => country.name,
-                            isSearchable: true
-                          );
+                              label: "Country",
+                              items: controller.countries,
+                              selectedValue: selectedCountry,
+                              fontSize: fontSize,
+                              height: fieldHeight,
+                              onChanged: (Country? value) {
+                                setState(() {
+                                  selectedCountry = value ??
+                                      Country(
+                                          id: '',
+                                          name: '',
+                                          countryCode: '',
+                                          status: '',
+                                          created: '',
+                                          updated: '');
+                                  controller.userRegistrationRequest.countryId =
+                                      value?.id ?? '';
+                                });
+                              },
+                              displayValue: (Country country) => country.name,
+                              isSearchable: true);
                         }),
 
                         buildConsistentDropdownField<String>(
-                          label: "Relationship Type",
-                          items: ['1', '2'],
-                          selectedValue: controller
-                                  .userRegistrationRequest.lookingFor.isEmpty
-                              ? null
-                              : controller.userRegistrationRequest.lookingFor,
-                          fontSize: fontSize,
-                          onChanged: (String? value) {
-                            setState(() {
-                              controller.userRegistrationRequest.lookingFor =
-                                  value ?? '';
-                            });
-                          },
-                          displayValue: (String value) {
-                            if (value == '1') {
-                              return 'Serious Relationship';
-                            } else if (value == '2') {
-                              return 'Hookup';
-                            }
-                            return '';
-                          },
-                          isSearchable: false
-                        ),
+                            label: "Relationship Type",
+                            items: ['1', '2'],
+                            selectedValue: controller
+                                    .userRegistrationRequest.lookingFor.isEmpty
+                                ? null
+                                : controller.userRegistrationRequest.lookingFor,
+                            fontSize: fontSize,
+                            onChanged: (String? value) {
+                              setState(() {
+                                controller.userRegistrationRequest.lookingFor =
+                                    value ?? '';
+                              });
+                            },
+                            displayValue: (String value) {
+                              if (value == '1') {
+                                return 'Serious Relationship';
+                              } else if (value == '2') {
+                                return 'Hookup';
+                              }
+                              return '';
+                            },
+                            isSearchable: false),
 
                         SizedBox(height: 20),
                         Container(
@@ -889,8 +893,8 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
       child: SizedBox(
         height: height,
         child: GestureDetector(
-          onTap: () => _showBottomSheet<T>(
-              items, selectedValue, onChanged, displayValue,label,isSearchable),
+          onTap: () => _showBottomSheet<T>(items, selectedValue, onChanged,
+              displayValue, label, isSearchable),
           child: InputDecorator(
             decoration: InputDecoration(
               labelText: label,
@@ -944,7 +948,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     int? maxLength,
     List<TextInputFormatter>? inputFormatters,
     String? Function(String?)? validator,
-    double height = 60,
+    double height = 80, // Increased height to accommodate validation text
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -1022,38 +1026,38 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                       style: Theme.of(context).textTheme.bodySmall),
                   SizedBox(height: 8.0),
                   // Add search box
-                  if(isSearchable)
-                  TextField(
-                    controller: bottomSheetSearchController,
-                    cursorColor: AppColors.lightGradientColor,
-                    decoration: InputDecoration(
-                      floatingLabelStyle: TextStyle(
-                        color: AppColors.lightGradientColor,
+                  if (isSearchable)
+                    TextField(
+                      controller: bottomSheetSearchController,
+                      cursorColor: AppColors.lightGradientColor,
+                      decoration: InputDecoration(
+                        floatingLabelStyle: TextStyle(
+                          color: AppColors.lightGradientColor,
+                        ),
+                        labelText: 'Search country',
+                        prefixIcon: Icon(Icons.search),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide:
+                              BorderSide(color: AppColors.lightGradientColor),
+                        ),
+                        focusColor: AppColors.lightGradientColor,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
-                      labelText: 'Search country',
-                      prefixIcon: Icon(Icons.search),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide:
-                            BorderSide(color: AppColors.lightGradientColor),
-                      ),
-                      focusColor: AppColors.lightGradientColor,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    onChanged: (value) {
-                      if (_searchDebounce?.isActive ?? false) {
-                        _searchDebounce?.cancel();
-                      }
-                      _searchDebounce =
-                          Timer(const Duration(milliseconds: 300), () {
-                        setModalState(() {
-                          bottomSheetSearchQuery = value.trim();
+                      onChanged: (value) {
+                        if (_searchDebounce?.isActive ?? false) {
+                          _searchDebounce?.cancel();
+                        }
+                        _searchDebounce =
+                            Timer(const Duration(milliseconds: 300), () {
+                          setModalState(() {
+                            bottomSheetSearchQuery = value.trim();
+                          });
                         });
-                      });
-                    },
-                  ),
+                      },
+                    ),
                   SizedBox(height: 8.0),
                   Expanded(
                     child: filteredItems.isEmpty

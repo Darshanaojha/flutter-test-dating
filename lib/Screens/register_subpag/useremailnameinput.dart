@@ -45,9 +45,9 @@ class UserInputPageState extends State<UserInputPage>
       failure('Name', 'Please enter your name');
       return 'Please enter your name';
     }
-    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
-      failure('RE-Enter', 'Name must contain only alphabets');
-      return 'Name must contain only alphabets';
+    if (!RegExp(r"^[a-zA-Z\s']+$").hasMatch(value)) {
+      failure('RE-Enter', 'Name must contain only alphabets and apostrophes');
+      return 'Name must contain only alphabets and apostrophes';
     }
     return null;
   }
