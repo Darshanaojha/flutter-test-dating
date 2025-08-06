@@ -113,6 +113,7 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                               FCMService()
                                   .subscribeToTopic(response.payload.userId);
                               FCMService().subscribeToTopic("alluser");
+                              
                               Get.offAll(NavigationBottomBar());
                             }
                           } else {

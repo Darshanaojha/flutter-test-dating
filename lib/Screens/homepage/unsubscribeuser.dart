@@ -480,18 +480,21 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                       .createOrder(razorpaycontroller.orderRequestModel);
                   if (isOrderCreated == true) {
                     razorpaycontroller.initRazorpay();
-                    razorpaycontroller.openPayment(
+                    bool paymentSuccessful = await razorpaycontroller.startPayment(
                       double.tryParse(amount) ?? 0.0,
                       controller.userData.first.name,
                       planId,
                       controller.userData.first.mobile,
                       controller.userData.first.email,
                     );
+                    if (paymentSuccessful) {
+                      await _showSuccessDialog();
+                      controller.updatinguserpackage(
+                          controller.updateNewPackageRequestModel);
+                    }
                   } else {
                     failure("Order", "Your Payment Order Is Not Created");
                   }
-                  controller.updatinguserpackage(
-                      controller.updateNewPackageRequestModel);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
@@ -505,6 +508,39 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                   ),
                 ),
               ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showSuccessDialog() async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          backgroundColor: AppColors.secondaryColor,
+          title: Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.green, size: 28),
+              SizedBox(width: 10),
+              Text("Payment Successful", style: AppTextStyles.titleText),
+            ],
+          ),
+          content: Text(
+            "Welcome to the Dating App! You have successfully subscribed to the plan. Enjoy all the premium features and benefits.",
+            style: AppTextStyles.bodyText,
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text("Awesome!", style: AppTextStyles.buttonText),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
             ),
           ],
         );

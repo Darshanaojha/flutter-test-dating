@@ -10,6 +10,7 @@ import 'package:super_tooltip/super_tooltip.dart';
 
 import '../../../Controllers/controller.dart';
 import '../../../Controllers/razorpaycontroller.dart';
+import '../../navigationbar/navigationpage.dart';
 
 class PricingPage extends StatefulWidget {
   const PricingPage({super.key});
@@ -372,7 +373,7 @@ class PricingPageState extends State<PricingPage>
                             ]));
                   },
                   options: CarouselOptions(
-                    height: 380,
+                    height: 450,
                     enlargeCenterPage: true,
                     enableInfiniteScroll: false,
                     viewportFraction: 0.90,
@@ -728,98 +729,104 @@ class PricingPageState extends State<PricingPage>
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.3,
-                            child: TextButton(
-                              style: TextButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                          Expanded(
+                            child: SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.3,
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                 ),
-                              ),
-                              onPressed: () {
-                                Get.snackbar('', planId.toString());
-                                Navigator.of(context).pop();
-                              },
-                              child: ShaderMask(
-                                shaderCallback: (bounds) => LinearGradient(
-                                  colors: AppColors.reversedGradientColor,
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ).createShader(Rect.fromLTWH(
-                                    0, 0, bounds.width, bounds.height)),
-                                child: Text(
-                                  'Cancel',
-                                  style: AppTextStyles.bodyText.copyWith(
-                                    color: Colors.white,
+                                onPressed: () {
+                                  Get.snackbar('', planId.toString());
+                                  Navigator.of(context).pop();
+                                },
+                                child: ShaderMask(
+                                  shaderCallback: (bounds) => LinearGradient(
+                                    colors: AppColors.reversedGradientColor,
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ).createShader(Rect.fromLTWH(
+                                      0, 0, bounds.width, bounds.height)),
+                                  child: Text(
+                                    'Cancel',
+                                    style: AppTextStyles.bodyText.copyWith(
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.3,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: AppColors.reversedGradientColor,
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: TextButton(
-                                style: TextButton.styleFrom(
-                                  backgroundColor: Colors.transparent,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 4),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.3,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: AppColors.reversedGradientColor,
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
                                   ),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                                onPressed: () async {
-                                  razorpaycontroller.orderRequestModel.amount =
-                                      totalPayable.toString();
-                                  razorpaycontroller
-                                          .orderRequestModel.ispointused =
-                                      ispointused.value == true ? "1" : "0";
-                                  razorpaycontroller.orderRequestModel.points =
-                                      selectedCoins.value.toString();
-                                  razorpaycontroller.orderRequestModel.type =
-                                      '2';
+                                child: TextButton(
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: Colors.transparent,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  onPressed: () async {
+                                    Navigator.of(context).pop(); // Close confirmation dialog
 
-                                  print(razorpaycontroller.orderRequestModel
-                                      .toJson()
-                                      .toString());
+                                    razorpaycontroller.orderRequestModel.amount =
+                                        totalPayable.toString();
+                                    razorpaycontroller
+                                            .orderRequestModel.ispointused =
+                                        ispointused.value == true ? "1" : "0";
+                                    razorpaycontroller.orderRequestModel.points =
+                                        selectedCoins.value.toString();
+                                    razorpaycontroller.orderRequestModel.type =
+                                        '2';
 
-                                  bool? isOrderCreated =
-                                      await razorpaycontroller.createOrder(
-                                    razorpaycontroller.orderRequestModel,
-                                  );
-
-                                  if (isOrderCreated == true) {
-                                    razorpaycontroller.initRazorpay();
-                                    razorpaycontroller.openPayment(
-                                      totalPayable,
-                                      controller.userData.first.name,
-                                      planId,
-                                      controller.userData.first.mobile,
-                                      controller.userData.first.email,
+                                    bool? isOrderCreated =
+                                        await razorpaycontroller.createOrder(
+                                      razorpaycontroller.orderRequestModel,
                                     );
-                                  } else {
-                                    failure("Order",
-                                        "Your Payment Order Is Not Created");
-                                  }
-                                  Navigator.of(context).pop();
-                                  print("Subscribed to plan id $planId");
-                                },
-                                child: Text(
-                                  'Subscribe',
-                                  style: AppTextStyles.bodyText.copyWith(
-                                    color: Colors.white,
-                                    fontSize: fontSize,
+
+                                    if (isOrderCreated == true) {
+                                      razorpaycontroller.initRazorpay();
+                                      bool paymentSuccessful = await razorpaycontroller.startPayment(
+                                        totalPayable,
+                                        controller.userData.first.name,
+                                        planId,
+                                        controller.userData.first.mobile,
+                                        controller.userData.first.email,
+                                      );
+
+                                      if (paymentSuccessful) {
+                                        await _showSuccessDialog();
+                                        Get.offAll(() => NavigationBottomBar());
+                                      }
+                                    } else {
+                                      failure("Order",
+                                          "Your Payment Order Is Not Created");
+                                    }
+                                  },
+                                  child: Text(
+                                    'Subscribe',
+                                    style: AppTextStyles.bodyText.copyWith(
+                                      color: Colors.white,
+                                      fontSize: fontSize,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -873,6 +880,39 @@ class PricingPageState extends State<PricingPage>
               ),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  Future<void> _showSuccessDialog() async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          backgroundColor: AppColors.secondaryColor,
+          title: Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.green, size: 28),
+              SizedBox(width: 10),
+              Text("Payment Successful", style: AppTextStyles.titleText),
+            ],
+          ),
+          content: Text(
+            "Welcome to the Dating App! You have successfully subscribed to the plan. Enjoy all the premium features and benefits.",
+            style: AppTextStyles.bodyText,
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text("Awesome!", style: AppTextStyles.buttonText),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
         );
       },
     );

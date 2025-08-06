@@ -336,17 +336,23 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 SizedBox(height: 8),
                 GestureDetector(
                   onTap: () async {
+                    final DateTime eighteenYearsAgo = DateTime(
+                        DateTime.now().year - 18,
+                        DateTime.now().month,
+                        DateTime.now().day);
                     DateTime? pickedDate = await showDatePicker(
                       context: context,
-                      initialDate: selectedDate,
+                      initialDate: selectedDate.isAfter(eighteenYearsAgo)
+                          ? eighteenYearsAgo
+                          : selectedDate,
                       firstDate: DateTime(1900),
-                      lastDate: DateTime.now(),
+                      lastDate: eighteenYearsAgo,
                     );
 
                     if (pickedDate != null) {
                       setState(() {
                         selectedDate = pickedDate;
-                        date.value = DateFormat('dd/MM/yyyy').format(pickedDate);
+                        date.value = DateFormat('MM/dd/yyyy').format(pickedDate);
                       });
                     }
                   },
@@ -361,7 +367,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                         ),
                         child: Text(
                           date.value.isEmpty
-                              ? 'DD/MM/YYYY'
+                              ? 'MM/DD/YYYY'
                               : date.value,
                           style: AppTextStyles.bodyText.copyWith(
                             fontSize: datePickerFontSize,
@@ -406,7 +412,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   return;
                 }
                 String formattedDate =
-                    DateFormat('dd/MM/yyyy').format(selectedDate);
+                    DateFormat('MM/dd/yyyy').format(selectedDate);
                 controller.userRegistrationRequest.dob = formattedDate;
                 markStepAsCompleted(1);
                 Get.snackbar(

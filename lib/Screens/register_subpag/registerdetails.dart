@@ -161,15 +161,15 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                     child: Column(
                       children: [
                         buildTextFieldNameEmailMobile(
-                          "Name",
-                          controller.userRegistrationRequest.name.isNotEmpty
-                              ? controller.userRegistrationRequest.name
+                          "User Name",
+                          controller.userRegistrationRequest.username.isNotEmpty
+                              ? controller.userRegistrationRequest.username
                               : null,
                           (value) {
-                            controller.userRegistrationRequest.name = value;
+                            controller.userRegistrationRequest.username = value;
                           },
                           (value) {
-                            controller.userRegistrationRequest.name = value;
+                            controller.userRegistrationRequest.username = value;
                           },
                           fontSize,
                           enabled: false,
@@ -267,17 +267,17 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                         ),
 
                         buildConsistentTextField(
-                          "UserName",
-                          controller.userRegistrationRequest.username,
-                          (value) => controller
-                              .userRegistrationRequest.username = value,
+                          "Name",
+                          controller.userRegistrationRequest.name,
+                          (value) =>
+                              controller.userRegistrationRequest.name = value.trim(),
                           fontSize,
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "UserName is required";
+                            if (value == null || value.trim().isEmpty) {
+                              return "Name is required";
                             }
-                            if (!RegExp(r'^[a-zA-Z_\s]+$').hasMatch(value)) {
-                              return "User name must only contain letters and underscore";
+                            if (!RegExp(r"^[a-zA-Z\s]+$").hasMatch(value)) {
+                              return 'Name must contain only letters and spaces';
                             }
                             return null;
                           },
@@ -459,10 +459,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                         Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment(0.8, 1),
-                                colors: AppColors.gradientColor),
+                            gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment(0.8, 1), colors: AppColors.gradientColor),
                             borderRadius: BorderRadius.circular(30),
                           ),
                           child: ElevatedButton(
@@ -479,7 +476,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                                   return;
                                 }
                                 if (controller
-                                        .userRegistrationRequest.password !=
+                                        .userRegistrationRequest.password != 
                                     confirmPassword.text) {
                                   failure('Failed', 'Passwords do not match!');
                                   return;
@@ -601,19 +598,19 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(
-                color: enabled ? AppColors.primaryColor : Colors.grey),
+            borderSide:
+                BorderSide(color: enabled ? AppColors.primaryColor : Colors.grey),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(
-                color:
+            borderSide:
+                BorderSide(color:
                     enabled ? AppColors.primaryColor : AppColors.activeColor),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(
-                color: enabled ? AppColors.primaryColor : Colors.grey),
+            borderSide:
+                BorderSide(color: enabled ? AppColors.primaryColor : Colors.grey),
           ),
           fillColor:
               enabled ? AppColors.formFieldColor : AppColors.primaryColor,
@@ -792,6 +789,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
         style: TextStyle(fontSize: fontSize),
         cursorColor: AppColors.cursorColor,
         decoration: InputDecoration(
+          helperText: ' ',
           labelText: label,
           labelStyle: TextStyle(fontSize: fontSize, color: AppColors.textColor),
           border: OutlineInputBorder(
@@ -948,44 +946,41 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     int? maxLength,
     List<TextInputFormatter>? inputFormatters,
     String? Function(String?)? validator,
-    double height = 80, // Increased height to accommodate validation text
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
-      child: SizedBox(
-        height: height,
-        child: TextFormField(
-          initialValue: initialValue,
-          obscureText: obscureText,
-          enabled: enabled,
-          keyboardType: keyboardType,
-          maxLength: maxLength,
-          inputFormatters: inputFormatters,
-          style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
-          cursorColor: AppColors.cursorColor,
-          decoration: InputDecoration(
-            labelText: label,
-            labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
-            filled: true,
-            fillColor: AppColors.formFieldColor,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: AppColors.textColor),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: AppColors.activeColor),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: AppColors.textColor),
-            ),
-            contentPadding: EdgeInsets.symmetric(
-                vertical: 18, horizontal: 16), // Match dropdown padding
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: TextFormField(
+        initialValue: initialValue,
+        obscureText: obscureText,
+        enabled: enabled,
+        keyboardType: keyboardType,
+        maxLength: maxLength,
+        inputFormatters: inputFormatters,
+        style: AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
+        cursorColor: AppColors.cursorColor,
+        decoration: InputDecoration(
+          helperText: ' ',
+          labelText: label,
+          labelStyle: AppTextStyles.labelText.copyWith(fontSize: fontSize),
+          filled: true,
+          fillColor: AppColors.formFieldColor,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: AppColors.textColor),
           ),
-          onChanged: onChanged,
-          validator: validator,
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: AppColors.activeColor),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: AppColors.textColor),
+          ),
+          contentPadding: EdgeInsets.symmetric(
+              vertical: 18, horizontal: 16), // Match dropdown padding
         ),
+        onChanged: onChanged,
+        validator: validator,
       ),
     );
   }
@@ -1050,7 +1045,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                         if (_searchDebounce?.isActive ?? false) {
                           _searchDebounce?.cancel();
                         }
-                        _searchDebounce =
+                        _searchDebounce = 
                             Timer(const Duration(milliseconds: 300), () {
                           setModalState(() {
                             bottomSheetSearchQuery = value.trim();

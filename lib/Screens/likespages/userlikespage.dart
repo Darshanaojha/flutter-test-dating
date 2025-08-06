@@ -37,6 +37,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
   List<String> selectedDesireFilters = []; // Initialize as empty
   List<LikeRequestPages> filteredLikesPage =
       []; // Will be populated by fetchData initially
+  Map<String, int> optimisticLikeStatus = {};
   bool isLiked = false;
   bool isShare = false;
   bool isSms = false;
@@ -137,6 +138,10 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
           // Update like count based on the unfiltered list initially
           likeCount.value =
               controller.likespage.where((user) => user.likedByMe == 0).length;
+          // Initialize the optimistic like status map
+          for (var user in filteredLikesPage) {
+            optimisticLikeStatus[user.userId] = user.likedByMe;
+          }
           isLoading = false; // Set loading to false after data is ready
         });
       }
@@ -924,52 +929,36 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                               children: [
                                                 IconButton(
                                                   onPressed: () async {
-                                                    showAnimation(user
-                                                        .userId); // Trigger the heart animation
+                                                    showAnimation(user.userId);
+                                                    final originalLikedByMe = optimisticLikeStatus[user.userId] ?? user.likedByMe;
                                                     setState(() {
-                                                      user.likedByMe =
-                                                          user.likedByMe == 0
-                                                              ? 1
-                                                              : 0;
-
-                                                      if (user.likedByMe == 1) {
-                                                        controller
-                                                                .profileLikeRequest
-                                                                .likedBy =
-                                                            user.userId
-                                                                .toString();
-                                                        controller.profileLike(
-                                                            controller
-                                                                .profileLikeRequest);
-                                                      } else {
-                                                        controller
-                                                                .homepageDislikeRequest
-                                                                .userId =
-                                                            user.userId
-                                                                .toString();
-                                                        controller
-                                                                .homepageDislikeRequest
-                                                                .connectionId =
-                                                            user.conectionId
-                                                                .toString();
-                                                        success(
-                                                            user.id.toString(),
-                                                            'dislike id');
-                                                        controller
-                                                            .homepagedislikeprofile(
-                                                                controller
-                                                                    .homepageDislikeRequest);
-                                                        controller
-                                                            .likesuserpage();
-                                                      }
+                                                      optimisticLikeStatus[user.userId] = originalLikedByMe == 0 ? 1 : 0;
                                                     });
+
+                                                    bool success = false;
+                                                    if (optimisticLikeStatus[user.userId] == 1) {
+                                                      controller.profileLikeRequest.likedBy = user.userId.toString();
+                                                      success = await controller.profileLike(controller.profileLikeRequest);
+                                                    } else {
+                                                      controller.homepageDislikeRequest.userId = user.userId.toString();
+                                                      controller.homepageDislikeRequest.connectionId = user.conectionId.toString();
+                                                      success = await controller.homepagedislikeprofile(controller.homepageDislikeRequest);
+                                                    }
+
+                                                    if (!success) {
+                                                      setState(() {
+                                                        optimisticLikeStatus[user.userId] = originalLikedByMe;
+                                                      });
+                                                      failure("Failed", "Failed to update like status. Please try again.");
+                                                    }
+                                                    await controller.likesuserpage();
                                                   },
                                                   icon: Icon(
-                                                    user.likedByMe == 1
+                                                    optimisticLikeStatus[user.userId] == 1
                                                         ? Icons.favorite
                                                         : Icons.favorite_border,
                                                     size: 30,
-                                                    color: user.likedByMe == 1
+                                                    color: optimisticLikeStatus[user.userId] == 1
                                                         ? Colors.red
                                                         : Colors.white,
                                                   ),

@@ -61,27 +61,47 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (widget.imageUrls != null && widget.imageUrls!.isNotEmpty)
-                SizedBox(
-                  height: 350,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: widget.imageUrls!.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: Image.network(
-                            widget.imageUrls![index],
-                            fit: BoxFit.cover,
-                            width: 250,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+              (widget.imageUrls != null && widget.imageUrls!.isNotEmpty)
+                  ? SizedBox(
+                      height: 350,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: widget.imageUrls!.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: Image.network(
+                                widget.imageUrls![index],
+                                fit: BoxFit.cover,
+                                width: 250,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    )
+                  : SizedBox(
+                      height: 350,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: controller.userPhotos!.images.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: Image.network(
+                                controller.userPhotos!.images[index],
+                                fit: BoxFit.cover,
+                                width: 250,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
               const SizedBox(height: 18),
               Card(
                 color: AppColors.secondaryColor,

@@ -34,6 +34,7 @@ class AudioCallPageState extends State<AudioCallPage> {
   int? remoteUid;
   bool localUserJoined = false;
   bool isLocalAudioMuted = false; // Mute state for local user
+  bool isSpeakerOn = false; // Speaker state
 
   late RtcEngine engine;
 
@@ -335,6 +336,13 @@ class AudioCallPageState extends State<AudioCallPage> {
     await engine.muteLocalAudioStream(isLocalAudioMuted);
   }
 
+  void _toggleSpeaker() async {
+    setState(() {
+      isSpeakerOn = !isSpeakerOn;
+    });
+    await engine.setEnableSpeakerphone(isSpeakerOn);
+  }
+
   void _endCall() async {
     await _disposeAgora();
 
@@ -419,7 +427,6 @@ class AudioCallPageState extends State<AudioCallPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Mute/Unmute Button
                   GestureDetector(
                     onTap: _toggleMute,
                     child: Container(
@@ -448,7 +455,37 @@ class AudioCallPageState extends State<AudioCallPage> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 40),
+                  SizedBox(width: 20), // Reduced spacing
+                  // Speaker Button
+                  GestureDetector(
+                    onTap: _toggleSpeaker,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: isSpeakerOn
+                              ? [Colors.blueAccent, Colors.lightBlue]
+                              : [Colors.grey, Colors.blueGrey],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 12,
+                            offset: Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      padding: EdgeInsets.all(22),
+                      child: Icon(
+                        isSpeakerOn ? Icons.volume_up : Icons.volume_off,
+                        size: 36,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 20), // Reduced spacing
                   // End Call Button
                   GestureDetector(
                     onTap: _endCall,

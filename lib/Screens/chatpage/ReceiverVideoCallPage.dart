@@ -3,9 +3,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../constants.dart'; // Assuming you have constants for Agora APP ID
+import '../../Controllers/controller.dart';
 
 class ReceiverVideoCallPage extends StatefulWidget {
   final String channelName;
@@ -23,33 +25,22 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
   int? remoteUid;
   bool isAudioMuted = false;
   bool isVideoMuted = false;
+  bool isSpeakerOn = false;
+  Controller controller = Controller();
 
   @override
   void initState() {
     super.initState();
-    // _requestPermissions();
     _startCallIfPermitted();
-    fetchAgoraToken(widget.channelName).then((value) {
-      if (value == null) {
-        failure('Error', 'Failed to fetch Agora token');
-      } else {
-        agoraToken = value;
-        print("[Flutter] USing Token : $agoraToken");
-        print("[Flutter] Using UUID : $localUid");
-        initializeAgora();
-      }
-    });
   }
 
   Future<bool> _ensurePermissions() async {
     final camera = await Permission.camera.request();
     final mic = await Permission.microphone.request();
-    // Add storage/location if needed
 
     if (camera.isGranted && mic.isGranted) {
       return true;
     } else {
-      // Optionally show a dialog here
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
@@ -62,88 +53,20 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
   void _startCallIfPermitted() async {
     bool permitted = await _ensurePermissions();
     if (!permitted) {
-      Navigator.of(context).pop(); // or show a blocking UI
+      Navigator.of(context).pop();
       return;
     }
     fetchAgoraToken(widget.channelName).then((value) {
       if (value == null) {
         failure('Error', 'Failed to fetch Agora token');
-      } else {
+      }
+      else {
         agoraToken = value;
+        print("[Flutter] USing Token : $agoraToken");
+        print("[Flutter] Using UUID : $localUid");
         initializeAgora();
       }
     });
-  }
-
-  void _requestPermissions() async {
-    // Request notification permission
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-    NotificationSettings notificationSettings =
-        await messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-
-    if (notificationSettings.authorizationStatus ==
-        AuthorizationStatus.authorized) {
-      print('User granted notification permission');
-    } else if (notificationSettings.authorizationStatus ==
-        AuthorizationStatus.denied) {
-      print('User declined notification permission');
-    } else if (notificationSettings.authorizationStatus ==
-        AuthorizationStatus.provisional) {
-      print('User granted provisional notification permission');
-    }
-
-    // Request camera permission
-    var cameraStatus = await Permission.camera.request();
-    if (cameraStatus.isGranted) {
-      print('Camera permission granted');
-    } else if (cameraStatus.isDenied) {
-      print('Camera permission denied');
-    }
-
-    // Request location permission
-    var locationStatus = await Permission.location.request();
-    if (locationStatus.isGranted) {
-      print('Location permission granted');
-    } else if (locationStatus.isDenied) {
-      print('Location permission denied');
-    }
-
-    // Request storage permission
-    var storageStatus = await Permission.storage.request();
-    if (storageStatus.isGranted) {
-      print('Storage permission granted');
-    } else if (await Permission.storage.isRestricted) {
-      print('Storage permission is restricted');
-    } else {
-      // Handle Android 13+ permissions
-      var manageStorageStatus =
-          await Permission.manageExternalStorage.request();
-
-      if (manageStorageStatus.isGranted) {
-        print('Manage external storage permission granted');
-      } else if (manageStorageStatus.isPermanentlyDenied) {
-        openAppSettings();
-      } else {
-        print('Manage external storage permission denied');
-      }
-    }
-
-    // Request microphone permission
-    var microphoneStatus = await Permission.microphone.request();
-    if (microphoneStatus.isGranted) {
-      print('Microphone permission granted');
-    } else if (microphoneStatus.isDenied) {
-      print('Microphone permission denied');
-    }
-
-    // Speaker permission (typically implicitly granted when using audio output)
-    // There's no specific permission for speaker access in Flutter.
-    // Just ensure that the app can play audio properly, and you'll usually be good to go.
-    print('Speaker permission is assumed granted when playing audio.');
   }
 
   Future<String?> fetchAgoraToken(String channelName) async {
@@ -186,7 +109,6 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
 
   Future<void> initializeAgora() async {
     try {
-      // Initialize the Agora engine
       print("Initializing Agora Engine...");
       engine = createAgoraRtcEngine();
       await engine.initialize(RtcEngineContext(
@@ -218,13 +140,11 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
         ),
       );
 
-      // Set client role to Broadcaster and enable video
       await engine.setClientRole(role: ClientRoleType.clientRoleBroadcaster);
       await engine.enableVideo();
       await engine.enableLocalVideo(true);
       await engine.startPreview();
 
-      // Join the channel
       await engine.joinChannel(
         token: agoraToken,
         channelId: widget.channelName,
@@ -242,16 +162,15 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
       await engine.muteLocalVideoStream(false);
       await engine.muteLocalAudioStream(false);
 
-      // Set video encoder configuration for lower resolution and frame rate
       await engine.setVideoEncoderConfiguration(VideoEncoderConfiguration(
         dimensions:
-            VideoDimensions(width: 640, height: 360), // Lower resolution
-        frameRate: 15, // Lower frame rate
+            VideoDimensions(width: 640, height: 360),
+        frameRate: 15,
         bitrate: 800,
         orientationMode:
-            OrientationMode.orientationModeAdaptive, // Auto adjust orientation
+            OrientationMode.orientationModeAdaptive,
         degradationPreference: DegradationPreference
-            .maintainQuality, // Prioritize quality over bitrate
+            .maintainQuality,
       ));
     } catch (e) {
       print("Error initializing Agora Engine: $e");
@@ -269,67 +188,210 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
     await engine.release();
   }
 
+  void toggleAudio() async {
+    setState(() {
+      isAudioMuted = !isAudioMuted;
+    });
+    await engine.muteLocalAudioStream(isAudioMuted);
+  }
+
+  void toggleVideo() async {
+    setState(() {
+      isVideoMuted = !isVideoMuted;
+    });
+    await engine.muteLocalVideoStream(isVideoMuted);
+  }
+
+  void _toggleSpeaker() async {
+    setState(() {
+      isSpeakerOn = !isSpeakerOn;
+    });
+    await engine.setEnableSpeakerphone(isSpeakerOn);
+  }
+
+  void endCall() async {
+    dispose();
+    await engine.leaveChannel();
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    double fontSize = size.width * 0.045;
+
     return Scaffold(
+      backgroundColor: AppColors.primaryColor,
       appBar: AppBar(
-        title: const Text('Receiver Video Call'),
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: AppColors.gradientBackgroundList,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        title: Text(
+          'Video Call',
+          style: AppTextStyles.headingText.copyWith(
+            fontSize: fontSize * 1.1,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: Stack(
         children: [
-          // Remote video view
-          Center(
-            child: remoteVideo(),
-          ),
-
-          // Local video view in top-left corner
+          Center(child: remoteVideo()),
           Align(
-            alignment: Alignment.topLeft,
-            child: SizedBox(
-              width: 100,
-              height: 150,
-              child: localUid != null
-                  ? AgoraVideoView(
-                      controller: VideoViewController(
-                        rtcEngine: engine,
-                        canvas: VideoCanvas(uid: localUid!),
-                      ),
-                    )
-                  : const CircularProgressIndicator(),
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16.0, bottom: 100.0), // Adjust padding as needed
+              child: SizedBox(
+                width: 120,
+                height: 200,
+                child: Center(
+                  child: localUid != null
+                      ? Builder(builder: (context) {
+                          debugPrint('Local UID for ReceiverVideoCallPage: $localUid');
+                          return AgoraVideoView(
+                            controller: VideoViewController(
+                              rtcEngine: engine,
+                              canvas: VideoCanvas(uid: 0), // Explicitly use uid 0 for local video
+                            ),
+                          );
+                        })
+                      : const CircularProgressIndicator(),
+                ),
+              ),
             ),
           ),
-
-          Center(
-            child: remoteUid != null
-                ? AgoraVideoView(
-                    controller: VideoViewController.remote(
-                      rtcEngine: engine,
-                      canvas: VideoCanvas(uid: remoteUid!),
-                      connection: RtcConnection(channelId: widget.channelName),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 40),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: toggleAudio,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: isAudioMuted
+                              ? [Colors.redAccent, Colors.deepOrange]
+                              : [Colors.green, Colors.lightGreen],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 12,
+                            offset: Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      padding: EdgeInsets.all(size.width * 0.05), // Responsive padding
+                      child: Icon(
+                        isAudioMuted ? Icons.mic_off : Icons.mic,
+                        size: size.width * 0.08, // Responsive icon size
+                        color: Colors.white,
+                      ),
                     ),
-                  )
-                : const CircularProgressIndicator(),
-          ),
-          Positioned(
-            bottom: 20,
-            left: 20,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: Icon(isAudioMuted ? Icons.mic_off : Icons.mic),
-                  onPressed: () => toggleAudio(),
-                ),
-                IconButton(
-                  icon:
-                      Icon(isVideoMuted ? Icons.videocam_off : Icons.videocam),
-                  onPressed: () => toggleVideo(),
-                ),
-                IconButton(
-                  icon: Icon(Icons.call_end, color: Colors.red),
-                  onPressed: () => endCall(),
-                ),
-              ],
+                  ),
+                  SizedBox(width: size.width * 0.03), // Responsive spacing
+                  GestureDetector(
+                    onTap: toggleVideo,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: isVideoMuted
+                              ? [Colors.redAccent, Colors.deepOrange]
+                              : [Colors.green, Colors.lightGreen],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 12,
+                            offset: Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      padding: EdgeInsets.all(size.width * 0.05), // Responsive padding
+                      child: Icon(
+                        isVideoMuted ? Icons.videocam_off : Icons.videocam,
+                        size: size.width * 0.08, // Responsive icon size
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: size.width * 0.03), // Responsive spacing
+                  GestureDetector(
+                    onTap: _toggleSpeaker,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: isSpeakerOn
+                              ? [Colors.blueAccent, Colors.lightBlue]
+                              : [Colors.grey, Colors.blueGrey],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 12,
+                            offset: Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      padding: EdgeInsets.all(size.width * 0.05), // Responsive padding
+                      child: Icon(
+                        isSpeakerOn ? Icons.volume_up : Icons.volume_off,
+                        size: size.width * 0.08, // Responsive icon size
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: size.width * 0.03), // Responsive spacing
+                  GestureDetector(
+                    onTap: endCall,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [Colors.red, Colors.deepOrange],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.redAccent.withOpacity(0.25),
+                            blurRadius: 12,
+                            offset: Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      padding: EdgeInsets.all(size.width * 0.05), // Responsive padding
+                      child: Icon(
+                        Icons.call_end,
+                        size: size.width * 0.08, // Responsive icon size
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -348,26 +410,11 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
       );
     } else {
       return const Center(
-        child: CircularProgressIndicator(),
+        child: Text(
+          "Waiting for remote user...",
+          style: TextStyle(fontSize: 18, color: Colors.white),
+        ),
       );
     }
-  }
-
-  void toggleAudio() async {
-    isAudioMuted = !isAudioMuted;
-    await engine.muteLocalAudioStream(isAudioMuted);
-    setState(() {});
-  }
-
-  void toggleVideo() async {
-    isVideoMuted = !isVideoMuted;
-    await engine.muteLocalVideoStream(isVideoMuted);
-    setState(() {});
-  }
-
-  void endCall() async {
-    dispose();
-    await engine.leaveChannel();
-    Navigator.pop(context);
   }
 }

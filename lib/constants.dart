@@ -155,7 +155,7 @@ class AppTextStyles {
   static const double headingSize = 32.0;
   static const double subheadingSize = 24.0;
   static const double titleSize = 17.0;
-  static const double bodySize = 12.0;
+  static const double bodySize = 16.0;
   static const double buttonSize = 12.0;
   static const double labelSize = 14.0;
   static const double inputFieldSize = 16.0;

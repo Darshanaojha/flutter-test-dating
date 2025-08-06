@@ -85,6 +85,11 @@ class UserProfilePageState extends State<UserProfilePage>
     return true;
   }
 
+  bool isValidUsername(String username) {
+    final validUsernameRegExp = RegExp(r'^[a-zA-Z0-9_]+$');
+    return validUsernameRegExp.hasMatch(username);
+  }
+
   Future<void> _refreshData() async {
     await Future.delayed(Duration(seconds: 2));
     await controller.fetchProfile();
@@ -283,16 +288,12 @@ class UserProfilePageState extends State<UserProfilePage>
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        controller.usernameUpdateRequest
-                                                .username.isNotEmpty
-                                            ? controller
-                                                .usernameUpdateRequest.username
-                                            : (controller.userData.isNotEmpty
-                                                ? controller
-                                                    .userData.first.username
-                                                : 'NA'),
+                                        (controller.userData.isNotEmpty
+                                            ? controller.userData.first.username
+                                            : 'NA'),
                                         style: AppTextStyles.titleText.copyWith(
-                                          fontSize: getResponsiveFontSize(0.045),
+                                          fontSize:
+                                              getResponsiveFontSize(0.045),
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -406,8 +407,11 @@ class UserProfilePageState extends State<UserProfilePage>
                                                               onChanged:
                                                                   (value) {
                                                                 controller
-                                                                    .usernameUpdateRequest
-                                                                    .username = value;
+                                                                        .usernameUpdateRequest
+                                                                        .username =
+                                                                    value
+                                                                        .toLowerCase()
+                                                                        .trim();
                                                               },
                                                               style: const TextStyle(
                                                                   color: Colors
@@ -564,29 +568,51 @@ class UserProfilePageState extends State<UserProfilePage>
                                                             ),
                                                             onPressed:
                                                                 () async {
-                                                              final updatedUsername = controller
-                                                                      .usernameUpdateRequest
-                                                                      .username
-                                                                      .isNotEmpty
-                                                                  ? controller
-                                                                      .usernameUpdateRequest
-                                                                      .username
-                                                                  : controller
-                                                                      .userData
-                                                                      .first
-                                                                      .username;
+                                                              final updatedUsername =
+                                                                  _usernameController
+                                                                      .text.toLowerCase()
+                                                                      .trim();
 
-                                                              controller
-                                                                  .updateusername(
+                                                              if (updatedUsername
+                                                                  .isEmpty) {
+                                                                failure(
+                                                                    "Invalid Username",
+                                                                    "Username cannot be empty.");
+                                                                return;
+                                                              }
+                                                              if (!isValidUsername(
+                                                                  updatedUsername)) {
+                                                                failure(
+                                                                  "Invalid Username",
+                                                                  "Username can only contain letters, numbers, and underscores. No spaces or special characters allowed.",
+                                                                );
+                                                                return;
+                                                              }
+
+                                                              bool success =
+                                                                  await controller
+                                                                      .updateusername(
                                                                 UsernameUpdateRequest(
                                                                     username:
                                                                         updatedUsername),
                                                               );
-                                                              await controller
-                                                                  .fetchProfile();
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop();
+                                                              if (success) {
+                                                                await controller
+                                                                    .fetchProfile();
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+                                                              } else {
+                                                                _usernameController
+                                                                        .text =
+                                                                    controller
+                                                                        .userData
+                                                                        .first
+                                                                        .username;
+                                                                failure(
+                                                                    "Failed",
+                                                                    "Failed to update username. Please try again.");
+                                                              }
                                                             },
                                                             child: Text(
                                                               'Save',
