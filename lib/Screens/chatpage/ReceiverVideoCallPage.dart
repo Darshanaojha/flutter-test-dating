@@ -1,5 +1,4 @@
 import 'package:encrypt_shared_preferences/provider.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';

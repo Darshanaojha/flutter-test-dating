@@ -50,7 +50,7 @@ class HomePageState extends State<HomePage>
   int yourfavirout = 10;
   bool isLoading = false;
   int messageCount = 0;
-  int MessageType = 1;
+  int messageType = 1;
   late AnimationController _animationController;
   late Animation<double> _rotationAnimation;
   final TextEditingController messageController = TextEditingController();
@@ -830,7 +830,7 @@ class HomePageState extends State<HomePage>
                   children: [
                     // User Images
                     SizedBox(
-                      height: size.height * 0.4,
+                      height: size.height * 0.37,
                       child: Stack(
                         children: [
                           SafeArea(

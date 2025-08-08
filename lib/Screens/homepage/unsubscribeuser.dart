@@ -77,7 +77,6 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
     if (!await controller.fetchProfile()) return false;
     if (!await controller.fetchAllPackages()) return false;
     if (!await controller.fetchProfileUserPhotos()) return false;
-    if (!await controller.fetchAllPackages()) return false;
     if (!await controller.fetchAllHeadlines()) return false;
     return true;
   }

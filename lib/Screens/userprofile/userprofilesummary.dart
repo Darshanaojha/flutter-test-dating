@@ -23,8 +23,10 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
   void initState() {
     super.initState();
     if (widget.userId != null) {
+      print("Fetching profile for user ID: ${widget.userId}");
       _fetchProfileFuture = controller.fetchProfile(widget.userId ?? "");
     } else {
+      print("Fetching profile for current user");
       _fetchProfileFuture = controller.fetchProfile();
     }
   }

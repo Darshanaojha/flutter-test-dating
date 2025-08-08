@@ -269,15 +269,24 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                         buildConsistentTextField(
                           "Name",
                           controller.userRegistrationRequest.name,
-                          (value) =>
-                              controller.userRegistrationRequest.name = value.trim(),
+                          (value) => controller.userRegistrationRequest.name =
+                              value.trim(),
                           fontSize,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return "Name is required";
                             }
-                            if (!RegExp(r"^[a-zA-Z\s]+$").hasMatch(value)) {
-                              return 'Name must contain only letters and spaces';
+                            // Allow multi-language letters and spaces, disallow numbers and special characters
+                            // if (!RegExp(r"^[\p{L}\s]+$", unicode: true)
+                            //     .hasMatch(value)) {
+                            //   return 'Name must contain only letters and spaces';
+                            // }
+                            if (RegExp(
+                                    r'[0-9!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/;`~]')
+                                .hasMatch(value)) {
+                              failure('RE-Enter',
+                                  'Name must not contain numbers or special characters');
+                              return 'Name must not contain numbers or special characters';
                             }
                             return null;
                           },
@@ -294,20 +303,24 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                               return "Address cannot be empty";
                             }
 
-                            // Allow only letters, numbers, spaces, and commas
-                            if (!RegExp(r'^[a-zA-Z0-9 ,]+$').hasMatch(value)) {
-                              return "Address can only contain letters, numbers, spaces, and commas.";
+                            // Allow multi-language letters, numbers, spaces, and common punctuation
+                            if (!RegExp(r"^[\p{L}\p{N}\s.,\-/#!]+$",
+                                    unicode: true)
+                                .hasMatch(value)) {
+                              return "Address can only contain letters, numbers, spaces, and common punctuation.";
                             }
 
                             // Reject if address is only numbers
-                            if (RegExp(r'^[0-9]+$').hasMatch(value)) {
+                            if (RegExp(r"^\p{N}+$", unicode: true)
+                                .hasMatch(value)) {
                               return "Address cannot contain only numbers.";
                             }
 
-                            // Reject if address is only letters (optional, remove if you allow)
-                            // if (RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-                            //   return "Address should include numbers or commas for validity.";
-                            // }
+                            // Ensure it contains at least one letter or number (to prevent only spaces/special chars)
+                            if (!RegExp(r"[\p{L}\p{N}]", unicode: true)
+                                .hasMatch(value)) {
+                              return "Address must contain at least one letter or number.";
+                            }
 
                             return null;
                           },
@@ -459,7 +472,10 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                         Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment(0.8, 1), colors: AppColors.gradientColor),
+                            gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment(0.8, 1),
+                                colors: AppColors.gradientColor),
                             borderRadius: BorderRadius.circular(30),
                           ),
                           child: ElevatedButton(
@@ -476,7 +492,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                                   return;
                                 }
                                 if (controller
-                                        .userRegistrationRequest.password != 
+                                        .userRegistrationRequest.password !=
                                     confirmPassword.text) {
                                   failure('Failed', 'Passwords do not match!');
                                   return;
@@ -598,19 +614,19 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide:
-                BorderSide(color: enabled ? AppColors.primaryColor : Colors.grey),
+            borderSide: BorderSide(
+                color: enabled ? AppColors.primaryColor : Colors.grey),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide:
-                BorderSide(color:
+            borderSide: BorderSide(
+                color:
                     enabled ? AppColors.primaryColor : AppColors.activeColor),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide:
-                BorderSide(color: enabled ? AppColors.primaryColor : Colors.grey),
+            borderSide: BorderSide(
+                color: enabled ? AppColors.primaryColor : Colors.grey),
           ),
           fillColor:
               enabled ? AppColors.formFieldColor : AppColors.primaryColor,
@@ -1045,7 +1061,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                         if (_searchDebounce?.isActive ?? false) {
                           _searchDebounce?.cancel();
                         }
-                        _searchDebounce = 
+                        _searchDebounce =
                             Timer(const Duration(milliseconds: 300), () {
                           setModalState(() {
                             bottomSheetSearchQuery = value.trim();

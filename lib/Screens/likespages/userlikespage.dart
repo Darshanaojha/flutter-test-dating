@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:heart_overlay/heart_overlay.dart';
 import 'package:lottie/lottie.dart';
@@ -24,7 +23,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
   RazorpayController razorpayController = Get.put(RazorpayController());
   List<String> selectedGender = [];
   String selectedLocation = 'All';
-  bool isLoading = true;
+  final RxBool isLoading = true.obs;
   String? _animatingUserId;
   late final AnimationController _animationController;
   late final DecorationTween decorationTween;
@@ -100,7 +99,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
   Future<bool> fetchData() async {
     try {
       setState(() {
-        isLoading = true;
+        isLoading.value = true;
         filteredLikesPage.clear();
       });
 
@@ -142,7 +141,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
           for (var user in filteredLikesPage) {
             optimisticLikeStatus[user.userId] = user.likedByMe;
           }
-          isLoading = false; // Set loading to false after data is ready
+          isLoading.value = false; // Set loading to false after data is ready
         });
       }
 
@@ -158,7 +157,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
       print("Error during data fetching: $e");
       if (mounted) {
         setState(() {
-          isLoading = false; // Also set loading to false on error
+          isLoading.value = false; // Also set loading to false on error
         });
       }
       return false;
@@ -696,355 +695,365 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
         onRefresh: _onRefresh,
         child: Stack(
           children: [
-            Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: SizedBox(
-                          height: 40,
-                          child: ListView(
-                            scrollDirection: Axis.horizontal,
-                            children: [
-                              buildFilterChip(
-                                  'Gender', genders, selectedGenderFilters,
-                                  (value) {
-                                setState(() {
-                                  selectedGenderFilters = value;
-                                });
-                                applyFilters();
-                              }),
-                              buildFilterChip(
-                                  'Desires', desires, selectedDesireFilters,
-                                  (value) {
-                                setState(() {
-                                  selectedDesireFilters = value;
-                                });
-                                applyFilters();
-                              }),
-                              buildFilterChip('Preferences', preferences,
-                                  selectedPreferenceFilters, (value) {
-                                setState(() {
-                                  selectedPreferenceFilters = value;
-                                });
-                                applyFilters();
-                              })
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 12),
-                      Obx(() => Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Icon(
-                                Icons.favorite,
-                                color: AppColors.mediumGradientColor,
-                                size: 50,
-                              ),
-                              Text(
-                                '${likeCount.value}',
-                                style: AppTextStyles.textStyle.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          )),
-                    ],
+            Obx(() {
+              if (isLoading.value) {
+                return Center(
+                  child: Lottie.asset(
+                      "assets/animations/likepageanimation.json",
+                      repeat: true,
+                      reverse: true),
+                );
+              }
+
+              final likedByOtherUsers = filteredLikesPage
+                  .where((user) => user.likedByMe == 0)
+                  .toList();
+              final likedByCurrentUser = filteredLikesPage
+                  .where((user) => user.likedByMe == 1)
+                  .toList();
+
+              if (likedByOtherUsers.isEmpty && likedByCurrentUser.isEmpty) {
+                return const Center(
+                  child: Text(
+                    "No likes found.",
+                    style: TextStyle(color: Colors.white),
                   ),
-                ),
-                Expanded(
-                  child: filteredLikesPage.isEmpty
-                      ? Center(
-                          child: Lottie.asset(
-                              "assets/animations/likepageanimation.json",
-                              repeat: true,
-                              reverse: true),
-                        )
-                      : ListView.builder(
-                          itemCount: filteredLikesPage.length,
-                          itemBuilder: (context, index) {
-                            var user = filteredLikesPage[index];
+                );
+              }
 
-                            return Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: AppColors.gradientBackgroundList,
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
+              return SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Filters and like count row (unchanged)
+                    Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: 40,
+                              child: ListView(
+                                scrollDirection: Axis.horizontal,
+                                children: [
+                                  buildFilterChip(
+                                      'Gender', genders, selectedGenderFilters,
+                                      (value) {
+                                    setState(() {
+                                      selectedGenderFilters = value;
+                                    });
+                                    applyFilters();
+                                  }),
+                                  buildFilterChip(
+                                      'Desires', desires, selectedDesireFilters,
+                                      (value) {
+                                    setState(() {
+                                      selectedDesireFilters = value;
+                                    });
+                                    applyFilters();
+                                  }),
+                                  buildFilterChip('Preferences', preferences,
+                                      selectedPreferenceFilters, (value) {
+                                    setState(() {
+                                      selectedPreferenceFilters = value;
+                                    });
+                                    applyFilters();
+                                  })
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Obx(() => Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.favorite,
+                                    color: AppColors.mediumGradientColor,
+                                    size: 50,
                                   ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Card(
-                                  elevation: 5,
-                                  color: Colors.transparent,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        SizedBox(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              0.1,
-                                          child: Scrollbar(
-                                            child: ListView.builder(
-                                              scrollDirection: Axis.horizontal,
-                                              itemCount: user.images.length,
-                                              itemBuilder: (context, imgIndex) {
-                                                return Container(
-                                                  margin: EdgeInsets.only(
-                                                      right: 12),
-                                                  child: GestureDetector(
-                                                    onTap: () {
-                                                      showFullImageDialog(
-                                                          context,
-                                                          user.images[
-                                                              imgIndex]);
-                                                    },
-                                                    child: ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              15),
-                                                      child: Image.network(
-                                                        user.images[imgIndex],
-                                                        fit: BoxFit.cover,
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
-                                                            0.2,
-                                                        height: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .height *
-                                                            0.3,
-                                                        errorBuilder: (context,
-                                                            error, stackTrace) {
-                                                          return Container(
-                                                            width: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width *
-                                                                0.2,
-                                                            height: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .height *
-                                                                0.3,
-                                                            alignment: Alignment
-                                                                .center,
-                                                            color: Colors
-                                                                .grey.shade200,
-                                                            child: Icon(
-                                                              Icons
-                                                                  .broken_image,
-                                                              size: 48,
-                                                              color:
-                                                                  Colors.grey,
-                                                            ),
-                                                          );
-                                                        },
-                                                      ),
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(height: 8),
-                                        Row(
-                                          children: [
-                                            Text(user.name.toString(),
-                                                style: AppTextStyles.titleText
-                                                    .copyWith(
-                                                        fontSize:
-                                                            getResponsiveFontSize(
-                                                                0.03))),
-                                            Text(
-                                                (user.likedByMe == 0)
-                                                    ? ' | Liked By ${user.name}'
-                                                    : " | Liked By You",
-                                                style: AppTextStyles.bodyText
-                                                    .copyWith(
-                                                        fontSize:
-                                                            getResponsiveFontSize(
-                                                                0.03))),
-                                          ],
-                                        ),
-                                        SizedBox(height: 4),
-                                        Row(
-                                          children: [
-                                            Text('${getAgeFromDob(user.dob)} |',
-                                                style: AppTextStyles.bodyText
-                                                    .copyWith(
-                                                        fontSize:
-                                                            getResponsiveFontSize(
-                                                                0.03))),
-                                            Text('${user.countryName} |',
-                                                style: AppTextStyles.bodyText
-                                                    .copyWith(
-                                                        fontSize:
-                                                            getResponsiveFontSize(
-                                                                0.03))),
-                                            Text(user.gender,
-                                                style: AppTextStyles.bodyText
-                                                    .copyWith(
-                                                        fontSize:
-                                                            getResponsiveFontSize(
-                                                                0.03))),
-                                          ],
-                                        ),
-                                        // SizedBox(height: 4),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            // Left side: Last Seen text
-                                            Text(
-                                              'Last Seen: ${formatLastSeen(user.updated)}',
-                                              style: AppTextStyles.bodyText
-                                                  .copyWith(
-                                                fontSize:
-                                                    getResponsiveFontSize(0.03),
-                                              ),
-                                            ),
-
-                                            // Right side: Like button + animation
-                                            Stack(
-                                              alignment: Alignment.center,
-                                              children: [
-                                                IconButton(
-                                                  onPressed: () async {
-                                                    showAnimation(user.userId);
-                                                    final originalLikedByMe = optimisticLikeStatus[user.userId] ?? user.likedByMe;
-                                                    setState(() {
-                                                      optimisticLikeStatus[user.userId] = originalLikedByMe == 0 ? 1 : 0;
-                                                    });
-
-                                                    bool success = false;
-                                                    if (optimisticLikeStatus[user.userId] == 1) {
-                                                      controller.profileLikeRequest.likedBy = user.userId.toString();
-                                                      success = await controller.profileLike(controller.profileLikeRequest);
-                                                    } else {
-                                                      controller.homepageDislikeRequest.userId = user.userId.toString();
-                                                      controller.homepageDislikeRequest.connectionId = user.conectionId.toString();
-                                                      success = await controller.homepagedislikeprofile(controller.homepageDislikeRequest);
-                                                    }
-
-                                                    if (!success) {
-                                                      setState(() {
-                                                        optimisticLikeStatus[user.userId] = originalLikedByMe;
-                                                      });
-                                                      failure("Failed", "Failed to update like status. Please try again.");
-                                                    }
-                                                    await controller.likesuserpage();
-                                                  },
-                                                  icon: Icon(
-                                                    optimisticLikeStatus[user.userId] == 1
-                                                        ? Icons.favorite
-                                                        : Icons.favorite_border,
-                                                    size: 30,
-                                                    color: optimisticLikeStatus[user.userId] == 1
-                                                        ? Colors.red
-                                                        : Colors.white,
-                                                  ),
-                                                ),
-
-                                                // Heart animation
-                                                if (_animatingUserId ==
-                                                    user.userId)
-                                                  AnimatedOpacity(
-                                                    duration: Duration(
-                                                        milliseconds: 500),
-                                                    opacity: _animatingUserId ==
-                                                            user.userId
-                                                        ? 1.0
-                                                        : 0.0,
-                                                    child: AnimatedScale(
-                                                      duration: Duration(
-                                                          milliseconds: 500),
-                                                      scale: _animatingUserId ==
-                                                              user.userId
-                                                          ? 1.5
-                                                          : 0.0,
-                                                      child: Icon(
-                                                        Icons.favorite,
-                                                        color: Colors.red
-                                                            .withOpacity(0.6),
-                                                        size: 50,
-                                                      ),
-                                                    ),
-                                                  ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                  Text(
+                                    '${likeCount.value}',
+                                    style: AppTextStyles.textStyle.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                ),
+                                ],
+                              )),
+                        ],
+                      ),
+                    ),
+
+                    // Section: Liked by Others
+                    if (likedByOtherUsers.isNotEmpty)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Text(
+                              "Liked by Others",
+                              style: AppTextStyles.titleText
+                                  .copyWith(color: Colors.white),
+                            ),
+                          ),
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: likedByOtherUsers.length,
+                            itemBuilder: (context, index) {
+                              var user = likedByOtherUsers[index];
+                              return _buildUserCard(context, user);
+                            },
+                          ),
+                        ],
+                      ),
+
+                    // Divider with "Liked by you" text at right
+                    if (likedByCurrentUser.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12.0, vertical: 8.0),
+                        child: Row(
+                          children: [
+                            Expanded(child: Divider(color: Colors.white54)),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: Text(
+                                "Liked by you",
+                                style: AppTextStyles.bodyText
+                                    .copyWith(color: Colors.white),
+                                textAlign: TextAlign.right,
                               ),
-                            );
-                          },
+                            ),
+                          ],
                         ),
-                )
+                      ),
+
+                    // Section: You Liked
+                    if (likedByCurrentUser.isNotEmpty)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Text(
+                              "You Liked",
+                              style: AppTextStyles.titleText
+                                  .copyWith(color: Colors.white),
+                            ),
+                          ),
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: likedByCurrentUser.length,
+                            itemBuilder: (context, index) {
+                              var user = likedByCurrentUser[index];
+                              return _buildUserCard(context, user);
+                            },
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUserCard(BuildContext context, LikeRequestPages user) {
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: AppColors.gradientBackgroundList,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Card(
+          elevation: 5,
+          color: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.1,
+                  child: Scrollbar(
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: user.images.length,
+                      itemBuilder: (context, imgIndex) {
+                        return Container(
+                          margin: EdgeInsets.only(right: 12),
+                          child: GestureDetector(
+                            onTap: () {
+                              showFullImageDialog(
+                                  context, user.images[imgIndex]);
+                            },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: Image.network(
+                                user.images[imgIndex],
+                                fit: BoxFit.cover,
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.3,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.2,
+                                    height: MediaQuery.of(context).size.height *
+                                        0.3,
+                                    alignment: Alignment.center,
+                                    color: Colors.grey.shade200,
+                                    child: Icon(
+                                      Icons.broken_image,
+                                      size: 48,
+                                      color: Colors.grey,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                SizedBox(height: 8),
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundImage: user.images.isNotEmpty
+                          ? NetworkImage(user.images.first)
+                          : null,
+                      child: user.images.isEmpty
+                          ? Icon(Icons.person, size: 20)
+                          : null,
+                    ),
+                    SizedBox(width: 8),
+                    Text(user.name.toString(),
+                        style: AppTextStyles.titleText
+                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
+                    Text(
+                        (user.likedByMe == 0)
+                            ? ' | Liked By ${user.name}'
+                            : " | Liked By You",
+                        style: AppTextStyles.bodyText
+                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
+                  ],
+                ),
+                SizedBox(height: 4),
+                Row(
+                  children: [
+                    Text('${getAgeFromDob(user.dob)} |',
+                        style: AppTextStyles.bodyText
+                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
+                    Text('${user.countryName} |',
+                        style: AppTextStyles.bodyText
+                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
+                    Text(user.gender,
+                        style: AppTextStyles.bodyText
+                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Last Seen: ${formatLastSeen(user.updated)}',
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: getResponsiveFontSize(0.03),
+                      ),
+                    ),
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        IconButton(
+                          onPressed: () async {
+                            showAnimation(user.userId);
+                            final originalLikedByMe =
+                                optimisticLikeStatus[user.userId] ??
+                                    user.likedByMe;
+                            setState(() {
+                              optimisticLikeStatus[user.userId] =
+                                  originalLikedByMe == 0 ? 1 : 0;
+                            });
+
+                            bool success = false;
+                            if (optimisticLikeStatus[user.userId] == 1) {
+                              controller.profileLikeRequest.likedBy =
+                                  user.userId.toString();
+                              success = await controller
+                                  .profileLike(controller.profileLikeRequest);
+                            } else {
+                              controller.homepageDislikeRequest.userId =
+                                  user.userId.toString();
+                              controller.homepageDislikeRequest.connectionId =
+                                  user.conectionId.toString();
+                              success = await controller.homepagedislikeprofile(
+                                  controller.homepageDislikeRequest);
+                            }
+
+                            if (!success) {
+                              setState(() {
+                                optimisticLikeStatus[user.userId] =
+                                    originalLikedByMe;
+                              });
+                              failure("Failed",
+                                  "Failed to update like status. Please try again.");
+                            }
+                            await controller.likesuserpage();
+                          },
+                          icon: Icon(
+                            optimisticLikeStatus[user.userId] == 1
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            size: 30,
+                            color: optimisticLikeStatus[user.userId] == 1
+                                ? Colors.red
+                                : Colors.white,
+                          ),
+                        ),
+                        if (_animatingUserId == user.userId)
+                          AnimatedOpacity(
+                            duration: Duration(milliseconds: 500),
+                            opacity:
+                                _animatingUserId == user.userId ? 1.0 : 0.0,
+                            child: AnimatedScale(
+                              duration: Duration(milliseconds: 500),
+                              scale:
+                                  _animatingUserId == user.userId ? 1.5 : 0.0,
+                              child: Icon(
+                                Icons.favorite,
+                                color: Colors.red.withOpacity(0.6),
+                                size: 50,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
               ],
             ),
-            // Positioned(
-            //   bottom: 16,
-            //   right: 16,
-            //   child: SizedBox(
-            //     width: 120,
-            //     height: 40,
-            //     child: Container(
-            //       decoration: BoxDecoration(
-            //         gradient: LinearGradient(
-            //             begin: Alignment.topLeft,
-            //             end: Alignment(0.8, 1),
-            //             colors: AppColors.gradientColor),
-            //         borderRadius: BorderRadius.circular(
-            //             30), // Ensure the button has rounded corners
-            //       ),
-            //       // child: FloatingActionButton(
-            //       //   onPressed: () {
-            //       //     showUpgradeBottomSheet();
-            //       //   },
-            //       //   backgroundColor: Colors
-            //       //       .transparent, // Set to transparent as the gradient is applied via Container
-            //       //   shape: RoundedRectangleBorder(
-            //       //     borderRadius: BorderRadius.circular(30),
-            //       //   ),
-            //       //   child: Text(
-            //       //     "Add On",
-            //       //     style: AppTextStyles.textStyle,
-            //       //     textAlign: TextAlign.center,
-            //       //   ),
-            //       // ),
-            //     ),
-            //   ),
-            // ),
-            if (isLoading)
-              Center(
-                child: SpinKitCircle(
-                  size: 150.0,
-                  color: AppColors.progressColor,
-                ),
-              ),
-          ],
+          ),
         ),
       ),
     );

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:dating_application/Models/RequestModels/transaction_request_model.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../Models/RequestModels/order_request_model.dart';
@@ -213,7 +212,12 @@ class RazorpayController extends GetxController {
 
   OrderRequestModel orderRequestModel = OrderRequestModel(
       packageId: '', amount: '', points: '', ispointused: '', type: '');
+  final isProcessingOrder = false.obs;
   Future<bool?> createOrder(OrderRequestModel orderRequestModel) async {
+    if (isProcessingOrder.value) {
+      return false;
+    }
+    isProcessingOrder.value = true;
     try {
       OrderResponseModel? orderResponseModel =
           await OrderProvider().createOrder(orderRequestModel);
@@ -255,6 +259,8 @@ class RazorpayController extends GetxController {
     } catch (e) {
       failure('Error', e.toString());
       return false;
+    } finally {
+      isProcessingOrder.value = false;
     }
   }
 

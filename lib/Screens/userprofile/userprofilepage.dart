@@ -388,6 +388,18 @@ class UserProfilePageState extends State<UserProfilePage>
                                                     ),
                                                   ),
                                                   const SizedBox(height: 20),
+                                                  Text(
+                                                    'Be creative! Your username can have only letters, numbers, or underscores (_)',
+                                                    style: AppTextStyles
+                                                        .titleText
+                                                        .copyWith(
+                                                      fontSize:
+                                                          getResponsiveFontSize(
+                                                              0.03),
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 20),
                                                   SizedBox(
                                                     height: 80,
                                                     child: Scrollbar(
@@ -570,7 +582,8 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                 () async {
                                                               final updatedUsername =
                                                                   _usernameController
-                                                                      .text.toLowerCase()
+                                                                      .text
+                                                                      .toLowerCase()
                                                                       .trim();
 
                                                               if (updatedUsername
@@ -716,7 +729,21 @@ class UserProfilePageState extends State<UserProfilePage>
                               ),
                               child: InkWell(
                                 onTap: () {
-                                  showVerificationDialog(context);
+                                  if (controller.userData.isNotEmpty &&
+                                      controller.userData.first
+                                              .accountVerificationStatus ==
+                                          '1') {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                            'No further action needed.Your verification is successful. You are now a trusted user on the platform.'),
+                                      ),
+                                    );
+                                    // success('Verification',
+                                    //     'No further action needed.Your verification is successful. You are now a trusted user on the platform.');
+                                  } else {
+                                    showVerificationDialog(context);
+                                  }
                                 },
                                 borderRadius: BorderRadius.circular(16.0),
                                 child: Padding(

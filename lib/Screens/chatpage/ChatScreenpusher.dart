@@ -178,6 +178,7 @@ class ChatScreenState extends State<ChatScreen> {
       failure('Error', 'Error deleting the chat');
     }
   }
+  
 
   void _showMessageDialog(BuildContext context, Message message, int index) {
     TextEditingController messageController =
@@ -474,20 +475,25 @@ class ChatScreenState extends State<ChatScreen> {
               : SizedBox(),
           IconButton(
             icon: Icon(Icons.phone),
-            onPressed: () {
-              Get.to(AudioCallPage(
-                caller: widget.senderId,
-                receiver: widget.receiverId,
-              ));
+            onPressed: () async {
+              if (await _requestPermission(Permission.microphone, "Microphone")) {
+                Get.to(AudioCallPage(
+                  caller: widget.senderId,
+                  receiver: widget.receiverId,
+                ));
+              }
             },
           ),
           IconButton(
             icon: Icon(Icons.videocam),
-            onPressed: () {
-              Get.to(VideoCallPage(
-                caller: widget.senderId,
-                receiver: widget.receiverId,
-              ));
+            onPressed: () async {
+              if (await _requestPermission(Permission.camera, "Camera") &&
+                  await _requestPermission(Permission.microphone, "Microphone")) {
+                Get.to(VideoCallPage(
+                  caller: widget.senderId,
+                  receiver: widget.receiverId,
+                ));
+              }
             },
           ),
         ],
@@ -948,29 +954,94 @@ class ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Future<XFile?> _pickImage(ImageSource source) async {
-    PermissionStatus status;
-    if (source == ImageSource.camera) {
-      status = await Permission.camera.request();
-    } else {
-      status = await Permission.photos.request();
+  Future<bool> _requestPermission(Permission permission, String permissionName) async {
+    var status = await permission.status;
+    if (status.isGranted || (status.isLimited && Platform.isIOS)) {
+      return true;
+    } else if (status.isDenied) {
+      status = await permission.request();
+      if (status.isGranted || (status.isLimited && Platform.isIOS)) {
+        return true;
+      } else {
+        Get.snackbar('Permission Denied', "$permissionName permission is required.");
+        return false;
+      }
+    } else if (status.isPermanentlyDenied || status.isRestricted) {
+      Get.snackbar(
+        'Permission Required',
+        "$permissionName permission has been permanently denied. Please enable it in app settings.",
+        mainButton: TextButton(
+          child: const Text("Open Settings"),
+          onPressed: () {
+            openAppSettings();
+          },
+        ),
+        duration: const Duration(seconds: 5),
+      );
+      return false;
+    }
+    return false;
+  }
+
+  Future<bool> _requestGalleryPermission() async {
+    Permission photoPermission = Permission.photos;
+    // On Android, Permission.photos handles storage access for media.
+    // No need for explicit Permission.storage fallback with recent permission_handler versions.
+    // However, if issues persist on older Android, consider adding DeviceInfoPlugin check.
+
+    var status = await photoPermission.status;
+
+    if (status.isGranted || (status.isLimited && Platform.isIOS)) {
+      return true;
     }
 
-    if (status.isGranted) {
-      return await ImagePicker().pickImage(source: source);
-    } else if (status.isPermanentlyDenied) {
-      await openAppSettings();
-    } else {
+    if (status.isPermanentlyDenied || status.isRestricted) {
       Get.snackbar(
-        'Permission Denied',
-        'Please grant permission to access the ${source == ImageSource.camera ? 'camera' : 'gallery'}.',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: Duration(seconds: 2),
+        'Permission Required',
+        "Gallery permission has been permanently denied. Please enable it in app settings.",
+        mainButton: TextButton(
+          child: const Text("Open Settings"),
+          onPressed: () {
+            openAppSettings();
+          },
+        ),
+        duration: const Duration(seconds: 5),
       );
-      await Future.delayed(Duration(seconds: 2));
-      openAppSettings();
+      return false;
     }
-    return null;
+
+    status = await photoPermission.request();
+
+    if (status.isGranted || (status.isLimited && Platform.isIOS)) {
+      return true;
+    }
+
+    Get.snackbar(
+      'Permission Denied',
+      "Gallery permission is required. You can enable it in app settings.",
+      mainButton: TextButton(
+        child: const Text("Open Settings"),
+        onPressed: () {
+          openAppSettings();
+        },
+      ),
+      duration: const Duration(seconds: 5),
+    );
+    return false;
+  }
+
+  Future<XFile?> _pickImage(ImageSource source) async {
+    bool permissionGranted = false;
+    if (source == ImageSource.camera) {
+      permissionGranted = await _requestPermission(Permission.camera, "Camera");
+    } else if (source == ImageSource.gallery) {
+      permissionGranted = await _requestGalleryPermission();
+    }
+
+    if (!permissionGranted) {
+      return null;
+    }
+    return await ImagePicker().pickImage(source: source);
   }
 
   Future<Uint8List> _fetchImageBytes(
@@ -1038,7 +1109,7 @@ class _SensitiveImageWidgetState extends State<SensitiveImageWidget> {
         } else if (snapshot.hasError) {
           return const Icon(Icons.broken_image);
         } else if (snapshot.hasData) {
-          Widget image = ClipRRect(
+          Widget chatBubbleImage = ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Image.memory(
               snapshot.data!,
@@ -1046,6 +1117,10 @@ class _SensitiveImageWidgetState extends State<SensitiveImageWidget> {
               height: 180,
               fit: BoxFit.cover,
             ),
+          );
+
+          Widget fullScreenImage = Image.memory(
+            snapshot.data!,
           );
 
           if (widget.sensitivity == 0 && _showBlur) {
@@ -1079,7 +1154,7 @@ class _SensitiveImageWidgetState extends State<SensitiveImageWidget> {
                 children: [
                   ImageFiltered(
                     imageFilter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                    child: image,
+                    child: chatBubbleImage,
                   ),
                   Positioned.fill(
                     child: Container(
@@ -1116,15 +1191,22 @@ class _SensitiveImageWidgetState extends State<SensitiveImageWidget> {
               onTap: () {
                 showDialog(
                   context: context,
-                  builder: (_) => Dialog(
-                    backgroundColor: Colors.transparent,
-                    child: InteractiveViewer(
-                      child: image,
-                    ),
-                  ),
+                  builder: (context) {
+                    return Dialog(
+                      backgroundColor: Colors.transparent,
+                      insetPadding: EdgeInsets.all(10),
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height,
+                        child: InteractiveViewer(
+                          child: fullScreenImage,
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
-              child: image,
+              child: chatBubbleImage,
             );
           }
         } else {

@@ -304,9 +304,14 @@ class EditProfilePageState extends State<EditProfilePage>
     if (value.length < 3) {
       return 'Name should be at least 3 characters long';
     }
-    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
-      failure('RE-Enter', 'Name must contain only alphabets');
-      return 'Name must contain only alphabets';
+    // if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
+    //   failure('RE-Enter', 'Name must contain only alphabets');
+    //   return 'Name must contain only alphabets';
+    // }
+    if (RegExp(r'[0-9!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/;`~]').hasMatch(value)) {
+      failure(
+          'RE-Enter', 'Name must not contain numbers or special characters');
+      return 'Name must not contain numbers or special characters';
     }
     return null;
   }
@@ -387,6 +392,9 @@ class EditProfilePageState extends State<EditProfilePage>
     }
     if (value.length < 3) {
       return 'Nickname should be at least 3 characters long';
+    }
+    if (RegExp(r'[0-9!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
+      return 'Nickname must not contain numbers or special characters.';
     }
     return null;
   }
@@ -525,14 +533,14 @@ class EditProfilePageState extends State<EditProfilePage>
     Future<void> selectDate() async {
       DateTime now = DateTime.now();
       DateTime today = DateTime(now.year, now.month, now.day);
-      DateTime eighteenYearsAgo = today.subtract(Duration(days: 18 * 365));
+      DateTime eighteenYearsAgo = today.subtract(Duration(days: (18 * 365) + 5)); // Added 5 days to account for leap years
 
       DateTime defaultInitial = eighteenYearsAgo; // default to 18 years ago
 
       DateTime? initialDate;
       try {
         if (initialValue.isNotEmpty) {
-          DateTime parsed = DateFormat('dd/MM/yyyy').parseStrict(initialValue);
+          DateTime parsed = DateFormat('MM/dd/yyyy').parseStrict(initialValue);
           initialDate =
               parsed.isAfter(eighteenYearsAgo) ? defaultInitial : parsed;
         }
@@ -549,7 +557,7 @@ class EditProfilePageState extends State<EditProfilePage>
       );
 
       if (pickedDate != null) {
-        String formattedDate = DateFormat('dd/MM/yyyy').format(pickedDate);
+        String formattedDate = DateFormat('MM/dd/yyyy').format(pickedDate);
         controller.text = formattedDate;
         onChanged(formattedDate);
         validateInput(formattedDate);
@@ -1015,7 +1023,8 @@ class EditProfilePageState extends State<EditProfilePage>
                                             .userProfileUpdateRequest
                                             .name
                                             .isNotEmpty
-                                        ? controller.userProfileUpdateRequest.name
+                                        ? controller
+                                            .userProfileUpdateRequest.name
                                         : controller.userData.first.name,
                                     label: 'Name',
                                     onChanged: onUserNameChanged,
@@ -1051,7 +1060,8 @@ class EditProfilePageState extends State<EditProfilePage>
                                               .userProfileUpdateRequest
                                               .dob
                                               .isNotEmpty
-                                          ? controller.userProfileUpdateRequest.dob
+                                          ? controller
+                                              .userProfileUpdateRequest.dob
                                           : controller.userData.first.dob,
                                       onChanged: (value) {
                                         controller.userProfileUpdateRequest
@@ -1077,7 +1087,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                     label: 'Nick name',
                                     onChanged: onNickNameChanged,
                                     validator: (value) {
-                                      return validateNickname(value);
+                                      return validateNickname(value.trim());
                                     },
                                   ),
                                   SizedBox(
@@ -1089,7 +1099,8 @@ class EditProfilePageState extends State<EditProfilePage>
                                             .userProfileUpdateRequest
                                             .bio
                                             .isNotEmpty
-                                        ? controller.userProfileUpdateRequest.bio
+                                        ? controller
+                                            .userProfileUpdateRequest.bio
                                         : controller.userData.first.bio,
                                     label: 'About',
                                     onChanged: onAboutChanged,
@@ -1191,7 +1202,8 @@ class EditProfilePageState extends State<EditProfilePage>
                                             .userProfileUpdateRequest
                                             .address
                                             .isNotEmpty
-                                        ? controller.userProfileUpdateRequest.address
+                                        ? controller
+                                            .userProfileUpdateRequest.address
                                         : controller.userData.first.address,
                                     label: 'Address',
                                     onChanged: onAddressChnaged,
@@ -1208,7 +1220,8 @@ class EditProfilePageState extends State<EditProfilePage>
                                             .userProfileUpdateRequest
                                             .city
                                             .isNotEmpty
-                                        ? controller.userProfileUpdateRequest.city
+                                        ? controller
+                                            .userProfileUpdateRequest.city
                                         : controller.userData.first.city,
                                     label: 'City',
                                     onChanged: (value) {

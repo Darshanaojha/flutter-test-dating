@@ -352,7 +352,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     if (pickedDate != null) {
                       setState(() {
                         selectedDate = pickedDate;
-                        date.value = DateFormat('MM/dd/yyyy').format(pickedDate);
+                        date.value =
+                            DateFormat('MM/dd/yyyy').format(pickedDate);
                       });
                     }
                   },
@@ -366,9 +367,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           border: Border.all(color: AppColors.textColor),
                         ),
                         child: Text(
-                          date.value.isEmpty
-                              ? 'MM/DD/YYYY'
-                              : date.value,
+                          date.value.isEmpty ? 'MM/DD/YYYY' : date.value,
                           style: AppTextStyles.bodyText.copyWith(
                             fontSize: datePickerFontSize,
                             color: AppColors.textColor,
@@ -452,10 +451,17 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       failure('Nickname', 'Enter Your Nickname');
       return false;
     }
-    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(nickname)) {
-      failure('Nickname', 'Nickname must only contain letters.');
+    // if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(nickname)) {
+    //   failure('Nickname', 'Nickname must only contain letters.');
+    //   return false;
+    // }
+    // check for number and special characters
+    if (RegExp(r'[0-9!@#$%^&*(),.?":{}|<>]').hasMatch(nickname)) {
+      failure('Nickname',
+          'Nickname must not contain numbers or special characters.');
       return false;
     }
+
     return true;
   }
 
