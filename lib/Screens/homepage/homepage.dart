@@ -840,7 +840,8 @@ class HomePageState extends State<HomePage>
                                 child: ListView.builder(
                                   controller: _imagePageController,
                                   itemCount: images.length,
-                                  itemBuilder: (BuildContext context, int index) {
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
                                     if (images.isEmpty) {
                                       return Center(
                                           child: Text('No Images Available'));
@@ -851,13 +852,16 @@ class HomePageState extends State<HomePage>
                                       child: Container(
                                         margin: EdgeInsets.only(bottom: 12),
                                         child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(28),
+                                          borderRadius:
+                                              BorderRadius.circular(28),
                                           child: CachedNetworkImage(
                                             imageUrl: images[index],
                                             placeholder: (context, url) => Center(
-                                                child: CircularProgressIndicator()),
+                                                child:
+                                                    CircularProgressIndicator()),
                                             errorWidget: (context, url, error) {
-                                              return Icon(Icons.person_pin_outlined,
+                                              return Icon(
+                                                  Icons.person_pin_outlined,
                                                   color: const Color.fromARGB(
                                                       255, 150, 148, 148));
                                             },
@@ -878,8 +882,8 @@ class HomePageState extends State<HomePage>
                     ),
                     // TOP ROW WITH LOCATION, NAME, AND CONNECT BUTTON
                     Padding(
-                      padding:
-                          const EdgeInsets.only(left: 16.0, right: 16.0, top: 8.0),
+                      padding: const EdgeInsets.only(
+                          left: 16.0, right: 16.0, top: 8.0),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -899,7 +903,8 @@ class HomePageState extends State<HomePage>
                                 SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       // Location
                                       if (user.city != null &&
@@ -907,12 +912,13 @@ class HomePageState extends State<HomePage>
                                         Row(
                                           children: [
                                             Icon(Icons.location_on,
-                                                size: 16, color: Colors.white70),
+                                                size: 16,
+                                                color: Colors.white70),
                                             SizedBox(width: 4),
                                             Text(
                                               user.city!,
-                                              style:
-                                                  AppTextStyles.bodyText.copyWith(
+                                              style: AppTextStyles.bodyText
+                                                  .copyWith(
                                                 color: Colors.white70,
                                                 fontSize: size.width * 0.035,
                                               ),
@@ -920,15 +926,33 @@ class HomePageState extends State<HomePage>
                                           ],
                                         ),
                                       // User Name and Age
-                                      Text(
-                                        '${user.name ?? 'NA'}, ${calculateAge(user.dob ?? 'Unknown Date')}',
-                                        style:
-                                            AppTextStyles.headingText.copyWith(
-                                          fontSize: size.width * 0.05,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
+                                      Row(
+                                        children: [
+                                          if (user.accountVerificationStatus ==
+                                              '1')
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 8.0),
+                                              child: Icon(
+                                                Icons.verified,
+                                                color: Colors.lightGreenAccent,
+                                                size: getResponsiveFontSize(
+                                                    0.045),
+                                              ),
+                                            ),
+                                          Flexible(
+                                            child: Text(
+                                              '${user.name ?? 'NA'}, ${calculateAge(user.dob ?? 'Unknown Date')}',
+                                              style: AppTextStyles.headingText
+                                                  .copyWith(
+                                                fontSize: size.width * 0.05,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
@@ -942,8 +966,8 @@ class HomePageState extends State<HomePage>
                               showmessageBottomSheet(user.userId.toString());
                             },
                             child: Container(
-                              padding:
-                                  EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: AppColors.reversedGradientColor,
@@ -1017,8 +1041,8 @@ class HomePageState extends State<HomePage>
                           // Looking For
                           Flexible(
                             child: Container(
-                              padding:
-                                  EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.13),
                                 borderRadius: BorderRadius.circular(10),
@@ -1049,8 +1073,8 @@ class HomePageState extends State<HomePage>
                           // Sub Gender
                           Flexible(
                             child: Container(
-                              padding:
-                                  EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.13),
                                 borderRadius: BorderRadius.circular(10),

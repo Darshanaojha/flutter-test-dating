@@ -304,14 +304,10 @@ class EditProfilePageState extends State<EditProfilePage>
     if (value.length < 3) {
       return 'Name should be at least 3 characters long';
     }
-    // if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
-    //   failure('RE-Enter', 'Name must contain only alphabets');
-    //   return 'Name must contain only alphabets';
-    // }
-    if (RegExp(r'[0-9!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/;`~]').hasMatch(value)) {
-      failure(
-          'RE-Enter', 'Name must not contain numbers or special characters');
-      return 'Name must not contain numbers or special characters';
+    // Allow Unicode letters, spaces, and hyphens only
+    if (!RegExp(r'^[\p{L}\p{M}\s\-]+$', unicode: true).hasMatch(value)) {
+      failure('RE-Enter', 'Name must contain only letters, spaces, and hyphens');
+      return 'Name must contain only letters, spaces, and hyphens';
     }
     return null;
   }
@@ -393,8 +389,9 @@ class EditProfilePageState extends State<EditProfilePage>
     if (value.length < 3) {
       return 'Nickname should be at least 3 characters long';
     }
-    if (RegExp(r'[0-9!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
-      return 'Nickname must not contain numbers or special characters.';
+    // Allow Unicode letters, spaces, underscores, and hyphens only (no digits)
+    if (!RegExp(r'^[\p{L}\p{M}\s\-_]+$', unicode: true).hasMatch(value)) {
+      return 'Nickname must contain only letters, spaces, underscores, and hyphens';
     }
     return null;
   }

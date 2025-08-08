@@ -600,112 +600,117 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
     return Stack(
       children: [
-        Card(
-          elevation: 8,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title
-                Text(
-                  controller.headlines.length > 2
-                      ? controller.headlines[2].title
-                      : "Gender Selection",
-                  style: AppTextStyles.titleText.copyWith(
-                    fontSize: titleFontSize,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textColor,
+        Container(
+          height: screenSize.height * 0.85,
+          child: Card(
+            elevation: 8,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title
+                  Text(
+                    controller.headlines.length > 2
+                        ? controller.headlines[2].title
+                        : "Gender Selection",
+                    style: AppTextStyles.titleText.copyWith(
+                      fontSize: titleFontSize,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textColor,
+                    ),
+                    textAlign: TextAlign.left,
                   ),
-                  textAlign: TextAlign.left,
-                ),
-                SizedBox(height: 12),
-                // Description
-                Text(
-                  controller.headlines.length > 2
-                      ? controller.headlines[2].description
-                      : "",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: optionFontSize * 0.9,
-                    color: AppColors.textColor.withOpacity(0.7),
+                  SizedBox(height: 12),
+                  // Description
+                  Text(
+                    controller.headlines.length > 2
+                        ? controller.headlines[2].description
+                        : "",
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: optionFontSize * 0.9,
+                      color: AppColors.textColor.withOpacity(0.7),
+                    ),
+                    textAlign: TextAlign.left,
                   ),
-                  textAlign: TextAlign.left,
-                ),
-                SizedBox(height: 24),
-                // Gender List
-                Expanded(
-                  child: Obx(() {
-                    if (controller.genders.isEmpty) {
-                      return Center(
-                        child: SpinKitCircle(
-                          size: 60,
-                          color: AppColors.progressColor,
-                        ),
-                      );
-                    }
-                    return ListView.builder(
-                      itemCount: controller.genders.length,
-                      itemBuilder: (context, index) {
-                        final gender = controller.genders[index];
-                        final isSelected =
-                            selectedGender.value?.id == gender.id;
-                        return GestureDetector(
-                          onTap: () {
-                            selectedGender.value = gender;
-                            controller.userRegistrationRequest.gender =
-                                gender.id;
-                            controller.fetchSubGender(
-                                SubGenderRequest(genderId: gender.id));
-                            setState(() {});
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(vertical: 6),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 16, horizontal: 16),
-                            decoration: BoxDecoration(
-                              gradient: isSelected
-                                  ? LinearGradient(
-                                      colors: AppColors.gradientBackgroundList,
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    )
-                                  : null,
-                              color: isSelected
-                                  ? null
-                                  : Colors.black.withOpacity(0.05),
-                              borderRadius: BorderRadius.circular(10),
-                              border: isSelected
-                                  ? Border.all(color: Colors.white, width: 2)
-                                  : null,
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    gender.title,
-                                    style: AppTextStyles.bodyText.copyWith(
-                                      fontSize: optionFontSize,
-                                      color: AppColors.textColor,
-                                      fontWeight: isSelected
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                    ),
-                                  ),
-                                ),
-                                if (isSelected)
-                                  Icon(Icons.check_circle, color: Colors.white)
-                              ],
-                            ),
+                  SizedBox(height: 24),
+                  // Gender List
+                  Expanded(
+                    child: Obx(() {
+                      if (controller.genders.isEmpty) {
+                        return Center(
+                          child: SpinKitCircle(
+                            size: 60,
+                            color: AppColors.progressColor,
                           ),
                         );
-                      },
-                    );
-                  }),
-                ),
-              ],
+                      }
+                      return ListView.builder(
+                        itemCount: controller.genders.length,
+                        itemBuilder: (context, index) {
+                          final gender = controller.genders[index];
+                          final isSelected =
+                              selectedGender.value?.id == gender.id;
+                          return GestureDetector(
+                            onTap: () {
+                              selectedGender.value = gender;
+                              controller.userRegistrationRequest.gender =
+                                  gender.id;
+                              controller.fetchSubGender(
+                                  SubGenderRequest(genderId: gender.id));
+                              setState(() {});
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 16, horizontal: 16),
+                              decoration: BoxDecoration(
+                                gradient: isSelected
+                                    ? LinearGradient(
+                                        colors:
+                                            AppColors.gradientBackgroundList,
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      )
+                                    : null,
+                                color: isSelected
+                                    ? null
+                                    : Colors.black.withOpacity(0.05),
+                                borderRadius: BorderRadius.circular(10),
+                                border: isSelected
+                                    ? Border.all(color: Colors.white, width: 2)
+                                    : null,
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      gender.title,
+                                      style: AppTextStyles.bodyText.copyWith(
+                                        fontSize: optionFontSize,
+                                        color: AppColors.textColor,
+                                        fontWeight: isSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                      ),
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    Icon(Icons.check_circle,
+                                        color: Colors.white)
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    }),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -752,109 +757,116 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
     return Stack(
       children: [
-        Card(
-          elevation: 8,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title
-                Text(
-                  controller.headlines.length > 3
-                      ? controller.headlines[3].title
-                      : "Describe Yourself",
-                  style: AppTextStyles.titleText.copyWith(
-                    fontSize: titleFontSize,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textColor,
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10.0),
+          child: Card(
+            elevation: 8,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title
+                  Text(
+                    controller.headlines.length > 3
+                        ? controller.headlines[3].title
+                        : "Describe Yourself",
+                    style: AppTextStyles.titleText.copyWith(
+                      fontSize: titleFontSize,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textColor,
+                    ),
+                    textAlign: TextAlign.left,
                   ),
-                  textAlign: TextAlign.left,
-                ),
-                SizedBox(height: 12),
-                // Description
-                Text(
-                  controller.headlines.length > 3
-                      ? controller.headlines[3].description
-                      : "",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: optionFontSize * 0.9,
-                    color: AppColors.textColor.withOpacity(0.7),
+                  SizedBox(height: 12),
+                  // Description
+                  Text(
+                    controller.headlines.length > 3
+                        ? controller.headlines[3].description
+                        : "",
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: optionFontSize * 0.9,
+                      color: AppColors.textColor.withOpacity(0.7),
+                    ),
+                    textAlign: TextAlign.left,
                   ),
-                  textAlign: TextAlign.left,
-                ),
-                SizedBox(height: 24),
-                // Sub-gender List
-                Expanded(
-                  child: Obx(() {
-                    if (controller.subGenders.isEmpty) {
-                      return Center(
-                        child: SpinKitCircle(
-                          size: 60,
-                          color: AppColors.progressColor,
-                        ),
-                      );
-                    }
-                    return ListView.builder(
-                      itemCount: controller.subGenders.length,
-                      itemBuilder: (context, index) {
-                        final subGender = controller.subGenders[index];
-                        final isSelected = selectedOption.value == subGender.id;
-                        return GestureDetector(
-                          onTap: () {
-                            selectedOption.value = subGender.id;
-                            controller.userRegistrationRequest.subGender =
-                                subGender.id;
-                            setState(() {});
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(vertical: 6),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 16, horizontal: 16),
-                            decoration: BoxDecoration(
-                              gradient: isSelected
-                                  ? LinearGradient(
-                                      colors: AppColors.gradientBackgroundList,
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    )
-                                  : null,
-                              color: isSelected
-                                  ? null
-                                  : Colors.black.withOpacity(0.05),
-                              borderRadius: BorderRadius.circular(10),
-                              border: isSelected
-                                  ? Border.all(color: Colors.white, width: 2)
-                                  : null,
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    subGender.title,
-                                    style: AppTextStyles.bodyText.copyWith(
-                                      fontSize: optionFontSize,
-                                      color: AppColors.textColor,
-                                      fontWeight: isSelected
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                    ),
-                                  ),
-                                ),
-                                if (isSelected)
-                                  Icon(Icons.check_circle, color: Colors.white)
-                              ],
-                            ),
+                  SizedBox(height: 24),
+                  // Sub-gender List
+                  Expanded(
+                    child: Obx(() {
+                      if (controller.subGenders.isEmpty) {
+                        return Center(
+                          child: SpinKitCircle(
+                            size: 60,
+                            color: AppColors.progressColor,
                           ),
                         );
-                      },
-                    );
-                  }),
-                ),
-              ],
+                      }
+                      return ListView.builder(
+                        itemCount: controller.subGenders.length,
+                        itemBuilder: (context, index) {
+                          final subGender = controller.subGenders[index];
+                          final isSelected =
+                              selectedOption.value == subGender.id;
+                          return GestureDetector(
+                            onTap: () {
+                              selectedOption.value = subGender.id;
+                              controller.userRegistrationRequest.subGender =
+                                  subGender.id;
+                              setState(() {});
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 16, horizontal: 16),
+                              decoration: BoxDecoration(
+                                gradient: isSelected
+                                    ? LinearGradient(
+                                        colors:
+                                            AppColors.gradientBackgroundList,
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      )
+                                    : null,
+                                color: isSelected
+                                    ? null
+                                    : Colors.black.withOpacity(0.05),
+                                borderRadius: BorderRadius.circular(10),
+                                border: isSelected
+                                    ? Border.all(color: Colors.white, width: 2)
+                                    : null,
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      subGender.title,
+                                      style: AppTextStyles.bodyText.copyWith(
+                                        fontSize: optionFontSize,
+                                        color: AppColors.textColor,
+                                        fontWeight: isSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                      ),
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    Icon(Icons.check_circle,
+                                        color: Colors.white)
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    }),
+                  ),
+                  SizedBox(height: 16),
+                ],
+              ),
             ),
           ),
         ),
@@ -863,26 +875,29 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           left: 0,
           right: 0,
           bottom: 0,
-          child: Obx(() => buildBottomButtonRow(
-                onBack: onBackPressed,
-                onNext: selectedOption.value.isEmpty
-                    ? null
-                    : () {
-                        markStepAsCompleted(4);
-                        Get.snackbar(
-                            'Sub-gender',
-                            controller.userRegistrationRequest.subGender
-                                .toString());
-                        pageController.nextPage(
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.ease,
-                        );
-                      },
-                nextLabel: 'Next',
-                backLabel: 'Back',
-                nextEnabled: selectedOption.value.isNotEmpty,
-                context: context,
-              )),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16.0, top: 16.0),
+            child: Obx(() => buildBottomButtonRow(
+                  onBack: onBackPressed,
+                  onNext: selectedOption.value.isEmpty
+                      ? null
+                      : () {
+                          markStepAsCompleted(4);
+                          Get.snackbar(
+                              'Sub-gender',
+                              controller.userRegistrationRequest.subGender
+                                  .toString());
+                          pageController.nextPage(
+                            duration: Duration(milliseconds: 300),
+                            curve: Curves.ease,
+                          );
+                        },
+                  nextLabel: 'Next',
+                  backLabel: 'Back',
+                  nextEnabled: selectedOption.value.isNotEmpty,
+                  context: context,
+                )),
+          ),
         ),
       ],
     );
@@ -913,99 +928,102 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
       return Stack(
         children: [
-          Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Text(
-                      controller.headlines.length > 4
-                          ? controller.headlines[4].title
-                          : "Loading Title...",
-                      style: AppTextStyles.titleText.copyWith(
-                        fontSize: titleFontSize,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textColor,
+          Container(
+            height: screenSize.height * 0.85,
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Text(
+                        controller.headlines.length > 4
+                            ? controller.headlines[4].title
+                            : "Loading Title...",
+                        style: AppTextStyles.titleText.copyWith(
+                          fontSize: titleFontSize,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textColor,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                  ),
-                  SizedBox(height: 20),
-                  Center(
-                    child: Text(
-                      controller.headlines.length > 4
-                          ? controller.headlines[4].description
-                          : "Select the preferences you're interested in.",
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: descriptionFontSize,
-                        color: AppColors.textColor.withOpacity(0.7),
+                    SizedBox(height: 20),
+                    Center(
+                      child: Text(
+                        controller.headlines.length > 4
+                            ? controller.headlines[4].description
+                            : "Select the preferences you're interested in.",
+                        style: AppTextStyles.bodyText.copyWith(
+                          fontSize: descriptionFontSize,
+                          color: AppColors.textColor.withOpacity(0.7),
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                  ),
-                  SizedBox(height: 24),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: controller.preferences.length,
-                      itemBuilder: (context, index) {
-                        final preference = controller.preferences[index];
-                        final isSelected = preferencesSelectedOptions[index];
-                        return GestureDetector(
-                          onTap: () {
-                            preferencesSelectedOptions[index] =
-                                !preferencesSelectedOptions[index];
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(vertical: 6),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 16, horizontal: 16),
-                            decoration: BoxDecoration(
-                              gradient: isSelected
-                                  ? LinearGradient(
-                                      colors: AppColors.gradientBackgroundList,
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    )
-                                  : null,
-                              color: isSelected
-                                  ? null
-                                  : Colors.black.withOpacity(0.05),
-                              borderRadius: BorderRadius.circular(10),
-                              border: isSelected
-                                  ? Border.all(color: Colors.white, width: 2)
-                                  : null,
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    preference.title,
-                                    style: AppTextStyles.bodyText.copyWith(
-                                      fontSize: optionFontSize,
-                                      color: AppColors.textColor,
-                                      fontWeight: isSelected
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
+                    SizedBox(height: 24),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: controller.preferences.length,
+                        itemBuilder: (context, index) {
+                          final preference = controller.preferences[index];
+                          final isSelected = preferencesSelectedOptions[index];
+                          return GestureDetector(
+                            onTap: () {
+                              preferencesSelectedOptions[index] =
+                                  !preferencesSelectedOptions[index];
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 16, horizontal: 16),
+                              decoration: BoxDecoration(
+                                gradient: isSelected
+                                    ? LinearGradient(
+                                        colors: AppColors.gradientBackgroundList,
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      )
+                                    : null,
+                                color: isSelected
+                                    ? null
+                                    : Colors.black.withOpacity(0.05),
+                                borderRadius: BorderRadius.circular(10),
+                                border: isSelected
+                                    ? Border.all(color: Colors.white, width: 2)
+                                    : null,
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      preference.title,
+                                      style: AppTextStyles.bodyText.copyWith(
+                                        fontSize: optionFontSize,
+                                        color: AppColors.textColor,
+                                        fontWeight: isSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                if (isSelected)
-                                  Icon(Icons.check_circle, color: Colors.white)
-                              ],
+                                  if (isSelected)
+                                    Icon(Icons.check_circle, color: Colors.white)
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 20),
-                ],
+                    SizedBox(height: 20),
+                  ],
+                ),
               ),
             ),
           ),

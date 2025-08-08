@@ -16,13 +16,13 @@ class WalletPage extends StatefulWidget {
 class WalletPageState extends State<WalletPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Future<bool> _fetchpagedata;
+
   Controller controller = Get.put(Controller());
 
   @override
   void initState() {
     super.initState();
-    _fetchpagedata = fetchAllData();
+    fetchAllData();
     _controller = AnimationController(
       duration: Duration(seconds: 2),
       vsync: this,

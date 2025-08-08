@@ -14,6 +14,7 @@ class LoginProvider extends GetConnect {
       ForgetPasswordRequest forgetPasswordRequest) async {
     try {
       final requestBody = forgetPasswordRequest.toJson();
+      print("Request Body getOtpForgetPassword: $requestBody");
       Response response = await post(
         "$baseurl/Profile/forget_password",
         requestBody,

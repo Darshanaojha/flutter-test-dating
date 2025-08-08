@@ -113,7 +113,7 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     double fontSize = size.width * 0.045;
-    double bodyFontSize = size.width * 0.035;
+    
 
     return Scaffold(
       resizeToAvoidBottomInset: true,

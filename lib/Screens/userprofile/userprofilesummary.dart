@@ -111,6 +111,30 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
+                      if (user.accountVerificationStatus == "1")
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12.0, left: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.verified,
+                                color: Colors.lightGreenAccent,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                "Verified",
+                                style: AppTextStyles.bodyText.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       _profileField(Icons.person_outline, "Nickname",
                           user.nickname, valueFontSize),
                       _profileField(Icons.person, "Username", user.username,

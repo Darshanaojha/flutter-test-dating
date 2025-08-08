@@ -22,6 +22,8 @@ class FetchSubscriptedPackageProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+      print('Fetching all fetchAllSubscriptedPackage : ${response.body}');
+
       if (response.statusCode == null || response.body == null) {
         failure('Error', 'Server Failed To Respond');
         return null;

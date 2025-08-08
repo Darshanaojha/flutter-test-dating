@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dating_application/Controllers/controller.dart';
+import 'package:dating_application/Screens/userprofile/userprofilesummary.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:heart_overlay/heart_overlay.dart';
@@ -138,6 +139,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
           likeCount.value =
               controller.likespage.where((user) => user.likedByMe == 0).length;
           // Initialize the optimistic like status map
+          optimisticLikeStatus.clear();
           for (var user in filteredLikesPage) {
             optimisticLikeStatus[user.userId] = user.likedByMe;
           }
@@ -707,10 +709,26 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
 
               final likedByOtherUsers = filteredLikesPage
                   .where((user) => user.likedByMe == 0)
-                  .toList();
+                  .toList()
+                ..sort((a, b) {
+                  try {
+                    return DateTime.parse(b.updated)
+                        .compareTo(DateTime.parse(a.updated));
+                  } catch (e) {
+                    return 0;
+                  }
+                });
               final likedByCurrentUser = filteredLikesPage
                   .where((user) => user.likedByMe == 1)
-                  .toList();
+                  .toList()
+                ..sort((a, b) {
+                  try {
+                    return DateTime.parse(b.updated)
+                        .compareTo(DateTime.parse(a.updated));
+                  } catch (e) {
+                    return 0;
+                  }
+                });
 
               if (likedByOtherUsers.isEmpty && likedByCurrentUser.isEmpty) {
                 return const Center(
@@ -805,7 +823,9 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                             itemCount: likedByOtherUsers.length,
                             itemBuilder: (context, index) {
                               var user = likedByOtherUsers[index];
-                              return _buildUserCard(context, user);
+                              return _buildUserCard(context, user,
+                                  key: ValueKey(
+                                      'liked_by_others_${user.userId}'));
                             },
                           ),
                         ],
@@ -819,13 +839,16 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                         child: Row(
                           children: [
                             Expanded(child: Divider(color: Colors.white54)),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: Text(
-                                "Liked by you",
-                                style: AppTextStyles.bodyText
-                                    .copyWith(color: Colors.white),
-                                textAlign: TextAlign.right,
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 25.0),
+                                child: Text(
+                                  "Liked by you",
+                                  style: AppTextStyles.bodyText
+                                      .copyWith(color: Colors.white),
+                                  textAlign: TextAlign.right,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             ),
                           ],
@@ -851,7 +874,8 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                             itemCount: likedByCurrentUser.length,
                             itemBuilder: (context, index) {
                               var user = likedByCurrentUser[index];
-                              return _buildUserCard(context, user);
+                              return _buildUserCard(context, user,
+                                  key: ValueKey('you_liked_${user.userId}'));
                             },
                           ),
                         ],
@@ -866,196 +890,16 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildUserCard(BuildContext context, LikeRequestPages user) {
-    return Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: AppColors.gradientBackgroundList,
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Card(
-          elevation: 5,
-          color: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.1,
-                  child: Scrollbar(
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: user.images.length,
-                      itemBuilder: (context, imgIndex) {
-                        return Container(
-                          margin: EdgeInsets.only(right: 12),
-                          child: GestureDetector(
-                            onTap: () {
-                              showFullImageDialog(
-                                  context, user.images[imgIndex]);
-                            },
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(15),
-                              child: Image.network(
-                                user.images[imgIndex],
-                                fit: BoxFit.cover,
-                                width: MediaQuery.of(context).size.width * 0.2,
-                                height:
-                                    MediaQuery.of(context).size.height * 0.3,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.2,
-                                    height: MediaQuery.of(context).size.height *
-                                        0.3,
-                                    alignment: Alignment.center,
-                                    color: Colors.grey.shade200,
-                                    child: Icon(
-                                      Icons.broken_image,
-                                      size: 48,
-                                      color: Colors.grey,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                SizedBox(height: 8),
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundImage: user.images.isNotEmpty
-                          ? NetworkImage(user.images.first)
-                          : null,
-                      child: user.images.isEmpty
-                          ? Icon(Icons.person, size: 20)
-                          : null,
-                    ),
-                    SizedBox(width: 8),
-                    Text(user.name.toString(),
-                        style: AppTextStyles.titleText
-                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                    Text(
-                        (user.likedByMe == 0)
-                            ? ' | Liked By ${user.name}'
-                            : " | Liked By You",
-                        style: AppTextStyles.bodyText
-                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                  ],
-                ),
-                SizedBox(height: 4),
-                Row(
-                  children: [
-                    Text('${getAgeFromDob(user.dob)} |',
-                        style: AppTextStyles.bodyText
-                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                    Text('${user.countryName} |',
-                        style: AppTextStyles.bodyText
-                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                    Text(user.gender,
-                        style: AppTextStyles.bodyText
-                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Last Seen: ${formatLastSeen(user.updated)}',
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: getResponsiveFontSize(0.03),
-                      ),
-                    ),
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        IconButton(
-                          onPressed: () async {
-                            showAnimation(user.userId);
-                            final originalLikedByMe =
-                                optimisticLikeStatus[user.userId] ??
-                                    user.likedByMe;
-                            setState(() {
-                              optimisticLikeStatus[user.userId] =
-                                  originalLikedByMe == 0 ? 1 : 0;
-                            });
-
-                            bool success = false;
-                            if (optimisticLikeStatus[user.userId] == 1) {
-                              controller.profileLikeRequest.likedBy =
-                                  user.userId.toString();
-                              success = await controller
-                                  .profileLike(controller.profileLikeRequest);
-                            } else {
-                              controller.homepageDislikeRequest.userId =
-                                  user.userId.toString();
-                              controller.homepageDislikeRequest.connectionId =
-                                  user.conectionId.toString();
-                              success = await controller.homepagedislikeprofile(
-                                  controller.homepageDislikeRequest);
-                            }
-
-                            if (!success) {
-                              setState(() {
-                                optimisticLikeStatus[user.userId] =
-                                    originalLikedByMe;
-                              });
-                              failure("Failed",
-                                  "Failed to update like status. Please try again.");
-                            }
-                            await controller.likesuserpage();
-                          },
-                          icon: Icon(
-                            optimisticLikeStatus[user.userId] == 1
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            size: 30,
-                            color: optimisticLikeStatus[user.userId] == 1
-                                ? Colors.red
-                                : Colors.white,
-                          ),
-                        ),
-                        if (_animatingUserId == user.userId)
-                          AnimatedOpacity(
-                            duration: Duration(milliseconds: 500),
-                            opacity:
-                                _animatingUserId == user.userId ? 1.0 : 0.0,
-                            child: AnimatedScale(
-                              duration: Duration(milliseconds: 500),
-                              scale:
-                                  _animatingUserId == user.userId ? 1.5 : 0.0,
-                              child: Icon(
-                                Icons.favorite,
-                                color: Colors.red.withOpacity(0.6),
-                                size: 50,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+  Widget _buildUserCard(BuildContext context, LikeRequestPages user,
+      {Key? key}) {
+    return UserCard(
+      key: key,
+      user: user,
+      controller: controller,
+      onImageTap: showFullImageDialog,
+      formatLastSeen: formatLastSeen,
+      getAgeFromDob: getAgeFromDob,
+      getResponsiveFontSize: getResponsiveFontSize,
     );
   }
 
@@ -1229,6 +1073,321 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
           ),
         );
       },
+    );
+  }
+}
+
+class UserCard extends StatefulWidget {
+  final LikeRequestPages user;
+  final Controller controller;
+  final Function(BuildContext, String) onImageTap;
+  final String Function(String) formatLastSeen;
+  final String Function(String) getAgeFromDob;
+  final double Function(double) getResponsiveFontSize;
+
+  const UserCard({
+    super.key,
+    required this.user,
+    required this.controller,
+    required this.onImageTap,
+    required this.formatLastSeen,
+    required this.getAgeFromDob,
+    required this.getResponsiveFontSize,
+  });
+
+  @override
+  UserCardState createState() => UserCardState();
+}
+
+class UserCardState extends State<UserCard> with TickerProviderStateMixin {
+  bool _isAnimating = false;
+  late int _currentLikeStatus;
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentLikeStatus = widget.user.likedByMe;
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _showAnimation() {
+    setState(() {
+      _isAnimating = true;
+    });
+    _animationController.forward();
+
+    Timer(Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          _isAnimating = false;
+        });
+        _animationController.reset();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: AppColors.gradientBackgroundList,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Card(
+          elevation: 5,
+          color: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.1,
+                  child: Scrollbar(
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: widget.user.images.length,
+                      itemBuilder: (context, imgIndex) {
+                        return Container(
+                          margin: EdgeInsets.only(right: 12),
+                          child: GestureDetector(
+                            onTap: () {
+                              widget.onImageTap(
+                                  context, widget.user.images[imgIndex]);
+                            },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: Image.network(
+                                widget.user.images[imgIndex],
+                                fit: BoxFit.cover,
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.3,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.2,
+                                    height: MediaQuery.of(context).size.height *
+                                        0.3,
+                                    alignment: Alignment.center,
+                                    color: Colors.grey.shade200,
+                                    child: Icon(
+                                      Icons.broken_image,
+                                      size: 48,
+                                      color: Colors.grey,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () {
+                    print("Tapped on user id : " + widget.user.userId.toString());
+                    Get.bottomSheet(
+                      UserProfileSummary(
+                        userId: widget.user.userId.toString(),
+                        imageUrls: widget.user.images,
+                      ),
+                      isScrollControlled: true,
+                      backgroundColor: AppColors.primaryColor,
+                      enterBottomSheetDuration: Duration(milliseconds: 300),
+                      exitBottomSheetDuration: Duration(milliseconds: 300),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundImage: widget.user.images.isNotEmpty
+                            ? NetworkImage(widget.user.images.first)
+                            : null,
+                        child: widget.user.images.isEmpty
+                            ? Icon(Icons.person, size: 20)
+                            : null,
+                      ),
+                      SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          widget.user.name.toString(),
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.titleText.copyWith(
+                            fontSize: widget.getResponsiveFontSize(0.03),
+                          ),
+                        ),
+                      ),
+                      Flexible(
+                        child: Text(
+                          (widget.user.likedByMe == 0)
+                              ? ' | Liked By ${widget.user.name}'
+                              : " | Liked By You",
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: widget.getResponsiveFontSize(0.03),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 4),
+                GestureDetector(
+                  onTap: () {
+                    Get.bottomSheet(
+                      UserProfileSummary(
+                        userId: widget.user.userId.toString(),
+                        imageUrls: widget.user.images,
+                      ),
+                      isScrollControlled: true,
+                      backgroundColor: AppColors.primaryColor,
+                      enterBottomSheetDuration: Duration(milliseconds: 300),
+                      exitBottomSheetDuration: Duration(milliseconds: 300),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          '${widget.getAgeFromDob(widget.user.dob)} |',
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: widget.getResponsiveFontSize(0.03),
+                          ),
+                        ),
+                      ),
+                      Flexible(
+                        child: Text(
+                          ' ${widget.user.countryName} |',
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: widget.getResponsiveFontSize(0.03),
+                          ),
+                        ),
+                      ),
+                      Flexible(
+                        child: Text(
+                          ' ${widget.user.gender}',
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.bodyText.copyWith(
+                            fontSize: widget.getResponsiveFontSize(0.03),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        'Last Seen: ${widget.formatLastSeen(widget.user.updated)}',
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.bodyText.copyWith(
+                          fontSize: widget.getResponsiveFontSize(0.03),
+                        ),
+                      ),
+                    ),
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        IconButton(
+                          onPressed: () async {
+                            _showAnimation();
+                            final originalLikedByMe = _currentLikeStatus;
+                            setState(() {
+                              _currentLikeStatus =
+                                  originalLikedByMe == 0 ? 1 : 0;
+                            });
+
+                            bool success = false;
+                            if (_currentLikeStatus == 1) {
+                              widget.controller.profileLikeRequest.likedBy =
+                                  widget.user.userId.toString();
+                              success = await widget.controller.profileLike(
+                                  widget.controller.profileLikeRequest);
+                            } else {
+                              widget.controller.homepageDislikeRequest.userId =
+                                  widget.user.userId.toString();
+                              widget.controller.homepageDislikeRequest
+                                      .connectionId =
+                                  widget.user.conectionId.toString();
+                              success = await widget.controller
+                                  .homepagedislikeprofile(
+                                      widget.controller.homepageDislikeRequest);
+                            }
+
+                            if (!success) {
+                              setState(() {
+                                _currentLikeStatus = originalLikedByMe;
+                              });
+                              failure("Failed",
+                                  "Failed to update like status. Please try again.");
+                            }
+                            await widget.controller.likesuserpage();
+                          },
+                          icon: Icon(
+                            _currentLikeStatus == 1
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            size: 30,
+                            color: _currentLikeStatus == 1
+                                ? Colors.red
+                                : Colors.white,
+                          ),
+                        ),
+                        if (_isAnimating)
+                          AnimatedBuilder(
+                            animation: _animationController,
+                            builder: (context, child) {
+                              return Transform.scale(
+                                scale: 1.0 + (_animationController.value * 0.5),
+                                child: Opacity(
+                                  opacity: 1.0 - _animationController.value,
+                                  child: Icon(
+                                    Icons.favorite,
+                                    color: Colors.red.withOpacity(0.6),
+                                    size: 50,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -194,7 +194,7 @@ class CreatorListPageState extends State<CreatorListPage> {
                                 fit: BoxFit.scaleDown,
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  creator.name ?? 'Unknown',
+                                  creator.name,
                                   style: AppTextStyles.bodyText.copyWith(
                                     fontSize: getResponsiveFontSize(0.034),
                                     fontWeight: FontWeight.bold,
@@ -204,7 +204,7 @@ class CreatorListPageState extends State<CreatorListPage> {
                               ),
                               SizedBox(height: screenWidth * 0.3),
                               Text(
-                                "Country: ${creator.country.name ?? 'N/A'}",
+                                "Country: ${creator.country.name}",
                                 style: AppTextStyles.bodyText.copyWith(
                                   fontSize: getResponsiveFontSize(0.03),
                                   color: Colors.white70,

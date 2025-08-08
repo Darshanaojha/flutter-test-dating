@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:pushable_button/pushable_button.dart';
 import '../../../Controllers/controller.dart';
 import '../../../constants.dart';
+import 'package:intl/intl.dart';
 
 class PlanPage extends StatefulWidget {
   const PlanPage({super.key});
@@ -66,23 +67,16 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor:
-            Colors.transparent, // Make background transparent for gradient
-        elevation: 0, // Remove default shadow
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         centerTitle: true,
-        title: Builder(
-          builder: (context) {
-            double fontSize =
-                MediaQuery.of(context).size.width * 0.05; // ~5% of screen width
-            return Text(
-              'Your Plans',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: fontSize,
-                color: AppColors.textColor,
-              ),
-            );
-          },
+        title: Text(
+          'Your Plans',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: getResponsiveFontSize(context, 0.05),
+            color: AppColors.textColor,
+          ),
         ),
         flexibleSpace: Container(
           decoration: BoxDecoration(
@@ -114,11 +108,12 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
       ),
       body: Obx(() {
         if (controller.subscripted.isEmpty) {
-          // return Center(child: CircularProgressIndicator());
-          return Center(child: Text("No plans found", style: AppTextStyles.headingText.copyWith(
-            fontSize: getResponsiveFontSize(context, 0.03),
-            color: Colors.white,
-          )));
+          return Center(
+              child: Text("No plans found",
+                  style: AppTextStyles.headingText.copyWith(
+                    fontSize: getResponsiveFontSize(context, 0.04),
+                    color: Colors.white,
+                  )));
         }
 
         return Column(
@@ -129,175 +124,83 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
                 child: ListView.builder(
                   itemCount: controller.subscripted.length,
                   itemBuilder: (context, index) {
-                    return AnimatedScale(
-                      scale: 1.0,
-                      duration: Duration(milliseconds: 500),
-                      child: AnimatedOpacity(
-                        opacity: 1.0,
-                        duration: Duration(milliseconds: 500),
-                        child: DecoratedBoxTransition(
-                          decoration:
-                              decorationTween.animate(_animationController),
-                          child: Card(
-                            margin: const EdgeInsets.symmetric(vertical: 10),
-                            elevation:
-                                12, // Slight elevation for a better shadow effect
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                  20), // Soft rounded corners
-                              side: BorderSide(
-                                color: Colors.grey[600]!, // Subtle dark border
-                                width: 1.5,
-                              ),
-                            ),
-                            color: Colors
-                                .grey[900], // Darker background for the card
-                            child: Padding(
-                              padding: const EdgeInsets.all(20.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                    final plan = controller.subscripted[index];
+                    final bool isActive = plan.status == '1';
+                    final DateTime subscriptionDate = DateTime.parse(plan.date);
+                    DateTime expiryDate;
+
+                    switch (plan.unit.toLowerCase()) {
+                      case 'days':
+                        expiryDate = subscriptionDate.add(Duration(days: int.parse(plan.days)));
+                        break;
+                      case 'months':
+                        expiryDate = DateTime(subscriptionDate.year, subscriptionDate.month + int.parse(plan.days), subscriptionDate.day);
+                        break;
+                      case 'years':
+                        expiryDate = DateTime(subscriptionDate.year + int.parse(plan.days), subscriptionDate.month, subscriptionDate.day);
+                        break;
+                      default:
+                        expiryDate = subscriptionDate;
+                    }
+
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 12),
+                      elevation: 8,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      color: Colors.grey[900],
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: AppColors.gradientBackgroundList,
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    controller.subscripted[index].packageTitle,
+                                    plan.packageTitle,
                                     style: AppTextStyles.headingText.copyWith(
-                                      fontSize:
-                                          getResponsiveFontSize(context, 0.03),
+                                      fontSize: getResponsiveFontSize(context, 0.045),
                                       fontWeight: FontWeight.bold,
-                                      color: Colors
-                                          .white, // White text for contrast
+                                      color: Colors.white,
                                     ),
-                                    textAlign: TextAlign.left,
                                   ),
-                                  SizedBox(height: 12),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "Package ID:",
-                                        style: AppTextStyles.textStyle.copyWith(
-                                          fontSize: getResponsiveFontSize(
-                                              context, 0.02),
-                                          color: Colors.white70,
-                                        ),
-                                      ),
-                                      Text(
-                                        controller.subscripted[index].packageId,
-                                        style: AppTextStyles.textStyle.copyWith(
-                                          fontSize: getResponsiveFontSize(
-                                              context, 0.02),
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 8),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        controller.subscripted[index].userId,
-                                        style: AppTextStyles.textStyle.copyWith(
-                                          fontSize: getResponsiveFontSize(
-                                              context, 0.02),
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 8),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "Days:",
-                                        style: AppTextStyles.textStyle.copyWith(
-                                          fontSize: getResponsiveFontSize(
-                                              context, 0.02),
-                                          color: Colors.white70,
-                                        ),
-                                      ),
-                                      Text(
-                                        controller.subscripted[index].days
-                                            .toString(),
-                                        style: AppTextStyles.textStyle.copyWith(
-                                          fontSize: getResponsiveFontSize(
-                                              context, 0.02),
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 8),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "Actual Amount:",
-                                        style: AppTextStyles.textStyle.copyWith(
-                                          fontSize: getResponsiveFontSize(
-                                              context, 0.02),
-                                          color: Colors.white70,
-                                        ),
-                                      ),
-                                      Text(
-                                        "₹${controller.subscripted[index].actualAmount}",
-                                        style: AppTextStyles.subheadingText
-                                            .copyWith(
-                                          fontSize: getResponsiveFontSize(
-                                              context, 0.02),
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 8),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "Offer Amount:",
-                                        style: AppTextStyles.textStyle.copyWith(
-                                          fontSize: getResponsiveFontSize(
-                                              context, 0.02),
-                                          color: Colors.white70,
-                                        ),
-                                      ),
-                                      Text(
-                                        "₹${controller.subscripted[index].offerAmount}",
-                                        style: AppTextStyles.subheadingText
-                                            .copyWith(
-                                          fontSize: getResponsiveFontSize(
-                                              context, 0.02),
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 12),
-                                  Align(
-                                    alignment: Alignment.center,
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: isActive ? Colors.green.withOpacity(0.2) : Colors.red.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: isActive ? Colors.white : Colors.red, width: 1),
+                                    ),
                                     child: Text(
-                                      "Status: ${controller.subscripted[index].status == '1' ? 'Active' : 'Inactive'}",
-                                      style: AppTextStyles.titleText.copyWith(
-                                        fontSize: getResponsiveFontSize(
-                                            context, 0.02),
-                                        color: controller.subscripted[index]
-                                                    .status ==
-                                                '1'
-                                            ? Colors.greenAccent
-                                            : Colors.redAccent,
+                                      isActive ? 'Active' : 'Inactive',
+                                      style: AppTextStyles.textStyle.copyWith(
+                                        fontSize: getResponsiveFontSize(context, 0.03),
+                                        color: isActive ? Colors.greenAccent : Colors.white,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                      textAlign: TextAlign.center,
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
+                              SizedBox(height: 16),
+                              _buildInfoRow(context, "Subscribed on:", DateFormat.yMMMd().format(subscriptionDate)),
+                              _buildInfoRow(context, "Expires on:", DateFormat.yMMMd().format(expiryDate)),
+                              _buildInfoRow(context, "Duration:", "${plan.days} ${plan.unit}"),
+                              Divider(color: Colors.white24, height: 24),
+                              _buildPriceRow(context, "Actual Price:", plan.actualAmount, strikethrough: true),
+                              _buildPriceRow(context, "Offer Price:", plan.offerAmount),
+                            ],
                           ),
                         ),
                       ),
@@ -306,43 +209,86 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: TweenAnimationBuilder(
-                duration: Duration(seconds: 1),
-                tween: Tween(begin: 0.0, end: 1.0),
-                builder: (context, double opacity, child) {
-                  return Opacity(
-                    opacity: opacity,
-                    child: PushableButton(
-                      onPressed: () {
-                        Get.to(MembershipPage());
-                        print("Upgrade Package button pressed");
-                      },
-                      hslColor: HSLColor.fromColor(Colors.blue),
-                      height: 60.0,
-                      elevation: 8.0,
-                      shadow: BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 4.0,
-                        spreadRadius: 2.0,
-                        offset: Offset(0, 4),
-                      ),
-                      child: Text(
-                        'Click to Upgrade Your Package',
-                        style: AppTextStyles.headingText.copyWith(
-                          fontSize: getResponsiveFontSize(context, 0.03),
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.all(16.0),
+            //   child: PushableButton(
+            //     onPressed: () {
+            //       Get.to(MembershipPage());
+            //     },
+            //     hslColor: HSLColor.fromColor(AppColors.mediumGradientColor),
+            //     height: 60.0,
+            //     elevation: 8.0,
+            //     shadow: BoxShadow(
+            //       color: Colors.black.withOpacity(0.3),
+            //       blurRadius: 6.0,
+            //       spreadRadius: 2.0,
+            //       offset: Offset(0, 4),
+            //     ),
+            //     child: Text(
+            //       'Upgrade Your Package',
+            //       style: AppTextStyles.headingText.copyWith(
+            //         fontSize: getResponsiveFontSize(context, 0.04),
+            //         color: Colors.white,
+            //       ),
+            //     ),
+            //   ),
+            // ),
           ],
         );
       }),
+    );
+  }
+
+  Widget _buildInfoRow(BuildContext context, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: AppTextStyles.textStyle.copyWith(
+              fontSize: getResponsiveFontSize(context, 0.035),
+              color: Colors.white70,
+            ),
+          ),
+          Text(
+            value,
+            style: AppTextStyles.textStyle.copyWith(
+              fontSize: getResponsiveFontSize(context, 0.035),
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPriceRow(BuildContext context, String label, String value, {bool strikethrough = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: AppTextStyles.textStyle.copyWith(
+              fontSize: getResponsiveFontSize(context, 0.035),
+              color: Colors.white70,
+            ),
+          ),
+          Text(
+            "₹$value",
+            style: AppTextStyles.subheadingText.copyWith(
+              fontSize: getResponsiveFontSize(context, 0.04),
+              color:  Colors.white,
+              fontWeight: strikethrough ? FontWeight.normal : FontWeight.bold,
+              decoration: strikethrough ? TextDecoration.lineThrough : TextDecoration.none,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

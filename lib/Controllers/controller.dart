@@ -1634,8 +1634,8 @@ class Controller extends GetxController {
   RxList<PackageData> subscripted = <PackageData>[].obs;
 
   Future<bool> fetchAllsubscripted() async {
+    subscripted.clear(); 
     try {
-      subscripted.clear();
       SubscribedPackagesModel? response =
           await FetchSubscriptedPackageProvider().fetchAllSubscriptedPackage();
       if (response != null) {
