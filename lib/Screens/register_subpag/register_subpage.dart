@@ -596,11 +596,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   Widget buildGenderStep(Size screenSize) {
     double titleFontSize = screenSize.width * 0.065;
     double optionFontSize = screenSize.width * 0.035;
-    double buttonFontSize = screenSize.width * 0.045;
 
     return Stack(
       children: [
-        Container(
+        SizedBox(
           height: screenSize.height * 0.85,
           child: Card(
             elevation: 8,
@@ -753,7 +752,6 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   Widget buildBestDescribeYouStep(Size screenSize) {
     double titleFontSize = screenSize.width * 0.065;
     double optionFontSize = screenSize.width * 0.035;
-    double buttonFontSize = screenSize.width * 0.045;
 
     return Stack(
       children: [
@@ -928,7 +926,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
       return Stack(
         children: [
-          Container(
+          SizedBox(
             height: screenSize.height * 0.85,
             child: Card(
               elevation: 8,

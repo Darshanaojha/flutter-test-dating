@@ -1,4 +1,5 @@
 import 'package:dating_application/Screens/settings/appinfopages/faqpage.dart';
+import 'package:dating_application/Screens/userprofile/Orders/OrdersViewScreen.dart';
 import 'package:dating_application/Screens/userprofile/accountverification/useraccountverification.dart';
 import 'package:dating_application/Screens/userprofile/membership/userselectedplan.dart';
 import 'package:dating_application/constants.dart';
@@ -16,7 +17,8 @@ import 'Wallet/WalletScreen.dart';
 import 'editprofile/edituserprofile.dart';
 
 class UserProfilePage extends StatefulWidget {
-  const UserProfilePage({super.key});
+  final String? userId;
+  const UserProfilePage({super.key, this.userId});
 
   @override
   UserProfilePageState createState() => UserProfilePageState();
@@ -313,7 +315,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                   left: 8.0),
                                               child: Icon(
                                                 Icons.verified,
-                                                color: Colors.lightGreenAccent,
+                                                color: AppColors.lightGradientColor,
                                                 size: getResponsiveFontSize(
                                                     0.045),
                                               ),
@@ -966,14 +968,14 @@ class UserProfilePageState extends State<UserProfilePage>
                                     onTap: () => Get.to(PlanPage()),
                                     screenWidth: screenWidth,
                                   ),
-                                  // buildSettingCard(
-                                  //   context,
-                                  //   title: 'Subscription History',
-                                  //   subtitle: 'See Your All Orders',
-                                  //   icon: Icons.plagiarism_outlined,
-                                  //   onTap: () => Get.to(AllOrdersPage()),
-                                  //   screenWidth: screenWidth,
-                                  // ),
+                                  buildSettingCard(
+                                    context,
+                                    title: 'Subscription History',
+                                    subtitle: 'See Your All Orders',
+                                    icon: Icons.plagiarism_outlined,
+                                    onTap: () => Get.to(AllOrdersPage()),
+                                    screenWidth: screenWidth,
+                                  ),
                                   buildSettingCard(
                                     context,
                                     title: 'Transactions',

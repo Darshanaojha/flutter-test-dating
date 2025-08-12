@@ -86,30 +86,6 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/animations/blockanimation.json
-    - assets/animations/Buyanimation.json
-    - assets/animations/dislikeswipeanimation.json
-    - assets/animations/likeswipeanimation.json
-    - assets/animations/notificationanimation.json
-    - assets/animations/paymentdoneanimation.json
-    - assets/animations/superlikeswipeanimation.json
-    - assets/animations/thumblikeanimation.json
-    - assets/animations/waitinganimation.json
-    - assets/animations/likepageanimation.json
-    - assets/animations/couplematchanimation.json
-    - assets/animations/chatpageanimation.json
-    - assets/animations/shareappanimation.json
-    - assets/animations/homepageanimation.json
-    - assets/animations/requestmessageanimation.json
-    - assets/animations/savedanimation.json
-    - assets/animations/homeanimation.json
-    - assets/animations/404animation.json
-    - assets/animations/editprofileanimation.json
-    - assets/animations/handloadinganimation.json
-    - assets/animations/new404animation.json
-    - assets/animations/likesbuttonpressanimation.json
-    - assets/animations/LoginPageheart.json
-    - assets/animations/broken-heart.json
     - assets/sounds/call.mp3
     - assets/images/like.png
     - assets/images/heart.png
@@ -117,6 +93,7 @@ flutter:
     - assets/images/coin.png
     - assets/images/techlead.jpg
     - assets/images/emoji/
+    - assets/animations/
 
     
     

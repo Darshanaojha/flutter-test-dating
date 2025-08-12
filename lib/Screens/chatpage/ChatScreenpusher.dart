@@ -19,17 +19,20 @@ import 'package:vibration/vibration.dart';
 import '../../Models/ResponseModels/chat_history_response_model.dart';
 import '../../Providers/WebsocketService.dart';
 import 'AudioCallPage.dart';
+import '../userprofile/userprofilesummary.dart';
 
 class ChatScreen extends StatefulWidget {
   final String senderId;
   final String receiverId;
   final String receiverName;
+  final String receiverImageUrl;
 
   const ChatScreen({
     super.key,
     required this.senderId,
     required this.receiverId,
     required this.receiverName,
+    required this.receiverImageUrl,
   });
 
   @override
@@ -303,6 +306,12 @@ class ChatScreenState extends State<ChatScreen> {
         controller.messages[index].message ?? '', secretkey);
   }
 
+  RxString selectedReason = ''.obs;
+  bool isLoading = true;
+  RxBool isselected = false.obs;
+  RxBool iswriting = false.obs;
+  RxString reportDescription = ''.obs;
+
   @override
   void dispose() {
     websocketService.disconnect();
@@ -314,20 +323,36 @@ class ChatScreenState extends State<ChatScreen> {
     final scrollController = ScrollController();
     return Scaffold(
       appBar: AppBar(
-        title: Builder(
-          builder: (context) {
-            double fontSize = MediaQuery.of(context).size.width * 0.05;
-            return Text(
-              widget.receiverName,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: fontSize,
-                color: AppColors.textColor,
+        title: GestureDetector(
+          onTap: () {
+            Get.bottomSheet(
+              UserProfileSummary(
+                userId: widget.receiverId,
               ),
+              isScrollControlled: true,
+              backgroundColor: AppColors.primaryColor,
+              enterBottomSheetDuration: Duration(milliseconds: 300),
+              exitBottomSheetDuration: Duration(milliseconds: 300),
             );
           },
+          child: Row(
+            children: [
+              CircleAvatar(
+                backgroundImage: NetworkImage(widget.receiverImageUrl),
+                radius: 20,
+              ),
+              SizedBox(width: 10),
+              Text(
+                widget.receiverName,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: MediaQuery.of(context).size.width * 0.05,
+                  color: AppColors.textColor,
+                ),
+              ),
+            ],
+          ),
         ),
-        centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
         flexibleSpace: Container(
@@ -358,143 +383,155 @@ class ChatScreenState extends State<ChatScreen> {
           ),
         ),
         actions: [
-          selectedMessages.isNotEmpty
-              ? IconButton(
-                  icon: Icon(Icons.delete),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Dialog(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24),
+          if (selectedMessages.isNotEmpty)
+            IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      elevation: 12,
+                      backgroundColor: Colors.transparent,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: AppColors.gradientBackgroundList,
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
-                          elevation: 12,
-                          backgroundColor: Colors.transparent,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: AppColors.gradientBackgroundList,
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                            vertical: 24, horizontal: 18),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(18),
                               ),
-                              borderRadius: BorderRadius.circular(24),
+                              padding: EdgeInsets.all(16),
+                              child: Icon(
+                                Icons.chat,
+                                color: Colors.white,
+                                size: 48,
+                              ),
                             ),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 24, horizontal: 18),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
+                            SizedBox(height: 18),
+                            Text(
+                              "Delete Messages",
+                              style: AppTextStyles.headingText.copyWith(
+                                fontSize: 20,
+                                color: AppColors.textColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              "Choose an option to delete messages.",
+                              style: AppTextStyles.bodyText.copyWith(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(height: 22),
+                            Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceEvenly,
                               children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.15),
-                                    borderRadius: BorderRadius.circular(18),
-                                  ),
-                                  padding: EdgeInsets.all(16),
-                                  child: Icon(
-                                    Icons.chat,
-                                    color: Colors.white,
-                                    size: 48,
-                                  ),
-                                ),
-                                SizedBox(height: 18),
-                                Text(
-                                  "Delete Messages",
-                                  style: AppTextStyles.headingText.copyWith(
-                                    fontSize: 20,
-                                    color: AppColors.textColor,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                Text(
-                                  "Choose an option to delete messages.",
-                                  style: AppTextStyles.bodyText.copyWith(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                SizedBox(height: 22),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Expanded(
-                                      child: ElevatedButton.icon(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              AppColors.mediumGradientColor,
-                                          foregroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(14),
-                                          ),
-                                          elevation: 4,
-                                        ),
-                                        icon: Icon(Icons.delete_sweep),
-                                        label: Text("Delete Selected"),
-                                        onPressed: () {
-                                          deleteSelectedMessages();
-                                          Navigator.pop(context);
-                                        },
+                                Expanded(
+                                  child: ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          AppColors.mediumGradientColor,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(14),
                                       ),
+                                      elevation: 4,
                                     ),
-                                    SizedBox(width: 12),
-                                    Expanded(
-                                      child: ElevatedButton.icon(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.redAccent,
-                                          foregroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(14),
-                                          ),
-                                          elevation: 4,
-                                        ),
-                                        icon: Icon(Icons.delete_forever),
-                                        label: Text("Delete All"),
-                                        onPressed: () {
-                                          deleteAllMessages();
-                                          Navigator.pop(context);
-                                        },
+                                    icon: Icon(Icons.delete_sweep),
+                                    label: Text("Delete Selected"),
+                                    onPressed: () {
+                                      deleteSelectedMessages();
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.redAccent,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(14),
                                       ),
+                                      elevation: 4,
                                     ),
-                                  ],
+                                    icon: Icon(Icons.delete_forever),
+                                    label: Text("Delete All"),
+                                    onPressed: () {
+                                      deleteAllMessages();
+                                      Navigator.pop(context);
+                                    },
+                                  ),
                                 ),
                               ],
                             ),
-                          ),
-                        );
-                      },
+                          ],
+                        ),
+                      ),
                     );
                   },
-                )
-              : SizedBox(),
-          IconButton(
-            icon: Icon(Icons.phone),
-            onPressed: () async {
-              if (await _requestPermission(
-                  Permission.microphone, "Microphone")) {
-                Get.to(AudioCallPage(
-                  caller: widget.senderId,
-                  receiver: widget.receiverId,
-                ));
+                );
+              },
+            ),
+          PopupMenuButton<String>(
+            onSelected: (value) async {
+              if (value == 'audio') {
+                if (await _requestPermission(
+                    Permission.microphone, "Microphone")) {
+                  Get.to(AudioCallPage(
+                    caller: widget.senderId,
+                    receiver: widget.receiverId,
+                  ));
+                }
+              } else if (value == 'video') {
+                if (await _requestPermission(Permission.camera, "Camera") &&
+                    await _requestPermission(
+                        Permission.microphone, "Microphone")) {
+                  Get.to(VideoCallPage(
+                    caller: widget.senderId,
+                    receiver: widget.receiverId,
+                  ));
+                }
+              } else if (value == 'report') {
+                showReportUserDialog(widget.receiverId);
               }
             },
-          ),
-          IconButton(
-            icon: Icon(Icons.videocam),
-            onPressed: () async {
-              if (await _requestPermission(Permission.camera, "Camera") &&
-                  await _requestPermission(
-                      Permission.microphone, "Microphone")) {
-                Get.to(VideoCallPage(
-                  caller: widget.senderId,
-                  receiver: widget.receiverId,
-                ));
-              }
-            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'audio',
+                child: ListTile(leading: Icon(Icons.phone), title: Text('Audio Call')),
+              ),
+              const PopupMenuItem<String>(
+                value: 'video',
+                child: ListTile(leading: Icon(Icons.videocam), title: Text('Video Call')),
+              ),
+              const PopupMenuItem<String>(
+                value: 'report',
+                child: ListTile(leading: Icon(Icons.report), title: Text('Report User')),
+              ),
+            ],
           ),
         ],
       ),
@@ -508,31 +545,34 @@ class ChatScreenState extends State<ChatScreen> {
                     itemCount: controller.messages.length,
                     itemBuilder: (context, index) {
                       final message = controller.messages[index];
+                      print(
+                          "Message Image sensitivity: ${message.sensitivity}");
                       bool isSentByUser = message.senderId == widget.senderId;
-        
+
                       return Slidable(
                         key: Key(message.id ?? ''),
                         // Specify the start-to-end action pane (Edit button)
-                        startActionPane: isSentByUser && message.imagePath == null
-                            ? ActionPane(
-                                motion: DrawerMotion(),
-                                extentRatio: 0.25,
-                                children: [
-                                  SlidableAction(
-                                    onPressed: isSentByUser
-                                        ? (context) {
-                                            _showMessageDialog(
-                                                context, message, index);
-                                          }
-                                        : null, // Disable edit for messages not sent by the user
-                                    backgroundColor: Colors.blue,
-                                    foregroundColor: Colors.white,
-                                    icon: Icons.edit,
-                                    //  label: 'Edit',
-                                  ),
-                                ],
-                              )
-                            : null,
+                        startActionPane:
+                            isSentByUser && message.imagePath == null
+                                ? ActionPane(
+                                    motion: DrawerMotion(),
+                                    extentRatio: 0.25,
+                                    children: [
+                                      SlidableAction(
+                                        onPressed: isSentByUser
+                                            ? (context) {
+                                                _showMessageDialog(
+                                                    context, message, index);
+                                              }
+                                            : null, // Disable edit for messages not sent by the user
+                                        backgroundColor: Colors.blue,
+                                        foregroundColor: Colors.white,
+                                        icon: Icons.edit,
+                                        //  label: 'Edit',
+                                      ),
+                                    ],
+                                  )
+                                : null,
                         endActionPane: isSentByUser
                             ? ActionPane(
                                 motion: DrawerMotion(),
@@ -588,14 +628,17 @@ class ChatScreenState extends State<ChatScreen> {
                                                         .headingText
                                                         .copyWith(
                                                       fontSize: 20,
-                                                      color: AppColors.textColor,
-                                                      fontWeight: FontWeight.bold,
+                                                      color:
+                                                          AppColors.textColor,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                     ),
                                                   ),
                                                   SizedBox(height: 10),
                                                   Text(
                                                     "Are you sure you want to delete this message?",
-                                                    style: AppTextStyles.bodyText
+                                                    style: AppTextStyles
+                                                        .bodyText
                                                         .copyWith(
                                                       color: Colors.white,
                                                       fontSize: 16,
@@ -609,10 +652,11 @@ class ChatScreenState extends State<ChatScreen> {
                                                     children: [
                                                       TextButton(
                                                         onPressed: () {
-                                                          Navigator.pop(context);
+                                                          Navigator.pop(
+                                                              context);
                                                         },
-                                                        style:
-                                                            TextButton.styleFrom(
+                                                        style: TextButton
+                                                            .styleFrom(
                                                           foregroundColor:
                                                               Colors.white,
                                                           textStyle: TextStyle(
@@ -634,16 +678,19 @@ class ChatScreenState extends State<ChatScreen> {
                                                               RoundedRectangleBorder(
                                                             borderRadius:
                                                                 BorderRadius
-                                                                    .circular(14),
+                                                                    .circular(
+                                                                        14),
                                                           ),
                                                           elevation: 4,
                                                         ),
-                                                        icon: Icon(Icons.delete),
+                                                        icon:
+                                                            Icon(Icons.delete),
                                                         label: Text("Delete"),
                                                         onPressed: () {
                                                           deleteSingleMessage(
                                                               index);
-                                                          Navigator.pop(context);
+                                                          Navigator.pop(
+                                                              context);
                                                         },
                                                       ),
                                                     ],
@@ -658,13 +705,13 @@ class ChatScreenState extends State<ChatScreen> {
                                     backgroundColor: Colors.red,
                                     foregroundColor: Colors.white,
                                     icon: Icons.delete,
-        
+
                                     // label: 'Delete',
                                   ),
                                 ],
                               )
                             : null,
-        
+
                         child: GestureDetector(
                           onTap: () {
                             if (selectedMessages.isNotEmpty) {
@@ -768,7 +815,8 @@ class ChatScreenState extends State<ChatScreen> {
                                           child: SensitiveImageWidget(
                                             imagePath: message.imagePath!,
                                             bearerToken: bearerToken!,
-                                            sensitivity: message.sensitivity ?? 0,
+                                            sensitivity:
+                                                message.sensitivity ?? 0,
                                           ),
                                         ),
                                       Container(
@@ -778,8 +826,8 @@ class ChatScreenState extends State<ChatScreen> {
                                         child: message.isEdited == 1
                                             ? Text(
                                                 "(edited)",
-                                                style:
-                                                    TextStyle(color: Colors.grey),
+                                                style: TextStyle(
+                                                    color: Colors.grey),
                                               )
                                             : SizedBox.shrink(),
                                       ),
@@ -1099,6 +1147,195 @@ class ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
+
+  void showReportUserDialog(reporttouserid) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Obx(() {
+          String displayText = selectedReason.value.isEmpty
+              ? 'Select Reason'
+              : selectedReason.value;
+          String truncatedText = displayText.length > 30
+              ? '${displayText.substring(0, 30)}...'
+              : displayText;
+
+          return AlertDialog(
+            title: Text('Report User'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.black,
+                    backgroundColor: Colors.transparent,
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(color: AppColors.activeColor, width: 2),
+                    ),
+                  ),
+                  onPressed: () {
+                    showBottomSheet(
+                      context: context,
+                      label: "Select Reason",
+                      options: controller.reportReasons
+                          .map((reason) => reason.title)
+                          .toList(),
+                      onSelected: (String? value) {
+                        Get.snackbar(
+                            "selected reasonId",
+                            controller
+                                .reportUserReasonFeedbackRequestModel.reasonId
+                                .toString());
+                        if (value != null && value.isNotEmpty) {
+                          selectedReason.value = value;
+                          isselected.value = true;
+                        } else {
+                          isselected.value = false;
+                        }
+                      },
+                    );
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          truncatedText,
+                          style: AppTextStyles.bodyText,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Icon(
+                        Icons.arrow_drop_down,
+                        color: AppColors.activeColor,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 10),
+                if (isselected.value)
+                  TextField(
+                    cursorColor: AppColors.cursorColor,
+                    maxLength: 60,
+                    decoration: InputDecoration(
+                      hintText: 'Describe the issue...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: AppColors.textColor),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                    ),
+                    onChanged: (value) {
+                      reportDescription.value = value;
+                      iswriting.value = value.isNotEmpty;
+                    },
+                  ),
+              ],
+            ),
+            actions: [
+              ElevatedButton(
+                onPressed: iswriting.value
+                    ? () {
+                        if (selectedReason.value.isNotEmpty &&
+                            reportDescription.value.isNotEmpty) {
+                          controller.reportUserReasonFeedbackRequestModel
+                              .reasonId = selectedReason.value;
+                          controller.reportUserReasonFeedbackRequestModel
+                              .reason = reportDescription.value;
+                          controller.reportUserReasonFeedbackRequestModel
+                              .reportAgainst = reporttouserid;
+                          Get.snackbar(
+                              "selected reason",
+                              controller
+                                  .reportUserReasonFeedbackRequestModel.reason
+                                  .toString());
+                          Get.snackbar(
+                              "selected reasonId",
+                              controller
+                                  .reportUserReasonFeedbackRequestModel.reasonId
+                                  .toString());
+                          Get.snackbar(
+                              "selected report against",
+                              controller.reportUserReasonFeedbackRequestModel
+                                  .reportAgainst
+                                  .toString());
+                          controller.reportAgainstUser(
+                              controller.reportUserReasonFeedbackRequestModel);
+                          Navigator.pop(context);
+
+                          success('Report Submitted',
+                              'The user has been reported.');
+                        } else {
+                          failure('Error',
+                              'Please select a reason and provide a description.');
+                        }
+                      }
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                  backgroundColor: AppColors.buttonColor,
+                  foregroundColor: AppColors.textColor,
+                ),
+                child: Text('Submit Report'),
+              ),
+            ],
+          );
+        });
+      },
+    );
+  }
+
+  void showBottomSheet({
+    required BuildContext context,
+    required String label,
+    required List<String> options,
+    required Function(String?) onSelected,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: AppTextStyles.bodyText.copyWith(fontSize: 18),
+              ),
+              SizedBox(height: 10),
+              Expanded(
+                child: ListView(
+                  children: List.generate(options.length, (index) {
+                    return RadioListTile<String>(
+                      title:
+                          Text(options[index], style: AppTextStyles.bodyText),
+                      value: options[index],
+                      groupValue: selectedReason.value,
+                      onChanged: (String? value) {
+                        onSelected(value);
+                        Navigator.pop(context);
+                      },
+                      activeColor: AppColors.activeColor,
+                    );
+                  }),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
 
 // controller.encryptMessage( messageController.text.trim(), secretkey)
@@ -1162,7 +1399,7 @@ class _SensitiveImageWidgetState extends State<SensitiveImageWidget> {
             snapshot.data!,
           );
 
-          if (widget.sensitivity == 0 && _showBlur) {
+          if (widget.sensitivity == 1 && _showBlur) {
             return GestureDetector(
               onTap: () {
                 showDialog(

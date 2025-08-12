@@ -362,6 +362,8 @@ class ContactListScreenState extends State<ContactListScreen> {
                                                                     .conectionId,
                                                             receiverName:
                                                                 connection.name,
+                                                            receiverImageUrl:
+                                                                connection.profileImage,
                                                           ));
                                                     }
                                                   }

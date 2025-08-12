@@ -1,7 +1,5 @@
-import 'package:dating_application/Screens/userprofile/membership/membershippage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pushable_button/pushable_button.dart';
 import '../../../Controllers/controller.dart';
 import '../../../constants.dart';
 import 'package:intl/intl.dart';

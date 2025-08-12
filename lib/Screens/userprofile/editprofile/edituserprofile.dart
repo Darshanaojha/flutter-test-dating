@@ -1956,28 +1956,51 @@ class EditProfilePageState extends State<EditProfilePage>
 
                                               return Wrap(
                                                 spacing: 8.0,
+                                                runSpacing: 8.0, // Added for vertical spacing
                                                 children: List.generate(
                                                     updatedSelectedInterests
                                                         .length, (index) {
                                                   final interest =
                                                       updatedSelectedInterests[
                                                           index];
-                                                  return Chip(
-                                                    label: Text(
-                                                      interest,
-                                                      style: const TextStyle(
-                                                          fontSize: 15),
+                                                  return Container(
+                                                    padding: const EdgeInsets.only(left: 12.0, top: 8.0, bottom: 8.0, right: 8.0),
+                                                    decoration: BoxDecoration(
+                                                      gradient: LinearGradient(
+                                                        colors: AppColors.gradientBackgroundList,
+                                                        begin: Alignment.topLeft,
+                                                        end: Alignment.bottomRight,
+                                                      ),
+                                                      borderRadius: BorderRadius.circular(25.0),
+                                                      border: Border.all(
+                                                        color: Colors.white,
+                                                        width: 1.5,
+                                                      ),
                                                     ),
-                                                    backgroundColor:
-                                                        AppColors.chipColor,
-                                                    deleteIcon: Icon(
-                                                        Icons.delete,
-                                                        color: AppColors
-                                                            .inactiveColor),
-                                                    onDeleted: () {
-                                                      deleteInterest(index);
-                                                      updateUserInterests();
-                                                    },
+                                                    child: Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        Text(
+                                                          interest,
+                                                          style: const TextStyle(
+                                                              fontSize: 15,
+                                                              color: Colors.white,
+                                                              fontWeight: FontWeight.bold),
+                                                        ),
+                                                        SizedBox(width: 8.0),
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            deleteInterest(index);
+                                                            updateUserInterests();
+                                                          },
+                                                          child: Icon(
+                                                            Icons.cancel,
+                                                            color: Colors.white.withOpacity(0.8),
+                                                            size: 20.0,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   );
                                                 }),
                                               );
