@@ -136,7 +136,7 @@ class UserRegistrationRequest {
       'bio': bio,
       'lang': lang,
       'img_count': imgcount,
-      'photos': photos,
+      'photos': photos.toString(),
       'email_alerts': emailAlerts,
       'username': username,
       'looking_for': lookingFor,

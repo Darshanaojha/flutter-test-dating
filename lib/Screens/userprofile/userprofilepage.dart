@@ -339,7 +339,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                   }
 
                                                   DateTime dob =
-                                                      DateFormat('dd/MM/yyyy')
+                                                      DateFormat('MM/dd/yyyy')
                                                           .parse(dobString);
 
                                                   DateTime today =

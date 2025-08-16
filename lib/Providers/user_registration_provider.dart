@@ -29,10 +29,13 @@ class UserRegistrationProvider extends GetConnect {
     debugPrint('bio: ${userRegistrationRequest.bio}');
     debugPrint('imgcount: ${userRegistrationRequest.imgcount}');
     debugPrint('lang: ${userRegistrationRequest.lang}');
-    debugPrint('photos: ${userRegistrationRequest.photos}');
+    debugPrint('photos: ${userRegistrationRequest.photos.toString()}');
     debugPrint('emailAlerts: ${userRegistrationRequest.emailAlerts}');
     debugPrint('username: ${userRegistrationRequest.username}');
     debugPrint('lookingFor: ${userRegistrationRequest.lookingFor}');
+
+    print('=======');
+    debugPrint('Request: ${userRegistrationRequest.toJson()}');
     try {
       Response response = await post(
         '$baseurl/Authentication/register',

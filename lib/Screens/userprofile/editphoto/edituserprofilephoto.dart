@@ -240,108 +240,38 @@ class EditPhotosPageState extends State<EditPhotosPage> {
     });
   }
 
-  void showDeleteOptions(int index) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "Are you sure you want to delete this photo?",
-              style: AppTextStyles.bodyText
-                  .copyWith(fontSize: getResponsiveFontSize(0.03)),
-            ),
-            SizedBox(height: 16),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.buttonColor),
-                  child: Text("Cancel",
-                      style: AppTextStyles.buttonText
-                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                ),
-                // SizedBox(width: 16),
-                // ElevatedButton(
-                //   onPressed: () {
-                //     Navigator.pop(context);
-                //     deletePhoto(index);
-                //   },
-                //   style: ElevatedButton.styleFrom(
-                //       backgroundColor: AppColors.inactiveColor),
-                //   child: Text("Delete",
-                //       style: AppTextStyles.buttonText
-                //           .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                // ),
-                SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    pickImage(index, ImageSource.gallery);
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.activeColor),
-                  child: Text("Edit",
-                      style: AppTextStyles.buttonText
-                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  
 
-  void showPhotoSelectionDialog(int index) {
+  void showImageOptions(int index) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "Choose a source for your photo:",
-              style: AppTextStyles.bodyText.copyWith(
-                  color: Colors.grey, fontSize: getResponsiveFontSize(0.03)),
+      backgroundColor: AppColors.primaryColor,
+      builder: (context) => SafeArea(
+        child: Wrap(
+          children: <Widget>[
+            ListTile(
+              leading: Icon(Icons.delete, color: Colors.white),
+              title: Text('Delete Photo', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.of(context).pop();
+                deletePhoto(index);
+              },
             ),
-            Center(
-              child: Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      pickImage(index, ImageSource.camera);
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.buttonColor),
-                    child: Text("Camera",
-                        style: AppTextStyles.buttonText
-                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                  ),
-                  SizedBox(width: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      pickImage(
-                        index,
-                        ImageSource.gallery,
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.buttonColor),
-                    child: Text("Gallery",
-                        style: AppTextStyles.buttonText
-                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                  ),
-                ],
-              ),
+            ListTile(
+              leading: Icon(Icons.photo_library, color: Colors.white),
+              title: Text('Upload from Gallery', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.of(context).pop();
+                pickImage(index, ImageSource.gallery);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.camera_alt, color: Colors.white),
+              title: Text('Take Photo using Camera', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.of(context).pop();
+                pickImage(index, ImageSource.camera);
+              },
             ),
           ],
         ),
@@ -498,25 +428,15 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                             return Padding(
                               padding: const EdgeInsets.all(4.0),
                               child: GestureDetector(
-                                onTap: () => showFullPhotoDialogFile(file),
-                                child: Stack(
-                                  alignment: Alignment.bottomRight,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: Image.file(
-                                        file,
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.more_vert,
-                                          color: AppColors.activeColor),
-                                      onPressed: () => showDeleteOptions(index),
-                                    ),
-                                  ],
+                                onTap: () => showImageOptions(index),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.file(
+                                    file,
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                  ),
                                 ),
                               ),
                             );
@@ -524,26 +444,15 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                             return Padding(
                               padding: const EdgeInsets.all(4.0),
                               child: GestureDetector(
-                                onTap: () =>
-                                    showFullPhotoDialog(imageUrl.value),
-                                child: Stack(
-                                  alignment: Alignment.bottomRight,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: Image.network(
-                                        imageUrl.value,
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.more_vert,
-                                          color: AppColors.activeColor),
-                                      onPressed: () => showDeleteOptions(index),
-                                    ),
-                                  ],
+                                onTap: () => showImageOptions(index),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.network(
+                                    imageUrl.value,
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                  ),
                                 ),
                               ),
                             );
@@ -551,7 +460,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                             return Padding(
                               padding: const EdgeInsets.all(4.0),
                               child: GestureDetector(
-                                onTap: () => showPhotoSelectionDialog(index),
+                                onTap: () => showImageOptions(index),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(10),
                                   child: Container(

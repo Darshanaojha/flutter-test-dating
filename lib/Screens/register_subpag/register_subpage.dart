@@ -46,6 +46,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   TextEditingController interestController = TextEditingController();
   final TextEditingController nicknameController = TextEditingController();
   final RxString nickname = ''.obs;
+  final RxString relationshipStepError = ''.obs;
 
   @override
   void initState() {
@@ -520,13 +521,15 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 ),
                 SizedBox(height: 8),
                 TextField(
+                  autofocus: true,
                   controller: nicknameController,
                   onChanged: (value) {
-                    nicknameController.text = value;
+                    nickname.value = value;
                     controller.userRegistrationRequest.nickname = value.trim();
-                    if (value.isEmpty) {
-                      failure('Nickname', 'Enter Your Nickname');
-                    }
+                  },
+                  onSubmitted: (value) {
+                    nickname.value = value;
+                    controller.userRegistrationRequest.nickname = value.trim();
                   },
                   decoration: InputDecoration(
                     hintText: "Enter your nick name",
@@ -600,7 +603,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     return Stack(
       children: [
         SizedBox(
-          height: screenSize.height * 0.85,
+          height: screenSize.height * 0.8,
           child: Card(
             elevation: 8,
             shape: RoundedRectangleBorder(
@@ -720,24 +723,19 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           bottom: 0,
           child: Obx(() => buildBottomButtonRow(
                 onBack: onBackPressed,
-                onNext: selectedGender.value == null
-                    ? null
-                    : () {
-                        if (selectedGender.value == null) {
-                          failure(
-                              'Failed', 'Please select an option to proceed.');
-                        } else {
-                          markStepAsCompleted(3);
-                          Get.snackbar(
-                              'gender',
-                              controller.userRegistrationRequest.gender
-                                  .toString());
-                          pageController.nextPage(
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.ease,
-                          );
-                        }
-                      },
+                onNext: () {
+                  if (selectedGender.value == null) {
+                    failure('Failed', 'Please select an option to proceed.');
+                  } else {
+                    markStepAsCompleted(3);
+                    Get.snackbar('gender',
+                        controller.userRegistrationRequest.gender.toString());
+                    pageController.nextPage(
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.ease,
+                    );
+                  }
+                },
                 nextLabel: 'Next',
                 backLabel: 'Back',
                 nextEnabled: selectedGender.value != null,
@@ -877,19 +875,22 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             padding: const EdgeInsets.only(bottom: 16.0, top: 16.0),
             child: Obx(() => buildBottomButtonRow(
                   onBack: onBackPressed,
-                  onNext: selectedOption.value.isEmpty
-                      ? null
-                      : () {
-                          markStepAsCompleted(4);
-                          Get.snackbar(
-                              'Sub-gender',
-                              controller.userRegistrationRequest.subGender
-                                  .toString());
-                          pageController.nextPage(
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.ease,
-                          );
-                        },
+                  onNext: () {
+                    print(controller.userRegistrationRequest.subGender);
+                    if (controller.userRegistrationRequest.subGender.isEmpty) {
+                      failure('Failed', 'Please select an option to proceed.');
+                      return;
+                    }
+                    markStepAsCompleted(4);
+                    Get.snackbar(
+                        'Sub-gender',
+                        controller.userRegistrationRequest.subGender
+                            .toString());
+                    pageController.nextPage(
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.ease,
+                    );
+                  },
                   nextLabel: 'Next',
                   backLabel: 'Back',
                   nextEnabled: selectedOption.value.isNotEmpty,
@@ -927,7 +928,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
       return Stack(
         children: [
           SizedBox(
-            height: screenSize.height * 0.85,
+            height: screenSize.height * 0.8,
             child: Card(
               elevation: 8,
               shape: RoundedRectangleBorder(
@@ -983,7 +984,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                               decoration: BoxDecoration(
                                 gradient: isSelected
                                     ? LinearGradient(
-                                        colors: AppColors.gradientBackgroundList,
+                                        colors:
+                                            AppColors.gradientBackgroundList,
                                         begin: Alignment.topLeft,
                                         end: Alignment.bottomRight,
                                       )
@@ -1011,7 +1013,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                     ),
                                   ),
                                   if (isSelected)
-                                    Icon(Icons.check_circle, color: Colors.white)
+                                    Icon(Icons.check_circle,
+                                        color: Colors.white)
                                 ],
                               ),
                             ),
@@ -1215,84 +1218,80 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     ),
                   ),
                   SizedBox(height: 20),
-                  Obx(() {
-                    return selectedStatus.isNotEmpty
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "You selected:",
-                                style: AppTextStyles.bodyText.copyWith(
-                                  fontSize: bodyFontSize,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.textColor,
-                                ),
+                  selectedStatus.isNotEmpty
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "You selected:",
+                              style: AppTextStyles.bodyText.copyWith(
+                                fontSize: bodyFontSize,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textColor,
                               ),
-                              SizedBox(height: 10),
-                              SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Wrap(
-                                  spacing: 8,
-                                  children: selectedStatus.map((status) {
-                                    return Padding(
-                                      padding:
-                                          const EdgeInsets.only(right: 8.0),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 12, vertical: 7),
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color: Colors.white,
-                                            width: 1,
-                                          ),
-                                          gradient: LinearGradient(
-                                            colors: AppColors
-                                                .gradientBackgroundList,
-                                            begin: Alignment.centerLeft,
-                                            end: Alignment.centerRight,
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(20),
+                            ),
+                            SizedBox(height: 10),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Wrap(
+                                spacing: 8,
+                                children: selectedStatus.map((status) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 8.0),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 7),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 1,
                                         ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text(
-                                              status,
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: chipFontSize,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            SizedBox(width: 4),
-                                            GestureDetector(
-                                              onTap: () {
-                                                int index =
-                                                    options.indexOf(status);
-                                                selectedOptions[index] = false;
-                                                updateSelectedStatus();
-                                                selectedOptions.refresh();
-                                                selectedStatus.refresh();
-                                              },
-                                              child: Icon(
-                                                Icons.close,
-                                                color: Colors.white,
-                                                size: chipFontSize + 2,
-                                              ),
-                                            ),
-                                          ],
+                                        gradient: LinearGradient(
+                                          colors:
+                                              AppColors.gradientBackgroundList,
+                                          begin: Alignment.centerLeft,
+                                          end: Alignment.centerRight,
                                         ),
+                                        borderRadius: BorderRadius.circular(20),
                                       ),
-                                    );
-                                  }).toList(),
-                                ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            status,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: chipFontSize,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          SizedBox(width: 4),
+                                          GestureDetector(
+                                            onTap: () {
+                                              int index =
+                                                  options.indexOf(status);
+                                              selectedOptions[index] = false;
+                                              updateSelectedStatus();
+                                              selectedOptions.refresh();
+                                              selectedStatus.refresh();
+                                            },
+                                            child: Icon(
+                                              Icons.close,
+                                              color: Colors.white,
+                                              size: chipFontSize + 2,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
                               ),
-                              SizedBox(height: 20),
-                            ],
-                          )
-                        : Container();
-                  }),
+                            ),
+                            SizedBox(height: 20),
+                          ],
+                        )
+                      : Container(),
                   Text(
                     "Select your interests:",
                     style: AppTextStyles.bodyText.copyWith(
@@ -1362,36 +1361,34 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                         }),
                       )),
                   SizedBox(height: 20),
-                  Obx(() {
-                    return selectedStatus.isNotEmpty
-                        ? Align(
-                            alignment: Alignment.centerRight,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                selectedOptions.value =
-                                    List.filled(options.length, false);
-                                updateSelectedStatus();
-                                selectedOptions.refresh();
-                                selectedStatus.refresh();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.transparent,
-                                foregroundColor: AppColors.textColor,
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 22, vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                              ),
-                              child: Icon(
-                                Icons.delete_outline,
-                                color: Colors.pink,
-                                size: titleFontSize,
+                  selectedStatus.isNotEmpty
+                      ? Align(
+                          alignment: Alignment.centerRight,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              selectedOptions.value =
+                                  List.filled(options.length, false);
+                              updateSelectedStatus();
+                              selectedOptions.refresh();
+                              selectedStatus.refresh();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              foregroundColor: AppColors.textColor,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 22, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
                               ),
                             ),
-                          )
-                        : Container();
-                  }),
+                            child: Icon(
+                              Icons.delete_outline,
+                              color: Colors.pink,
+                              size: titleFontSize,
+                            ),
+                          ),
+                        )
+                      : Container()
                 ],
               ),
             ),
@@ -1401,87 +1398,89 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           Padding(
             padding:
                 const EdgeInsets.only(bottom: 24, left: 16, right: 16, top: 8),
-            child: Obx(() => Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment(0.8, 1),
-                            colors: AppColors.gradientBackgroundList,
-                          ),
-                          borderRadius: BorderRadius.circular(30),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment(0.8, 1),
+                        colors: AppColors.gradientBackgroundList,
+                      ),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: onBackPressed,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: AppColors.textColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
                         ),
-                        child: ElevatedButton(
-                          onPressed: onBackPressed,
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            backgroundColor: Colors.transparent,
-                            foregroundColor: AppColors.textColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(50),
-                            ),
-                            shadowColor: Colors.transparent,
-                            elevation: 0,
-                          ),
-                          child: Text(
-                            'Back',
-                            style: AppTextStyles.buttonText.copyWith(
-                              fontSize: screenSize.width * 0.045,
-                            ),
-                          ),
+                        shadowColor: Colors.transparent,
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        'Back',
+                        style: AppTextStyles.buttonText.copyWith(
+                          fontSize: screenSize.width * 0.045,
                         ),
                       ),
                     ),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment(0.8, 1),
-                            colors: AppColors.gradientBackgroundList,
-                          ),
-                          borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment(0.8, 1),
+                        colors: AppColors.gradientBackgroundList,
+                      ),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (selectedStatus.isNotEmpty) {
+                          relationshipStepError.value = '';
+                          markStepAsCompleted(6);
+                          Get.snackbar(
+                              'desires',
+                              controller.userRegistrationRequest.desires
+                                  .toString());
+                          pageController.nextPage(
+                            duration: Duration(milliseconds: 300),
+                            curve: Curves.ease,
+                          );
+                        } else {
+                          relationshipStepError.value =
+                              'Please select at least one option.';
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: AppColors.textColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        child: ElevatedButton(
-                          onPressed: selectedStatus.isNotEmpty
-                              ? () {
-                                  markStepAsCompleted(6);
-                                  Get.snackbar(
-                                      'desires',
-                                      controller.userRegistrationRequest.desires
-                                          .toString());
-                                  pageController.nextPage(
-                                    duration: Duration(milliseconds: 300),
-                                    curve: Curves.ease,
-                                  );
-                                }
-                              : null,
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            backgroundColor: selectedStatus.isNotEmpty
-                                ? Colors.transparent
-                                : AppColors.disabled,
-                            foregroundColor: AppColors.textColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            shadowColor: Colors.transparent,
-                            elevation: 0,
-                          ),
-                          child: Text(
-                            'Next',
-                            style: AppTextStyles.buttonText.copyWith(
-                              fontSize: screenSize.width * 0.045,
-                            ),
-                          ),
+                        shadowColor: Colors.transparent,
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        'Next',
+                        style: AppTextStyles.buttonText.copyWith(
+                          fontSize: screenSize.width * 0.045,
                         ),
                       ),
                     ),
-                  ],
-                )),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -3553,7 +3552,7 @@ Widget buildBottomButtonRow({
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: AppColors.gradientBackgroundList,
+                colors: AppColors.reversedGradientColor,
               ),
               borderRadius: BorderRadius.circular(30),
             ),

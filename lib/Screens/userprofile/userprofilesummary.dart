@@ -294,7 +294,7 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
 
   static int _getAge(String dob) {
     try {
-      final date = DateFormat('dd/MM/yyyy').parse(dob);
+      final date = DateFormat('MM/dd/yyyy').parse(dob);
       final now = DateTime.now();
       int age = now.year - date.year;
       if (now.month < date.month ||

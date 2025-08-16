@@ -25,7 +25,6 @@ class UserInputPageState extends State<UserInputPage>
   @override
   void initState() {
     super.initState();
-    initialize();
     controller.userRegistrationRequest.reset();
 
     animationController = AnimationController(
@@ -38,7 +37,6 @@ class UserInputPageState extends State<UserInputPage>
     );
   }
 
-  initialize() {}
 
   String? validateName(String? value) {
     if (value == null || value.isEmpty) {
