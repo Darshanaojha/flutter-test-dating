@@ -1,9 +1,7 @@
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get_connect.dart';
-
 import '../Models/ResponseModels/app_details_response_model.dart';
 import '../constants.dart';
-
 class MasterSettingProvider extends GetConnect {
   Future<AppDetailsResponse?> masterSetting() async {
     try {
@@ -12,7 +10,7 @@ class MasterSettingProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        failure('Error in masterSetting', 'Token not found');
         return null;
       }
 
@@ -24,7 +22,7 @@ class MasterSettingProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in masterSetting', 'Server Failed To Respond');
         return null;
       }
 
@@ -32,7 +30,7 @@ class MasterSettingProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return AppDetailsResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in masterSetting', response.body['error']['message']);
           return null;
         }
       } else {
@@ -40,7 +38,7 @@ class MasterSettingProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in masterSetting', e.toString());
       return null;
     }
   }

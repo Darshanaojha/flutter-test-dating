@@ -1,10 +1,8 @@
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get_connect.dart';
-
 import '../Models/RequestModels/block_User_request_model.dart';
 import '../Models/ResponseModels/block_user_response_model.dart';
 import '../constants.dart';
-
 class BlockUserProvider extends GetConnect {
   Future<BlockUserResponseModel?> blockUser(
       BlockToRequestModel blockToRequestModel) async {
@@ -14,7 +12,7 @@ class BlockUserProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        failure('Error in blockUser', 'Token not found');
         return null;
       }
 
@@ -28,7 +26,7 @@ class BlockUserProvider extends GetConnect {
       );
 
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in blockUser', 'Server Failed To Respond');
         return null;
       }
 
@@ -36,7 +34,7 @@ class BlockUserProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return BlockUserResponseModel.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in blockUser', response.body['error']['message']);
           return null;
         }
       } else {
@@ -44,7 +42,7 @@ class BlockUserProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in blockUser', e.toString());
       return null;
     }
   }

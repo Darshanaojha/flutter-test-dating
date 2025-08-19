@@ -1,9 +1,7 @@
 import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-
 import '../Models/ResponseModels/GetPointCreditedDebitedResponse.dart';
-
 class GetPointCreditedDebitedProvider extends GetConnect {
   Future<GetPointCreditedDebitedResponse?>
       getpointcrediteddebitedprovider() async {
@@ -12,7 +10,7 @@ class GetPointCreditedDebitedProvider extends GetConnect {
           EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
       if (token == null || token.isEmpty) {
-        failure("Error", "Token Not Found");
+        failure("Error in unknown_method", "Token Not Found");
         return null;
       }
 
@@ -24,7 +22,7 @@ class GetPointCreditedDebitedProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in unknown_method', 'Server Failed To Respond');
         return null;
       }
 
@@ -33,11 +31,11 @@ class GetPointCreditedDebitedProvider extends GetConnect {
           if (response.body['error']['message'] == 0) {
             return GetPointCreditedDebitedResponse.fromJson(response.body);
           } else {
-            failure("Error", response.body['error']['code']);
+            failure("Error in unknown_method", response.body['error']['code']);
             return null;
           }
         } else {
-          failure("Error", "Status Code Invalid Formate");
+          failure("Error in unknown_method", "Status Code Invalid Formate");
           return null;
         }
       } else {
@@ -46,7 +44,7 @@ class GetPointCreditedDebitedProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure("Error", e.toString());
+      failure("Error in unknown_method", e.toString());
       return null;
     }
   }

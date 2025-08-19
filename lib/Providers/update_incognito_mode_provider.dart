@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
-
 class UpdateIncognitoStatusProvider extends GetConnect {
   Future<bool> updateIncognitoStatus({required int status}) async {
     try {
@@ -21,7 +20,7 @@ class UpdateIncognitoStatusProvider extends GetConnect {
         );
 
         if (response.statusCode == null || response.body == null) {
-          failure('Error', 'Server Failed To Respond');
+          failure('Error in updateIncognitoStatus', 'Server Failed To Respond');
           return false;
         }
 
@@ -29,15 +28,15 @@ class UpdateIncognitoStatusProvider extends GetConnect {
           success('Success', 'Incognito status updated');
           return true;
         } else {
-          failure('Error', response.body.toString());
+          failure('Error in updateIncognitoStatus', response.body.toString());
           return false;
         }
       } else {
-        failure('Error', 'Token not found');
+        failure('Error in updateIncognitoStatus', 'Token not found');
         return false;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in updateIncognitoStatus', e.toString());
       return false;
     }
   }

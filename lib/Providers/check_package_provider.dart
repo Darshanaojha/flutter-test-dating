@@ -1,7 +1,6 @@
 import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-
 class CheckPackageProvider extends GetConnect {
   Future<bool> checkUserPackage() async {
     try {
@@ -19,7 +18,7 @@ class CheckPackageProvider extends GetConnect {
 
         print('check_user_package response : ${response.body}');
         if (response.statusCode == null || response.body == null) {
-          failure('Error', 'Server Failed To Respond');
+          failure('Error in checkUserPackage', 'Server Failed To Respond');
           return false;
         }
 
@@ -27,7 +26,7 @@ class CheckPackageProvider extends GetConnect {
           if (response.body['error']['code'] == 0) {
             return true;
           } else {
-            failure('Error', response.body['error']['message']);
+            failure('Error in checkUserPackage', response.body['error']['message']);
             return false;
           }
         } else {
@@ -38,11 +37,11 @@ class CheckPackageProvider extends GetConnect {
           return false;
         }
       } else {
-        failure('Error', 'Token not found');
+        failure('Error in checkUserPackage', 'Token not found');
         return false;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in checkUserPackage', e.toString());
       return false;
     }
   }

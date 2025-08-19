@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import '../Models/RequestModels/app_setting_request_model.dart';
 import '../Models/ResponseModels/app_setting_response_model.dart';
 import '../constants.dart';
-
 class AppSettingProvider extends GetConnect {
   Future<AppSettingResponse?> appsettingprovider(
       AppSettingRequest blockToRequestModel) async {
@@ -13,7 +12,7 @@ class AppSettingProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        failure('Error in appsettingprovider', 'Token not found');
         return null;
       }
 
@@ -27,7 +26,7 @@ class AppSettingProvider extends GetConnect {
       );
 
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in appsettingprovider', 'Server Failed To Respond');
         return null;
       }
 
@@ -35,7 +34,7 @@ class AppSettingProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return AppSettingResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in appsettingprovider', response.body['error']['message']);
           return null;
         }
       } else {
@@ -43,7 +42,7 @@ class AppSettingProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in appsettingprovider', e.toString());
       return null;
     }
   }

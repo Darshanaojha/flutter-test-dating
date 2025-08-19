@@ -1,10 +1,8 @@
 import 'package:dating_application/Models/ResponseModels/chat_history_response_model.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-
 import '../Models/ResponseModels/chat_response.dart';
 import '../constants.dart';
-
 class ChatProvider extends GetConnect {
   Future<ChatResponse?> updateChats(Message message) async {
     try {
@@ -22,22 +20,22 @@ class ChatProvider extends GetConnect {
         );
 
         if (response.statusCode == null || response.body == null) {
-          failure('Error', 'Server Failed To Respond');
+          failure('Error in updateChats', 'Server Failed To Respond');
           return null;
         }
 
         if (response.statusCode == 200) {
           return ChatResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body.toString());
+          failure('Error in updateChats', response.body.toString());
           return null;
         }
       } else {
-        failure('Error', 'Token not found');
+        failure('Error in updateChats', 'Token not found');
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in updateChats', e.toString());
       return null;
     }
   }
@@ -64,15 +62,15 @@ class ChatProvider extends GetConnect {
               
           return ChatResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body.toString());
+          failure('Error in fetchChats', response.body.toString());
           return null;
         }
       } else {
-        failure('Error', 'Token not found');
+        failure('Error in fetchChats', 'Token not found');
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in fetchChats', e.toString());
       return null;
     }
   }
@@ -98,15 +96,15 @@ class ChatProvider extends GetConnect {
         if (response.statusCode == 200) {
           return ChatResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body.toString());
+          failure('Error in deleteChats', response.body.toString());
           return null;
         }
       } else {
-        failure('Error', 'Token not found');
+        failure('Error in deleteChats', 'Token not found');
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in deleteChats', e.toString());
       return null;
     }
   }

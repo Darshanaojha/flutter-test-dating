@@ -7,7 +7,6 @@ import '../Models/ResponseModels/forget_password_response_model.dart';
 import '../Models/ResponseModels/forget_password_verification_response_model.dart';
 import '../Models/ResponseModels/user_login_response_model.dart';
 import '../constants.dart';
-
 class LoginProvider extends GetConnect {
   Controller controller = Get.find();
   Future<ForgetPasswordResponse?> getOtpForgetPassword(
@@ -23,7 +22,7 @@ class LoginProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in getOtpForgetPassword', 'Server Failed To Respond');
         return null;
       }
 
@@ -31,7 +30,7 @@ class LoginProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return ForgetPasswordResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in getOtpForgetPassword', response.body['error']['message']);
           return null;
         }
       } else {
@@ -42,7 +41,7 @@ class LoginProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in getOtpForgetPassword', e.toString());
       return null;
     }
   }
@@ -65,15 +64,15 @@ class LoginProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return ForgetPasswordVerificationResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in otpVerificationForgetPassword', response.body['error']['message']);
           return null;
         }
       } else {
-        failure('Error', response.body.toString());
+        failure('Error in otpVerificationForgetPassword', response.body.toString());
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in otpVerificationForgetPassword', e.toString());
       return null;
     }
   }
@@ -96,15 +95,17 @@ class LoginProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return UserLoginResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          print('Error in userLogin: ${response.body['error']['message']}');
+          // failure('Error in userLogin', response.body['error']['message']);
           return null;
         }
       } else {
-        failure('Error', response.body.toString());
+        print('Response status code: ${response.statusCode}');
+        // failure('Error in userLogin', response.body.toString());
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Exception in userLogin', e.toString());
       return null;
     }
   }

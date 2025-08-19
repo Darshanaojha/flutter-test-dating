@@ -2,6 +2,7 @@ import 'package:dating_application/Models/ResponseModels/get_all_desires_model_r
 import 'package:dating_application/constants.dart';
 import 'package:get/get.dart';
 
+
 class FetchAllDesiresProvider extends GetConnect {
   // Desires
   Future<DesiresResponse?> fetchDesires() async {
@@ -9,14 +10,14 @@ class FetchAllDesiresProvider extends GetConnect {
       final response = await get('$baseurl/Common/all_desires');
 
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in fetchDesires', 'Server Failed To Respond');
         return null;
       }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return DesiresResponse.fromJson(response.body);
         } else {
-          failure("Error", response.body['error']['message']);
+          failure("Error in fetchDesires", response.body['error']['message']);
           return null;
         }
       } else {
@@ -27,7 +28,7 @@ class FetchAllDesiresProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure("Error", e.toString());
+      failure("Error in fetchDesires", e.toString());
       return null;
     }
   }

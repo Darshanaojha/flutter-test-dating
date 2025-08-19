@@ -1,10 +1,8 @@
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get_connect.dart';
-
 import '../Models/RequestModels/update_visibility_status_request_model.dart';
 import '../Models/ResponseModels/update_visibility_status_response_model.dart';
 import '../constants.dart';
-
 class UpdateVisibilityStatusProvider extends GetConnect {
   Future<UpdateVisibilityStatusResponseModel?> updateVisibilityStatus(
       UpdateVisibilityStatusRequestModel
@@ -15,7 +13,7 @@ class UpdateVisibilityStatusProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        failure('Error in updateVisibilityStatus', 'Token not found');
         return null;
       }
 
@@ -28,7 +26,7 @@ class UpdateVisibilityStatusProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in updateVisibilityStatus', 'Server Failed To Respond');
         return null;
       }
 
@@ -36,7 +34,7 @@ class UpdateVisibilityStatusProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return UpdateVisibilityStatusResponseModel.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in updateVisibilityStatus', response.body['error']['message']);
           return null;
         }
       } else {
@@ -44,7 +42,7 @@ class UpdateVisibilityStatusProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in updateVisibilityStatus', e.toString());
       return null;
     }
   }

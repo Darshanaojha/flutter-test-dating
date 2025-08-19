@@ -1,12 +1,10 @@
 import 'dart:convert';
-
 import 'package:dating_application/Models/RequestModels/update_creator_content_request.dart';
 import 'package:dating_application/Models/ResponseModels/update_creator_content_response.dart';
 import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
-
 class UpdateCreatorContentProvider {
   Future<UpdateCreatorContentResponse?> updateCreatorContent(
       UpdateCreatorContentRequest request) async {
@@ -45,7 +43,7 @@ class UpdateCreatorContentProvider {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in updateCreatorContent', e.toString());
       return null;
     }
   }

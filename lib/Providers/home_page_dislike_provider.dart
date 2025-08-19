@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import '../Models/RequestModels/homepage_dislike_request_model.dart';
 import '../Models/ResponseModels/homepage_dislike_response_model.dart';
 import '../constants.dart';
-
 class HomePageDislikeProvider extends GetConnect {
   Future<HomepageDislikeResponse?> homePageDislikeProvider(
       HomepageDislikeRequest homepageDislikeRequest) async {
@@ -13,7 +12,7 @@ class HomePageDislikeProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        failure('Error in homePageDislikeProvider', 'Token not found');
         return null;
       }
 
@@ -28,7 +27,7 @@ class HomePageDislikeProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in homePageDislikeProvider', 'Server Failed To Respond');
         return null;
       }
 
@@ -40,7 +39,7 @@ class HomePageDislikeProvider extends GetConnect {
           return HomepageDislikeResponse.fromJson(response.body);
         } else {
           print("Invalid response body format");
-          failure('Error', 'Invalid response format received');
+          failure('Error in homePageDislikeProvider', 'Invalid response format received');
           return null;
         }
       } else {
@@ -50,7 +49,7 @@ class HomePageDislikeProvider extends GetConnect {
       }
     } catch (e) {
       print("An error occurred: $e");
-      failure('Error', 'An error occurred: ${e.toString()}');
+      failure('Error in homePageDislikeProvider', 'An error occurred: ${e.toString()}');
       return null;
     }
   }

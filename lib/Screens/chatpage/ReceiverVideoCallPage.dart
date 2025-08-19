@@ -361,36 +361,36 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
                           ),
                         ),
                       ),
-                      SizedBox(width: size.width * 0.03), // Responsive spacing
-                      GestureDetector(
-                        onTap: _toggleSpeaker,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              colors: isSpeakerOn
-                                  ? [Colors.blueAccent, Colors.lightBlue]
-                                  : [Colors.grey, Colors.blueGrey],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black26,
-                                blurRadius: 12,
-                                offset: Offset(0, 6),
-                              ),
-                            ],
-                          ),
-                          padding: EdgeInsets.all(
-                              size.width * 0.05), // Responsive padding
-                          child: Icon(
-                            isSpeakerOn ? Icons.volume_up : Icons.volume_off,
-                            size: size.width * 0.08, // Responsive icon size
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
+                      // SizedBox(width: size.width * 0.03), // Responsive spacing
+                      // GestureDetector(
+                      //   onTap: _toggleSpeaker,
+                      //   child: Container(
+                      //     decoration: BoxDecoration(
+                      //       shape: BoxShape.circle,
+                      //       gradient: LinearGradient(
+                      //         colors: isSpeakerOn
+                      //             ? [Colors.blueAccent, Colors.lightBlue]
+                      //             : [Colors.grey, Colors.blueGrey],
+                      //         begin: Alignment.topLeft,
+                      //         end: Alignment.bottomRight,
+                      //       ),
+                      //       boxShadow: [
+                      //         BoxShadow(
+                      //           color: Colors.black26,
+                      //           blurRadius: 12,
+                      //           offset: Offset(0, 6),
+                      //         ),
+                      //       ],
+                      //     ),
+                      //     padding: EdgeInsets.all(
+                      //         size.width * 0.05), // Responsive padding
+                      //     child: Icon(
+                      //       isSpeakerOn ? Icons.volume_up : Icons.volume_off,
+                      //       size: size.width * 0.08, // Responsive icon size
+                      //       color: Colors.white,
+                      //     ),
+                      //   ),
+                      // ),
                       SizedBox(width: size.width * 0.03), // Responsive spacing
                       GestureDetector(
                         onTap: endCall,

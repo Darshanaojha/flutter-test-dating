@@ -4,7 +4,6 @@ import 'dart:convert';
 import '../Models/RequestModels/delete_chat_history_request_model.dart';
 import '../Models/ResponseModels/delete_chat_history_response.dart';
 import '../constants.dart';
-
 class DeleteChatHistoryProvider extends GetConnect {
   Future<DeleteChatResponse?> deletechathistoryprovider(
       DeleteChatRequest deleteChatRequest) async {
@@ -12,7 +11,7 @@ class DeleteChatHistoryProvider extends GetConnect {
       final preferences = EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token is not found');
+        failure('Error in deletechathistoryprovider', 'Token is not found');
         return null;
       }
 
@@ -25,7 +24,7 @@ class DeleteChatHistoryProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in deletechathistoryprovider', 'Server Failed To Respond');
         return null;
       }
 
@@ -33,15 +32,15 @@ class DeleteChatHistoryProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return DeleteChatResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in deletechathistoryprovider', response.body['error']['message']);
           return null;
         }
       } else {
-        failure('Error', response.body.toString());
+        failure('Error in deletechathistoryprovider', response.body.toString());
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in deletechathistoryprovider', e.toString());
       return null;
     }
   }

@@ -2,10 +2,8 @@ import 'package:dating_application/Models/ResponseModels/delete_message_response
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 import 'dart:convert';
-
 import '../Models/RequestModels/delete_message_request_model.dart';
 import '../constants.dart';
-
 class DeleteMessageProvider extends GetConnect {
   Future<DeleteMessageResponse?> deleteMessage(
       DeleteMessageRequest request) async {
@@ -13,7 +11,7 @@ class DeleteMessageProvider extends GetConnect {
       final preferences = EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token is not found');
+        failure('Error in deleteMessage', 'Token is not found');
         return null;
       }
 
@@ -26,22 +24,22 @@ class DeleteMessageProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in deleteMessage', 'Server Failed To Respond');
         return null;
       }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return DeleteMessageResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in deleteMessage', response.body['error']['message']);
           return null;
         }
       } else {
-        failure('Error', response.body.toString());
+        failure('Error in deleteMessage', response.body.toString());
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in deleteMessage', e.toString());
       return null;
     }
   }

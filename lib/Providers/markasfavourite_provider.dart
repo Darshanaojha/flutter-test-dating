@@ -1,10 +1,8 @@
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-
 import '../Models/RequestModels/marksasfavourite_request_model.dart';
 import '../Models/ResponseModels/marksasfavourite_response_model.dart';
 import '../constants.dart';
-
 class MarkasfavouriteProvider extends GetConnect {
   Future<MarkFavouriteResponse?> markasfavouriteprovider(
       MarkFavouriteRequestModel markFavouriteRequestModel) async {
@@ -14,7 +12,7 @@ class MarkasfavouriteProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        failure('Error in markasfavouriteprovider', 'Token not found');
         return null;
       }
 
@@ -29,7 +27,7 @@ class MarkasfavouriteProvider extends GetConnect {
       // print("fav id : " + markFavouriteRequestModel.toJson().toString());
 
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in markasfavouriteprovider', 'Server Failed To Respond');
         return null;
       }
 
@@ -38,7 +36,7 @@ class MarkasfavouriteProvider extends GetConnect {
           // print("Response Fav : " + response.body);
           return MarkFavouriteResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in markasfavouriteprovider', response.body['error']['message']);
           return null;
         }
       } else {

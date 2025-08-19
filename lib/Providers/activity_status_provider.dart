@@ -3,7 +3,6 @@ import 'package:dating_application/Models/ResponseModels/activity_status_respons
 import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-
 class ActivityStatusProvider extends GetConnect {
   Future<UpdateActivityStatusResponse?> updateactivitystatusprovider(
       UpdateActivityStatusRequest updateActivityStatusRequest) async {
@@ -13,7 +12,7 @@ class ActivityStatusProvider extends GetConnect {
       String? token = preferences.getString('token');
       
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        failure('Error in updateactivitystatusprovider', 'Token not found');
         return null;
       }
 
@@ -26,7 +25,7 @@ class ActivityStatusProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in updateactivitystatusprovider', 'Server Failed To Respond');
         return null;
       }
 
@@ -34,7 +33,7 @@ class ActivityStatusProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return UpdateActivityStatusResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in updateactivitystatusprovider', response.body['error']['message']);
           return null;
         }
       } else {
@@ -42,7 +41,7 @@ class ActivityStatusProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in updateactivitystatusprovider', e.toString());
       return null;
     }
   }

@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
-
 class UpdateHookupStatusProvider extends GetConnect {
   Future<bool> updateHookupStatus({required int hookupStatus}) async {
     try {
@@ -21,7 +20,7 @@ class UpdateHookupStatusProvider extends GetConnect {
         );
 
         if (response.statusCode == null || response.body == null) {
-          failure('Error', 'Server Failed To Respond');
+          failure('Error in updateHookupStatus', 'Server Failed To Respond');
           return false;
         }
 
@@ -29,15 +28,15 @@ class UpdateHookupStatusProvider extends GetConnect {
           success('Success', 'Hookup status updated');
           return true;
         } else {
-          failure('Error', response.body.toString());
+          failure('Error in updateHookupStatus', response.body.toString());
           return false;
         }
       } else {
-        failure('Error', 'Token not found');
+        failure('Error in updateHookupStatus', 'Token not found');
         return false;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in updateHookupStatus', e.toString());
       return false;
     }
   }

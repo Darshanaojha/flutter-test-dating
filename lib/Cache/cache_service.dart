@@ -2,7 +2,6 @@ import 'dart:async';
 import 'cache_manager.dart';
 import 'sync_manager.dart';
 import 'cache_config.dart';
-import 'cache_utils.dart';
 import '../Repositories/cached_user_repository.dart';
 import '../Repositories/cached_chat_repository.dart';
 

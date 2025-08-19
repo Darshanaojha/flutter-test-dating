@@ -460,35 +460,35 @@ class VideoCallPageState extends State<VideoCallPage> {
                           ),
                         ),
                       ),
-                      SizedBox(width: 20),
-                      GestureDetector(
-                        onTap: _toggleSpeaker,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              colors: isSpeakerOn
-                                  ? [Colors.blueAccent, Colors.lightBlue]
-                                  : [Colors.grey, Colors.blueGrey],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black26,
-                                blurRadius: 12,
-                                offset: Offset(0, 6),
-                              ),
-                            ],
-                          ),
-                          padding: EdgeInsets.all(22),
-                          child: Icon(
-                            isSpeakerOn ? Icons.volume_up : Icons.volume_off,
-                            size: 36,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
+                      // SizedBox(width: 20),
+                      // GestureDetector(
+                      //   onTap: _toggleSpeaker,
+                      //   child: Container(
+                      //     decoration: BoxDecoration(
+                      //       shape: BoxShape.circle,
+                      //       gradient: LinearGradient(
+                      //         colors: isSpeakerOn
+                      //             ? [Colors.blueAccent, Colors.lightBlue]
+                      //             : [Colors.grey, Colors.blueGrey],
+                      //         begin: Alignment.topLeft,
+                      //         end: Alignment.bottomRight,
+                      //       ),
+                      //       boxShadow: [
+                      //         BoxShadow(
+                      //           color: Colors.black26,
+                      //           blurRadius: 12,
+                      //           offset: Offset(0, 6),
+                      //         ),
+                      //       ],
+                      //     ),
+                      //     padding: EdgeInsets.all(22),
+                      //     child: Icon(
+                      //       isSpeakerOn ? Icons.volume_up : Icons.volume_off,
+                      //       size: 36,
+                      //       color: Colors.white,
+                      //     ),
+                      //   ),
+                      // ),
                       SizedBox(width: 20),
                       GestureDetector(
                         onTap: endCall,

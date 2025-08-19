@@ -1,8 +1,10 @@
 import 'package:dating_application/Models/ResponseModels/get_all_introslider_response.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../constants.dart';
+import 'package:flutter/foundation.dart';
+
+
 
 class FetchAllIntroSliderProvider extends GetConnect {
   Future<IntroSliderResponse?> fetchAllIntroSliderProvider() async {
@@ -10,7 +12,7 @@ class FetchAllIntroSliderProvider extends GetConnect {
       debugPrint("Ip address:$baseurl");
       final response = await get('$baseurl/Common/all_intro_sliders');
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in fetchAllIntroSliderProvider', 'Server Failed To Respond');
         return null;
       }
 
@@ -18,7 +20,7 @@ class FetchAllIntroSliderProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return IntroSliderResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in fetchAllIntroSliderProvider', response.body['error']['message']);
           return null;
         }
       } else {
@@ -27,7 +29,7 @@ class FetchAllIntroSliderProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in fetchAllIntroSliderProvider', e.toString());
       return null;
     }
   }

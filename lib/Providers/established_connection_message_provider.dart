@@ -3,7 +3,6 @@ import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 import '../Models/ResponseModels/establish_connection_response_model.dart';
 import '../constants.dart';
-
 class EstablishConnectionProvider extends GetConnect {
   Future<EstablishConnectionResponse?> sendConnectionMessageprovider(
       EstablishConnectionMessageRequest
@@ -14,7 +13,7 @@ class EstablishConnectionProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token is not found');
+        failure('Error in sendConnectionMessageprovider', 'Token is not found');
         return null;
       }
 
@@ -27,14 +26,14 @@ class EstablishConnectionProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in sendConnectionMessageprovider', 'Server Failed To Respond');
         return null;
       }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return EstablishConnectionResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in sendConnectionMessageprovider', response.body['error']['message']);
           return null;
         }
       } else {
@@ -42,7 +41,7 @@ class EstablishConnectionProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in sendConnectionMessageprovider', e.toString());
       print('Exception occurred: $e');
       return null;
     }

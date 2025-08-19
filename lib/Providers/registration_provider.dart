@@ -6,7 +6,6 @@ import '../Models/ResponseModels/get_all_country_response_model.dart';
 import '../Models/ResponseModels/registration_otp_response_model.dart';
 import '../Models/ResponseModels/registration_otp_verification_response_model.dart';
 import '../constants.dart';
-
 class RegistrationProvider extends GetConnect {
   Controller controller = Get.find();
   Future<CountryResponse?> fetchCountries() async {
@@ -17,15 +16,15 @@ class RegistrationProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return CountryResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in fetchCountries', response.body['error']['message']);
           return null;
         }
       } else {
-        failure('Error', response.body['error']['message']);
+        failure('Error in fetchCountries', response.body['error']['message']);
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in fetchCountries', e.toString());
       return null;
     }
   }
@@ -47,7 +46,7 @@ class RegistrationProvider extends GetConnect {
       print('Response body: ${response.body}');
 
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in getOtpForRegistration', 'Server Failed To Respond');
         return null;
       }
 
@@ -55,16 +54,16 @@ class RegistrationProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return RegistrationOtpResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in getOtpForRegistration', response.body['error']['message']);
           return null;
         }
       } else {
-        failure('Error', response.body['error']['message']);
+        failure('Error in getOtpForRegistration', response.body['error']['message']);
         return null;
       }
     } catch (e) {
       print('Error occurred: ${e.toString()}');
-      failure('Error', e.toString());
+      failure('Error in getOtpForRegistration', e.toString());
       return null;
     }
   }
@@ -89,7 +88,7 @@ class RegistrationProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return RegistrationOtpVerificationResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in otpVerificationForRegistration', response.body['error']['message']);
           return null;
         }
       } else {
@@ -99,7 +98,7 @@ class RegistrationProvider extends GetConnect {
       }
     } catch (e) {
       print('Error occurred: ${e.toString()}');
-      failure('Error', e.toString());
+      failure('Error in otpVerificationForRegistration', e.toString());
       return null;
     }
   }

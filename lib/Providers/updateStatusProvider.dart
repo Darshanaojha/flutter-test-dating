@@ -2,8 +2,10 @@ import 'package:dating_application/Models/ResponseModels/updateStatusResponse.da
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-
 import '../constants.dart';
+import 'package:flutter/foundation.dart';
+
+
 
 class Updatestatusprovider extends GetConnect {
   Future<UpdateStatusResponse?> updateStatus(String status) async {
@@ -12,7 +14,7 @@ class Updatestatusprovider extends GetConnect {
           EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        failure('Error in updateStatus', 'Token not found');
         return null;
       }
       debugPrint('$springbooturl/users/updateStatus?status=$status');
@@ -26,14 +28,14 @@ class Updatestatusprovider extends GetConnect {
       );
       debugPrint(response.body.toString());
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in updateStatus', 'Server Failed To Respond');
         return null;
       }
 
       if (response.statusCode == 200) {
         return UpdateStatusResponse.fromJson(response.body);
       } else {
-        failure('Error', response.body['message']);
+        failure('Error in updateStatus', response.body['message']);
         return null;
       }
     } catch (e) {

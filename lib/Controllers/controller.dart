@@ -1456,6 +1456,8 @@ class Controller extends GetxController {
         userHighlightedList.clear();
         hookUpList.clear();
         failure('Error', 'Failed to fetch the user suggestions');
+        debugPrint(
+            'Error: Failed to fetch the user suggestions, response is null');
         return false;
       }
     } catch (e) {
@@ -1634,7 +1636,7 @@ class Controller extends GetxController {
   RxList<PackageData> subscripted = <PackageData>[].obs;
 
   Future<bool> fetchAllsubscripted() async {
-    subscripted.clear(); 
+    subscripted.clear();
     try {
       SubscribedPackagesModel? response =
           await FetchSubscriptedPackageProvider().fetchAllSubscriptedPackage();
@@ -2484,7 +2486,7 @@ class Controller extends GetxController {
       UpdateStatusResponse? response =
           await Updatestatusprovider().updateStatus(status);
       if (response != null) {
-        success('Success', response.message);
+        // success('Success', response.message);
         return true;
       } else {
         failure('Error', 'Failed to update the status');

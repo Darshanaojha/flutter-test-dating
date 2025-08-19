@@ -8,7 +8,6 @@ import '../Models/ResponseModels/all_transactions_response_model.dart';
 import '../Models/ResponseModels/order_response_model.dart';
 import '../Models/ResponseModels/transaction_response_model.dart';
 import '../constants.dart';
-
 class OrderProvider extends GetConnect {
   Future<OrderResponseModel?> createOrder(
       OrderRequestModel orderRequestModel) async {
@@ -31,14 +30,14 @@ class OrderProvider extends GetConnect {
       );
       print("Order Response:${response.body}");
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in createOrder', 'Server Failed To Respond');
         return null;
       }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return OrderResponseModel.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in createOrder', response.body['error']['message']);
           return null;
         }
       } else {
@@ -47,7 +46,7 @@ class OrderProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure("Error", e.toString());
+      failure("Error in createOrder", e.toString());
       return null;
     }
   }
@@ -71,7 +70,7 @@ class OrderProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in transaction', 'Server Failed To Respond');
         return null;
       }
       if (response.statusCode == 200) {
@@ -81,7 +80,7 @@ class OrderProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in transaction', e.toString());
       return null;
     }
   }

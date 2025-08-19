@@ -317,7 +317,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           ? controller.headlines[0].description
                           : 'Loading description...',
                       style: AppTextStyles.bodyText.copyWith(
-                        color: Colors.redAccent,
+                        color: Colors.white70,
                         fontSize: subHeadingFontSize,
                       ),
                       textAlign: TextAlign.left,
@@ -470,6 +470,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   Widget buildNameStep(Size screenSize) {
     double titleFontSize = screenSize.width * 0.065;
     double labelfontSize = screenSize.width * 0.035;
+    double subHeadingFontSize = screenSize.width * 0.035;
     double inputTextFontSize = screenSize.width * 0.04;
     // TextEditingController nicknameController = TextEditingController(
     //   text: controller.userRegistrationRequest.nickname,
@@ -504,8 +505,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       ? controller.headlines[1].description
                       : "",
                   style: AppTextStyles.bodyText.copyWith(
-                    color: Colors.redAccent,
-                    fontSize: labelfontSize * 0.8,
+                    color: Colors.white70,
+                    fontSize: subHeadingFontSize,
                   ),
                   textAlign: TextAlign.left,
                 ),
@@ -2019,7 +2020,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     children: [
                       Text(
                         controller.headlines.isNotEmpty
-                            ? controller.headlines[7].title
+                            ? controller.headlines[8].title
                             : "Loading Title...",
                         style: AppTextStyles.titleText.copyWith(
                           fontSize: titleFontSize,
@@ -2030,7 +2031,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       SizedBox(height: 20),
                       Text(
                         controller.headlines.isNotEmpty
-                            ? controller.headlines[7].description
+                            ? controller.headlines[8].description
                             : "",
                         style: AppTextStyles.bodyText.copyWith(
                           fontSize: bodyFontSize,
@@ -2042,7 +2043,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                         controller: descriptionController,
                         onChanged: onDescriptionChanged,
                         maxLength: 1000,
-                        maxLines: 6,
+                        maxLines: null, // Allows for dynamic expansion
+                        keyboardType: TextInputType.multiline,
                         decoration: InputDecoration(
                           labelText: "Your Description",
                           labelStyle: TextStyle(color: AppColors.textColor),
@@ -2067,7 +2069,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           fontSize: inputFontSize,
                         ),
                         cursorColor: AppColors.cursorColor,
-                        textInputAction: TextInputAction.done,
+                        textInputAction: TextInputAction.newline,
                       ),
                       SizedBox(height: 10),
                       Obx(() {
@@ -2076,7 +2078,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                           style: AppTextStyles.bodyText.copyWith(
                             fontSize: bodyFontSize,
                             color: userDescription.value.length > 1000
-                                ? Colors.red
+                                ? Colors.white70
                                 : AppColors.textColor,
                           ),
                         );

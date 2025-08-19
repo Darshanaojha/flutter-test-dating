@@ -2,7 +2,6 @@ import 'package:dating_application/Models/ResponseModels/all_active_user_resposn
 import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-
 class FetchAllActiveUserProvider extends GetConnect {
   Future<AllActiveUsersResponse?> getAllActiveUser() async {
     try {
@@ -21,7 +20,7 @@ class FetchAllActiveUserProvider extends GetConnect {
         print('sample ${response.body}');
         print(response.statusCode);
         if (response.statusCode == null || response.body == null) {
-          failure('Error', 'Server Failed To Respond');
+          failure('Error in getAllActiveUser', 'Server Failed To Respond');
           return null;
         }
 
@@ -29,7 +28,7 @@ class FetchAllActiveUserProvider extends GetConnect {
           if (response.body['error']['code'] == 0) {
             return AllActiveUsersResponse.fromJson(response.body);
           } else {
-            failure('Error', response.body['error']['message']);
+            failure('Error in getAllActiveUser', response.body['error']['message']);
             return null;
           }
         } else {
@@ -40,10 +39,10 @@ class FetchAllActiveUserProvider extends GetConnect {
           return null;
         }
       } else {
-        failure('Error', 'Token not found');
+        failure('Error in getAllActiveUser', 'Token not found');
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in getAllActiveUser', e.toString());
       return null;
     }
     return null;

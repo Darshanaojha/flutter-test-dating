@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Screens/userprofile/userprofilesummary.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import '../../Controllers/razorpaycontroller.dart';
+import 'package:slide_to_act/slide_to_act.dart';
 import '../../constants.dart';
 
 class Unsubscribeuser extends StatefulWidget {
@@ -113,7 +116,6 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     double fontSize = size.width * 0.045;
-    
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -367,143 +369,168 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
 
   Future<void> showPaymentConfirmationDialog(BuildContext context,
       String planType, String planId, String amount) async {
+    Size size = MediaQuery.of(context).size;
     controller.updateNewPackageRequestModel.packageId = planId;
     double fontSize = MediaQuery.of(context).size.width * 0.03;
+
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            "Confirm Subscription",
-            style: AppTextStyles.titleText.copyWith(
-              fontSize: fontSize,
-              color: AppColors.textColor,
-            ),
-          ),
-          content: SizedBox(
-            height: 200,
-            child: Scrollbar(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "Do you want to subscribe to the $planType plan for Rs. $amount?",
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize - 2,
-                        color: AppColors.textColor,
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      controller.headlines.isNotEmpty
-                          ? controller.headlines[10].title
-                          : "Loading Title...",
-                      style: AppTextStyles.titleText.copyWith(
-                        fontSize: fontSize,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textColor,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      controller.headlines.isNotEmpty
-                          ? controller.headlines[10].description
-                          : "Loading Title...",
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize - 2,
-                        color: AppColors.textColor,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      "Additional information about the plan can go here.",
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize - 2,
-                        color: AppColors.textColor,
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      "Terms and conditions for the plan can also be shown here.",
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: fontSize - 2,
-                        color: AppColors.textColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          actions: <Widget>[
-            Container(
-              // decoration: BoxDecoration(
-              //   gradient: LinearGradient(
-              //     colors: AppColors.gradientColor,
-              //     begin: Alignment.topLeft,
-              //     end: Alignment.bottomRight,
-              //   ),
-              //   borderRadius: BorderRadius.circular(8),
-              // ),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[400],
-                  shadowColor: Colors.transparent,
-                ),
-                child: Text(
-                  "Cancel",
-                  style: AppTextStyles.buttonText.copyWith(
-                    fontSize: fontSize,
-                    color: Colors.white,
+        return Stack(
+          children: [
+            // BackdropFilter(
+            //   filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+            //   child: Container(
+            //     color: Colors.black.withOpacity(0.5),
+            //   ),
+            // ),
+            Center(
+              child: Container(
+                width: size.width * 0.85,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: const Alignment(0.8, 1),
+                    colors: AppColors.gradientBackgroundList,
                   ),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: AppColors.gradientColor,
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(50),
-              ),
-              child: ElevatedButton(
-                onPressed: () async {
-                  bool? isOrderCreated = await razorpaycontroller
-                      .createOrder(razorpaycontroller.orderRequestModel);
-                  if (isOrderCreated == true) {
-                    razorpaycontroller.initRazorpay();
-                    bool paymentSuccessful = await razorpaycontroller.startPayment(
-                      double.tryParse(amount) ?? 0.0,
-                      controller.userData.first.name,
-                      planId,
-                      controller.userData.first.mobile,
-                      controller.userData.first.email,
-                    );
-                    if (paymentSuccessful) {
-                      await _showSuccessDialog();
-                      controller.updatinguserpackage(
-                          controller.updateNewPackageRequestModel);
-                    }
-                  } else {
-                    failure("Order", "Your Payment Order Is Not Created");
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                ),
-                child: Text(
-                  "Confirm",
-                  style: AppTextStyles.buttonText.copyWith(
-                    fontSize: fontSize,
-                    color: Colors.white,
+                child: Material(
+                  color: Colors.transparent,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20, horizontal: 16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Center(
+                                child: Text(
+                                  "Confirm Subscription",
+                                  style: AppTextStyles.titleText.copyWith(
+                                    fontSize: fontSize + 4,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.close, color: Colors.white),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Flexible(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  "Do you want to subscribe to the $planType plan \n for Rs. $amount?",
+                                  textAlign: TextAlign.center,
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    fontSize: fontSize,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  controller.headlines.isNotEmpty
+                                      ? controller.headlines[10].title
+                                      : "Loading Title...",
+                                  style: AppTextStyles.titleText.copyWith(
+                                    fontSize: fontSize + 2,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  controller.headlines.isNotEmpty
+                                      ? controller.headlines[10].description
+                                      : "Loading Description...",
+                                  textAlign: TextAlign.center,
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    fontSize: fontSize,
+                                    color: Colors.white70,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: AppColors.reversedGradientColor,
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white, width: 1.5),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: SlideAction(
+                              height: size.width * 0.1,
+                              borderRadius: 12,
+                              elevation: 0,
+                              outerColor: Colors.transparent,
+                              text: "Swipe to Pay",
+                              textStyle: AppTextStyles.buttonText.copyWith(
+                                fontSize: fontSize + 2,
+                                color: Colors.white,
+                              ),
+                              innerColor: Colors.transparent,
+                              sliderButtonIcon: Container(
+                                padding: const EdgeInsets.all(10.0),
+                                decoration: BoxDecoration(
+                                  color: AppColors.darkGradientColor,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: Colors.white, width: 1.5),
+                                ),
+                                child: const Icon(
+                                  Icons.double_arrow_outlined,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              onSubmit: () async {
+                                Navigator.of(context).pop();
+                                bool? isOrderCreated = await razorpaycontroller
+                                    .createOrder(razorpaycontroller.orderRequestModel);
+                                if (isOrderCreated == true) {
+                                  razorpaycontroller.initRazorpay();
+                                  bool paymentSuccessful =
+                                      await razorpaycontroller.startPayment(
+                                    double.tryParse(amount) ?? 0.0,
+                                    controller.userData.first.name,
+                                    planId,
+                                    controller.userData.first.mobile,
+                                    controller.userData.first.email,
+                                  );
+                                  if (paymentSuccessful) {
+                                    await _showSuccessDialog();
+                                    controller.updatinguserpackage(
+                                        controller.updateNewPackageRequestModel);
+                                  }
+                                } else {
+                                  failure("Order", "Your Payment Order Is Not Created");
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

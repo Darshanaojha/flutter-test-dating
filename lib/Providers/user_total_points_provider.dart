@@ -2,7 +2,6 @@ import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 import '../Models/ResponseModels/GetUsersTotalPointsResponse.dart';
-
 class GetUsertotalPointsProvider extends GetConnect {
   Future<GetUsersTotalPoints?> getusertotalpointsprovider() async {
     try {
@@ -11,7 +10,7 @@ class GetUsertotalPointsProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure("Error", "Token is not found");
+        failure("Error in getusertotalpointsprovider", "Token is not found");
         return null;
       }
 
@@ -23,7 +22,7 @@ class GetUsertotalPointsProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in getusertotalpointsprovider', 'Server Failed To Respond');
         return null;
       }
       print("totalcoin = ${response.body.toString()}");
@@ -32,11 +31,11 @@ class GetUsertotalPointsProvider extends GetConnect {
           if (response.body['error']['code'] == 0) {
             return GetUsersTotalPoints.fromJson(response.body);
           } else {
-            failure("Error", response.body['error']['code'].toString());
+            failure("Error in getusertotalpointsprovider", response.body['error']['code'].toString());
             return null;
           }
         } else {
-          failure("Error", "Invalid response format");
+          failure("Error in getusertotalpointsprovider", "Invalid response format");
           return null;
         }
       } else {
@@ -45,7 +44,7 @@ class GetUsertotalPointsProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure("Error", e.toString());
+      failure("Error in getusertotalpointsprovider", e.toString());
       return null;
     }
   }

@@ -3,7 +3,6 @@ import 'package:dating_application/Models/ResponseModels/profile_like_response_m
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 import '../constants.dart';
-
 class ProfileLikeProvider extends GetConnect {
   Future<ProfileLikeResponse?> profileLikeProvider(
       ProfileLikeRequest profileLikeRequest) async {
@@ -13,7 +12,7 @@ class ProfileLikeProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        failure('Error in profileLikeProvider', 'Token not found');
         return null;
       }
 
@@ -26,7 +25,7 @@ class ProfileLikeProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in profileLikeProvider', 'Server Failed To Respond');
         return null;
       }
 
@@ -34,7 +33,7 @@ class ProfileLikeProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return ProfileLikeResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in profileLikeProvider', response.body['error']['message']);
           return null;
         }
       } else {
@@ -42,7 +41,7 @@ class ProfileLikeProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in profileLikeProvider', e.toString());
       return null;
     }
   }

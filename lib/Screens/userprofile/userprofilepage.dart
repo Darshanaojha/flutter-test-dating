@@ -13,7 +13,6 @@ import '../../Models/RequestModels/usernameupdate_request_model.dart';
 import '../settings/appinfopages/appinfopagestart.dart';
 import 'GenerateReferalCode/GenerateReferalCode.dart';
 import 'Transactions/TransactionsViewScreen.dart';
-import 'Wallet/WalletScreen.dart';
 import 'editprofile/edituserprofile.dart';
 
 class UserProfilePage extends StatefulWidget {
@@ -984,14 +983,14 @@ class UserProfilePageState extends State<UserProfilePage>
                                     onTap: () => Get.to(AllTransactionsPage()),
                                     screenWidth: screenWidth,
                                   ),
-                                  buildSettingCard(
-                                    context,
-                                    title: 'Your Wallets',
-                                    subtitle: 'See Your All Wallets Details',
-                                    icon: Icons.wallet,
-                                    onTap: () => Get.to(WalletPage()),
-                                    screenWidth: screenWidth,
-                                  ),
+                                  // buildSettingCard(
+                                  //   context,
+                                  //   title: 'Your Wallets',
+                                  //   subtitle: 'See Your All Wallets Details',
+                                  //   icon: Icons.wallet,
+                                  //   onTap: () => Get.to(WalletPage()),
+                                  //   screenWidth: screenWidth,
+                                  // ),
                                   buildSettingCard(
                                     context,
                                     title: 'Generate Referral Code',

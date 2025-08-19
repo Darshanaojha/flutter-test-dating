@@ -1,10 +1,8 @@
 import 'package:dating_application/Models/RequestModels/highlight_profile_status_request_model.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-
 import '../Models/ResponseModels/highlight_profile_status_response_model.dart';
 import '../constants.dart';
-
 class HighlightProfileStatusProvider extends GetConnect {
   Future<HighlightProfileStatusResponse?> highlightProfileStatus(
       HighlightProfileStatusRequest highlightProfileStatusRequest) async {
@@ -24,7 +22,7 @@ class HighlightProfileStatusProvider extends GetConnect {
           },
         );
         if (response.statusCode == null || response.body == null) {
-          failure('Error', 'Server Failed To Respond');
+          failure('Error in highlightProfileStatus', 'Server Failed To Respond');
           return null;
         }
 
@@ -32,19 +30,19 @@ class HighlightProfileStatusProvider extends GetConnect {
           if (response.body['error']['code'] == 0) {
             return HighlightProfileStatusResponse.fromJson(response.body);
           } else {
-            failure('Error', response.body['error']['message']);
+            failure('Error in highlightProfileStatus', response.body['error']['message']);
             return null;
           }
         } else {
-          failure('Error', response.body.toString());
+          failure('Error in highlightProfileStatus', response.body.toString());
           return null;
         }
       } else {
-        failure('Error', 'Token not found');
+        failure('Error in highlightProfileStatus', 'Token not found');
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in highlightProfileStatus', e.toString());
       return null;
     }
   }

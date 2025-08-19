@@ -761,7 +761,7 @@ class HomePageState extends State<HomePage>
                                             child: Container(
                                               decoration: BoxDecoration(
                                                 gradient: AppColors
-                                                    .gradientBackground,
+                                                    .reversedGradientBackground,
                                                 borderRadius:
                                                     BorderRadius.circular(30),
                                               ),

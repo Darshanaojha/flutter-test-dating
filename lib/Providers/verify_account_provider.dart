@@ -1,10 +1,8 @@
 import 'package:dating_application/Models/RequestModels/verify_account_request_model.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-
 import '../Models/ResponseModels/verify_account_response_model.dart';
 import '../constants.dart';
-
 class VerifyAccountProvider extends GetConnect {
   Future<RequestToVerifyAccountResponse?> verifyaccountprovider(
       RequestToVerifyAccount requestToVerifyAccount) async {
@@ -24,7 +22,7 @@ class VerifyAccountProvider extends GetConnect {
           },
         );
         if (response.statusCode == null || response.body == null) {
-          failure('Error', 'Server Failed To Respond');
+          failure('Error in verifyaccountprovider', 'Server Failed To Respond');
           return null;
         }
 
@@ -32,19 +30,19 @@ class VerifyAccountProvider extends GetConnect {
           if (response.body['error']['code'] == 0) {
             return RequestToVerifyAccountResponse.fromJson(response.body);
           } else {
-            failure('Error', response.body['error']['message']);
+            failure('Error in verifyaccountprovider', response.body['error']['message']);
             return null;
           }
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in verifyaccountprovider', response.body['error']['message']);
           return null;
         }
       } else {
-        failure('Error', 'Token not found');
+        failure('Error in verifyaccountprovider', 'Token not found');
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in verifyaccountprovider', e.toString());
       return null;
     }
   }

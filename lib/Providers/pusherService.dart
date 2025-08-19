@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 import '../Models/RequestModels/send_message_request_model.dart';
 import '../constants.dart';
-
 class PusherService extends GetConnect {
   late PusherChannelsFlutter pusher;
   late PusherChannel _channel;
@@ -21,7 +20,7 @@ class PusherService extends GetConnect {
         String? token = preferences.getString('token');
 
         if (token == null || token.isEmpty) {
-          failure('Error', 'Token not found');
+          failure('Error in initPusher', 'Token not found');
           return false;
         }
         final response = await post(
@@ -38,7 +37,7 @@ class PusherService extends GetConnect {
         );
 
         if (response.statusCode == null || response.body == null) {
-          failure('Error', 'Server Failed To Respond');
+          failure('Error in initPusher', 'Server Failed To Respond');
           return null;
         }
         if (response.statusCode == 200) {
@@ -131,7 +130,7 @@ class PusherService extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        failure('Error in sendMessageApi', 'Token not found');
         return false;
       }
 
@@ -149,7 +148,7 @@ class PusherService extends GetConnect {
           print('message sent to backend successfully');
           return true;
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in sendMessageApi', response.body['error']['message']);
           return false;
         }
       } else {
@@ -157,7 +156,7 @@ class PusherService extends GetConnect {
         return false;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in sendMessageApi', e.toString());
       return false;
     }
   }

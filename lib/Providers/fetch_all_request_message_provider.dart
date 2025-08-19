@@ -1,9 +1,7 @@
 import 'package:dating_application/Models/ResponseModels/get_all_request_message_response.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-
 import '../constants.dart';
-
 class FetchAllRequestMessageProvider extends GetConnect {
   Future<GetAllRequestPingMessageResponse?>
       fetchallrequestmessageprovider() async {
@@ -13,7 +11,7 @@ class FetchAllRequestMessageProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        failure('Error in unknown_method', 'Token not found');
         return null;
       }
 
@@ -26,7 +24,7 @@ class FetchAllRequestMessageProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in unknown_method', 'Server Failed To Respond');
         return null;
       }
 
@@ -34,7 +32,7 @@ class FetchAllRequestMessageProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return GetAllRequestPingMessageResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in unknown_method', response.body['error']['message']);
           return null;
         }
       } else {
@@ -42,7 +40,7 @@ class FetchAllRequestMessageProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in unknown_method', e.toString());
       return null;
     }
   }

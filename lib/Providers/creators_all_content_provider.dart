@@ -3,6 +3,7 @@ import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart';
 
 class CreatorAllContentProvider extends GetConnect {
   Future<CreatorContentResponse?> fetchCreatorContent() async {
@@ -11,7 +12,9 @@ class CreatorAllContentProvider extends GetConnect {
           EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        debugPrint(
+            "Error in fetchCreatorContent: failure('Error in fetchCreatorContent', 'Token not found');");
+        failure('Error in fetchCreatorContent', 'Token not found');
         return null;
       }
       Response response = await get(
@@ -23,7 +26,9 @@ class CreatorAllContentProvider extends GetConnect {
       );
       debugPrint("Creator Package : ${response.body}");
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        debugPrint(
+            "Error in fetchCreatorContent: failure('Error in fetchCreatorContent', 'Server Failed To Respond');");
+        failure('Error in fetchCreatorContent', 'Server Failed To Respond');
         return null;
       }
       if (response.statusCode == 200) {
@@ -32,7 +37,10 @@ class CreatorAllContentProvider extends GetConnect {
           if (response.body['error']['code'] == 0) {
             return CreatorContentResponse.fromJson(response.body);
           } else {
-            failure("Error", response.body['error']['message']);
+            debugPrint(
+                "Error in fetchCreatorContent: Error in fetchCreatorContent ${response.body['error']['message']}");
+            failure("Error in fetchCreatorContent",
+                response.body['error']['message']);
             return null;
           }
         } else {

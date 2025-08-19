@@ -1,10 +1,8 @@
 import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-
 import '../Models/RequestModels/ReferalCodeRequestModel.dart';
 import '../Models/ResponseModels/ReferalCodeResponse.dart';
-
 class ReferalCodeProvider extends GetConnect {
   Future<ReferralCodeResponse?> referalcodeprovider(
       ReferralCodeRequestModel referalcoderequesmodel) async {
@@ -13,7 +11,7 @@ class ReferalCodeProvider extends GetConnect {
           EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
       if (token == null || token.isEmpty) {
-        failure("Error", "Token Is Not Found");
+        failure("Error in referalcodeprovider", "Token Is Not Found");
         return null;
       }
 
@@ -26,7 +24,7 @@ class ReferalCodeProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in referalcodeprovider', 'Server Failed To Respond');
         return null;
       }
 
@@ -34,7 +32,7 @@ class ReferalCodeProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return ReferralCodeResponse.fromJson(response.body);
         } else {
-          failure("Error", response.body['error']['message']);
+          failure("Error in referalcodeprovider", response.body['error']['message']);
           return null;
         }
       } else {
@@ -42,7 +40,7 @@ class ReferalCodeProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure("Error", e.toString());
+      failure("Error in referalcodeprovider", e.toString());
       return null;
     }
   }

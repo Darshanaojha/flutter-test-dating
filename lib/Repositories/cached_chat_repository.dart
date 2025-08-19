@@ -31,7 +31,7 @@ class CachedChatRepository {
 
   // Get chat messages with cache-first strategy
   Future<List<ChatMessageEntity>> getChatMessages(String userId1, String userId2) async {
-    final cacheKey = '$_chatKeyPrefix${userId1}_${userId2}';
+    final cacheKey = '$_chatKeyPrefix${userId1}_$userId2';
     
     // Try cache first
     final cachedData = await _cacheManager.get(cacheKey);

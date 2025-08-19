@@ -92,17 +92,18 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
         Get.offAll(() => CombinedAuthScreen());
         return;
       } else {
+        await controller.fetchSafetyGuidelines();
         await controller.userSuggestions();
         await controller.fetchallfavourites();
         await controller.fetchalluserconnections();
         await controller.fetchAllverificationtype();
         await controller.fetchProfileUserPhotos();
         await controller.fetchAllsubscripted();
-        await controller.likesuserpage();
-        await controller.fetchProfile().then((_) {
+        await controller.fetchProfile().then((_) async {
           packageStatus = controller.userData.first.packageStatus;
           if (packageStatus != null && packageStatus!.isNotEmpty) {
             if (packageStatus == "1") {
+              await controller.likesuserpage();
               FCMService().subscribeToTopic("subscribed");
               FCMService().subscribeToTopic(controller.userData.first.id);
               FCMService().subscribeToTopic("alluser");

@@ -2,7 +2,6 @@ import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 import '../Models/ResponseModels/creator_package_response.dart';
-
 class FetchAllBecomeCreatorPackageProvider extends GetConnect {
   Future<PackageResponse?> getAllCreatorPackages() async {
     try {
@@ -20,7 +19,7 @@ class FetchAllBecomeCreatorPackageProvider extends GetConnect {
         );
 
         if (response.statusCode == null || response.body == null) {
-          failure('Error', 'Server Failed To Respond');
+          failure('Error in getAllCreatorPackages', 'Server Failed To Respond');
           return null;
         }
 
@@ -31,19 +30,19 @@ class FetchAllBecomeCreatorPackageProvider extends GetConnect {
             return PackageResponse.fromJson(
                 body as Map<String, dynamic>);
           } else {
-            failure('Error', body['message'] ?? 'Unknown error occurred');
+            failure('Error in getAllCreatorPackages', body['message'] ?? 'Unknown error occurred');
             return null;
           }
         } else {
-          failure('Error', response.body.toString());
+          failure('Error in getAllCreatorPackages', response.body.toString());
           return null;
         }
       } else {
-        failure('Error', 'Token not found');
+        failure('Error in getAllCreatorPackages', 'Token not found');
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in getAllCreatorPackages', e.toString());
       return null;
     }
   }
