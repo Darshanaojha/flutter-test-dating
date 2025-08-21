@@ -24,8 +24,7 @@ class FetchAllPackagesProvider extends GetConnect {
         failure('Error in fetchAllPackages', 'Server Failed To Respond');
         return null;
       }
-      print("packagesprovider${response.statusCode.toString()}");
-      print("packagesresponse${response.body.toString()}");
+      print("Packages response : ${response.body.toString()}");
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return GetAllPackagesResponseModel.fromJson(response.body);

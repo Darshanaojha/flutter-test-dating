@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/RequestModels/estabish_connection_request_model.dart';
+import 'package:dating_application/Models/ResponseModels/ProfileResponse.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -230,7 +231,10 @@ class HomePageState extends State<HomePage>
               controller.profileLikeRequest.likedBy =
                   controller.userSuggestionsList[i].userId.toString();
             });
-            await controller.profileLike(controller.profileLikeRequest);
+            final response = await controller.profileLike(controller.profileLikeRequest);
+            if (response != null && response.payload.connection) {
+              _showMatchDialog(controller.userSuggestionsList[i]);
+            }
           } else {
             print("User ID is null");
             failure('Error', "Error: User ID is null.");
@@ -432,9 +436,9 @@ class HomePageState extends State<HomePage>
     final screenHeight = MediaQuery.of(context).size.height;
 
     double fontSize = screenWidth * 0.025;
-    double iconSize = screenWidth * 0.06;
+    double iconSize = screenWidth * 0.05;
     double buttonWidth = screenWidth * 0.22;
-    double buttonHeight = screenHeight * 0.02;
+    double buttonHeight = screenHeight * 0.01;
 
     bool isSelected = selectedFilter.value == button;
 
@@ -444,6 +448,7 @@ class HomePageState extends State<HomePage>
         scale: isSelected ? 1.08 : 1.0,
         duration: Duration(milliseconds: 200),
         child: Container(
+          height: screenHeight * 0.05,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -499,7 +504,6 @@ class HomePageState extends State<HomePage>
               backgroundColor: Colors.transparent,
               foregroundColor: Colors.white,
               shape: const StadiumBorder(),
-              minimumSize: Size(buttonWidth, buttonHeight),
               elevation: 0,
               padding: EdgeInsets.symmetric(
                 vertical: buttonHeight * 0.2,
@@ -526,10 +530,14 @@ class HomePageState extends State<HomePage>
     for (var user in currentList) {
       swipeItems.add(SwipeItem(
         content: user,
-        likeAction: () {
+        likeAction: () async {
           if (user.userId != null) {
             controller.profileLikeRequest.likedBy = user.userId.toString();
-            controller.profileLike(controller.profileLikeRequest);
+            final response =
+                await controller.profileLike(controller.profileLikeRequest);
+            if (response != null && response.payload.connection) {
+              _showMatchDialog(user);
+            }
           } else {
             failure('Error', "User ID is null.");
           }
@@ -556,6 +564,24 @@ class HomePageState extends State<HomePage>
     }
 
     matchEngine = MatchEngine(swipeItems: swipeItems);
+  }
+
+  void _showMatchDialog(SuggestedUser matchedUser) {
+    // Ensure there's user data available for the current user
+    if (controller.userData.isEmpty) {
+      failure('Error', 'Current user data is not available.');
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return MatchDialog(
+          currentUser: controller.userData.first,
+          matchedUser: matchedUser,
+        );
+      },
+    );
   }
 
   @override
@@ -614,8 +640,8 @@ class HomePageState extends State<HomePage>
                   children: [
                     // Filter Buttons Row
                     Container(
-                      height: MediaQuery.of(context).size.height * 0.08,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      height: MediaQuery.of(context).size.height * 0.07,
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
@@ -715,8 +741,8 @@ class HomePageState extends State<HomePage>
 
                         return Center(
                           child: FractionallySizedBox(
-                            widthFactor: 0.9,
-                            heightFactor: 0.95,
+                            widthFactor: 0.95,
+                            heightFactor: 0.98,
                             child: currentList.isEmpty && lastUser != null
                                 ? buildCardLayoutAll(
                                     context, lastUser!, size, isLastCard)
@@ -904,7 +930,7 @@ class HomePageState extends State<HomePage>
                     left: 0,
                     right: 0,
                     child: Container(
-                      height: 120,
+                      height: size.height * 0.18,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
                         gradient: LinearGradient(
@@ -912,7 +938,8 @@ class HomePageState extends State<HomePage>
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.transparent,
-                            Colors.black.withOpacity(0.8)
+                            Colors.black38,
+                            Colors.black54
                           ],
                         ),
                       ),
@@ -1102,5 +1129,102 @@ class HomePageState extends State<HomePage>
               ),
             ),
           );
+  }
+}
+
+class MatchDialog extends StatelessWidget {
+  final UserData currentUser;
+  final SuggestedUser matchedUser;
+
+  const MatchDialog({
+    super.key,
+    required this.currentUser,
+    required this.matchedUser,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Auto-close the dialog after 5 seconds
+    Future.delayed(const Duration(seconds: 5), () {
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+    });
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            colors: AppColors.gradientBackgroundList,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Lottie.asset(
+              'assets/animations/hearth_match_lottie.json',
+              height: 100,
+              repeat: false,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              "It's a Match!",
+              style: AppTextStyles.headingText.copyWith(color: Colors.white, fontSize: 24),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              "You and ${matchedUser.name} liked each other!",
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyText.copyWith(color: Colors.white70, fontSize: 16),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // _buildProfileImage(currentUser.images.isNotEmpty ? currentUser.images.first : null),
+                // const SizedBox(width: 20),
+                _buildProfileImage(matchedUser.images.isNotEmpty ? matchedUser.images.first : null),
+              ],
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // TODO: Navigate to chat screen
+              },
+              icon: const Icon(Icons.chat_bubble_outline),
+              label: const Text("Chat Now"),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black, backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileImage(String? imageUrl) {
+    return CircleAvatar(
+      radius: 50,
+      backgroundColor: Colors.white24,
+      backgroundImage: imageUrl != null ? CachedNetworkImageProvider(imageUrl) : null,
+      child: imageUrl == null
+          ? const Icon(
+              Icons.person,
+              size: 50,
+              color: Colors.white,
+            )
+          : null,
+    );
   }
 }

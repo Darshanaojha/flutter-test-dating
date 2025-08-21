@@ -5,6 +5,7 @@ class TransactionRequestModel {
   String message;
   String razorpayOrderId;
   String razorpayPaymentId;
+  String razorpaySignature;
   String paymentStatus;
   String paymentMethod;
   String transactionId;
@@ -20,6 +21,7 @@ class TransactionRequestModel {
     required this.message,
     required this.razorpayOrderId,
     required this.razorpayPaymentId,
+    required this.razorpaySignature,
     required this.paymentStatus,
     required this.paymentMethod,
     required this.amount,
@@ -37,6 +39,7 @@ class TransactionRequestModel {
       message: json['message'] ?? '',
       razorpayOrderId: json['razorpay_order_id'] ?? '',
       razorpayPaymentId: json['razorpay_payment_id'] ?? '',
+      razorpaySignature: json['razorpay_signature'] ?? '',
       paymentStatus: json['payment_status'] ?? '',
       paymentMethod: json['payment_method'] ?? '',
       amount: json['amount'] ?? '',
@@ -57,6 +60,7 @@ class TransactionRequestModel {
       'message': message,
       'razorpay_order_id': razorpayOrderId,
       'razorpay_payment_id': razorpayPaymentId,
+      'razorpay_signature': razorpaySignature,
       'payment_status': paymentStatus,
       'payment_method': paymentMethod,
       'amount': amount,

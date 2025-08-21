@@ -908,37 +908,43 @@ class EditProfilePageState extends State<EditProfilePage>
                                           MediaQuery.of(context).size.height *
                                               0.02,
                                     ),
-                                    OutlinedButton.icon(
-                                      onPressed: () async {
-                                        await controller
-                                            .fetchProfileUserPhotos();
-                                        Get.to(EditPhotosPage());
-                                      },
-                                      icon: Builder(
-                                        builder: (context) {
-                                          double iconSize =
-                                              MediaQuery.of(context)
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.end,
+                                      children: [
+                                        OutlinedButton.icon(
+                                          onPressed: () async {
+                                            await controller
+                                                .fetchProfileUserPhotos();
+                                            Get.to(EditPhotosPage());
+                                          },
+                                          icon: Builder(
+                                            builder: (context) {
+                                              double iconSize =
+                                                  MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.04; 
+                                              return Icon(
+                                                Icons.edit,
+                                                color: Colors.white,
+                                                size: iconSize,
+                                              );
+                                            },
+                                          ),
+                                          label: Text(
+                                            'Edit Photos',
+                                            style:
+                                                AppTextStyles.buttonText.copyWith(
+                                              color: Colors.white,
+                                              fontSize: MediaQuery.of(context)
                                                       .size
                                                       .width *
-                                                  0.04; // 4% of screen width
-                                          return Icon(
-                                            Icons.edit,
-                                            color: Colors.white,
-                                            size: iconSize,
-                                          );
-                                        },
-                                      ),
-                                      label: Text(
-                                        'Edit Photos',
-                                        style:
-                                            AppTextStyles.buttonText.copyWith(
-                                          color: Colors.white,
-                                          fontSize: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.02, // 2% font size as example
+                                                  0.025, 
+                                            ),
+                                          ),
                                         ),
-                                      ),
+                                      ],
                                     ),
                                   ],
                                 ),
@@ -1091,19 +1097,55 @@ class EditProfilePageState extends State<EditProfilePage>
                                     height: MediaQuery.of(context).size.height *
                                         0.01,
                                   ),
-                                  InfoField(
-                                    initialValue: controller
-                                            .userProfileUpdateRequest
-                                            .bio
-                                            .isNotEmpty
-                                        ? controller
-                                            .userProfileUpdateRequest.bio
-                                        : controller.userData.first.bio,
-                                    label: 'About',
-                                    onChanged: onAboutChanged,
-                                    validator: (value) {
-                                      return validateBio(value);
-                                    },
+                                  DecoratedBoxTransition(
+                                    decoration:
+                                        decorationTween.animate(_animationController),
+                                    child: Material(
+                                      elevation: 5,
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: AppColors.gradientBackgroundList,
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: TextFormField(
+                                          initialValue: controller
+                                                  .userProfileUpdateRequest.bio.isNotEmpty
+                                              ? controller.userProfileUpdateRequest.bio
+                                              : controller.userData.first.bio,
+                                          onChanged: onAboutChanged,
+                                          validator: (value) {
+                                            return validateBio(value ?? '');
+                                          },
+                                          keyboardType: TextInputType.multiline,
+                                          minLines: 3,
+                                          maxLines: 5,
+                                          decoration: InputDecoration(
+                                            labelText: 'About',
+                                            labelStyle: AppTextStyles.labelText.copyWith(
+                                              fontSize: getResponsiveFontSize(0.03),
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            filled: true,
+                                            fillColor: AppColors.formFieldColor,
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(20),
+                                              borderSide: BorderSide.none,
+                                            ),
+                                          ),
+                                          style: AppTextStyles.bodyText.copyWith(
+                                            fontSize: getResponsiveFontSize(0.03),
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
@@ -2564,13 +2606,13 @@ class EditProfilePageState extends State<EditProfilePage>
                                           const EdgeInsets.only(right: 8.0),
                                       child: Chip(
                                         label: Text(desire.title),
-                                        backgroundColor: AppColors.chipColor,
+                                        backgroundColor: AppColors.darkGradientColor,
                                         labelStyle: TextStyle(
                                           color: Colors.white,
                                           fontSize: chipFontSize,
                                         ),
-                                        deleteIcon: Icon(Icons.delete,
-                                            color: AppColors.deniedColor),
+                                        deleteIcon: Icon(Icons.close,
+                                            color: Colors.white70),
                                         onDeleted: () {
                                           selectedDesires.remove(desire);
                                           int index = controller.desires
@@ -2656,7 +2698,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                       label:
                                           Text(controller.desires[index].title),
                                       backgroundColor: selectedOptions[index]
-                                          ? AppColors.buttonColor
+                                          ? AppColors.mediumGradientColor
                                           : AppColors.formFieldColor,
                                       labelStyle: TextStyle(
                                         color: selectedOptions[index]
@@ -2677,7 +2719,7 @@ class EditProfilePageState extends State<EditProfilePage>
                     alignment: Alignment.centerRight,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.inactiveColor,
+                        backgroundColor: AppColors.darkGradientColor,
                       ),
                       onPressed: () {
                         showDialog(

@@ -118,7 +118,7 @@ class UserProfilePageState extends State<UserProfilePage>
                       //   color: AppColors.progressColor,
                       // ),
                       child: Lottie.asset(
-                          "assets/animations/handloadinganimation.json",
+                          "assets/animations/hearthmatch_lottie1-2.json",
                           repeat: true,
                           reverse: true),
                     );
@@ -1135,7 +1135,7 @@ class UserProfilePageState extends State<UserProfilePage>
                 Icon(
                   Icons.arrow_forward_ios_rounded,
                   size: screenWidth * 0.045,
-                  color: Colors.white,
+                  color: AppColors.darkGradientColor,
                 ),
               ],
             ),
@@ -1258,7 +1258,7 @@ class UserProfilePageState extends State<UserProfilePage>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "Share your profile",
+                      "Share application",
                       style: AppTextStyles.titleText.copyWith(
                         fontSize: getResponsiveFontSize(0.03),
                         fontWeight: FontWeight.bold,

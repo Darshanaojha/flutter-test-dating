@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'Controllers/controller.dart';
 import 'Models/RequestModels/update_activity_status_request_model.dart';
 import 'Providers/fcmService.dart';
+import 'Providers/connectivity_service.dart';
 
 void main() async {
   try {
@@ -24,6 +25,7 @@ void main() async {
     });
 
     Get.put(Controller());
+    Get.put(ConnectivityService());
     runApp(const MainApp());
   } catch (e) {
     failure('Error', 'Error in the main method');

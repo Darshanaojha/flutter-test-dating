@@ -319,9 +319,10 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60),
+        preferredSize: Size.fromHeight(size.height * 0.05),
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -329,7 +330,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
               end: Alignment(0.8, 1),
               colors: AppColors.gradientBackgroundList,
             ),
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: AppBar(
             elevation: 5,
@@ -339,7 +340,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                 child: Text(
                   'FlamR',
                   style: AppTextStyles.headingText.copyWith(
-                    fontSize: getResponsiveFontSize(context, 0.08),
+                    fontSize: getResponsiveFontSize(context, 0.07),
                   ),
                 ),
               ),
@@ -410,7 +411,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
             },
             backgroundColor: Colors.transparent,
             color: Colors.black,
-            height: 60,
+            height: size.height * 0.05,
             animationDuration: Duration(milliseconds: 300),
             items: <Widget>[
               AnimatedBuilder(

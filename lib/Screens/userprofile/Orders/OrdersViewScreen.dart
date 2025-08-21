@@ -192,9 +192,9 @@ class OrderTile extends StatelessWidget {
 String getStatusText(String status) {
   switch (status) {
     case '1':
-      return 'Completed';
+      return 'Active';
     case '2':
-      return 'Cancelled';
+      return 'Pending';
     case '3':
       return 'Declined';
     default:

@@ -3,6 +3,7 @@ import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 import '../Models/RequestModels/dislike_profile_request_model.dart';
 import '../constants.dart';
+
 class DislikeProfileProvider extends GetConnect {
   Future<DislikeProfileResponse?> dislikeProfileProvider(
       DislikeProfileRequest dislikeProfileRequest) async {
@@ -15,8 +16,6 @@ class DislikeProfileProvider extends GetConnect {
         failure('Error in dislikeProfileProvider', 'Token not found');
         return null;
       }
-      Get.snackbar(
-          "request dislike", dislikeProfileRequest.toJson().toString());
       print(
         "request dislike${dislikeProfileRequest.toJson().toString()}",
       );
@@ -28,7 +27,6 @@ class DislikeProfileProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
-      Get.snackbar("response dislike", response.body.toString());
       print(
         "response dislike${response.body.toString()}",
       );
@@ -41,7 +39,8 @@ class DislikeProfileProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return DislikeProfileResponse.fromMap(response.body);
         } else {
-          failure('Error in dislikeProfileProvider', response.body['error']['message']);
+          failure('Error in dislikeProfileProvider',
+              response.body['error']['message']);
           return null;
         }
       } else {

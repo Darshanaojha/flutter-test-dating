@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dating_application/Controllers/controller.dart';
+import 'package:dating_application/Models/ResponseModels/profile_like_response_model.dart';
 import 'package:dating_application/Screens/userprofile/userprofilesummary.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -522,10 +523,11 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                             .createOrder(razorpayController.orderRequestModel);
                         if (isOrderCreated == true) {
                           razorpayController.initRazorpay();
-                          razorpayController.openPayment(
-                              currentAddon.amount as double,
+                          double amount = double.tryParse(currentAddon.amount) ?? 0.0;
+                          await razorpayController.startPayment(
+                              amount,
                               currentAddon.title,
-                              controller.userData.first.name,
+                              "Addon Purchase",
                               controller.userData.first.mobile,
                               controller.userData.first.email);
                         } else {
@@ -1359,8 +1361,9 @@ class UserCardState extends State<UserCard> with TickerProviderStateMixin {
                         if (newLikeStatus == 1) {
                           widget.controller.profileLikeRequest.likedBy =
                               widget.user.userId.toString();
-                          success = await widget.controller.profileLike(
+                          ProfileLikeResponse? response = await widget.controller.profileLike(
                               widget.controller.profileLikeRequest);
+                          success = response != null && response.success;
                         } else {
                           widget.controller.homepageDislikeRequest.userId =
                               widget.user.userId.toString();
