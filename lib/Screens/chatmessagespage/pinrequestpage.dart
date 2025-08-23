@@ -4,6 +4,7 @@ import 'package:lottie/lottie.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/estabish_connection_request_model.dart';
 import '../../constants.dart';
+import 'package:intl/intl.dart';
 
 class MessageRequestPage extends StatefulWidget {
   const MessageRequestPage({super.key});
@@ -13,8 +14,8 @@ class MessageRequestPage extends StatefulWidget {
 }
 
 class MessageRequestPageState extends State<MessageRequestPage> {
-  Controller controller = Get.put(Controller());
-  bool isLoading = false;
+  final Controller controller = Get.find();
+
   void showImageDialog(String imageUrl) {
     showDialog(
       context: context,
@@ -37,20 +38,27 @@ class MessageRequestPageState extends State<MessageRequestPage> {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    fetchpingrequest();
-  }
+  String formatRequestDate(String dateStr) {
+    if (dateStr.isEmpty) return '';
+    try {
+      final dateTime = DateTime.parse(dateStr);
+      final now = DateTime.now();
+      final difference = now.difference(dateTime);
 
-  fetchpingrequest() async {
-    setState(() {
-      isLoading = true;
-    });
-    await controller.fetchallpingrequestmessage();
-    setState(() {
-      isLoading = false;
-    });
+      if (difference.inSeconds < 60) {
+        return 'Just now';
+      } else if (difference.inMinutes < 60) {
+        return '${difference.inMinutes}m ago';
+      } else if (difference.inHours < 24) {
+        return '${difference.inHours}h ago';
+      } else if (difference.inDays < 7) {
+        return '${difference.inDays}d ago';
+      } else {
+        return DateFormat('dd/MM/yy').format(dateTime);
+      }
+    } catch (e) {
+      return '';
+    }
   }
 
   @override
@@ -60,8 +68,7 @@ class MessageRequestPageState extends State<MessageRequestPage> {
         centerTitle: true,
         title: Builder(
           builder: (context) {
-            double fontSize =
-                MediaQuery.of(context).size.width * 0.05; 
+            double fontSize = MediaQuery.of(context).size.width * 0.05;
             return Text(
               'Message Requests',
               style: TextStyle(
@@ -97,87 +104,102 @@ class MessageRequestPageState extends State<MessageRequestPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: FutureBuilder(
-            future: controller.fetchallpingrequestmessage(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting ||
-                  controller.messageRequest.isEmpty) {
-                return Center(
-                  child: Lottie.asset(
-                    "assets/animations/requestmessageanimation.json",
-                    repeat: true,
-                    reverse: true,
-                  ),
-                );
-              }
-              if (snapshot.hasError) {
-                return Center(child: Text('Error loading message requests'));
-              }
+        child: Obx(() {
+          final receivedMessages = controller.messageRequest
+              .where((request) => request.messageSendByMe == 0)
+              .toList();
 
-              return LayoutBuilder(
-                builder: (context, constraints) {
-                  double screenWidth = constraints.maxWidth;
+          if (receivedMessages.isEmpty) {
+            return Center(
+              child: Lottie.asset(
+                "assets/animations/requestmessageanimation.json",
+                repeat: true,
+                reverse: true,
+              ),
+            );
+          }
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              double screenWidth = constraints.maxWidth;
 
-                  return ListView.builder(
-                    itemCount: controller.messageRequest.length,
-                    itemBuilder: (context, index) {
-                      final messageRequest = controller.messageRequest[index];
+              return ListView.builder(
+                itemCount: receivedMessages.length,
+                itemBuilder: (context, index) {
+                  final messageRequest = receivedMessages[index];
 
-                      return Card(
-                        // margin: EdgeInsets.only(bottom: 5),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                  return Card(
+                    // margin: EdgeInsets.only(bottom: 5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 4,
+                    child: ListTile(
+                      contentPadding: EdgeInsets.all(5),
+                      leading: GestureDetector(
+                        onTap: () =>
+                            showImageDialog(messageRequest.profileImage),
+                        child: CircleAvatar(
+                          backgroundImage:
+                              NetworkImage(messageRequest.profileImage),
+                          radius: screenWidth < 600 ? 30 : 40,
                         ),
-                        elevation: 4,
-                        child: ListTile(
-                          contentPadding: EdgeInsets.all(5),
-                          leading: GestureDetector(
-                            onTap: () =>
-                                showImageDialog(messageRequest.profileImage),
-                            child: CircleAvatar(
-                              backgroundImage:
-                                  NetworkImage(messageRequest.profileImage),
-                              radius: screenWidth < 600 ? 30 : 40,
+                      ),
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              messageRequest.name,
+                              style: AppTextStyles.bodyText.copyWith(
+                                fontSize: screenWidth < 600 ? 16 : 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          title: Text(
-                            messageRequest.name,
-                            style: AppTextStyles.bodyText.copyWith(
-                              fontSize: screenWidth < 600 ? 16 : 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          subtitle: Text(
-                            messageRequest.message,
+                          SizedBox(width: 8),
+                          Text(
+                            formatRequestDate(messageRequest.created),
                             style: AppTextStyles.bodyText.copyWith(
                               color: AppColors.disabled,
-                              fontSize: screenWidth < 600 ? 14 : 16,
+                              fontSize: screenWidth < 600 ? 12 : 14,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                          trailing: IconButton(
-                            icon: Icon(Icons.reply, color: AppColors.lightGradientColor),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ReplyMessagePage(
-                                    senderName: messageRequest.name,
-                                    senderId: messageRequest.userId,
-                                    lastMessage: messageRequest.message,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
+                        ],
+                      ),
+                      subtitle: Text(
+                        messageRequest.message,
+                        style: AppTextStyles.bodyText.copyWith(
+                          color: AppColors.disabled,
+                          fontSize: screenWidth < 600 ? 14 : 16,
                         ),
-                      );
-                    },
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(Icons.reply,
+                            color: AppColors.lightGradientColor),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ReplyMessagePage(
+                                senderName: messageRequest.name,
+                                senderId: messageRequest.userId,
+                                lastMessage: messageRequest.message,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   );
                 },
               );
-            }),
+            },
+          );
+        }),
       ),
     );
   }
@@ -201,10 +223,12 @@ class ReplyMessagePage extends StatefulWidget {
 
 class ReplyMessagePageState extends State<ReplyMessagePage> {
   TextEditingController messageController = TextEditingController();
-  Controller controller = Controller();
+  final Controller controller = Get.find();
   EstablishConnectionMessageRequest establishConnectionMessageRequest =
       EstablishConnectionMessageRequest(
           message: '', receiverId: '', messagetype: textMessage);
+  bool _isSending = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -228,15 +252,17 @@ class ReplyMessagePageState extends State<ReplyMessagePage> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.lastMessage,
-                          style: AppTextStyles.bodyText
-                              .copyWith(color: Colors.grey),
-                        ),
-                      ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.lastMessage,
+                            style: AppTextStyles.bodyText
+                                .copyWith(color: Colors.grey),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -250,21 +276,14 @@ class ReplyMessagePageState extends State<ReplyMessagePage> {
                 labelStyle: AppTextStyles.bodyText,
                 border: OutlineInputBorder(),
                 suffixIcon: IconButton(
-                  icon: Icon(Icons.send, color: AppColors.textColor),
-                  onPressed: () {
-                    sendMessage(widget.senderId, messageController.text);
-                    Get.snackbar(
-                        'sender id',
-                        establishConnectionMessageRequest.receiverId
-                            .toString());
-                    Get.snackbar('message',
-                        establishConnectionMessageRequest.message.toString());
-                    Get.snackbar(
-                        'message type',
-                        establishConnectionMessageRequest.messagetype
-                            .toString());
-                    messageController.clear();
-                  },
+                  icon: _isSending
+                      ? CircularProgressIndicator(color: AppColors.textColor)
+                      : Icon(Icons.send, color: AppColors.textColor),
+                  onPressed: _isSending
+                      ? null
+                      : () {
+                          sendMessage(widget.senderId, messageController.text);
+                        },
                 ),
               ),
               style: AppTextStyles.bodyText,
@@ -276,10 +295,31 @@ class ReplyMessagePageState extends State<ReplyMessagePage> {
     );
   }
 
-  void sendMessage(String senderId, String message) {
+  void sendMessage(String senderId, String message) async {
+    if (message.trim().isEmpty) {
+      failure("Message Empty", "Please write a message to send.");
+      return;
+    }
+    setState(() {
+      _isSending = true;
+    });
+
     establishConnectionMessageRequest.message = message;
     establishConnectionMessageRequest.receiverId = senderId;
 
-    controller.sendConnectionMessage(establishConnectionMessageRequest);
+    bool success =
+        await controller.sendConnectionMessage(establishConnectionMessageRequest);
+
+    if (success) {
+      await controller.fetchallpingrequestmessage();
+      await controller.fetchalluserconnections();
+      messageController.clear();
+    }
+
+    if (mounted) {
+      setState(() {
+        _isSending = false;
+      });
+    }
   }
 }

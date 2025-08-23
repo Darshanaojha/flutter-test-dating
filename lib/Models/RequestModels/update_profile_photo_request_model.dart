@@ -24,11 +24,12 @@ class UpdateProfilePhotoRequest {
 
   bool validate() {
     if (validateImg(img1, 'Image 1') != null ||
-        validateImg(img2, 'Image 2') != null ||
-        validateImg(img3, 'Image 3') != null ||
-        validateImg(img4, 'Image 4') != null ||
-        validateImg(img5, 'Image 5') != null ||
-        validateImg(img6, 'Image 6') != null) {
+            validateImg(img2, 'Image 2') != null ||
+            validateImg(img3, 'Image 3') != null
+        // validateImg(img4, 'Image 4') != null ||
+        // validateImg(img5, 'Image 5') != null ||
+        // validateImg(img6, 'Image 6') != null
+        ) {
       return false;
     }
     return true; // All images are valid

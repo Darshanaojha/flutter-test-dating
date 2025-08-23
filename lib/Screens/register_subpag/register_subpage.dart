@@ -596,10 +596,13 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     );
   }
 
+  final RxString genderStepError = ''.obs;
+
   // Step 3: Gender Selection
   Widget buildGenderStep(Size screenSize) {
     double titleFontSize = screenSize.width * 0.065;
     double optionFontSize = screenSize.width * 0.035;
+    double errorFontSize = screenSize.width * 0.04;
 
     return Stack(
       children: [
@@ -640,6 +643,40 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     textAlign: TextAlign.left,
                   ),
                   SizedBox(height: 24),
+                  // Show error message prominently at the top of the content area
+                  Obx(() {
+                    if (genderStepError.value.isNotEmpty) {
+                      return Container(
+                        width: double.infinity,
+                        padding:
+                            EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.red, width: 1),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.error_outline,
+                                color: Colors.red, size: 20),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                genderStepError.value,
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: errorFontSize,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return SizedBox.shrink();
+                  }),
+                  SizedBox(height: genderStepError.value.isNotEmpty ? 16 : 0),
                   // Gender List
                   Expanded(
                     child: Obx(() {
@@ -664,6 +701,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                   gender.id;
                               controller.fetchSubGender(
                                   SubGenderRequest(genderId: gender.id));
+                              // Clear error when user selects a gender
+                              genderStepError.value = '';
                               setState(() {});
                             },
                             child: Container(
@@ -685,7 +724,10 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                 borderRadius: BorderRadius.circular(10),
                                 border: isSelected
                                     ? Border.all(color: Colors.white, width: 2)
-                                    : null,
+                                    : genderStepError.value.isNotEmpty
+                                        ? Border.all(
+                                            color: Colors.red, width: 1)
+                                        : null,
                               ),
                               child: Row(
                                 children: [
@@ -722,26 +764,27 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           left: 0,
           right: 0,
           bottom: 0,
-          child: Obx(() => buildBottomButtonRow(
-                onBack: onBackPressed,
-                onNext: () {
-                  if (selectedGender.value == null) {
-                    failure('Failed', 'Please select an option to proceed.');
-                  } else {
-                    markStepAsCompleted(3);
-                    Get.snackbar('gender',
-                        controller.userRegistrationRequest.gender.toString());
-                    pageController.nextPage(
-                      duration: Duration(milliseconds: 300),
-                      curve: Curves.ease,
-                    );
-                  }
-                },
-                nextLabel: 'Next',
-                backLabel: 'Back',
-                nextEnabled: selectedGender.value != null,
-                context: context,
-              )),
+          child: buildBottomButtonRow(
+            onBack: onBackPressed,
+            onNext: () {
+              if (selectedGender.value == null) {
+                failure('Gender', 'Please select a gender to proceed.');
+              } else {
+                genderStepError.value = '';
+                markStepAsCompleted(3);
+                Get.snackbar('gender',
+                    controller.userRegistrationRequest.gender.toString());
+                pageController.nextPage(
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.ease,
+                );
+              }
+            },
+            nextLabel: 'Next',
+            backLabel: 'Back',
+            nextEnabled: true, // Always enable the button to allow validation
+            context: context,
+          ),
         ),
       ],
     );
@@ -874,29 +917,27 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           bottom: 0,
           child: Padding(
             padding: const EdgeInsets.only(bottom: 16.0, top: 16.0),
-            child: Obx(() => buildBottomButtonRow(
-                  onBack: onBackPressed,
-                  onNext: () {
-                    print(controller.userRegistrationRequest.subGender);
-                    if (controller.userRegistrationRequest.subGender.isEmpty) {
-                      failure('Failed', 'Please select an option to proceed.');
-                      return;
-                    }
-                    markStepAsCompleted(4);
-                    Get.snackbar(
-                        'Sub-gender',
-                        controller.userRegistrationRequest.subGender
-                            .toString());
-                    pageController.nextPage(
-                      duration: Duration(milliseconds: 300),
-                      curve: Curves.ease,
-                    );
-                  },
-                  nextLabel: 'Next',
-                  backLabel: 'Back',
-                  nextEnabled: selectedOption.value.isNotEmpty,
-                  context: context,
-                )),
+            child: buildBottomButtonRow(
+              onBack: onBackPressed,
+              onNext: () {
+                print(controller.userRegistrationRequest.subGender);
+                if (controller.userRegistrationRequest.subGender.isEmpty) {
+                  failure('Failed', 'Please select an option to proceed.');
+                  return;
+                }
+                markStepAsCompleted(4);
+                Get.snackbar('Sub-gender',
+                    controller.userRegistrationRequest.subGender.toString());
+                pageController.nextPage(
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.ease,
+                );
+              },
+              nextLabel: 'Next',
+              backLabel: 'Back',
+              nextEnabled: true, // Always enable the button to allow validation
+              context: context,
+            ),
           ),
         ),
       ],
@@ -910,13 +951,14 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     double optionFontSize = screenSize.width * 0.04;
     double buttonFontSize = screenSize.width * 0.045;
 
-    if (preferencesSelectedOptions.isEmpty ||
-        preferencesSelectedOptions.length != controller.preferences.length) {
-      preferencesSelectedOptions.value =
-          List<bool>.filled(controller.preferences.length, false);
-    }
-
     return Obx(() {
+      // Initialize the preferences list if needed
+      if (preferencesSelectedOptions.isEmpty ||
+          preferencesSelectedOptions.length != controller.preferences.length) {
+        preferencesSelectedOptions.value =
+            List<bool>.filled(controller.preferences.length, false);
+      }
+
       if (controller.preferences.isEmpty) {
         return Center(
           child: SpinKitCircle(
@@ -977,6 +1019,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                             onTap: () {
                               preferencesSelectedOptions[index] =
                                   !preferencesSelectedOptions[index];
+                              preferencesSelectedOptions.refresh();
                             },
                             child: Container(
                               margin: const EdgeInsets.symmetric(vertical: 6),
@@ -1113,10 +1156,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 10),
-                          backgroundColor: preferencesSelectedOptions
-                                  .any((selected) => selected)
-                              ? Colors.transparent
-                              : AppColors.disabled,
+                          backgroundColor: Colors.transparent,
                           foregroundColor: AppColors.textColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
@@ -1457,8 +1497,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                             curve: Curves.ease,
                           );
                         } else {
-                          relationshipStepError.value =
-                              'Please select at least one option.';
+                          failure(
+                              'Error', 'Please select at least one desire.');
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -1503,7 +1543,11 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
     void addInterest() {
       String newInterest = interestController.text.trim();
-      if (newInterest.isNotEmpty && !selectedInterests.contains(newInterest)) {
+      if (newInterest.isEmpty) {
+        failure('Error', 'Please enter an interest before adding.');
+        return;
+      }
+      if (!selectedInterests.contains(newInterest)) {
         selectedInterests.add(newInterest);
         interestController.clear();
         interestFocusNode.unfocus();
@@ -1704,10 +1748,13 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       );
                       controller.fetchlang();
                     }
-                  : null,
+                  : () {
+                      failure('Error',
+                          'Please enter at least one interest before proceeding.');
+                    },
               nextLabel: 'Next',
               backLabel: 'Back',
-              nextEnabled: isSelectionValid(),
+              nextEnabled: true, // Always enabled to allow validation
               context: context,
             )),
       ],
@@ -1955,28 +2002,25 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           left: 0,
           right: 0,
           bottom: 0,
-          child: Obx(() => buildBottomButtonRow(
-                onBack: onBackPressed,
-                onNext: selectedLanguages.isNotEmpty
-                    ? () {
-                        if (selectedLanguages.isEmpty) {
-                          failure(
-                              'Error', 'Please select at least one language');
-                          return;
-                        } else {
-                          markStepAsCompleted(8);
-                          pageController.nextPage(
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.ease,
-                          );
-                        }
-                      }
-                    : null,
-                nextLabel: 'Next',
-                backLabel: 'Back',
-                nextEnabled: selectedLanguages.isNotEmpty,
-                context: context,
-              )),
+          child: buildBottomButtonRow(
+            onBack: onBackPressed,
+            onNext: () {
+              if (selectedLanguages.isEmpty) {
+                failure('Error', 'Please select at least one language');
+                return;
+              } else {
+                markStepAsCompleted(8);
+                pageController.nextPage(
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.ease,
+                );
+              }
+            },
+            nextLabel: 'Next',
+            backLabel: 'Back',
+            nextEnabled: true,
+            context: context,
+          ),
         ),
       ],
     );
@@ -1985,6 +2029,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 // step 9 bio
   RxString userDescription = ''.obs;
   final TextEditingController descriptionController = TextEditingController();
+  final RxString descriptionStepError = ''.obs;
 
   Widget buildUserDescriptionStep(Size screenSize) {
     void onDescriptionChanged(String value) {

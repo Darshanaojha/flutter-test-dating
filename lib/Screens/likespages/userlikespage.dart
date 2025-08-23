@@ -523,7 +523,8 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                             .createOrder(razorpayController.orderRequestModel);
                         if (isOrderCreated == true) {
                           razorpayController.initRazorpay();
-                          double amount = double.tryParse(currentAddon.amount) ?? 0.0;
+                          double amount =
+                              double.tryParse(currentAddon.amount) ?? 0.0;
                           await razorpayController.startPayment(
                               amount,
                               currentAddon.title,
@@ -697,6 +698,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: _onRefresh,
@@ -787,24 +789,6 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                               ),
                             ),
                           ),
-                          SizedBox(width: 12),
-                          Obx(() => Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.favorite,
-                                    color: AppColors.mediumGradientColor,
-                                    size: 50,
-                                  ),
-                                  Text(
-                                    '${likeCount.value}',
-                                    style: AppTextStyles.textStyle.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              )),
                         ],
                       ),
                     ),
@@ -816,10 +800,33 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                         children: [
                           Padding(
                             padding: const EdgeInsets.all(12.0),
-                            child: Text(
-                              "Liked by Others",
-                              style: AppTextStyles.titleText
-                                  .copyWith(color: Colors.white),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "Liked by Others",
+                                  style: AppTextStyles.titleText
+                                      .copyWith(color: Colors.white),
+                                ),
+                                Obx(() => Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.favorite,
+                                          color: AppColors.mediumGradientColor,
+                                          size: size.width * 0.085,
+                                        ),
+                                        Text(
+                                          '${likeCount.value}',
+                                          style:
+                                              AppTextStyles.textStyle.copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    )),
+                              ],
                             ),
                           ),
                           // ListView.builder(
@@ -840,8 +847,8 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                             gridDelegate:
                                 SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,
-                              crossAxisSpacing: 8,
-                              mainAxisSpacing: 8,
+                              crossAxisSpacing: 4,
+                              mainAxisSpacing: 4,
                               childAspectRatio: 0.7,
                             ),
                             itemBuilder: (context, index) {
@@ -1209,7 +1216,7 @@ class UserCardState extends State<UserCard> with TickerProviderStateMixin {
         );
       },
       child: Container(
-        margin: const EdgeInsets.all(8),
+        margin: const EdgeInsets.all(6),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           gradient: LinearGradient(
@@ -1357,25 +1364,34 @@ class UserCardState extends State<UserCard> with TickerProviderStateMixin {
                           _currentLikeStatus = newLikeStatus;
                         });
 
-                        bool success = false;
+                        bool successStatus = false;
                         if (newLikeStatus == 1) {
                           widget.controller.profileLikeRequest.likedBy =
                               widget.user.userId.toString();
-                          ProfileLikeResponse? response = await widget.controller.profileLike(
-                              widget.controller.profileLikeRequest);
-                          success = response != null && response.success;
+                          ProfileLikeResponse? response =
+                              await widget.controller.profileLike(
+                                  widget.controller.profileLikeRequest);
+                          successStatus = response != null && response.success;
+                          if (successStatus) {
+                            success("Liked!",
+                                "You have successfully liked ${widget.user.name}. Ready to chat!");
+                          }
                         } else {
                           widget.controller.homepageDislikeRequest.userId =
                               widget.user.userId.toString();
                           widget.controller.homepageDislikeRequest
                                   .connectionId =
                               widget.user.conectionId.toString();
-                          success = await widget.controller
+                          successStatus = await widget.controller
                               .homepagedislikeprofile(
                                   widget.controller.homepageDislikeRequest);
+                          if (successStatus) {
+                            success("Removed Like",
+                                "You have unliked ${widget.user.name}.");
+                          }
                         }
 
-                        if (!success) {
+                        if (!successStatus) {
                           setState(() {
                             _currentLikeStatus =
                                 _currentLikeStatus == 0 ? 1 : 0;

@@ -39,6 +39,7 @@ class ContactListScreenState extends State<ContactListScreen> {
     await controller.fetchalluserconnections();
     await controller.fetchProfile();
     await controller.fetchallpingrequestmessage();
+    
     setState(() {
       isLoading = false;
     });
@@ -170,13 +171,19 @@ class ContactListScreenState extends State<ContactListScreen> {
                           shape: const StadiumBorder(),
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                         ),
-                        child: Text(
-                          'Requests (${controller.messageRequest.length})',
-                          style: AppTextStyles.buttonText.copyWith(
-                            color: Colors.white,
-                            fontSize: fontSize - 3,
-                          ),
-                        ),
+                        child: Obx(() {
+                          final receivedRequestsCount = controller
+                              .messageRequest
+                              .where((request) => request.messageSendByMe == 0)
+                              .length;
+                          return Text(
+                            'Requests ($receivedRequestsCount)',
+                            style: AppTextStyles.buttonText.copyWith(
+                              color: Colors.white,
+                              fontSize: fontSize - 3,
+                            ),
+                          );
+                        }),
                       ),
                     ),
                   ],
