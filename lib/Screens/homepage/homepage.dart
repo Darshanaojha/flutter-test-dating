@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/RequestModels/estabish_connection_request_model.dart';
 import 'package:dating_application/Models/ResponseModels/ProfileResponse.dart';
+import 'package:dating_application/Screens/chatmessagespage/ContactListScreen.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -14,6 +16,7 @@ import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:swipe_cards/swipe_cards.dart';
+
 import '../../Models/RequestModels/update_lat_long_request_model.dart';
 import '../../Models/ResponseModels/user_suggestions_response_model.dart';
 import '../../Providers/WebSocketService.dart';
@@ -853,10 +856,10 @@ class HomePageState extends State<HomePage>
       BuildContext context, SuggestedUser user, Size size, bool isLastCard) {
     List<String> images = user.images;
     String lookingForText = user.lookingFor == "1"
-        ? "Serious Relationship"
+        ? "Serious Relationship, "
         : user.lookingFor == "2"
-            ? "Hookup"
-            : "Unknown";
+            ? "Hookup, "
+            : "Unknown, ";
 
     return user.id == ''
         ? Text("No users available")
@@ -1024,8 +1027,30 @@ class HomePageState extends State<HomePage>
                           ],
                         ),
                         SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Text(
+                              lookingForText,
+                              style: AppTextStyles.bodyText.copyWith(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: size.width * 0.035,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                                (user.interest != null && user.interest!.isNotEmpty)
+                                  ? user.interest!.split(',').first.trim()
+                                  : '',
+                              style: AppTextStyles.bodyText.copyWith(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: size.width * 0.035,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 4),
                         Text(
-                          lookingForText,
+                          user.genderName ?? 'Not Specified',
                           style: AppTextStyles.bodyText.copyWith(
                             color: Colors.white.withOpacity(0.9),
                             fontSize: size.width * 0.035,
@@ -1033,8 +1058,8 @@ class HomePageState extends State<HomePage>
                         ),
                         SizedBox(height: 8),
                         Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.13),
                             borderRadius: BorderRadius.circular(10),
@@ -1128,8 +1153,7 @@ class HomePageState extends State<HomePage>
                                     _isFabMenuOpen = false;
                                   });
                                 },
-                                child:
-                                    Icon(Icons.favorite, color: Colors.red),
+                                child: Icon(Icons.favorite, color: Colors.red),
                               ),
                               SizedBox(height: 12),
                             ],
@@ -1141,7 +1165,9 @@ class HomePageState extends State<HomePage>
                               _isFabMenuOpen = !_isFabMenuOpen;
                             });
                           },
-                          child: Icon(_isFabMenuOpen ? Icons.check : Icons.keyboard_arrow_up_outlined),
+                          child: Icon(_isFabMenuOpen
+                              ? Icons.check
+                              : Icons.keyboard_arrow_up_outlined),
                         ),
                       ],
                     ),
@@ -1195,13 +1221,15 @@ class MatchDialog extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               "It's a Match!",
-              style: AppTextStyles.headingText.copyWith(color: Colors.white, fontSize: 24),
+              style: AppTextStyles.headingText
+                  .copyWith(color: Colors.white, fontSize: 24),
             ),
             const SizedBox(height: 10),
             Text(
               "You and ${matchedUser.name} liked each other!",
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodyText.copyWith(color: Colors.white70, fontSize: 16),
+              style: AppTextStyles.bodyText
+                  .copyWith(color: Colors.white70, fontSize: 16),
             ),
             const SizedBox(height: 20),
             Row(
@@ -1209,23 +1237,27 @@ class MatchDialog extends StatelessWidget {
               children: [
                 // _buildProfileImage(currentUser.images.isNotEmpty ? currentUser.images.first : null),
                 // const SizedBox(width: 20),
-                _buildProfileImage(matchedUser.images.isNotEmpty ? matchedUser.images.first : null),
+                _buildProfileImage(matchedUser.images.isNotEmpty
+                    ? matchedUser.images.first
+                    : null),
               ],
             ),
             const SizedBox(height: 30),
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.of(context).pop();
-                // TODO: Navigate to chat screen
+                Get.to(() => ContactListScreen());
               },
               icon: const Icon(Icons.chat_bubble_outline),
               label: const Text("Chat Now"),
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black, backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               ),
             ),
           ],
@@ -1238,7 +1270,8 @@ class MatchDialog extends StatelessWidget {
     return CircleAvatar(
       radius: 50,
       backgroundColor: Colors.white24,
-      backgroundImage: imageUrl != null ? CachedNetworkImageProvider(imageUrl) : null,
+      backgroundImage:
+          imageUrl != null ? CachedNetworkImageProvider(imageUrl) : null,
       child: imageUrl == null
           ? const Icon(
               Icons.person,

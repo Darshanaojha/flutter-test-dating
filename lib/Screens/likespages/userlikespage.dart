@@ -757,37 +757,36 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                       child: Row(
                         children: [
                           Expanded(
-                            child: SizedBox(
-                              height: 40,
-                              child: ListView(
-                                scrollDirection: Axis.horizontal,
-                                children: [
-                                  buildFilterChip(
-                                      'Gender', genders, selectedGenderFilters,
-                                      (value) {
-                                    setState(() {
-                                      selectedGenderFilters = value;
-                                    });
-                                    applyFilters();
-                                  }),
-                                  buildFilterChip(
-                                      'Desires', desires, selectedDesireFilters,
-                                      (value) {
-                                    setState(() {
-                                      selectedDesireFilters = value;
-                                    });
-                                    applyFilters();
-                                  }),
-                                  buildFilterChip('Preferences', preferences,
-                                      selectedPreferenceFilters, (value) {
-                                    setState(() {
-                                      selectedPreferenceFilters = value;
-                                    });
-                                    applyFilters();
-                                  })
-                                ],
-                              ),
-                            ),
+                            child: buildFilterChip('Gender', Icons.wc, genders,
+                                selectedGenderFilters, (value) {
+                              setState(() {
+                                selectedGenderFilters = value;
+                              });
+                              applyFilters();
+                            }),
+                          ),
+                          const SizedBox(width: 2),
+                          Expanded(
+                            child: buildFilterChip('Desires', Icons.favorite,
+                                desires, selectedDesireFilters, (value) {
+                              setState(() {
+                                selectedDesireFilters = value;
+                              });
+                              applyFilters();
+                            }),
+                          ),
+                          const SizedBox(width: 2),
+                          Expanded(
+                            child: buildFilterChip(
+                                'Preferences',
+                                Icons.tune,
+                                preferences,
+                                selectedPreferenceFilters, (value) {
+                              setState(() {
+                                selectedPreferenceFilters = value;
+                              });
+                              applyFilters();
+                            }),
                           ),
                         ],
                       ),
@@ -1003,12 +1002,13 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
 
   Widget buildFilterChip(
     String label,
+    IconData icon,
     List<String> options,
     List<String> initialSelection,
     Function(List<String>) onSelected,
   ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6.0),
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 0.5),
         child: Container(
@@ -1024,7 +1024,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
             style: ElevatedButton.styleFrom(
               foregroundColor: AppColors.primaryColor,
               backgroundColor: Colors.transparent,
-              padding: EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18),
                 side: BorderSide(color: AppColors.activeColor, width: 2),
@@ -1034,20 +1034,24 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
               if (options.isEmpty) return;
               showBottomSheet(label, options, initialSelection, onSelected);
             },
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(width: 2),
-                Text(
-                  label,
-                  style: AppTextStyles.textStyle,
-                ),
-                SizedBox(width: 2),
-                Icon(
-                  Icons.arrow_drop_down,
-                  color: Colors.white,
-                ),
-              ],
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, color: Colors.white, size: 16),
+                  const SizedBox(width: 8),
+                  Text(
+                    label,
+                    style: AppTextStyles.textStyle,
+                  ),
+                  const SizedBox(width: 4),
+                  const Icon(
+                    Icons.arrow_drop_down,
+                    color: Colors.white,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

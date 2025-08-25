@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:dating_application/Screens/userprofile/editprofile/edituserprofile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -392,7 +393,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
     UpdateProfilePhotoRequest updateProfilePhotoRequest =
         UpdateProfilePhotoRequest();
 
-    print('updatedImages length is ${updatedImages.length}');
+    print('updatedImages length is \${updatedImages.length}');
 
     int uploadedPhotosCount =
         updatedImages.where((image) => image.value.isNotEmpty).length;
@@ -401,69 +402,87 @@ class EditPhotosPageState extends State<EditPhotosPage> {
       return;
     }
 
-    for (int i = 0; i < updatedImages.length; i++) {
-      if (updatedImages[i].value.isNotEmpty && !indexUpdated.contains(i)) {
-        String imageUrl = updatedImages[i].value;
-        String base64Image = await getAndSetImageAsBase64(imageUrl);
-        print('returned string at $i is $base64Image');
-        if (base64Image.isNotEmpty) {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      for (int i = 0; i < updatedImages.length; i++) {
+        if (updatedImages[i].value.isNotEmpty && !indexUpdated.contains(i)) {
+          String imageUrl = updatedImages[i].value;
+          String base64Image = await getAndSetImageAsBase64(imageUrl);
+          print('returned string at \$i is \$base64Image');
+          if (base64Image.isNotEmpty) {
+            switch (i) {
+              case 0:
+                updateProfilePhotoRequest.img1 = base64Image;
+                break;
+              case 1:
+                updateProfilePhotoRequest.img2 = base64Image;
+                break;
+              case 2:
+                updateProfilePhotoRequest.img3 = base64Image;
+                break;
+              case 3:
+                updateProfilePhotoRequest.img4 = base64Image;
+                break;
+              case 4:
+                updateProfilePhotoRequest.img5 = base64Image;
+                break;
+              case 5:
+                updateProfilePhotoRequest.img6 = base64Image;
+                break;
+            }
+          }
+        }
+      }
+      for (int i in indexUpdated) {
+        if (updatedImages[i].value.isNotEmpty) {
           switch (i) {
             case 0:
-              updateProfilePhotoRequest.img1 = base64Image;
+              updateProfilePhotoRequest.img1 = updatedImages[0].value;
               break;
             case 1:
-              updateProfilePhotoRequest.img2 = base64Image;
+              updateProfilePhotoRequest.img2 = updatedImages[1].value;
               break;
             case 2:
-              updateProfilePhotoRequest.img3 = base64Image;
+              updateProfilePhotoRequest.img3 = updatedImages[2].value;
               break;
             case 3:
-              updateProfilePhotoRequest.img4 = base64Image;
+              updateProfilePhotoRequest.img4 = updatedImages[3].value;
               break;
             case 4:
-              updateProfilePhotoRequest.img5 = base64Image;
+              updateProfilePhotoRequest.img5 = updatedImages[4].value;
               break;
             case 5:
-              updateProfilePhotoRequest.img6 = base64Image;
+              updateProfilePhotoRequest.img6 = updatedImages[5].value;
               break;
           }
         }
       }
-    }
-    for (int i in indexUpdated) {
-      if (updatedImages[i].value.isNotEmpty) {
-        switch (i) {
-          case 0:
-            updateProfilePhotoRequest.img1 = updatedImages[0].value;
-            break;
-          case 1:
-            updateProfilePhotoRequest.img2 = updatedImages[1].value;
-            break;
-          case 2:
-            updateProfilePhotoRequest.img3 = updatedImages[2].value;
-            break;
-          case 3:
-            updateProfilePhotoRequest.img4 = updatedImages[3].value;
-            break;
-          case 4:
-            updateProfilePhotoRequest.img5 = updatedImages[4].value;
-            break;
-          case 5:
-            updateProfilePhotoRequest.img6 = updatedImages[5].value;
-            break;
+      print('first image is \${updateProfilePhotoRequest.img1}');
+      print('second image is \${updateProfilePhotoRequest.img2}');
+      print('third image is \${updateProfilePhotoRequest.img3}');
+      print('four image is \${updateProfilePhotoRequest.img4}');
+      print('fifth image is \${updateProfilePhotoRequest.img5}');
+      print('sixth image is \${updateProfilePhotoRequest.img6}');
+      if (updateProfilePhotoRequest.validate()) {
+        var success =
+            await controller.updateprofilephoto(updateProfilePhotoRequest);
+        if (success == true) {
+          await controller.fetchProfileUserPhotos();
+          Get.to(EditProfilePage());
+          // Get.back(result: 'updated');
         }
+      } else {
+        failure("FAILED", "Please fill in all required fields.");
       }
-    }
-    print('first image is ${updateProfilePhotoRequest.img1}');
-    print('second image is ${updateProfilePhotoRequest.img2}');
-    print('third image is ${updateProfilePhotoRequest.img3}');
-    print('four image is ${updateProfilePhotoRequest.img4}');
-    print('fifth image is ${updateProfilePhotoRequest.img5}');
-    print('sixth image is ${updateProfilePhotoRequest.img6}');
-    if (updateProfilePhotoRequest.validate()) {
-      controller.updateprofilephoto(updateProfilePhotoRequest);
-    } else {
-      failure("FAILED", "Please fill in all required fields.");
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 

@@ -30,6 +30,8 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
 
   late Future<bool> _fetchProfileFuture;
   RxString selectedPlan = 'None'.obs;
+  bool isProcessingPayment = false;
+  
 
   @override
   void initState() {
@@ -119,250 +121,278 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      body: FutureBuilder<bool>(
-        future: _fetchProfileFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              // child: CircularProgressIndicator(),
-              child: Lottie.asset("assets/animations/Buyanimation.json",
-                  repeat: true, reverse: true),
-            );
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Error: ${snapshot.error}',
-                style: TextStyle(color: Colors.red),
-              ),
-            );
-          }
-          if (snapshot.hasData && snapshot.data!) {
-            return SingleChildScrollView(
-              child: Padding(
-                padding:
-                    EdgeInsets.all(MediaQuery.of(context).size.width * 0.04),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // SizedBox(
-                    //   height: 600,
-                    //   child: Scrollbar(
-                    //     child: ListView.builder(
-                    //       scrollDirection: Axis.vertical,
-                    //       itemCount: controller.userPhotos!.images.length,
-                    //       itemBuilder: (context, index) {
-                    //         return Padding(
-                    //           padding: const EdgeInsets.all(8.0),
-                    //           child: GestureDetector(
-                    //             onTap: () => showFullImageDialog(
-                    //               context,
-                    //               controller.userPhotos!.images[index]
-                    //                   .toString(),
-                    //             ),
-                    //             child: ClipRRect(
-                    //               borderRadius: BorderRadius.circular(15),
-                    //               child: Image.network(
-                    //                 controller.userPhotos!.images[index],
-                    //                 fit: BoxFit.cover,
-                    //                 width: 150,
-                    //                 height: 350,
-                    //               ),
-                    //             ),
-                    //           ),
-                    //         );
-                    //       },
-                    //     ),
-                    //   ),
-                    // ),
-                    // SizedBox(height: 16),
-                    // Text(
-                    //   controller.userData.first.name,
-                    //   style: AppTextStyles.headingText.copyWith(
-                    //     fontSize: fontSize,
-                    //   ),
-                    // ),
-                    // Row(
-                    //   children: [
-                    //     Text(
-                    //       '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userData.first.dob).year} years old | ',
-                    //       style: AppTextStyles.bodyText.copyWith(
-                    //         fontSize: bodyFontSize,
-                    //       ),
-                    //     ),
-                    //     Text(
-                    //       '${controller.userData.first.city} | ',
-                    //       style: AppTextStyles.bodyText.copyWith(
-                    //         fontSize: bodyFontSize,
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
-                    UserProfileSummary(),
-                    SizedBox(height: 20),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+      body: Stack(
+        children: [
+          FutureBuilder<bool>(
+            future: _fetchProfileFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  // child: CircularProgressIndicator(),
+                  child: Lottie.asset("assets/animations/Buyanimation.json",
+                      repeat: true, reverse: true),
+                );
+              }
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'Error: ${snapshot.error}',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                );
+              }
+              if (snapshot.hasData && snapshot.data!) {
+                return SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.all(
+                        MediaQuery.of(context).size.width * 0.04),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "Available Packages",
-                          style: AppTextStyles.headingText.copyWith(
-                            fontSize: fontSize,
-                            color: AppColors.textColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 20),
-                    Obx(() {
-                      if (controller.packages.isEmpty) {
-                        return Center(
-                          child: Text(
-                            "No packages available",
-                            style: AppTextStyles.bodyText.copyWith(
-                              fontSize: fontSize - 2,
-                              color: AppColors.textColor,
+                        // SizedBox(
+                        //   height: 600,
+                        //   child: Scrollbar(
+                        //     child: ListView.builder(
+                        //       scrollDirection: Axis.vertical,
+                        //       itemCount: controller.userPhotos!.images.length,
+                        //       itemBuilder: (context, index) {
+                        //         return Padding(
+                        //           padding: const EdgeInsets.all(8.0),
+                        //           child: GestureDetector(
+                        //             onTap: () => showFullImageDialog(
+                        //               context,
+                        //               controller.userPhotos!.images[index]
+                        //                   .toString(),
+                        //             ),
+                        //             child: ClipRRect(
+                        //               borderRadius: BorderRadius.circular(15),
+                        //               child: Image.network(
+                        //                 controller.userPhotos!.images[index],
+                        //                 fit: BoxFit.cover,
+                        //                 width: 150,
+                        //                 height: 350,
+                        //               ),
+                        //             ),
+                        //           ),
+                        //         );
+                        //       },
+                        //     ),
+                        //   ),
+                        // ),
+                        // SizedBox(height: 16),
+                        // Text(
+                        //   controller.userData.first.name,
+                        //   style: AppTextStyles.headingText.copyWith(
+                        //     fontSize: fontSize,
+                        //   ),
+                        // ),
+                        // Row(
+                        //   children: [
+                        //     Text(
+                        //       '${DateTime.now().year - DateFormat('dd/MM/yyyy').parse(controller.userData.first.dob).year} years old | ',
+                        //       style: AppTextStyles.bodyText.copyWith(
+                        //         fontSize: bodyFontSize,
+                        //       ),
+                        //     ),
+                        //     Text(
+                        //       '${controller.userData.first.city} | ',
+                        //       style: AppTextStyles.bodyText.copyWith(
+                        //         fontSize: bodyFontSize,
+                        //       ),
+                        //     ),
+                        //   ],
+                        // ),
+                        UserProfileSummary(),
+                        SizedBox(height: 20),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Available Packages",
+                              style: AppTextStyles.headingText.copyWith(
+                                fontSize: fontSize,
+                                color: AppColors.textColor,
+                              ),
                             ),
-                          ),
-                        );
-                      } else {
-                        return SizedBox(
-                          height: 200,
-                          child: Scrollbar(
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: controller.packages.length,
-                              itemBuilder: (context, index) {
-                                final package = controller.packages[index];
-                                double offerPercentage =
-                                    calculateOfferPercentage(
-                                        package.actualAmount,
-                                        package.offerAmount);
-                                return GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      selectedPlan.value = package.id;
-                                    });
-                                    showPaymentConfirmationDialog(
-                                      context,
-                                      package.unit,
-                                      package.id,
-                                      package.offerAmount,
-                                    );
-                                    controller.updateNewPackageRequestModel
-                                        .packageId = package.id;
-                                    razorpaycontroller
-                                            .orderRequestModel.amount =
-                                        package.offerAmount.toString();
-                                    razorpaycontroller.orderRequestModel
-                                        .packageId = package.id;
-                                    razorpaycontroller.orderRequestModel.type =
-                                        '2';
-                                    print(razorpaycontroller.orderRequestModel
-                                        .toJson()
-                                        .toString());
-                                  },
-                                  child: Stack(
-                                    clipBehavior: Clip.none,
-                                    children: [
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 10.0),
-                                        child: Obx(() {
-                                          bool isSelected =
-                                              selectedPlan.value == package.id;
-                                          return DecoratedBoxTransition(
-                                            decoration: decorationTween
-                                                .animate(_animationController),
-                                            child: Card(
-                                              elevation: 8,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              clipBehavior: Clip.antiAlias,
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  gradient: isSelected
-                                                      ? LinearGradient(
-                                                          colors: AppColors
-                                                              .reversedGradientColor)
-                                                      : null,
-                                                  color: isSelected
-                                                      ? null
-                                                      : Colors.black,
-                                                ),
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(
-                                                      10.0),
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.calendar_today,
-                                                        color: isSelected
-                                                            ? AppColors
-                                                                .darkGradientColor
-                                                            : AppColors
-                                                                .lightGradientColor,
-                                                        size: fontSize * 1.5,
-                                                      ),
-                                                      SizedBox(width: 8),
-                                                      Expanded(
-                                                        child: Text(
-                                                          "${toBeginningOfSentenceCase(package.unit.toLowerCase())} Plan  ₹${package.offerAmount}",
-                                                          style: AppTextStyles
-                                                              .bodyText
-                                                              .copyWith(
-                                                            fontSize:
-                                                                fontSize - 4,
-                                                            color: AppColors
-                                                                .textColor,
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        Obx(() {
+                          if (controller.packages.isEmpty) {
+                            return Center(
+                              child: Text(
+                                "No packages available",
+                                style: AppTextStyles.bodyText.copyWith(
+                                  fontSize: fontSize - 2,
+                                  color: AppColors.textColor,
+                                ),
+                              ),
+                            );
+                          } else {
+                            return SizedBox(
+                              height: 200,
+                              child: Scrollbar(
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: controller.packages.length,
+                                  itemBuilder: (context, index) {
+                                    final package =
+                                        controller.packages[index];
+                                    double offerPercentage =
+                                        calculateOfferPercentage(
+                                            package.actualAmount,
+                                            package.offerAmount);
+                                    return GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          selectedPlan.value = package.id;
+                                        });
+                                        showPaymentConfirmationDialog(
+                                          context,
+                                          package.unit,
+                                          package.id,
+                                          package.offerAmount,
+                                        );
+                                        controller
+                                            .updateNewPackageRequestModel
+                                            .packageId = package.id;
+                                        razorpaycontroller.orderRequestModel
+                                                .amount =
+                                            package.offerAmount.toString();
+                                        razorpaycontroller.orderRequestModel
+                                            .packageId = package.id;
+                                        razorpaycontroller
+                                            .orderRequestModel.type = '2';
+                                        print(razorpaycontroller
+                                            .orderRequestModel
+                                            .toJson()
+                                            .toString());
+                                      },
+                                      child: Stack(
+                                        clipBehavior: Clip.none,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 10.0),
+                                            child: Obx(() {
+                                              bool isSelected =
+                                                  selectedPlan.value ==
+                                                      package.id;
+                                              return DecoratedBoxTransition(
+                                                decoration: decorationTween
+                                                    .animate(
+                                                        _animationController),
+                                                child: Card(
+                                                  elevation: 8,
+                                                  shape:
+                                                      RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                  ),
+                                                  clipBehavior:
+                                                      Clip.antiAlias,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      gradient: isSelected
+                                                          ? LinearGradient(
+                                                              colors: AppColors
+                                                                  .reversedGradientColor)
+                                                          : null,
+                                                      color: isSelected
+                                                          ? null
+                                                          : Colors.black,
+                                                    ),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              10.0),
+                                                      child: Row(
+                                                        children: [
+                                                          Icon(
+                                                            Icons
+                                                                .calendar_today,
+                                                            color: isSelected
+                                                                ? AppColors
+                                                                    .darkGradientColor
+                                                                : AppColors
+                                                                    .lightGradientColor,
+                                                            size: fontSize *
+                                                                1.5,
                                                           ),
-                                                        ),
+                                                          SizedBox(width: 8),
+                                                          Expanded(
+                                                            child: Text(
+                                                              "${toBeginningOfSentenceCase(package.unit.toLowerCase())} Plan  ₹${package.offerAmount}",
+                                                              style: AppTextStyles
+                                                                  .bodyText
+                                                                  .copyWith(
+                                                                fontSize:
+                                                                    fontSize -
+                                                                        4,
+                                                                color: AppColors
+                                                                    .textColor,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            "${offerPercentage.toStringAsFixed(0)}% OFF",
+                                                            style: AppTextStyles
+                                                                .bodyText
+                                                                .copyWith(
+                                                              fontSize:
+                                                                  fontSize -
+                                                                      6,
+                                                              color: Colors
+                                                                  .white,
+                                                            ),
+                                                          ),
+                                                          // IconButton(
+                                                          //     onPressed: () {},
+                                                          //     icon: Icon(Icons
+                                                          //         .arrow_drop_down_circle_outlined))
+                                                        ],
                                                       ),
-                                                      Text(
-                                                        "${offerPercentage.toStringAsFixed(0)}% OFF",
-                                                        style: AppTextStyles
-                                                            .bodyText
-                                                            .copyWith(
-                                                          fontSize:
-                                                              fontSize - 6,
-                                                          color: Colors.white,
-                                                        ),
-                                                      ),
-                                                      // IconButton(
-                                                      //     onPressed: () {},
-                                                      //     icon: Icon(Icons
-                                                      //         .arrow_drop_down_circle_outlined))
-                                                    ],
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                            ),
-                                          );
-                                        }),
+                                              );
+                                            }),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        );
-                      }
-                    }),
-                  ],
+                                    );
+                                  },
+                                ),
+                              ),
+                            );
+                          }
+                        }),
+                      ],
+                    ),
+                  ),
+                );
+                // return UserProfileSummary();
+              }
+              return Center(
+                child: Text(
+                  'Failed to load data. Please try again.',
+                  style: TextStyle(color: Colors.red),
                 ),
+              );
+            },
+          ),
+          if (isProcessingPayment)
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+              child: Container(
+                color: Colors.black.withOpacity(0.2),
+                child: Center(
+                    child: Lottie.asset(
+                        "assets/animations/handloadinganimation.json")),
               ),
-            );
-            // return UserProfileSummary();
-          }
-          return Center(
-            child: Text(
-              'Failed to load data. Please try again.',
-              style: TextStyle(color: Colors.red),
             ),
-          );
-        },
+        ],
       ),
     );
   }
@@ -505,25 +535,38 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                               ),
                               onSubmit: () async {
                                 Navigator.of(context).pop();
-                                bool? isOrderCreated = await razorpaycontroller
-                                    .createOrder(razorpaycontroller.orderRequestModel);
-                                if (isOrderCreated == true) {
-                                  razorpaycontroller.initRazorpay();
-                                  bool paymentSuccessful =
-                                      await razorpaycontroller.startPayment(
-                                    double.tryParse(amount) ?? 0.0,
-                                    controller.userData.first.name,
-                                    planId,
-                                    controller.userData.first.mobile,
-                                    controller.userData.first.email,
-                                  );
-                                  if (paymentSuccessful) {
-                                    await _showSuccessDialog();
-                                    controller.updatinguserpackage(
-                                        controller.updateNewPackageRequestModel);
+                                setState(() {
+                                  isProcessingPayment = true;
+                                });
+                                try {
+                                  bool? isOrderCreated =
+                                      await razorpaycontroller.createOrder(
+                                          razorpaycontroller.orderRequestModel);
+                                  if (isOrderCreated == true) {
+                                    razorpaycontroller.initRazorpay();
+                                    bool paymentSuccessful =
+                                        await razorpaycontroller.startPayment(
+                                      double.tryParse(amount) ?? 0.0,
+                                      controller.userData.first.name,
+                                      planId,
+                                      controller.userData.first.mobile,
+                                      controller.userData.first.email,
+                                    );
+                                    if (paymentSuccessful) {
+                                      await _showSuccessDialog();
+                                      controller.updatinguserpackage(controller
+                                          .updateNewPackageRequestModel);
+                                    }
+                                  } else {
+                                    failure("Order",
+                                        "Your Payment Order Is Not Created");
                                   }
-                                } else {
-                                  failure("Order", "Your Payment Order Is Not Created");
+                                } finally {
+                                  if (mounted) {
+                                    setState(() {
+                                      isProcessingPayment = false;
+                                    });
+                                  }
                                 }
                               },
                             ),
