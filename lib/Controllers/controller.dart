@@ -120,7 +120,8 @@ import '../Models/ResponseModels/ProfileResponse.dart';
 import '../Models/ResponseModels/ReferalCodeResponse.dart';
 import '../Models/ResponseModels/all_active_user_resposne_model.dart';
 import '../Models/ResponseModels/all_orders_response_model.dart';
-import '../Models/ResponseModels/all_transactions_response_model.dart';
+import '../Models/ResponseModels/all_transactions_response_model.dart'
+    as AllTransactions;
 import '../Models/ResponseModels/app_details_response_model.dart';
 import '../Models/ResponseModels/app_setting_response_model.dart';
 import '../Models/ResponseModels/block_user_response_model.dart';
@@ -216,8 +217,12 @@ import '../Screens/register_subpag/registerdetails.dart';
 import '../Screens/register_subpag/registrationotp.dart';
 import '../Screens/settings/updateemailid/updateemailotpverification.dart';
 import '../constants.dart';
+import '../Database/database_helper.dart';
+import '../utils/logger.dart';
+import 'package:logging/logging.dart';
 
 class Controller extends GetxController {
+  final Logger logger = setup_logger(); // Initialize the logger
   RxString token = ''.obs;
 
   Future<void> storeUserData(UserLoginResponse userLoginResponse) async {
@@ -560,37 +565,36 @@ class Controller extends GetxController {
       final ChatResponse? response =
           await ChatProvider().fetchChats(connectionId);
 
-      if (response == null || response.chats.isEmpty) {
+      if (response != null && response.chats.isNotEmpty) {
+        final fetchedMessages = response.chats;
+
+        final existingIds = messages.map((msg) => msg.id).toSet();
+        final newMessages = fetchedMessages
+            .where((msg) => !existingIds.contains(msg.id))
+            .toList();
+
+        if (newMessages.isEmpty) {
+          print('No new messages to add.');
+          return true;
+        }
+
+        for (var message in newMessages) {
+          try {
+            if (message.message != null) {
+              message.message = decryptMessage(message.message!, secretkey);
+            }
+          } catch (e) {
+            print('Error decrypting message with ID: ${message.id}');
+            print(e.toString());
+          }
+        }
+
+        messages.addAll(newMessages);
+        return true;
+      } else {
         print('No chats found.');
         return true;
       }
-
-      final fetchedMessages = response.chats;
-
-      final existingIds = messages.map((msg) => msg.id).toSet();
-      final newMessages = fetchedMessages
-          .where((msg) => !existingIds.contains(msg.id))
-          .toList();
-
-      if (newMessages.isEmpty) {
-        print('No new messages to add.');
-        return true;
-      }
-
-      for (var message in newMessages) {
-        try {
-          if (message.message != null) {
-            message.message = decryptMessage(message.message!, secretkey);
-          }
-        } catch (e) {
-          print('Error decrypting message with ID: ${message.id}');
-          print(e.toString());
-        }
-      }
-
-      messages.addAll(newMessages);
-
-      return true;
     } catch (e) {
       print('Error fetching chats: $e');
       failure('Error', e.toString());
@@ -643,20 +647,43 @@ class Controller extends GetxController {
   RxList<UserPreferences> userPreferences = <UserPreferences>[].obs;
   RxList<UserLang> userLang = <UserLang>[].obs;
   Future<bool> fetchProfile([String id = ""]) async {
+    final dbHelper = DatabaseHelper();
+    EncryptedSharedPreferences preferences =
+        EncryptedSharedPreferences.getInstance();
+    String? userId = await preferences.getString('userId');
+    String cacheId = id.isEmpty ? (userId ?? 'currentUser') : id;
+
     try {
       UserProfileResponse? response = await HomePageProvider().fetchProfile(id);
-      if (response != null) {
+      if (response != null && response.success) {
+        if (response.payload.data.isNotEmpty) {
+          final user = response.payload.data.first;
+          await dbHelper.saveUserProfile(user);
+        }
+        print('Fetched user profile data: ${response.payload.data}');
         userData.assignAll(response.payload.data);
         userDesire.assignAll(response.payload.desires);
         userPreferences.assignAll(response.payload.preferences);
         userLang.assignAll(response.payload.lang);
-        print('successfully fetched the user profile');
+        print('successfully fetched the user profile from API');
         return true;
       } else {
+        final cachedUser = await dbHelper.getUserProfile(cacheId);
+        if (cachedUser != null) {
+          userData.assignAll([cachedUser]);
+          print('successfully fetched the user profile from DB');
+          return true;
+        }
         failure('Error', 'Error fetching the user profile');
         return false;
       }
     } catch (e) {
+      final cachedUser = await dbHelper.getUserProfile(cacheId);
+      if (cachedUser != null) {
+        userData.assignAll([cachedUser]);
+        print('successfully fetched the user profile from DB on exception');
+        return true;
+      }
       failure('Error', e.toString());
       return false;
     }
@@ -1423,51 +1450,37 @@ class Controller extends GetxController {
   Future<bool> userSuggestions() async {
     try {
       isCardLoading.value = true;
-      userSuggestionsList.clear();
-      userNearByList.clear();
-      userHighlightedList.clear();
-      hookUpList.clear();
       UserSuggestionsResponseModel? response =
           await UserSuggestionsProvider().userSuggestions();
 
       if (response != null && response.payload != null) {
-        // Directly assign the new data. If the data is empty, the lists will become empty.
         userSuggestionsList.value = response.payload!.desireBase;
         userNearByList.value = response.payload!.locationBase;
         userHighlightedList.value = response.payload!.highlightedAccount;
         hookUpList.value = response.payload!.hookup;
 
-        // The 'All' list is an aggregation.
         userSuggestionsList.addAll(response.payload!.locationBase);
         userSuggestionsList.addAll(response.payload!.preferenceBase);
         userSuggestionsList.addAll(response.payload!.languageBase);
 
-        print("All user lists:");
-        print("Nearby: ${userNearByList.length}");
-        print("Desire: ${userSuggestionsList.length}");
-        print("Hookup: ${hookUpList.length}");
-        print("Highlight: ${userHighlightedList.length}");
+        logger.info("All user lists:");
+        logger.info("Nearby: ${userNearByList.length}");
+        logger.info("Desire: ${userSuggestionsList.length}");
+        logger.info("Hookup: ${hookUpList.length}");
+        logger.info("Highlight: ${userHighlightedList.length}");
 
         return true;
       } else {
-        // If the response is null, clear all lists.
-        userSuggestionsList.clear();
-        userNearByList.clear();
-        userHighlightedList.clear();
-        hookUpList.clear();
         failure('Error', 'Failed to fetch the user suggestions');
         debugPrint(
             'Error: Failed to fetch the user suggestions, response is null');
         return false;
       }
     } catch (e) {
-      // If there's an exception, clear all lists.
-      userSuggestionsList.clear();
-      userNearByList.clear();
-      userHighlightedList.clear();
-      hookUpList.clear();
       failure('Error', e.toString());
       return false;
+    } finally {
+      isCardLoading.value = false;
     }
   }
 
@@ -1754,19 +1767,18 @@ class Controller extends GetxController {
     try {
       isLoading.value = true;
       hasError.value = false;
-      favourite.clear(); // Clear the list before fetching
       GetFavouritesResponse? response =
           await FetchAllFavouritesProvider().fetchallfavouritesprovider();
 
       if (response != null) {
         if (response.payload.data.isNotEmpty) {
           print('Successfully fetched all the favourites');
-          favourite.addAll(response.payload.data);
+          favourite.assignAll(response.payload.data);
           print('Favourites length is = ${favourite.length}');
         } else {
           print('No favourites found, list is empty.');
         }
-        return true; // Return true even if the list is empty
+        return true;
       } else {
         failure('Error', 'Failed to fetch the favourites');
         hasError.value = true;
@@ -2137,10 +2149,11 @@ class Controller extends GetxController {
     }
   }
 
-  RxList<Transaction> transactions = <Transaction>[].obs;
+  RxList<AllTransactions.Transaction> transactions =
+      <AllTransactions.Transaction>[].obs;
   Future<bool> allTransactions() async {
     try {
-      AllTransactionsResponseModel? response =
+      AllTransactions.AllTransactionsResponseModel? response =
           await OrderProvider().allTransactions();
       if (response != null) {
         transactions.assignAll(response.payload.transactions);

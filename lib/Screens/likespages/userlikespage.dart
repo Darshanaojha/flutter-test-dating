@@ -1410,7 +1410,7 @@ class UserCardState extends State<UserCard> with TickerProviderStateMixin {
                             ? Icons.favorite
                             : Icons.favorite_border,
                         color: _currentLikeStatus == 1
-                            ? AppColors.lightGradientColor
+                            ? AppColors.darkGradientColor
                             : Colors.white,
                         size: 25,
                       ),

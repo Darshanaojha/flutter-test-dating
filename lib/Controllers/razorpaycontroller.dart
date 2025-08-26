@@ -15,6 +15,26 @@ class RazorpayController extends GetxController {
   late Razorpay razorpay;
   late Completer<bool> _paymentCompleter;
   Controller controller = Get.put(Controller());
+
+  OrderRequestModel orderRequestModel = OrderRequestModel(
+      packageId: '', amount: '', points: '', ispointused: '', type: '');
+
+  TransactionRequestModel transactionRequestModel = TransactionRequestModel(
+      orderId: '',
+      packageId: '',
+      type: '',
+      razorpayOrderId: '',
+      razorpayPaymentId: '',
+      razorpaySignature: '',
+      paymentStatus: '',
+      paymentMethod: '',
+      amount: '',
+      points: '',
+      transactionId: '',
+      message: '',
+      created: DateTime.now(),
+      updated: DateTime.now());
+
   RazorpayController() {
     _paymentCompleter = Completer<bool>();
   }
@@ -50,8 +70,8 @@ class RazorpayController extends GetxController {
     return _paymentCompleter.future;
   }
 
-  void openPayment(String orderId, double totalAmount, String name, String description,
-      String contact, String email) {
+  void openPayment(String orderId, double totalAmount, String name,
+      String description, String contact, String email) {
     var options = {
       'key': RazorpayKeys.RAZORPAYKEYID,
       'amount': (totalAmount * 100).toInt(),
@@ -92,7 +112,8 @@ class RazorpayController extends GetxController {
       String? transactionId = preferences.getString('transactionId');
       String? amount = preferences.getString('amount');
       transactionRequestModel.razorpaySignature = response.signature ?? '';
-      print("DEBUG: Captured Razorpay Signature: ${transactionRequestModel.razorpaySignature}");
+      print(
+          "DEBUG: Captured Razorpay Signature: ${transactionRequestModel.razorpaySignature}");
 
       if (orderid != null) {
         transactionRequestModel.orderId = orderid;
@@ -120,7 +141,8 @@ class RazorpayController extends GetxController {
         transactionRequestModel.updated = DateTime.now();
       }
 
-      print("DEBUG: Transaction Request Payload: ${transactionRequestModel.toJson()}");
+      print(
+          "DEBUG: Transaction Request Payload: ${transactionRequestModel.toJson()}");
       await transaction(transactionRequestModel).then((value) async {
         // await _showSuccessDialog();
 
@@ -224,8 +246,6 @@ class RazorpayController extends GetxController {
     }
   }
 
-  OrderRequestModel orderRequestModel = OrderRequestModel(
-      packageId: '', amount: '', points: '', ispointused: '', type: '');
   final isProcessingOrder = false.obs;
   Future<bool?> createOrder(OrderRequestModel orderRequestModel) async {
     if (isProcessingOrder.value) {
@@ -278,21 +298,6 @@ class RazorpayController extends GetxController {
     }
   }
 
-  TransactionRequestModel transactionRequestModel = TransactionRequestModel(
-      orderId: '',
-      packageId: '',
-      type: '',
-      razorpayOrderId: '',
-      razorpayPaymentId: '',
-      razorpaySignature: '',
-      paymentStatus: '',
-      paymentMethod: '',
-      amount: '',
-      points: '',
-      transactionId: '',
-      message: '',
-      created: DateTime.now(),
-      updated: DateTime.now());
   Future<bool> transaction(
       TransactionRequestModel transactionRequestModel) async {
     try {

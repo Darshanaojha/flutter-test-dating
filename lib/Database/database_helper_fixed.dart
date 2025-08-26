@@ -2,12 +2,9 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'database_config.dart';
 import 'package:dating_application/Models/Entities/chat_message_entity.dart';
-import 'package:dating_application/Models/ResponseModels/user_suggestions_response_model.dart'
-    as suggestions;
-import 'package:dating_application/Models/ResponseModels/get_all_favourites_response_model.dart'
-    as favorites;
-import 'package:dating_application/Models/ResponseModels/ProfileResponse.dart'
-    as profile;
+import 'package:dating_application/Models/ResponseModels/user_suggestions_response_model.dart' as suggestions;
+import 'package:dating_application/Models/ResponseModels/get_all_favourites_response_model.dart' as favorites;
+import 'package:dating_application/Models/ResponseModels/ProfileResponse.dart' as profile;
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -166,7 +163,7 @@ class DatabaseHelper {
           description TEXT,
           createdAt INTEGER,
           updatedAt INTEGER,
-          isCached INTEGER DEFAULT 1
+         isCached INTEGER DEFAULT 1
         )
       ''');
 
@@ -196,7 +193,7 @@ class DatabaseHelper {
       {String? where,
       List<dynamic>? whereArgs,
       String? orderBy,
-      int? limit}) async {
+     int? limit}) async {
     final db = await database;
     return await db.query(
       table,
@@ -242,69 +239,67 @@ class DatabaseHelper {
   Future<void> cacheChatMessages(List<ChatMessageEntity> messages) async {
     final db = await database;
     final batch = db.batch();
-
+    
     for (final message in messages) {
-      batch.insert(
-          'chat_messages',
-          {
-            'messageId': message.messageId,
-            'senderId': message.senderId,
-            'receiverId': message.receiverId,
-            'message': message.message,
-            'timestamp': message.timestamp,
-            'isRead': message.isRead,
-            'isDelivered': message.isDelivered,
-            'isCached': 1,
-            'lastSynced': DateTime.now().millisecondsSinceEpoch
-          },
-          conflictAlgorithm: ConflictAlgorithm.replace);
+      batch.insert('chat_messages', {
+        'messageId': message.messageId,
+        'senderId': message.senderId,
+        'receiverId': message.receiverId,
+        'message': message.message,
+        'timestamp': message.timestamp,
+        'isRead': message.isRead,
+        'isDelivered': message.isDelivered,
+        'isCached': 1,
+        'lastSynced': DateTime.now().millisecondsSinceEpoch
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
     }
-
+    
     await batch.commit();
   }
 
-  Future<List<ChatMessageEntity>> getCachedChatMessages(
-      String userId, String otherUserId) async {
+  Future<List<ChatMessageEntity>> getCachedChatMessages(String userId, String otherUserId) async {
     final db = await database;
-    final results = await db.query('chat_messages',
-        where:
-            '(senderId = ? AND receiverId = ?) OR (senderId = ? AND receiverId = ?)',
-        whereArgs: [userId, otherUserId, otherUserId, userId],
-        orderBy: 'timestamp ASC');
-
+    final results = await db.query(
+      'chat_messages',
+      where: '(senderId = ? AND receiverId = ?) OR (senderId = ? AND receiverId = ?)',
+      whereArgs: [userId, otherUserId, otherUserId, userId],
+      orderBy: 'timestamp ASC'
+    );
+    
     return results.map((map) => ChatMessageEntity.fromMap(map)).toList();
   }
 
   // User Profile Caching Methods
   Future<void> saveUserProfile(profile.UserData userData) async {
     final db = await database;
-    await db.insert(
-        'users',
-        {
-          'userId': userData.id,
-          'username': userData.name,
-          'email': userData.email,
-          'profilePhoto': userData.profileImage,
-          'dob': userData.dob,
-          'gender': userData.gender,
-          'location': userData.city,
-          'bio': userData.bio,
-          'lastSeen': int.tryParse(userData.lastSeen ?? '0') ?? 0,
-          'createdAt': int.tryParse(userData.created) ?? 0,
-          'updatedAt': int.tryParse(userData.updated) ?? 0,
-          'isCached': 1,
-          'lastSynced': DateTime.now().millisecondsSinceEpoch
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace);
+    await db.insert('users', {
+      'userId': userData.id,
+      'username': userData.name,
+      'email': userData.email,
+      'profilePhoto': userData.profileImage,
+      'dob': userData.dob,
+      'gender': userData.gender,
+      'location': userData.city,
+      'bio': userData.bio,
+      'lastSeen': int.tryParse(userData.lastSeen ?? '0') ?? 0,
+      'createdAt': int.tryParse(userData.created) ?? 0,
+      'updatedAt': int.tryParse(userData.updated) ?? 0,
+      'isCached': 1,
+      'lastSynced': DateTime.now().millisecondsSinceEpoch
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<profile.UserData?> getUserProfile(String userId) async {
     final db = await database;
-    final results = await db.query('users',
-        where: 'userId = ?', whereArgs: [userId], limit: 1);
-
+    final results = await db.query(
+      'users',
+      where: 'userId = ?',
+      whereArgs: [userId],
+      limit: 1
+    );
+    
     if (results.isEmpty) return null;
-
+    
     final userMap = results.first;
     return profile.UserData(
       id: userMap['userId'] as String? ?? '',
@@ -342,40 +337,39 @@ class DatabaseHelper {
   }
 
   // User Suggestions Caching Methods
-  Future<void> cacheUserSuggestions(
-      List<suggestions.SuggestedUser> suggestions) async {
+  Future<void> cacheUserSuggestions(List<suggestions.SuggestedUser> suggestions) async {
     final db = await database;
     final batch = db.batch();
-
+    
     for (final suggestion in suggestions) {
-      batch.insert(
-          'users',
-          {
-            'userId': suggestion.userId,
-            'username': suggestion.name,
-            'email': suggestion.email,
-            'profilePhoto': suggestion.profileImage,
-            'dob': suggestion.dob,
-            'gender': suggestion.gender,
-            'location': suggestion.city,
-            'bio': suggestion.bio,
-            'lastSeen': int.tryParse(suggestion.lastSeen ?? '0') ?? 0,
-            'createdAt': int.tryParse(suggestion.created ?? '0') ?? 0,
-            'updatedAt': int.tryParse(suggestion.updated ?? '0') ?? 0,
-            'isCached': 1,
-            'lastSynced': DateTime.now().millisecondsSinceEpoch
-          },
-          conflictAlgorithm: ConflictAlgorithm.replace);
+      batch.insert('users', {
+        'userId': suggestion.userId,
+        'username': suggestion.name,
+        'email': suggestion.email,
+        'profilePhoto': suggestion.profileImage,
+        'dob': suggestion.dob,
+        'gender': suggestion.gender,
+        'location': suggestion.city,
+        'bio': suggestion.bio,
+        'lastSeen': int.tryParse(suggestion.lastSeen ?? '0') ?? 0,
+        'createdAt': int.tryParse(suggestion.created ?? '0') ?? 0,
+        'updatedAt': int.tryParse(suggestion.updated ?? '0') ?? 0,
+        'isCached': 1,
+        'lastSynced': DateTime.now().millisecondsSinceEpoch
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
     }
-
+    
     await batch.commit();
   }
 
   Future<List<suggestions.SuggestedUser>> getCachedUserSuggestions() async {
     final db = await database;
-    final results = await db.query('users',
-        where: 'isCached = 1', orderBy: 'lastSynced DESC');
-
+    final results = await db.query(
+      'users',
+      where: 'isCached = 1',
+      orderBy: 'lastSynced DESC'
+    );
+    
     return results.map((map) => _convertMapToSuggestedUser(map)).toList();
   }
 
@@ -383,41 +377,41 @@ class DatabaseHelper {
   Future<void> cacheFavorites(List<favorites.Favourite> favorites) async {
     final db = await database;
     final batch = db.batch();
-
+    
     for (final favorite in favorites) {
-      batch.insert(
-          'users',
-          {
-            'userId': favorite.userId,
-            'username': favorite.name,
-            'email': favorite.email,
-            'profilePhoto': favorite.profileImage,
-            'dob': favorite.dob,
-            'gender': favorite.gender,
-            'location': favorite.city,
-            'bio': favorite.bio,
-            'lastSeen': int.tryParse(favorite.lastSeen ?? '0') ?? 0,
-            'createdAt': int.tryParse(favorite.created ?? '0') ?? 0,
-            'updatedAt': int.tryParse(favorite.updated ?? '0') ?? 0,
-            'isCached': 1,
-            'lastSynced': DateTime.now().millisecondsSinceEpoch
-          },
-          conflictAlgorithm: ConflictAlgorithm.replace);
+      batch.insert('users', {
+        'userId': favorite.userId,
+        'username': favorite.name,
+        'email': favorite.email,
+        'profilePhoto': favorite.profileImage,
+        'dob': favorite.dob,
+        'gender': favorite.gender,
+        'location': favorite.city,
+        'bio': favorite.bio,
+        'lastSeen': int.tryParse(favorite.lastSeen ?? '0') ?? 0,
+        'createdAt': int.tryParse(favorite.created ?? '0') ?? 0,
+        'updatedAt': int.tryParse(favorite.updated ?? '0') ?? 0,
+        'isCached': 1,
+        'lastSynced': DateTime.now().millisecondsSinceEpoch
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
     }
-
+    
     await batch.commit();
   }
 
   Future<List<favorites.Favourite>> getCachedFavorites() async {
     final db = await database;
-    final results = await db.query('users',
-        where: 'isCached = 1', orderBy: 'lastSynced DESC');
-
+    final results = await db.query(
+      'users',
+      where: 'isCached = 1',
+      orderBy: 'lastSynced DESC'
+    );
+    
     return results.map((map) => _convertMapToFavourite(map)).toList();
   }
 
-  suggestions.SuggestedUser _convertMapToSuggestedUser(
-      Map<String, dynamic> map) {
+
+  suggestions.SuggestedUser _convertMapToSuggestedUser(Map<String, dynamic> map) {
     return suggestions.SuggestedUser(
       userId: map['userId'] as String?,
       name: map['username'] as String?,
