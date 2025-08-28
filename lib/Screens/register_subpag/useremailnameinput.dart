@@ -182,15 +182,6 @@ class UserInputPageState extends State<UserInputPage>
                                 selectedCountryCode;
                           });
                         },
-                        onInit: (value) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            setState(() {
-                              selectedCountryCode = '+91';
-                              controller.userRegistrationRequest.countryCode =
-                                  selectedCountryCode;
-                            });
-                          });
-                        },
                         initialSelection: selectedCountryCode,
                         favorite: ['+91'],
                         textStyle: AppTextStyles.inputFieldText.copyWith(

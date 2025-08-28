@@ -4,14 +4,14 @@
 
 ### Steps to Fix:
 1. [x] Increment database version in `database_config.dart` from 2 to 3
-2. [ ] Add migration logic in `database_helper.dart` to add "dob" column to users table
-3. [ ] Add migration logic in `database_helper_fixed.dart` to add "dob" column to users table
+2. [x] Add migration logic in `database_helper.dart` to add "dob" column to users table
+3. [x] Add migration logic in `database_helper_fixed.dart` to add "dob" column to users table
 4. [ ] Test the application to verify the fix works
 
 ### Current Status:
-- Database version: 2
-- Missing column: dob in users table
-- Migration needed: Add ALTER TABLE statement for users table
+- Database version: 3 (incremented from 2)
+- Missing column: dob in users table (will be added via migration)
+- Migration implemented: ALTER TABLE users ADD COLUMN dob TEXT
 
 ### Notes:
 - The error occurs because the database was created with an older schema

@@ -13,14 +13,14 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart'; // Added import
 import 'package:permission_handler/permission_handler.dart';
 import 'package:vibration/vibration.dart';
-import 'package:intl/intl.dart'; // Added import
 
 import '../../Models/ResponseModels/chat_history_response_model.dart';
 import '../../Providers/WebsocketService.dart';
-import 'AudioCallPage.dart';
 import '../userprofile/userprofilesummary.dart';
+import 'AudioCallPage.dart';
 
 class ChatScreen extends StatefulWidget {
   final String senderId;
@@ -47,7 +47,6 @@ class ChatScreenState extends State<ChatScreen> {
   final TextEditingController messageController = TextEditingController();
   String? bearerToken =
       EncryptedSharedPreferences.getInstance().getString('token');
-  DateTime? _lastDate; // Added _lastDate variable
 
   @override
   void initState() {
@@ -189,7 +188,7 @@ class ChatScreenState extends State<ChatScreen> {
     TextEditingController messageController =
         TextEditingController(text: message.message);
 
-    bool isSentByUser = message.senderId == widget.senderId;
+    // bool isSentByUser = message.senderId == widget.senderId;
 
     showDialog(
       context: context,
@@ -291,22 +290,28 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
   void _editMessage(String newMessage, int index) async {
-    if (newMessage.trim().isNotEmpty) {
-      controller.messages[index] =
-          controller.messages[index].copyWith(message: newMessage);
+    if (newMessage.trim().isEmpty) {
+      return;
     }
-    controller.messages[index].deletedAtReceiver = null;
-    controller.messages[index].deletedAtSender = null;
-    controller.messages[index].deletedBySender = 0;
-    controller.messages[index].deletedByReceiver = 0;
-    controller.messages[index].isEdited = 1;
-    controller.messages[index].message = controller.encryptMessage(
-        controller.messages[index].message ?? '', secretkey);
 
-    controller.updateChats(controller.messages[index]);
+    Message originalMessage = controller.messages[index];
 
-    controller.messages[index].message = controller.decryptMessage(
-        controller.messages[index].message ?? '', secretkey);
+    Message updatedMessageForUI = originalMessage.copyWith(
+      message: newMessage,
+      isEdited: 1,
+      deletedAtReceiver: null,
+      deletedAtSender: null,
+      deletedBySender: 0,
+      deletedByReceiver: 0,
+    );
+
+    controller.messages[index] = updatedMessageForUI;
+
+    Message messageForBackend = updatedMessageForUI.copyWith(
+      message: controller.encryptMessage(newMessage, secretkey),
+    );
+
+    await controller.updateChats(messageForBackend);
   }
 
   RxString selectedReason = ''.obs;
@@ -697,8 +702,11 @@ class ChatScreenState extends State<ChatScreen> {
                                       SlidableAction(
                                         onPressed: isSentByUser
                                             ? (context) {
-                                                _showMessageDialog(
-                                                    context, message, index);
+                                                final messageIndex = controller.messages.indexOf(message);
+                                                if (messageIndex != -1) {
+                                                  _showMessageDialog(
+                                                      context, message, messageIndex);
+                                                }
                                               }
                                             : null,
                                         backgroundColor: Colors.blue,
@@ -715,6 +723,8 @@ class ChatScreenState extends State<ChatScreen> {
                                 children: [
                                   SlidableAction(
                                     onPressed: (context) {
+                                      final messageIndex = controller.messages.indexOf(message);
+                                      if (messageIndex == -1) return;
                                       showDialog(
                                         context: context,
                                         builder: (BuildContext context) {
@@ -823,7 +833,7 @@ class ChatScreenState extends State<ChatScreen> {
                                                         label: Text("Delete"),
                                                         onPressed: () {
                                                           deleteSingleMessage(
-                                                              index);
+                                                              messageIndex);
                                                           Navigator.pop(
                                                               context);
                                                         },

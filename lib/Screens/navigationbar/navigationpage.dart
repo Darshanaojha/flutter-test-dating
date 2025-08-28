@@ -284,6 +284,12 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                             final preferences =
                                 EncryptedSharedPreferences.getInstance();
                             preferences.clear();
+                            if (Get.isRegistered<Controller>()) {
+                              Get.delete<Controller>();
+                            }
+                            if (Get.isRegistered<NavigationController>()) {
+                              Get.delete<NavigationController>();
+                            }
                             Get.offAll(() => CombinedAuthScreen());
                           },
                           style: ElevatedButton.styleFrom(

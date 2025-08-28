@@ -1185,17 +1185,28 @@ class UserCard extends StatefulWidget {
   UserCardState createState() => UserCardState();
 }
 
-class UserCardState extends State<UserCard> with TickerProviderStateMixin {
+class UserCardState extends State<UserCard> with SingleTickerProviderStateMixin {
   late int _currentLikeStatus;
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
     _currentLikeStatus = widget.user.likedByMe;
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _scaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 1.4), weight: 50),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.4, end: 1.0), weight: 50),
+    ]).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut));
   }
 
   @override
   void dispose() {
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -1253,46 +1264,6 @@ class UserCardState extends State<UserCard> with TickerProviderStateMixin {
                       )
                     : Container(color: Colors.grey.shade300),
               ),
-
-              // Match % (Static for now - needs dynamic source)
-              // Positioned(
-              //   top: 8,
-              //   left: 8,
-              //   child: Container(
-              //     padding:
-              //         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              //     decoration: BoxDecoration(
-              //       color: Colors.pinkAccent,
-              //       borderRadius: BorderRadius.circular(12),
-              //     ),
-              //     child: Text(
-              //       "90% Match", // Static data
-              //       style: AppTextStyles.bodyText.copyWith(
-              //         color: Colors.white,
-              //         fontWeight: FontWeight.bold,
-              //         fontSize: 12,
-              //       ),
-              //     ),
-              //   ),
-              // ),
-
-              // Distance (Static for now - needs dynamic source)
-              // Positioned(
-              //   bottom: 50,
-              //   left: 8,
-              //   child: Container(
-              //     padding:
-              //         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              //     decoration: BoxDecoration(
-              //       color: Colors.black54,
-              //       borderRadius: BorderRadius.circular(12),
-              //     ),
-              //     child: Text(
-              //       '1.5 km away', // Static data
-              //       style: TextStyle(color: Colors.white, fontSize: 12),
-              //     ),
-              //   ),
-              // ),
 
               // Gradient overlay for entire card bottom
               Positioned(
@@ -1356,80 +1327,64 @@ class UserCardState extends State<UserCard> with TickerProviderStateMixin {
               Positioned(
                 bottom: 8,
                 right: 8,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // In your user card widget:
-                    IconButton(
-                      onPressed: () async {
-                        widget.onShowAnimation(widget.user.userId);
-                        final newLikeStatus = _currentLikeStatus == 0 ? 1 : 0;
-                        setState(() {
-                          _currentLikeStatus = newLikeStatus;
-                        });
+                child: GestureDetector(
+                  onTap: () async {
+                    _animationController.forward(from: 0.0);
+                    
+                    final newLikeStatus = _currentLikeStatus == 0 ? 1 : 0;
+                    setState(() {
+                      _currentLikeStatus = newLikeStatus;
+                    });
 
-                        bool successStatus = false;
-                        if (newLikeStatus == 1) {
-                          widget.controller.profileLikeRequest.likedBy =
-                              widget.user.userId.toString();
-                          ProfileLikeResponse? response =
-                              await widget.controller.profileLike(
-                                  widget.controller.profileLikeRequest);
-                          successStatus = response != null && response.success;
-                          if (successStatus) {
-                            success("Liked!",
-                                "You have successfully liked ${widget.user.name}. Ready to chat!");
-                          }
-                        } else {
-                          widget.controller.homepageDislikeRequest.userId =
-                              widget.user.userId.toString();
-                          widget.controller.homepageDislikeRequest
-                                  .connectionId =
-                              widget.user.conectionId.toString();
-                          successStatus = await widget.controller
-                              .homepagedislikeprofile(
-                                  widget.controller.homepageDislikeRequest);
-                          if (successStatus) {
-                            success("Removed Like",
-                                "You have unliked ${widget.user.name}.");
-                          }
-                        }
+                    bool successStatus = false;
+                    if (newLikeStatus == 1) {
+                      widget.controller.profileLikeRequest.likedBy =
+                          widget.user.userId.toString();
+                      ProfileLikeResponse? response =
+                          await widget.controller.profileLike(
+                              widget.controller.profileLikeRequest);
+                      successStatus = response != null && response.success;
+                      if (successStatus) {
+                        success("Liked!",
+                            "You have successfully liked ${widget.user.name}. Ready to chat!");
+                      }
+                    } else {
+                      widget.controller.homepageDislikeRequest.userId =
+                          widget.user.userId.toString();
+                      widget.controller.homepageDislikeRequest
+                              .connectionId =
+                          widget.user.conectionId.toString();
+                      successStatus = await widget.controller
+                          .homepagedislikeprofile(
+                              widget.controller.homepageDislikeRequest);
+                      if (successStatus) {
+                        success("Removed Like",
+                            "You have unliked ${widget.user.name}.");
+                      }
+                    }
 
-                        if (!successStatus) {
-                          setState(() {
-                            _currentLikeStatus =
-                                _currentLikeStatus == 0 ? 1 : 0;
-                          });
-                          failure("Failed",
-                              "Failed to update like status. Please try again.");
-                        }
-                        widget.onLikeToggle(widget.user.userId, newLikeStatus);
-                      },
-                      icon: Icon(
-                        _currentLikeStatus == 1
-                            ? Icons.favorite
-                            : Icons.favorite_border,
-                        color: _currentLikeStatus == 1
-                            ? AppColors.darkGradientColor
-                            : Colors.white,
-                        size: 25,
-                      ),
+                    if (!successStatus) {
+                      setState(() {
+                        _currentLikeStatus =
+                            _currentLikeStatus == 0 ? 1 : 0;
+                      });
+                      failure("Failed",
+                          "Failed to update like status. Please try again.");
+                    }
+                    widget.onLikeToggle(widget.user.userId, newLikeStatus);
+                  },
+                  child: ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: Icon(
+                      _currentLikeStatus == 1
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      color: _currentLikeStatus == 1
+                          ? AppColors.darkGradientColor
+                          : Colors.white,
+                      size: 25,
                     ),
-                    // Animation section commented out for now
-                    // if (widget.animatingUserId == widget.user.userId)
-                    //   AnimatedOpacity(
-                    //     duration: Duration(milliseconds: 500),
-                    //     opacity: 1.0,
-                    //     child: AnimatedScale(
-                    //       duration: Duration(milliseconds: 500),
-                    //       scale: 1.5,
-                    //       child: Icon(Icons.favorite,
-                    //           color: Colors.red.withOpacity(0.6), size: 50),
-                    //     ),
-                    //   )
-                    // else
-                    //   SizedBox.shrink(),
-                  ],
+                  ),
                 ),
               ),
             ],

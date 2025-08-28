@@ -38,9 +38,14 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
   TextEditingController bottomSheetSearchController = TextEditingController();
   String bottomSheetSearchQuery = '';
 
+  late TextEditingController _countryCodeController;
+
   @override
   void initState() {
     super.initState();
+
+    _countryCodeController = TextEditingController(
+        text: controller.userRegistrationRequest.countryCode ?? '+91');
 
     controller.fetchCountries();
 
@@ -58,6 +63,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
   void dispose() {
     animationController.dispose();
     debounce?.cancel();
+    _countryCodeController.dispose();
     super.dispose();
   }
 
@@ -199,10 +205,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                                 child: TextFormField(
                                   enabled: false,
                                   readOnly: true,
-                                  initialValue: controller
-                                          .userRegistrationRequest
-                                          .countryCode ??
-                                      '+91',
+                                  controller: _countryCodeController,
                                   style: AppTextStyles.inputFieldText.copyWith(
                                     fontSize: fontSize,
                                     color: AppColors.disabled,
@@ -433,6 +436,10 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                                           updated: '');
                                   controller.userRegistrationRequest.countryId =
                                       value?.id ?? '';
+                                  controller.userRegistrationRequest
+                                      .countryCode = value?.countryCode ?? "";
+                                  _countryCodeController.text =
+                                      value?.countryCode ?? '+91';
                                 });
                               },
                               displayValue: (Country country) => country.name,
@@ -901,9 +908,9 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
               children: [
                 Expanded(
                   child: Text(
-                    selectedValue != null
+                    (selectedValue != null && (displayValue(selectedValue).isNotEmpty))
                         ? displayValue(selectedValue)
-                        : 'Select Relationship Type',
+                        : 'Select $label',
                     style: AppTextStyles.inputFieldText
                         .copyWith(fontSize: fontSize),
                   ),
@@ -1059,11 +1066,6 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                                 onTap: () {
                                   onChanged(item);
                                   Navigator.pop(context);
-                                  // Clear search query and controller when closing
-                                  setState(() {
-                                    bottomSheetSearchQuery = '';
-                                    bottomSheetSearchController.clear();
-                                  });
                                 },
                               );
                             },

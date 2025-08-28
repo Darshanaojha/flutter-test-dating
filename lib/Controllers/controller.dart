@@ -1701,6 +1701,11 @@ class Controller extends GetxController {
               .highlightProfileStatus(highlightProfileStatusRequest);
       if (response != null) {
         success('success', response.payload.message);
+        if (userData.isNotEmpty) {
+          userData.first.accountHighlightStatus =
+              highlightProfileStatusRequest.status;
+          userData.refresh();
+        }
         // Get.close(1);
         return true;
       } else {
@@ -1921,6 +1926,12 @@ class Controller extends GetxController {
           await AppSettingProvider().appsettingprovider(appSettingRequest);
       if (response != null) {
         success('success', response.payload);
+        if (userData.isNotEmpty) {
+          userData.first.rangeKm = appSettingRequest.rangeKm;
+          userData.first.minimumAge = appSettingRequest.minimumAge;
+          userData.first.maximumAge = appSettingRequest.maximumAge;
+          userData.refresh();
+        }
         Get.close(1);
         return true;
       } else {
@@ -2530,6 +2541,10 @@ class Controller extends GetxController {
 
       if (response) {
         success('Success', 'Hookup status updated successfully');
+        if (userData.isNotEmpty) {
+          userData.first.hookupStatus = hookupStatus.toString();
+          userData.refresh();
+        }
         return true;
       } else {
         failure('Error', 'Failed to update hookup status');
@@ -2550,6 +2565,10 @@ class Controller extends GetxController {
 
       if (response) {
         success('Success', 'Incognito mode status updated');
+        if (userData.isNotEmpty) {
+          userData.first.incognativeMode = status.toString();
+          userData.refresh();
+        }
         return true;
       } else {
         failure('Error', 'Failed to update incognito mode status');

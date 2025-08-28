@@ -100,7 +100,6 @@ class SettingsPageState extends State<SettingsPage>
   Future<void> saveSpotlightStatus(bool value) async {
     EncryptedSharedPreferences prefs = EncryptedSharedPreferences.getInstance();
     await prefs.setBoolean('spotlightUser', value);
-    Get.snackbar("save ", value.toString());
   }
 
   _onSwitchChanged(bool value) {
@@ -534,9 +533,8 @@ class SettingsPageState extends State<SettingsPage>
                 ],
               ),
             ),
-            Switch(
+            ThemedSwitch(
               value: value,
-              activeColor: AppColors.navigationColor,
               onChanged: onChanged,
             ),
           ],
@@ -755,6 +753,48 @@ class GradientButton extends StatelessWidget {
           padding: padding,
           alignment: Alignment.center,
           child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class ThemedSwitch extends StatelessWidget {
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const ThemedSwitch({Key? key, required this.value, required this.onChanged})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        onChanged(!value);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 50.0,
+        height: 30.0,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15.0),
+          gradient: value
+              ? LinearGradient(colors: AppColors.gradientBackgroundList)
+              : null,
+          color: value ? null : Colors.grey.shade300,
+        ),
+        child: AnimatedAlign(
+          duration: const Duration(milliseconds: 200),
+          alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            width: 26.0,
+            height: 26.0,
+            margin: const EdgeInsets.all(2.0),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
+            ),
+          ),
         ),
       ),
     );

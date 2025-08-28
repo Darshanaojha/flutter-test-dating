@@ -1,11 +1,12 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'dart:async';
-import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../Controllers/controller.dart';
