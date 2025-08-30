@@ -27,6 +27,29 @@ class AudioCallPage extends StatefulWidget {
 class AudioCallPageState extends State<AudioCallPage> {
   Controller controller = Get.put(Controller());
 
+  Timer? _callTimer;
+  Duration _callDuration = Duration.zero;
+
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    if (duration.inHours > 0) {
+      return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+    }
+    return "$twoDigitMinutes:$twoDigitSeconds";
+  }
+
+  void _startCallTimer() {
+    _callTimer?.cancel();
+    _callTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return;
+      setState(() {
+        _callDuration = Duration(seconds: _callDuration.inSeconds + 1);
+      });
+    });
+  }
+
   String channelName = "";
   late DateTime callStartTime;
   late DateTime callEndTime;
@@ -251,14 +274,12 @@ class AudioCallPageState extends State<AudioCallPage> {
             setState(() {
               this.remoteUid = remoteUid;
             });
+            _startCallTimer();
           },
           onUserOffline: (RtcConnection connection, int remoteUid,
               UserOfflineReasonType reason) {
             debugPrint("Remote user $remoteUid left the channel");
-            callEndTime = DateTime.now();
-            setState(() {
-              remoteUid = 0;
-            });
+            _endCall();
           },
         ),
       );
@@ -299,6 +320,7 @@ class AudioCallPageState extends State<AudioCallPage> {
 
   @override
   void dispose() {
+    _callTimer?.cancel();
     super.dispose();
     _disposeAgora();
   }
@@ -345,9 +367,9 @@ class AudioCallPageState extends State<AudioCallPage> {
   }
 
   void _endCall() async {
+    _callTimer?.cancel();
     await _disposeAgora();
-
-    Get.close(2);
+    Get.back();
   }
 
   Future<bool> _onWillPop() async {
@@ -410,25 +432,38 @@ class AudioCallPageState extends State<AudioCallPage> {
               // Remote user status
               Center(
                 child: remoteUid != null
-                    ? Container(
-                        padding: EdgeInsets.all(32),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            colors: AppColors.gradientBackgroundList,
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.deepPurple.withOpacity(0.18),
-                              blurRadius: 24,
-                              offset: Offset(0, 8),
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(32),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: LinearGradient(
+                                colors: AppColors.gradientBackgroundList,
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.deepPurple.withOpacity(0.18),
+                                  blurRadius: 24,
+                                  offset: Offset(0, 8),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: Icon(Icons.volume_up,
-                            size: 70, color: Colors.white),
+                            child: Icon(Icons.volume_up,
+                                size: 70, color: Colors.white),
+                          ),
+                          SizedBox(height: 20),
+                          Text(
+                            _formatDuration(_callDuration),
+                            style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
                       )
                     : Column(
                         mainAxisAlignment: MainAxisAlignment.center,

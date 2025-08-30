@@ -15,11 +15,103 @@ class AllOrdersPage extends StatefulWidget {
 class _OrdersViewState extends State<AllOrdersPage> {
   final Controller controller = Get.put(Controller());
   late Future<bool> _fetchAllOrders;
+  bool _isPlanExpired = false;
 
   @override
   void initState() {
     super.initState();
     _fetchAllOrders = controller.allOrders();
+  }
+
+  void _checkPlanExpiry() {
+    final activeOrders =
+        controller.orders.where((o) => o.status == '1').toList();
+    if (activeOrders.isEmpty) {
+      return;
+    }
+
+    activeOrders.sort((a, b) =>
+        DateTime.parse(b.created).compareTo(DateTime.parse(a.created)));
+    final latestActiveOrder = activeOrders.first;
+
+    final createdDate = DateTime.parse(latestActiveOrder.created);
+    final duration = int.tryParse(latestActiveOrder.days) ?? 0;
+    Duration planDuration;
+    switch (latestActiveOrder.unit.toLowerCase()) {
+      case 'days':
+        planDuration = Duration(days: duration);
+        break;
+      case 'months':
+        planDuration = Duration(days: duration * 30);
+        break;
+      case 'years':
+        planDuration = Duration(days: duration * 365);
+        break;
+      default:
+        planDuration = Duration(days: duration);
+    }
+    final expiryDate = createdDate.add(planDuration);
+
+    if (DateTime.now().isAfter(expiryDate)) {
+      if (mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            builder: (context) => Dialog(
+              backgroundColor: Colors.transparent,
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  gradient: LinearGradient(
+                    colors: AppColors.gradientBackgroundList,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      "Plan Expired",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "Your plan has expired. Please renew your plan to continue.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white70, fontSize: 16),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 30, vertical: 15),
+                      ),
+                      child: const Text("OK"),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+        setState(() {
+          _isPlanExpired = true;
+        });
+      }
+    }
   }
 
   @override
@@ -38,6 +130,12 @@ class _OrdersViewState extends State<AllOrdersPage> {
           if (!snapshot.hasData || !snapshot.data!) {
             return const Center(child: Text('No Orders Found.'));
           }
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!_isPlanExpired) {
+              _checkPlanExpiry();
+            }
+          });
 
           return Obx(() {
             if (controller.orders.isEmpty) {

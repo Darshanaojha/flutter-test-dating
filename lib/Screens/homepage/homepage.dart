@@ -664,8 +664,8 @@ class HomePageState extends State<HomePage>
                                     rebuildSwipeItemsForFilter(2);
                                   }
                                 });
-                                Get.snackbar('User Favourite',
-                                    controller.favourite.length.toString());
+                                debugPrint(
+                                    'Favourites : ${controller.favourite.length}');
                               },
                             ),
                             buildFilterButton(context, 0, 'NearBy',
@@ -674,8 +674,8 @@ class HomePageState extends State<HomePage>
                                 selectedFilter.value = 0;
                                 rebuildSwipeItemsForFilter(0);
                               });
-                              Get.snackbar('NearBy',
-                                  controller.userNearByList.length.toString());
+                              debugPrint(
+                                  'NearBy : ${controller.userNearByList.length}');
                             }),
                             buildFilterButton(
                                 context, 1, 'Highlighted', FontAwesome.star,
@@ -684,10 +684,8 @@ class HomePageState extends State<HomePage>
                                 selectedFilter.value = 1;
                                 rebuildSwipeItemsForFilter(1);
                               });
-                              Get.snackbar(
-                                  'Highlighted',
-                                  controller.userHighlightedList.length
-                                      .toString());
+                              debugPrint(
+                                  'Highlighted : ${controller.userHighlightedList.length}');
                             }),
                             buildFilterButton(context, 3, 'HookUp',
                                 FontAwesome.heart_pulse_solid, (value) {
@@ -695,8 +693,8 @@ class HomePageState extends State<HomePage>
                                 selectedFilter.value = 3;
                                 rebuildSwipeItemsForFilter(3);
                               });
-                              Get.snackbar('HookUp',
-                                  controller.hookUpList.length.toString());
+                              debugPrint(
+                                  'HookUp : ${controller.hookUpList.length}');
                             }),
                           ],
                         ),
@@ -705,88 +703,96 @@ class HomePageState extends State<HomePage>
 
                     //  Cards Area - Takes 80% of screen height responsively
                     Expanded(
-                      child: Obx(() {
-                        final currentList =
-                            controller.getCurrentList(selectedFilter.value);
+                      child: Opacity(
+                        opacity: _showLikeAnimation ||
+                                _showDislikeAnimation ||
+                                _showFavouriteAnimation
+                            ? 0.0
+                            : 1.0,
+                        child: Obx(() {
+                          final currentList =
+                              controller.getCurrentList(selectedFilter.value);
 
-                        return Center(
-                          child: FractionallySizedBox(
-                            widthFactor: 0.95,
-                            heightFactor: 0.98,
-                            child: currentList.isEmpty && lastUser != null
-                                ? buildCardLayoutAll(
-                                    context, lastUser!, size, isLastCard)
-                                : SwipeCards(
-                                    matchEngine: matchEngine,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      if (index >= currentList.length) {
-                                        return Center(
-                                            child: Text("No users available"));
-                                      }
+                          return Center(
+                            child: FractionallySizedBox(
+                              widthFactor: 0.95,
+                              heightFactor: 0.98,
+                              child: currentList.isEmpty
+                                  ? Center(
+                                      child: Text(
+                                          'No users available in this section.'))
+                                  : SwipeCards(
+                                      matchEngine: matchEngine,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        if (index >= currentList.length) {
+                                          return Center(
+                                              child: Text("No users available"));
+                                        }
 
-                                      final SuggestedUser user =
-                                          currentList[index];
-                                      isLastCard =
-                                          index == currentList.length - 1;
+                                        final SuggestedUser user =
+                                            currentList[index];
+                                        isLastCard =
+                                            index == currentList.length - 1;
 
-                                      return Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 8.0),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: AppColors
-                                                    .gradientBackgroundList,
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(32),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.white
-                                                      .withOpacity(0.2),
-                                                  spreadRadius: 2,
-                                                  blurRadius: 5,
-                                                  offset: Offset(0, 3),
-                                                ),
-                                              ],
-                                            ),
-                                            padding: const EdgeInsets.all(2),
+                                        return Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 8.0),
                                             child: Container(
                                               decoration: BoxDecoration(
-                                                gradient: AppColors
-                                                    .reversedGradientBackground,
+                                                gradient: LinearGradient(
+                                                  colors: AppColors
+                                                      .gradientBackgroundList,
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
                                                 borderRadius:
-                                                    BorderRadius.circular(30),
+                                                    BorderRadius.circular(32),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.white
+                                                        .withOpacity(0.2),
+                                                    spreadRadius: 2,
+                                                    blurRadius: 5,
+                                                    offset: Offset(0, 3),
+                                                  ),
+                                                ],
                                               ),
-                                              child: buildCardLayoutAll(context,
-                                                  user, size, isLastCard),
-                                            ),
-                                          ));
-                                    },
-                                    upSwipeAllowed: true,
-                                    leftSwipeAllowed: true,
-                                    rightSwipeAllowed: true,
-                                    fillSpace: true,
-                                    onStackFinished: () async {
-                                      isSwipeFinished = true;
-                                      if (currentList.isNotEmpty) {
-                                        lastUser = currentList.last;
-                                        await _storeLastUserForAllLists(
-                                            lastUser!);
-                                      }
-                                      failure('Finished', "Stack Finished");
-                                    },
-                                    itemChanged: (SwipeItem item, int index) {
-                                      print(
-                                          "Item: ${item.content}, Index: $index");
-                                    },
-                                  ),
-                          ),
-                        );
-                      }),
+                                              padding: const EdgeInsets.all(2),
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  gradient: AppColors
+                                                      .reversedGradientBackground,
+                                                  borderRadius:
+                                                      BorderRadius.circular(30),
+                                                ),
+                                                child: buildCardLayoutAll(context,
+                                                    user, size, isLastCard),
+                                              ),
+                                            ));
+                                      },
+                                      upSwipeAllowed: true,
+                                      leftSwipeAllowed: true,
+                                      rightSwipeAllowed: true,
+                                      fillSpace: true,
+                                      onStackFinished: () async {
+                                        isSwipeFinished = true;
+                                        if (currentList.isNotEmpty) {
+                                          lastUser = currentList.last;
+                                          await _storeLastUserForAllLists(
+                                              lastUser!);
+                                        }
+                                        failure('Finished', "Stack Finished");
+                                      },
+                                      itemChanged: (SwipeItem item, int index) {
+                                        print(
+                                            "Item: ${item.content}, Index: $index");
+                                      },
+                                    ),
+                            ),
+                          );
+                        }),
+                      ),
                     )
                   ],
                 );
@@ -831,7 +837,7 @@ class HomePageState extends State<HomePage>
             if (_showFavouriteAnimation)
               Center(
                 child: Lottie.asset(
-                  'assets/animations/superlikeswipeanimation.json',
+                  'assets/animations/Favourite.json',
                   width: 200,
                   height: 200,
                   repeat: false,
@@ -898,7 +904,16 @@ class HomePageState extends State<HomePage>
                           },
                           itemBuilder: (BuildContext context, int index) {
                             if (images.isEmpty) {
-                              return Center(child: Text('No Images Available'));
+                              return SizedBox(
+                                width: size.width * 0.5,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Image.asset(
+                                    'assets/images/logo_redefined.png',
+                                    fit: BoxFit.none,
+                                  ),
+                                ),
+                              );
                             }
                             return GestureDetector(
                               onTap: () =>
@@ -910,9 +925,7 @@ class HomePageState extends State<HomePage>
                                   placeholder: (context, url) => Center(
                                       child: CircularProgressIndicator()),
                                   errorWidget: (context, url, error) {
-                                    return Icon(Icons.person_pin_outlined,
-                                        color: const Color.fromARGB(
-                                            255, 150, 148, 148));
+                                    return Image.asset('assets/images/logo_redefined.png', fit: BoxFit.contain);
                                   },
                                   fit: BoxFit.cover,
                                   width: double.infinity,
@@ -1038,7 +1051,8 @@ class HomePageState extends State<HomePage>
                             ),
                             SizedBox(height: 4),
                             Text(
-                                (user.interest != null && user.interest!.isNotEmpty)
+                              (user.interest != null &&
+                                      user.interest!.isNotEmpty)
                                   ? user.interest!.split(',').first.trim()
                                   : '',
                               style: AppTextStyles.bodyText.copyWith(
@@ -1273,10 +1287,13 @@ class MatchDialog extends StatelessWidget {
       backgroundImage:
           imageUrl != null ? CachedNetworkImageProvider(imageUrl) : null,
       child: imageUrl == null
-          ? const Icon(
-              Icons.person,
-              size: 50,
-              color: Colors.white,
+          ? ClipOval(
+              child: Image.asset(
+                'assets/images/logo_redefined.png',
+                fit: BoxFit.contain,
+                width: 100,
+                height: 100,
+              ),
             )
           : null,
     );

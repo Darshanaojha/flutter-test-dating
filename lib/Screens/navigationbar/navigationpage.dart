@@ -323,175 +323,270 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(size.height * 0.05),
+  Future<bool> _onWillPop() async {
+    if (navigationcontroller.selectedIndex.value != 0) {
+      navigationcontroller.navigateTo(0);
+      return false;
+    } else {
+      final shouldPop = await showExitDialog();
+      return shouldPop ?? false;
+    }
+  }
+
+  Future<bool?> showExitDialog() {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment(0.8, 1),
               colors: AppColors.gradientBackgroundList,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(28),
           ),
-          child: AppBar(
-            elevation: 5,
-            title: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'FlamR',
-                  style: AppTextStyles.headingText.copyWith(
-                    fontSize: getResponsiveFontSize(context, 0.07),
-                  ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Exit App?',
+                style: AppTextStyles.headingText.copyWith(
+                  fontSize: getResponsiveFontSize(context, 0.055),
+                  color: Colors.white,
                 ),
               ),
-            ),
-            backgroundColor: Colors.transparent,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(30),
-                bottomRight: Radius.circular(30),
+              const SizedBox(height: 12),
+              Text(
+                'Are you sure you want to exit?',
+                textAlign: TextAlign.center,
+                style: AppTextStyles.headingText.copyWith(
+                  fontSize: getResponsiveFontSize(context, 0.04),
+                  color: Colors.white70,
+                ),
               ),
-            ),
-            leading: IconButton(
-              icon: Icon(Icons.settings),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SettingsPage()),
-                );
-              },
-            ),
-            actions: [
-              IconButton(
-                icon: Icon(Icons.exit_to_app),
-                onPressed: () {
-                  showLogoutDialog(context);
-                },
+              const SizedBox(height: 28),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: Text(
+                        'No',
+                        style: AppTextStyles.buttonText.copyWith(color: Colors.black, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.white),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: Text(
+                        "Yes",
+                        style: AppTextStyles.buttonText.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
         ),
       ),
-      body: Obx(() {
-        return navigationcontroller
-            .screens[navigationcontroller.selectedIndex.value];
-      }),
-      bottomNavigationBar: Obx(() {
-        return Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment(0.8, 1),
-              colors: AppColors.gradientBackgroundList,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(size.height * 0.05),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment(0.8, 1),
+                colors: AppColors.gradientBackgroundList,
+              ),
+              borderRadius: BorderRadius.circular(20),
             ),
-            borderRadius: BorderRadius.circular(
-                30), // You can adjust the border radius here
+            child: AppBar(
+              elevation: 5,
+              title: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'FlamR',
+                    style: AppTextStyles.headingText.copyWith(
+                      fontSize: getResponsiveFontSize(context, 0.07),
+                    ),
+                  ),
+                ),
+              ),
+              backgroundColor: Colors.transparent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
+                ),
+              ),
+              leading: IconButton(
+                icon: Icon(Icons.settings),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SettingsPage()),
+                  );
+                },
+              ),
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.exit_to_app),
+                  onPressed: () {
+                    showLogoutDialog(context);
+                  },
+                ),
+              ],
+            ),
           ),
-          child: CurvedNavigationBar(
-            index: navigationcontroller.selectedIndex.value,
-            onTap: (index) {
-              navigationcontroller.navigateTo(index);
-
-              controller.userPackage().then((status) {
-
-                if (!controller.isuserPackage.value) {
-                  failure('Subscription',
-                      'Please subscribe to use all this feature');
-
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    Get.offAll(Unsubscribenavigation());
-                  });
-                }
-              }).catchError((error) {
-                failure('Error',
-                    'Something went wrong while checking subscription.');
-              });
-
-              _animationController.forward(from: 0);
-            },
-            backgroundColor: Colors.transparent,
-            color: Colors.black,
-            height: size.height * 0.05,
-            animationDuration: Duration(milliseconds: 300),
-            items: <Widget>[
-              AnimatedBuilder(
-                animation: _animationController,
-                builder: (context, child) {
-                  return Transform.rotate(
-                    angle: navigationcontroller.selectedIndex.value == 0
-                        ? _rotationAnimation.value
-                        : 0.0,
-                    child: Icon(
-                      FontAwesome.house_chimney_solid,
-                      size: 30,
-                      color: navigationcontroller.selectedIndex.value == 0
-                          ? AppColors.textColor
-                          : AppColors.textColor,
-                    ),
-                  );
-                },
+        ),
+        body: Obx(() {
+          return navigationcontroller
+              .screens[navigationcontroller.selectedIndex.value];
+        }),
+        bottomNavigationBar: Obx(() {
+          return Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment(0.8, 1),
+                colors: AppColors.gradientBackgroundList,
               ),
-              AnimatedBuilder(
-                animation: _animationController,
-                builder: (context, child) {
-                  return Transform.rotate(
-                    angle: navigationcontroller.selectedIndex.value == 1
-                        ? _rotationAnimation.value
-                        : 0.0,
-                    child: Icon(
-                      FontAwesome.heart_solid,
-                      size: 30,
-                      color: navigationcontroller.selectedIndex.value == 1
-                          ? AppColors.textColor
-                          : AppColors.textColor,
-                    ),
-                  );
-                },
-              ),
-              AnimatedBuilder(
-                animation: _animationController,
-                builder: (context, child) {
-                  return Transform.rotate(
-                    angle: navigationcontroller.selectedIndex.value == 2
-                        ? _rotationAnimation.value
-                        : 0.0,
-                    child: Icon(
-                      FontAwesome.message_solid,
-                      size: 30,
-                      color: navigationcontroller.selectedIndex.value == 2
-                          ? AppColors.textColor
-                          : AppColors.textColor,
-                    ),
-                  );
-                },
-              ),
-              AnimatedBuilder(
-                animation: _animationController,
-                builder: (context, child) {
-                  return Transform.rotate(
-                    angle: navigationcontroller.selectedIndex.value == 3
-                        ? _rotationAnimation.value
-                        : 0.0,
-                    child: Icon(
-                      FontAwesome.person_chalkboard_solid,
-                      size: 30,
-                      color: navigationcontroller.selectedIndex.value == 3
-                          ? AppColors.textColor
-                          : AppColors.textColor,
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-        );
-      }),
+              borderRadius: BorderRadius.circular(
+                  30), // You can adjust the border radius here
+            ),
+            child: CurvedNavigationBar(
+              index: navigationcontroller.selectedIndex.value,
+              onTap: (index) {
+                navigationcontroller.navigateTo(index);
+
+                controller.userPackage().then((status) {
+
+                  if (!controller.isuserPackage.value) {
+                    failure('Subscription',
+                        'Please subscribe to use all this feature');
+
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      Get.offAll(Unsubscribenavigation());
+                    });
+                  }
+                }).catchError((error) {
+                  failure('Error',
+                      'Something went wrong while checking subscription.');
+                });
+
+                _animationController.forward(from: 0);
+              },
+              backgroundColor: Colors.transparent,
+              color: Colors.black,
+              height: size.height * 0.05,
+              animationDuration: Duration(milliseconds: 300),
+              items: <Widget>[
+                AnimatedBuilder(
+                  animation: _animationController,
+                  builder: (context, child) {
+                    return Transform.rotate(
+                      angle: navigationcontroller.selectedIndex.value == 0
+                          ? _rotationAnimation.value
+                          : 0.0,
+                      child: Icon(
+                        FontAwesome.house_chimney_solid,
+                        size: 30,
+                        color: navigationcontroller.selectedIndex.value == 0
+                            ? AppColors.textColor
+                            : AppColors.textColor,
+                      ),
+                    );
+                  },
+                ),
+                AnimatedBuilder(
+                  animation: _animationController,
+                  builder: (context, child) {
+                    return Transform.rotate(
+                      angle: navigationcontroller.selectedIndex.value == 1
+                          ? _rotationAnimation.value
+                          : 0.0,
+                      child: Icon(
+                        FontAwesome.heart_solid,
+                        size: 30,
+                        color: navigationcontroller.selectedIndex.value == 1
+                            ? AppColors.textColor
+                            : AppColors.textColor,
+                      ),
+                    );
+                  },
+                ),
+                AnimatedBuilder(
+                  animation: _animationController,
+                  builder: (context, child) {
+                    return Transform.rotate(
+                      angle: navigationcontroller.selectedIndex.value == 2
+                          ? _rotationAnimation.value
+                          : 0.0,
+                      child: Icon(
+                        FontAwesome.message_solid,
+                        size: 30,
+                        color: navigationcontroller.selectedIndex.value == 2
+                            ? AppColors.textColor
+                            : AppColors.textColor,
+                      ),
+                    );
+                  },
+                ),
+                AnimatedBuilder(
+                  animation: _animationController,
+                  builder: (context, child) {
+                    return Transform.rotate(
+                      angle: navigationcontroller.selectedIndex.value == 3
+                          ? _rotationAnimation.value
+                          : 0.0,
+                      child: Icon(
+                        FontAwesome.person_chalkboard_solid,
+                        size: 30,
+                        color: navigationcontroller.selectedIndex.value == 3
+                            ? AppColors.textColor
+                            : AppColors.textColor,
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          );
+        }),
+      ),
     );
   }
 }

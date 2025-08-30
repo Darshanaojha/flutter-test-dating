@@ -45,7 +45,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
     super.initState();
 
     _countryCodeController = TextEditingController(
-        text: controller.userRegistrationRequest.countryCode ?? '+91');
+        text: controller.userRegistrationRequest.countryCode);
 
     controller.fetchCountries();
 
@@ -201,7 +201,7 @@ class RegisterProfilePageState extends State<RegisterProfilePage>
                             children: [
                               // Country code (read-only)
                               SizedBox(
-                                width: 60,
+                                width: screenSize.width * 0.15,
                                 child: TextFormField(
                                   enabled: false,
                                   readOnly: true,

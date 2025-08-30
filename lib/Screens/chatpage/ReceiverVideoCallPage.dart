@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -26,6 +27,29 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
   bool isVideoMuted = false;
   bool isSpeakerOn = false;
   Controller controller = Controller();
+
+  Timer? _callTimer;
+  Duration _callDuration = Duration.zero;
+
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    if (duration.inHours > 0) {
+      return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+    }
+    return "$twoDigitMinutes:$twoDigitSeconds";
+  }
+
+  void _startCallTimer() {
+    _callTimer?.cancel();
+    _callTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return;
+      setState(() {
+        _callDuration = Duration(seconds: _callDuration.inSeconds + 1);
+      });
+    });
+  }
 
   @override
   void initState() {
@@ -127,13 +151,12 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
             setState(() {
               this.remoteUid = remoteUid;
             });
+            _startCallTimer();
           },
           onUserOffline: (RtcConnection connection, int remoteUid,
               UserOfflineReasonType reason) {
             print("Remote user offline: $remoteUid");
-            setState(() {
-              this.remoteUid = null;
-            });
+            endCall();
           },
         ),
       );
@@ -174,6 +197,7 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
 
   @override
   void dispose() {
+    _callTimer?.cancel();
     super.dispose();
     _disposeAgora();
   }
@@ -205,9 +229,9 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
   }
 
   void endCall() async {
-    dispose();
-    await engine.leaveChannel();
-    Navigator.of(context).pop(true);
+    _callTimer?.cancel();
+    await _disposeAgora();
+    Get.back();
   }
 
   Future<bool> _onWillPop() async {
@@ -256,13 +280,22 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
                 ),
               ),
             ),
-            title: Text(
-              'Video Call',
-              style: AppTextStyles.headingText.copyWith(
-                fontSize: fontSize * 1.1,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
+            title: Column(
+              children: [
+                Text(
+                  'Video Call',
+                  style: AppTextStyles.headingText.copyWith(
+                    fontSize: fontSize * 1.1,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (remoteUid != null)
+                  Text(
+                    _formatDuration(_callDuration),
+                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
+              ],
             ),
           ),
           body: Stack(

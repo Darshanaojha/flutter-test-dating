@@ -28,6 +28,29 @@ class VideoCallPage extends StatefulWidget {
 class VideoCallPageState extends State<VideoCallPage> {
   Controller controller = Get.put(Controller());
 
+  Timer? _callTimer;
+  Duration _callDuration = Duration.zero;
+
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    if (duration.inHours > 0) {
+      return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+    }
+    return "$twoDigitMinutes:$twoDigitSeconds";
+  }
+
+  void _startCallTimer() {
+    _callTimer?.cancel();
+    _callTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return;
+      setState(() {
+        _callDuration = Duration(seconds: _callDuration.inSeconds + 1);
+      });
+    });
+  }
+
   late RtcEngine engine;
   String channelName = "";
   late DateTime callStartTime;
@@ -241,15 +264,12 @@ class VideoCallPageState extends State<VideoCallPage> {
             setState(() {
               this.remoteUid = remoteUid;
             });
+            _startCallTimer();
           },
           onUserOffline: (RtcConnection connection, int remoteUid,
               UserOfflineReasonType reason) {
             debugPrint("⚠️ Remote user $remoteUid left");
-            setState(() {
-              this.remoteUid = null;
-            });
-            debugPrint("Remote user $remoteUid left the channel");
-            callEndTime = DateTime.now();
+            endCall();
           },
           onTokenPrivilegeWillExpire: (RtcConnection connection, String token) {
             debugPrint(
@@ -328,6 +348,7 @@ class VideoCallPageState extends State<VideoCallPage> {
 
   @override
   void dispose() {
+    _callTimer?.cancel();
     super.dispose();
     _disposeAgora();
   }
@@ -357,13 +378,22 @@ class VideoCallPageState extends State<VideoCallPage> {
                 ),
               ),
             ),
-            title: Text(
-              'Video Call',
-              style: AppTextStyles.headingText.copyWith(
-                fontSize: size.width * 0.045 * 1.1,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
+            title: Column(
+              children: [
+                Text(
+                  'Video Call',
+                  style: AppTextStyles.headingText.copyWith(
+                    fontSize: size.width * 0.045 * 1.1,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (remoteUid != null)
+                  Text(
+                    _formatDuration(_callDuration),
+                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
+              ],
             ),
           ),
           body: Stack(
@@ -566,9 +596,9 @@ class VideoCallPageState extends State<VideoCallPage> {
   }
 
   void endCall() async {
-    dispose();
-    await engine.leaveChannel();
-    Navigator.of(context).pop(true);
+    _callTimer?.cancel();
+    await _disposeAgora();
+    Get.back();
   }
 
   // String generateChannelName(String caller, String receiver) {

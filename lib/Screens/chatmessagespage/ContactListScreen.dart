@@ -258,42 +258,56 @@ class ContactListScreenState extends State<ContactListScreen> {
                                                     ),
                                                   );
                                                 },
-                                                child: Hero(
-                                                  tag: connection.profileImage,
-                                                  child: Stack(
-                                                    children: [
-                                                      CircleAvatar(
-                                                        radius: 18.0,
-                                                        backgroundImage:
-                                                            NetworkImage(connection
-                                                                .profileImage),
-                                                      ),
-                                                      if (connection
-                                                              .isOnline ==
-                                                          "online")
-                                                        Positioned(
-                                                          top: 0,
-                                                          right: 2,
-                                                          child: Container(
-                                                            width: 12,
-                                                            height: 12,
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color:
-                                                                  Colors.green,
-                                                              shape: BoxShape
-                                                                  .circle,
-                                                              border:
-                                                                  Border.all(
-                                                                color: Colors
-                                                                    .white,
-                                                                width: 1,
+                                                child: Builder(
+                                                  builder: (context) {
+                                                    Widget avatar = Stack(
+                                                      children: [
+                                                        CircleAvatar(
+                                                          radius: size.width * 0.045,
+                                                          backgroundColor: Colors.grey.shade800,
+                                                          child: ClipOval(
+                                                            child: (connection.profileImage.isNotEmpty)
+                                                                ? Image.network(
+                                                                    connection.profileImage,
+                                                                    fit: BoxFit.cover,
+                                                                    width: size.width * 0.09,
+                                                                    height: size.width * 0.09,
+                                                                    errorBuilder: (context, error, stackTrace) {
+                                                                      return Icon(Icons.person, size: 18.0, color: Colors.white);
+                                                                    },
+                                                                  )
+                                                                : Icon(Icons.person, size: 18.0, color: Colors.white),
+                                                          ),
+                                                        ),
+                                                        if (connection.isOnline == "online")
+                                                          Positioned(
+                                                            top: 0,
+                                                            right: 2,
+                                                            child: Container(
+                                                              width: 12,
+                                                              height: 12,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Colors.green,
+                                                                shape: BoxShape.circle,
+                                                                border: Border.all(
+                                                                  color: Colors.white,
+                                                                  width: 1,
+                                                                ),
                                                               ),
                                                             ),
                                                           ),
-                                                        ),
-                                                    ],
-                                                  ),
+                                                      ],
+                                                    );
+
+                                                    if (connection.profileImage.isNotEmpty) {
+                                                      return Hero(
+                                                        tag: connection.profileImage,
+                                                        child: avatar,
+                                                      );
+                                                    }
+                                                    return avatar;
+                                                  },
                                                 ),
                                               ),
                                               title: Text(
@@ -301,7 +315,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                                 style: AppTextStyles.labelText
                                                     .copyWith(
                                                   color: Colors.white,
-                                                  fontSize: fontSize * 1.1,
+                                                  fontSize: fontSize * 1,
                                                 ),
                                               ),
                                               subtitle: Row(
@@ -492,84 +506,86 @@ class ContactListScreenState extends State<ContactListScreen> {
 
           return AlertDialog(
             title: Text('Report User'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.black,
-                    backgroundColor: Colors.transparent,
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      side: BorderSide(color: AppColors.activeColor, width: 2),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.black,
+                      backgroundColor: Colors.transparent,
+                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: BorderSide(color: AppColors.activeColor, width: 2),
+                      ),
+                    ),
+                    onPressed: () {
+                      showBottomSheet(
+                        context: context,
+                        label: "Select Reason",
+                        options: controller.reportReasons
+                            .map((reason) => reason.title)
+                            .toList(),
+                        onSelected: (String? value) {
+                          Get.snackbar(
+                              "selected reasonId",
+                              controller
+                                  .reportUserReasonFeedbackRequestModel.reasonId
+                                  .toString());
+                          if (value != null && value.isNotEmpty) {
+                            selectedReason.value = value;
+                            isselected.value = true;
+                          } else {
+                            isselected.value = false;
+                          }
+                        },
+                      );
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            truncatedText,
+                            style: AppTextStyles.bodyText,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Icon(
+                          Icons.arrow_drop_down,
+                          color: AppColors.activeColor,
+                        ),
+                      ],
                     ),
                   ),
-                  onPressed: () {
-                    showBottomSheet(
-                      context: context,
-                      label: "Select Reason",
-                      options: controller.reportReasons
-                          .map((reason) => reason.title)
-                          .toList(),
-                      onSelected: (String? value) {
-                        Get.snackbar(
-                            "selected reasonId",
-                            controller
-                                .reportUserReasonFeedbackRequestModel.reasonId
-                                .toString());
-                        if (value != null && value.isNotEmpty) {
-                          selectedReason.value = value;
-                          isselected.value = true;
-                        } else {
-                          isselected.value = false;
-                        }
-                      },
-                    );
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          truncatedText,
-                          style: AppTextStyles.bodyText,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
+                  SizedBox(height: 10),
+                  if (isselected.value)
+                    TextField(
+                      cursorColor: AppColors.cursorColor,
+                      maxLength: 60,
+                      decoration: InputDecoration(
+                        hintText: 'Describe the issue...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: AppColors.textColor),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
                         ),
                       ),
-                      SizedBox(width: 8),
-                      Icon(
-                        Icons.arrow_drop_down,
-                        color: AppColors.activeColor,
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 10),
-                if (isselected.value)
-                  TextField(
-                    cursorColor: AppColors.cursorColor,
-                    maxLength: 60,
-                    decoration: InputDecoration(
-                      hintText: 'Describe the issue...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: AppColors.textColor),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
+                      onChanged: (value) {
+                        reportDescription.value = value;
+                        iswriting.value = value.isNotEmpty;
+                      },
                     ),
-                    onChanged: (value) {
-                      reportDescription.value = value;
-                      iswriting.value = value.isNotEmpty;
-                    },
-                  ),
-              ],
+                ],
+              ),
             ),
             actions: [
               ElevatedButton(
@@ -713,15 +729,47 @@ class FullScreenImagePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       body: Center(
-        child: Hero(
-          tag: imageUrl,
-          child: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
+        child: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Builder(
+            builder: (context) {
+              Widget imageWidget = Image.network(
+                imageUrl,
+                fit: BoxFit.contain,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) {
+                    return InteractiveViewer(child: child);
+                  }
+                  return Center(child: CircularProgressIndicator());
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return FittedBox(
+                    fit: BoxFit.contain,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error, color: Colors.red, size: 50),
+                        SizedBox(height: 10),
+                        Text(
+                          'Image not available',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+
+              if (imageUrl.isNotEmpty) {
+                return Hero(
+                  tag: imageUrl,
+                  child: imageWidget,
+                );
+              }
+              return imageWidget;
             },
-            child: InteractiveViewer(
-              child: Image.network(imageUrl),
-            ),
           ),
         ),
       ),

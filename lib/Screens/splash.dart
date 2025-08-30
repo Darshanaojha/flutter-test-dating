@@ -82,7 +82,6 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
       }
       // await controller.fetchAllHeadlines();
       await controller.fetchSafetyGuidelines();
-      await controller.fetchAllPackages();
       await controller.fetchlang();
       await controller.fetchDesires();
       await controller.fetchGenders();
@@ -92,6 +91,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
         Get.offAll(() => CombinedAuthScreen());
         return;
       } else {
+        await controller.fetchAllPackages();
         await controller.fetchSafetyGuidelines();
         await controller.fetchallfavourites();
         await controller.fetchalluserconnections();

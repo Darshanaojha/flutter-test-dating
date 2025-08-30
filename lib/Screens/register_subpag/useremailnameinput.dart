@@ -26,6 +26,7 @@ class UserInputPageState extends State<UserInputPage>
   void initState() {
     super.initState();
     controller.userRegistrationRequest.reset();
+    controller.userRegistrationRequest.countryCode = selectedCountryCode;
 
     animationController = AnimationController(
       duration: Duration(milliseconds: 360),
