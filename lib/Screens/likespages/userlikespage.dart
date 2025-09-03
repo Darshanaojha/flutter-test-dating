@@ -798,7 +798,8 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.all(12.0),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 12.0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -813,14 +814,17 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                         Icon(
                                           Icons.favorite,
                                           color: AppColors.mediumGradientColor,
-                                          size: size.width * 0.085,
+                                          size: size.width * 0.09,
                                         ),
                                         Text(
-                                          '${likeCount.value}',
+                                          (likeCount.value > 9)
+                                              ? "9+"
+                                              : '${likeCount.value}',
                                           style:
                                               AppTextStyles.textStyle.copyWith(
                                             color: Colors.white,
-                                            fontWeight: FontWeight.bold,
+                                            // fontWeight: FontWeight.bold,
+                                            fontSize: size.width * 0.03,
                                           ),
                                         ),
                                       ],
@@ -1007,43 +1011,73 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
     List<String> initialSelection,
     Function(List<String>) onSelected,
   ) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    double fontSize = screenWidth * 0.025;
+    double iconSize = screenWidth * 0.04;
+    double buttonHeight = screenHeight * 0.05;
+
+    bool isSelected = initialSelection.isNotEmpty;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 0.5),
+      child: AnimatedScale(
+        scale: isSelected ? 1.08 : 1.0,
+        duration: const Duration(milliseconds: 200),
         child: Container(
+          height: buttonHeight,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
-              end: Alignment(0.8, 1),
+              end: const Alignment(0.8, 1),
               colors: AppColors.gradientColor,
             ),
-            borderRadius: BorderRadius.circular(38),
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: Colors.white.withOpacity(0.4),
+                      blurRadius: 8,
+                      spreadRadius: 1,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : [],
+            border: isSelected
+                ? Border.all(color: Colors.white, width: 2)
+                : Border.all(color: Colors.transparent),
           ),
           child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              foregroundColor: AppColors.primaryColor,
-              backgroundColor: Colors.transparent,
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
-                side: BorderSide(color: AppColors.activeColor, width: 2),
-              ),
-            ),
             onPressed: () {
               if (options.isEmpty) return;
               showBottomSheet(label, options, initialSelection, onSelected);
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              foregroundColor: Colors.white,
+              shape: const StadiumBorder(),
+              elevation: 0,
+              padding: EdgeInsets.symmetric(
+                vertical: 0,
+                horizontal: screenWidth * 0.02,
+              ),
+            ),
             child: FittedBox(
               fit: BoxFit.scaleDown,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(icon, color: Colors.white, size: 16),
+                  Icon(icon, color: Colors.white, size: iconSize),
                   const SizedBox(width: 8),
                   Text(
                     label,
-                    style: AppTextStyles.textStyle,
+                    style: TextStyle(
+                      fontSize: fontSize,
+                      color: AppColors.textColor,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
                   ),
                   const SizedBox(width: 4),
                   const Icon(
@@ -1185,7 +1219,8 @@ class UserCard extends StatefulWidget {
   UserCardState createState() => UserCardState();
 }
 
-class UserCardState extends State<UserCard> with SingleTickerProviderStateMixin {
+class UserCardState extends State<UserCard>
+    with SingleTickerProviderStateMixin {
   late int _currentLikeStatus;
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
@@ -1201,7 +1236,8 @@ class UserCardState extends State<UserCard> with SingleTickerProviderStateMixin 
     _scaleAnimation = TweenSequence<double>([
       TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 1.4), weight: 50),
       TweenSequenceItem(tween: Tween<double>(begin: 1.4, end: 1.0), weight: 50),
-    ]).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut));
+    ]).animate(
+        CurvedAnimation(parent: _animationController, curve: Curves.easeOut));
   }
 
   @override
@@ -1330,7 +1366,7 @@ class UserCardState extends State<UserCard> with SingleTickerProviderStateMixin 
                 child: GestureDetector(
                   onTap: () async {
                     _animationController.forward(from: 0.0);
-                    
+
                     final newLikeStatus = _currentLikeStatus == 0 ? 1 : 0;
                     setState(() {
                       _currentLikeStatus = newLikeStatus;
@@ -1340,9 +1376,8 @@ class UserCardState extends State<UserCard> with SingleTickerProviderStateMixin 
                     if (newLikeStatus == 1) {
                       widget.controller.profileLikeRequest.likedBy =
                           widget.user.userId.toString();
-                      ProfileLikeResponse? response =
-                          await widget.controller.profileLike(
-                              widget.controller.profileLikeRequest);
+                      ProfileLikeResponse? response = await widget.controller
+                          .profileLike(widget.controller.profileLikeRequest);
                       successStatus = response != null && response.success;
                       if (successStatus) {
                         success("Liked!",
@@ -1351,8 +1386,7 @@ class UserCardState extends State<UserCard> with SingleTickerProviderStateMixin 
                     } else {
                       widget.controller.homepageDislikeRequest.userId =
                           widget.user.userId.toString();
-                      widget.controller.homepageDislikeRequest
-                              .connectionId =
+                      widget.controller.homepageDislikeRequest.connectionId =
                           widget.user.conectionId.toString();
                       successStatus = await widget.controller
                           .homepagedislikeprofile(
@@ -1365,8 +1399,7 @@ class UserCardState extends State<UserCard> with SingleTickerProviderStateMixin 
 
                     if (!successStatus) {
                       setState(() {
-                        _currentLikeStatus =
-                            _currentLikeStatus == 0 ? 1 : 0;
+                        _currentLikeStatus = _currentLikeStatus == 0 ? 1 : 0;
                       });
                       failure("Failed",
                           "Failed to update like status. Please try again.");

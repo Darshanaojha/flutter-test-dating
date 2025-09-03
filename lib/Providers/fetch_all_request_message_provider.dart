@@ -11,7 +11,7 @@ class FetchAllRequestMessageProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error in unknown_method', 'Token not found');
+        failure('Error in fetchallrequestmessageprovider', 'Token not found');
         return null;
       }
 
@@ -23,7 +23,7 @@ class FetchAllRequestMessageProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error in unknown_method', 'Server Failed To Respond');
+        failure('Error in fetchallrequestmessageprovider', 'Server Failed To Respond');
         return null;
       }
 
@@ -31,7 +31,7 @@ class FetchAllRequestMessageProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return GetAllRequestPingMessageResponse.fromJson(response.body);
         } else {
-          failure('Error in unknown_method', response.body['error']['message']);
+          failure('Error in fetchallrequestmessageprovider', response.body['error']['message']);
           return null;
         }
       } else {
@@ -39,7 +39,7 @@ class FetchAllRequestMessageProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error in unknown_method', e.toString());
+      failure('Error in fetchallrequestmessageprovider', e.toString());
       return null;
     }
   }

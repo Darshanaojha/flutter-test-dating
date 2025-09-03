@@ -660,7 +660,7 @@ class Controller extends GetxController {
           final user = response.payload.data.first;
           await dbHelper.saveUserProfile(user);
         }
-        print('Fetched user profile data: ${response.payload.data}');
+        print('Fetched user profile data: ${response.payload.data.first.toJson()}');
         userData.assignAll(response.payload.data);
         userDesire.assignAll(response.payload.desires);
         userPreferences.assignAll(response.payload.preferences);

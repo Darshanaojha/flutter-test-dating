@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:dating_application/Providers/fcmService.dart';
 import 'package:dating_application/Screens/auth.dart';
-import 'package:dating_application/Screens/navigationbar/unsubscribenavigation.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -422,7 +421,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
       onWillPop: _onWillPop,
       child: Scaffold(
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(size.height * 0.05),
+          preferredSize: Size.fromHeight(size.height * 0.06),
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -438,9 +437,11 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'FlamR',
+                    appName,
                     style: AppTextStyles.headingText.copyWith(
                       fontSize: getResponsiveFontSize(context, 0.07),
+                      fontFamily: 'RusticRoadway',
+                      // fontWeight: FontWeight.normal,
                     ),
                   ),
                 ),
@@ -492,20 +493,20 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
               onTap: (index) {
                 navigationcontroller.navigateTo(index);
 
-                controller.userPackage().then((status) {
+                // controller.userPackage().then((status) {
 
-                  if (!controller.isuserPackage.value) {
-                    failure('Subscription',
-                        'Please subscribe to use all this feature');
+                //   if (!controller.isuserPackage.value) {
+                //     failure('Subscription',
+                //         'Please subscribe to use all this feature');
 
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      Get.offAll(Unsubscribenavigation());
-                    });
-                  }
-                }).catchError((error) {
-                  failure('Error',
-                      'Something went wrong while checking subscription.');
-                });
+                //     WidgetsBinding.instance.addPostFrameCallback((_) {
+                //       Get.offAll(Unsubscribenavigation());
+                //     });
+                //   }
+                // }).catchError((error) {
+                //   failure('Error',
+                //       'Something went wrong while checking subscription.');
+                // });
 
                 _animationController.forward(from: 0);
               },

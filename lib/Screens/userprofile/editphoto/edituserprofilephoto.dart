@@ -34,7 +34,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
 
   intialize() async {
     try {
-      await controller.fetchAllHeadlines();
+      // await controller.fetchAllHeadlines();
       await controller.fetchProfileUserPhotos();
       List<RxString> fetchedImages = controller.userPhotos?.images
               .map((image) => RxString(image))
@@ -517,8 +517,8 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,
-                          crossAxisSpacing: 8.0,
-                          mainAxisSpacing: 8.0,
+                          crossAxisSpacing: 3.0,
+                          mainAxisSpacing: 3.0,
                           childAspectRatio: 1.0,
                         ),
                         itemCount: updatedImages.length,
@@ -552,6 +552,15 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                                   fit: BoxFit.cover,
                                   width: double.infinity,
                                   height: double.infinity,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      alignment: Alignment.center,
+                                      color: Colors.grey[200],
+                                      child: Icon(Icons.broken_image,
+                                          size: screenSize.width * 0.1,
+                                          color: AppColors.activeColor),
+                                    );
+                                  },
                                 ),
                                 index,
                               ),
@@ -575,6 +584,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                         },
                       )),
               SizedBox(height: screenSize.height * 0.03),
+              // Safety Guidelines and Headlines
               Obx(() => Card(
                     elevation: 8,
                     shape: RoundedRectangleBorder(
@@ -612,14 +622,13 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                       ),
                     ),
                   )),
-              const SizedBox(height: 10),
               Card(
                 elevation: 8,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(12.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -640,8 +649,8 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                                 return Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const SizedBox(height: 15),
                                     Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Icon(
                                           Icons.warning,
@@ -684,7 +693,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                   ),
                 ),
               ),
-              SizedBox(height: screenSize.height * 0.06),
+              SizedBox(height: screenSize.height * 0.04),
               Center(
                 child: Container(
                   decoration: BoxDecoration(

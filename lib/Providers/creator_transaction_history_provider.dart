@@ -20,22 +20,22 @@ class CreatorTransactionHistoryProvider extends GetConnect {
         );
 
         if (response.statusCode == null || response.body == null) {
-          failure('Error in unknown_method', 'Server Failed To Respond');
+          failure('Error in fetchCreatorTransactionHistory', 'Server Failed To Respond');
           return null;
         }
 
         if (response.statusCode == 200) {
           return CreatorTransactionHistoryResponse.fromJson(response.body);
         } else {
-          failure('Error in unknown_method', response.body.toString());
+          failure('Error in fetchCreatorTransactionHistory', response.body.toString());
           return null;
         }
       } else {
-        failure('Error in unknown_method', 'Token not found');
+        failure('Error in fetchCreatorTransactionHistory', 'Token not found');
         return null;
       }
     } catch (e) {
-      failure('Error in unknown_method', e.toString());
+      failure('Error in fetchCreatorTransactionHistory', e.toString());
       return null;
     }
   }

@@ -434,27 +434,29 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  "Confirm Subscription",
-                                  style: AppTextStyles.titleText.copyWith(
-                                    fontSize: fontSize + 4,
-                                    color: Colors.white,
-                                  ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Text(
+                                "Confirm Subscription",
+                                style: AppTextStyles.titleText.copyWith(
+                                  fontSize: fontSize + 4,
+                                  color: Colors.white,
                                 ),
                               ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.close, color: Colors.white),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
+                              Positioned(
+                                right: 0,
+                                child: IconButton(
+                                  icon: const Icon(Icons.close, color: Colors.white),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 10),
                         Flexible(

@@ -89,6 +89,7 @@ class ChatScreenState extends State<ChatScreen> {
     final token = sharedPreferences
         .getString('token'); // Await here if getString is async
 
+    debugPrint('Bearer Token: $token');
     final request = http.MultipartRequest(
       'POST',
       Uri.parse('$springbooturl/ChatController/send-message'),
@@ -97,6 +98,8 @@ class ChatScreenState extends State<ChatScreen> {
     request.headers['Authorization'] = 'Bearer $token';
     request.fields['receiverId'] = receiverId;
     request.fields['message'] = message;
+
+    debugPrint('Chat reqeust header: ${request.headers}');
 
     if (image != null) {
       request.files.add(
@@ -451,8 +454,8 @@ class ChatScreenState extends State<ChatScreen> {
                           ),
                           borderRadius: BorderRadius.circular(24),
                         ),
-                        padding: EdgeInsets.symmetric(
-                            vertical: 24, horizontal: 18),
+                        padding:
+                            EdgeInsets.symmetric(vertical: 24, horizontal: 18),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -488,8 +491,7 @@ class ChatScreenState extends State<ChatScreen> {
                             ),
                             SizedBox(height: 22),
                             Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceEvenly,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 Expanded(
                                   child: ElevatedButton.icon(
@@ -498,8 +500,7 @@ class ChatScreenState extends State<ChatScreen> {
                                           AppColors.mediumGradientColor,
                                       foregroundColor: Colors.white,
                                       shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(14),
+                                        borderRadius: BorderRadius.circular(14),
                                       ),
                                       elevation: 4,
                                     ),
@@ -518,8 +519,7 @@ class ChatScreenState extends State<ChatScreen> {
                                       backgroundColor: Colors.redAccent,
                                       foregroundColor: Colors.white,
                                       shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(14),
+                                        borderRadius: BorderRadius.circular(14),
                                       ),
                                       elevation: 4,
                                     ),
@@ -567,15 +567,18 @@ class ChatScreenState extends State<ChatScreen> {
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
               const PopupMenuItem<String>(
                 value: 'audio',
-                child: ListTile(leading: Icon(Icons.phone), title: Text('Audio Call')),
+                child: ListTile(
+                    leading: Icon(Icons.phone), title: Text('Audio Call')),
               ),
               const PopupMenuItem<String>(
                 value: 'video',
-                child: ListTile(leading: Icon(Icons.videocam), title: Text('Video Call')),
+                child: ListTile(
+                    leading: Icon(Icons.videocam), title: Text('Video Call')),
               ),
               const PopupMenuItem<String>(
                 value: 'report',
-                child: ListTile(leading: Icon(Icons.report), title: Text('Report User')),
+                child: ListTile(
+                    leading: Icon(Icons.report), title: Text('Report User')),
               ),
             ],
           ),
@@ -645,9 +648,8 @@ class ChatScreenState extends State<ChatScreen> {
                                   ? Colors.blueAccent
                                   : Colors.grey[300]!,
                               textStyle: TextStyle(
-                                color: isSentByUser
-                                    ? Colors.white
-                                    : Colors.black,
+                                color:
+                                    isSentByUser ? Colors.white : Colors.black,
                                 fontSize: 16,
                               ),
                             ),
@@ -702,10 +704,12 @@ class ChatScreenState extends State<ChatScreen> {
                                       SlidableAction(
                                         onPressed: isSentByUser
                                             ? (context) {
-                                                final messageIndex = controller.messages.indexOf(message);
+                                                final messageIndex = controller
+                                                    .messages
+                                                    .indexOf(message);
                                                 if (messageIndex != -1) {
-                                                  _showMessageDialog(
-                                                      context, message, messageIndex);
+                                                  _showMessageDialog(context,
+                                                      message, messageIndex);
                                                 }
                                               }
                                             : null,
@@ -723,7 +727,8 @@ class ChatScreenState extends State<ChatScreen> {
                                 children: [
                                   SlidableAction(
                                     onPressed: (context) {
-                                      final messageIndex = controller.messages.indexOf(message);
+                                      final messageIndex =
+                                          controller.messages.indexOf(message);
                                       if (messageIndex == -1) return;
                                       showDialog(
                                         context: context,
@@ -871,8 +876,7 @@ class ChatScreenState extends State<ChatScreen> {
                             }
                           },
                           child: Container(
-                            padding:
-                                const EdgeInsets.symmetric(vertical: 4.0),
+                            padding: const EdgeInsets.symmetric(vertical: 4.0),
                             child: Align(
                               alignment: isSentByUser
                                   ? Alignment.centerRight

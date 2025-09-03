@@ -16,11 +16,12 @@ class _AppInfoPageState extends State<AppInfoPage> {
     return screenWidth * scale;
   }
 
-  String appName = "FlamR";
-  String logoUrl = "${ip}uploads/applogo/logo.png";
+  String logoUrl = "${ip}uploads/applogo/logo.png"; 
   String releaseDate = "2024-11-23";
   String version = "1.0";
   String createdDate = "2024-11-23 15:53:48";
+  String about =
+      "CAJED is a dating application designed to connect people and foster meaningful relationships. Our mission is to provide a safe and enjoyable platform for individuals to meet, interact, and build connections. We prioritize user privacy and security, ensuring that your experience is both fun and trustworthy. Join CAJED today and start your journey towards finding companionship and love.";
 
   @override
   Widget build(BuildContext context) {
@@ -137,6 +138,18 @@ class _AppInfoPageState extends State<AppInfoPage> {
                       ),
                     ),
                     SizedBox(height: 24),
+
+                    // About Section
+                    Text(
+                      about,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: fontSize * 0.9,
+                        color: Colors.white.withOpacity(0.9),
+                        height: 1.4,
+                      ),
+                    ),
+                    SizedBox(height: 30),
 
                     // License Button
                     SizedBox(

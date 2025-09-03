@@ -97,3 +97,8 @@ flutter:
     - assets/images/emoji/
     - assets/images/
     - assets/animations/
+
+  fonts:
+    - family: RusticRoadway
+      fonts:
+        - asset: assets/fonts/RusticRoadway-Italic.ttf

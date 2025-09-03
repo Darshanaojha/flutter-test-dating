@@ -2,6 +2,7 @@ import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/ResponseModels/all_orders_response_model.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart'; // Added this line
 
@@ -230,6 +231,13 @@ class OrderTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const FaIcon(
+                    FontAwesomeIcons.crown,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  const SizedBox(height: 8),
                   Text(
                     order.packageTitle,
                     style: const TextStyle(

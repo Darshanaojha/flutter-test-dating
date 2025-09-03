@@ -4,6 +4,7 @@ import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../Controllers/controller.dart';
 import '../../constants.dart';
 
@@ -267,14 +268,20 @@ class ContactListScreenState extends State<ContactListScreen> {
                                                           backgroundColor: Colors.grey.shade800,
                                                           child: ClipOval(
                                                             child: (connection.profileImage.isNotEmpty)
-                                                                ? Image.network(
-                                                                    connection.profileImage,
+                                                                ? CachedNetworkImage(
+                                                                    imageUrl: connection.profileImage,
                                                                     fit: BoxFit.cover,
                                                                     width: size.width * 0.09,
                                                                     height: size.width * 0.09,
-                                                                    errorBuilder: (context, error, stackTrace) {
-                                                                      return Icon(Icons.person, size: 18.0, color: Colors.white);
-                                                                    },
+                                                                    placeholder: (context, url) =>
+                                                                        const Center(
+                                                                      child:
+                                                                          CircularProgressIndicator(),
+                                                                    ),
+                                                                    errorWidget: (context, url, error) =>
+                                                                        const Icon(Icons.person,
+                                                                            size: 18.0,
+                                                                            color: Colors.white),
                                                                   )
                                                                 : Icon(Icons.person, size: 18.0, color: Colors.white),
                                                           ),
@@ -284,8 +291,8 @@ class ContactListScreenState extends State<ContactListScreen> {
                                                             top: 0,
                                                             right: 2,
                                                             child: Container(
-                                                              width: 12,
-                                                              height: 12,
+                                                              width: 10,
+                                                              height: 10,
                                                               decoration:
                                                                   BoxDecoration(
                                                                 color: Colors.green,

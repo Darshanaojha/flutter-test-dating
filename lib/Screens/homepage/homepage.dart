@@ -30,8 +30,7 @@ class HomePage extends StatefulWidget {
   HomePageState createState() => HomePageState();
 }
 
-class HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
+class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Controller controller = Get.put(Controller());
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -61,6 +60,7 @@ class HomePageState extends State<HomePage>
   int messageType = 1;
   bool _isFabMenuOpen = false;
   late AnimationController _animationController;
+  late AnimationController _lottieAnimationController;
   late Animation<double> _rotationAnimation;
   final TextEditingController messageController = TextEditingController();
   final FocusNode messageFocusNode = FocusNode();
@@ -79,6 +79,8 @@ class HomePageState extends State<HomePage>
       vsync: this,
       duration: Duration(milliseconds: 300),
     );
+
+    _lottieAnimationController = AnimationController(vsync: this);
 
     _rotationAnimation = Tween<double>(begin: 0, end: 2 * 3.1415927).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
@@ -337,6 +339,7 @@ class HomePageState extends State<HomePage>
   @override
   void dispose() {
     _animationController.dispose();
+    _lottieAnimationController.dispose();
     messageFocusNode.dispose();
     super.dispose();
   }
@@ -720,14 +723,15 @@ class HomePageState extends State<HomePage>
                               child: currentList.isEmpty
                                   ? Center(
                                       child: Text(
-                                          'No users available in this section.'))
+                                          'No users available.'))
                                   : SwipeCards(
                                       matchEngine: matchEngine,
                                       itemBuilder:
                                           (BuildContext context, int index) {
                                         if (index >= currentList.length) {
                                           return Center(
-                                              child: Text("No users available"));
+                                              child:
+                                                  Text("No users available"));
                                         }
 
                                         final SuggestedUser user =
@@ -761,13 +765,20 @@ class HomePageState extends State<HomePage>
                                               padding: const EdgeInsets.all(2),
                                               child: Container(
                                                 decoration: BoxDecoration(
-                                                  gradient: AppColors
-                                                      .reversedGradientBackground,
+                                                  gradient: LinearGradient(
+                                                    colors: AppColors
+                                                        .reversedGradientColor,
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
                                                   borderRadius:
-                                                      BorderRadius.circular(30),
+                                                      BorderRadius.circular(12),
                                                 ),
-                                                child: buildCardLayoutAll(context,
-                                                    user, size, isLastCard),
+                                                child: buildCardLayoutAll(
+                                                    context,
+                                                    user,
+                                                    size,
+                                                    isLastCard),
                                               ),
                                             ));
                                       },
@@ -802,17 +813,21 @@ class HomePageState extends State<HomePage>
               Center(
                 child: Lottie.asset(
                   'assets/animations/Liked.json',
+                  controller: _lottieAnimationController,
                   width: 200,
                   height: 200,
                   repeat: false,
                   onLoaded: (composition) {
-                    Future.delayed(composition.duration, () {
-                      if (mounted) {
-                        setState(() {
-                          _showLikeAnimation = false;
-                        });
-                      }
-                    });
+                    _lottieAnimationController
+                      ..duration = composition.duration
+                      ..forward().whenComplete(() {
+                        if (mounted) {
+                          setState(() {
+                            _showLikeAnimation = false;
+                          });
+                          _lottieAnimationController.reset();
+                        }
+                      });
                   },
                 ),
               ),
@@ -820,17 +835,21 @@ class HomePageState extends State<HomePage>
               Center(
                 child: Lottie.asset(
                   'assets/animations/Disliked.json',
+                  controller: _lottieAnimationController,
                   width: 200,
                   height: 200,
                   repeat: false,
                   onLoaded: (composition) {
-                    Future.delayed(composition.duration, () {
-                      if (mounted) {
-                        setState(() {
-                          _showDislikeAnimation = false;
-                        });
-                      }
-                    });
+                    _lottieAnimationController
+                      ..duration = composition.duration
+                      ..forward().whenComplete(() {
+                        if (mounted) {
+                          setState(() {
+                            _showDislikeAnimation = false;
+                          });
+                          _lottieAnimationController.reset();
+                        }
+                      });
                   },
                 ),
               ),
@@ -838,17 +857,21 @@ class HomePageState extends State<HomePage>
               Center(
                 child: Lottie.asset(
                   'assets/animations/Favourite.json',
+                  controller: _lottieAnimationController,
                   width: 200,
                   height: 200,
                   repeat: false,
                   onLoaded: (composition) {
-                    Future.delayed(composition.duration, () {
-                      if (mounted) {
-                        setState(() {
-                          _showFavouriteAnimation = false;
-                        });
-                      }
-                    });
+                    _lottieAnimationController
+                      ..duration = composition.duration
+                      ..forward().whenComplete(() {
+                        if (mounted) {
+                          setState(() {
+                            _showFavouriteAnimation = false;
+                          });
+                          _lottieAnimationController.reset();
+                        }
+                      });
                   },
                 ),
               ),
@@ -884,8 +907,12 @@ class HomePageState extends State<HomePage>
             },
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                gradient: AppColors.gradientBackground,
+                gradient: LinearGradient(
+                  colors: AppColors.gradientBackgroundList,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Stack(
                 children: [
@@ -925,7 +952,9 @@ class HomePageState extends State<HomePage>
                                   placeholder: (context, url) => Center(
                                       child: CircularProgressIndicator()),
                                   errorWidget: (context, url, error) {
-                                    return Image.asset('assets/images/logo_redefined.png', fit: BoxFit.contain);
+                                    return Image.asset(
+                                        'assets/images/logo_redefined.png',
+                                        fit: BoxFit.contain);
                                   },
                                   fit: BoxFit.cover,
                                   width: double.infinity,

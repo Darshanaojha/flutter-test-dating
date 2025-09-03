@@ -10,7 +10,7 @@ class GetPointCreditedDebitedProvider extends GetConnect {
           EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
       if (token == null || token.isEmpty) {
-        failure("Error in unknown_method", "Token Not Found");
+        failure("Error in getpointcrediteddebitedprovider", "Token Not Found");
         return null;
       }
 
@@ -22,7 +22,7 @@ class GetPointCreditedDebitedProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error in unknown_method', 'Server Failed To Respond');
+        failure('Error in getpointcrediteddebitedprovider', 'Server Failed To Respond');
         return null;
       }
 
@@ -31,11 +31,11 @@ class GetPointCreditedDebitedProvider extends GetConnect {
           if (response.body['error']['message'] == 0) {
             return GetPointCreditedDebitedResponse.fromJson(response.body);
           } else {
-            failure("Error in unknown_method", response.body['error']['code']);
+            failure("Error in getpointcrediteddebitedprovider", response.body['error']['code']);
             return null;
           }
         } else {
-          failure("Error in unknown_method", "Status Code Invalid Formate");
+          failure("Error in getpointcrediteddebitedprovider", "Status Code Invalid Formate");
           return null;
         }
       } else {
@@ -44,7 +44,7 @@ class GetPointCreditedDebitedProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure("Error in unknown_method", e.toString());
+      failure("Error in getpointcrediteddebitedprovider", e.toString());
       return null;
     }
   }
