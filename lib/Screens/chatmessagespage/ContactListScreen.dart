@@ -279,9 +279,10 @@ class ContactListScreenState extends State<ContactListScreen> {
                                                                           CircularProgressIndicator(),
                                                                     ),
                                                                     errorWidget: (context, url, error) =>
-                                                                        const Icon(Icons.person,
-                                                                            size: 18.0,
-                                                                            color: Colors.white),
+                                                                        Image.asset(
+                                                                      'assets/images/logo_redefined.png',
+                                                                      fit: BoxFit.cover,
+                                                                    ),
                                                                   )
                                                                 : Icon(Icons.person, size: 18.0, color: Colors.white),
                                                           ),
@@ -752,19 +753,9 @@ class FullScreenImagePage extends StatelessWidget {
                   return Center(child: CircularProgressIndicator());
                 },
                 errorBuilder: (context, error, stackTrace) {
-                  return FittedBox(
+                  return Image.asset(
+                    'assets/images/logo_redefined.png',
                     fit: BoxFit.contain,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.error, color: Colors.red, size: 50),
-                        SizedBox(height: 10),
-                        Text(
-                          'Image not available',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    ),
                   );
                 },
               );

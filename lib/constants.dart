@@ -115,12 +115,18 @@ class AppColors {
   // ];
 
   static List<Color> gradientBackgroundList = <Color>[
-    Color(0xFF5E235F), // darkest purple
-    Color(0xFF6C2A6D), // deep violet (darker than before)
-    Color(0xFF7B3680), // rich dark purple
-    Color(0xFF914599), // medium-dark purple
-    Color(0xFFB06BB8), // lighter purple accent
+    Color(0xFF331E3F), // darkest purple
+    Color(0xFF4A2655), // dark violet
+    Color(0xFF562B63), // deep violet
+    Color(0xFF703A7E), // purple
+    Color(0xFF895294), // medium-light purple
   ];
+
+  static LinearGradient get appBarGradient => LinearGradient(
+        colors: gradientBackgroundList,
+        begin: Alignment.topLeft,
+        end: Alignment(0.8, 1),
+      );
 
   static var shader = LinearGradient(colors: gradientBackgroundList)
       .createShader(const Rect.fromLTWH(0, 0, 200, 40));
@@ -138,11 +144,12 @@ class AppColors {
   // ];
 
   static List<Color> gradientColor = <Color>[
-    Color(0xFF5E235F), // darkest purple
-    Color(0xFF6C2A6D), // deep violet (darker than before)
-    Color(0xFF7B3680), // rich dark purple
-    Color(0xFF914599), // medium-dark purple
-    Color(0xFFB06BB8), // lighter purple accent
+    Color(0xFF2f1c3c), // darkest purple
+    Color(0xFF51295f), // dark violet
+    Color(0xFF61316f), // deep violet
+    Color(0xFF895295), // purple
+    Color(0xFF915f9f), // purple
+    Color(0xFFA073AE), // medium-light purple
   ];
 
   static List<Color> reversedGradientColor = <Color>[

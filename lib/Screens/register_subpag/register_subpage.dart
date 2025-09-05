@@ -2788,7 +2788,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                                             Alignment.topLeft,
                                                         end: Alignment(0.8, 1),
                                                         colors: AppColors
-                                                            .gradientColor),
+                                                            .gradientBackgroundList),
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             30),

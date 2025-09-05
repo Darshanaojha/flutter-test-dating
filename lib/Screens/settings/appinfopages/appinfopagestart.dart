@@ -101,8 +101,14 @@ class _AppInfoPageState extends State<AppInfoPage> {
                         height: 150,
                         width: 150,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Icon(Icons.image, size: 80, color: Colors.white54),
+                        errorBuilder: (context, error, stackTrace) {
+                          return Image.asset(
+                            'assets/images/logo_redefined.png',
+                            height: 150,
+                            width: 150,
+                            fit: BoxFit.cover,
+                          );
+                        },
                       ),
                     ),
                     SizedBox(height: 20),

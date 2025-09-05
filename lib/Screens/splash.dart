@@ -107,7 +107,6 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
       }
 
       await controller.fetchAllPackages();
-      await controller.fetchSafetyGuidelines();
       await controller.fetchalluserconnections();
       await controller.fetchAllverificationtype();
       await controller.fetchAllsubscripted();

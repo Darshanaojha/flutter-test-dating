@@ -359,11 +359,15 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           child: GestureDetector(
             onTap: () => Navigator.of(context).pop(),
             child: Center(
-              child: Image.network(
-                imagePath,
+              child: CachedNetworkImage(
+                imageUrl: imagePath,
                 fit: BoxFit.contain,
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
+                placeholder: (context, url) =>
+                    const Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) =>
+                    Image.asset('assets/images/logo_redefined.png'),
               ),
             ),
           ),

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dating_application/Screens/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -49,11 +50,23 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> {
         children: <Widget>[
           if (index == 0 || index == 2) ...[
             Text(title, style: _titleStyle()),
-            Image.network(image, height: 250, fit: BoxFit.contain),
+            CachedNetworkImage(
+              imageUrl: image,
+              height: 250,
+              fit: BoxFit.contain,
+              placeholder: (context, url) => const CircularProgressIndicator(),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+            ),
             Text(description, style: _textStyle()),
           ] else ...[
             Text(description, style: _textStyle()),
-            Image.network(image, height: 250, fit: BoxFit.contain),
+            CachedNetworkImage(
+              imageUrl: image,
+              height: 250,
+              fit: BoxFit.contain,
+              placeholder: (context, url) => const CircularProgressIndicator(),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+            ),
             Text(title, style: _titleStyle()),
           ]
         ],

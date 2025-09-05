@@ -106,6 +106,12 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                 fit: BoxFit.contain,
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
+                errorBuilder: (context, error, stackTrace) {
+                  return Image.asset(
+                    'assets/images/logo_redefined.png',
+                    fit: BoxFit.contain,
+                  );
+                },
               ),
             ),
           ),

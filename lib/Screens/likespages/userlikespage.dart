@@ -234,10 +234,11 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                       height: MediaQuery.of(context).size.height,
                       errorBuilder: (context, error, stackTrace) {
                         return Center(
-                          child: Icon(
-                            Icons.broken_image,
-                            size: 100,
-                            color: Colors.grey,
+                          child: Image.asset(
+                            'assets/images/logo_redefined.png',
+                            fit: BoxFit.contain,
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height,
                           ),
                         );
                       },
@@ -249,10 +250,11 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                       height: MediaQuery.of(context).size.height,
                       errorBuilder: (context, error, stackTrace) {
                         return Center(
-                          child: Icon(
-                            Icons.broken_image,
-                            size: 100,
-                            color: Colors.grey,
+                          child: Image.asset(
+                            'assets/images/logo_redefined.png',
+                            fit: BoxFit.contain,
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height,
                           ),
                         );
                       },
@@ -1031,7 +1033,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: const Alignment(0.8, 1),
-              colors: AppColors.gradientColor,
+              colors: AppColors.gradientBackgroundList,
             ),
             borderRadius: BorderRadius.circular(30),
             boxShadow: isSelected
@@ -1291,14 +1293,16 @@ class UserCardState extends State<UserCard>
                         widget.user.images.first,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            Icons.person,
-                            size: 40,
-                            color: Colors.white70,
+                          return Image.asset(
+                            'assets/images/logo_redefined.png',
+                            fit: BoxFit.cover,
                           );
                         },
                       )
-                    : Container(color: Colors.grey.shade300),
+                    : Image.asset(
+                        'assets/images/logo_redefined.png',
+                        fit: BoxFit.cover,
+                      ),
               ),
 
               // Gradient overlay for entire card bottom
@@ -1413,7 +1417,7 @@ class UserCardState extends State<UserCard>
                           ? Icons.favorite
                           : Icons.favorite_border,
                       color: _currentLikeStatus == 1
-                          ? AppColors.darkGradientColor
+                          ? AppColors.lightGradientColor
                           : Colors.white,
                       size: 25,
                     ),

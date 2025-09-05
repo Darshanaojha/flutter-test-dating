@@ -285,6 +285,12 @@ class EditPhotosPageState extends State<EditPhotosPage> {
             fit: BoxFit.contain,
             width: double.infinity,
             height: MediaQuery.of(context).size.height * 0.7,
+            errorBuilder: (context, error, stackTrace) {
+              return Image.asset(
+                'assets/images/logo_redefined.png',
+                fit: BoxFit.contain,
+              );
+            },
           ),
         );
       },

@@ -156,11 +156,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
           elevation: 0,
           child: Container(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: AppColors.gradientBackgroundList,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              gradient: AppColors.appBarGradient,
               borderRadius: BorderRadius.circular(28),
               boxShadow: [
                 BoxShadow(
@@ -225,12 +221,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                       child: Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment(0.8, 1),
-                            colors: AppColors
-                                .gradientColor, // Use the same gradient as Log Out
-                          ),
+                          gradient: AppColors.appBarGradient,
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: ElevatedButton.icon(
@@ -341,11 +332,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
         elevation: 0,
         child: Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: AppColors.gradientBackgroundList,
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            gradient: AppColors.appBarGradient,
             borderRadius: BorderRadius.circular(28),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
@@ -384,7 +371,8 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                       ),
                       child: Text(
                         'No',
-                        style: AppTextStyles.buttonText.copyWith(color: Colors.black, fontWeight: FontWeight.bold),
+                        style: AppTextStyles.buttonText.copyWith(
+                            color: Colors.black, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -401,7 +389,8 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                       ),
                       child: Text(
                         "Yes",
-                        style: AppTextStyles.buttonText.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                        style: AppTextStyles.buttonText.copyWith(
+                            color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -424,11 +413,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
           preferredSize: Size.fromHeight(size.height * 0.06),
           child: Container(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment(0.8, 1),
-                colors: AppColors.gradientBackgroundList,
-              ),
+              gradient: AppColors.appBarGradient,
               borderRadius: BorderRadius.circular(20),
             ),
             child: AppBar(
@@ -480,11 +465,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
         bottomNavigationBar: Obx(() {
           return Container(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment(0.8, 1),
-                colors: AppColors.gradientBackgroundList,
-              ),
+              gradient: AppColors.appBarGradient,
               borderRadius: BorderRadius.circular(
                   30), // You can adjust the border radius here
             ),
