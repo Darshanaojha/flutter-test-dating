@@ -472,7 +472,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
       print('four image is \${updateProfilePhotoRequest.img4}');
       print('fifth image is \${updateProfilePhotoRequest.img5}');
       print('sixth image is \${updateProfilePhotoRequest.img6}');
-      if (updateProfilePhotoRequest.validate()) {
+      if (updatedImages.length >= 3) {
         var success =
             await controller.updateprofilephoto(updateProfilePhotoRequest);
         if (success == true) {
@@ -656,7 +656,8 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Icon(
                                           Icons.warning,

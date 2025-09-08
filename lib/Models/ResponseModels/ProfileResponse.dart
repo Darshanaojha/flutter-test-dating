@@ -98,8 +98,6 @@ class UserData {
   String updated;
   String genderName;
   String subGenderName;
-
-  // New fields from JSON
   String? points;
   String? firstTranDone;
   String? version;

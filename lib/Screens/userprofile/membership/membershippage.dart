@@ -216,6 +216,10 @@ class MembershipPageState extends State<MembershipPage>
           child: AnimatedButton(
             text: 'Starting from ₹99',
             onPress: () {
+              if (controller.userData.first.accountVerificationStatus != "1") {
+                controller.showVerificationDialog(context);
+                return;
+              }
               Get.to(PricingPage());
             },
             transitionType: TransitionType.LEFT_TO_RIGHT,

@@ -74,6 +74,8 @@ import 'package:dating_application/Screens/auth.dart';
 import 'package:dating_application/Screens/loginforgotpassword/forgotpasswordotp.dart';
 import 'package:dating_application/Screens/navigationbar/unsubscribenavigation.dart'
     show Unsubscribenavigation;
+import 'package:dating_application/Screens/userprofile/accountverification/useraccountverification.dart';
+import 'package:dating_application/Screens/userprofile/membership/membershippage.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
@@ -660,7 +662,8 @@ class Controller extends GetxController {
           final user = response.payload.data.first;
           await dbHelper.saveUserProfile(user);
         }
-        print('Fetched user profile data: ${response.payload.data.first.toJson()}');
+        print(
+            'Fetched user profile data: ${response.payload.data.first.toJson()}');
         userData.assignAll(response.payload.data);
         userDesire.assignAll(response.payload.desires);
         userPreferences.assignAll(response.payload.preferences);
@@ -2654,6 +2657,383 @@ class Controller extends GetxController {
             child: Text('Cancel'),
           ),
         ],
+      ),
+    );
+  }
+
+  // Add these getters to check user status
+  bool get isVerified =>
+      userData.isNotEmpty && userData.first.accountVerificationStatus == "1";
+
+  bool get isVerificationPending =>
+      userData.isNotEmpty && userData.first.accountVerificationStatus == "3";
+
+  bool get hasSubscription =>
+      userData.isNotEmpty && userData.first.packageStatus == "1";
+
+  // Helper method to check if user can interact
+  Future<bool> canUserInteract(BuildContext context) async {
+    if (!isVerified && !isVerificationPending) {
+      // Not verified, show verification prompt
+      showVerificationDialog(context);
+      return false;
+    }
+
+    if (isVerificationPending) {
+      // Verification pending
+      showVerificationDialog(context);
+      return false;
+    }
+
+    if (isVerified && !hasSubscription) {
+      // Verified but not subscribed
+      showPackagesDialog();
+      return false;
+    }
+
+    return true; // User can interact
+  }
+
+  void showVerificationDialog(BuildContext context) {
+    final Size screenSize = MediaQuery.of(context).size;
+    final verificationStatus = userData.first.packageStatus ?? '0';
+
+    String _getVerificationMessage(String status) {
+      switch (status) {
+        case '0':
+          return 'Not Applied for Verification';
+        case '1':
+          return 'Verification Accepted';
+        case '2':
+          return 'Verification Rejected';
+        case '3':
+          return 'Verification Pending';
+        default:
+          return 'Account Verification';
+      }
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            height: screenSize.height * 0.28,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: AppColors.gradientBackgroundList,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Text(
+                    'Account Verification',
+                    style:
+                        AppTextStyles.titleText.copyWith(color: Colors.white),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Center(
+                  child: Text(
+                    _getVerificationMessage(verificationStatus),
+                    style: AppTextStyles.textStyle
+                        .copyWith(color: Colors.white70, fontSize: 10),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'To verify your account, you need to submit a photo. Choose one of the following options for your photo submission.',
+                  style:
+                      AppTextStyles.textStyle.copyWith(color: Colors.white70),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (verificationStatus == '0' ||
+                        verificationStatus == '2') ...[
+                      // Cancel Button
+                      SizedBox(
+                        width: screenSize.width * 0.28, // 36% of screen width
+                        height:
+                            screenSize.height * 0.055, // 5.5% of screen height
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              padding: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Center(
+                              child: ShaderMask(
+                                shaderCallback: (bounds) => LinearGradient(
+                                  colors: AppColors.gradientBackgroundList,
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ).createShader(Rect.fromLTWH(
+                                    0, 0, bounds.width, bounds.height)),
+                                blendMode: BlendMode.srcIn,
+                                child: Text(
+                                  'Cancel',
+                                  style: AppTextStyles.textStyle.copyWith(
+                                    fontSize:
+                                        MediaQuery.of(context).size.width *
+                                            0.035,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: MediaQuery.of(context).size.width * 0.04),
+                      // Confirm Button
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width *
+                            0.28, // same as Cancel
+                        height: MediaQuery.of(context).size.height *
+                            0.055, // same as Cancel
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: AppColors.reversedGradientColor,
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              padding: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            onPressed: () {
+                              fetchAllverificationtype();
+                              Navigator.of(context).pop();
+                              Get.to(PhotoVerificationPage());
+                            },
+                            child: Center(
+                              child: Text(
+                                'Confirm',
+                                style: AppTextStyles.textStyle.copyWith(
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.035,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ] else ...[
+                      SizedBox(
+                        width: screenSize.width * 0.28,
+                        height: screenSize.height * 0.055,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: AppColors.reversedGradientColor,
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              padding: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Center(
+                              child: Text(
+                                'OK',
+                                style: AppTextStyles.textStyle.copyWith(
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.035,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ]
+                  ],
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void showPackagesDialog() {
+    final context = Get.context!;
+    final size = MediaQuery.of(context).size;
+    final screenWidth = size.width;
+    final screenHeight = size.height;
+
+    double baseFont = screenWidth * 0.065; // Roughly responsive
+    double smallFont = screenWidth * 0.035;
+    double buttonFont = screenWidth * 0.04;
+
+    Get.defaultDialog(
+      title: '',
+      backgroundColor: Colors.transparent,
+      barrierDismissible: false,
+      radius: 15.0,
+      contentPadding: EdgeInsets.zero,
+      content: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: AppColors.gradientBackgroundList,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(15),
+        ),
+        padding: EdgeInsets.all(screenWidth * 0.05),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Subscribe to Enjoy',
+              style: TextStyle(
+                fontSize: baseFont,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(height: screenHeight * 0.01),
+            Text(
+              "Choose a Subscription Plan",
+              style: AppTextStyles.titleText.copyWith(
+                fontSize: smallFont,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(height: screenHeight * 0.05),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Cancel Button with same styling structure
+                SizedBox(
+                    width: screenWidth * 0.28,
+                    height: screenWidth * 0.12, // Consistent height
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(38),
+                        border: Border.all(color: Colors.white),
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          padding: EdgeInsets.zero,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(38),
+                          ),
+                        ),
+                        child: ShaderMask(
+                          shaderCallback: (Rect bounds) {
+                            return LinearGradient(
+                              colors: AppColors.gradientBackgroundList,
+                            ).createShader(bounds);
+                          },
+                          child: Text(
+                            'Cancel',
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.titleText.copyWith(
+                              fontSize: buttonFont,
+                              color: Colors.white, // overridden by ShaderMask
+                            ),
+                          ),
+                        ),
+                      ),
+                    )),
+
+                SizedBox(width: screenWidth * 0.03),
+
+                // Subscribe Button
+                SizedBox(
+                  width: screenWidth * 0.28,
+                  height: screenWidth * 0.12, // Same height
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment(0.8, 1),
+                        colors: AppColors.reversedGradientColor,
+                      ),
+                      borderRadius: BorderRadius.circular(38),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Get.to(MembershipPage());
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(38),
+                        ),
+                      ),
+                      child: Text(
+                        'Subscribe',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: buttonFont,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
