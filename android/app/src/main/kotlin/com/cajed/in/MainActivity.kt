@@ -1,4 +1,4 @@
-package com.pisyst.dating_application
+package com.cajed.`in`
 
 import io.flutter.embedding.android.FlutterActivity
 

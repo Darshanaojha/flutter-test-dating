@@ -1,8 +1,10 @@
 import 'package:dating_application/Models/RequestModels/profile_like_request_model.dart';
 import 'package:dating_application/Models/ResponseModels/profile_like_response_model.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../constants.dart';
+
 class ProfileLikeProvider extends GetConnect {
   Future<ProfileLikeResponse?> profileLikeProvider(
       ProfileLikeRequest profileLikeRequest) async {
@@ -25,7 +27,7 @@ class ProfileLikeProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error in profileLikeProvider', 'Server Failed To Respond');
+        debugPrint("Error in profileLikeProvider: ${response.statusCode}");
         return null;
       }
 
@@ -33,11 +35,14 @@ class ProfileLikeProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return ProfileLikeResponse.fromJson(response.body);
         } else {
-          failure('Error in profileLikeProvider', response.body['error']['message']);
+          failure('Oops!', response.body['error']['message']);
+          debugPrint(
+              "Error in profileLikeProvider: ${response.body['error']['message']}");
           return null;
         }
       } else {
-        failure(response.statusCode.toString(), response.body['error']['message']);
+        debugPrint(
+            "Error in profileLikeProvider: ${response.body['error']['message']}");
         return null;
       }
     } catch (e) {

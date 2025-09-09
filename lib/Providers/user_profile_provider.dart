@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../Models/ResponseModels/user_upload_images_response_model.dart';
 import '../constants.dart';
 class UserProfileProvider extends GetConnect {
-  Future<UserUploadImagesResponse?> fetchProfileUserPhotos() async {
+  Future<UserUploadImagesResponse?> fetchProfileUserPhotos(String id) async {
     try {
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
@@ -13,7 +13,7 @@ class UserProfileProvider extends GetConnect {
         return null;
       }
       Response response = await get(
-        '$baseurl/Profile/userphotos',
+        '$baseurl/Profile/userphotos/$id',
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',

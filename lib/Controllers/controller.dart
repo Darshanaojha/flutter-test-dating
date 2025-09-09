@@ -838,10 +838,10 @@ class Controller extends GetxController {
   }
 
   UserImageData? userPhotos;
-  Future<bool> fetchProfileUserPhotos() async {
+  Future<bool> fetchProfileUserPhotos([String id = ""]) async {
     try {
       UserUploadImagesResponse? response =
-          await UserProfileProvider().fetchProfileUserPhotos();
+          await UserProfileProvider().fetchProfileUserPhotos(id);
       if (response != null && response.payload != null) {
         userPhotos = response.payload!.data;
         print('successfully fetched the user profile photos');
@@ -2698,12 +2698,12 @@ class Controller extends GetxController {
     final Size screenSize = MediaQuery.of(context).size;
     final verificationStatus = userData.first.packageStatus ?? '0';
 
-    String _getVerificationMessage(String status) {
+    String getVerificationMessage(String status) {
       switch (status) {
         case '0':
           return 'Not Applied for Verification';
-        case '1':
-          return 'Verification Accepted';
+        // case '1':
+        //   return 'Verification Accepted';
         case '2':
           return 'Verification Rejected';
         case '3':
@@ -2745,7 +2745,7 @@ class Controller extends GetxController {
                 ),
                 Center(
                   child: Text(
-                    _getVerificationMessage(verificationStatus),
+                    getVerificationMessage(verificationStatus),
                     style: AppTextStyles.textStyle
                         .copyWith(color: Colors.white70, fontSize: 10),
                     textAlign: TextAlign.center,
@@ -2762,7 +2762,7 @@ class Controller extends GetxController {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    if (verificationStatus == '0' ||
+                    if (verificationStatus == '1' ||
                         verificationStatus == '2') ...[
                       // Cancel Button
                       SizedBox(

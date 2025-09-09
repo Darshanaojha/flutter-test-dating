@@ -835,8 +835,8 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                       .first
                                                                       .accountVerificationStatus ==
                                                                   '1'
-                                                          ? Colors
-                                                              .lightGreenAccent
+                                                          ? AppColors
+                                                              .lightGradientColor
                                                           : Colors.red,
                                                       size: screenWidth * 0.045,
                                                     ),

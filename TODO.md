@@ -17,3 +17,8 @@
 - The error occurs because the database was created with an older schema
 - The onUpgrade method needs to handle adding columns to existing tables
 - Both database helper files need to be updated for consistency
+
+- [x] Generate keystore using keytool
+- [x] Create android/key.properties
+- [x] Update android/app/build.gradle.kts with signingConfigs
+- [x] Rebuild the APK

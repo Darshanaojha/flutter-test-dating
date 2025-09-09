@@ -11,7 +11,7 @@ String get springbooturl => "http://$ipSpringAddress:8080";
 // String ipAddress = "150.241.245.210";
 String ipSpringAddress = "150.241.245.210";
 // String ipSpringAddress = "192.168.1.23";
-String ipAddress = "192.168.1.11";
+String ipAddress = "192.168.1.6";
 const String appName = "cajed.in";
 
 const encryptionkey = "flamrpisyst2024!";

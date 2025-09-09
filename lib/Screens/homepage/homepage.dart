@@ -227,7 +227,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Future<bool> initializeApp() async {
     await _retrieveLastUsers();
-
+    await controller.fetchProfile();
     await controller.userSuggestions();
     for (int i = 0; i < controller.userSuggestionsList.length; i++) {
       swipeItems.add(_createSwipeItem(controller.userSuggestionsList[i]));
