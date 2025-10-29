@@ -1,5 +1,6 @@
 import 'package:dating_application/Screens/settings/appinfopages/faqpage.dart';
 import 'package:dating_application/Screens/userprofile/accountverification/useraccountverification.dart';
+import 'package:dating_application/Screens/userprofile/membership/userselectedplan.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,7 +11,6 @@ import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/usernameupdate_request_model.dart';
 import '../settings/appinfopages/appinfopagestart.dart';
 import 'GenerateReferalCode/GenerateReferalCode.dart';
-import 'Orders/OrdersViewScreen.dart';
 import 'Transactions/TransactionsViewScreen.dart';
 import 'Wallet/WalletScreen.dart';
 import 'editprofile/edituserprofile.dart';
@@ -83,6 +83,12 @@ class UserProfilePageState extends State<UserProfilePage>
     if (!await controller.fetchAllsubscripted()) return false;
     if (!await controller.fetchProfile()) return false;
     return true;
+  }
+
+  bool isValidUsername(String username) {
+    // Allow Unicode letters, digits, and underscores only
+    final validUsernameRegExp = RegExp(r'^[\p{L}\p{M}\p{N}_]+$', unicode: true);
+    return validUsernameRegExp.hasMatch(username);
   }
 
   Future<void> _refreshData() async {
@@ -282,20 +288,37 @@ class UserProfilePageState extends State<UserProfilePage>
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        controller.usernameUpdateRequest
-                                                .username.isNotEmpty
-                                            ? controller
-                                                .usernameUpdateRequest.username
-                                            : (controller.userData.isNotEmpty
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            (controller.userData.isNotEmpty
                                                 ? controller
                                                     .userData.first.username
                                                 : 'NA'),
-                                        style: AppTextStyles.titleText.copyWith(
-                                          fontSize: getResponsiveFontSize(0.045),
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                            style: AppTextStyles.titleText
+                                                .copyWith(
+                                              fontSize:
+                                                  getResponsiveFontSize(0.045),
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          if (controller.userData.isNotEmpty &&
+                                              controller.userData.first
+                                                      .accountVerificationStatus ==
+                                                  '1')
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 8.0),
+                                              child: Icon(
+                                                Icons.verified,
+                                                color: Colors.lightGreenAccent,
+                                                size: getResponsiveFontSize(
+                                                    0.045),
+                                              ),
+                                            ),
+                                        ],
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
@@ -387,6 +410,18 @@ class UserProfilePageState extends State<UserProfilePage>
                                                     ),
                                                   ),
                                                   const SizedBox(height: 20),
+                                                  Text(
+                                                    'Be creative! Your username can have only letters, numbers, or underscores (_)',
+                                                    style: AppTextStyles
+                                                        .titleText
+                                                        .copyWith(
+                                                      fontSize:
+                                                          getResponsiveFontSize(
+                                                              0.03),
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 20),
                                                   SizedBox(
                                                     height: 80,
                                                     child: Scrollbar(
@@ -406,8 +441,11 @@ class UserProfilePageState extends State<UserProfilePage>
                                                               onChanged:
                                                                   (value) {
                                                                 controller
-                                                                    .usernameUpdateRequest
-                                                                    .username = value;
+                                                                        .usernameUpdateRequest
+                                                                        .username =
+                                                                    value
+                                                                        .toLowerCase()
+                                                                        .trim();
                                                               },
                                                               style: const TextStyle(
                                                                   color: Colors
@@ -564,29 +602,52 @@ class UserProfilePageState extends State<UserProfilePage>
                                                             ),
                                                             onPressed:
                                                                 () async {
-                                                              final updatedUsername = controller
-                                                                      .usernameUpdateRequest
-                                                                      .username
-                                                                      .isNotEmpty
-                                                                  ? controller
-                                                                      .usernameUpdateRequest
-                                                                      .username
-                                                                  : controller
-                                                                      .userData
-                                                                      .first
-                                                                      .username;
+                                                              final updatedUsername =
+                                                                  _usernameController
+                                                                      .text
+                                                                      .toLowerCase()
+                                                                      .trim();
 
-                                                              controller
-                                                                  .updateusername(
+                                                              if (updatedUsername
+                                                                  .isEmpty) {
+                                                                failure(
+                                                                    "Invalid Username",
+                                                                    "Username cannot be empty.");
+                                                                return;
+                                                              }
+                                                              if (!isValidUsername(
+                                                                  updatedUsername)) {
+                                                                failure(
+                                                                  "Invalid Username",
+                                                                  "Username can only contain letters, numbers, and underscores. No spaces or special characters allowed.",
+                                                                );
+                                                                return;
+                                                              }
+
+                                                              bool success =
+                                                                  await controller
+                                                                      .updateusername(
                                                                 UsernameUpdateRequest(
                                                                     username:
                                                                         updatedUsername),
                                                               );
-                                                              await controller
-                                                                  .fetchProfile();
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop();
+                                                              if (success) {
+                                                                await controller
+                                                                    .fetchProfile();
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+                                                              } else {
+                                                                _usernameController
+                                                                        .text =
+                                                                    controller
+                                                                        .userData
+                                                                        .first
+                                                                        .username;
+                                                                failure(
+                                                                    "Failed",
+                                                                    "Failed to update username. Please try again.");
+                                                              }
                                                             },
                                                             child: Text(
                                                               'Save',
@@ -690,7 +751,21 @@ class UserProfilePageState extends State<UserProfilePage>
                               ),
                               child: InkWell(
                                 onTap: () {
-                                  showVerificationDialog(context);
+                                  if (controller.userData.isNotEmpty &&
+                                      controller.userData.first
+                                              .accountVerificationStatus ==
+                                          '1') {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                            'No further action needed.Your verification is successful. You are now a trusted user on the platform.'),
+                                      ),
+                                    );
+                                    // success('Verification',
+                                    //     'No further action needed.Your verification is successful. You are now a trusted user on the platform.');
+                                  } else {
+                                    showVerificationDialog(context);
+                                  }
                                 },
                                 borderRadius: BorderRadius.circular(16.0),
                                 child: Padding(
@@ -724,7 +799,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                   .first
                                                                   .accountVerificationStatus ==
                                                               '1'
-                                                      ? Colors.green
+                                                      ? Colors.lightGreenAccent
                                                           .withOpacity(0.15)
                                                       : Colors.white
                                                           .withOpacity(0.65),
@@ -755,7 +830,8 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                       .first
                                                                       .accountVerificationStatus ==
                                                                   '1'
-                                                          ? Colors.green
+                                                          ? Colors
+                                                              .lightGreenAccent
                                                           : Colors.red,
                                                       size: screenWidth * 0.045,
                                                     ),
@@ -785,7 +861,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                         .first
                                                                         .accountVerificationStatus ==
                                                                     '1'
-                                                            ? Colors.green
+                                                            ? Colors.white
                                                             : Colors.red,
                                                       ),
                                                     ),
@@ -866,75 +942,6 @@ class UserProfilePageState extends State<UserProfilePage>
                                 ),
                               ),
                             ),
-                            // Container(
-                            //   margin: const EdgeInsets.symmetric(
-                            //       horizontal: 18, vertical: 6),
-                            //   padding: EdgeInsets.symmetric(
-                            //     vertical: screenWidth * 0.025,
-                            //     horizontal: screenWidth * 0.045,
-                            //   ),
-                            //   decoration: BoxDecoration(
-                            //     gradient: LinearGradient(
-                            //       colors: AppColors.gradientBackgroundList,
-                            //       begin: Alignment.topLeft,
-                            //       end: Alignment.bottomRight,
-                            //     ),
-                            //     borderRadius: BorderRadius.circular(16),
-                            //     boxShadow: const [
-                            //       BoxShadow(
-                            //         color: Colors.black12,
-                            //         blurRadius: 8,
-                            //         offset: Offset(0, 4),
-                            //       ),
-                            //     ],
-                            //   ),
-                            //   child: InkWell(
-                            //     borderRadius: BorderRadius.circular(16),
-                            //     onTap: () {
-                            //       Get.to(PlanPage());
-                            //     },
-                            //     child: Row(
-                            //       children: [
-                            //         Icon(
-                            //           Icons.card_membership,
-                            //           size: screenWidth * 0.075,
-                            //           color: Colors.white,
-                            //         ),
-                            //         SizedBox(width: screenWidth * 0.045),
-                            //         Expanded(
-                            //           child: Column(
-                            //             crossAxisAlignment:
-                            //                 CrossAxisAlignment.start,
-                            //             children: [
-                            //               Text(
-                            //                 'Membership',
-                            //                 style: TextStyle(
-                            //                   fontSize: screenWidth * 0.04,
-                            //                   fontWeight: FontWeight.bold,
-                            //                   color: Colors.white,
-                            //                 ),
-                            //               ),
-                            //               SizedBox(height: screenWidth * 0.01),
-                            //               Text(
-                            //                 'View or upgrade your membership plan',
-                            //                 style: TextStyle(
-                            //                   fontSize: screenWidth * 0.03,
-                            //                   color: Colors.white
-                            //                       .withOpacity(0.85),
-                            //                 ),
-                            //               ),
-                            //             ],
-                            //           ),
-                            //         ),
-                            //         Icon(
-                            //           Icons.arrow_forward_ios_rounded,
-                            //           size: screenWidth * 0.045,
-                            //           color: Colors.white,
-                            //         ),
-                            //       ],
-                            //     ),
-                            //   ),
-                            // ),
                             Padding(
                               padding: EdgeInsets.symmetric(
                                 horizontal: screenWidth * 0.025, // ~16
@@ -952,12 +959,21 @@ class UserProfilePageState extends State<UserProfilePage>
                                   ),
                                   buildSettingCard(
                                     context,
-                                    title: 'Subscription History',
-                                    subtitle: 'See Your All Orders',
-                                    icon: Icons.plagiarism_outlined,
-                                    onTap: () => Get.to(AllOrdersPage()),
+                                    title: 'Membership',
+                                    subtitle:
+                                        'View or upgrade your membership plan',
+                                    icon: Icons.card_membership,
+                                    onTap: () => Get.to(PlanPage()),
                                     screenWidth: screenWidth,
                                   ),
+                                  // buildSettingCard(
+                                  //   context,
+                                  //   title: 'Subscription History',
+                                  //   subtitle: 'See Your All Orders',
+                                  //   icon: Icons.plagiarism_outlined,
+                                  //   onTap: () => Get.to(AllOrdersPage()),
+                                  //   screenWidth: screenWidth,
+                                  // ),
                                   buildSettingCard(
                                     context,
                                     title: 'Transactions',

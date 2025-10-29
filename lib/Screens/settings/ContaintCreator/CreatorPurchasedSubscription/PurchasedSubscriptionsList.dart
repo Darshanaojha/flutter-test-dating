@@ -148,15 +148,7 @@ class _CreatorSubsPurchasedPageState extends State<CreatorSubsPurchasedPage>
     );
   }
 
-  Widget _buildInfoItem(IconData icon, String value, double width) {
-    return Row(
-      children: [
-        Icon(icon, color: Colors.white70, size: width * 0.04),
-        SizedBox(width: width * 0.015),
-        Text(value, style: TextStyle(color: Colors.white, fontSize: width * 0.035)),
-      ],
-    );
-  }
+  
 
   Widget _buildDateItem(DateTime? start, DateTime? end, double width) {
     final startStr = start != null ? DateFormat('dd MMM yyyy').format(start) : '-';

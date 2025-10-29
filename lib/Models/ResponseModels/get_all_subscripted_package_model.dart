@@ -66,6 +66,7 @@ class PackageData {
   String created;
   String updated;
   String packageTitle;
+  String subscriptionDate;
 
   PackageData({
     required this.id,
@@ -81,6 +82,7 @@ class PackageData {
     required this.created,
     required this.updated,
     required this.packageTitle,
+    required this.subscriptionDate,
   });
 
   factory PackageData.fromJson(Map<String, dynamic> json) {
@@ -98,6 +100,7 @@ class PackageData {
       created: json['created'],
       updated: json['updated'],
       packageTitle: json['package_title'],
+      subscriptionDate: json['subscription_date'],
     );
   }
 
@@ -116,6 +119,7 @@ class PackageData {
       'created': created,
       'updated': updated,
       'package_title': packageTitle,
+      'subscription_date': subscriptionDate,
     };
   }
 }

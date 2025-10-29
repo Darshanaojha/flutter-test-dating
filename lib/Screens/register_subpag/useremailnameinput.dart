@@ -45,10 +45,22 @@ class UserInputPageState extends State<UserInputPage>
       failure('Name', 'Please enter your name');
       return 'Please enter your name';
     }
-    if (!RegExp(r"^[a-zA-Z\s']+$").hasMatch(value)) {
-      failure('RE-Enter', 'Name must contain only alphabets and apostrophes');
-      return 'Name must contain only alphabets and apostrophes';
+
+    // Convert to lowercase first
+    value = value.toLowerCase().trim();
+
+    // Regex: only alphabets, numbers, and underscore
+    // if (!RegExp(r'^[a-z0-9_]+$').hasMatch(value)) {
+    //   failure('RE-Enter',
+    //       'Must contain only letters and underscore (no spaces or special characters)');
+    //   return 'Must contain only letter and underscore';
+    // }
+    if (RegExp(r'[0-9!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/;`~]').hasMatch(value)) {
+      failure(
+          'RE-Enter', 'Name must not contain numbers or special characters');
+      return 'Name must not contain numbers or special characters';
     }
+
     return null;
   }
 
@@ -129,7 +141,7 @@ class UserInputPageState extends State<UserInputPage>
             children: [
               SizedBox(height: 8),
               Text(
-                'Please provide your name, email, and other details.',
+                'Please provide your username, email, and other details.',
                 style: TextStyle(
                   fontSize: fontSize,
                   color: AppColors.textColor,
@@ -138,10 +150,10 @@ class UserInputPageState extends State<UserInputPage>
               ),
               SizedBox(height: 16),
               buildTextField(
-                label: 'Name',
+                label: 'User Name',
                 onChanged: (value) {
-                  controller.registrationOTPRequest.name = value;
-                  controller.userRegistrationRequest.name = value;
+                  controller.registrationOTPRequest.name = value.trim();
+                  controller.userRegistrationRequest.username = value.trim();
                 },
                 validator: validateName,
               ),

@@ -93,8 +93,12 @@ class UserProfileUpdateRequest {
       failure('Name is required', 'Please provide your name.');
       return false;
     }
-    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(name)) {
-      failure('RE-Enter', 'Name must contain only alphabets');
+    // if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(name)) {
+    //   failure('RE-Enter', 'Name must contain only alphabets');
+    //   return false;
+    // }
+    if(RegExp(r'[0-9!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/;`~]').hasMatch(name)) {
+      failure('RE-Enter', 'Name must not start with a number or special character');
       return false;
     }
     if (latitude.isEmpty) {

@@ -105,7 +105,6 @@ class ChangePasswordPageState extends State<ChangePasswordPage> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double fontSize = screenWidth * 0.03;
 
     return Scaffold(
       appBar: AppBar(

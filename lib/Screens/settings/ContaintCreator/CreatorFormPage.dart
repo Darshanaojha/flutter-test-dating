@@ -351,43 +351,7 @@ class _CreatorFormPageState extends State<CreatorFormPage> {
     );
   }
 
-  Widget _buildImagePicker(String label, File? image, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 170,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: const Color(0xff1f1f1f),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white12),
-        ),
-        child: image != null
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.file(image,
-                    fit: BoxFit.cover, width: double.infinity),
-              )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.add_a_photo,
-                      color: Colors.white38, size: 30),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.02,
-                  ),
-                  Text(
-                    "Tap to upload $label",
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: getResponsiveFontSize(0.03),
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-      ),
-    );
-  }
+  
 
   Widget _buildGradientButton(String text, VoidCallback onPressed) {
     return AnimatedContainer(

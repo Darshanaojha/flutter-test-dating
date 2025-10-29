@@ -107,7 +107,9 @@ class RazorpayController extends GetxController {
         transactionRequestModel.updated = DateTime.now();
       }
 
-      await transaction(transactionRequestModel).then((value) {
+      await transaction(transactionRequestModel).then((value) async {
+        // await _showSuccessDialog();
+
         Get.offAll(NavigationBottomBar());
       });
       print(
@@ -210,7 +212,12 @@ class RazorpayController extends GetxController {
 
   OrderRequestModel orderRequestModel = OrderRequestModel(
       packageId: '', amount: '', points: '', ispointused: '', type: '');
+  final isProcessingOrder = false.obs;
   Future<bool?> createOrder(OrderRequestModel orderRequestModel) async {
+    if (isProcessingOrder.value) {
+      return false;
+    }
+    isProcessingOrder.value = true;
     try {
       OrderResponseModel? orderResponseModel =
           await OrderProvider().createOrder(orderRequestModel);
@@ -252,6 +259,8 @@ class RazorpayController extends GetxController {
     } catch (e) {
       failure('Error', e.toString());
       return false;
+    } finally {
+      isProcessingOrder.value = false;
     }
   }
 

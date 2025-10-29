@@ -1,14 +1,14 @@
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../constants.dart'; // Make sure you have your constants properly defined
+import '../../constants.dart';
 
 class ReceiverAudioCallPage extends StatefulWidget {
   final String channelName;
@@ -20,107 +20,48 @@ class ReceiverAudioCallPage extends StatefulWidget {
 }
 
 class ReceiverAudioCallPageState extends State<ReceiverAudioCallPage> {
+  Controller controller = Get.put(Controller());
+
+  late DateTime callStartTime;
+  late DateTime callEndTime;
   late String agoraToken;
   int? localUid;
   int? remoteUid;
+  bool localUserJoined = false;
   bool isLocalAudioMuted = false;
-  late RtcEngine engine;
-  Controller controller = Get.put(Controller());
+  bool isSpeakerOn = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _requestPermissions();
+  late RtcEngine engine;
+
+  Future<bool> _ensurePermissions() async {
+    var mic = await Permission.microphone.request();
+    if (mic.isGranted) {
+      return true;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text('Microphone permission is required for audio calls.')),
+      );
+      return false;
+    }
+  }
+
+  void _startCallIfPermitted() async {
+    bool permitted = await _ensurePermissions();
+    if (!permitted) {
+      Navigator.of(context).pop();
+      return;
+    }
     fetchAgoraToken(widget.channelName).then((value) {
       if (value == null) {
-        failure('Error', 'Failed to fetch Agora token');
+        failure('Error',
+            'An Error Occured while fetching the token from the server');
       } else {
         agoraToken = value;
         initializeAgora();
       }
     });
-  }
-
-  void _requestPermissions() async {
-    // Request notification permission
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-    NotificationSettings notificationSettings =
-        await messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-
-    if (notificationSettings.authorizationStatus ==
-        AuthorizationStatus.authorized) {
-      print('User granted notification permission');
-    } else if (notificationSettings.authorizationStatus ==
-        AuthorizationStatus.denied) {
-      print('User declined notification permission');
-    } else if (notificationSettings.authorizationStatus ==
-        AuthorizationStatus.provisional) {
-      print('User granted provisional notification permission');
-    }
-
-    // Request camera permission
-    var cameraStatus = await Permission.camera.request();
-    if(cameraStatus.isPermanentlyDenied) {
-      controller.showPermissionDialog('Camera',context);
-    }
-    if (cameraStatus.isGranted) {
-      print('Camera permission granted');
-    } else if (cameraStatus.isDenied) {
-      print('Camera permission denied');
-    }
-
-    // Request location permission
-    var locationStatus = await Permission.location.request();
-    if(locationStatus.isPermanentlyDenied) {
-      controller.showPermissionDialog('Location',context);
-    }
-    if (locationStatus.isGranted) {
-      print('Location permission granted');
-    } else if (locationStatus.isDenied) {
-      print('Location permission denied');
-    }
-
-    // Request storage permission
-    var storageStatus = await Permission.storage.request();
-    if (storageStatus.isGranted) {
-      print('Storage permission granted');
-    } else if (await Permission.storage.isRestricted) {
-      print('Storage permission is restricted');
-    } else {
-      // Handle Android 13+ permissions
-      var manageStorageStatus =
-          await Permission.manageExternalStorage.request();
-      if(manageStorageStatus.isPermanentlyDenied){
-        controller.showPermissionDialog('Manage External Storage',context);
-      }
-      if (manageStorageStatus.isGranted) {
-        print('Manage external storage permission granted');
-      } else if (manageStorageStatus.isPermanentlyDenied) {
-        openAppSettings();
-      } else {
-        print('Manage external storage permission denied');
-      }
-    }
-
-    // Request microphone permission
-    var microphoneStatus = await Permission.microphone.request();
-    if (microphoneStatus.isPermanentlyDenied) {
-      controller.showPermissionDialog('Microphone',context);
-    }
-    if (microphoneStatus.isGranted) {
-      print('Microphone permission granted');
-    } else if (microphoneStatus.isDenied) {
-      print('Microphone permission denied');
-    }
-
-    // Speaker permission (typically implicitly granted when using audio output)
-    // There's no specific permission for speaker access in Flutter.
-    // Just ensure that the app can play audio properly, and you'll usually be good to go.
-    print('Speaker permission is assumed granted when playing audio.');
   }
 
   Future<String?> fetchAgoraToken(String channelName) async {
@@ -173,7 +114,7 @@ class ReceiverAudioCallPageState extends State<ReceiverAudioCallPage> {
       await engine.initialize(RtcEngineContext(
         appId: AgoraConstants.AGORAAPPID,
         channelProfile:
-            ChannelProfileType.channelProfileCommunication, // Audio call mode
+            ChannelProfileType.channelProfileCommunication,
       ));
       print("Agora Engine initialized successfully");
     } catch (e) {
@@ -189,6 +130,8 @@ class ReceiverAudioCallPageState extends State<ReceiverAudioCallPage> {
             debugPrint("Local user ${connection.localUid} joined the channel");
             setState(() {
               localUid = connection.localUid;
+              callStartTime = DateTime.now();
+              localUserJoined = true;
             });
           },
           onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
@@ -200,8 +143,9 @@ class ReceiverAudioCallPageState extends State<ReceiverAudioCallPage> {
           onUserOffline: (RtcConnection connection, int remoteUid,
               UserOfflineReasonType reason) {
             debugPrint("Remote user $remoteUid left the channel");
+            callEndTime = DateTime.now();
             setState(() {
-              remoteUid = 0; // Indicate that remote user has left
+              remoteUid = 0;
             });
           },
         ),
@@ -214,7 +158,7 @@ class ReceiverAudioCallPageState extends State<ReceiverAudioCallPage> {
 
     try {
       print(
-          "Joining channel with ID: ${widget.channelName} and token: $agoraToken");
+          "Joining channel with ID: ${widget.channelName} and token: $agoraToken and localuid: $localUid");
       await engine.joinChannel(
         token: agoraToken,
         channelId: widget.channelName,
@@ -230,14 +174,6 @@ class ReceiverAudioCallPageState extends State<ReceiverAudioCallPage> {
     }
   }
 
-  void _toggleMute() async {
-    setState(() {
-      isLocalAudioMuted = !isLocalAudioMuted;
-    });
-
-    await engine.muteLocalAudioStream(isLocalAudioMuted);
-  }
-
   @override
   void dispose() {
     super.dispose();
@@ -250,37 +186,192 @@ class ReceiverAudioCallPageState extends State<ReceiverAudioCallPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _startCallIfPermitted();
+  }
+
+  void _toggleMute() async {
+    setState(() {
+      isLocalAudioMuted = !isLocalAudioMuted;
+    });
+
+    await engine.muteLocalAudioStream(isLocalAudioMuted);
+  }
+
+  void _toggleSpeaker() async {
+    setState(() {
+      isSpeakerOn = !isSpeakerOn;
+    });
+    await engine.setEnableSpeakerphone(isSpeakerOn);
+  }
+
+  void _endCall() async {
+    await _disposeAgora();
+    Get.close(2);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    double fontSize = size.width * 0.045;
+
     return Scaffold(
+      backgroundColor: AppColors.primaryColor,
       appBar: AppBar(
-        title: const Text('Audio Call'),
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: AppColors.gradientBackgroundList,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        title: Text(
+          'Audio Call',
+          style: AppTextStyles.headingText.copyWith(
+            fontSize: fontSize * 1.1,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: Stack(
         children: [
-          // Display remote user's audio status
           Center(
             child: remoteUid != null
-                ? const Icon(Icons.volume_up, size: 50, color: Colors.green)
-                : const Text(
-                    'Waiting for remote user to join...',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 18),
+                ? Container(
+                    padding: EdgeInsets.all(32),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: AppColors.gradientBackgroundList,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.deepPurple.withOpacity(0.18),
+                          blurRadius: 24,
+                          offset: Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Icon(Icons.volume_up, size: 70, color: Colors.white),
+                  )
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.hourglass_empty,
+                          size: 60, color: Colors.white70),
+                      SizedBox(height: 18),
+                      Text(
+                        'Waiting for remote user to join...',
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.bodyText.copyWith(
+                          fontSize: fontSize,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
                   ),
           ),
-          // Local user controls (microphone mute/unmute)
           Align(
             alignment: Alignment.bottomCenter,
-            child: SizedBox(
-              height: 100,
-              child: Center(
-                child: IconButton(
-                  icon: Icon(
-                    isLocalAudioMuted ? Icons.mic_off : Icons.mic,
-                    size: 40,
-                    color: isLocalAudioMuted ? Colors.red : Colors.green,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 40),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: _toggleMute,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: isLocalAudioMuted
+                              ? [Colors.redAccent, Colors.deepOrange]
+                              : [Colors.green, Colors.lightGreen],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 12,
+                            offset: Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      padding: EdgeInsets.all(22),
+                      child: Icon(
+                        isLocalAudioMuted ? Icons.mic_off : Icons.mic,
+                        size: 36,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
-                  onPressed: _toggleMute,
-                ),
+                  SizedBox(width: 20),
+                  GestureDetector(
+                    onTap: _toggleSpeaker,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: isSpeakerOn
+                              ? [Colors.blueAccent, Colors.lightBlue]
+                              : [Colors.grey, Colors.blueGrey],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 12,
+                            offset: Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      padding: EdgeInsets.all(22),
+                      child: Icon(
+                        isSpeakerOn ? Icons.volume_up : Icons.volume_off,
+                        size: 36,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 20),
+                  GestureDetector(
+                    onTap: _endCall,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [Colors.red, Colors.deepOrange],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.redAccent.withOpacity(0.25),
+                            blurRadius: 12,
+                            offset: Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      padding: EdgeInsets.all(22),
+                      child: Icon(
+                        Icons.call_end,
+                        size: 36,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

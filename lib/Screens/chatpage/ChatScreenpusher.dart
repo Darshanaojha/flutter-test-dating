@@ -311,7 +311,6 @@ class ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     final scrollController = ScrollController();
     return Scaffold(
       appBar: AppBar(
@@ -474,216 +473,268 @@ class ChatScreenState extends State<ChatScreen> {
               : SizedBox(),
           IconButton(
             icon: Icon(Icons.phone),
-            onPressed: () {
-              Get.to(AudioCallPage(
-                caller: widget.senderId,
-                receiver: widget.receiverId,
-              ));
+            onPressed: () async {
+              if (await _requestPermission(
+                  Permission.microphone, "Microphone")) {
+                Get.to(AudioCallPage(
+                  caller: widget.senderId,
+                  receiver: widget.receiverId,
+                ));
+              }
             },
           ),
           IconButton(
             icon: Icon(Icons.videocam),
-            onPressed: () {
-              Get.to(VideoCallPage(
-                caller: widget.senderId,
-                receiver: widget.receiverId,
-              ));
+            onPressed: () async {
+              if (await _requestPermission(Permission.camera, "Camera") &&
+                  await _requestPermission(
+                      Permission.microphone, "Microphone")) {
+                Get.to(VideoCallPage(
+                  caller: widget.senderId,
+                  receiver: widget.receiverId,
+                ));
+              }
             },
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Obx(() => ListView.builder(
-                  controller: scrollController,
-                  itemCount: controller.messages.length,
-                  itemBuilder: (context, index) {
-                    final message = controller.messages[index];
-                    bool isSentByUser = message.senderId == widget.senderId;
-                    return Slidable(
-                      key: Key(message.id ?? ''),
-                      // Specify the start-to-end action pane (Edit button)
-                      startActionPane: isSentByUser && message.imagePath == null
-                          ? ActionPane(
-                              motion: DrawerMotion(),
-                              extentRatio: 0.25,
-                              children: [
-                                SlidableAction(
-                                  onPressed: isSentByUser
-                                      ? (context) {
-                                          _showMessageDialog(
-                                              context, message, index);
-                                        }
-                                      : null, // Disable edit for messages not sent by the user
-                                  backgroundColor: Colors.blue,
-                                  foregroundColor: Colors.white,
-                                  icon: Icons.edit,
-                                  //  label: 'Edit',
-                                ),
-                              ],
-                            )
-                          : null,
-                      endActionPane: isSentByUser
-                          ? ActionPane(
-                              motion: DrawerMotion(),
-                              extentRatio: 0.25,
-                              children: [
-                                SlidableAction(
-                                  onPressed: (context) {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return Dialog(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(24),
-                                          ),
-                                          elevation: 12,
-                                          backgroundColor: Colors.transparent,
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: AppColors
-                                                    .gradientBackgroundList,
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: Obx(() => ListView.builder(
+                    controller: scrollController,
+                    itemCount: controller.messages.length,
+                    itemBuilder: (context, index) {
+                      final message = controller.messages[index];
+                      bool isSentByUser = message.senderId == widget.senderId;
+        
+                      return Slidable(
+                        key: Key(message.id ?? ''),
+                        // Specify the start-to-end action pane (Edit button)
+                        startActionPane: isSentByUser && message.imagePath == null
+                            ? ActionPane(
+                                motion: DrawerMotion(),
+                                extentRatio: 0.25,
+                                children: [
+                                  SlidableAction(
+                                    onPressed: isSentByUser
+                                        ? (context) {
+                                            _showMessageDialog(
+                                                context, message, index);
+                                          }
+                                        : null, // Disable edit for messages not sent by the user
+                                    backgroundColor: Colors.blue,
+                                    foregroundColor: Colors.white,
+                                    icon: Icons.edit,
+                                    //  label: 'Edit',
+                                  ),
+                                ],
+                              )
+                            : null,
+                        endActionPane: isSentByUser
+                            ? ActionPane(
+                                motion: DrawerMotion(),
+                                extentRatio: 0.25,
+                                children: [
+                                  SlidableAction(
+                                    onPressed: (context) {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return Dialog(
+                                            shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(24),
                                             ),
-                                            padding: EdgeInsets.symmetric(
-                                                vertical: 24, horizontal: 18),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white
-                                                        .withOpacity(0.15),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            18),
-                                                  ),
-                                                  padding: EdgeInsets.all(16),
-                                                  child: Icon(
-                                                    Icons.chat,
-                                                    color: Colors.white,
-                                                    size: 48,
-                                                  ),
+                                            elevation: 12,
+                                            backgroundColor: Colors.transparent,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: AppColors
+                                                      .gradientBackgroundList,
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
                                                 ),
-                                                SizedBox(height: 18),
-                                                Text(
-                                                  "Delete Message",
-                                                  style: AppTextStyles
-                                                      .headingText
-                                                      .copyWith(
-                                                    fontSize: 20,
-                                                    color: AppColors.textColor,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                SizedBox(height: 10),
-                                                Text(
-                                                  "Are you sure you want to delete this message?",
-                                                  style: AppTextStyles.bodyText
-                                                      .copyWith(
-                                                    color: Colors.white,
-                                                    fontSize: 16,
-                                                  ),
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                                SizedBox(height: 22),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.end,
-                                                  children: [
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        Navigator.pop(context);
-                                                      },
-                                                      style:
-                                                          TextButton.styleFrom(
-                                                        foregroundColor:
-                                                            Colors.white,
-                                                        textStyle: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                      child: Text("Cancel"),
+                                                borderRadius:
+                                                    BorderRadius.circular(24),
+                                              ),
+                                              padding: EdgeInsets.symmetric(
+                                                  vertical: 24, horizontal: 18),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white
+                                                          .withOpacity(0.15),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              18),
                                                     ),
-                                                    SizedBox(width: 8),
-                                                    ElevatedButton.icon(
-                                                      style: ElevatedButton
-                                                          .styleFrom(
-                                                        backgroundColor: AppColors
-                                                            .darkGradientColor,
-                                                        foregroundColor:
-                                                            Colors.white,
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(14),
+                                                    padding: EdgeInsets.all(16),
+                                                    child: Icon(
+                                                      Icons.chat,
+                                                      color: Colors.white,
+                                                      size: 48,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 18),
+                                                  Text(
+                                                    "Delete Message",
+                                                    style: AppTextStyles
+                                                        .headingText
+                                                        .copyWith(
+                                                      fontSize: 20,
+                                                      color: AppColors.textColor,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 10),
+                                                  Text(
+                                                    "Are you sure you want to delete this message?",
+                                                    style: AppTextStyles.bodyText
+                                                        .copyWith(
+                                                      color: Colors.white,
+                                                      fontSize: 16,
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                  SizedBox(height: 22),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.end,
+                                                    children: [
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(context);
+                                                        },
+                                                        style:
+                                                            TextButton.styleFrom(
+                                                          foregroundColor:
+                                                              Colors.white,
+                                                          textStyle: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
                                                         ),
-                                                        elevation: 4,
+                                                        child: Text("Cancel"),
                                                       ),
-                                                      icon: Icon(Icons.delete),
-                                                      label: Text("Delete"),
-                                                      onPressed: () {
-                                                        deleteSingleMessage(
-                                                            index);
-                                                        Navigator.pop(context);
-                                                      },
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
+                                                      SizedBox(width: 8),
+                                                      ElevatedButton.icon(
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          backgroundColor: AppColors
+                                                              .darkGradientColor,
+                                                          foregroundColor:
+                                                              Colors.white,
+                                                          shape:
+                                                              RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(14),
+                                                          ),
+                                                          elevation: 4,
+                                                        ),
+                                                        icon: Icon(Icons.delete),
+                                                        label: Text("Delete"),
+                                                        onPressed: () {
+                                                          deleteSingleMessage(
+                                                              index);
+                                                          Navigator.pop(context);
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
                                             ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                    backgroundColor: Colors.red,
+                                    foregroundColor: Colors.white,
+                                    icon: Icons.delete,
+        
+                                    // label: 'Delete',
+                                  ),
+                                ],
+                              )
+                            : null,
+        
+                        child: GestureDetector(
+                          onTap: () {
+                            if (selectedMessages.isNotEmpty) {
+                              if (isSentByUser) {
+                                toggleSelection(message);
+                              }
+                            }
+                          },
+                          onLongPress: () {
+                            if (selectedMessages.isEmpty) {
+                              if (isSentByUser) {
+                                Vibration.vibrate(duration: 100);
+                                toggleSelection(message);
+                              }
+                            }
+                          },
+                          child: Stack(
+                            children: [
+                              // Wrap the message bubble in a container and conditionally change the background color
+                              if (selectedMessages.contains(message))
+                                Container(
+                                  color: Colors
+                                      .red, // Set background color to yellow when selected
+                                  margin: EdgeInsets.symmetric(
+                                      vertical: 5,
+                                      horizontal:
+                                          10), // Adjust margin for spacing
+                                  child: Align(
+                                    alignment: isSentByUser
+                                        ? Alignment.centerRight
+                                        : Alignment.centerLeft,
+                                    child: Column(
+                                      crossAxisAlignment: isSentByUser
+                                          ? CrossAxisAlignment.end
+                                          : CrossAxisAlignment.start,
+                                      children: [
+                                        BubbleSpecialThree(
+                                          sent: isSentByUser,
+                                          delivered: isSentByUser,
+                                          seen: isSentByUser,
+                                          text: message.message ?? '',
+                                          isSender: isSentByUser,
+                                          color: isSentByUser
+                                              ? Colors.blueAccent
+                                              : Colors.grey[300]!,
+                                          textStyle: TextStyle(
+                                            color: isSentByUser
+                                                ? Colors.white
+                                                : Colors.black,
+                                            fontSize: 16,
                                           ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                  backgroundColor: Colors.red,
-                                  foregroundColor: Colors.white,
-                                  icon: Icons.delete,
-
-                                  // label: 'Delete',
+                                        ),
+                                        Container(
+                                          padding: isSentByUser
+                                              ? EdgeInsets.fromLTRB(0, 0, 5, 0)
+                                              : EdgeInsets.fromLTRB(5, 0, 0, 0),
+                                          child: message.isEdited == 1
+                                              ? Text(
+                                                  "(edited)",
+                                                  style: TextStyle(
+                                                      color: Colors.grey),
+                                                )
+                                              : SizedBox.shrink(),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                              ],
-                            )
-                          : null,
-
-                      child: GestureDetector(
-                        onTap: () {
-                          if (selectedMessages.isNotEmpty) {
-                            if (isSentByUser) {
-                              toggleSelection(message);
-                            }
-                          }
-                        },
-                        onLongPress: () {
-                          if (selectedMessages.isEmpty) {
-                            if (isSentByUser) {
-                              Vibration.vibrate(duration: 100);
-                              toggleSelection(message);
-                            }
-                          }
-                        },
-                        child: Stack(
-                          children: [
-                            // Wrap the message bubble in a container and conditionally change the background color
-                            if (selectedMessages.contains(message))
-                              Container(
-                                color: Colors
-                                    .red, // Set background color to yellow when selected
-                                margin: EdgeInsets.symmetric(
-                                    vertical: 5,
-                                    horizontal:
-                                        10), // Adjust margin for spacing
-                                child: Align(
+                              if (!selectedMessages.contains(message))
+                                Align(
                                   alignment: isSentByUser
                                       ? Alignment.centerRight
                                       : Alignment.centerLeft,
@@ -692,22 +743,34 @@ class ChatScreenState extends State<ChatScreen> {
                                         ? CrossAxisAlignment.end
                                         : CrossAxisAlignment.start,
                                     children: [
-                                      BubbleSpecialThree(
-                                        sent: isSentByUser,
-                                        delivered: isSentByUser,
-                                        seen: isSentByUser,
-                                        text: message.message ?? '',
-                                        isSender: isSentByUser,
-                                        color: isSentByUser
-                                            ? Colors.blueAccent
-                                            : Colors.grey[300]!,
-                                        textStyle: TextStyle(
-                                          color: isSentByUser
-                                              ? Colors.white
-                                              : Colors.black,
-                                          fontSize: 16,
+                                      message.message == null
+                                          ? SizedBox.shrink()
+                                          : BubbleSpecialThree(
+                                              sent: isSentByUser,
+                                              delivered: isSentByUser,
+                                              seen: isSentByUser,
+                                              text: message.message ?? '',
+                                              isSender: isSentByUser,
+                                              color: isSentByUser
+                                                  ? Colors.blueAccent
+                                                  : Colors.grey[300]!,
+                                              textStyle: TextStyle(
+                                                color: isSentByUser
+                                                    ? Colors.white
+                                                    : Colors.black,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                      if (message.imagePath != null)
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 5.0),
+                                          child: SensitiveImageWidget(
+                                            imagePath: message.imagePath!,
+                                            bearerToken: bearerToken!,
+                                            sensitivity: message.sensitivity ?? 0,
+                                          ),
                                         ),
-                                      ),
                                       Container(
                                         padding: isSentByUser
                                             ? EdgeInsets.fromLTRB(0, 0, 5, 0)
@@ -715,210 +778,157 @@ class ChatScreenState extends State<ChatScreen> {
                                         child: message.isEdited == 1
                                             ? Text(
                                                 "(edited)",
-                                                style: TextStyle(
-                                                    color: Colors.grey),
+                                                style:
+                                                    TextStyle(color: Colors.grey),
                                               )
                                             : SizedBox.shrink(),
                                       ),
                                     ],
                                   ),
                                 ),
-                              ),
-                            if (!selectedMessages.contains(message))
-                              Align(
-                                alignment: isSentByUser
-                                    ? Alignment.centerRight
-                                    : Alignment.centerLeft,
-                                child: Column(
-                                  crossAxisAlignment: isSentByUser
-                                      ? CrossAxisAlignment.end
-                                      : CrossAxisAlignment.start,
-                                  children: [
-                                    message.message == null
-                                        ? SizedBox.shrink()
-                                        : BubbleSpecialThree(
-                                            sent: isSentByUser,
-                                            delivered: isSentByUser,
-                                            seen: isSentByUser,
-                                            text: message.message ?? '',
-                                            isSender: isSentByUser,
-                                            color: isSentByUser
-                                                ? Colors.blueAccent
-                                                : Colors.grey[300]!,
-                                            textStyle: TextStyle(
-                                              color: isSentByUser
-                                                  ? Colors.white
-                                                  : Colors.black,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                    if (message.imagePath != null)
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(top: 5.0),
-                                        child: SensitiveImageWidget(
-                                          imagePath: message.imagePath!,
-                                          bearerToken: bearerToken!,
-                                          sensitivity: message.sensitivity ?? 0,
-                                        ),
-                                      ),
-                                    Container(
-                                      padding: isSentByUser
-                                          ? EdgeInsets.fromLTRB(0, 0, 5, 0)
-                                          : EdgeInsets.fromLTRB(5, 0, 0, 0),
-                                      child: message.isEdited == 1
-                                          ? Text(
-                                              "(edited)",
-                                              style:
-                                                  TextStyle(color: Colors.grey),
-                                            )
-                                          : SizedBox.shrink(),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                )),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                // Message input with rounded card and slight elevation
-                Expanded(
-                  child: Card(
-                    elevation: 6,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.white,
-                      ),
-                      child: TextField(
-                        cursorColor: Colors.black87,
-                        controller: messageController,
-                        style: AppTextStyles.inputFieldText
-                            .copyWith(fontSize: 16, color: Colors.black),
-                        decoration: InputDecoration(
-                          hintText: 'Type a message...',
-                          hintStyle: AppTextStyles.bodyText
-                              .copyWith(color: Colors.grey),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 18, vertical: 14),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                // Image picker icon with gradient background
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 4),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: AppColors.gradientBackgroundList,
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.deepPurple.withOpacity(0.18),
-                        blurRadius: 8,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: IconButton(
-                    icon: Icon(Icons.image, color: Colors.white),
-                    onPressed: () async {
-                      final pickedFile = await showModalBottomSheet<XFile?>(
-                        context: context,
-                        builder: (context) => _buildImagePickerOptions(),
-                      );
-                      if (pickedFile != null) {
-                        setState(() {
-                          selectedImage = File(pickedFile.path);
-                        });
-                      }
-                    },
-                  ),
-                ),
-                // Show selected image as a small avatar
-                if (selectedImage != null)
-                  GestureDetector(
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (_) => AlertDialog(
-                          content: Image.file(selectedImage!),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text("Close"),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       );
                     },
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: CircleAvatar(
-                        radius: 22,
-                        backgroundImage: FileImage(selectedImage!),
-                      ),
-                    ),
-                  ),
-                // Send button with gradient background
-                Container(
-                  margin: EdgeInsets.only(left: 4),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: AppColors.gradientBackgroundList,
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.deepPurple.withOpacity(0.18),
-                        blurRadius: 8,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: IconButton(
-                    icon: Icon(Icons.send, color: Colors.white),
-                    onPressed: () async {
-                      final messageText = messageController.text.trim();
-                      if (messageText.isNotEmpty || selectedImage != null) {
-                        await _sendMessage(
-                          message: messageText,
-                          receiverId: widget.receiverId,
-                          image: selectedImage,
-                        );
-                        messageController.clear();
-                        setState(() {
-                          selectedImage = null;
-                        });
-                        controller.fetchChats(widget.receiverId);
-                      } else {
-                        Get.snackbar("Empty Message",
-                            "Please type a message or select an image.");
-                      }
-                    },
-                  ),
-                ),
-              ],
+                  )),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  // Message input with rounded card and slight elevation
+                  Expanded(
+                    child: Card(
+                      elevation: 6,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.white,
+                        ),
+                        child: TextField(
+                          cursorColor: Colors.black87,
+                          controller: messageController,
+                          style: AppTextStyles.inputFieldText
+                              .copyWith(fontSize: 16, color: Colors.black),
+                          decoration: InputDecoration(
+                            hintText: 'Type a message...',
+                            hintStyle: AppTextStyles.bodyText
+                                .copyWith(color: Colors.grey),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 18, vertical: 14),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Image picker icon with gradient background
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 4),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: AppColors.gradientBackgroundList,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.deepPurple.withOpacity(0.18),
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: IconButton(
+                      icon: Icon(Icons.image, color: Colors.white),
+                      onPressed: () async {
+                        final pickedFile = await showModalBottomSheet<XFile?>(
+                          context: context,
+                          builder: (context) => _buildImagePickerOptions(),
+                        );
+                        if (pickedFile != null) {
+                          setState(() {
+                            selectedImage = File(pickedFile.path);
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                  // Show selected image as a small avatar
+                  if (selectedImage != null)
+                    GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            content: Image.file(selectedImage!),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text("Close"),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: CircleAvatar(
+                          radius: 22,
+                          backgroundImage: FileImage(selectedImage!),
+                        ),
+                      ),
+                    ),
+                  // Send button with gradient background
+                  Container(
+                    margin: EdgeInsets.only(left: 4),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: AppColors.gradientBackgroundList,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.deepPurple.withOpacity(0.18),
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: IconButton(
+                      icon: Icon(Icons.send, color: Colors.white),
+                      onPressed: () async {
+                        final messageText = messageController.text.trim();
+                        if (messageText.isNotEmpty || selectedImage != null) {
+                          await _sendMessage(
+                            message: messageText,
+                            receiverId: widget.receiverId,
+                            image: selectedImage,
+                          );
+                          messageController.clear();
+                          setState(() {
+                            selectedImage = null;
+                          });
+                          controller.fetchChats(widget.receiverId);
+                        } else {
+                          Get.snackbar("Empty Message",
+                              "Please type a message or select an image.");
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -948,46 +958,146 @@ class ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Future<XFile?> _pickImage(ImageSource source) async {
-    PermissionStatus status;
-    if (source == ImageSource.camera) {
-      status = await Permission.camera.request();
-    } else {
-      status = await Permission.photos.request();
-    }
-
-    if (status.isGranted) {
-      return await ImagePicker().pickImage(source: source);
-    } else if (status.isPermanentlyDenied) {
-      await openAppSettings();
-    } else {
+  Future<bool> _requestPermission(
+      Permission permission, String permissionName) async {
+    var status = await permission.status;
+    if (status.isGranted || (status.isLimited && Platform.isIOS)) {
+      return true;
+    } else if (status.isDenied) {
+      status = await permission.request();
+      if (status.isGranted || (status.isLimited && Platform.isIOS)) {
+        return true;
+      } else {
+        Get.snackbar(
+            'Permission Denied', "$permissionName permission is required.");
+        return false;
+      }
+    } else if (status.isPermanentlyDenied || status.isRestricted) {
       Get.snackbar(
-        'Permission Denied',
-        'Please grant permission to access the ${source == ImageSource.camera ? 'camera' : 'gallery'}.',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: Duration(seconds: 2),
+        'Permission Required',
+        "$permissionName permission has been permanently denied. Please enable it in app settings.",
+        mainButton: TextButton(
+          child: const Text("Open Settings"),
+          onPressed: () {
+            openAppSettings();
+          },
+        ),
+        duration: const Duration(seconds: 5),
       );
-      await Future.delayed(Duration(seconds: 2));
-      openAppSettings();
+      return false;
     }
-    return null;
+    return false;
   }
 
-  Future<Uint8List> _fetchImageBytes(
-      String imagePath, String bearerToken) async {
-    final response = await http.get(
-      Uri.parse('$springbooturl/ChatController/uploads/$imagePath'),
-      headers: {
-        'Authorization': 'Bearer $bearerToken',
-        'Content-Type': 'application/json',
-      },
-    );
+  Future<bool> _requestGalleryPermission() async {
+    try {
+      // Handle platform-specific permissions
+      if (Platform.isAndroid) {
+        // On Android 13+, we need both photos and storage permissions
+        if (await Permission.storage.isGranted ||
+            await Permission.photos.isGranted) {
+          return true;
+        }
 
-    if (response.statusCode == 200) {
-      return response.bodyBytes;
-    } else {
-      throw Exception('Failed to load image');
+        // Request the appropriate permissions
+        final status = await Permission.storage.request();
+        if (status.isGranted) return true;
+
+        // If storage is denied but photos is granted (Android 13+)
+        if (await Permission.photos.isGranted) return true;
+
+        // Final fallback request
+        final photosStatus = await Permission.photos.request();
+        return photosStatus.isGranted;
+      } else if (Platform.isIOS) {
+        // On iOS, we only need photos permission
+        var status = await Permission.photos.status;
+
+        if (status.isGranted || status.isLimited) {
+          return true;
+        }
+
+        // Request permission if not determined
+        status = await Permission.photos.request();
+        return status.isGranted || status.isLimited;
+      }
+
+      // Default case for other platforms
+      return false;
+    } catch (e) {
+      print('Error checking gallery permission: $e');
+      return false;
     }
+  }
+
+  Future<XFile?> _pickImage(ImageSource source) async {
+    try {
+      bool permissionGranted = false;
+
+      if (source == ImageSource.camera) {
+        permissionGranted =
+            await _requestPermission(Permission.camera, "Camera");
+      } else if (source == ImageSource.gallery) {
+        permissionGranted = await _requestGalleryPermission();
+
+        // Additional check to prevent settings popup when permission is actually granted
+        if (!permissionGranted) {
+          final currentStatus = Platform.isAndroid
+              ? (await Permission.storage.status).isGranted ||
+                  (await Permission.photos.status).isGranted
+              : (await Permission.photos.status).isGranted ||
+                  (await Permission.photos.status).isLimited;
+
+          if (currentStatus) {
+            permissionGranted = true;
+          }
+        }
+      }
+
+      if (!permissionGranted) {
+        // Only show settings suggestion if permission is truly denied
+        final status = Platform.isAndroid
+            ? await Permission.storage.status
+            : await Permission.photos.status;
+
+        if (status.isPermanentlyDenied || status.isRestricted) {
+          _showPermissionSettingsDialog(
+              context, Platform.isAndroid ? "Storage" : "Photos");
+        }
+        return null;
+      }
+
+      return await ImagePicker().pickImage(source: source);
+    } catch (e) {
+      print('Error picking image: $e');
+      return null;
+    }
+  }
+
+  void _showPermissionSettingsDialog(
+      BuildContext context, String permissionName) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Permission Required"),
+        content: Text(
+            "$permissionName permission is required to access this feature. "
+            "Please enable it in your device settings."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              openAppSettings();
+            },
+            child: Text("Open Settings"),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -1038,7 +1148,7 @@ class _SensitiveImageWidgetState extends State<SensitiveImageWidget> {
         } else if (snapshot.hasError) {
           return const Icon(Icons.broken_image);
         } else if (snapshot.hasData) {
-          Widget image = ClipRRect(
+          Widget chatBubbleImage = ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Image.memory(
               snapshot.data!,
@@ -1046,6 +1156,10 @@ class _SensitiveImageWidgetState extends State<SensitiveImageWidget> {
               height: 180,
               fit: BoxFit.cover,
             ),
+          );
+
+          Widget fullScreenImage = Image.memory(
+            snapshot.data!,
           );
 
           if (widget.sensitivity == 0 && _showBlur) {
@@ -1079,7 +1193,7 @@ class _SensitiveImageWidgetState extends State<SensitiveImageWidget> {
                 children: [
                   ImageFiltered(
                     imageFilter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                    child: image,
+                    child: chatBubbleImage,
                   ),
                   Positioned.fill(
                     child: Container(
@@ -1116,15 +1230,22 @@ class _SensitiveImageWidgetState extends State<SensitiveImageWidget> {
               onTap: () {
                 showDialog(
                   context: context,
-                  builder: (_) => Dialog(
-                    backgroundColor: Colors.transparent,
-                    child: InteractiveViewer(
-                      child: image,
-                    ),
-                  ),
+                  builder: (context) {
+                    return Dialog(
+                      backgroundColor: Colors.transparent,
+                      insetPadding: EdgeInsets.all(10),
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height,
+                        child: InteractiveViewer(
+                          child: fullScreenImage,
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
-              child: image,
+              child: chatBubbleImage,
             );
           }
         } else {

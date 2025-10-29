@@ -150,8 +150,8 @@ class EmailInputPageState extends State<EmailInputPage> {
                                 success('Success',
                                     'Email Submitted: ${controller.forgetPasswordRequest.email}');
 
-                                controller.getOtpForgetPassword(
-                                    controller.forgetPasswordRequest);
+                                // controller.getOtpForgetPassword(
+                                //     controller.forgetPasswordRequest);
                                 Get.to(PasswordInputPage());
                               }
                             },

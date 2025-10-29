@@ -40,8 +40,7 @@ class UnSubscribeNavigationController extends GetxController {
     double baseFont = screenWidth * 0.065; // Roughly responsive
     double smallFont = screenWidth * 0.035;
     double buttonFont = screenWidth * 0.04;
-    double buttonPaddingH = screenWidth * 0.05;
-    double buttonPaddingV = screenHeight * 0.012;
+    double fontSize = size.width * 0.04;
 
     Get.defaultDialog(
       title: '',

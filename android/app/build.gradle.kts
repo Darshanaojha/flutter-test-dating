@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.dating_application"
+    namespace = "com.pisyst.dating_application"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -21,7 +21,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.dating_application"
+        applicationId = "com.pisyst.dating_application"
         minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

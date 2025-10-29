@@ -34,6 +34,7 @@ class AudioCallPageState extends State<AudioCallPage> {
   int? remoteUid;
   bool localUserJoined = false;
   bool isLocalAudioMuted = false; // Mute state for local user
+  bool isSpeakerOn = false; // Speaker state
 
   late RtcEngine engine;
 
@@ -310,7 +311,7 @@ class AudioCallPageState extends State<AudioCallPage> {
   @override
   void initState() {
     super.initState();
-    // _requestPermissions();
+
     _startCallIfPermitted();
 
     channelName = generateChannelName(widget.caller, widget.receiver);
@@ -335,10 +336,41 @@ class AudioCallPageState extends State<AudioCallPage> {
     await engine.muteLocalAudioStream(isLocalAudioMuted);
   }
 
+  void _toggleSpeaker() async {
+    setState(() {
+      isSpeakerOn = !isSpeakerOn;
+    });
+    await engine.setEnableSpeakerphone(isSpeakerOn);
+  }
+
   void _endCall() async {
     await _disposeAgora();
 
     Get.close(2);
+  }
+
+  Future<bool> _onWillPop() async {
+    return await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('End Call'),
+            content: Text('Are you sure you want to end this call?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text('No'),
+              ),
+              TextButton(
+                onPressed: () {
+                  _endCall();
+                  // Navigator.of(context).pop(true);
+                },
+                child: Text('Yes'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
   }
 
   @override
@@ -346,142 +378,174 @@ class AudioCallPageState extends State<AudioCallPage> {
     final size = MediaQuery.of(context).size;
     double fontSize = size.width * 0.045;
 
-    return Scaffold(
-      backgroundColor: AppColors.primaryColor,
-      appBar: AppBar(
-        elevation: 0,
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: AppColors.gradientBackgroundList,
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+    return WillPopScope(
+        onWillPop: _onWillPop,
+        child: Scaffold(
+          backgroundColor: AppColors.primaryColor,
+          appBar: AppBar(
+            elevation: 0,
+            centerTitle: true,
+            backgroundColor: Colors.transparent,
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: AppColors.gradientBackgroundList,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+            ),
+            title: Text(
+              'Audio Call',
+              style: AppTextStyles.headingText.copyWith(
+                fontSize: fontSize * 1.1,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-        ),
-        title: Text(
-          'Audio Call',
-          style: AppTextStyles.headingText.copyWith(
-            fontSize: fontSize * 1.1,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-      body: Stack(
-        children: [
-          // Remote user status
-          Center(
-            child: remoteUid != null
-                ? Container(
-                    padding: EdgeInsets.all(32),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: AppColors.gradientBackgroundList,
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.deepPurple.withOpacity(0.18),
-                          blurRadius: 24,
-                          offset: Offset(0, 8),
+          body: Stack(
+            children: [
+              // Remote user status
+              Center(
+                child: remoteUid != null
+                    ? Container(
+                        padding: EdgeInsets.all(32),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: AppColors.gradientBackgroundList,
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.deepPurple.withOpacity(0.18),
+                              blurRadius: 24,
+                              offset: Offset(0, 8),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: Icon(Icons.volume_up, size: 70, color: Colors.white),
-                  )
-                : Column(
+                        child: Icon(Icons.volume_up,
+                            size: 70, color: Colors.white),
+                      )
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.hourglass_empty,
+                              size: 60, color: Colors.white70),
+                          SizedBox(height: 18),
+                          Text(
+                            'Waiting for remote user to join...',
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.bodyText.copyWith(
+                              fontSize: fontSize,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+              // Local user controls
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 40),
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.hourglass_empty,
-                          size: 60, color: Colors.white70),
-                      SizedBox(height: 18),
-                      Text(
-                        'Waiting for remote user to join...',
-                        textAlign: TextAlign.center,
-                        style: AppTextStyles.bodyText.copyWith(
-                          fontSize: fontSize,
-                          color: Colors.white70,
+                      GestureDetector(
+                        onTap: _toggleMute,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: isLocalAudioMuted
+                                  ? [Colors.redAccent, Colors.deepOrange]
+                                  : [Colors.green, Colors.lightGreen],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 12,
+                                offset: Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          padding: EdgeInsets.all(22),
+                          child: Icon(
+                            isLocalAudioMuted ? Icons.mic_off : Icons.mic,
+                            size: 36,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 20), // Reduced spacing
+                      // Speaker Button
+                      GestureDetector(
+                        onTap: _toggleSpeaker,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: isSpeakerOn
+                                  ? [Colors.blueAccent, Colors.lightBlue]
+                                  : [Colors.grey, Colors.blueGrey],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 12,
+                                offset: Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          padding: EdgeInsets.all(22),
+                          child: Icon(
+                            isSpeakerOn ? Icons.volume_up : Icons.volume_off,
+                            size: 36,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 20), // Reduced spacing
+                      // End Call Button
+                      GestureDetector(
+                        onTap: _endCall,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: [Colors.red, Colors.deepOrange],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.redAccent.withOpacity(0.25),
+                                blurRadius: 12,
+                                offset: Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          padding: EdgeInsets.all(22),
+                          child: Icon(
+                            Icons.call_end,
+                            size: 36,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ],
                   ),
-          ),
-          // Local user controls
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 40),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Mute/Unmute Button
-                  GestureDetector(
-                    onTap: _toggleMute,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: isLocalAudioMuted
-                              ? [Colors.redAccent, Colors.deepOrange]
-                              : [Colors.green, Colors.lightGreen],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 12,
-                            offset: Offset(0, 6),
-                          ),
-                        ],
-                      ),
-                      padding: EdgeInsets.all(22),
-                      child: Icon(
-                        isLocalAudioMuted ? Icons.mic_off : Icons.mic,
-                        size: 36,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 40),
-                  // End Call Button
-                  GestureDetector(
-                    onTap: _endCall,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: [Colors.red, Colors.deepOrange],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.redAccent.withOpacity(0.25),
-                            blurRadius: 12,
-                            offset: Offset(0, 6),
-                          ),
-                        ],
-                      ),
-                      padding: EdgeInsets.all(22),
-                      child: Icon(
-                        Icons.call_end,
-                        size: 36,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
-    );
+        ));
   }
 }

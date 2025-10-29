@@ -72,14 +72,24 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
         isSubmitting = false;
       });
 
-      if (isVerified == 1) {
-        print('Verification successful');
+      bool isPackageSubscribed = await controller.userPackage();
+
+      if (isPackageSubscribed) {
+        print('User has an active package');
         Get.offAll(NavigationBottomBar());
       } else {
-        print('Verification failed');
+        print('User does not have an active package');
         Get.offAll(Unsubscribenavigation());
-        // failure('Error', "Verification failed. Please try again.");
       }
+
+      // if (isVerified == 1) {
+      //   print('Verification successful');
+      //   Get.offAll(NavigationBottomBar());
+      // } else {
+      //   print('Verification failed');
+      //   Get.offAll(Unsubscribenavigation());
+      //   // failure('Error', "Verification failed. Please try again.");
+      // }
     } else {
       failure('Error', "Please take a selfie to complete the verification.");
     }

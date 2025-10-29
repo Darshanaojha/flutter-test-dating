@@ -644,7 +644,7 @@ class Controller extends GetxController {
   RxList<UserLang> userLang = <UserLang>[].obs;
   Future<bool> fetchProfile([String id = ""]) async {
     try {
-      UserProfileResponse? response = await HomePageProvider().fetchProfile();
+      UserProfileResponse? response = await HomePageProvider().fetchProfile(id);
       if (response != null) {
         userData.assignAll(response.payload.data);
         userDesire.assignAll(response.payload.desires);
@@ -1634,8 +1634,8 @@ class Controller extends GetxController {
   RxList<PackageData> subscripted = <PackageData>[].obs;
 
   Future<bool> fetchAllsubscripted() async {
+    subscripted.clear(); 
     try {
-      subscripted.clear();
       SubscribedPackagesModel? response =
           await FetchSubscriptedPackageProvider().fetchAllSubscriptedPackage();
       if (response != null) {

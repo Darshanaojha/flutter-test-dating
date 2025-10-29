@@ -107,7 +107,7 @@ class EmailOtpVerificationPageState extends State<EmailOtpVerificationPage> {
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.buttonColor,
+                          backgroundColor: AppColors.mediumGradientColor,
                           padding: EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),

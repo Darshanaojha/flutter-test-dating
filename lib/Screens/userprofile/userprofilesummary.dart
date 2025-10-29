@@ -23,8 +23,10 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
   void initState() {
     super.initState();
     if (widget.userId != null) {
+      print("Fetching profile for user ID: ${widget.userId}");
       _fetchProfileFuture = controller.fetchProfile(widget.userId ?? "");
     } else {
+      print("Fetching profile for current user");
       _fetchProfileFuture = controller.fetchProfile();
     }
   }
@@ -61,27 +63,47 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (widget.imageUrls != null && widget.imageUrls!.isNotEmpty)
-                SizedBox(
-                  height: 350,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: widget.imageUrls!.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: Image.network(
-                            widget.imageUrls![index],
-                            fit: BoxFit.cover,
-                            width: 250,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+              (widget.imageUrls != null && widget.imageUrls!.isNotEmpty)
+                  ? SizedBox(
+                      height: 350,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: widget.imageUrls!.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: Image.network(
+                                widget.imageUrls![index],
+                                fit: BoxFit.cover,
+                                width: 250,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    )
+                  : SizedBox(
+                      height: 350,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: controller.userPhotos!.images.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: Image.network(
+                                controller.userPhotos!.images[index],
+                                fit: BoxFit.cover,
+                                width: 250,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
               const SizedBox(height: 18),
               Card(
                 color: AppColors.secondaryColor,
@@ -89,6 +111,30 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
+                      if (user.accountVerificationStatus == "1")
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12.0, left: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.verified,
+                                color: Colors.lightGreenAccent,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                "Verified",
+                                style: AppTextStyles.bodyText.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       _profileField(Icons.person_outline, "Nickname",
                           user.nickname, valueFontSize),
                       _profileField(Icons.person, "Username", user.username,

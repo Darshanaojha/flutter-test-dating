@@ -74,17 +74,25 @@ class RegistrationOTPRequest {
     return null;
   }
 
-  static String? validateName(String name) {
-    if (name.isEmpty) {
-      failure("Error", "Name cannot be empty");
-      return 'Name cannot be empty';
+  String? validateName(String? value) {
+    if (value == null || value.isEmpty) {
+      failure('Name', 'Please enter your name');
+      return 'Please enter your name';
     }
 
-    final nameRegExp = RegExp(r"^[a-zA-Z\s']+$");
-    if (!nameRegExp.hasMatch(name)) {
+    // Convert to lowercase first
+    value = value.toLowerCase();
+
+    // Regex: only alphabets, numbers, and underscore
+    // if (!RegExp(r'^[a-z0-9_]+$').hasMatch(value)) {
+    //   failure('RE-Enter',
+    //       'Must contain only letters and underscore (no spaces or special characters)');
+    //   return 'Must contain only letter and underscore';
+    // }
+    if (RegExp(r'[0-9!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/;`~]').hasMatch(value)) {
       failure(
-          'Error', 'Name can only contain alphabetic characters and spaces');
-      return 'Name can only contain alphabetic characters and spaces';
+          'RE-Enter', 'Name must not contain numbers or special characters');
+      return 'Name must not contain numbers or special characters';
     }
 
     return null;
