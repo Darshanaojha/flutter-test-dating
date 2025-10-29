@@ -1870,7 +1870,7 @@ class Controller extends GetxController {
         success('success', response.payload.message);
         return true;
       } else {
-        failure('Error', 'Failed to submit the mark as favourite request');
+        // failure('Error', 'Failed to submit the mark as favourite request');
         return false;
       }
     } catch (e) {

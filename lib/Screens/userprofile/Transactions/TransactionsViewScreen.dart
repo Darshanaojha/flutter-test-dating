@@ -51,7 +51,7 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
       case '1':
         return 'Completed';
       case '2':
-        return 'Pending';
+        return 'Cancelled';
       case '3':
         return 'Failed';
       default:

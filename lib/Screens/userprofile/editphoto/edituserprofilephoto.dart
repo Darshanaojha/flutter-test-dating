@@ -394,55 +394,64 @@ class EditPhotosPageState extends State<EditPhotosPage> {
 
     print('updatedImages length is ${updatedImages.length}');
 
+    int uploadedPhotosCount =
+        updatedImages.where((image) => image.value.isNotEmpty).length;
+    if (uploadedPhotosCount < 3) {
+      failure("Error", "Please upload at least 3 photos.");
+      return;
+    }
+
     for (int i = 0; i < updatedImages.length; i++) {
-      if (updatedImages[i].value.isEmpty) {
-        failure("Error", "Please upload all 6 photos.");
-        return;
-      }
-      if (!indexUpdated.contains(i)) {
-        String imageUrl = updatedImages[i].toString();
+      if (updatedImages[i].value.isNotEmpty && !indexUpdated.contains(i)) {
+        String imageUrl = updatedImages[i].value;
         String base64Image = await getAndSetImageAsBase64(imageUrl);
         print('returned string at $i is $base64Image');
         if (base64Image.isNotEmpty) {
-          if (i == 0) {
-            updateProfilePhotoRequest.img1 = base64Image;
-          }
-          if (i == 1) {
-            updateProfilePhotoRequest.img2 = base64Image;
-          }
-          if (i == 2) {
-            updateProfilePhotoRequest.img3 = base64Image;
-          }
-          if (i == 3) {
-            updateProfilePhotoRequest.img4 = base64Image;
-          }
-          if (i == 4) {
-            updateProfilePhotoRequest.img5 = base64Image;
-          }
-          if (i == 5) {
-            updateProfilePhotoRequest.img6 = base64Image;
+          switch (i) {
+            case 0:
+              updateProfilePhotoRequest.img1 = base64Image;
+              break;
+            case 1:
+              updateProfilePhotoRequest.img2 = base64Image;
+              break;
+            case 2:
+              updateProfilePhotoRequest.img3 = base64Image;
+              break;
+            case 3:
+              updateProfilePhotoRequest.img4 = base64Image;
+              break;
+            case 4:
+              updateProfilePhotoRequest.img5 = base64Image;
+              break;
+            case 5:
+              updateProfilePhotoRequest.img6 = base64Image;
+              break;
           }
         }
       }
     }
     for (int i in indexUpdated) {
-      if (i == 0) {
-        updateProfilePhotoRequest.img1 = updatedImages[0].value;
-      }
-      if (i == 1) {
-        updateProfilePhotoRequest.img2 = updatedImages[1].value;
-      }
-      if (i == 2) {
-        updateProfilePhotoRequest.img3 = updatedImages[2].value;
-      }
-      if (i == 3) {
-        updateProfilePhotoRequest.img4 = updatedImages[3].value;
-      }
-      if (i == 4) {
-        updateProfilePhotoRequest.img5 = updatedImages[4].value;
-      }
-      if (i == 5) {
-        updateProfilePhotoRequest.img6 = updatedImages[5].value;
+      if (updatedImages[i].value.isNotEmpty) {
+        switch (i) {
+          case 0:
+            updateProfilePhotoRequest.img1 = updatedImages[0].value;
+            break;
+          case 1:
+            updateProfilePhotoRequest.img2 = updatedImages[1].value;
+            break;
+          case 2:
+            updateProfilePhotoRequest.img3 = updatedImages[2].value;
+            break;
+          case 3:
+            updateProfilePhotoRequest.img4 = updatedImages[3].value;
+            break;
+          case 4:
+            updateProfilePhotoRequest.img5 = updatedImages[4].value;
+            break;
+          case 5:
+            updateProfilePhotoRequest.img6 = updatedImages[5].value;
+            break;
+        }
       }
     }
     print('first image is ${updateProfilePhotoRequest.img1}');

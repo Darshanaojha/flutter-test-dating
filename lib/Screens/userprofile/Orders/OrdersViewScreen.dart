@@ -194,7 +194,7 @@ String getStatusText(String status) {
     case '1':
       return 'Active';
     case '2':
-      return 'Pending';
+      return 'Inactive';
     case '3':
       return 'Declined';
     default:

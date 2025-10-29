@@ -35,6 +35,10 @@ class HomePageState extends State<HomePage>
     return screenWidth * scale;
   }
 
+  bool _showLikeAnimation = false;
+  bool _showDislikeAnimation = false;
+  bool _showFavouriteAnimation = false;
+
   SuggestedUser? lastUser;
   SuggestedUser? lastUserNearBy;
   SuggestedUser? lastUserHighlighted;
@@ -220,51 +224,7 @@ class HomePageState extends State<HomePage>
 
     await controller.userSuggestions();
     for (int i = 0; i < controller.userSuggestionsList.length; i++) {
-      swipeItems.add(SwipeItem(
-        content: controller.userSuggestionsList[i].userId,
-        likeAction: () async {
-          matchEngine = MatchEngine(swipeItems: swipeItems);
-          if (controller.userSuggestionsList[i].userId != null) {
-            print(
-                "Pressed like button for user: ${controller.userSuggestionsList[i].name}");
-            setState(() {
-              controller.profileLikeRequest.likedBy =
-                  controller.userSuggestionsList[i].userId.toString();
-            });
-            final response = await controller.profileLike(controller.profileLikeRequest);
-            if (response != null && response.payload.connection) {
-              _showMatchDialog(controller.userSuggestionsList[i]);
-            }
-          } else {
-            print("User ID is null");
-            failure('Error', "Error: User ID is null.");
-          }
-        },
-        nopeAction: () async {
-          print(
-              "Pressed dislike button for user: ${controller.userSuggestionsList[i].name}");
-          matchEngine = MatchEngine(swipeItems: swipeItems);
-          setState(() {
-            controller.dislikeProfileRequest.id =
-                controller.userSuggestionsList[i].userId.toString();
-          });
-          await controller.dislikeprofile(controller.dislikeProfileRequest);
-          print("User ${controller.userSuggestionsList[i].name} was 'nope'd");
-        },
-        superlikeAction: () async {
-          matchEngine = MatchEngine(swipeItems: swipeItems);
-          if (controller.userSuggestionsList[i].userId != null) {
-            controller.markFavouriteRequestModel.favouriteId =
-                controller.userSuggestionsList[i].userId.toString();
-
-            print("id ${controller.userSuggestionsList[i].userId}");
-            await controller
-                .markasfavourite(controller.markFavouriteRequestModel);
-          } else {
-            failure('Error', "Error: User ID is null.");
-          }
-        },
-      ));
+      swipeItems.add(_createSwipeItem(controller.userSuggestionsList[i]));
     }
 
     matchEngine = MatchEngine(swipeItems: swipeItems);
@@ -320,6 +280,55 @@ class HomePageState extends State<HomePage>
     } catch (e) {
       return 'Invalid DOB';
     }
+  }
+
+  SwipeItem _createSwipeItem(SuggestedUser user) {
+    return SwipeItem(
+      content: user,
+      likeAction: () async {
+        setState(() {
+          _showLikeAnimation = true;
+        });
+        if (user.userId != null) {
+          print("Pressed like button for user: ${user.name}");
+          controller.profileLikeRequest.likedBy = user.userId.toString();
+          final response =
+              await controller.profileLike(controller.profileLikeRequest);
+          if (response != null && response.payload.connection) {
+            _showMatchDialog(user);
+          }
+        } else {
+          print("User ID is null");
+          failure('Error', "Error: User ID is null.");
+        }
+      },
+      nopeAction: () {
+        setState(() {
+          _showDislikeAnimation = true;
+        });
+        print("Pressed dislike button for user: ${user.name}");
+        if (user.userId != null) {
+          controller.dislikeProfileRequest.id = user.userId.toString();
+          controller.dislikeprofile(controller.dislikeProfileRequest);
+          print("User ${user.name} was 'nope'd");
+        } else {
+          print("User ID is null on nope");
+        }
+      },
+      superlikeAction: () {
+        setState(() {
+          _showFavouriteAnimation = true;
+        });
+        if (user.userId != null) {
+          controller.markFavouriteRequestModel.favouriteId =
+              user.userId.toString();
+          print("id ${user.userId}");
+          controller.markasfavourite(controller.markFavouriteRequestModel);
+        } else {
+          failure('Error', "Error: User ID is null.");
+        }
+      },
+    );
   }
 
   @override
@@ -528,39 +537,7 @@ class HomePageState extends State<HomePage>
     // }
 
     for (var user in currentList) {
-      swipeItems.add(SwipeItem(
-        content: user,
-        likeAction: () async {
-          if (user.userId != null) {
-            controller.profileLikeRequest.likedBy = user.userId.toString();
-            final response =
-                await controller.profileLike(controller.profileLikeRequest);
-            if (response != null && response.payload.connection) {
-              _showMatchDialog(user);
-            }
-          } else {
-            failure('Error', "User ID is null.");
-          }
-        },
-        nopeAction: () {
-          if (user.userId != null) {
-            controller.dislikeProfileRequest.id = user.userId.toString();
-            controller.dislikeprofile(controller.dislikeProfileRequest);
-          } else {
-            print("User ID is null on nope");
-          }
-        },
-        superlikeAction: () {
-          if (user.userId != null) {
-            controller.markFavouriteRequestModel.favouriteId =
-                user.userId.toString();
-
-            controller.markasfavourite(controller.markFavouriteRequestModel);
-          } else {
-            failure('Error', "User ID is null.");
-          }
-        },
-      ));
+      swipeItems.add(_createSwipeItem(user));
     }
 
     matchEngine = MatchEngine(swipeItems: swipeItems);
@@ -665,16 +642,6 @@ class HomePageState extends State<HomePage>
                                 }
                               });
                             }),
-                            // buildFilterButton(
-                            //     context, 2, 'Favourite', FontAwesome.heart,
-                            //     (value) {
-                            //   setState(() {
-                            //     selectedFilter.value = 2;
-                            //     rebuildSwipeItemsForFilter(2);
-                            //   });
-                            //   Get.snackbar('User Favourite',
-                            //       controller.favourite.length.toString());
-                            // }),
                             buildFilterButton(
                               context,
                               2,
@@ -822,6 +789,60 @@ class HomePageState extends State<HomePage>
                 );
               },
             ),
+            if (_showLikeAnimation)
+              Center(
+                child: Lottie.asset(
+                  'assets/animations/Liked.json',
+                  width: 200,
+                  height: 200,
+                  repeat: false,
+                  onLoaded: (composition) {
+                    Future.delayed(composition.duration, () {
+                      if (mounted) {
+                        setState(() {
+                          _showLikeAnimation = false;
+                        });
+                      }
+                    });
+                  },
+                ),
+              ),
+            if (_showDislikeAnimation)
+              Center(
+                child: Lottie.asset(
+                  'assets/animations/Disliked.json',
+                  width: 200,
+                  height: 200,
+                  repeat: false,
+                  onLoaded: (composition) {
+                    Future.delayed(composition.duration, () {
+                      if (mounted) {
+                        setState(() {
+                          _showDislikeAnimation = false;
+                        });
+                      }
+                    });
+                  },
+                ),
+              ),
+            if (_showFavouriteAnimation)
+              Center(
+                child: Lottie.asset(
+                  'assets/animations/superlikeswipeanimation.json',
+                  width: 200,
+                  height: 200,
+                  repeat: false,
+                  onLoaded: (composition) {
+                    Future.delayed(composition.duration, () {
+                      if (mounted) {
+                        setState(() {
+                          _showFavouriteAnimation = false;
+                        });
+                      }
+                    });
+                  },
+                ),
+              ),
           ],
         ),
       ),

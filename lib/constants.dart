@@ -384,47 +384,82 @@ void failure(title, message) {
   Get.snackbar(
     '',
     '',
-    titleText: Padding(
-      padding: const EdgeInsets.only(right: 16.0),
-      child: Row(
+    titleText: Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: AppColors.gradientBackgroundList,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.error_outline,
-            color: Colors.white,
-            size: 24,
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.error_outline,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: GoogleFonts.raleway(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            ],
           ),
-          SizedBox(width: 10),
-          Text(
-            title,
-            style: GoogleFonts.raleway(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+          if (message.isNotEmpty) ...[
+            SizedBox(height: 8),
+            Text(
+              message,
+              style: GoogleFonts.raleway(
+                color: Colors.white.withOpacity(0.9),
+                fontSize: 14,
+                height: 1.3,
+              ),
             ),
-          ),
+          ],
         ],
       ),
     ),
-    messageText: Padding(
-      padding: const EdgeInsets.only(right: 16.0),
-      child: Text(
-        message,
-        style: GoogleFonts.raleway(
-          color: Colors.white,
-          fontSize: 14,
-        ),
-      ),
-    ),
+    messageText: SizedBox.shrink(),
     colorText: Colors.white,
-    backgroundColor: const Color.fromARGB(255, 192, 191, 190).withOpacity(0.85),
-    borderColor: Colors.red.shade700,
-    borderWidth: 2,
-    borderRadius: 8.0,
+    backgroundColor: Colors.transparent,
+    borderRadius: 16.0,
     snackPosition: SnackPosition.TOP,
     margin: EdgeInsets.all(16),
-    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+    padding: EdgeInsets.zero,
     duration: Duration(seconds: 3),
-    animationDuration: Duration(milliseconds: 250),
+    animationDuration: Duration(milliseconds: 400),
+    boxShadows: [
+      BoxShadow(
+        color: Colors.black.withOpacity(0.3),
+        blurRadius: 8,
+        offset: Offset(0, 4),
+      ),
+    ],
+    isDismissible: true,
+    dismissDirection: DismissDirection.horizontal,
+    forwardAnimationCurve: Curves.easeOutBack,
+    reverseAnimationCurve: Curves.easeInBack,
   );
 }
 

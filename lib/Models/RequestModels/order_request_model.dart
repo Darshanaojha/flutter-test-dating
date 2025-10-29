@@ -11,9 +11,9 @@ class OrderRequestModel {
   factory OrderRequestModel.fromJson(Map<String, dynamic> json) {
     return OrderRequestModel(
         packageId: json['package_id'],
-        amount: json['amount'],
-        points: json['points'],
-        ispointused: json['ispointused'],
+        amount: json['amount'] ?? "0",
+        points: json['points'] ?? "0",
+        ispointused: json['ispointused'] ?? "0",
         type: json['type']);
   }
 
