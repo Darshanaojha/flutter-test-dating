@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/RequestModels/estabish_connection_request_model.dart';
+import 'package:dating_application/Models/ResponseModels/ProfileResponse.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -51,6 +52,7 @@ class HomePageState extends State<HomePage>
   bool isLoading = false;
   int messageCount = 0;
   int messageType = 1;
+  bool _isFabMenuOpen = false;
   late AnimationController _animationController;
   late Animation<double> _rotationAnimation;
   final TextEditingController messageController = TextEditingController();
@@ -229,7 +231,10 @@ class HomePageState extends State<HomePage>
               controller.profileLikeRequest.likedBy =
                   controller.userSuggestionsList[i].userId.toString();
             });
-            await controller.profileLike(controller.profileLikeRequest);
+            final response = await controller.profileLike(controller.profileLikeRequest);
+            if (response != null && response.payload.connection) {
+              _showMatchDialog(controller.userSuggestionsList[i]);
+            }
           } else {
             print("User ID is null");
             failure('Error', "Error: User ID is null.");
@@ -276,7 +281,7 @@ class HomePageState extends State<HomePage>
       return 'Age not available';
     }
     try {
-      DateTime birthDate = DateFormat('dd/MM/yyyy').parse(dob);
+      DateTime birthDate = DateFormat('MM/dd/yyyy').parse(dob);
       int age = DateTime.now().year - birthDate.year;
       if (DateTime.now().month < birthDate.month ||
           (DateTime.now().month == birthDate.month &&
@@ -431,9 +436,9 @@ class HomePageState extends State<HomePage>
     final screenHeight = MediaQuery.of(context).size.height;
 
     double fontSize = screenWidth * 0.025;
-    double iconSize = screenWidth * 0.06;
+    double iconSize = screenWidth * 0.05;
     double buttonWidth = screenWidth * 0.22;
-    double buttonHeight = screenHeight * 0.02;
+    double buttonHeight = screenHeight * 0.01;
 
     bool isSelected = selectedFilter.value == button;
 
@@ -443,6 +448,7 @@ class HomePageState extends State<HomePage>
         scale: isSelected ? 1.08 : 1.0,
         duration: Duration(milliseconds: 200),
         child: Container(
+          height: screenHeight * 0.05,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -498,7 +504,6 @@ class HomePageState extends State<HomePage>
               backgroundColor: Colors.transparent,
               foregroundColor: Colors.white,
               shape: const StadiumBorder(),
-              minimumSize: Size(buttonWidth, buttonHeight),
               elevation: 0,
               padding: EdgeInsets.symmetric(
                 vertical: buttonHeight * 0.2,
@@ -525,10 +530,14 @@ class HomePageState extends State<HomePage>
     for (var user in currentList) {
       swipeItems.add(SwipeItem(
         content: user,
-        likeAction: () {
+        likeAction: () async {
           if (user.userId != null) {
             controller.profileLikeRequest.likedBy = user.userId.toString();
-            controller.profileLike(controller.profileLikeRequest);
+            final response =
+                await controller.profileLike(controller.profileLikeRequest);
+            if (response != null && response.payload.connection) {
+              _showMatchDialog(user);
+            }
           } else {
             failure('Error', "User ID is null.");
           }
@@ -557,6 +566,24 @@ class HomePageState extends State<HomePage>
     matchEngine = MatchEngine(swipeItems: swipeItems);
   }
 
+  void _showMatchDialog(SuggestedUser matchedUser) {
+    // Ensure there's user data available for the current user
+    if (controller.userData.isEmpty) {
+      failure('Error', 'Current user data is not available.');
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return MatchDialog(
+          currentUser: controller.userData.first,
+          matchedUser: matchedUser,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -571,8 +598,8 @@ class HomePageState extends State<HomePage>
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
-                      child: Lottie.asset(
-                          "assets/animations/LoveIsBlind.json"));
+                      child:
+                          Lottie.asset("assets/animations/LoveIsBlind.json"));
                 }
 
                 if (snapshot.hasError) {
@@ -613,8 +640,8 @@ class HomePageState extends State<HomePage>
                   children: [
                     // Filter Buttons Row
                     Container(
-                      height: MediaQuery.of(context).size.height * 0.08,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      height: MediaQuery.of(context).size.height * 0.07,
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
@@ -714,8 +741,8 @@ class HomePageState extends State<HomePage>
 
                         return Center(
                           child: FractionallySizedBox(
-                            widthFactor: 0.8,
-                            heightFactor: 0.8,
+                            widthFactor: 0.95,
+                            heightFactor: 0.98,
                             child: currentList.isEmpty && lastUser != null
                                 ? buildCardLayoutAll(
                                     context, lastUser!, size, isLastCard)
@@ -738,16 +765,14 @@ class HomePageState extends State<HomePage>
                                               vertical: 8.0),
                                           child: Container(
                                             decoration: BoxDecoration(
-                                              gradient:
-                                                  AppColors.gradientBackground,
+                                              gradient: LinearGradient(
+                                                colors: AppColors
+                                                    .gradientBackgroundList,
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
                                               borderRadius:
                                                   BorderRadius.circular(32),
-                                              border: Border.all(
-                                                color: isLastCard
-                                                    ? Colors.grey
-                                                    : Colors.white,
-                                                width: 2,
-                                              ),
                                               boxShadow: [
                                                 BoxShadow(
                                                   color: Colors.white
@@ -758,8 +783,17 @@ class HomePageState extends State<HomePage>
                                                 ),
                                               ],
                                             ),
-                                            child: buildCardLayoutAll(context,
-                                                user, size, isLastCard),
+                                            padding: const EdgeInsets.all(2),
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                gradient: AppColors
+                                                    .reversedGradientBackground,
+                                                borderRadius:
+                                                    BorderRadius.circular(30),
+                                              ),
+                                              child: buildCardLayoutAll(context,
+                                                  user, size, isLastCard),
+                                            ),
                                           ));
                                     },
                                     upSwipeAllowed: true,
@@ -796,15 +830,7 @@ class HomePageState extends State<HomePage>
 
   Widget buildCardLayoutAll(
       BuildContext context, SuggestedUser user, Size size, bool isLastCard) {
-    print(user);
     List<String> images = user.images;
-    List<String> interests = (user.interest ?? '')
-        .split(',')
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
-
-    // Format looking for text
     String lookingForText = user.lookingFor == "1"
         ? "Serious Relationship"
         : user.lookingFor == "2"
@@ -827,547 +853,378 @@ class HomePageState extends State<HomePage>
               );
             },
             child: Container(
-              height: size.height * 1.5,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment(0.8, 1),
-                  colors: AppColors.gradientBackgroundList,
-                ),
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(20),
+                gradient: AppColors.gradientBackground,
               ),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // User Images
-                    SizedBox(
-                      height: size.height * 0.3,
-                      child: Stack(
-                        children: [
-                          SafeArea(
-                            child: SizedBox(
-                              height: size.height * 0.35,
-                              child: NotificationListener<ScrollNotification>(
-                                onNotification: (scrollNotification) {
-                                  if (scrollNotification
-                                      is ScrollUpdateNotification) {
-                                    // This is an approximation. For accurate calculations,
-                                    // you would need the exact height of each item.
-                                    final itemHeight = size.height * 0.45;
-                                    if (itemHeight <= 0) return true;
-
-                                    int index =
-                                        (scrollNotification.metrics.pixels /
-                                                itemHeight)
-                                            .round();
-
-                                    if (index >= images.length) {
-                                      index = images.length - 1;
-                                    }
-                                    if (index < 0) {
-                                      index = 0;
-                                    }
-
-                                    if (index != _currentImageIndex) {
-                                      setState(() {
-                                        _currentImageIndex = index;
-                                      });
-                                    }
-                                  }
-                                  return true;
-                                },
-                                child: Scrollbar(
-                                  child: ListView.builder(
-                                    controller: _imagePageController,
-                                    itemCount: images.length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      if (images.isEmpty) {
-                                        return Center(
-                                            child: Text('No Images Available'));
-                                      }
-                                      return GestureDetector(
-                                        onTap: () => showFullImageDialog(
-                                            context, images[index]),
-                                        child: Container(
-                                          margin: EdgeInsets.only(bottom: 12),
-                                          child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(28),
-                                            child: CachedNetworkImage(
-                                              imageUrl: images[index],
-                                              placeholder: (context, url) => Center(
-                                                  child:
-                                                      CircularProgressIndicator()),
-                                              errorWidget:
-                                                  (context, url, error) {
-                                                return Icon(
-                                                    Icons.person_pin_outlined,
-                                                    color: const Color.fromARGB(
-                                                        255, 150, 148, 148));
-                                              },
-                                              fit: BoxFit.cover,
-                                              width: size.width * 0.9,
-                                              height: size.height * 0.45,
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          if (images.length > 1)
-                            Positioned(
-                              right: 10,
-                              top: 0,
-                              bottom: 0,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: List.generate(images.length, (index) {
-                                  return AnimatedContainer(
-                                    duration: const Duration(milliseconds: 300),
-                                    margin:
-                                        const EdgeInsets.symmetric(vertical: 4),
-                                    width: 8,
-                                    height: 8,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: _currentImageIndex == index
-                                          ? AppColors.lightGradientColor
-                                          : Colors.white.withOpacity(0.5),
-                                    ),
-                                  );
-                                }),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    // TOP ROW WITH LOCATION, NAME, AND CONNECT BUTTON
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 16.0, right: 16.0, top: 8.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // LEFT SIDE: AVATAR, LOCATION AND NAME
-                          Expanded(
-                            child: Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 30,
-                                  backgroundImage: images.isNotEmpty
-                                      ? CachedNetworkImageProvider(images[0])
-                                      : null,
-                                  child: images.isEmpty
-                                      ? Icon(Icons.person, size: 30)
-                                      : null,
-                                ),
-                                SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // Location
-                                      if (user.city != null &&
-                                          user.city!.isNotEmpty)
-                                        Row(
-                                          children: [
-                                            Icon(Icons.location_on,
-                                                size: 16,
-                                                color: Colors.white70),
-                                            SizedBox(width: 4),
-                                            Text(
-                                              user.city!,
-                                              style: AppTextStyles.bodyText
-                                                  .copyWith(
-                                                color: Colors.white70,
-                                                fontSize: size.width * 0.035,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      // User Name and Age
-                                      Row(
-                                        children: [
-                                          if (user.accountVerificationStatus ==
-                                              '1')
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  right: 8.0),
-                                              child: Icon(
-                                                Icons.verified,
-                                                color: AppColors
-                                                    .lightGradientColor,
-                                                size: getResponsiveFontSize(
-                                                    0.045),
-                                              ),
-                                            ),
-                                          Flexible(
-                                            child: Text(
-                                              '${user.name ?? 'NA'}, ${calculateAge(user.dob ?? 'Unknown Date')}',
-                                              style: AppTextStyles.headingText
-                                                  .copyWith(
-                                                fontSize: size.width * 0.05,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // RIGHT SIDE: CONNECT BUTTON
-                          GestureDetector(
-                            onTap: () {
-                              showmessageBottomSheet(user.userId.toString());
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: AppColors.reversedGradientColor,
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
+              child: Stack(
+                children: [
+                  // Profile Image with curved borders
+                  SizedBox.expand(
+                    child: Stack(
+                      children: [
+                        PageView.builder(
+                          scrollDirection: Axis.vertical,
+                          controller: _imagePageController,
+                          itemCount: images.length,
+                          onPageChanged: (index) {
+                            setState(() {
+                              _currentImageIndex = index;
+                            });
+                          },
+                          itemBuilder: (BuildContext context, int index) {
+                            if (images.isEmpty) {
+                              return Center(child: Text('No Images Available'));
+                            }
+                            return GestureDetector(
+                              onTap: () =>
+                                  showFullImageDialog(context, images[index]),
+                              child: ClipRRect(
                                 borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.deepPurple.withOpacity(0.3),
-                                    blurRadius: 8,
-                                    offset: Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              child: Text(
-                                "Connect",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: getResponsiveFontSize(0.03),
-                                  fontWeight: FontWeight.bold,
+                                child: CachedNetworkImage(
+                                  imageUrl: images[index],
+                                  placeholder: (context, url) => Center(
+                                      child: CircularProgressIndicator()),
+                                  errorWidget: (context, url, error) {
+                                    return Icon(Icons.person_pin_outlined,
+                                        color: const Color.fromARGB(
+                                            255, 150, 148, 148));
+                                  },
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,
                                 ),
                               ),
+                            );
+                          },
+                        ),
+                        if (images.length > 1)
+                          Positioned(
+                            right: 10,
+                            top: 0,
+                            bottom: 0,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: List.generate(images.length, (index) {
+                                return AnimatedContainer(
+                                  duration: const Duration(milliseconds: 300),
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 4),
+                                  width: 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: _currentImageIndex == index
+                                        ? AppColors.lightGradientColor
+                                        : Colors.white.withOpacity(0.5),
+                                  ),
+                                );
+                              }),
                             ),
                           ),
-                        ],
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      height: size.height * 0.18,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black38,
+                            Colors.black54
+                          ],
+                        ),
                       ),
                     ),
-                    // DETAILS ROW (Interests, Looking For, Sub Gender)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Interests
-                          // if (interests.isNotEmpty)
-                          //   Flexible(
-                          //     child: Container(
-                          //       padding: EdgeInsets.symmetric(
-                          //           horizontal: 12, vertical: 6),
-                          //       decoration: BoxDecoration(
-                          //         color: Colors.white.withOpacity(0.13),
-                          //         borderRadius: BorderRadius.circular(10),
-                          //       ),
-                          //       child: Row(
-                          //         mainAxisSize: MainAxisSize.min,
-                          //         children: [
-                          //           Icon(Icons.tag,
-                          //               size: 16, color: Colors.white70),
-                          //           SizedBox(width: 6),
-                          //           Flexible(
-                          //             child: Text(
-                          //               interests.length > 1
-                          //                   ? '${interests[0]} +${interests.length - 1}'
-                          //                   : interests[0],
-                          //               style: AppTextStyles.bodyText.copyWith(
-                          //                 color: Colors.white,
-                          //                 fontSize: size.width * 0.035,
-                          //                 fontWeight: FontWeight.w500,
-                          //               ),
-                          //               maxLines: 1,
-                          //               overflow: TextOverflow.ellipsis,
-                          //             ),
-                          //           ),
-                          //         ],
-                          //       ),
-                          //     ),
-                          //   ),
-                          // SizedBox(width: 10),
-                          // Looking For
-                          Flexible(
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.13),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.favorite_border,
-                                      size: 16, color: Colors.white70),
-                                  SizedBox(width: 6),
-                                  Flexible(
-                                    child: Text(
-                                      lookingForText,
-                                      style: AppTextStyles.bodyText.copyWith(
-                                        color: Colors.white,
-                                        fontSize: size.width * 0.035,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                  ),
+
+                  // Location top-left
+                  if (user.city != null && user.city!.isNotEmpty)
+                    Positioned(
+                      top: 12,
+                      left: 12,
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.4),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.location_on,
+                                size: 14, color: Colors.white),
+                            SizedBox(width: 4),
+                            Text(
+                              // "${user.city ?? ''} ${user.distance ?? ''}",
+                              user.city ?? '',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 12),
                             ),
-                          ),
-                          SizedBox(width: 10),
-                          // Sub Gender
-                          // Flexible(
-                          //   child: Container(
-                          //     padding: EdgeInsets.symmetric(
-                          //         horizontal: 12, vertical: 6),
-                          //     decoration: BoxDecoration(
-                          //       color: Colors.white.withOpacity(0.13),
-                          //       borderRadius: BorderRadius.circular(10),
-                          //     ),
-                          //     child: Row(
-                          //       mainAxisSize: MainAxisSize.min,
-                          //       children: [
-                          //         Icon(Icons.person_outline,
-                          //             size: 16, color: Colors.white70),
-                          //         SizedBox(width: 6),
-                          //         Flexible(
-                          //           child: Text(
-                          //             user.subGenderName ?? 'Unknown',
-                          //             style: AppTextStyles.bodyText.copyWith(
-                          //               color: Colors.white,
-                          //               fontSize: size.width * 0.035,
-                          //               fontWeight: FontWeight.w500,
-                          //             ),
-                          //             maxLines: 1,
-                          //             overflow: TextOverflow.ellipsis,
-                          //           ),
-                          //         ),
-                          //       ],
-                          //     ),
-                          //   ),
-                          // ),
-                          // View More
-                          Flexible(
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.13),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      'View More',
-                                      style: AppTextStyles.bodyText.copyWith(
-                                        color: Colors.white,
-                                        fontSize: size.width * 0.035,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Gender
-                          Flexible(
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.13),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(FontAwesome.genderless_solid,
-                                      size: 16, color: Colors.white70),
-                                  SizedBox(width: 6),
-                                  Flexible(
-                                    child: Text(
-                                      "${user.genderName}",
-                                      style: AppTextStyles.bodyText.copyWith(
-                                        color: Colors.white,
-                                        fontSize: size.width * 0.035,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
 
-                    // Action Buttons
-                    Padding(
-                      padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          // Nope Button
-                          Column(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    matchEngine.currentItem?.nope();
-                                  });
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.15),
-                                        blurRadius: 8,
-                                        offset: Offset(0, 4),
-                                      ),
-                                    ],
-                                    color: Colors.white,
-                                  ),
-                                  padding: EdgeInsets.all(18),
-                                  child: Icon(Icons.close_rounded,
-                                      color: Colors.black87, size: 36),
-                                ),
+                  // Name & Title bottom-left
+                  Positioned(
+                    left: 16,
+                    bottom: 24,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              "${user.name ?? 'NA'}, ${calculateAge(user.dob ?? 'Unknown Date')}",
+                              style: AppTextStyles.headingText.copyWith(
+                                fontSize: size.width * 0.055,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               ),
-                              SizedBox(height: 6),
-                              Text(
-                                "Nope",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                          // Favourite Button
-                          if (selectedFilter.value != 2)
-                            Column(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      matchEngine.currentItem?.superLike();
-                                    });
-                                  },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.15),
-                                          blurRadius: 8,
-                                          offset: Offset(0, 4),
-                                        ),
-                                      ],
-                                      color: Colors.white,
-                                    ),
-                                    padding: EdgeInsets.all(18),
-                                    child: Icon(Icons.favorite_rounded,
-                                        color: Colors.black87, size: 36),
-                                  ),
-                                ),
-                                SizedBox(height: 6),
-                                Text(
-                                  "Favourite",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
                             ),
-                          // Like Button
-                          Column(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    matchEngine.currentItem?.like();
-                                  });
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.15),
-                                        blurRadius: 8,
-                                        offset: Offset(0, 4),
-                                      ),
-                                    ],
-                                    color: Colors.white,
-                                  ),
-                                  padding: EdgeInsets.all(18),
-                                  child: Icon(Icons.thumb_up_rounded,
-                                      color: Colors.black87, size: 36),
+                            if (user.accountVerificationStatus == '1')
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Icon(
+                                  Icons.verified,
+                                  color: AppColors.lightGradientColor,
+                                  size: getResponsiveFontSize(0.045),
                                 ),
                               ),
-                              SizedBox(height: 6),
-                              Text(
-                                "Like",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
+                          ],
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          lookingForText,
+                          style: AppTextStyles.bodyText.copyWith(
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: size.width * 0.035,
                           ),
-                        ],
+                        ),
+                        SizedBox(height: 8),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.13),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            'View More',
+                            style: AppTextStyles.bodyText.copyWith(
+                              color: Colors.white,
+                              fontSize: size.width * 0.03,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: GestureDetector(
+                      onTap: () {
+                        showmessageBottomSheet(user.userId.toString());
+                      },
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: AppColors.reversedGradientColor,
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.deepPurple.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          "Connect",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: getResponsiveFontSize(0.03),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  Positioned(
+                    bottom: 24,
+                    right: 16,
+                    child: Column(
+                      children: [
+                        if (_isFabMenuOpen)
+                          Column(
+                            children: [
+                              FloatingActionButton(
+                                backgroundColor: AppColors.darkGradientColor,
+                                onPressed: () {
+                                  matchEngine.currentItem?.nope();
+                                  setState(() {
+                                    _isFabMenuOpen = false;
+                                  });
+                                },
+                                child: Icon(Icons.close, color: Colors.white),
+                              ),
+                              SizedBox(height: 12),
+                              FloatingActionButton(
+                                backgroundColor: AppColors.mediumGradientColor,
+                                onPressed: () {
+                                  matchEngine.currentItem?.superLike();
+                                  setState(() {
+                                    _isFabMenuOpen = false;
+                                  });
+                                },
+                                child: Icon(Icons.star, color: Colors.white),
+                              ),
+                              SizedBox(height: 12),
+                              FloatingActionButton(
+                                backgroundColor: AppColors.lightGradientColor,
+                                onPressed: () {
+                                  matchEngine.currentItem?.like();
+                                  setState(() {
+                                    _isFabMenuOpen = false;
+                                  });
+                                },
+                                child:
+                                    Icon(Icons.favorite, color: Colors.red),
+                              ),
+                              SizedBox(height: 12),
+                            ],
+                          ),
+                        FloatingActionButton(
+                          backgroundColor: AppColors.mediumGradientColor,
+                          onPressed: () {
+                            setState(() {
+                              _isFabMenuOpen = !_isFabMenuOpen;
+                            });
+                          },
+                          child: Icon(_isFabMenuOpen ? Icons.check : Icons.keyboard_arrow_up_outlined),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
               ),
             ),
           );
+  }
+}
+
+class MatchDialog extends StatelessWidget {
+  final UserData currentUser;
+  final SuggestedUser matchedUser;
+
+  const MatchDialog({
+    super.key,
+    required this.currentUser,
+    required this.matchedUser,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Auto-close the dialog after 5 seconds
+    Future.delayed(const Duration(seconds: 5), () {
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+    });
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            colors: AppColors.gradientBackgroundList,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Lottie.asset(
+              'assets/animations/hearth_match_lottie.json',
+              height: 100,
+              repeat: false,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              "It's a Match!",
+              style: AppTextStyles.headingText.copyWith(color: Colors.white, fontSize: 24),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              "You and ${matchedUser.name} liked each other!",
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyText.copyWith(color: Colors.white70, fontSize: 16),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // _buildProfileImage(currentUser.images.isNotEmpty ? currentUser.images.first : null),
+                // const SizedBox(width: 20),
+                _buildProfileImage(matchedUser.images.isNotEmpty ? matchedUser.images.first : null),
+              ],
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // TODO: Navigate to chat screen
+              },
+              icon: const Icon(Icons.chat_bubble_outline),
+              label: const Text("Chat Now"),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black, backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileImage(String? imageUrl) {
+    return CircleAvatar(
+      radius: 50,
+      backgroundColor: Colors.white24,
+      backgroundImage: imageUrl != null ? CachedNetworkImageProvider(imageUrl) : null,
+      child: imageUrl == null
+          ? const Icon(
+              Icons.person,
+              size: 50,
+              color: Colors.white,
+            )
+          : null,
+    );
   }
 }

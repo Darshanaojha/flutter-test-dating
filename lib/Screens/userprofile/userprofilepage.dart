@@ -13,7 +13,6 @@ import '../../Models/RequestModels/usernameupdate_request_model.dart';
 import '../settings/appinfopages/appinfopagestart.dart';
 import 'GenerateReferalCode/GenerateReferalCode.dart';
 import 'Transactions/TransactionsViewScreen.dart';
-import 'Wallet/WalletScreen.dart';
 import 'editprofile/edituserprofile.dart';
 
 class UserProfilePage extends StatefulWidget {
@@ -119,7 +118,7 @@ class UserProfilePageState extends State<UserProfilePage>
                       //   color: AppColors.progressColor,
                       // ),
                       child: Lottie.asset(
-                          "assets/animations/handloadinganimation.json",
+                          "assets/animations/hearthmatch_lottie1-2.json",
                           repeat: true,
                           reverse: true),
                     );
@@ -339,7 +338,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                   }
 
                                                   DateTime dob =
-                                                      DateFormat('dd/MM/yyyy')
+                                                      DateFormat('MM/dd/yyyy')
                                                           .parse(dobString);
 
                                                   DateTime today =
@@ -984,14 +983,14 @@ class UserProfilePageState extends State<UserProfilePage>
                                     onTap: () => Get.to(AllTransactionsPage()),
                                     screenWidth: screenWidth,
                                   ),
-                                  buildSettingCard(
-                                    context,
-                                    title: 'Your Wallets',
-                                    subtitle: 'See Your All Wallets Details',
-                                    icon: Icons.wallet,
-                                    onTap: () => Get.to(WalletPage()),
-                                    screenWidth: screenWidth,
-                                  ),
+                                  // buildSettingCard(
+                                  //   context,
+                                  //   title: 'Your Wallets',
+                                  //   subtitle: 'See Your All Wallets Details',
+                                  //   icon: Icons.wallet,
+                                  //   onTap: () => Get.to(WalletPage()),
+                                  //   screenWidth: screenWidth,
+                                  // ),
                                   buildSettingCard(
                                     context,
                                     title: 'Generate Referral Code',
@@ -1136,7 +1135,7 @@ class UserProfilePageState extends State<UserProfilePage>
                 Icon(
                   Icons.arrow_forward_ios_rounded,
                   size: screenWidth * 0.045,
-                  color: Colors.white,
+                  color: AppColors.darkGradientColor,
                 ),
               ],
             ),
@@ -1259,7 +1258,7 @@ class UserProfilePageState extends State<UserProfilePage>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "Share your profile",
+                      "Share application",
                       style: AppTextStyles.titleText.copyWith(
                         fontSize: getResponsiveFontSize(0.03),
                         fontWeight: FontWeight.bold,

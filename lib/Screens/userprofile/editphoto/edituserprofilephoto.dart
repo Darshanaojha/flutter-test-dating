@@ -67,7 +67,8 @@ class EditPhotosPageState extends State<EditPhotosPage> {
       if (status.isGranted) {
         return true;
       } else {
-        Get.snackbar('Permission Denied', "Camera permission is required to take photos.");
+        Get.snackbar('Permission Denied',
+            "Camera permission is required to take photos.");
         return false;
       }
     } else if (status.isPermanentlyDenied || status.isRestricted) {
@@ -87,7 +88,6 @@ class EditPhotosPageState extends State<EditPhotosPage> {
     }
     return false; // Default case
   }
-
 
   Future<bool> requestGalleryPermission() async {
     Permission photoPermission;
@@ -133,7 +133,8 @@ class EditPhotosPageState extends State<EditPhotosPage> {
 
     if (status.isGranted || (status.isLimited && Platform.isIOS)) {
       return true;
-    } else if (Platform.isAndroid && (status.isDenied || status.isPermanentlyDenied)) {
+    } else if (Platform.isAndroid &&
+        (status.isDenied || status.isPermanentlyDenied)) {
       // If photos permission denied on Android, try storage as a fallback for older versions
       // or if the user somehow still gets here after a .photos denial.
       // (This fallback might be less necessary with modern permission_handler versions
@@ -143,7 +144,8 @@ class EditPhotosPageState extends State<EditPhotosPage> {
         Get.snackbar(
           'Permission Required',
           "Storage permission has been permanently denied. Please enable it in app settings.",
-          mainButton: TextButton(onPressed: openAppSettings, child: const Text("Open Settings")),
+          mainButton: TextButton(
+              onPressed: openAppSettings, child: const Text("Open Settings")),
           duration: const Duration(seconds: 5),
         );
         return false;
@@ -168,7 +170,6 @@ class EditPhotosPageState extends State<EditPhotosPage> {
     );
     return false;
   }
-
 
   Future<void> pickImage(int index, ImageSource source) async {
     try {
@@ -217,12 +218,13 @@ class EditPhotosPageState extends State<EditPhotosPage> {
       }
     } catch (e) {
       // failure("Error", e.toString());
-      Get.snackbar("Error", "An error occurred: ${e.toString()}");
+      Get.snackbar("Error", "An error occurred: \${e.toString()}");
       print("Error picking image: $e");
     }
 
     // After picking and updating image (or failing)
-    print('UpdatedImages: ${updatedImages.map((e) => e.value.isNotEmpty ? "ImagePresent" : "Empty").toList()}');
+    print(
+        'UpdatedImages: \${updatedImages.map((e) => e.value.isNotEmpty ? "ImagePresent" : "Empty").toList()}');
     print('FilePaths: $filePaths');
     print('IndexUpdated: $indexUpdated');
   }
@@ -240,108 +242,30 @@ class EditPhotosPageState extends State<EditPhotosPage> {
     });
   }
 
-  void showDeleteOptions(int index) {
+  void showImageOptions(int index) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "Are you sure you want to delete this photo?",
-              style: AppTextStyles.bodyText
-                  .copyWith(fontSize: getResponsiveFontSize(0.03)),
+      backgroundColor: AppColors.primaryColor,
+      builder: (context) => SafeArea(
+        child: Wrap(
+          children: <Widget>[
+            ListTile(
+              leading: Icon(Icons.photo_library, color: Colors.white),
+              title: Text('Upload from Gallery',
+                  style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.of(context).pop();
+                pickImage(index, ImageSource.gallery);
+              },
             ),
-            SizedBox(height: 16),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.buttonColor),
-                  child: Text("Cancel",
-                      style: AppTextStyles.buttonText
-                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                ),
-                // SizedBox(width: 16),
-                // ElevatedButton(
-                //   onPressed: () {
-                //     Navigator.pop(context);
-                //     deletePhoto(index);
-                //   },
-                //   style: ElevatedButton.styleFrom(
-                //       backgroundColor: AppColors.inactiveColor),
-                //   child: Text("Delete",
-                //       style: AppTextStyles.buttonText
-                //           .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                // ),
-                SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    pickImage(index, ImageSource.gallery);
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.activeColor),
-                  child: Text("Edit",
-                      style: AppTextStyles.buttonText
-                          .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void showPhotoSelectionDialog(int index) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "Choose a source for your photo:",
-              style: AppTextStyles.bodyText.copyWith(
-                  color: Colors.grey, fontSize: getResponsiveFontSize(0.03)),
-            ),
-            Center(
-              child: Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      pickImage(index, ImageSource.camera);
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.buttonColor),
-                    child: Text("Camera",
-                        style: AppTextStyles.buttonText
-                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                  ),
-                  SizedBox(width: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      pickImage(
-                        index,
-                        ImageSource.gallery,
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.buttonColor),
-                    child: Text("Gallery",
-                        style: AppTextStyles.buttonText
-                            .copyWith(fontSize: getResponsiveFontSize(0.03))),
-                  ),
-                ],
-              ),
+            ListTile(
+              leading: Icon(Icons.camera_alt, color: Colors.white),
+              title: Text('Take Photo using Camera',
+                  style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.of(context).pop();
+                pickImage(index, ImageSource.camera);
+              },
             ),
           ],
         ),
@@ -380,6 +304,87 @@ class EditPhotosPageState extends State<EditPhotosPage> {
           ),
         );
       },
+    );
+  }
+
+  void _showDeleteConfirmationDialog(int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppColors.secondaryColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          title: Text(
+            'Delete Photo',
+            style: AppTextStyles.titleText,
+          ),
+          content: Text(
+            'Are you sure you want to delete this photo?',
+            style: AppTextStyles.bodyText,
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(
+                'Cancel',
+                style: AppTextStyles.buttonText
+                    .copyWith(color: AppColors.textColor),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.darkGradientColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+              child: Text(
+                'Delete',
+                style: AppTextStyles.buttonText
+                    .copyWith(color: AppColors.textColor),
+              ),
+              onPressed: () {
+                deletePhoto(index);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildImageWidget(Widget image, int index) {
+    return Stack(
+      children: [
+        GestureDetector(
+          onTap: () => showImageOptions(index),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: image,
+          ),
+        ),
+        Positioned(
+          top: 4,
+          right: 4,
+          child: GestureDetector(
+            onTap: () => _showDeleteConfirmationDialog(index),
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.6),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.delete_outline,
+                  color: Colors.white, size: 20),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -465,13 +470,13 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                 .copyWith(fontSize: getResponsiveFontSize(0.03))),
         backgroundColor: AppColors.primaryColor,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: isLoading
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              isLoading
                   ? Center(
                       child: SpinKitCircle(
                         size: 150.0,
@@ -479,7 +484,10 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                       ),
                     )
                   : Obx(() => GridView.builder(
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,
                           crossAxisSpacing: 8.0,
                           mainAxisSpacing: 8.0,
@@ -497,61 +505,34 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                           if (indexUpdated.contains(index) && file != null) {
                             return Padding(
                               padding: const EdgeInsets.all(4.0),
-                              child: GestureDetector(
-                                onTap: () => showFullPhotoDialogFile(file),
-                                child: Stack(
-                                  alignment: Alignment.bottomRight,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: Image.file(
-                                        file,
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.more_vert,
-                                          color: AppColors.activeColor),
-                                      onPressed: () => showDeleteOptions(index),
-                                    ),
-                                  ],
+                              child: _buildImageWidget(
+                                Image.file(
+                                  file,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,
                                 ),
+                                index,
                               ),
                             );
                           } else if (imageUrl.value.isNotEmpty) {
                             return Padding(
                               padding: const EdgeInsets.all(4.0),
-                              child: GestureDetector(
-                                onTap: () =>
-                                    showFullPhotoDialog(imageUrl.value),
-                                child: Stack(
-                                  alignment: Alignment.bottomRight,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: Image.network(
-                                        imageUrl.value,
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.more_vert,
-                                          color: AppColors.activeColor),
-                                      onPressed: () => showDeleteOptions(index),
-                                    ),
-                                  ],
+                              child: _buildImageWidget(
+                                Image.network(
+                                  imageUrl.value,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,
                                 ),
+                                index,
                               ),
                             );
                           } else {
                             return Padding(
                               padding: const EdgeInsets.all(4.0),
                               child: GestureDetector(
-                                onTap: () => showPhotoSelectionDialog(index),
+                                onTap: () => showImageOptions(index),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(10),
                                   child: Container(
@@ -565,144 +546,140 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                           }
                         },
                       )),
-            ),
-            SizedBox(height: screenSize.height * 0.03),
-            Obx(() => Card(
-                  elevation: 8,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        Text(
-                          (controller.headlines.length > 11)
-                              ? controller.headlines[11].title
-                              : controller.headlines.isNotEmpty
-                                  ? controller.headlines.first.title
-                                  : "Loading Title...",
-                          style: AppTextStyles.titleText.copyWith(
-                            fontSize: fontSize,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textColor,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          (controller.headlines.length > 11)
-                              ? controller.headlines[11].description
-                              : controller.headlines.isNotEmpty
-                                  ? controller.headlines.first.description
-                                  : "Loading Description...",
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: fontSize,
-                            color: AppColors.textColor,
-                          ),
-                        ),
-                      ],
+              SizedBox(height: screenSize.height * 0.03),
+              Obx(() => Card(
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ),
-                )),
-            SizedBox(height: 10),
-            Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    controller.safetyGuidelines.isEmpty
-                        ? Center(
-                            child: SpinKitCircle(
-                              size: 35.0,
-                              color: AppColors.progressColor,
-                            ),
-                          )
-                        : SizedBox(
-                            height: 200,
-                            child: Scrollbar(
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: controller.safetyGuidelines.length,
-                                itemBuilder: (context, index) {
-                                  var guideline =
-                                      controller.safetyGuidelines[index];
-                                  return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(height: 15),
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons.warning,
-                                            color: AppColors.iconColor,
-                                            size: fontSize,
-                                          ),
-                                          SizedBox(width: 10),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  guideline.title,
-                                                  style: AppTextStyles.bodyText
-                                                      .copyWith(
-                                                    fontSize: fontSize - 2,
-                                                    color: AppColors.textColor,
-                                                  ),
-                                                ),
-                                                SizedBox(height: 5),
-                                                Text(
-                                                  guideline.description,
-                                                  style: AppTextStyles.bodyText
-                                                      .copyWith(
-                                                    fontSize: fontSize - 2,
-                                                    color: AppColors.textColor,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          Text(
+                            (controller.headlines.length > 11)
+                                ? controller.headlines[11].title
+                                : controller.headlines.isNotEmpty
+                                    ? controller.headlines.first.title
+                                    : "Loading Title...",
+                            style: AppTextStyles.titleText.copyWith(
+                              fontSize: fontSize,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textColor,
                             ),
                           ),
-                  ],
+                          const SizedBox(height: 10),
+                          Text(
+                            (controller.headlines.length > 11)
+                                ? controller.headlines[11].description
+                                : controller.headlines.isNotEmpty
+                                    ? controller.headlines.first.description
+                                    : "Loading Description...",
+                            style: AppTextStyles.bodyText.copyWith(
+                              fontSize: fontSize,
+                              color: AppColors.textColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )),
+              const SizedBox(height: 10),
+              Card(
+                elevation: 8,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-              ),
-            ),
-            SizedBox(height: screenSize.height * 0.06),
-            Center(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment(0.8, 1),
-                      colors: AppColors.gradientColor),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: ElevatedButton(
-                  onPressed: onSubmit,
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 18, horizontal: 40),
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: AppColors.textColor,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      controller.safetyGuidelines.isEmpty
+                          ? Center(
+                              child: SpinKitCircle(
+                                size: 35.0,
+                                color: AppColors.progressColor,
+                              ),
+                            )
+                          : ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: controller.safetyGuidelines.length,
+                              itemBuilder: (context, index) {
+                                var guideline =
+                                    controller.safetyGuidelines[index];
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 15),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.warning,
+                                          color: AppColors.iconColor,
+                                          size: fontSize,
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                guideline.title,
+                                                style: AppTextStyles.bodyText
+                                                    .copyWith(
+                                                  fontSize: fontSize - 2,
+                                                  color: AppColors.textColor,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 5),
+                                              Text(
+                                                guideline.description,
+                                                style: AppTextStyles.bodyText
+                                                    .copyWith(
+                                                  fontSize: fontSize - 2,
+                                                  color: AppColors.textColor,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                    ],
                   ),
-                  child: Text('Submit', style: AppTextStyles.buttonText),
                 ),
               ),
-            ),
-          ],
+              SizedBox(height: screenSize.height * 0.06),
+              Center(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: const Alignment(0.8, 1),
+                        colors: AppColors.gradientColor),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: ElevatedButton(
+                    onPressed: onSubmit,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 18, horizontal: 40),
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: AppColors.textColor,
+                    ),
+                    child: Text('Submit', style: AppTextStyles.buttonText),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -718,7 +695,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
         return base64Image;
       } else {
         failure(
-            "Failed to load image.", " Status code: ${response.statusCode}");
+            "Failed to load image.", " Status code: \${response.statusCode}");
         return '';
       }
     } catch (e) {

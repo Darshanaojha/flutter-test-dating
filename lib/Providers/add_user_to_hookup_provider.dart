@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
-
 class AddHookupRequestProvider extends GetConnect {
   Future<bool> addHookupRequest({required String interestedId}) async {
     try {
@@ -21,7 +20,7 @@ class AddHookupRequestProvider extends GetConnect {
         );
 
         if (response.statusCode == null || response.body == null) {
-          failure('Error', 'Server Failed To Respond');
+          failure('Error in addHookupRequest', 'Server Failed To Respond');
           return false;
         }
 
@@ -29,15 +28,15 @@ class AddHookupRequestProvider extends GetConnect {
           success('Success', 'Hookup request sent');
           return true;
         } else {
-          failure('Error', response.body.toString());
+          failure('Error in addHookupRequest', response.body.toString());
           return false;
         }
       } else {
-        failure('Error', 'Token not found');
+        failure('Error in addHookupRequest', 'Token not found');
         return false;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in addHookupRequest', e.toString());
       return false;
     }
   }

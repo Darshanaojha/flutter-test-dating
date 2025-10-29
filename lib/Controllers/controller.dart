@@ -1456,6 +1456,8 @@ class Controller extends GetxController {
         userHighlightedList.clear();
         hookUpList.clear();
         failure('Error', 'Failed to fetch the user suggestions');
+        debugPrint(
+            'Error: Failed to fetch the user suggestions, response is null');
         return false;
       }
     } catch (e) {
@@ -1479,7 +1481,7 @@ class Controller extends GetxController {
         return true;
       }
 
-      failure('Error', 'Failed to process the like request.');
+      // failure('Error', 'Failed to process the like request.');
       return false;
     } catch (e) {
       failure('Error', e.toString());
@@ -1634,7 +1636,7 @@ class Controller extends GetxController {
   RxList<PackageData> subscripted = <PackageData>[].obs;
 
   Future<bool> fetchAllsubscripted() async {
-    subscripted.clear(); 
+    subscripted.clear();
     try {
       SubscribedPackagesModel? response =
           await FetchSubscriptedPackageProvider().fetchAllSubscriptedPackage();
@@ -1922,20 +1924,20 @@ class Controller extends GetxController {
   }
 
   ProfileLikeRequest profileLikeRequest = ProfileLikeRequest(likedBy: '');
-  Future<bool> profileLike(ProfileLikeRequest profileLikeRequest) async {
+  Future<ProfileLikeResponse?> profileLike(
+      ProfileLikeRequest profileLikeRequest) async {
     try {
       ProfileLikeResponse? response =
           await ProfileLikeProvider().profileLikeProvider(profileLikeRequest);
       if (response != null) {
-        success('Success', response.payload.message);
-        return true;
+        return response;
       }
 
-      failure('Error', 'Failed to process the like request.');
-      return false;
+      // failure('Error', 'Failed to process the like request.');
+      return null;
     } catch (e) {
       failure('Error', e.toString());
-      return false;
+      return null;
     }
   }
 
@@ -1972,7 +1974,7 @@ class Controller extends GetxController {
       DislikeProfileResponse? response = await DislikeProfileProvider()
           .dislikeProfileProvider(dislikeProfileRequest);
       if (response != null) {
-        success('Success', response.payload.message);
+        // success('Success', response.payload.message);
         return true;
       }
       // failure('Error', 'Failed to process the dislike request.');
@@ -1994,8 +1996,8 @@ class Controller extends GetxController {
         success('Success', response.payload.message);
         return true;
       }
-      failure(
-          'Error', 'Failed to process the user suggestion dislike request.');
+      // failure(
+      //     'Error', 'Failed to process the user suggestion dislike request.');
       return false;
     } catch (e) {
       failure('Error', e.toString());
@@ -2059,7 +2061,7 @@ class Controller extends GetxController {
           await FetchAllIntroSliderProvider().fetchAllIntroSliderProvider();
 
       if (response != null) {
-        success('Success', response.payload!.msg!);
+        // success('Success', response.payload!.msg!);
 
         if (response.payload!.data!.isNotEmpty) {
           sliderData.addAll(response.payload!.data!);
@@ -2484,7 +2486,7 @@ class Controller extends GetxController {
       UpdateStatusResponse? response =
           await Updatestatusprovider().updateStatus(status);
       if (response != null) {
-        success('Success', response.message);
+        // success('Success', response.message);
         return true;
       } else {
         failure('Error', 'Failed to update the status');

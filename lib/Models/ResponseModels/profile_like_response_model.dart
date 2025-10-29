@@ -3,8 +3,8 @@ class ProfileLikeResponse {
   final Payload payload;
   final Error error;
 
-  ProfileLikeResponse({required this.success, required this.payload, required this.error});
-
+  ProfileLikeResponse(
+      {required this.success, required this.payload, required this.error});
 
   Map<String, dynamic> toJson() {
     return {
@@ -13,7 +13,6 @@ class ProfileLikeResponse {
       'error': error.toJson(),
     };
   }
-
 
   factory ProfileLikeResponse.fromJson(Map<String, dynamic> json) {
     return ProfileLikeResponse(
@@ -25,9 +24,10 @@ class ProfileLikeResponse {
 }
 
 class Payload {
+  bool connection;
   final String message;
 
-  Payload({required this.message});
+  Payload({required this.connection, required this.message});
 
   Map<String, dynamic> toJson() {
     return {
@@ -37,7 +37,8 @@ class Payload {
 
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
-      message: json['message'] as String,
+      connection: json['connection'] as bool,
+      message: json['message'].toString(),
     );
   }
 }
@@ -58,7 +59,7 @@ class Error {
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
       code: json['code'] as int,
-      message: json['message'] as String,
+      message: json['message'].toString(),
     );
   }
 }

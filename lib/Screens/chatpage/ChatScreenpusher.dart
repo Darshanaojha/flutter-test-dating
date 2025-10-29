@@ -15,6 +15,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:vibration/vibration.dart';
+import 'package:intl/intl.dart'; // Added import
 
 import '../../Models/ResponseModels/chat_history_response_model.dart';
 import '../../Providers/WebsocketService.dart';
@@ -46,6 +47,8 @@ class ChatScreenState extends State<ChatScreen> {
   final TextEditingController messageController = TextEditingController();
   String? bearerToken =
       EncryptedSharedPreferences.getInstance().getString('token');
+  DateTime? _lastDate; // Added _lastDate variable
+
   @override
   void initState() {
     super.initState();
@@ -318,6 +321,44 @@ class ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
+  // Group messages by date
+  Map<String, List<Message>> _groupMessagesByDate(List<Message> messages) {
+    final Map<String, List<Message>> groupedMessages = {};
+
+    for (var message in messages) {
+      if (message.created != null) {
+        final createdDate = DateTime.parse(message.created!);
+        final dateKey = DateFormat('yyyy-MM-dd').format(createdDate);
+        if (!groupedMessages.containsKey(dateKey)) {
+          groupedMessages[dateKey] = [];
+        }
+        groupedMessages[dateKey]!.add(message);
+      }
+    }
+
+    return groupedMessages;
+  }
+
+  // Format date for display
+  String _formatDateHeader(String dateString) {
+    final date = DateTime.parse(dateString);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(Duration(days: 1));
+
+    if (date.year == today.year &&
+        date.month == today.month &&
+        date.day == today.day) {
+      return 'Today';
+    } else if (date.year == yesterday.year &&
+        date.month == yesterday.month &&
+        date.day == yesterday.day) {
+      return 'Yesterday';
+    } else {
+      return DateFormat('MMMM d, yyyy').format(date);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final scrollController = ScrollController();
@@ -540,18 +581,113 @@ class ChatScreenState extends State<ChatScreen> {
         child: Column(
           children: [
             Expanded(
-              child: Obx(() => ListView.builder(
-                    controller: scrollController,
-                    itemCount: controller.messages.length,
-                    itemBuilder: (context, index) {
-                      final message = controller.messages[index];
-                      print(
-                          "Message Image sensitivity: ${message.sensitivity}");
+              child: Obx(() {
+                final groupedMessages =
+                    _groupMessagesByDate(controller.messages);
+                final dateKeys = groupedMessages.keys.toList()..sort();
+
+                List<dynamic> chatItems = [];
+                for (var dateKey in dateKeys) {
+                  chatItems.add(_formatDateHeader(dateKey));
+                  chatItems.addAll(groupedMessages[dateKey]!);
+                }
+
+                return ListView.builder(
+                  controller: scrollController,
+                  itemCount: chatItems.length,
+                  itemBuilder: (context, index) {
+                    final item = chatItems[index];
+
+                    if (item is String) {
+                      return Center(
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 8.0),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12.0, vertical: 6.0),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardColor.withOpacity(0.8),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            item,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textColor.withOpacity(0.8),
+                            ),
+                          ),
+                        ),
+                      );
+                    } else if (item is Message) {
+                      final message = item;
+                      final messageTime = DateFormat('hh:mm a')
+                          .format(DateTime.parse(message.created!));
                       bool isSentByUser = message.senderId == widget.senderId;
+
+                      Widget messageContent = Column(
+                        crossAxisAlignment: isSentByUser
+                            ? CrossAxisAlignment.end
+                            : CrossAxisAlignment.start,
+                        children: [
+                          if (message.message != null &&
+                              message.message!.isNotEmpty)
+                            BubbleSpecialThree(
+                              sent: isSentByUser,
+                              delivered: isSentByUser,
+                              seen: isSentByUser,
+                              text: message.message ?? '',
+                              isSender: isSentByUser,
+                              color: isSentByUser
+                                  ? Colors.blueAccent
+                                  : Colors.grey[300]!,
+                              textStyle: TextStyle(
+                                color: isSentByUser
+                                    ? Colors.white
+                                    : Colors.black,
+                                fontSize: 16,
+                              ),
+                            ),
+                          if (message.imagePath != null)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 5.0),
+                              child: SensitiveImageWidget(
+                                imagePath: message.imagePath!,
+                                bearerToken: bearerToken!,
+                                sensitivity: message.sensitivity ?? 0,
+                              ),
+                            ),
+                          Padding(
+                            padding: EdgeInsets.only(
+                              top: 4,
+                              right: isSentByUser ? 10 : 0,
+                              left: isSentByUser ? 0 : 10,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (message.isEdited == 1)
+                                  Text(
+                                    'Edited ',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                Text(
+                                  messageTime,
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      );
 
                       return Slidable(
                         key: Key(message.id ?? ''),
-                        // Specify the start-to-end action pane (Edit button)
                         startActionPane:
                             isSentByUser && message.imagePath == null
                                 ? ActionPane(
@@ -564,11 +700,10 @@ class ChatScreenState extends State<ChatScreen> {
                                                 _showMessageDialog(
                                                     context, message, index);
                                               }
-                                            : null, // Disable edit for messages not sent by the user
+                                            : null,
                                         backgroundColor: Colors.blue,
                                         foregroundColor: Colors.white,
                                         icon: Icons.edit,
-                                        //  label: 'Edit',
                                       ),
                                     ],
                                   )
@@ -705,13 +840,10 @@ class ChatScreenState extends State<ChatScreen> {
                                     backgroundColor: Colors.red,
                                     foregroundColor: Colors.white,
                                     icon: Icons.delete,
-
-                                    // label: 'Delete',
                                   ),
                                 ],
                               )
                             : null,
-
                         child: GestureDetector(
                           onTap: () {
                             if (selectedMessages.isNotEmpty) {
@@ -728,124 +860,28 @@ class ChatScreenState extends State<ChatScreen> {
                               }
                             }
                           },
-                          child: Stack(
-                            children: [
-                              // Wrap the message bubble in a container and conditionally change the background color
-                              if (selectedMessages.contains(message))
-                                Container(
-                                  color: Colors
-                                      .red, // Set background color to yellow when selected
-                                  margin: EdgeInsets.symmetric(
-                                      vertical: 5,
-                                      horizontal:
-                                          10), // Adjust margin for spacing
-                                  child: Align(
-                                    alignment: isSentByUser
-                                        ? Alignment.centerRight
-                                        : Alignment.centerLeft,
-                                    child: Column(
-                                      crossAxisAlignment: isSentByUser
-                                          ? CrossAxisAlignment.end
-                                          : CrossAxisAlignment.start,
-                                      children: [
-                                        BubbleSpecialThree(
-                                          sent: isSentByUser,
-                                          delivered: isSentByUser,
-                                          seen: isSentByUser,
-                                          text: message.message ?? '',
-                                          isSender: isSentByUser,
-                                          color: isSentByUser
-                                              ? Colors.blueAccent
-                                              : Colors.grey[300]!,
-                                          textStyle: TextStyle(
-                                            color: isSentByUser
-                                                ? Colors.white
-                                                : Colors.black,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        Container(
-                                          padding: isSentByUser
-                                              ? EdgeInsets.fromLTRB(0, 0, 5, 0)
-                                              : EdgeInsets.fromLTRB(5, 0, 0, 0),
-                                          child: message.isEdited == 1
-                                              ? Text(
-                                                  "(edited)",
-                                                  style: TextStyle(
-                                                      color: Colors.grey),
-                                                )
-                                              : SizedBox.shrink(),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              if (!selectedMessages.contains(message))
-                                Align(
-                                  alignment: isSentByUser
-                                      ? Alignment.centerRight
-                                      : Alignment.centerLeft,
-                                  child: Column(
-                                    crossAxisAlignment: isSentByUser
-                                        ? CrossAxisAlignment.end
-                                        : CrossAxisAlignment.start,
-                                    children: [
-                                      message.message == null
-                                          ? SizedBox.shrink()
-                                          : BubbleSpecialThree(
-                                              sent: isSentByUser,
-                                              delivered: isSentByUser,
-                                              seen: isSentByUser,
-                                              text: message.message ?? '',
-                                              isSender: isSentByUser,
-                                              color: isSentByUser
-                                                  ? Colors.blueAccent
-                                                  : Colors.grey[300]!,
-                                              textStyle: TextStyle(
-                                                color: isSentByUser
-                                                    ? Colors.white
-                                                    : Colors.black,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                      if (message.imagePath != null)
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 5.0),
-                                          child: SensitiveImageWidget(
-                                            imagePath: message.imagePath!,
-                                            bearerToken: bearerToken!,
-                                            sensitivity:
-                                                message.sensitivity ?? 0,
-                                          ),
-                                        ),
-                                      Container(
-                                        padding: isSentByUser
-                                            ? EdgeInsets.fromLTRB(0, 0, 5, 0)
-                                            : EdgeInsets.fromLTRB(5, 0, 0, 0),
-                                        child: message.isEdited == 1
-                                            ? Text(
-                                                "(edited)",
-                                                style: TextStyle(
-                                                    color: Colors.grey),
-                                              )
-                                            : SizedBox.shrink(),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                            ],
+                          child: Container(
+                            padding:
+                                const EdgeInsets.symmetric(vertical: 4.0),
+                            child: Align(
+                              alignment: isSentByUser
+                                  ? Alignment.centerRight
+                                  : Alignment.centerLeft,
+                              child: messageContent,
+                            ),
                           ),
                         ),
                       );
-                    },
-                  )),
+                    }
+                    return SizedBox.shrink();
+                  },
+                );
+              }),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                  // Message input with rounded card and slight elevation
                   Expanded(
                     child: Card(
                       elevation: 6,
@@ -874,7 +910,6 @@ class ChatScreenState extends State<ChatScreen> {
                       ),
                     ),
                   ),
-                  // Image picker icon with gradient background
                   Container(
                     margin: EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
@@ -907,7 +942,6 @@ class ChatScreenState extends State<ChatScreen> {
                       },
                     ),
                   ),
-                  // Show selected image as a small avatar
                   if (selectedImage != null)
                     GestureDetector(
                       onTap: () {
@@ -932,7 +966,6 @@ class ChatScreenState extends State<ChatScreen> {
                         ),
                       ),
                     ),
-                  // Send button with gradient background
                   Container(
                     margin: EdgeInsets.only(left: 4),
                     decoration: BoxDecoration(

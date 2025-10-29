@@ -2,7 +2,6 @@ import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 import '../Models/ResponseModels/GetPointAmountResponse.dart';
-
 class GetPointAmountProvider extends GetConnect {
   Future<PointAmountResponse?> getpointamount() async {
     try {
@@ -23,7 +22,7 @@ class GetPointAmountProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in getpointamount', 'Server Failed To Respond');
         return null;
       }
       if (response.statusCode == 200) {
@@ -32,11 +31,11 @@ class GetPointAmountProvider extends GetConnect {
           if (response.body['error']['code'] == 0) {
             return PointAmountResponse.fromJson(response.body);
           } else {
-            failure("Error", response.body['error']['code']);
+            failure("Error in getpointamount", response.body['error']['code']);
             return null;
           }
         } else {
-          failure("Error", "Invalid response format");
+          failure("Error in getpointamount", "Invalid response format");
           return null;
         }
       } else {
@@ -45,7 +44,7 @@ class GetPointAmountProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in getpointamount', e.toString());
       return null;
     }
   }

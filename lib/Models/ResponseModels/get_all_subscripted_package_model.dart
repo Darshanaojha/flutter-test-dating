@@ -11,9 +11,9 @@ class SubscribedPackagesModel {
 
   factory SubscribedPackagesModel.fromJson(Map<String, dynamic> json) {
     return SubscribedPackagesModel(
-      success: json['success'],
-      payload: Payload.fromJson(json['payload']),
-      error: Error.fromJson(json['error']),
+      success: json['success'] ?? false,
+      payload: Payload.fromJson(json['payload'] ?? {}),
+      error: Error.fromJson(json['error'] ?? {}),
     );
   }
 
@@ -37,8 +37,8 @@ class Payload {
 
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
-      message: json['message'],
-      data: (json['data'] as List)
+      message: json['message'] ?? '',
+      data: (json['data'] as List? ?? [])
           .map((package) => PackageData.fromJson(package))
           .toList(),
     );
@@ -66,7 +66,6 @@ class PackageData {
   String created;
   String updated;
   String packageTitle;
-  String subscriptionDate;
 
   PackageData({
     required this.id,
@@ -82,25 +81,23 @@ class PackageData {
     required this.created,
     required this.updated,
     required this.packageTitle,
-    required this.subscriptionDate,
   });
 
   factory PackageData.fromJson(Map<String, dynamic> json) {
     return PackageData(
-      id: json['id'],
-      userId: json['user_id'],
-      packageCategoryId: json['package_category_id'],
-      packageId: json['package_id'],
-      days: json['days'],
-      actualAmount: json['actual_amount'],
-      offerAmount: json['offer_amount'],
-      unit: json['unit'],
-      date: json['date'],
-      status: json['status'],
-      created: json['created'],
-      updated: json['updated'],
-      packageTitle: json['package_title'],
-      subscriptionDate: json['subscription_date'],
+      id: json['id'] ?? '',
+      userId: json['user_id'] ?? '',
+      packageCategoryId: json['package_category_id'] ?? '',
+      packageId: json['package_id'] ?? '',
+      days: json['days']?.toString() ?? '',
+      actualAmount: json['actual_amount']?.toString() ?? '',
+      offerAmount: json['offer_amount']?.toString() ?? '',
+      unit: json['unit'] ?? '',
+      date: json['date'] ?? '',
+      status: json['status']?.toString() ?? '',
+      created: json['created'] ?? '',
+      updated: json['updated'] ?? '',
+      packageTitle: json['package_title'] ?? '',
     );
   }
 
@@ -119,7 +116,6 @@ class PackageData {
       'created': created,
       'updated': updated,
       'package_title': packageTitle,
-      'subscription_date': subscriptionDate,
     };
   }
 }
@@ -135,8 +131,8 @@ class Error {
 
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
-      code: json['code'],
-      message: json['message'],
+      code: json['code'] ?? 0,
+      message: json['message'] ?? '',
     );
   }
 

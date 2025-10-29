@@ -1,10 +1,8 @@
 import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-
 import '../Models/RequestModels/change_password_request.dart';
 import '../Models/ResponseModels/change_password_response_model.dart';
-
 class ChangePasswordProvider extends GetConnect {
   Future<ChangePasswordResponse?> changePassword(
       ChangePasswordRequest request) async {
@@ -24,26 +22,26 @@ class ChangePasswordProvider extends GetConnect {
         );
 
         if (response.statusCode == null || response.body == null) {
-          failure('Error', 'Server Failed To Respond');
+          failure('Error in changePassword', 'Server Failed To Respond');
           return null;
         }
         if (response.statusCode == 200) {
           if (response.body['error']['code'] == 0) {
             return ChangePasswordResponse.fromJson(response.body);
           } else {
-            failure('Error', response.body['error']['message']);
+            failure('Error in changePassword', response.body['error']['message']);
             return null;
           }
         } else {
-          failure('Error', response.body.toString());
+          failure('Error in changePassword', response.body.toString());
           return null;
         }
       } else {
-        failure('Error', 'Token not found');
+        failure('Error in changePassword', 'Token not found');
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in changePassword', e.toString());
       return null;
     } finally {
       print("Change password operation completed.");

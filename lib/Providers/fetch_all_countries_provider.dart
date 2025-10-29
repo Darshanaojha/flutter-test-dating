@@ -2,19 +2,20 @@ import 'package:dating_application/Models/ResponseModels/get_all_country_respons
 import 'package:dating_application/constants.dart';
 import 'package:get/get.dart';
 
+
 class FetchAllCountriesProvider extends GetConnect {
   Future<CountryResponse?> fetchCountries() async {
     try {
       Response response = await get('$baseurl/Common/country');
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in fetchCountries', 'Server Failed To Respond');
         return null;
       }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return CountryResponse.fromJson(response.body);
         } else {
-          failure("Error", response.body['error']['message']);
+          failure("Error in fetchCountries", response.body['error']['message']);
           return null;
         }
       } else {

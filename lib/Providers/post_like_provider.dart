@@ -1,10 +1,8 @@
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get_connect.dart';
-
 import '../Models/RequestModels/liked_by_request_model.dart';
 import '../Models/ResponseModels/liked_by_response_model.dart';
 import '../constants.dart';
-
 class PostLikeProvider extends GetConnect {
   Future<LikedByResponseModel?> postLike(LikeModel likeModel) async {
     try {
@@ -13,7 +11,7 @@ class PostLikeProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        failure('Error in postLike', 'Token not found');
         return null;
       }
 
@@ -26,7 +24,7 @@ class PostLikeProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in postLike', 'Server Failed To Respond');
         return null;
       }
 
@@ -34,7 +32,7 @@ class PostLikeProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return LikedByResponseModel.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in postLike', response.body['error']['message']);
           return null;
         }
       } else {
@@ -42,7 +40,7 @@ class PostLikeProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in postLike', e.toString());
       return null;
     }
   }

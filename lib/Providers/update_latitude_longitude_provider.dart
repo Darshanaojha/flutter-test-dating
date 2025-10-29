@@ -1,10 +1,8 @@
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get_connect/connect.dart';
-
 import '../Models/RequestModels/update_lat_long_request_model.dart';
 import '../Models/ResponseModels/update_lat_long_response_model.dart';
 import '../constants.dart';
-
 class UpdateLatitudeLongitudeProvider extends GetConnect {
   Future<UpdateLatLongResponse?> updatelatlong(
       UpdateLatLongRequest reportUserReasonFeedbackRequestModel) async {
@@ -14,7 +12,7 @@ class UpdateLatitudeLongitudeProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        failure('Error in updatelatlong', 'Token not found');
         return null;
       }
       print(reportUserReasonFeedbackRequestModel.toJson().toString());
@@ -27,7 +25,7 @@ class UpdateLatitudeLongitudeProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in updatelatlong', 'Server Failed To Respond');
         return null;
       }
       print(response.body.toString());
@@ -38,7 +36,7 @@ class UpdateLatitudeLongitudeProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in updatelatlong', e.toString());
       return null;
     }
   }

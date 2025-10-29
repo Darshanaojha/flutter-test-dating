@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import 'package:dating_application/constants.dart';
 import 'package:dating_application/Models/ResponseModels/creator_by_creator_response.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
-
 class CreatorByCreatorProvider extends GetConnect {
   Future<CreatorByCreatorResponse?> fetchByCreator() async {
     try {
@@ -20,22 +19,22 @@ class CreatorByCreatorProvider extends GetConnect {
         );
 
         if (response.statusCode == null || response.body == null) {
-          failure('Error', 'Server Failed To Respond');
+          failure('Error in fetchByCreator', 'Server Failed To Respond');
           return null;
         }
 
         if (response.statusCode == 200) {
           return CreatorByCreatorResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body.toString());
+          failure('Error in fetchByCreator', response.body.toString());
           return null;
         }
       } else {
-        failure('Error', 'Token not found');
+        failure('Error in fetchByCreator', 'Token not found');
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in fetchByCreator', e.toString());
       return null;
     }
   }

@@ -1,9 +1,7 @@
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get_connect.dart';
-
 import '../Models/ResponseModels/get_report_user_options_response_model.dart';
 import '../constants.dart';
-
 class ReportReasonProvider extends GetConnect {
   Future<ReportUserForBlockOptionsResponseModel?> reportReason() async {
     try {
@@ -12,7 +10,7 @@ class ReportReasonProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        failure('Error in reportReason', 'Token not found');
         return null;
       }
 
@@ -24,14 +22,14 @@ class ReportReasonProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in reportReason', 'Server Failed To Respond');
         return null;
       }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return ReportUserForBlockOptionsResponseModel.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in reportReason', response.body['error']['message']);
           return null;
         }
       } else {
@@ -39,7 +37,7 @@ class ReportReasonProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in reportReason', e.toString());
       return null;
     }
   }

@@ -49,7 +49,7 @@ class AllTransactionsPageState extends State<AllTransactionsPage> {
   String getStatusText(String status) {
     switch (status.toLowerCase()) {
       case '1':
-        return 'Active';
+        return 'Completed';
       case '2':
         return 'Pending';
       case '3':

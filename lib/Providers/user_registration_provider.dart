@@ -3,36 +3,42 @@ import 'package:dating_application/Models/ResponseModels/user_registration_respo
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart';
 
 class UserRegistrationProvider extends GetConnect {
   Future<UserRegistrationResponse?> userRegistration(
       UserRegistrationRequest userRegistrationRequest) async {
     print('=======');
 
-    debugPrint('name: ${userRegistrationRequest.name}');
-    debugPrint('email: ${userRegistrationRequest.email}');
-    debugPrint('mobile: ${userRegistrationRequest.mobile}');
-    debugPrint('latitude: ${userRegistrationRequest.latitude}');
-    debugPrint('longitude: ${userRegistrationRequest.longitude}');
-    debugPrint('address: ${userRegistrationRequest.address}');
-    debugPrint('password: ${userRegistrationRequest.password}');
-    debugPrint('countryId: ${userRegistrationRequest.countryId}');
-    debugPrint('city: ${userRegistrationRequest.city}');
-    debugPrint('dob: ${userRegistrationRequest.dob}');
-    debugPrint('referal: ${userRegistrationRequest.referalcode}');
-    debugPrint('nickname: ${userRegistrationRequest.nickname}');
-    debugPrint('gender: ${userRegistrationRequest.gender}');
-    debugPrint('subGender: ${userRegistrationRequest.subGender}');
-    debugPrint('preferences: ${userRegistrationRequest.preferences}');
-    debugPrint('desires: ${userRegistrationRequest.desires}');
-    debugPrint('interest: ${userRegistrationRequest.interest}');
-    debugPrint('bio: ${userRegistrationRequest.bio}');
-    debugPrint('imgcount: ${userRegistrationRequest.imgcount}');
-    debugPrint('lang: ${userRegistrationRequest.lang}');
-    debugPrint('photos: ${userRegistrationRequest.photos}');
-    debugPrint('emailAlerts: ${userRegistrationRequest.emailAlerts}');
-    debugPrint('username: ${userRegistrationRequest.username}');
-    debugPrint('lookingFor: ${userRegistrationRequest.lookingFor}');
+    // debugPrint('name: ${userRegistrationRequest.name}');
+    // debugPrint('email: ${userRegistrationRequest.email}');
+    // debugPrint('mobile: ${userRegistrationRequest.mobile}');
+    // debugPrint('latitude: ${userRegistrationRequest.latitude}');
+    // debugPrint('longitude: ${userRegistrationRequest.longitude}');
+    // debugPrint('address: ${userRegistrationRequest.address}');
+    // debugPrint('password: ${userRegistrationRequest.password}');
+    // debugPrint('countryId: ${userRegistrationRequest.countryId}');
+    // debugPrint('city: ${userRegistrationRequest.city}');
+    // debugPrint('dob: ${userRegistrationRequest.dob}');
+    // debugPrint('referal: ${userRegistrationRequest.referalcode}');
+    // debugPrint('nickname: ${userRegistrationRequest.nickname}');
+    // debugPrint('gender: ${userRegistrationRequest.gender}');
+    // debugPrint('subGender: ${userRegistrationRequest.subGender}');
+    // debugPrint('preferences: ${userRegistrationRequest.preferences}');
+    // debugPrint('desires: ${userRegistrationRequest.desires}');
+    // debugPrint('interest: ${userRegistrationRequest.interest}');
+    // debugPrint('bio: ${userRegistrationRequest.bio}');
+    // debugPrint('imgcount: ${userRegistrationRequest.imgcount}');
+    // debugPrint('lang: ${userRegistrationRequest.lang}');
+    // debugPrint('photos: ${userRegistrationRequest.photos.toString()}');
+    // debugPrint('emailAlerts: ${userRegistrationRequest.emailAlerts}');
+    // debugPrint('username: ${userRegistrationRequest.username}');
+    // debugPrint('lookingFor: ${userRegistrationRequest.lookingFor}');
+
+    print('=======');
+    debugPrint('Request: ${userRegistrationRequest.toJson()}');
+    debugPrint('Photos: ${userRegistrationRequest.photos}');
+
     try {
       Response response = await post(
         '$baseurl/Authentication/register',
@@ -42,7 +48,7 @@ class UserRegistrationProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in userRegistration', 'Server Failed To Respond');
         return null;
       }
 
@@ -51,15 +57,16 @@ class UserRegistrationProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return UserRegistrationResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure(
+              'Error in userRegistration', response.body['error']['message']);
           return null;
         }
       } else {
-        failure('Error', response.body.toString());
+        failure('Error in userRegistration', response.body.toString());
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in userRegistration', e.toString());
       return null;
     }
   }

@@ -1,6 +1,5 @@
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-
 import '../Models/ResponseModels/get_all_subscripted_package_model.dart';
 import '../constants.dart';
 
@@ -12,7 +11,7 @@ class FetchSubscriptedPackageProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        failure('Error in fetchAllSubscriptedPackage', 'Token not found');
         return null;
       }
       final response = await get(
@@ -25,14 +24,16 @@ class FetchSubscriptedPackageProvider extends GetConnect {
       print('Fetching all fetchAllSubscriptedPackage : ${response.body}');
 
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure(
+            'Error in fetchAllSubscriptedPackage', 'Server Failed To Respond');
         return null;
       }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return SubscribedPackagesModel.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          // failure('Error in fetchAllSubscriptedPackage',
+          //     response.body['error']['message'].toString());
           return null;
         }
       } else {
@@ -43,7 +44,7 @@ class FetchSubscriptedPackageProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error in subscribed package', e.toString());
+      failure('Exception in sub package', e.toString());
       return null;
     }
   }

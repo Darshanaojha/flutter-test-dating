@@ -4,14 +4,13 @@ import 'dart:convert';
 import '../Models/RequestModels/edit_message_request_model.dart';
 import '../Models/ResponseModels/edit_message_response_model.dart';
 import '../constants.dart';
-
 class EditMessageProvider extends GetConnect {
   Future<EditMessageResponse?> editMessage(EditMessageRequest request) async {
     try {
       final preferences = EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token is not found');
+        failure('Error in editMessage', 'Token is not found');
         return null;
       }
 
@@ -25,22 +24,22 @@ class EditMessageProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in editMessage', 'Server Failed To Respond');
         return null;
       }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return EditMessageResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in editMessage', response.body['error']['message']);
           return null;
         }
       } else {
-        failure('Error', response.body.toString());
+        failure('Error in editMessage', response.body.toString());
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in editMessage', e.toString());
       return null;
     }
   }

@@ -81,18 +81,49 @@ class AppColors {
   //   Color(0xfff39060),
   //   Color(0xffffb56b),
   // ];
+  // static LinearGradient gradientBackground = LinearGradient(
+  //   begin: Alignment.topLeft,
+  //   end: Alignment(0.8, 1),
+  //   colors: <Color>[
+  //     Color.fromARGB(255, 255, 149, 0),
+  //     Color.fromARGB(255, 254, 139, 15),
+  //     Color.fromARGB(255, 254, 146, 30),
+  //     Color.fromARGB(255, 255, 152, 42),
+  //     Color.fromARGB(255, 253, 158, 56),
+  //     Color.fromARGB(255, 255, 168, 76),
+  //     Color.fromARGB(255, 255, 161, 114),
+  //     Color(0xffffb56b),
+  //   ],
+  // );
   static LinearGradient gradientBackground = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment(0.8, 1),
     colors: <Color>[
-      Color.fromARGB(255, 255, 149, 0),
-      Color.fromARGB(255, 254, 139, 15),
-      Color.fromARGB(255, 254, 146, 30),
-      Color.fromARGB(255, 255, 152, 42),
-      Color.fromARGB(255, 253, 158, 56),
-      Color.fromARGB(255, 255, 168, 76),
-      Color.fromARGB(255, 255, 161, 114),
-      Color(0xffffb56b),
+      Color(0xFF441752), // Darkest purple
+      Color.fromARGB(255, 74, 28, 88),
+      Color.fromARGB(255, 78, 37, 91),
+      Color.fromARGB(255, 102, 81, 152),
+      Color.fromARGB(255, 107, 87, 152),
+      Color.fromARGB(255, 113, 96, 153),
+      Color(0xFF8174A0),
+      Color(0xFFA888B5),
+      Color(0xFFEFB6C8),
+    ],
+  );
+
+  static LinearGradient reversedGradientBackground = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment(0.8, 1),
+    colors: <Color>[
+      Color(0xFFEFB6C8),
+      Color(0xFFA888B5),
+      Color(0xFF8174A0),
+      Color.fromARGB(255, 113, 96, 153),
+      Color.fromARGB(255, 107, 87, 152),
+      Color.fromARGB(255, 102, 81, 152),
+      Color.fromARGB(255, 78, 37, 91),
+      Color.fromARGB(255, 74, 28, 88),
+      Color(0xFF441752),
     ],
   );
 
@@ -265,6 +296,7 @@ final Color errorBorderColor = Colors.red;
 final Color textColor = Colors.white;
 
 void success(title, message) {
+  debugPrint("Success: $title, $message");
   Get.snackbar(
     '',
     '',
@@ -348,6 +380,7 @@ void success(title, message) {
 }
 
 void failure(title, message) {
+  debugPrint("Failure: $title, $message");
   Get.snackbar(
     '',
     '',
@@ -420,10 +453,10 @@ class PusherConstants {
 }
 
 class RazorpayKeys {
-  static const String RAZORPAYKEYID = "rzp_test_27Thf113vIC8Np";
-  static const String RAZORPAYKEYSECRET = "XSyj935cHFhXwXF6JdmFK8QA";
-  // static const String RAZORPAYKEYID = "rzp_live_lqdEPFltHtYYIS";
-  // static const String RAZORPAYKEYSECRET = "DJqvCl24zHwSeWK340FRAxyd";
+  // static const String RAZORPAYKEYID = "rzp_test_27Thf113vIC8Np";
+  // static const String RAZORPAYKEYSECRET = "XSyj935cHFhXwXF6JdmFK8QA";
+  static const String RAZORPAYKEYID = "rzp_live_lqdEPFltHtYYIS";
+  static const String RAZORPAYKEYSECRET = "DJqvCl24zHwSeWK340FRAxyd";
 }
 
 class Transactionsuccess {

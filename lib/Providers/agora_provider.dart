@@ -1,7 +1,9 @@
-
 import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart';
+
+
 
 class AgoraProvider extends GetConnect {
   Future<bool> sendNotification(String channelName, String callerName,
@@ -11,7 +13,7 @@ class AgoraProvider extends GetConnect {
           EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
       if (token == null || token.isEmpty) {
-        failure('Error', "Token not found");
+        failure('Error in sendNotification', "Token not found");
         return false;
       }
       Response response = await post(
@@ -30,22 +32,23 @@ class AgoraProvider extends GetConnect {
 
       print('${response.statusCode} , ${response.body.toString()}');
       if (response.statusCode == null || response.body == null) {
-        failure("Error", "No response from server");
+        debugPrint("Error in sendNotification, No response from server");
+        failure("Error in sendNotification", "No response from server");
         return false;
       }
       if (response.statusCode == 200) {
         if (response.body['success'] == true) {
           return true;
         } else {
-          failure('Error', response.body['message']);
+          failure('Error in sendNotification', response.body['message']);
           return false;
         }
       } else {
-        failure('Error', response.body['message']);
+        failure('Error in sendNotification', response.body['message']);
         return false;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in sendNotification', e.toString());
       return false;
     }
   }

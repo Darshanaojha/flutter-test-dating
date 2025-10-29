@@ -33,21 +33,31 @@ class RazorpayController extends GetxController {
   }
 
   Future<bool> startPayment(double totalAmount, String name, String description,
-      String contact, String email) {
+      String contact, String email) async {
     _paymentCompleter = Completer<bool>();
 
-    openPayment(totalAmount, name, description, contact, email);
+    EncryptedSharedPreferences preferences =
+        EncryptedSharedPreferences.getInstance();
+    String? orderId = preferences.getString('RazorpayOrderId');
+
+    if (orderId == null) {
+      print("Error: Razorpay Order ID not found in SharedPreferences.");
+      _paymentCompleter.complete(false);
+    } else {
+      openPayment(orderId, totalAmount, name, description, contact, email);
+    }
 
     return _paymentCompleter.future;
   }
 
-  void openPayment(double totalAmount, String name, String description,
+  void openPayment(String orderId, double totalAmount, String name, String description,
       String contact, String email) {
     var options = {
       'key': RazorpayKeys.RAZORPAYKEYID,
       'amount': (totalAmount * 100).toInt(),
       'name': name,
       'description': description,
+      'order_id': orderId,
       'prefill': {
         'contact': contact,
         'email': email,
@@ -81,6 +91,9 @@ class RazorpayController extends GetxController {
       String? razorpayorderid = preferences.getString('RazorpayOrderId');
       String? transactionId = preferences.getString('transactionId');
       String? amount = preferences.getString('amount');
+      transactionRequestModel.razorpaySignature = response.signature ?? '';
+      print("DEBUG: Captured Razorpay Signature: ${transactionRequestModel.razorpaySignature}");
+
       if (orderid != null) {
         transactionRequestModel.orderId = orderid;
       }
@@ -107,6 +120,7 @@ class RazorpayController extends GetxController {
         transactionRequestModel.updated = DateTime.now();
       }
 
+      print("DEBUG: Transaction Request Payload: ${transactionRequestModel.toJson()}");
       await transaction(transactionRequestModel).then((value) async {
         // await _showSuccessDialog();
 
@@ -270,6 +284,7 @@ class RazorpayController extends GetxController {
       type: '',
       razorpayOrderId: '',
       razorpayPaymentId: '',
+      razorpaySignature: '',
       paymentStatus: '',
       paymentMethod: '',
       amount: '',

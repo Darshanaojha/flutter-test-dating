@@ -1,9 +1,7 @@
 import 'package:dating_application/Models/ResponseModels/get_all_favourites_response_model.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-
 import '../constants.dart';
-
 class FetchAllFavouritesProvider extends GetConnect {
   Future<GetFavouritesResponse?> fetchallfavouritesprovider() async {
     try {
@@ -12,7 +10,7 @@ class FetchAllFavouritesProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        failure('Error in fetchallfavouritesprovider', 'Token not found');
         return null;
       }
       final response = await get(
@@ -24,7 +22,7 @@ class FetchAllFavouritesProvider extends GetConnect {
       );
 
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in fetchallfavouritesprovider', 'Server Failed To Respond');
         return null;
       }
       if (response.statusCode == 200) {
@@ -32,7 +30,7 @@ class FetchAllFavouritesProvider extends GetConnect {
           print("favourites response = ${response.body.toString()}");
           return GetFavouritesResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in fetchallfavouritesprovider', response.body['error']['message']);
           return null;
         }
       } else {
@@ -43,7 +41,7 @@ class FetchAllFavouritesProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in fetchallfavouritesprovider', e.toString());
       return null;
     }
   }

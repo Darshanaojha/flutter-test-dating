@@ -58,6 +58,30 @@ class VideoCallPageState extends State<VideoCallPage> {
     });
   }
 
+  Future<bool> _onWillPop() async {
+    return await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('End Call'),
+            content: Text('Are you sure you want to end this call?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text('No'),
+              ),
+              TextButton(
+                onPressed: () {
+                  endCall();
+                  // Navigator.of(context).pop(true);
+                },
+                child: Text('Yes'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
   void _requestPermissions() async {
     // Request notification permission
     FirebaseMessaging messaging = FirebaseMessaging.instance;
@@ -316,183 +340,189 @@ class VideoCallPageState extends State<VideoCallPage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Scaffold(
-      backgroundColor: AppColors.primaryColor,
-      appBar: AppBar(
-        elevation: 0,
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: AppColors.gradientBackgroundList,
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-        title: Text(
-          'Video Call',
-          style: AppTextStyles.headingText.copyWith(
-            fontSize: size.width * 0.045 * 1.1,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-      body: Stack(
-        children: [
-          Center(child: remoteVideo()),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16.0, bottom: 125.0), // Adjust padding as needed
-              child: SizedBox(
-                width: 130,
-                height: 180,
-                child: Center(
-                  child: localUserJoined
-                      ? Builder(builder: (context) {
-                          debugPrint('Local UID for VideoCallPage: $localUid');
-                          return AgoraVideoView(
-                            controller: VideoViewController(
-                              rtcEngine: engine,
-                              canvas: VideoCanvas(uid: 0), // Explicitly use uid 0 for local video
-                            ),
-                          );
-                        })
-                      : const CircularProgressIndicator(),
+    return WillPopScope(
+        onWillPop: _onWillPop,
+        child: Scaffold(
+          backgroundColor: AppColors.primaryColor,
+          appBar: AppBar(
+            elevation: 0,
+            centerTitle: true,
+            backgroundColor: Colors.transparent,
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: AppColors.gradientBackgroundList,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
               ),
             ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 40),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: toggleAudio,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: isAudioMuted
-                              ? [Colors.redAccent, Colors.deepOrange]
-                              : [Colors.green, Colors.lightGreen],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 12,
-                            offset: Offset(0, 6),
-                          ),
-                        ],
-                      ),
-                      padding: EdgeInsets.all(22),
-                      child: Icon(
-                        isAudioMuted ? Icons.mic_off : Icons.mic,
-                        size: 36,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 20),
-                  GestureDetector(
-                    onTap: toggleVideo,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: isVideoMuted
-                              ? [Colors.redAccent, Colors.deepOrange]
-                              : [Colors.green, Colors.lightGreen],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 12,
-                            offset: Offset(0, 6),
-                          ),
-                        ],
-                      ),
-                      padding: EdgeInsets.all(22),
-                      child: Icon(
-                        isVideoMuted ? Icons.videocam_off : Icons.videocam,
-                        size: 36,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 20),
-                  GestureDetector(
-                    onTap: _toggleSpeaker,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: isSpeakerOn
-                              ? [Colors.blueAccent, Colors.lightBlue]
-                              : [Colors.grey, Colors.blueGrey],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 12,
-                            offset: Offset(0, 6),
-                          ),
-                        ],
-                      ),
-                      padding: EdgeInsets.all(22),
-                      child: Icon(
-                        isSpeakerOn ? Icons.volume_up : Icons.volume_off,
-                        size: 36,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 20),
-                  GestureDetector(
-                    onTap: endCall,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: [Colors.red, Colors.deepOrange],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.redAccent.withOpacity(0.25),
-                            blurRadius: 12,
-                            offset: Offset(0, 6),
-                          ),
-                        ],
-                      ),
-                      padding: EdgeInsets.all(22),
-                      child: Icon(
-                        Icons.call_end,
-                        size: 36,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
+            title: Text(
+              'Video Call',
+              style: AppTextStyles.headingText.copyWith(
+                fontSize: size.width * 0.045 * 1.1,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
-        ],
-      ),
-    );
+          body: Stack(
+            children: [
+              Center(child: remoteVideo()),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                      right: 16.0, bottom: 125.0), // Adjust padding as needed
+                  child: SizedBox(
+                    width: 130,
+                    height: 180,
+                    child: Center(
+                      child: localUserJoined
+                          ? Builder(builder: (context) {
+                              debugPrint(
+                                  'Local UID for VideoCallPage: $localUid');
+                              return AgoraVideoView(
+                                controller: VideoViewController(
+                                  rtcEngine: engine,
+                                  canvas: VideoCanvas(
+                                      uid:
+                                          0), // Explicitly use uid 0 for local video
+                                ),
+                              );
+                            })
+                          : const CircularProgressIndicator(),
+                    ),
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 40),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: toggleAudio,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: isAudioMuted
+                                  ? [Colors.redAccent, Colors.deepOrange]
+                                  : [Colors.green, Colors.lightGreen],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 12,
+                                offset: Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          padding: EdgeInsets.all(22),
+                          child: Icon(
+                            isAudioMuted ? Icons.mic_off : Icons.mic,
+                            size: 36,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 20),
+                      GestureDetector(
+                        onTap: toggleVideo,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: isVideoMuted
+                                  ? [Colors.redAccent, Colors.deepOrange]
+                                  : [Colors.green, Colors.lightGreen],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 12,
+                                offset: Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          padding: EdgeInsets.all(22),
+                          child: Icon(
+                            isVideoMuted ? Icons.videocam_off : Icons.videocam,
+                            size: 36,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      // SizedBox(width: 20),
+                      // GestureDetector(
+                      //   onTap: _toggleSpeaker,
+                      //   child: Container(
+                      //     decoration: BoxDecoration(
+                      //       shape: BoxShape.circle,
+                      //       gradient: LinearGradient(
+                      //         colors: isSpeakerOn
+                      //             ? [Colors.blueAccent, Colors.lightBlue]
+                      //             : [Colors.grey, Colors.blueGrey],
+                      //         begin: Alignment.topLeft,
+                      //         end: Alignment.bottomRight,
+                      //       ),
+                      //       boxShadow: [
+                      //         BoxShadow(
+                      //           color: Colors.black26,
+                      //           blurRadius: 12,
+                      //           offset: Offset(0, 6),
+                      //         ),
+                      //       ],
+                      //     ),
+                      //     padding: EdgeInsets.all(22),
+                      //     child: Icon(
+                      //       isSpeakerOn ? Icons.volume_up : Icons.volume_off,
+                      //       size: 36,
+                      //       color: Colors.white,
+                      //     ),
+                      //   ),
+                      // ),
+                      SizedBox(width: 20),
+                      GestureDetector(
+                        onTap: endCall,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: [Colors.red, Colors.deepOrange],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.redAccent.withOpacity(0.25),
+                                blurRadius: 12,
+                                offset: Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          padding: EdgeInsets.all(22),
+                          child: Icon(
+                            Icons.call_end,
+                            size: 36,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ));
   }
 
   Widget remoteVideo() {
@@ -538,7 +568,7 @@ class VideoCallPageState extends State<VideoCallPage> {
   void endCall() async {
     dispose();
     await engine.leaveChannel();
-    Navigator.pop(context);
+    Navigator.of(context).pop(true);
   }
 
   // String generateChannelName(String caller, String receiver) {

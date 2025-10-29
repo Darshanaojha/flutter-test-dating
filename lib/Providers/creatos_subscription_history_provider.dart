@@ -3,6 +3,7 @@ import 'package:dating_application/constants.dart';
 import 'package:dating_application/Models/ResponseModels/creators_subscription_history_response.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 
+
 class CreatorsSubscriptionHistoryProvider extends GetConnect {
   Future<CreatorSubscriptionHistoryResponse?>
       fetchCreatorsSubscriptionHistory() async {
@@ -21,22 +22,22 @@ class CreatorsSubscriptionHistoryProvider extends GetConnect {
         );
 
         if (response.statusCode == null || response.body == null) {
-          failure('Error', 'Server Failed To Respond');
+          failure('Error in fetchCreatorsSubscriptionHistory', 'Server Failed To Respond');
           return null;
         }
 
         if (response.statusCode == 200) {
           return CreatorSubscriptionHistoryResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body.toString());
+          failure('Error in fetchCreatorsSubscriptionHistory', response.body.toString());
           return null;
         }
       } else {
-        failure('Error', 'Token not found');
+        failure('Error in fetchCreatorsSubscriptionHistory', 'Token not found');
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in fetchCreatorsSubscriptionHistory', e.toString());
       return null;
     }
   }

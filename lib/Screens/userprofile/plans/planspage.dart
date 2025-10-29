@@ -10,6 +10,7 @@ import 'package:super_tooltip/super_tooltip.dart';
 
 import '../../../Controllers/controller.dart';
 import '../../../Controllers/razorpaycontroller.dart';
+import 'package:slide_to_act/slide_to_act.dart';
 import '../../navigationbar/navigationpage.dart';
 
 class PricingPage extends StatefulWidget {
@@ -211,12 +212,12 @@ class PricingPageState extends State<PricingPage>
                   itemCount: controller.packages.length,
                   itemBuilder: (context, index, realIndex) {
                     final package = controller.packages[index];
-                    double offerPercentage = calculateOfferPercentage(
+                    calculateOfferPercentage(
                       package.actualAmount,
                       package.offerAmount,
                     );
 
-                    double amount = double.tryParse(package.offerAmount) ?? 0.0;
+                    double.tryParse(package.offerAmount) ?? 0.0;
 
                     return Padding(
                         padding: const EdgeInsets.only(bottom: 20),
@@ -289,33 +290,34 @@ class PricingPageState extends State<PricingPage>
                                   borderRadius: BorderRadius.circular(15),
                                 ),
                                 child: Obx(() => Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: controller.benefits
-                                      .map<Widget>((feature) {
-                                    return Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 6.0),
-                                      child: Row(
-                                        children: [
-                                          const Icon(
-                                              FontAwesomeIcons.checkCircle,
-                                              color: Colors.white,
-                                              size: 16),
-                                          const SizedBox(width: 6),
-                                          Expanded(
-                                            child: Text(
-                                              feature.title,
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.white,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: controller.benefits
+                                          .map<Widget>((feature) {
+                                        return Padding(
+                                          padding: const EdgeInsets.only(
+                                              bottom: 6.0),
+                                          child: Row(
+                                            children: [
+                                              const Icon(
+                                                  FontAwesomeIcons.checkCircle,
+                                                  color: Colors.white,
+                                                  size: 16),
+                                              const SizedBox(width: 6),
+                                              Expanded(
+                                                child: Text(
+                                                  feature.title,
+                                                  style: const TextStyle(
+                                                    fontSize: 14,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
                                               ),
-                                            ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
-                                    );
-                                  }).toList(),
-                                )),
+                                        );
+                                      }).toList(),
+                                    )),
                               ),
                               const SizedBox(height: 10),
                               Container(
@@ -612,6 +614,7 @@ class PricingPageState extends State<PricingPage>
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
+        Size size = MediaQuery.of(context).size;
         return Obx(() {
           selectedCoins.value = useCoins.value ? maxCoinsAllowed : 0;
           double discountAmount = selectedCoins.value * coinPrice;
@@ -624,217 +627,220 @@ class PricingPageState extends State<PricingPage>
                 color: Colors.black.withOpacity(0.5),
               ),
             ),
-            AlertDialog(
-              backgroundColor: Colors.transparent,
-              contentPadding: EdgeInsets.zero,
-              content: Container(
-                width: double.maxFinite,
+            Center(
+              child: Container(
+                width: size.width * 0.85,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
-                    end: Alignment(0.8, 1),
+                    end: const Alignment(0.8, 1),
                     colors: AppColors.gradientBackgroundList,
                   ),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Confirm Subscription",
-                        style: AppTextStyles.titleText.copyWith(
-                          fontSize: fontSize,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        "Do you want to subscribe to the selected plan?",
-                        style: AppTextStyles.bodyText.copyWith(
-                          fontSize: fontSize - 2,
-                          color: Colors.white,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 15),
-                      Text(
-                        "Available Coins: ${availableCoins - selectedCoins.value}",
-                        style: AppTextStyles.titleText.copyWith(
-                          fontSize: fontSize,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      if (availableCoins >= maxCoinsAllowed &&
-                          maxCoinsAllowed > 0)
+                child: Material(
+                  color: Colors.transparent,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20, horizontal: 16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Title and Close Button Row
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Obx(() => Checkbox(
-                                  value: useCoins.value,
-                                  onChanged: (bool? value) {
-                                    ispointused.value = true;
-                                    useCoins.value = value ?? false;
-                                  },
-                                )),
                             Expanded(
-                              child: Text(
-                                "Redeem ${thresholdPercentage.toInt()}% using coins",
-                                style: AppTextStyles.bodyText.copyWith(
-                                  fontSize: fontSize,
-                                  color: Colors.white,
+                              child: Center(
+                                child: Text(
+                                  "Confirm Subscription",
+                                  style: AppTextStyles.titleText.copyWith(
+                                    fontSize: fontSize,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 5),
-                            SuperTooltip(
-                              popupDirection: TooltipDirection.up,
-                              content: Text(
-                                "Use up to ${thresholdPercentage.toInt()}% of the amount using coins.",
-                                style: AppTextStyles.bodyText
-                                    .copyWith(fontSize: fontSize),
-                              ),
-                              child: Icon(Icons.info,
-                                  color: Colors.white, size: 12),
+                            IconButton(
+                              icon:
+                                  const Icon(Icons.close, color: Colors.white),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
                             ),
                           ],
-                        )
-                      else
-                        Text(
-                          "Not enough coins to apply a discount.",
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: fontSize,
-                            color: Colors.redAccent,
-                          ),
                         ),
-                      if (useCoins.value)
-                        Text(
-                          "Coins Used: ${selectedCoins.value} (₹${discountAmount.toStringAsFixed(2)} discount)",
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: fontSize,
-                            color: Colors.lightGreenAccent,
-                          ),
-                        ),
-                      const SizedBox(height: 10),
-                      Text(
-                        "Total Payable: ₹${totalPayable.toStringAsFixed(2)}",
-                        style: AppTextStyles.titleText.copyWith(
-                          fontSize: fontSize,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(
-                            child: SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.3,
-                              child: TextButton(
-                                style: TextButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
+                        const SizedBox(height: 10),
+                        // Scrollable Content
+                        Flexible(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  "Do you want to subscribe to the selected plan?",
+                                  style: AppTextStyles.bodyText.copyWith(
+                                    fontSize: fontSize - 2,
+                                    color: Colors.white,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 15),
+                                Text(
+                                  "Available Coins: ${availableCoins - selectedCoins.value}",
+                                  style: AppTextStyles.titleText.copyWith(
+                                    fontSize: fontSize,
+                                    color: Colors.white,
                                   ),
                                 ),
-                                onPressed: () {
-                                  Get.snackbar('', planId.toString());
-                                  Navigator.of(context).pop();
-                                },
-                                child: ShaderMask(
-                                  shaderCallback: (bounds) => LinearGradient(
-                                    colors: AppColors.reversedGradientColor,
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ).createShader(Rect.fromLTWH(
-                                      0, 0, bounds.width, bounds.height)),
-                                  child: Text(
-                                    'Cancel',
+                                const SizedBox(height: 5),
+                                if (availableCoins >= maxCoinsAllowed &&
+                                    maxCoinsAllowed > 0)
+                                  Row(
+                                    children: [
+                                      Obx(() => Checkbox(
+                                            value: useCoins.value,
+                                            onChanged: (bool? value) {
+                                              ispointused.value = true;
+                                              useCoins.value = value ?? false;
+                                            },
+                                          )),
+                                      Expanded(
+                                        child: Text(
+                                          "Redeem ${thresholdPercentage.toInt()}% using coins",
+                                          style:
+                                              AppTextStyles.bodyText.copyWith(
+                                            fontSize: fontSize,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      SuperTooltip(
+                                        popupDirection: TooltipDirection.up,
+                                        content: Text(
+                                          "Use up to ${thresholdPercentage.toInt()}% of the amount using coins.",
+                                          style: AppTextStyles.bodyText
+                                              .copyWith(fontSize: fontSize),
+                                        ),
+                                        child: const Icon(Icons.info,
+                                            color: Colors.white, size: 12),
+                                      ),
+                                    ],
+                                  )
+                                else
+                                  Text(
+                                    "Not enough coins to apply a discount.",
                                     style: AppTextStyles.bodyText.copyWith(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.3,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: AppColors.reversedGradientColor,
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: TextButton(
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: Colors.transparent,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 4),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  onPressed: () async {
-                                    Navigator.of(context).pop(); // Close confirmation dialog
-
-                                    razorpaycontroller.orderRequestModel.amount =
-                                        totalPayable.toString();
-                                    razorpaycontroller
-                                            .orderRequestModel.ispointused =
-                                        ispointused.value == true ? "1" : "0";
-                                    razorpaycontroller.orderRequestModel.points =
-                                        selectedCoins.value.toString();
-                                    razorpaycontroller.orderRequestModel.type =
-                                        '2';
-
-                                    bool? isOrderCreated =
-                                        await razorpaycontroller.createOrder(
-                                      razorpaycontroller.orderRequestModel,
-                                    );
-
-                                    if (isOrderCreated == true) {
-                                      razorpaycontroller.initRazorpay();
-                                      bool paymentSuccessful = await razorpaycontroller.startPayment(
-                                        totalPayable,
-                                        controller.userData.first.name,
-                                        planId,
-                                        controller.userData.first.mobile,
-                                        controller.userData.first.email,
-                                      );
-
-                                      if (paymentSuccessful) {
-                                        await _showSuccessDialog();
-                                        Get.offAll(() => NavigationBottomBar());
-                                      }
-                                    } else {
-                                      failure("Order",
-                                          "Your Payment Order Is Not Created");
-                                    }
-                                  },
-                                  child: Text(
-                                    'Subscribe',
-                                    style: AppTextStyles.bodyText.copyWith(
-                                      color: Colors.white,
                                       fontSize: fontSize,
+                                      color: Colors.grey[300],
                                     ),
                                   ),
+                                if (useCoins.value)
+                                  Text(
+                                    "Coins Used: ${selectedCoins.value} (₹${discountAmount.toStringAsFixed(2)} discount)",
+                                    style: AppTextStyles.bodyText.copyWith(
+                                      fontSize: fontSize,
+                                      color: Colors.lightGreenAccent,
+                                    ),
+                                  ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  "Total Payable: ₹${totalPayable.toStringAsFixed(2)}",
+                                  style: AppTextStyles.titleText.copyWith(
+                                    fontSize: fontSize,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
+                        const SizedBox(height: 16),
+                        // Swipe to Pay Button at the Bottom
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: AppColors.reversedGradientColor,
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white, width: 1.5),
+                          ),
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                            child: SlideAction(
+                              height: size.width * 0.1,
+                              borderRadius: 12,
+                              elevation: 0,
+                              outerColor: Colors.transparent,
+                              text: "Swipe to Pay",
+                              textStyle: AppTextStyles.buttonText.copyWith(
+                                fontSize: fontSize,
+                                color: Colors.white,
+                              ),
+                              innerColor: Colors.transparent,
+                              sliderButtonIcon: Container(
+                                  padding: const EdgeInsets.all(10.0),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.darkGradientColor,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                        color: Colors.white, width: 1.5),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: 4.0),
+                                    child: const Icon(
+                                      Icons.double_arrow_outlined,
+                                      color: Colors.white,
+                                    ),
+                                  )),
+                              onSubmit: () async {
+                                Navigator.of(context)
+                                    .pop(); // Close confirmation dialog
+
+                                razorpaycontroller.orderRequestModel.amount =
+                                    totalPayable.toString();
+                                razorpaycontroller
+                                        .orderRequestModel.ispointused =
+                                    ispointused.value == true ? "1" : "0";
+                                razorpaycontroller.orderRequestModel.points =
+                                    selectedCoins.value.toString();
+                                razorpaycontroller.orderRequestModel.type = '2';
+
+                                bool? isOrderCreated =
+                                    await razorpaycontroller.createOrder(
+                                  razorpaycontroller.orderRequestModel,
+                                );
+
+                                if (isOrderCreated == true) {
+                                  razorpaycontroller.initRazorpay();
+                                  bool paymentSuccessful =
+                                      await razorpaycontroller.startPayment(
+                                    totalPayable,
+                                    controller.userData.first.name,
+                                    planId,
+                                    controller.userData.first.mobile,
+                                    controller.userData.first.email,
+                                  );
+
+                                  if (paymentSuccessful) {
+                                    await _showSuccessDialog();
+                                    Get.offAll(() => NavigationBottomBar());
+                                  }
+                                } else {
+                                  failure("Order",
+                                      "Your Payment Order Is Not Created");
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

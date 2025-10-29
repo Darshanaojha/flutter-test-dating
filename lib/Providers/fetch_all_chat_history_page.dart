@@ -2,7 +2,6 @@ import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
 import '../Models/ResponseModels/get_all_chat_history_page.dart';
 import '../constants.dart';
-
 class FetchAllUserConnectionsProvider extends GetConnect {
   Future<GetAllChatHistoryPageResponse?>
       fetchalluserconnectionsprovider() async {
@@ -12,7 +11,7 @@ class FetchAllUserConnectionsProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        failure('Error in unknown_method', 'Token not found');
         return null;
       }
 
@@ -24,7 +23,7 @@ class FetchAllUserConnectionsProvider extends GetConnect {
         },
       );
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in unknown_method', 'Server Failed To Respond');
         return null;
       }
 
@@ -32,7 +31,7 @@ class FetchAllUserConnectionsProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return GetAllChatHistoryPageResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in unknown_method', response.body['error']['message']);
           return null;
         }
       } else {
@@ -40,7 +39,7 @@ class FetchAllUserConnectionsProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in unknown_method', e.toString());
       return null;
     }
   }

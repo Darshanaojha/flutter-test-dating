@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import '../Models/RequestModels/deletefavourite_request_model.dart';
 import '../Models/ResponseModels/deletefavourite_response_model.dart';
 import '../constants.dart';
-
 class DeletefavouriteProviderModel extends GetConnect {
   Future<DeleteFavouriteResponse?> deletefavouriteprovider(
       DeleteFavouritesRequest deleteFavouritesRequest) async {
@@ -13,7 +12,7 @@ class DeletefavouriteProviderModel extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        failure('Error in deletefavouriteprovider', 'Token not found');
         return null;
       }
 
@@ -27,7 +26,7 @@ class DeletefavouriteProviderModel extends GetConnect {
       );
 
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in deletefavouriteprovider', 'Server Failed To Respond');
         return null;
       }
 
@@ -35,7 +34,7 @@ class DeletefavouriteProviderModel extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return DeleteFavouriteResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in deletefavouriteprovider', response.body['error']['message']);
           return null;
         }
       } else {
@@ -43,7 +42,7 @@ class DeletefavouriteProviderModel extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in deletefavouriteprovider', e.toString());
       return null;
     }
   }

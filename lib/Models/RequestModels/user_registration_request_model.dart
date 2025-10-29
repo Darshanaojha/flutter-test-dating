@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../constants.dart';
 
 class UserRegistrationRequest {
@@ -136,7 +138,7 @@ class UserRegistrationRequest {
       'bio': bio,
       'lang': lang,
       'img_count': imgcount,
-      'photos': photos,
+      'photos': jsonEncode(photos),
       'email_alerts': emailAlerts,
       'username': username,
       'looking_for': lookingFor,
@@ -213,18 +215,18 @@ class UserRegistrationRequest {
     }
   }
 
-  validatePhotos(List<String> photos) {
-    if (photos.isEmpty) {
-      failure('Photo', "Photos list cannot be empty for field: Photos.");
-    }
-    final urlPattern =
-        RegExp(r'^(http|https):\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}\/[^\s]*$');
-    for (var photo in photos) {
-      if (!urlPattern.hasMatch(photo)) {
-        failure("Photo", "Invalid photo URL for field: $photo.");
-      }
-    }
-  }
+  // validatePhotos(List<String> photos) {
+  //   if (photos.isEmpty) {
+  //     failure('Photo', "Photos list cannot be empty for field: Photos.");
+  //   }
+  //   final urlPattern =
+  //       RegExp(r'^(http|https):\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}\/[^\s]*$');
+  //   for (var photo in photos) {
+  //     if (!urlPattern.hasMatch(photo)) {
+  //       failure("Photo", "Invalid photo URL for field: $photo.");
+  //     }
+  //   }
+  // }
 
   void validate() {
     try {
@@ -249,7 +251,7 @@ class UserRegistrationRequest {
       validateList(lang, "Language");
       validateList(preferences, "Preferences");
       validateList(desires, "Desires");
-      validatePhotos(photos);
+      // validatePhotos(photos);
     } catch (e) {
       failure("Validation Error", e.toString());
     }

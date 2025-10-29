@@ -1,10 +1,8 @@
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
-
 import '../Models/RequestModels/update_emailid_otp_verification_request_model.dart';
 import '../Models/ResponseModels/update_emailid_otp_verification_response_model.dart';
 import '../constants.dart';
-
 class UpdateEmailVerificationProvider extends GetConnect {
   Future<UpdateEmailVerificationResponse?> verifyEmailOtp(
       UpdateEmailVerificationRequest request) async {
@@ -23,7 +21,7 @@ class UpdateEmailVerificationProvider extends GetConnect {
           },
         );
         if (response.statusCode == null || response.body == null) {
-          failure('Error', 'Server Failed To Respond');
+          failure('Error in verifyEmailOtp', 'Server Failed To Respond');
           return null;
         }
 
@@ -31,19 +29,19 @@ class UpdateEmailVerificationProvider extends GetConnect {
           if (response.body['error']['code'] == 0) {
             return UpdateEmailVerificationResponse.fromJson(response.body);
           } else {
-            failure('Error', response.body['error']['message']);
+            failure('Error in verifyEmailOtp', response.body['error']['message']);
             return null;
           }
         } else {
-          failure('Error', response.body.toString());
+          failure('Error in verifyEmailOtp', response.body.toString());
           return null;
         }
       } else {
-        failure('Error', 'Token not found');
+        failure('Error in verifyEmailOtp', 'Token not found');
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in verifyEmailOtp', e.toString());
       return null;
     }
   }

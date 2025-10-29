@@ -1,8 +1,11 @@
 import 'package:encrypt_shared_preferences/provider.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../Models/ResponseModels/user_suggestions_response_model.dart';
 import '../constants.dart';
+import 'package:flutter/foundation.dart';
+
+
 
 class UserSuggestionsProvider extends GetConnect {
   Future<UserSuggestionsResponseModel?> userSuggestions() async {
@@ -12,7 +15,7 @@ class UserSuggestionsProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        failure('Error in userSuggestions', 'Token not found');
         return null;
       }
       Response response = await get(
@@ -22,18 +25,19 @@ class UserSuggestionsProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+      debugPrint('User Suggestions Response: ${response.body.toString()}');
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in userSuggestions', 'Server Failed To Respond');
         return null;
       }
 
       if (response.statusCode == 200 && response.body != null) {
         if (response.body['error']['code'] == 0) {
-          print(
+          debugPrint(
               "user suggestion response in provider = ${response.body.toString()}");
           return UserSuggestionsResponseModel.fromJson(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in userSuggestions', response.body['error']['message']);
           return null;
         }
       } else {
@@ -41,7 +45,7 @@ class UserSuggestionsProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in userSuggestions', e.toString());
       return null;
     }
   }

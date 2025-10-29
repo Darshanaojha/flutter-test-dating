@@ -3,7 +3,6 @@ import 'package:dating_application/constants.dart';
 import 'package:dating_application/Models/RequestModels/creator_transaction_request.dart';
 import 'package:dating_application/Models/ResponseModels/creator_transaction_response.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
-
 class CreatorTransactionProvider extends GetConnect {
   Future<CreatorTransactionResponse?> createTransaction(CreatorTransactionRequest request) async {
     try {
@@ -21,22 +20,22 @@ class CreatorTransactionProvider extends GetConnect {
         );
 
         if (response.statusCode == null || response.body == null) {
-          failure('Error', 'Server Failed To Respond');
+          failure('Error in createTransaction', 'Server Failed To Respond');
           return null;
         }
 
         if (response.statusCode == 200) {
           return CreatorTransactionResponse.fromJson(response.body);
         } else {
-          failure('Error', response.body.toString());
+          failure('Error in createTransaction', response.body.toString());
           return null;
         }
       } else {
-        failure('Error', 'Token not found');
+        failure('Error in createTransaction', 'Token not found');
         return null;
       }
     } catch (e) {
-      failure('Error', e.toString());
+      failure('Error in createTransaction', e.toString());
       return null;
     }
   }

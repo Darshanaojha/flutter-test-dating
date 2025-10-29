@@ -13,11 +13,9 @@ class DislikeProfileProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error', 'Token not found');
+        failure('Error in dislikeProfileProvider', 'Token not found');
         return null;
       }
-      Get.snackbar(
-          "request dislike", dislikeProfileRequest.toJson().toString());
       print(
         "request dislike${dislikeProfileRequest.toJson().toString()}",
       );
@@ -29,20 +27,20 @@ class DislikeProfileProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
-      Get.snackbar("response dislike", response.body.toString());
       print(
         "response dislike${response.body.toString()}",
       );
 
       if (response.statusCode == null || response.body == null) {
-        failure('Error', 'Server Failed To Respond');
+        failure('Error in dislikeProfileProvider', 'Server Failed To Respond');
         return null;
       }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return DislikeProfileResponse.fromMap(response.body);
         } else {
-          failure('Error', response.body['error']['message']);
+          failure('Error in dislikeProfileProvider',
+              response.body['error']['message']);
           return null;
         }
       } else {

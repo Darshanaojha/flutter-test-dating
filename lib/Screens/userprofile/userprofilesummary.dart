@@ -22,13 +22,16 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
   @override
   void initState() {
     super.initState();
-    if (widget.userId != null) {
-      print("Fetching profile for user ID: ${widget.userId}");
-      _fetchProfileFuture = controller.fetchProfile(widget.userId ?? "");
-    } else {
-      print("Fetching profile for current user");
-      _fetchProfileFuture = controller.fetchProfile();
-    }
+    _fetchProfileFuture = _initializeSummaryData();
+  }
+
+  Future<bool> _initializeSummaryData() async {
+    final profileSuccess = await (widget.userId != null
+        ? controller.fetchProfile(widget.userId!)
+        : controller.fetchProfile());
+    if (!profileSuccess) return false;
+
+    return await controller.fetchProfileUserPhotos();
   }
 
   @override
@@ -77,6 +80,32 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
                                 widget.imageUrls![index],
                                 fit: BoxFit.cover,
                                 width: 250,
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return SizedBox(
+                                    width: 250,
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress.expectedTotalBytes != null
+                                            ? loadingProgress.cumulativeBytesLoaded /
+                                                loadingProgress.expectedTotalBytes!
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    width: 250,
+                                    color: Colors.grey[200],
+                                    alignment: Alignment.center,
+                                    child: const Icon(
+                                      Icons.broken_image,
+                                      color: Colors.grey,
+                                      size: 48,
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           );
@@ -97,6 +126,32 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
                                 controller.userPhotos!.images[index],
                                 fit: BoxFit.cover,
                                 width: 250,
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return SizedBox(
+                                    width: 250,
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress.expectedTotalBytes != null
+                                            ? loadingProgress.cumulativeBytesLoaded /
+                                                loadingProgress.expectedTotalBytes!
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    width: 250,
+                                    color: Colors.grey[200],
+                                    alignment: Alignment.center,
+                                    child: const Icon(
+                                      Icons.broken_image,
+                                      color: Colors.grey,
+                                      size: 48,
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           );
@@ -147,7 +202,8 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
                       ),
                       if (user.bio.isNotEmpty)
                         Container(
-                          margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 8.0, horizontal: 10.0),
                           padding: const EdgeInsets.all(12.0),
                           height: 120,
                           width: double.infinity,
@@ -169,12 +225,21 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
                             ),
                           ),
                         ),
-                      _profileField(Icons.person, "Name", user.name, valueFontSize),
-                      _profileField(Icons.person_outline, "Nickname", user.nickname, valueFontSize),
-                      _profileField(Icons.cake, "Birthday", "${user.dob} (${_getAge(user.dob)} years old)", valueFontSize),
-                      _profileField(Icons.wc, "Gender", user.genderName, valueFontSize),
-                      _profileField(Icons.transgender, "Sub Gender", user.subGenderName, valueFontSize),
-                      _profileField(Icons.location_city, "City", user.city, valueFontSize),
+                      _profileField(
+                          Icons.person, "Name", user.name, valueFontSize),
+                      _profileField(Icons.person_outline, "Nickname",
+                          user.nickname, valueFontSize),
+                      _profileField(
+                          Icons.cake,
+                          "Birthday",
+                          "${user.dob} (${_getAge(user.dob)} years old)",
+                          valueFontSize),
+                      _profileField(
+                          Icons.wc, "Gender", user.genderName, valueFontSize),
+                      _profileField(Icons.transgender, "Sub Gender",
+                          user.subGenderName, valueFontSize),
+                      _profileField(Icons.location_city, "City", user.city,
+                          valueFontSize),
                       // _profileField(Icons.home, "Address", user.address, valueFontSize),
                       // _profileField(Icons.email, "Email", user.email, valueFontSize),
                       // _profileField(Icons.phone, "Mobile", user.mobile, valueFontSize),
@@ -195,7 +260,10 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
                         _profileChipsField(
                           Icons.interests,
                           "Interests",
-                          user.interest.split(',').map((e) => e.trim()).toList(),
+                          user.interest
+                              .split(',')
+                              .map((e) => e.trim())
+                              .toList(),
                           valueFontSize,
                         ),
                       if (desires.isNotEmpty)
@@ -264,7 +332,8 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
           runSpacing: 4.0,
           children: items.map((item) {
             return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: AppColors.gradientBackgroundList,
@@ -294,7 +363,7 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
 
   static int _getAge(String dob) {
     try {
-      final date = DateFormat('dd/MM/yyyy').parse(dob);
+      final date = DateFormat('MM/dd/yyyy').parse(dob);
       final now = DateTime.now();
       int age = now.year - date.year;
       if (now.month < date.month ||
