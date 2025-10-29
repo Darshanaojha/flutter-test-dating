@@ -65,14 +65,15 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
       setState(() {
         isSubmitting = true;
       });
-      int isVerified =
-          await controller.verifyuseraccount(controller.requestToVerifyAccount);
+
+      await controller.verifyuseraccount(controller.requestToVerifyAccount);
 
       setState(() {
         isSubmitting = false;
       });
 
       bool isPackageSubscribed = await controller.userPackage();
+      controller.fetchProfile();
 
       if (isPackageSubscribed) {
         print('User has an active package');

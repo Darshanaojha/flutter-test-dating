@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:dating_application/Screens/auth.dart';
-import 'package:dating_application/Screens/homepage/unsubscribeuser.dart';
+import 'package:dating_application/Screens/homepage/homepage.dart';
 import 'package:dating_application/Screens/userprofile/userprofilepage.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -15,159 +15,23 @@ import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/update_activity_status_request_model.dart';
 import '../../constants.dart';
 import '../settings/setting.dart';
-import '../userprofile/membership/membershippage.dart';
 
 class UnSubscribeNavigationController extends GetxController {
   final Rx<int> selectedIndex = 0.obs;
   final RxString selectedPlan = 'None'.obs;
+  Controller controller = Get.put(Controller());
 
   final List<Widget> screens = [
-    Unsubscribeuser(),
+    // Unsubscribeuser(),
+    HomePage(isUnsubscribed: true),
     UserProfilePage(),
   ];
 
   void navigateTo(int index) {
     selectedIndex.value = index;
-    showPackagesDialog();
+    controller.showPackagesDialog();
   }
 
-  void showPackagesDialog() {
-    final context = Get.context!;
-    final size = MediaQuery.of(context).size;
-    final screenWidth = size.width;
-    final screenHeight = size.height;
-
-    double baseFont = screenWidth * 0.065; // Roughly responsive
-    double smallFont = screenWidth * 0.035;
-    double buttonFont = screenWidth * 0.04;
-    double fontSize = size.width * 0.04;
-
-    Get.defaultDialog(
-      title: '',
-      backgroundColor: Colors.transparent,
-      barrierDismissible: false,
-      radius: 15.0,
-      contentPadding: EdgeInsets.zero,
-      content: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: AppColors.gradientBackgroundList,
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(15),
-        ),
-        padding: EdgeInsets.all(screenWidth * 0.05),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Subscribe to Enjoy',
-              style: TextStyle(
-                fontSize: baseFont,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            SizedBox(height: screenHeight * 0.01),
-            Text(
-              "Choose a Subscription Plan",
-              style: AppTextStyles.titleText.copyWith(
-                fontSize: smallFont,
-                color: Colors.white,
-              ),
-            ),
-            SizedBox(height: screenHeight * 0.05),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Cancel Button with same styling structure
-                SizedBox(
-                    width: screenWidth * 0.28,
-                    height: screenWidth * 0.12, // Consistent height
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(38),
-                        border: Border.all(color: Colors.white),
-                      ),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          padding: EdgeInsets.zero,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(38),
-                          ),
-                        ),
-                        child: ShaderMask(
-                          shaderCallback: (Rect bounds) {
-                            return LinearGradient(
-                              colors: AppColors.gradientBackgroundList,
-                            ).createShader(bounds);
-                          },
-                          child: Text(
-                            'Cancel',
-                            textAlign: TextAlign.center,
-                            style: AppTextStyles.titleText.copyWith(
-                              fontSize: buttonFont,
-                              color: Colors.white, // overridden by ShaderMask
-                            ),
-                          ),
-                        ),
-                      ),
-                    )),
-
-                SizedBox(width: screenWidth * 0.03),
-
-                // Subscribe Button
-                SizedBox(
-                  width: screenWidth * 0.28,
-                  height: screenWidth * 0.12, // Same height
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment(0.8, 1),
-                        colors: AppColors.reversedGradientColor,
-                      ),
-                      borderRadius: BorderRadius.circular(38),
-                    ),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        Get.to(MembershipPage());
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        padding: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(38),
-                        ),
-                      ),
-                      child: Text(
-                        'Subscribe',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: buttonFont,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class Unsubscribenavigation extends StatefulWidget {
@@ -483,7 +347,6 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation>
                     fontSize: getResponsiveFontSize(context, 0.07),
                     fontFamily: 'RusticRoadway',
                     // fontWeight: FontWeight.normal,
-
                   ),
                 ),
               ),

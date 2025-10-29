@@ -17,7 +17,7 @@ def flutterVersionCode = localProperties.getProperty("flutter.versionCode") ?: "
 def flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0"
 
 android {
-    namespace = "com.pisyst.dating_application"
+    namespace = "com.cajed.in"
     compileSdkVersion 35
 
     compileOptions {
@@ -31,7 +31,7 @@ android {
     }
     flavorDimensions "default"
     defaultConfig {
-        applicationId = "com.pisyst.dating_application"
+        applicationId = "com.cajed.in"
         minSdkVersion 23
         targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()

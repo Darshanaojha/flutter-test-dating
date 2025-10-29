@@ -3,24 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// String get baseurl => "http://$ipAddress/dating_backend_springboot/admin";
-// String get ip => "http://$ipAddress/dating_backend_springboot/";
-// String get springbooturl => "http://$ipSpringAddress:8080";
-
-String get baseurl => "http://$ipAddress";
-String get ip => "http://$ipAddress/";
+String get baseurl => "http://$ipAddress/dating_backend_springboot/admin";
+String get ip => "http://$ipAddress/dating_backend_springboot/";
+// String get baseurl => "http://$ipAddress";
+// String get ip => "http://$ipAddress/";
 String get springbooturl => "http://$ipSpringAddress:8080";
-String ipAddress = "150.241.245.210";
+// String ipAddress = "150.241.245.210";
 String ipSpringAddress = "150.241.245.210";
-// String ipSpringAddress = "192.168.1.12";
+// String ipSpringAddress = "192.168.1.23";
+String ipAddress = "192.168.1.6";
 const String appName = "cajed.in";
 
 const encryptionkey = "flamrpisyst2024!";
 const secretkey = "ArqamzSnehaSadiq@flamrdating2024";
-// const baseurl = "http://172.20.10.6/dating_backend_springboot/admin";
-// const ip = "http://172.20.10.6/dating_backend_springboot/";
-
-// const springbooturl = "http://192.168.65.156:8080";
 
 const registerUrl = "Authentication/register";
 const loginUrl = "Authentication/login";

@@ -31,7 +31,9 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
         : controller.fetchProfile());
     if (!profileSuccess) return false;
 
-    return await controller.fetchProfileUserPhotos();
+    return (widget.userId != null)
+        ? controller.fetchProfileUserPhotos(widget.userId!)
+        : controller.fetchProfileUserPhotos();
   }
 
   @override
@@ -80,15 +82,20 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
                                 widget.imageUrls![index],
                                 fit: BoxFit.cover,
                                 width: 250,
-                                loadingBuilder: (context, child, loadingProgress) {
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
                                   if (loadingProgress == null) return child;
                                   return SizedBox(
                                     width: 250,
                                     child: Center(
                                       child: CircularProgressIndicator(
-                                        value: loadingProgress.expectedTotalBytes != null
-                                            ? loadingProgress.cumulativeBytesLoaded /
-                                                loadingProgress.expectedTotalBytes!
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
                                             : null,
                                       ),
                                     ),
@@ -126,15 +133,20 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
                                 controller.userPhotos!.images[index],
                                 fit: BoxFit.cover,
                                 width: 250,
-                                loadingBuilder: (context, child, loadingProgress) {
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
                                   if (loadingProgress == null) return child;
                                   return SizedBox(
                                     width: 250,
                                     child: Center(
                                       child: CircularProgressIndicator(
-                                        value: loadingProgress.expectedTotalBytes != null
-                                            ? loadingProgress.cumulativeBytesLoaded /
-                                                loadingProgress.expectedTotalBytes!
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
                                             : null,
                                       ),
                                     ),

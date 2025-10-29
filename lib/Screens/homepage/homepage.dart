@@ -24,7 +24,8 @@ import '../../constants.dart';
 import '../userprofile/userprofilesummary.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final bool isUnsubscribed;
+  const HomePage({super.key, this.isUnsubscribed = false});
 
   @override
   HomePageState createState() => HomePageState();
@@ -226,7 +227,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Future<bool> initializeApp() async {
     await _retrieveLastUsers();
-
+    await controller.fetchProfile();
     await controller.userSuggestions();
     for (int i = 0; i < controller.userSuggestionsList.length; i++) {
       swipeItems.add(_createSwipeItem(controller.userSuggestionsList[i]));
@@ -287,50 +288,56 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
+  // Update the SwipeItem creation method
   SwipeItem _createSwipeItem(SuggestedUser user) {
     return SwipeItem(
       content: user,
       likeAction: () async {
-        setState(() {
-          _showLikeAnimation = true;
-        });
-        if (user.userId != null) {
-          print("Pressed like button for user: ${user.name}");
-          controller.profileLikeRequest.likedBy = user.userId.toString();
-          final response =
-              await controller.profileLike(controller.profileLikeRequest);
-          if (response != null && response.payload.connection) {
-            _showMatchDialog(user);
+        if (await checkInteractionAllowed()) {
+          setState(() {
+            _showLikeAnimation = true;
+          });
+          if (user.userId != null) {
+            print("Pressed like button for user: ${user.name}");
+            controller.profileLikeRequest.likedBy = user.userId.toString();
+            final response =
+                await controller.profileLike(controller.profileLikeRequest);
+            if (response != null && response.payload.connection) {
+              _showMatchDialog(user);
+            }
+          } else {
+            print("User ID is null");
+            failure('Error', "Error: User ID is null.");
           }
-        } else {
-          print("User ID is null");
-          failure('Error', "Error: User ID is null.");
         }
       },
-      nopeAction: () {
-        setState(() {
-          _showDislikeAnimation = true;
-        });
-        print("Pressed dislike button for user: ${user.name}");
-        if (user.userId != null) {
-          controller.dislikeProfileRequest.id = user.userId.toString();
-          controller.dislikeprofile(controller.dislikeProfileRequest);
-          print("User ${user.name} was 'nope'd");
-        } else {
-          print("User ID is null on nope");
+      nopeAction: () async {
+        if (await checkInteractionAllowed()) {
+          setState(() {
+            _showDislikeAnimation = true;
+          });
+          if (user.userId != null) {
+            controller.dislikeProfileRequest.id = user.userId.toString();
+            controller.dislikeprofile(controller.dislikeProfileRequest);
+            print("User ${user.name} was 'nope'd");
+          } else {
+            print("User ID is null on nope");
+          }
         }
       },
-      superlikeAction: () {
-        setState(() {
-          _showFavouriteAnimation = true;
-        });
-        if (user.userId != null) {
-          controller.markFavouriteRequestModel.favouriteId =
-              user.userId.toString();
-          print("id ${user.userId}");
-          controller.markasfavourite(controller.markFavouriteRequestModel);
-        } else {
-          failure('Error', "Error: User ID is null.");
+      superlikeAction: () async {
+        if (await checkInteractionAllowed()) {
+          setState(() {
+            _showFavouriteAnimation = true;
+          });
+          if (user.userId != null) {
+            controller.markFavouriteRequestModel.favouriteId =
+                user.userId.toString();
+            print("id ${user.userId}");
+            controller.markasfavourite(controller.markFavouriteRequestModel);
+          } else {
+            failure('Error', "Error: User ID is null.");
+          }
         }
       },
     );
@@ -571,6 +578,19 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
+  // Add this method to check before any interaction
+  Future<bool> checkInteractionAllowed() async {
+    return await controller.canUserInteract(context);
+  }
+
+  // Modify your profile loading to limit to 10 for unverified users
+  List<UserData> getDisplayProfiles() {
+    if (!controller.isVerified) {
+      return controller.userData.take(10).toList();
+    }
+    return controller.userData;
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -725,9 +745,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               widthFactor: 0.95,
                               heightFactor: 0.98,
                               child: currentList.isEmpty
-                                  ? Center(
-                                      child: Text(
-                                          'No users available.'))
+                                  ? Center(child: Text('No users available.'))
                                   : SwipeCards(
                                       matchEngine: matchEngine,
                                       itemBuilder:
@@ -746,43 +764,54 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                         return Padding(
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 8.0),
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                gradient: LinearGradient(
-                                                  colors: AppColors
-                                                      .gradientBackgroundList,
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(32),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.white
-                                                        .withOpacity(0.2),
-                                                    spreadRadius: 2,
-                                                    blurRadius: 5,
-                                                    offset: Offset(0, 3),
-                                                  ),
-                                                ],
-                                              ),
-                                              padding: const EdgeInsets.all(2),
+                                            child: GestureDetector(
+                                              onTap: widget.isUnsubscribed
+                                                  ? () {
+                                                      controller
+                                                          .showPackagesDialog();
+                                                    }
+                                                  : null,
                                               child: Container(
                                                 decoration: BoxDecoration(
                                                   gradient: LinearGradient(
                                                     colors: AppColors
-                                                        .reversedGradientColor,
+                                                        .gradientBackgroundList,
                                                     begin: Alignment.topLeft,
                                                     end: Alignment.bottomRight,
                                                   ),
                                                   borderRadius:
-                                                      BorderRadius.circular(12),
+                                                      BorderRadius.circular(32),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.white
+                                                          .withOpacity(0.2),
+                                                      spreadRadius: 2,
+                                                      blurRadius: 5,
+                                                      offset: Offset(0, 3),
+                                                    ),
+                                                  ],
                                                 ),
-                                                child: buildCardLayoutAll(
-                                                    context,
-                                                    user,
-                                                    size,
-                                                    isLastCard),
+                                                padding:
+                                                    const EdgeInsets.all(2),
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    gradient: LinearGradient(
+                                                      colors: AppColors
+                                                          .reversedGradientColor,
+                                                      begin: Alignment.topLeft,
+                                                      end:
+                                                          Alignment.bottomRight,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
+                                                  ),
+                                                  child: buildCardLayoutAll(
+                                                      context,
+                                                      user,
+                                                      size,
+                                                      isLastCard),
+                                                ),
                                               ),
                                             ));
                                       },
@@ -1172,33 +1201,39 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             children: [
                               FloatingActionButton(
                                 backgroundColor: AppColors.darkGradientColor,
-                                onPressed: () {
-                                  matchEngine.currentItem?.nope();
-                                  setState(() {
-                                    _isFabMenuOpen = false;
-                                  });
+                                onPressed: () async {
+                                  if (await checkInteractionAllowed()) {
+                                    matchEngine.currentItem?.nope();
+                                    setState(() {
+                                      _isFabMenuOpen = false;
+                                    });
+                                  }
                                 },
                                 child: Icon(Icons.close, color: Colors.white),
                               ),
                               SizedBox(height: 12),
                               FloatingActionButton(
                                 backgroundColor: AppColors.mediumGradientColor,
-                                onPressed: () {
-                                  matchEngine.currentItem?.superLike();
-                                  setState(() {
-                                    _isFabMenuOpen = false;
-                                  });
+                                onPressed: () async {
+                                  if (await checkInteractionAllowed()) {
+                                    matchEngine.currentItem?.superLike();
+                                    setState(() {
+                                      _isFabMenuOpen = false;
+                                    });
+                                  }
                                 },
                                 child: Icon(Icons.star, color: Colors.white),
                               ),
                               SizedBox(height: 12),
                               FloatingActionButton(
                                 backgroundColor: AppColors.lightGradientColor,
-                                onPressed: () {
-                                  matchEngine.currentItem?.like();
-                                  setState(() {
-                                    _isFabMenuOpen = false;
-                                  });
+                                onPressed: () async {
+                                  if (await checkInteractionAllowed()) {
+                                    matchEngine.currentItem?.like();
+                                    setState(() {
+                                      _isFabMenuOpen = false;
+                                    });
+                                  }
                                 },
                                 child: Icon(Icons.favorite, color: Colors.red),
                               ),

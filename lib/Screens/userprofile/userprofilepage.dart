@@ -1,6 +1,5 @@
 import 'package:dating_application/Screens/settings/appinfopages/faqpage.dart';
 import 'package:dating_application/Screens/userprofile/Orders/OrdersViewScreen.dart';
-import 'package:dating_application/Screens/userprofile/accountverification/useraccountverification.dart';
 import 'package:dating_application/Screens/userprofile/membership/userselectedplan.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:share_plus/share_plus.dart';
+
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/usernameupdate_request_model.dart';
 import '../settings/appinfopages/appinfopagestart.dart';
@@ -96,6 +96,24 @@ class UserProfilePageState extends State<UserProfilePage>
     await Future.delayed(Duration(seconds: 2));
     await controller.fetchProfile();
     await controller.fetchProfileUserPhotos();
+  }
+
+  String _getAccountVerificationStatusText() {
+    if (controller.userData.isEmpty) {
+      return 'Verification Pending';
+    }
+    switch (controller.userData.first.accountVerificationStatus) {
+      case '0':
+        return 'Not Verified';
+      case '1':
+        return 'Verified';
+      case '2':
+        return 'Rejected';
+      case '3':
+        return 'Pending';
+      default:
+        return 'Verification Pending';
+    }
   }
 
   @override
@@ -750,7 +768,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                     // success('Verification',
                                     //     'No further action needed.Your verification is successful. You are now a trusted user on the platform.');
                                   } else {
-                                    showVerificationDialog(context);
+                                    controller.showVerificationDialog(context);
                                   }
                                 },
                                 borderRadius: BorderRadius.circular(16.0),
@@ -785,7 +803,8 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                   .first
                                                                   .accountVerificationStatus ==
                                                               '1'
-                                                      ? Colors.lightGreenAccent
+                                                      ? AppColors
+                                                          .lightGradientColor
                                                           .withOpacity(0.15)
                                                       : Colors.white
                                                           .withOpacity(0.65),
@@ -816,8 +835,8 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                       .first
                                                                       .accountVerificationStatus ==
                                                                   '1'
-                                                          ? Colors
-                                                              .lightGreenAccent
+                                                          ? AppColors
+                                                              .lightGradientColor
                                                           : Colors.red,
                                                       size: screenWidth * 0.045,
                                                     ),
@@ -825,15 +844,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                         width: screenWidth *
                                                             0.015),
                                                     Text(
-                                                      controller.userData
-                                                                  .isNotEmpty &&
-                                                              controller
-                                                                      .userData
-                                                                      .first
-                                                                      .accountVerificationStatus ==
-                                                                  '1'
-                                                          ? 'Verified'
-                                                          : 'Verification Pending',
+                                                      _getAccountVerificationStatusText(),
                                                       style: TextStyle(
                                                         fontSize:
                                                             screenWidth * 0.025,
@@ -1309,148 +1320,6 @@ class UserProfilePageState extends State<UserProfilePage>
         );
       },
       isScrollControlled: true,
-    );
-  }
-
-  void showVerificationDialog(BuildContext context) {
-    final Size screenSize = MediaQuery.of(context).size;
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: AppColors.gradientBackgroundList,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Text(
-                    'Account Verification',
-                    style:
-                        AppTextStyles.titleText.copyWith(color: Colors.white),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'To verify your account, you need to submit a photo. Choose one of the following options for your photo submission.',
-                  style:
-                      AppTextStyles.textStyle.copyWith(color: Colors.white70),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Cancel Button
-                    SizedBox(
-                      width: screenSize.width * 0.28, // 36% of screen width
-                      height:
-                          screenSize.height * 0.055, // 5.5% of screen height
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            padding: EdgeInsets.zero,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: Center(
-                            child: ShaderMask(
-                              shaderCallback: (bounds) => LinearGradient(
-                                colors: AppColors.gradientBackgroundList,
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ).createShader(Rect.fromLTWH(
-                                  0, 0, bounds.width, bounds.height)),
-                              blendMode: BlendMode.srcIn,
-                              child: Text(
-                                'Cancel',
-                                style: AppTextStyles.textStyle.copyWith(
-                                  fontSize:
-                                      MediaQuery.of(context).size.width * 0.035,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(width: MediaQuery.of(context).size.width * 0.04),
-
-                    // Confirm Button
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width *
-                          0.28, // same as Cancel
-                      height: MediaQuery.of(context).size.height *
-                          0.055, // same as Cancel
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: AppColors.reversedGradientColor,
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            padding: EdgeInsets.zero,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          onPressed: () {
-                            controller.fetchAllverificationtype();
-                            Navigator.of(context).pop();
-                            Get.to(PhotoVerificationPage());
-                          },
-                          child: Center(
-                            child: Text(
-                              'Confirm',
-                              style: AppTextStyles.textStyle.copyWith(
-                                fontSize:
-                                    MediaQuery.of(context).size.width * 0.035,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 
