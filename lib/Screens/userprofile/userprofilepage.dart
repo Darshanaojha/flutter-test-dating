@@ -113,10 +113,6 @@ class UserProfilePageState extends State<UserProfilePage>
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
-                      // child: SpinKitCircle(
-                      //   size: 150.0,
-                      //   color: AppColors.progressColor,
-                      // ),
                       child: Lottie.asset(
                           "assets/animations/hearthmatch_lottie1-2.json",
                           repeat: true,
@@ -266,11 +262,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                 horizontal: screenWidth * 0.045,
                               ),
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: AppColors.gradientBackgroundList,
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
+                                gradient: AppColors.appBarGradient,
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: const [
                                   BoxShadow(
@@ -314,7 +306,8 @@ class UserProfilePageState extends State<UserProfilePage>
                                                   left: 8.0),
                                               child: Icon(
                                                 Icons.verified,
-                                                color: AppColors.lightGradientColor,
+                                                color: AppColors
+                                                    .lightGradientColor,
                                                 size: getResponsiveFontSize(
                                                     0.045),
                                               ),
@@ -383,12 +376,8 @@ class UserProfilePageState extends State<UserProfilePage>
                                             content: Container(
                                               padding: const EdgeInsets.all(20),
                                               decoration: BoxDecoration(
-                                                gradient: LinearGradient(
-                                                  colors: AppColors
-                                                      .gradientBackgroundList,
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                ),
+                                                gradient:
+                                                    AppColors.appBarGradient,
                                                 borderRadius:
                                                     BorderRadius.circular(20),
                                               ),
@@ -743,11 +732,7 @@ class UserProfilePageState extends State<UserProfilePage>
                               margin: const EdgeInsets.symmetric(
                                   horizontal: 18, vertical: 0),
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment(0.8, 1),
-                                  colors: AppColors.gradientBackgroundList,
-                                ),
+                                gradient: AppColors.appBarGradient,
                                 borderRadius: BorderRadius.circular(16.0),
                               ),
                               child: InkWell(
@@ -1048,19 +1033,8 @@ class UserProfilePageState extends State<UserProfilePage>
           horizontal: screenWidth * 0.055,
         ),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: AppColors.gradientBackgroundList,
-          ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 8,
-              offset: Offset(0, 4),
-            ),
-          ],
+          gradient: AppColors.appBarGradient,
+          borderRadius: BorderRadius.circular(10),
         ),
         // child: InkWell(
         //   borderRadius: BorderRadius.circular(16),
@@ -1269,11 +1243,7 @@ class UserProfilePageState extends State<UserProfilePage>
                       width: double.infinity,
                       child: Container(
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment(0.8, 1),
-                            colors: AppColors.gradientBackgroundList,
-                          ),
+                          gradient: AppColors.appBarGradient,
                           borderRadius: BorderRadius.circular(
                               30), // You can adjust the border radius here
                         ),
@@ -1342,35 +1312,8 @@ class UserProfilePageState extends State<UserProfilePage>
     );
   }
 
-  String _getAccountVerificationMessage(String status) {
-    switch (status) {
-      case '0':
-        return 'Verification Pending';
-      case '1':
-        return 'Your Account Is Verified Successfully';
-      case '2':
-        return 'Verification Rejected';
-      default:
-        return 'UnVerified (Please Verify)';
-    }
-  }
-
-  Color _getAccountVerificationColor(String status) {
-    switch (status) {
-      case '0':
-        return const Color.fromARGB(255, 255, 255, 255);
-      case '1':
-        return const Color.fromARGB(255, 255, 255, 255);
-      case '2':
-        return const Color.fromARGB(255, 59, 36, 1);
-      default:
-        return const Color.fromARGB(255, 111, 109, 109);
-    }
-  }
-
   void showVerificationDialog(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final double buttonWidth = screenWidth * 0.3;
+    final Size screenSize = MediaQuery.of(context).size;
 
     showDialog(
       context: context,
@@ -1414,10 +1357,9 @@ class UserProfilePageState extends State<UserProfilePage>
                   children: [
                     // Cancel Button
                     SizedBox(
-                      width: MediaQuery.of(context).size.width *
-                          0.28, // 36% of screen width
-                      height: MediaQuery.of(context).size.height *
-                          0.055, // 5.5% of screen height
+                      width: screenSize.width * 0.28, // 36% of screen width
+                      height:
+                          screenSize.height * 0.055, // 5.5% of screen height
                       child: Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -1849,12 +1791,8 @@ class SettingCard extends StatelessWidget {
         ),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment(0.8, 1),
-              colors: AppColors.gradientBackgroundList,
-            ),
-            borderRadius: BorderRadius.circular(10.0), // Rounded corners
+            gradient: AppColors.appBarGradient, // Use the shared gradient
+            borderRadius: BorderRadius.circular(10.0),
             boxShadow: const <BoxShadow>[
               BoxShadow(
                 color: Color(0x66666666),

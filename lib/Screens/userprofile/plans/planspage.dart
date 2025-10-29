@@ -78,7 +78,7 @@ class PricingPageState extends State<PricingPage>
   }
 
   Future<void> initializeData() async {
-    await controller.fetchAllHeadlines();
+    // await controller.fetchAllHeadlines();
     await controller.fetchAllPackages();
     await controller.fetchBenefits();
     await controller.gettotalpoint();
@@ -674,28 +674,29 @@ class PricingPageState extends State<PricingPage>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // Title and Close Button Row
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  "Confirm Subscription",
-                                  style: AppTextStyles.titleText.copyWith(
-                                    fontSize: fontSize,
-                                    color: Colors.white,
-                                  ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Text(
+                                "Confirm Subscription",
+                                style: AppTextStyles.titleText.copyWith(
+                                  fontSize: fontSize + 4,
+                                  color: Colors.white,
                                 ),
                               ),
-                            ),
-                            IconButton(
-                              icon:
-                                  const Icon(Icons.close, color: Colors.white),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
+                              Positioned(
+                                right: 0,
+                                child: IconButton(
+                                  icon: const Icon(Icons.close, color: Colors.white),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 10),
                         // Scrollable Content
@@ -707,7 +708,7 @@ class PricingPageState extends State<PricingPage>
                                 Text(
                                   "Do you want to subscribe to the selected plan?",
                                   style: AppTextStyles.bodyText.copyWith(
-                                    fontSize: fontSize - 2,
+                                    fontSize: fontSize - 1,
                                     color: Colors.white,
                                   ),
                                   textAlign: TextAlign.center,

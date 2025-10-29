@@ -234,10 +234,11 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                       height: MediaQuery.of(context).size.height,
                       errorBuilder: (context, error, stackTrace) {
                         return Center(
-                          child: Icon(
-                            Icons.broken_image,
-                            size: 100,
-                            color: Colors.grey,
+                          child: Image.asset(
+                            'assets/images/logo_redefined.png',
+                            fit: BoxFit.contain,
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height,
                           ),
                         );
                       },
@@ -249,10 +250,11 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                       height: MediaQuery.of(context).size.height,
                       errorBuilder: (context, error, stackTrace) {
                         return Center(
-                          child: Icon(
-                            Icons.broken_image,
-                            size: 100,
-                            color: Colors.grey,
+                          child: Image.asset(
+                            'assets/images/logo_redefined.png',
+                            fit: BoxFit.contain,
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height,
                           ),
                         );
                       },
@@ -798,7 +800,8 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.all(12.0),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 12.0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -813,14 +816,17 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                                         Icon(
                                           Icons.favorite,
                                           color: AppColors.mediumGradientColor,
-                                          size: size.width * 0.085,
+                                          size: size.width * 0.09,
                                         ),
                                         Text(
-                                          '${likeCount.value}',
+                                          (likeCount.value > 9)
+                                              ? "9+"
+                                              : '${likeCount.value}',
                                           style:
                                               AppTextStyles.textStyle.copyWith(
                                             color: Colors.white,
-                                            fontWeight: FontWeight.bold,
+                                            // fontWeight: FontWeight.bold,
+                                            fontSize: size.width * 0.03,
                                           ),
                                         ),
                                       ],
@@ -1007,43 +1013,73 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
     List<String> initialSelection,
     Function(List<String>) onSelected,
   ) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    double fontSize = screenWidth * 0.025;
+    double iconSize = screenWidth * 0.04;
+    double buttonHeight = screenHeight * 0.05;
+
+    bool isSelected = initialSelection.isNotEmpty;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 0.5),
+      child: AnimatedScale(
+        scale: isSelected ? 1.08 : 1.0,
+        duration: const Duration(milliseconds: 200),
         child: Container(
+          height: buttonHeight,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
-              end: Alignment(0.8, 1),
-              colors: AppColors.gradientColor,
+              end: const Alignment(0.8, 1),
+              colors: AppColors.gradientBackgroundList,
             ),
-            borderRadius: BorderRadius.circular(38),
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: Colors.white.withOpacity(0.4),
+                      blurRadius: 8,
+                      spreadRadius: 1,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : [],
+            border: isSelected
+                ? Border.all(color: Colors.white, width: 2)
+                : Border.all(color: Colors.transparent),
           ),
           child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              foregroundColor: AppColors.primaryColor,
-              backgroundColor: Colors.transparent,
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
-                side: BorderSide(color: AppColors.activeColor, width: 2),
-              ),
-            ),
             onPressed: () {
               if (options.isEmpty) return;
               showBottomSheet(label, options, initialSelection, onSelected);
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              foregroundColor: Colors.white,
+              shape: const StadiumBorder(),
+              elevation: 0,
+              padding: EdgeInsets.symmetric(
+                vertical: 0,
+                horizontal: screenWidth * 0.02,
+              ),
+            ),
             child: FittedBox(
               fit: BoxFit.scaleDown,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(icon, color: Colors.white, size: 16),
+                  Icon(icon, color: Colors.white, size: iconSize),
                   const SizedBox(width: 8),
                   Text(
                     label,
-                    style: AppTextStyles.textStyle,
+                    style: TextStyle(
+                      fontSize: fontSize,
+                      color: AppColors.textColor,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
                   ),
                   const SizedBox(width: 4),
                   const Icon(
@@ -1185,17 +1221,30 @@ class UserCard extends StatefulWidget {
   UserCardState createState() => UserCardState();
 }
 
-class UserCardState extends State<UserCard> with TickerProviderStateMixin {
+class UserCardState extends State<UserCard>
+    with SingleTickerProviderStateMixin {
   late int _currentLikeStatus;
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
     _currentLikeStatus = widget.user.likedByMe;
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _scaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 1.4), weight: 50),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.4, end: 1.0), weight: 50),
+    ]).animate(
+        CurvedAnimation(parent: _animationController, curve: Curves.easeOut));
   }
 
   @override
   void dispose() {
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -1244,55 +1293,17 @@ class UserCardState extends State<UserCard> with TickerProviderStateMixin {
                         widget.user.images.first,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            Icons.person,
-                            size: 40,
-                            color: Colors.white70,
+                          return Image.asset(
+                            'assets/images/logo_redefined.png',
+                            fit: BoxFit.cover,
                           );
                         },
                       )
-                    : Container(color: Colors.grey.shade300),
+                    : Image.asset(
+                        'assets/images/logo_redefined.png',
+                        fit: BoxFit.cover,
+                      ),
               ),
-
-              // Match % (Static for now - needs dynamic source)
-              // Positioned(
-              //   top: 8,
-              //   left: 8,
-              //   child: Container(
-              //     padding:
-              //         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              //     decoration: BoxDecoration(
-              //       color: Colors.pinkAccent,
-              //       borderRadius: BorderRadius.circular(12),
-              //     ),
-              //     child: Text(
-              //       "90% Match", // Static data
-              //       style: AppTextStyles.bodyText.copyWith(
-              //         color: Colors.white,
-              //         fontWeight: FontWeight.bold,
-              //         fontSize: 12,
-              //       ),
-              //     ),
-              //   ),
-              // ),
-
-              // Distance (Static for now - needs dynamic source)
-              // Positioned(
-              //   bottom: 50,
-              //   left: 8,
-              //   child: Container(
-              //     padding:
-              //         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              //     decoration: BoxDecoration(
-              //       color: Colors.black54,
-              //       borderRadius: BorderRadius.circular(12),
-              //     ),
-              //     child: Text(
-              //       '1.5 km away', // Static data
-              //       style: TextStyle(color: Colors.white, fontSize: 12),
-              //     ),
-              //   ),
-              // ),
 
               // Gradient overlay for entire card bottom
               Positioned(
@@ -1356,80 +1367,61 @@ class UserCardState extends State<UserCard> with TickerProviderStateMixin {
               Positioned(
                 bottom: 8,
                 right: 8,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // In your user card widget:
-                    IconButton(
-                      onPressed: () async {
-                        widget.onShowAnimation(widget.user.userId);
-                        final newLikeStatus = _currentLikeStatus == 0 ? 1 : 0;
-                        setState(() {
-                          _currentLikeStatus = newLikeStatus;
-                        });
+                child: GestureDetector(
+                  onTap: () async {
+                    _animationController.forward(from: 0.0);
 
-                        bool successStatus = false;
-                        if (newLikeStatus == 1) {
-                          widget.controller.profileLikeRequest.likedBy =
-                              widget.user.userId.toString();
-                          ProfileLikeResponse? response =
-                              await widget.controller.profileLike(
-                                  widget.controller.profileLikeRequest);
-                          successStatus = response != null && response.success;
-                          if (successStatus) {
-                            success("Liked!",
-                                "You have successfully liked ${widget.user.name}. Ready to chat!");
-                          }
-                        } else {
-                          widget.controller.homepageDislikeRequest.userId =
-                              widget.user.userId.toString();
-                          widget.controller.homepageDislikeRequest
-                                  .connectionId =
-                              widget.user.conectionId.toString();
-                          successStatus = await widget.controller
-                              .homepagedislikeprofile(
-                                  widget.controller.homepageDislikeRequest);
-                          if (successStatus) {
-                            success("Removed Like",
-                                "You have unliked ${widget.user.name}.");
-                          }
-                        }
+                    final newLikeStatus = _currentLikeStatus == 0 ? 1 : 0;
+                    setState(() {
+                      _currentLikeStatus = newLikeStatus;
+                    });
 
-                        if (!successStatus) {
-                          setState(() {
-                            _currentLikeStatus =
-                                _currentLikeStatus == 0 ? 1 : 0;
-                          });
-                          failure("Failed",
-                              "Failed to update like status. Please try again.");
-                        }
-                        widget.onLikeToggle(widget.user.userId, newLikeStatus);
-                      },
-                      icon: Icon(
-                        _currentLikeStatus == 1
-                            ? Icons.favorite
-                            : Icons.favorite_border,
-                        color: _currentLikeStatus == 1
-                            ? AppColors.darkGradientColor
-                            : Colors.white,
-                        size: 25,
-                      ),
+                    bool successStatus = false;
+                    if (newLikeStatus == 1) {
+                      widget.controller.profileLikeRequest.likedBy =
+                          widget.user.userId.toString();
+                      ProfileLikeResponse? response = await widget.controller
+                          .profileLike(widget.controller.profileLikeRequest);
+                      successStatus = response != null && response.success;
+                      if (successStatus) {
+                        success("Liked!",
+                            "You have successfully liked ${widget.user.name}. Ready to chat!");
+                      }
+                    } else {
+                      widget.controller.homepageDislikeRequest.userId =
+                          widget.user.userId.toString();
+                      widget.controller.homepageDislikeRequest.connectionId =
+                          widget.user.conectionId.toString();
+                      successStatus = await widget.controller
+                          .homepagedislikeprofile(
+                              widget.controller.homepageDislikeRequest);
+                      if (successStatus) {
+                        success("Removed Like",
+                            "You have unliked ${widget.user.name}.");
+                      }
+                    }
+
+                    if (!successStatus) {
+                      setState(() {
+                        _currentLikeStatus = _currentLikeStatus == 0 ? 1 : 0;
+                      });
+                      failure("Failed",
+                          "Failed to update like status. Please try again.");
+                    }
+                    widget.onLikeToggle(widget.user.userId, newLikeStatus);
+                  },
+                  child: ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: Icon(
+                      _currentLikeStatus == 1
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      color: _currentLikeStatus == 1
+                          ? AppColors.lightGradientColor
+                          : Colors.white,
+                      size: 25,
                     ),
-                    // Animation section commented out for now
-                    // if (widget.animatingUserId == widget.user.userId)
-                    //   AnimatedOpacity(
-                    //     duration: Duration(milliseconds: 500),
-                    //     opacity: 1.0,
-                    //     child: AnimatedScale(
-                    //       duration: Duration(milliseconds: 500),
-                    //       scale: 1.5,
-                    //       child: Icon(Icons.favorite,
-                    //           color: Colors.red.withOpacity(0.6), size: 50),
-                    //     ),
-                    //   )
-                    // else
-                    //   SizedBox.shrink(),
-                  ],
+                  ),
                 ),
               ),
             ],

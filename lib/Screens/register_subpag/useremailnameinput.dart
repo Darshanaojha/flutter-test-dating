@@ -26,6 +26,7 @@ class UserInputPageState extends State<UserInputPage>
   void initState() {
     super.initState();
     controller.userRegistrationRequest.reset();
+    controller.userRegistrationRequest.countryCode = selectedCountryCode;
 
     animationController = AnimationController(
       duration: Duration(milliseconds: 360),
@@ -180,15 +181,6 @@ class UserInputPageState extends State<UserInputPage>
                             selectedCountryCode = country.dialCode ?? '+91';
                             controller.userRegistrationRequest.countryCode =
                                 selectedCountryCode;
-                          });
-                        },
-                        onInit: (value) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            setState(() {
-                              selectedCountryCode = '+91';
-                              controller.userRegistrationRequest.countryCode =
-                                  selectedCountryCode;
-                            });
                           });
                         },
                         initialSelection: selectedCountryCode,

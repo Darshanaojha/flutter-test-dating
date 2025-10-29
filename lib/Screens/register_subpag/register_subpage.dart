@@ -52,7 +52,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   void initState() {
     super.initState();
     nicknameController.text = controller.userRegistrationRequest.name;
-    nickname.value = controller.userRegistrationRequest.nickname;
+    nickname.value = nicknameController.text;
     nicknameController.addListener(() {
       nickname.value = nicknameController.text;
       controller.userRegistrationRequest.nickname =
@@ -62,7 +62,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
   intialize() async {
-    await controller.fetchAllHeadlines();
+    // await controller.fetchAllHeadlines();
     await controller.fetchBenefits();
     await controller.fetchSafetyGuidelines();
     await controller.fetchPreferences();
@@ -1741,7 +1741,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   ? () {
                       markStepAsCompleted(7);
                       Get.snackbar('Interest',
-                          controller.userRegistrationRequest.interest ?? '');
+                          controller.userRegistrationRequest.interest);
                       pageController.nextPage(
                         duration: Duration(milliseconds: 300),
                         curve: Curves.ease,
@@ -2551,20 +2551,17 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             child: Obx(() => buildBottomButtonRow(
                   onBack: onBackPressed,
                   // onNext: notificationGranted.value && locationGranted.value && cameraGranted.value
-                  onNext: true
-                      ? () {
-                          markStepAsCompleted(10);
-                          Get.snackbar(
-                            'permission',
-                            controller.userRegistrationRequest.emailAlerts
-                                .toString(),
-                          );
-                          pageController.nextPage(
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.ease,
-                          );
-                        }
-                      : null,
+                  onNext: () {
+                    markStepAsCompleted(10);
+                    Get.snackbar(
+                      'permission',
+                      controller.userRegistrationRequest.emailAlerts.toString(),
+                    );
+                    pageController.nextPage(
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.ease,
+                    );
+                  },
                   nextLabel: 'Next',
                   backLabel: 'Back',
                   nextEnabled:
@@ -2791,7 +2788,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                                                             Alignment.topLeft,
                                                         end: Alignment(0.8, 1),
                                                         colors: AppColors
-                                                            .gradientColor),
+                                                            .gradientBackgroundList),
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             30),

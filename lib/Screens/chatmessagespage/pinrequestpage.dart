@@ -30,6 +30,12 @@ class MessageRequestPageState extends State<MessageRequestPage> {
                 fit: BoxFit.contain,
                 height: 300,
                 width: 300,
+                errorBuilder: (context, error, stackTrace) {
+                  return Image.asset(
+                    'assets/images/logo_redefined.png',
+                    fit: BoxFit.contain,
+                  );
+                },
               ),
             ),
           ),

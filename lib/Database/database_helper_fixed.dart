@@ -163,7 +163,7 @@ class DatabaseHelper {
           description TEXT,
           createdAt INTEGER,
           updatedAt INTEGER,
-         isCached INTEGER DEFAULT 1
+          isCached INTEGER DEFAULT 1
         )
       ''');
 
@@ -180,6 +180,22 @@ class DatabaseHelper {
           isCached INTEGER DEFAULT 1
         )
       ''');
+    }
+    
+    // Add migration for version 2 to 3 - add dob column to users table
+    if (oldVersion < 3) {
+      try {
+        // Check if the dob column already exists to avoid errors
+        final result = await db.rawQuery('PRAGMA table_info(users)');
+        final hasDobColumn = result.any((column) => column['name'] == 'dob');
+        
+        if (!hasDobColumn) {
+          await db.execute('ALTER TABLE users ADD COLUMN dob TEXT');
+        }
+      } catch (e) {
+        // If altering table fails, we'll handle it gracefully
+        print('Error adding dob column: $e');
+      }
     }
   }
 

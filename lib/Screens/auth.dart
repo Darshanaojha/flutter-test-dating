@@ -1,7 +1,9 @@
+import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Screens/login.dart';
 import 'package:dating_application/Screens/register_subpag/useremailnameinput.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 
 class CombinedAuthScreen extends StatefulWidget {
@@ -20,6 +22,7 @@ class _CombinedAuthScreenState extends State<CombinedAuthScreen>
   @override
   void initState() {
     super.initState();
+    Get.put(Controller());
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),

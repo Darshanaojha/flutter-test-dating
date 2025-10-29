@@ -3,11 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-String get baseurl => "http://$ipAddress/dating_backend_springboot/admin";
-String get ip => "http://$ipAddress/dating_backend_springboot/";
+// String get baseurl => "http://$ipAddress/dating_backend_springboot/admin";
+// String get ip => "http://$ipAddress/dating_backend_springboot/";
+// String get springbooturl => "http://$ipSpringAddress:8080";
+
+String get baseurl => "http://$ipAddress";
+String get ip => "http://$ipAddress/";
 String get springbooturl => "http://$ipSpringAddress:8080";
-String ipAddress = "";
-String ipSpringAddress = "";
+String ipAddress = "150.241.245.210";
+String ipSpringAddress = "150.241.245.210";
+// String ipSpringAddress = "192.168.1.12";
+const String appName = "cajed.in";
 
 const encryptionkey = "flamrpisyst2024!";
 const secretkey = "ArqamzSnehaSadiq@flamrdating2024";
@@ -95,76 +101,76 @@ class AppColors {
   //     Color(0xffffb56b),
   //   ],
   // );
-  static LinearGradient gradientBackground = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment(0.8, 1),
-    colors: <Color>[
-      Color(0xFF441752), // Darkest purple
-      Color.fromARGB(255, 74, 28, 88),
-      Color.fromARGB(255, 78, 37, 91),
-      Color.fromARGB(255, 102, 81, 152),
-      Color.fromARGB(255, 107, 87, 152),
-      Color.fromARGB(255, 113, 96, 153),
-      Color(0xFF8174A0),
-      Color(0xFFA888B5),
-      Color(0xFFEFB6C8),
-    ],
-  );
 
-  static LinearGradient reversedGradientBackground = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment(0.8, 1),
-    colors: <Color>[
-      Color(0xFFEFB6C8),
-      Color(0xFFA888B5),
-      Color(0xFF8174A0),
-      Color.fromARGB(255, 113, 96, 153),
-      Color.fromARGB(255, 107, 87, 152),
-      Color.fromARGB(255, 102, 81, 152),
-      Color.fromARGB(255, 78, 37, 91),
-      Color.fromARGB(255, 74, 28, 88),
-      Color(0xFF441752),
-    ],
-  );
+  // static List<Color> gradientBackgroundList = <Color>[
+  //   Color(0xFF441752), // Darkest purple
+  //   Color.fromARGB(255, 74, 28, 88),
+  //   Color.fromARGB(255, 78, 37, 91),
+  //   Color.fromARGB(255, 102, 81, 152),
+  //   Color.fromARGB(255, 107, 87, 152),
+  //   Color.fromARGB(255, 113, 96, 153),
+  //   Color(0xFF8174A0),
+  //   Color(0xFFA888B5),
+  //   Color(0xFFEFB6C8),
+  // ];
 
   static List<Color> gradientBackgroundList = <Color>[
-    Color(0xFF441752), // Darkest purple
-    Color.fromARGB(255, 74, 28, 88),
-    Color.fromARGB(255, 78, 37, 91),
-    Color.fromARGB(255, 102, 81, 152),
-    Color.fromARGB(255, 107, 87, 152),
-    Color.fromARGB(255, 113, 96, 153),
-    Color(0xFF8174A0),
-    Color(0xFFA888B5),
-    Color(0xFFEFB6C8),
+    Color(0xFF331E3F), // darkest purple
+    Color(0xFF4A2655), // dark violet
+    Color(0xFF562B63), // deep violet
+    Color(0xFF703A7E), // purple
+    Color(0xFF895294), // medium-light purple
   ];
+
+  static LinearGradient get appBarGradient => LinearGradient(
+        colors: gradientBackgroundList,
+        begin: Alignment.topLeft,
+        end: Alignment(0.8, 1),
+      );
 
   static var shader = LinearGradient(colors: gradientBackgroundList)
       .createShader(const Rect.fromLTWH(0, 0, 200, 40));
 
+  // static List<Color> gradientColor = <Color>[
+  //   Color(0xFF441752), // Darkest purple
+  //   Color.fromARGB(255, 74, 28, 88),
+  //   Color.fromARGB(255, 78, 37, 91),
+  //   Color.fromARGB(255, 102, 81, 152),
+  //   Color.fromARGB(255, 107, 87, 152),
+  //   Color.fromARGB(255, 113, 96, 153),
+  //   Color(0xFF8174A0),
+  //   Color(0xFFA888B5),
+  //   Color(0xFFEFB6C8),
+  // ];
+
   static List<Color> gradientColor = <Color>[
-    Color(0xFF441752), // Darkest purple
-    Color.fromARGB(255, 74, 28, 88),
-    Color.fromARGB(255, 78, 37, 91),
-    Color.fromARGB(255, 102, 81, 152),
-    Color.fromARGB(255, 107, 87, 152),
-    Color.fromARGB(255, 113, 96, 153),
-    Color(0xFF8174A0),
-    Color(0xFFA888B5),
-    Color(0xFFEFB6C8),
+    Color(0xFF2f1c3c), // darkest purple
+    Color(0xFF51295f), // dark violet
+    Color(0xFF61316f), // deep violet
+    Color(0xFF895295), // purple
+    Color(0xFF915f9f), // purple
+    Color(0xFFA073AE), // medium-light purple
   ];
 
   static List<Color> reversedGradientColor = <Color>[
-    Color(0xFFEFB6C8),
-    Color(0xFFA888B5),
-    Color(0xFF8174A0),
-    Color.fromARGB(255, 113, 96, 153),
-    Color.fromARGB(255, 107, 87, 152),
-    Color.fromARGB(255, 102, 81, 152),
-    Color.fromARGB(255, 78, 37, 91),
-    Color.fromARGB(255, 74, 28, 88),
-    Color(0xFF441752),
+    Color(0xFFB06BB8), // lighter purple accent
+    Color(0xFF914599), // medium-dark purple
+    Color(0xFF7B3680), // rich dark purple
+    Color(0xFF6C2A6D), // deep violet (darker than before)
+    Color(0xFF5E235F), // darkest purple
   ];
+
+  // static List<Color> reversedGradientColor = <Color>[
+  //   Color(0xFFEFB6C8),
+  //   Color(0xFFA888B5),
+  //   Color(0xFF8174A0),
+  //   Color.fromARGB(255, 113, 96, 153),
+  //   Color.fromARGB(255, 107, 87, 152),
+  //   Color.fromARGB(255, 102, 81, 152),
+  //   Color.fromARGB(255, 78, 37, 91),
+  //   Color.fromARGB(255, 74, 28, 88),
+  //   Color(0xFF441752),
+  // ];
 
   static Color darkGradientColor = Color(0xFF441752); // Darkest purple
   static Color mediumGradientColor = Color(0xFFA888B5); // Medium purple

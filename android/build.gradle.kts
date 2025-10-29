@@ -16,6 +16,12 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
+plugins {
+    id("com.android.application") apply false
+    id("com.android.library") apply false
+}
+
+
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }

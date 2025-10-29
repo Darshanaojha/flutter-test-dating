@@ -307,7 +307,8 @@ class EditProfilePageState extends State<EditProfilePage>
     }
     // Allow Unicode letters, spaces, and hyphens only
     if (!RegExp(r'^[\p{L}\p{M}\s\-]+$', unicode: true).hasMatch(value)) {
-      failure('RE-Enter', 'Name must contain only letters, spaces, and hyphens');
+      failure(
+          'RE-Enter', 'Name must contain only letters, spaces, and hyphens');
       return 'Name must contain only letters, spaces, and hyphens';
     }
     return null;
@@ -531,7 +532,8 @@ class EditProfilePageState extends State<EditProfilePage>
     Future<void> selectDate() async {
       DateTime now = DateTime.now();
       DateTime today = DateTime(now.year, now.month, now.day);
-      DateTime eighteenYearsAgo = today.subtract(Duration(days: (18 * 365) + 5)); // Added 5 days to account for leap years
+      DateTime eighteenYearsAgo = today.subtract(Duration(
+          days: (18 * 365) + 5)); // Added 5 days to account for leap years
 
       DateTime defaultInitial = eighteenYearsAgo; // default to 18 years ago
 
@@ -910,12 +912,12 @@ class EditProfilePageState extends State<EditProfilePage>
                                               0.02,
                                     ),
                                     Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.end,
+                                      mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         OutlinedButton.icon(
                                           onPressed: () async {
-                                            final result = await Get.to(() => const EditPhotosPage());
+                                            final result = await Get.to(
+                                                () => const EditPhotosPage());
                                             if (result == 'updated') {
                                               setState(() {});
                                             }
@@ -926,7 +928,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                                   MediaQuery.of(context)
                                                           .size
                                                           .width *
-                                                      0.04; 
+                                                      0.04;
                                               return Icon(
                                                 Icons.edit,
                                                 color: Colors.white,
@@ -936,13 +938,13 @@ class EditProfilePageState extends State<EditProfilePage>
                                           ),
                                           label: Text(
                                             'Edit Photos',
-                                            style:
-                                                AppTextStyles.buttonText.copyWith(
+                                            style: AppTextStyles.buttonText
+                                                .copyWith(
                                               color: Colors.white,
                                               fontSize: MediaQuery.of(context)
                                                       .size
                                                       .width *
-                                                  0.025, 
+                                                  0.025,
                                             ),
                                           ),
                                         ),
@@ -1041,6 +1043,55 @@ class EditProfilePageState extends State<EditProfilePage>
                                     height: MediaQuery.of(context).size.height *
                                         0.01,
                                   ),
+                                  DecoratedBoxTransition(
+                                    decoration:
+                                        decorationTween.animate(_animationController),
+                                    child: Material(
+                                      elevation: 5,
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: AppColors.gradientBackgroundList,
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: TextFormField(
+                                          initialValue: controller.userData.first.email,
+                                          enabled: false,
+                                          decoration: InputDecoration(
+                                            labelText: 'Email',
+                                            labelStyle: AppTextStyles.labelText.copyWith(
+                                              fontSize: getResponsiveFontSize(0.03),
+                                              color: Colors.white70,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            filled: true,
+                                            fillColor: AppColors.formFieldColor.withOpacity(0.5),
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(20),
+                                              borderSide: BorderSide.none,
+                                            ),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(20),
+                                              borderSide: BorderSide(color: AppColors.textColor.withOpacity(0.5)),
+                                            ),
+                                          ),
+                                          style: AppTextStyles.bodyText.copyWith(
+                                            fontSize: getResponsiveFontSize(0.03),
+                                            color: Colors.white70,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.01,
+                                  ),
                                   Container(
                                     decoration: BoxDecoration(
                                       gradient: LinearGradient(
@@ -1100,25 +1151,30 @@ class EditProfilePageState extends State<EditProfilePage>
                                         0.01,
                                   ),
                                   DecoratedBoxTransition(
-                                    decoration:
-                                        decorationTween.animate(_animationController),
+                                    decoration: decorationTween
+                                        .animate(_animationController),
                                     child: Material(
                                       elevation: 5,
                                       borderRadius: BorderRadius.circular(12),
                                       child: Container(
                                         decoration: BoxDecoration(
                                           gradient: LinearGradient(
-                                            colors: AppColors.gradientBackgroundList,
+                                            colors: AppColors
+                                                .gradientBackgroundList,
                                             begin: Alignment.topLeft,
                                             end: Alignment.bottomRight,
                                           ),
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
                                         ),
                                         padding: const EdgeInsets.all(10.0),
                                         child: TextFormField(
                                           initialValue: controller
-                                                  .userProfileUpdateRequest.bio.isNotEmpty
-                                              ? controller.userProfileUpdateRequest.bio
+                                                  .userProfileUpdateRequest
+                                                  .bio
+                                                  .isNotEmpty
+                                              ? controller
+                                                  .userProfileUpdateRequest.bio
                                               : controller.userData.first.bio,
                                           onChanged: onAboutChanged,
                                           validator: (value) {
@@ -1129,20 +1185,25 @@ class EditProfilePageState extends State<EditProfilePage>
                                           maxLines: 5,
                                           decoration: InputDecoration(
                                             labelText: 'About',
-                                            labelStyle: AppTextStyles.labelText.copyWith(
-                                              fontSize: getResponsiveFontSize(0.03),
+                                            labelStyle: AppTextStyles.labelText
+                                                .copyWith(
+                                              fontSize:
+                                                  getResponsiveFontSize(0.03),
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold,
                                             ),
                                             filled: true,
                                             fillColor: AppColors.formFieldColor,
                                             border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(20),
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
                                               borderSide: BorderSide.none,
                                             ),
                                           ),
-                                          style: AppTextStyles.bodyText.copyWith(
-                                            fontSize: getResponsiveFontSize(0.03),
+                                          style:
+                                              AppTextStyles.bodyText.copyWith(
+                                            fontSize:
+                                                getResponsiveFontSize(0.03),
                                             color: Colors.white,
                                           ),
                                         ),
@@ -2000,7 +2061,8 @@ class EditProfilePageState extends State<EditProfilePage>
 
                                               return Wrap(
                                                 spacing: 8.0,
-                                                runSpacing: 8.0, // Added for vertical spacing
+                                                runSpacing:
+                                                    8.0, // Added for vertical spacing
                                                 children: List.generate(
                                                     updatedSelectedInterests
                                                         .length, (index) {
@@ -2008,38 +2070,55 @@ class EditProfilePageState extends State<EditProfilePage>
                                                       updatedSelectedInterests[
                                                           index];
                                                   return Container(
-                                                    padding: const EdgeInsets.only(left: 12.0, top: 8.0, bottom: 8.0, right: 8.0),
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 12.0,
+                                                            top: 8.0,
+                                                            bottom: 8.0,
+                                                            right: 8.0),
                                                     decoration: BoxDecoration(
                                                       gradient: LinearGradient(
-                                                        colors: AppColors.gradientBackgroundList,
-                                                        begin: Alignment.topLeft,
-                                                        end: Alignment.bottomRight,
+                                                        colors: AppColors
+                                                            .gradientBackgroundList,
+                                                        begin:
+                                                            Alignment.topLeft,
+                                                        end: Alignment
+                                                            .bottomRight,
                                                       ),
-                                                      borderRadius: BorderRadius.circular(25.0),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              25.0),
                                                       border: Border.all(
                                                         color: Colors.white,
                                                         width: 1.5,
                                                       ),
                                                     ),
                                                     child: Row(
-                                                      mainAxisSize: MainAxisSize.min,
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
                                                       children: [
                                                         Text(
                                                           interest,
                                                           style: const TextStyle(
                                                               fontSize: 15,
-                                                              color: Colors.white,
-                                                              fontWeight: FontWeight.bold),
+                                                              color:
+                                                                  Colors.white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
                                                         ),
                                                         SizedBox(width: 8.0),
                                                         GestureDetector(
                                                           onTap: () {
-                                                            deleteInterest(index);
+                                                            deleteInterest(
+                                                                index);
                                                             updateUserInterests();
                                                           },
                                                           child: Icon(
                                                             Icons.cancel,
-                                                            color: Colors.white.withOpacity(0.8),
+                                                            color: Colors.white
+                                                                .withOpacity(
+                                                                    0.8),
                                                             size: 20.0,
                                                           ),
                                                         ),
@@ -2608,7 +2687,8 @@ class EditProfilePageState extends State<EditProfilePage>
                                           const EdgeInsets.only(right: 8.0),
                                       child: Chip(
                                         label: Text(desire.title),
-                                        backgroundColor: AppColors.darkGradientColor,
+                                        backgroundColor:
+                                            AppColors.darkGradientColor,
                                         labelStyle: TextStyle(
                                           color: Colors.white,
                                           fontSize: chipFontSize,
@@ -3128,6 +3208,7 @@ class InfoField extends StatefulWidget {
   final String label;
   final Function(String) onChanged;
   final String? Function(String)? validator;
+  final bool readOnly;
 
   const InfoField({
     super.key,
@@ -3135,6 +3216,7 @@ class InfoField extends StatefulWidget {
     required this.label,
     required this.onChanged,
     required this.validator,
+    this.readOnly = false,
   });
 
   @override

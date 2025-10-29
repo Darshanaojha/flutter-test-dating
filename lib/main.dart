@@ -63,12 +63,12 @@ class MainAppState extends State<MainApp>
 
     // Show the dialog after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (ipAddress.isEmpty || ipSpringAddress.isEmpty) {
-        await (context
-                .findAncestorStateOfType<MainAppState>()
-                ?.showIpDialog(context) ??
-            Future.value());
-      }
+      // if (ipAddress.isEmpty || ipSpringAddress.isEmpty) {
+      //   await (context
+      //           .findAncestorStateOfType<MainAppState>()
+      //           ?.showIpDialog(context) ??
+      //       Future.value());
+      // }
     });
 
     EncryptedSharedPreferences.initialize(encryptionkey);
@@ -100,7 +100,7 @@ class MainAppState extends State<MainApp>
   Future<void> showIpDialog(BuildContext context) async {
     final ipController = TextEditingController(text: ipAddress);
     final springIpController = TextEditingController(text: ipSpringAddress);
-    ipController.text = '192.168.1.';
+    ipController.text = '150.241.245.210';
     springIpController.text = '192.168.1.';
     return showDialog(
       context: context,
@@ -150,7 +150,7 @@ class MainAppState extends State<MainApp>
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'FlamR',
+      title: appName,
       theme: ThemeData(
         brightness: Brightness.dark,
         useMaterial3: true,

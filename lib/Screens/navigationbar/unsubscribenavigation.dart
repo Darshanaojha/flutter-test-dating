@@ -362,7 +362,7 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation>
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment(0.8, 1),
-                            colors: AppColors.gradientColor,
+                            colors: AppColors.gradientBackgroundList,
                           ),
                           borderRadius: BorderRadius.circular(30),
                         ),
@@ -478,9 +478,12 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation>
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  'FlamR',
+                  appName,
                   style: AppTextStyles.headingText.copyWith(
-                    fontSize: getResponsiveFontSize(context, 0.08),
+                    fontSize: getResponsiveFontSize(context, 0.07),
+                    fontFamily: 'RusticRoadway',
+                    // fontWeight: FontWeight.normal,
+
                   ),
                 ),
               ),
