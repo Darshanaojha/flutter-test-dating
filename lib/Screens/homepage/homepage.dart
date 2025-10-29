@@ -56,6 +56,7 @@ class HomePageState extends State<HomePage>
   final TextEditingController messageController = TextEditingController();
   final FocusNode messageFocusNode = FocusNode();
   final PageController _imagePageController = PageController();
+  int _currentImageIndex = 0;
   List<SwipeItem> swipeItems = [];
   late MatchEngine matchEngine;
   late Future<bool> _fetchSuggestion;
@@ -571,7 +572,7 @@ class HomePageState extends State<HomePage>
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
                       child: Lottie.asset(
-                          "assets/animations/handloadinganimation.json"));
+                          "assets/animations/LoveIsBlind.json"));
                 }
 
                 if (snapshot.hasError) {
@@ -705,71 +706,82 @@ class HomePageState extends State<HomePage>
                       ),
                     ),
 
-                    //  `1Cards Area
+                    //  Cards Area - Takes 80% of screen height responsively
                     Expanded(
                       child: Obx(() {
                         final currentList =
                             controller.getCurrentList(selectedFilter.value);
 
-                        return currentList.isEmpty && lastUser != null
-                            ? buildCardLayoutAll(
-                                context, lastUser!, size, isLastCard)
-                            : SwipeCards(
-                                matchEngine: matchEngine,
-                                itemBuilder: (BuildContext context, int index) {
-                                  if (index >= currentList.length) {
-                                    return Center(
-                                        child: Text("No users available"));
-                                  }
+                        return Center(
+                          child: FractionallySizedBox(
+                            widthFactor: 0.8,
+                            heightFactor: 0.8,
+                            child: currentList.isEmpty && lastUser != null
+                                ? buildCardLayoutAll(
+                                    context, lastUser!, size, isLastCard)
+                                : SwipeCards(
+                                    matchEngine: matchEngine,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      if (index >= currentList.length) {
+                                        return Center(
+                                            child: Text("No users available"));
+                                      }
 
-                                  final SuggestedUser user = currentList[index];
-                                  isLastCard = index == currentList.length - 1;
+                                      final SuggestedUser user =
+                                          currentList[index];
+                                      isLastCard =
+                                          index == currentList.length - 1;
 
-                                  return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 8.0, horizontal: 12.0),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          gradient:
-                                              AppColors.gradientBackground,
-                                          borderRadius:
-                                              BorderRadius.circular(32),
-                                          border: Border.all(
-                                            color: isLastCard
-                                                ? Colors.grey
-                                                : Colors.white,
-                                            width: 2,
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color:
-                                                  Colors.white.withOpacity(0.2),
-                                              spreadRadius: 2,
-                                              blurRadius: 5,
-                                              offset: Offset(0, 3),
+                                      return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 8.0),
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              gradient:
+                                                  AppColors.gradientBackground,
+                                              borderRadius:
+                                                  BorderRadius.circular(32),
+                                              border: Border.all(
+                                                color: isLastCard
+                                                    ? Colors.grey
+                                                    : Colors.white,
+                                                width: 2,
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.white
+                                                      .withOpacity(0.2),
+                                                  spreadRadius: 2,
+                                                  blurRadius: 5,
+                                                  offset: Offset(0, 3),
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
-                                        child: buildCardLayoutAll(
-                                            context, user, size, isLastCard),
-                                      ));
-                                },
-                                upSwipeAllowed: true,
-                                leftSwipeAllowed: true,
-                                rightSwipeAllowed: true,
-                                fillSpace: true,
-                                onStackFinished: () async {
-                                  isSwipeFinished = true;
-                                  if (currentList.isNotEmpty) {
-                                    lastUser = currentList.last;
-                                    await _storeLastUserForAllLists(lastUser!);
-                                  }
-                                  failure('Finished', "Stack Finished");
-                                },
-                                itemChanged: (SwipeItem item, int index) {
-                                  print("Item: ${item.content}, Index: $index");
-                                },
-                              );
+                                            child: buildCardLayoutAll(context,
+                                                user, size, isLastCard),
+                                          ));
+                                    },
+                                    upSwipeAllowed: true,
+                                    leftSwipeAllowed: true,
+                                    rightSwipeAllowed: true,
+                                    fillSpace: true,
+                                    onStackFinished: () async {
+                                      isSwipeFinished = true;
+                                      if (currentList.isNotEmpty) {
+                                        lastUser = currentList.last;
+                                        await _storeLastUserForAllLists(
+                                            lastUser!);
+                                      }
+                                      failure('Finished', "Stack Finished");
+                                    },
+                                    itemChanged: (SwipeItem item, int index) {
+                                      print(
+                                          "Item: ${item.content}, Index: $index");
+                                    },
+                                  ),
+                          ),
+                        );
                       }),
                     )
                   ],
@@ -815,6 +827,7 @@ class HomePageState extends State<HomePage>
               );
             },
             child: Container(
+              height: size.height * 1.5,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
@@ -830,53 +843,108 @@ class HomePageState extends State<HomePage>
                   children: [
                     // User Images
                     SizedBox(
-                      height: size.height * 0.37,
+                      height: size.height * 0.3,
                       child: Stack(
                         children: [
                           SafeArea(
                             child: SizedBox(
                               height: size.height * 0.35,
-                              child: Scrollbar(
-                                child: ListView.builder(
-                                  controller: _imagePageController,
-                                  itemCount: images.length,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    if (images.isEmpty) {
-                                      return Center(
-                                          child: Text('No Images Available'));
+                              child: NotificationListener<ScrollNotification>(
+                                onNotification: (scrollNotification) {
+                                  if (scrollNotification
+                                      is ScrollUpdateNotification) {
+                                    // This is an approximation. For accurate calculations,
+                                    // you would need the exact height of each item.
+                                    final itemHeight = size.height * 0.45;
+                                    if (itemHeight <= 0) return true;
+
+                                    int index =
+                                        (scrollNotification.metrics.pixels /
+                                                itemHeight)
+                                            .round();
+
+                                    if (index >= images.length) {
+                                      index = images.length - 1;
                                     }
-                                    return GestureDetector(
-                                      onTap: () => showFullImageDialog(
-                                          context, images[index]),
-                                      child: Container(
-                                        margin: EdgeInsets.only(bottom: 12),
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(28),
-                                          child: CachedNetworkImage(
-                                            imageUrl: images[index],
-                                            placeholder: (context, url) => Center(
-                                                child:
-                                                    CircularProgressIndicator()),
-                                            errorWidget: (context, url, error) {
-                                              return Icon(
-                                                  Icons.person_pin_outlined,
-                                                  color: const Color.fromARGB(
-                                                      255, 150, 148, 148));
-                                            },
-                                            fit: BoxFit.cover,
-                                            width: size.width * 0.9,
-                                            height: size.height * 0.45,
+                                    if (index < 0) {
+                                      index = 0;
+                                    }
+
+                                    if (index != _currentImageIndex) {
+                                      setState(() {
+                                        _currentImageIndex = index;
+                                      });
+                                    }
+                                  }
+                                  return true;
+                                },
+                                child: Scrollbar(
+                                  child: ListView.builder(
+                                    controller: _imagePageController,
+                                    itemCount: images.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      if (images.isEmpty) {
+                                        return Center(
+                                            child: Text('No Images Available'));
+                                      }
+                                      return GestureDetector(
+                                        onTap: () => showFullImageDialog(
+                                            context, images[index]),
+                                        child: Container(
+                                          margin: EdgeInsets.only(bottom: 12),
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(28),
+                                            child: CachedNetworkImage(
+                                              imageUrl: images[index],
+                                              placeholder: (context, url) => Center(
+                                                  child:
+                                                      CircularProgressIndicator()),
+                                              errorWidget:
+                                                  (context, url, error) {
+                                                return Icon(
+                                                    Icons.person_pin_outlined,
+                                                    color: const Color.fromARGB(
+                                                        255, 150, 148, 148));
+                                              },
+                                              fit: BoxFit.cover,
+                                              width: size.width * 0.9,
+                                              height: size.height * 0.45,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    );
-                                  },
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
                             ),
                           ),
+                          if (images.length > 1)
+                            Positioned(
+                              right: 10,
+                              top: 0,
+                              bottom: 0,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: List.generate(images.length, (index) {
+                                  return AnimatedContainer(
+                                    duration: const Duration(milliseconds: 300),
+                                    margin:
+                                        const EdgeInsets.symmetric(vertical: 4),
+                                    width: 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: _currentImageIndex == index
+                                          ? AppColors.lightGradientColor
+                                          : Colors.white.withOpacity(0.5),
+                                    ),
+                                  );
+                                }),
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -935,7 +1003,8 @@ class HomePageState extends State<HomePage>
                                                   right: 8.0),
                                               child: Icon(
                                                 Icons.verified,
-                                                color: Colors.lightGreenAccent,
+                                                color: AppColors
+                                                    .lightGradientColor,
                                                 size: getResponsiveFontSize(
                                                     0.045),
                                               ),
@@ -1004,40 +1073,40 @@ class HomePageState extends State<HomePage>
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           // Interests
-                          if (interests.isNotEmpty)
-                            Flexible(
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.13),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.tag,
-                                        size: 16, color: Colors.white70),
-                                    SizedBox(width: 6),
-                                    Flexible(
-                                      child: Text(
-                                        interests.length > 1
-                                            ? '${interests[0]} +${interests.length - 1}'
-                                            : interests[0],
-                                        style: AppTextStyles.bodyText.copyWith(
-                                          color: Colors.white,
-                                          fontSize: size.width * 0.035,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          SizedBox(width: 10),
+                          // if (interests.isNotEmpty)
+                          //   Flexible(
+                          //     child: Container(
+                          //       padding: EdgeInsets.symmetric(
+                          //           horizontal: 12, vertical: 6),
+                          //       decoration: BoxDecoration(
+                          //         color: Colors.white.withOpacity(0.13),
+                          //         borderRadius: BorderRadius.circular(10),
+                          //       ),
+                          //       child: Row(
+                          //         mainAxisSize: MainAxisSize.min,
+                          //         children: [
+                          //           Icon(Icons.tag,
+                          //               size: 16, color: Colors.white70),
+                          //           SizedBox(width: 6),
+                          //           Flexible(
+                          //             child: Text(
+                          //               interests.length > 1
+                          //                   ? '${interests[0]} +${interests.length - 1}'
+                          //                   : interests[0],
+                          //               style: AppTextStyles.bodyText.copyWith(
+                          //                 color: Colors.white,
+                          //                 fontSize: size.width * 0.035,
+                          //                 fontWeight: FontWeight.w500,
+                          //               ),
+                          //               maxLines: 1,
+                          //               overflow: TextOverflow.ellipsis,
+                          //             ),
+                          //           ),
+                          //         ],
+                          //       ),
+                          //     ),
+                          //   ),
+                          // SizedBox(width: 10),
                           // Looking For
                           Flexible(
                             child: Container(
@@ -1071,6 +1140,37 @@ class HomePageState extends State<HomePage>
                           ),
                           SizedBox(width: 10),
                           // Sub Gender
+                          // Flexible(
+                          //   child: Container(
+                          //     padding: EdgeInsets.symmetric(
+                          //         horizontal: 12, vertical: 6),
+                          //     decoration: BoxDecoration(
+                          //       color: Colors.white.withOpacity(0.13),
+                          //       borderRadius: BorderRadius.circular(10),
+                          //     ),
+                          //     child: Row(
+                          //       mainAxisSize: MainAxisSize.min,
+                          //       children: [
+                          //         Icon(Icons.person_outline,
+                          //             size: 16, color: Colors.white70),
+                          //         SizedBox(width: 6),
+                          //         Flexible(
+                          //           child: Text(
+                          //             user.subGenderName ?? 'Unknown',
+                          //             style: AppTextStyles.bodyText.copyWith(
+                          //               color: Colors.white,
+                          //               fontSize: size.width * 0.035,
+                          //               fontWeight: FontWeight.w500,
+                          //             ),
+                          //             maxLines: 1,
+                          //             overflow: TextOverflow.ellipsis,
+                          //           ),
+                          //         ),
+                          //       ],
+                          //     ),
+                          //   ),
+                          // ),
+                          // View More
                           Flexible(
                             child: Container(
                               padding: EdgeInsets.symmetric(
@@ -1082,12 +1182,9 @@ class HomePageState extends State<HomePage>
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(Icons.person_outline,
-                                      size: 16, color: Colors.white70),
-                                  SizedBox(width: 6),
                                   Flexible(
                                     child: Text(
-                                      user.subGenderName ?? 'Unknown',
+                                      'View More',
                                       style: AppTextStyles.bodyText.copyWith(
                                         color: Colors.white,
                                         fontSize: size.width * 0.035,
@@ -1104,6 +1201,48 @@ class HomePageState extends State<HomePage>
                         ],
                       ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Gender
+                          Flexible(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.13),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(FontAwesome.genderless_solid,
+                                      size: 16, color: Colors.white70),
+                                  SizedBox(width: 6),
+                                  Flexible(
+                                    child: Text(
+                                      "${user.genderName}",
+                                      style: AppTextStyles.bodyText.copyWith(
+                                        color: Colors.white,
+                                        fontSize: size.width * 0.035,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                        ],
+                      ),
+                    ),
+
                     // Action Buttons
                     Padding(
                       padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),

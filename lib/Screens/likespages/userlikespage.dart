@@ -823,7 +823,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                             itemCount: likedByOtherUsers.length,
                             itemBuilder: (context, index) {
                               var user = likedByOtherUsers[index];
-                              return _buildUserCard(context, user,
+                              return _buildUserCard(context, user, false,
                                   key: ValueKey(
                                       'liked_by_others_${user.userId}'));
                             },
@@ -874,7 +874,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                             itemCount: likedByCurrentUser.length,
                             itemBuilder: (context, index) {
                               var user = likedByCurrentUser[index];
-                              return _buildUserCard(context, user,
+                              return _buildUserCard(context, user, true,
                                   key: ValueKey('you_liked_${user.userId}'));
                             },
                           ),
@@ -890,7 +890,8 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildUserCard(BuildContext context, LikeRequestPages user,
+  Widget _buildUserCard(
+      BuildContext context, LikeRequestPages user, bool isLiked,
       {Key? key}) {
     return UserCard(
       key: key,
@@ -900,6 +901,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
       formatLastSeen: formatLastSeen,
       getAgeFromDob: getAgeFromDob,
       getResponsiveFontSize: getResponsiveFontSize,
+      isLiked: isLiked,
     );
   }
 
@@ -1084,6 +1086,7 @@ class UserCard extends StatefulWidget {
   final String Function(String) formatLastSeen;
   final String Function(String) getAgeFromDob;
   final double Function(double) getResponsiveFontSize;
+  final bool isLiked;
 
   const UserCard({
     super.key,
@@ -1093,6 +1096,7 @@ class UserCard extends StatefulWidget {
     required this.formatLastSeen,
     required this.getAgeFromDob,
     required this.getResponsiveFontSize,
+    required this.isLiked,
   });
 
   @override
@@ -1208,12 +1212,18 @@ class UserCardState extends State<UserCard> with TickerProviderStateMixin {
                 SizedBox(height: 8),
                 GestureDetector(
                   onTap: () {
-                    print("Tapped on user id : " + widget.user.userId.toString());
+                    print("Tapped on user id : ${widget.user.userId}");
+                    print("Tapped on user  : ${widget.user.toJson()}");
                     Get.bottomSheet(
-                      UserProfileSummary(
-                        userId: widget.user.userId.toString(),
-                        imageUrls: widget.user.images,
-                      ),
+                      (widget.isLiked)
+                          ? UserProfileSummary(
+                              userId: widget.user.conectionId.toString(),
+                              imageUrls: widget.user.images,
+                            )
+                          : UserProfileSummary(
+                              userId: widget.user.userId.toString(),
+                              imageUrls: widget.user.images,
+                            ),
                       isScrollControlled: true,
                       backgroundColor: AppColors.primaryColor,
                       enterBottomSheetDuration: Duration(milliseconds: 300),
@@ -1241,28 +1251,45 @@ class UserCardState extends State<UserCard> with TickerProviderStateMixin {
                           ),
                         ),
                       ),
-                      Flexible(
-                        child: Text(
-                          (widget.user.likedByMe == 0)
-                              ? ' | Liked By ${widget.user.name}'
-                              : " | Liked By You",
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: widget.getResponsiveFontSize(0.03),
-                          ),
-                        ),
-                      ),
+                      
+                      // if (widget.user.accountVerificationStatus == "1")
+                      //   Padding(
+                      //     padding: const EdgeInsets.only(top: 2.0),
+                      //     child: Icon(
+                      //       Icons.verified,
+                      //       color: AppColors.lightGradientColor,
+                      //       size: 20,
+                      //     ),
+                      //   )
+                      // Flexible(
+                      //   child: Text(
+                      //     (widget.user.likedByMe == 0)
+                      //         ? ' | Liked By ${widget.user.name}'
+                      //         : " | Liked By You",
+                      //     overflow: TextOverflow.ellipsis,
+                      //     style: AppTextStyles.bodyText.copyWith(
+                      //       fontSize: widget.getResponsiveFontSize(0.03),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
                 SizedBox(height: 4),
                 GestureDetector(
                   onTap: () {
+                    print("Tapped on user id : ${widget.user.userId}");
+                    print("Tapped on user  : ${widget.user.toJson()}");
                     Get.bottomSheet(
-                      UserProfileSummary(
-                        userId: widget.user.userId.toString(),
-                        imageUrls: widget.user.images,
-                      ),
+                      (widget.isLiked)
+                          ? UserProfileSummary(
+                              userId: widget.user.conectionId.toString(),
+                              imageUrls: widget.user.images,
+                            )
+                          : UserProfileSummary(
+                              userId: widget.user.userId.toString(),
+                              imageUrls: widget.user.images,
+                            ),
                       isScrollControlled: true,
                       backgroundColor: AppColors.primaryColor,
                       enterBottomSheetDuration: Duration(milliseconds: 300),

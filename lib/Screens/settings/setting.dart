@@ -18,6 +18,7 @@ class SettingsPage extends StatefulWidget {
 class SettingsPageState extends State<SettingsPage>
     with SingleTickerProviderStateMixin {
   late AnimationController animationController;
+  late Future<void> _settingsInitializationFuture;
 
   double maxDistance = 50.0;
   RangeValues ageRange = RangeValues(18, 35);
@@ -27,7 +28,7 @@ class SettingsPageState extends State<SettingsPage>
     return screenWidth * scale;
   }
 
-  Controller controller = Get.put(Controller());
+  Controller controller = Get.put(Controller(), permanent: true);
   final TextEditingController desireController = TextEditingController();
   bool showOnlineUsers = false;
   bool isExpanded = false;
@@ -55,7 +56,7 @@ class SettingsPageState extends State<SettingsPage>
       vsync: this,
       duration: Duration(milliseconds: 300),
     );
-    _initializeSettings();
+    _settingsInitializationFuture = _initializeSettings();
   }
 
   Future<void> _initializeSettings() async {
@@ -63,8 +64,7 @@ class SettingsPageState extends State<SettingsPage>
     if (controller.userData.isEmpty) {
       await controller.fetchProfile();
     }
-    if (controller.userData.isNotEmpty) {
-      controller.fetchProfile();
+    if (mounted && controller.userData.isNotEmpty) {
       final user = controller.userData.first;
       setState(() {
         // Distance
@@ -81,8 +81,8 @@ class SettingsPageState extends State<SettingsPage>
         hookUpMode.value = (user.hookupStatus == "1");
       });
     }
-    getCurrentLocation();
-    _loadSpotlightStatus();
+    await getCurrentLocation();
+    await _loadSpotlightStatus();
   }
 
   @override
@@ -148,6 +148,7 @@ class SettingsPageState extends State<SettingsPage>
     }
 
     if (permission == LocationPermission.deniedForever) {
+      if (!mounted) return;
       setState(() {
         currentLocation = "Location permissions are permanently denied";
       });
@@ -155,11 +156,13 @@ class SettingsPageState extends State<SettingsPage>
         permission == LocationPermission.always) {
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
+      if (!mounted) return;
       setState(() {
         currentLocation =
             "Lat: ${position.latitude}, Long: ${position.longitude}";
       });
     } else {
+      if (!mounted) return;
       setState(() {
         currentLocation = "Unable to fetch location";
       });
@@ -217,7 +220,7 @@ class SettingsPageState extends State<SettingsPage>
         ],
       ),
       body: FutureBuilder<void>(
-        future: _loadSpotlightStatus(),
+        future: _settingsInitializationFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

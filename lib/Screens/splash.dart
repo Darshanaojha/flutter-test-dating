@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Providers/fcmService.dart';
 import '../constants.dart';
@@ -95,7 +94,6 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
       } else {
         await controller.userSuggestions();
         await controller.fetchallfavourites();
-        await controller.reportReason();
         await controller.fetchalluserconnections();
         await controller.fetchAllverificationtype();
         await controller.fetchProfileUserPhotos();

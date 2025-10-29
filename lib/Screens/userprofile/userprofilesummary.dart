@@ -56,7 +56,6 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
         final langs = controller.userLang;
 
         double fontSize = MediaQuery.of(context).size.width * 0.045;
-        double labelFontSize = fontSize * 0.95;
         double valueFontSize = fontSize * 0.85;
 
         return SingleChildScrollView(
@@ -111,38 +110,76 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      if (user.accountVerificationStatus == "1")
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 12.0, left: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Icon(
-                                Icons.verified,
-                                color: Colors.lightGreenAccent,
-                                size: 20,
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0, left: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              user.username,
+                              style: AppTextStyles.bodyText.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: valueFontSize,
                               ),
-                              const SizedBox(width: 4),
-                              Text(
-                                "Verified",
-                                style: AppTextStyles.bodyText.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
+                            ),
+                            const SizedBox(width: 4),
+                            (user.accountVerificationStatus == "1")
+                                ? Padding(
+                                    padding: const EdgeInsets.only(top: 2.0),
+                                    child: Icon(
+                                      Icons.verified,
+                                      color: AppColors.mediumGradientColor,
+                                      size: valueFontSize + 2,
+                                    ),
+                                  )
+                                : Padding(
+                                    padding: const EdgeInsets.only(top: 2.0),
+                                    child: Icon(
+                                      Icons.error_outline_outlined,
+                                      color: Colors.yellow[700],
+                                      size: valueFontSize + 2,
+                                    ),
+                                  ),
+                          ],
+                        ),
+                      ),
+                      if (user.bio.isNotEmpty)
+                        Container(
+                          margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+                          padding: const EdgeInsets.all(12.0),
+                          height: 120,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: AppColors.formFieldColor.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(15.0),
+                            border: Border.all(
+                              color: AppColors.textColor.withOpacity(0.2),
+                              width: 1,
+                            ),
+                          ),
+                          child: SingleChildScrollView(
+                            child: Text(
+                              user.bio,
+                              style: AppTextStyles.bodyText.copyWith(
+                                fontSize: valueFontSize * 0.95,
+                                color: AppColors.textColor.withOpacity(0.9),
                               ),
-                            ],
+                            ),
                           ),
                         ),
-                      _profileField(Icons.person_outline, "Nickname",
-                          user.nickname, valueFontSize),
-                      _profileField(Icons.person, "Username", user.username,
-                          valueFontSize),
-                      _profileField(
-                          Icons.info_outline, "Bio", user.bio, valueFontSize),
-                      _profileField(Icons.interests, "Interests", user.interest,
-                          valueFontSize),
+                      _profileField(Icons.person, "Name", user.name, valueFontSize),
+                      _profileField(Icons.person_outline, "Nickname", user.nickname, valueFontSize),
+                      _profileField(Icons.cake, "Birthday", "${user.dob} (${_getAge(user.dob)} years old)", valueFontSize),
+                      _profileField(Icons.wc, "Gender", user.genderName, valueFontSize),
+                      _profileField(Icons.transgender, "Sub Gender", user.subGenderName, valueFontSize),
+                      _profileField(Icons.location_city, "City", user.city, valueFontSize),
+                      // _profileField(Icons.home, "Address", user.address, valueFontSize),
+                      // _profileField(Icons.email, "Email", user.email, valueFontSize),
+                      // _profileField(Icons.phone, "Mobile", user.mobile, valueFontSize),
+                      // _profileField(Icons.monetization_on, "Points", user.points ?? "0", valueFontSize),
+                      // _profileField(Icons.card_membership, "Package Status", user.packageStatus == "1" ? "Premium" : "Free", valueFontSize),
                       _profileField(
                           Icons.favorite_border,
                           "Looking For",
@@ -150,28 +187,38 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
                               ? "Serious Relationship"
                               : "Hookup",
                           valueFontSize),
+                      // _profileField(Icons.visibility, "Last Seen", user.lastSeen ?? "Not available", valueFontSize),
+                      // _profileField(Icons.whatshot, "Hookup Mode", user.hookupStatus == "1" ? "Active" : "Inactive", valueFontSize),
+                      // _profileField(Icons.security, "Incognito Mode", user.incognativeMode == "1" ? "Active" : "Inactive", valueFontSize),
+                      // _profileField(Icons.star, "Creator Account", user.creator == "1" ? "Yes" : "No", valueFontSize),
+                      if (user.interest.isNotEmpty)
+                        _profileChipsField(
+                          Icons.interests,
+                          "Interests",
+                          user.interest.split(',').map((e) => e.trim()).toList(),
+                          valueFontSize,
+                        ),
                       if (desires.isNotEmpty)
-                        _profileField(
+                        _profileChipsField(
                           Icons.explore,
                           "Desires",
-                          desires.map((d) => d.title).join(", "),
+                          desires.map((d) => d.title).toList(),
                           valueFontSize,
                         ),
                       if (preferences.isNotEmpty)
-                        _profileField(
+                        _profileChipsField(
                           Icons.tune,
                           "Preferences",
-                          preferences.map((p) => p.title).join(", "),
+                          preferences.map((p) => p.title).toList(),
                           valueFontSize,
                         ),
                       if (langs.isNotEmpty)
-                        _profileField(
+                        _profileChipsField(
                           Icons.language,
                           "Languages",
-                          langs.map((l) => l.title).join(", "),
+                          langs.map((l) => l.title).toList(),
                           valueFontSize,
                         ),
-                      // _profileField(Icons.card_membership, "Package Status", user.packageStatus == "1" ? "Subscribed" : "Unsubscribed", valueFontSize),
                     ],
                   ),
                 ),
@@ -198,6 +245,49 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
         ),
         maxLines: 3,
         overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+
+  Widget _profileChipsField(
+      IconData icon, String label, List<String> items, double valueFontSize) {
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    return ListTile(
+      leading: Icon(icon, size: 28, color: AppColors.activeColor),
+      title: Text(label,
+          style: AppTextStyles.bodyText.copyWith(fontWeight: FontWeight.bold)),
+      subtitle: Padding(
+        padding: const EdgeInsets.only(top: 8.0),
+        child: Wrap(
+          spacing: 8.0,
+          runSpacing: 4.0,
+          children: items.map((item) {
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: AppColors.gradientBackgroundList,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(25.0),
+                border: Border.all(
+                  color: Colors.white,
+                  width: 1.5,
+                ),
+              ),
+              child: Text(
+                item,
+                style: TextStyle(
+                  fontSize: valueFontSize * 0.9,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
