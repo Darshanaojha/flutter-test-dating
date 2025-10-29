@@ -23,6 +23,7 @@ class EditProfilePage extends StatefulWidget {
 
 class EditProfilePageState extends State<EditProfilePage>
     with TickerProviderStateMixin {
+  bool _photosUpdated = false;
   Controller controller = Get.put(Controller());
   late final AnimationController _animationController;
   late final DecorationTween decorationTween;
@@ -914,9 +915,10 @@ class EditProfilePageState extends State<EditProfilePage>
                                       children: [
                                         OutlinedButton.icon(
                                           onPressed: () async {
-                                            await controller
-                                                .fetchProfileUserPhotos();
-                                            Get.to(EditPhotosPage());
+                                            final result = await Get.to(() => const EditPhotosPage());
+                                            if (result == 'updated') {
+                                              setState(() {});
+                                            }
                                           },
                                           icon: Builder(
                                             builder: (context) {

@@ -6,6 +6,7 @@ import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import 'package:super_tooltip/super_tooltip.dart';
 
 import '../../../Controllers/controller.dart';
@@ -31,6 +32,7 @@ class PricingPageState extends State<PricingPage>
   late final DecorationTween decorationTween;
   final RxInt selectedCoins = 0.obs;
   int selectedIndex = 0;
+  bool isProcessingPayment = false;
 
   @override
   void initState() {
@@ -136,300 +138,325 @@ class PricingPageState extends State<PricingPage>
           ),
         ),
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(
-            child: CircularProgressIndicator(color: Colors.white),
-          );
-        }
+      body: Stack(
+        children: [
+          Obx(() {
+            if (controller.isLoading.value) {
+              return const Center(
+                child: CircularProgressIndicator(color: Colors.white),
+              );
+            }
 
-        if (controller.packages.isEmpty) {
-          return const Center(
-            child: Text(
-              "No packages available.",
-              style: TextStyle(color: Colors.white),
-            ),
-          );
-        }
-
-        return SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Obx(() {
-                  return Text(
-                    controller.headlines.length > 10
-                        ? controller.headlines[10].description
-                        : "Loading Description...",
-                    style: AppTextStyles.textStyle,
-                  );
-                }),
-                const SizedBox(height: 20),
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment(0.8, 1),
-                      colors: AppColors.gradientBackgroundList,
-                    ),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const FaIcon(
-                            FontAwesomeIcons.crown,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.7,
-                            child: const Text(
-                              "Your Best Match is One Upgrade Away!",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+            if (controller.packages.isEmpty) {
+              return const Center(
+                child: Text(
+                  "No packages available.",
+                  style: TextStyle(color: Colors.white),
                 ),
-                const SizedBox(height: 20),
-                CarouselSlider.builder(
-                  itemCount: controller.packages.length,
-                  itemBuilder: (context, index, realIndex) {
-                    final package = controller.packages[index];
-                    calculateOfferPercentage(
-                      package.actualAmount,
-                      package.offerAmount,
-                    );
+              );
+            }
 
-                    double.tryParse(package.offerAmount) ?? 0.0;
-
-                    return Padding(
-                        padding: const EdgeInsets.only(bottom: 20),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.9,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 18, vertical: 15),
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment(0.8, 1),
-                                      colors: AppColors.gradientBackgroundList,
-                                    ),
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.workspace_premium,
-                                              color: Colors.white, size: 24),
-                                          const SizedBox(width: 9),
-                                          Expanded(
-                                            child: Text(
-                                              package.packagecategory,
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                              ),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 5),
-                                          Expanded(
-                                            child: Text(
-                                              package.packageDescription,
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                              ),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 18, vertical: 15),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment(0.8, 1),
-                                    colors: AppColors.gradientBackgroundList,
-                                  ),
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                child: Obx(() => Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: controller.benefits
-                                          .map<Widget>((feature) {
-                                        return Padding(
-                                          padding: const EdgeInsets.only(
-                                              bottom: 6.0),
-                                          child: Row(
-                                            children: [
-                                              const Icon(
-                                                  FontAwesomeIcons.checkCircle,
-                                                  color: Colors.white,
-                                                  size: 16),
-                                              const SizedBox(width: 6),
-                                              Expanded(
-                                                child: Text(
-                                                  feature.title,
-                                                  style: const TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      }).toList(),
-                                    )),
-                              ),
-                              const SizedBox(height: 10),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 18, vertical: 15),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment(0.8, 1),
-                                    colors: AppColors.gradientBackgroundList,
-                                  ),
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      package.packageTitle,
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          "₹${package.actualAmount}",
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.redAccent,
-                                            decoration:
-                                                TextDecoration.lineThrough,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          "₹${package.offerAmount}",
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                            ]));
-                  },
-                  options: CarouselOptions(
-                    height: 450,
-                    enlargeCenterPage: true,
-                    enableInfiniteScroll: false,
-                    viewportFraction: 0.90,
-                    padEnds: false,
-                    initialPage: 0,
-                    onPageChanged: (index, reason) {
-                      setState(() {
-                        selectedIndex = index;
-                      });
-                    },
-                  ),
-                ),
-                Builder(
-                  builder: (context) {
-                    final selectedPackage = controller.packages[selectedIndex];
-                    final selectedAmount =
-                        double.tryParse(selectedPackage.offerAmount) ?? 0.0;
-
-                    return Container(
-                      width: double.infinity,
-                      height: 50,
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Obx(() {
+                      return Text(
+                        controller.headlines.length > 10
+                            ? controller.headlines[10].description
+                            : "Loading Description...",
+                        style: AppTextStyles.textStyle,
+                      );
+                    }),
+                    const SizedBox(height: 20),
+                    Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment(0.8, 1),
                           colors: AppColors.gradientBackgroundList,
                         ),
-                        borderRadius: BorderRadius.circular(50),
+                        borderRadius: BorderRadius.circular(15),
                       ),
-                      child: TextButton(
-                        onPressed: () {
-                          _showSubscriptionDialog(
-                              context, selectedPackage, selectedAmount);
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 15),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const FaIcon(
+                                FontAwesomeIcons.crown,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.7,
+                                child: const Text(
+                                  "Your Best Match is One Upgrade Away!",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    CarouselSlider.builder(
+                      itemCount: controller.packages.length,
+                      itemBuilder: (context, index, realIndex) {
+                        final package = controller.packages[index];
+                        calculateOfferPercentage(
+                          package.actualAmount,
+                          package.offerAmount,
+                        );
+
+                        double.tryParse(package.offerAmount) ?? 0.0;
+
+                        return Padding(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.9,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 18, vertical: 15),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment(0.8, 1),
+                                          colors:
+                                              AppColors.gradientBackgroundList,
+                                        ),
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              const Icon(
+                                                  Icons.workspace_premium,
+                                                  color: Colors.white,
+                                                  size: 24),
+                                              const SizedBox(width: 9),
+                                              Expanded(
+                                                child: Text(
+                                                  package.packagecategory,
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.white,
+                                                  ),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 5),
+                                              Expanded(
+                                                child: Text(
+                                                  package.packageDescription,
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.white,
+                                                  ),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 18, vertical: 15),
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment(0.8, 1),
+                                        colors:
+                                            AppColors.gradientBackgroundList,
+                                      ),
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: Obx(() => Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: controller.benefits
+                                              .map<Widget>((feature) {
+                                            return Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 6.0),
+                                              child: Row(
+                                                children: [
+                                                  const Icon(
+                                                      FontAwesomeIcons
+                                                          .checkCircle,
+                                                      color: Colors.white,
+                                                      size: 16),
+                                                  const SizedBox(width: 6),
+                                                  Expanded(
+                                                    child: Text(
+                                                      feature.title,
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          }).toList(),
+                                        )),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 18, vertical: 15),
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment(0.8, 1),
+                                        colors:
+                                            AppColors.gradientBackgroundList,
+                                      ),
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          package.packageTitle,
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                              "₹${package.actualAmount}",
+                                              style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.redAccent,
+                                                decoration:
+                                                    TextDecoration.lineThrough,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              "₹${package.offerAmount}",
+                                              style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                ]));
+                      },
+                      options: CarouselOptions(
+                        height: 450,
+                        enlargeCenterPage: true,
+                        enableInfiniteScroll: false,
+                        viewportFraction: 0.90,
+                        padEnds: false,
+                        initialPage: 0,
+                        onPageChanged: (index, reason) {
+                          setState(() {
+                            selectedIndex = index;
+                          });
                         },
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 10),
-                          child: Text(
-                            "Subscribe Now",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Builder(
+                      builder: (context) {
+                        final selectedPackage =
+                            controller.packages[selectedIndex];
+                        final selectedAmount =
+                            double.tryParse(selectedPackage.offerAmount) ?? 0.0;
+
+                        return Container(
+                          width: double.infinity,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment(0.8, 1),
+                              colors: AppColors.gradientBackgroundList,
+                            ),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: TextButton(
+                            onPressed: () {
+                              _showSubscriptionDialog(
+                                  context, selectedPackage, selectedAmount);
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              child: Text(
+                                "Subscribe Now",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                    );
-                  },
+                        );
+                      },
+                    ),
+                  ],
                 ),
-              ],
+              ),
+            );
+          }),
+          if (isProcessingPayment)
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+              child: Container(
+                color: Colors.black.withOpacity(0.2),
+                child: Center(
+                    child: Lottie.asset(
+                        "assets/animations/handloadinganimation.json")),
+              ),
             ),
-          ),
-        );
-      }),
+        ],
+      ),
     );
   }
 
@@ -802,38 +829,50 @@ class PricingPageState extends State<PricingPage>
                                 Navigator.of(context)
                                     .pop(); // Close confirmation dialog
 
-                                razorpaycontroller.orderRequestModel.amount =
-                                    totalPayable.toString();
-                                razorpaycontroller
-                                        .orderRequestModel.ispointused =
-                                    ispointused.value == true ? "1" : "0";
-                                razorpaycontroller.orderRequestModel.points =
-                                    selectedCoins.value.toString();
-                                razorpaycontroller.orderRequestModel.type = '2';
+                                setState(() {
+                                  isProcessingPayment = true;
+                                });
 
-                                bool? isOrderCreated =
-                                    await razorpaycontroller.createOrder(
-                                  razorpaycontroller.orderRequestModel,
-                                );
+                                try {
+                                  razorpaycontroller.orderRequestModel.amount =
+                                      totalPayable.toString();
+                                  razorpaycontroller
+                                          .orderRequestModel.ispointused =
+                                      ispointused.value == true ? "1" : "0";
+                                  razorpaycontroller.orderRequestModel.points =
+                                      selectedCoins.value.toString();
+                                  razorpaycontroller.orderRequestModel.type = '2';
 
-                                if (isOrderCreated == true) {
-                                  razorpaycontroller.initRazorpay();
-                                  bool paymentSuccessful =
-                                      await razorpaycontroller.startPayment(
-                                    totalPayable,
-                                    controller.userData.first.name,
-                                    planId,
-                                    controller.userData.first.mobile,
-                                    controller.userData.first.email,
+                                  bool? isOrderCreated =
+                                      await razorpaycontroller.createOrder(
+                                    razorpaycontroller.orderRequestModel,
                                   );
 
-                                  if (paymentSuccessful) {
-                                    await _showSuccessDialog();
-                                    Get.offAll(() => NavigationBottomBar());
+                                  if (isOrderCreated == true) {
+                                    razorpaycontroller.initRazorpay();
+                                    bool paymentSuccessful =
+                                        await razorpaycontroller.startPayment(
+                                      totalPayable,
+                                      controller.userData.first.name,
+                                      planId,
+                                      controller.userData.first.mobile,
+                                      controller.userData.first.email,
+                                    );
+
+                                    if (paymentSuccessful) {
+                                      await _showSuccessDialog();
+                                      Get.offAll(() => NavigationBottomBar());
+                                    }
+                                  } else {
+                                    failure("Order",
+                                        "Your Payment Order Is Not Created");
                                   }
-                                } else {
-                                  failure("Order",
-                                      "Your Payment Order Is Not Created");
+                                } finally {
+                                  if (mounted) {
+                                    setState(() {
+                                      isProcessingPayment = false;
+                                    });
+                                  }
                                 }
                               },
                             ),
