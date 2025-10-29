@@ -21,6 +21,8 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
   String agoraToken = "";
   int? localUid;
   int? remoteUid;
+  bool isAudioMuted = false;
+  bool isVideoMuted = false;
 
   @override
   void initState() {
@@ -307,7 +309,29 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
                     ),
                   )
                 : const CircularProgressIndicator(),
-          )
+          ),
+          Positioned(
+            bottom: 20,
+            left: 20,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: Icon(isAudioMuted ? Icons.mic_off : Icons.mic),
+                  onPressed: () => toggleAudio(),
+                ),
+                IconButton(
+                  icon:
+                      Icon(isVideoMuted ? Icons.videocam_off : Icons.videocam),
+                  onPressed: () => toggleVideo(),
+                ),
+                IconButton(
+                  icon: Icon(Icons.call_end, color: Colors.red),
+                  onPressed: () => endCall(),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -327,5 +351,23 @@ class ReceiverVideoCallPageState extends State<ReceiverVideoCallPage> {
         child: CircularProgressIndicator(),
       );
     }
+  }
+
+  void toggleAudio() async {
+    isAudioMuted = !isAudioMuted;
+    await engine.muteLocalAudioStream(isAudioMuted);
+    setState(() {});
+  }
+
+  void toggleVideo() async {
+    isVideoMuted = !isVideoMuted;
+    await engine.muteLocalVideoStream(isVideoMuted);
+    setState(() {});
+  }
+
+  void endCall() async {
+    dispose();
+    await engine.leaveChannel();
+    Navigator.pop(context);
   }
 }

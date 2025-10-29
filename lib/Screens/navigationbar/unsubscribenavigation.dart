@@ -139,6 +139,7 @@ class UnSubscribeNavigationController extends GetxController {
                     ),
                     child: ElevatedButton(
                       onPressed: () {
+                        Navigator.of(context).pop();
                         Get.to(MembershipPage());
                       },
                       style: ElevatedButton.styleFrom(

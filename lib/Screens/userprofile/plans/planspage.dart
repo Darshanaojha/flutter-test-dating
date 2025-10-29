@@ -256,6 +256,19 @@ class PricingPageState extends State<PricingPage>
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
+                                          const SizedBox(height: 5),
+                                          Expanded(
+                                            child: Text(
+                                              package.packageDescription,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ],
@@ -274,7 +287,7 @@ class PricingPageState extends State<PricingPage>
                                   ),
                                   borderRadius: BorderRadius.circular(15),
                                 ),
-                                child: Column(
+                                child: Obx(() => Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: controller.benefits
                                       .map<Widget>((feature) {
@@ -301,7 +314,7 @@ class PricingPageState extends State<PricingPage>
                                       ),
                                     );
                                   }).toList(),
-                                ),
+                                )),
                               ),
                               const SizedBox(height: 10),
                               Container(

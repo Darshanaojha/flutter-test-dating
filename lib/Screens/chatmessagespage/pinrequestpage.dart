@@ -61,7 +61,7 @@ class MessageRequestPageState extends State<MessageRequestPage> {
         title: Builder(
           builder: (context) {
             double fontSize =
-                MediaQuery.of(context).size.width * 0.05; // ~5% of screen width
+                MediaQuery.of(context).size.width * 0.05; 
             return Text(
               'Message Requests',
               style: TextStyle(

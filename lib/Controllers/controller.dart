@@ -46,6 +46,7 @@ import 'package:dating_application/Providers/add_user_to_hookup_provider.dart';
 import 'package:dating_application/Providers/app_setting_provider.dart';
 import 'package:dating_application/Providers/change_password_provider.dart';
 import 'package:dating_application/Providers/chat_provider.dart';
+import 'package:dating_application/Providers/check_package_provider.dart';
 import 'package:dating_application/Providers/creator_order_provider.dart';
 import 'package:dating_application/Providers/creators_all_content_provider.dart';
 import 'package:dating_application/Providers/creators_all_orders_provider.dart';
@@ -641,7 +642,7 @@ class Controller extends GetxController {
   RxList<UserDesire> userDesire = <UserDesire>[].obs;
   RxList<UserPreferences> userPreferences = <UserPreferences>[].obs;
   RxList<UserLang> userLang = <UserLang>[].obs;
-  Future<bool> fetchProfile() async {
+  Future<bool> fetchProfile([String id = ""]) async {
     try {
       UserProfileResponse? response = await HomePageProvider().fetchProfile();
       if (response != null) {
@@ -721,8 +722,10 @@ class Controller extends GetxController {
   }
 
   RxList<Benefit> benefits = <Benefit>[].obs;
+  RxBool isBenefitsLoading = false.obs;
   Future<bool> fetchBenefits() async {
     try {
+      isBenefitsLoading.value = true;
       benefits.clear();
       BenefitsResponse? response =
           await FetchBenefitsProvider().fetchBenefits();
@@ -737,6 +740,8 @@ class Controller extends GetxController {
     } catch (e) {
       failure('Error', e.toString());
       return false;
+    } finally {
+      isBenefitsLoading.value = false;
     }
   }
 
@@ -1414,37 +1419,28 @@ class Controller extends GetxController {
   RxList<SuggestedUser> userNearByList = <SuggestedUser>[].obs;
   Set<String?> seenUserIds = {};
   SuggestedUser? lastUser;
+  RxBool isCardLoading = false.obs;
   Future<bool> userSuggestions() async {
     try {
+      isCardLoading.value = true;
+      userSuggestionsList.clear();
+      userNearByList.clear();
+      userHighlightedList.clear();
+      hookUpList.clear();
       UserSuggestionsResponseModel? response =
           await UserSuggestionsProvider().userSuggestions();
 
       if (response != null && response.payload != null) {
-        // Directly assign without filtering out duplicates
-        if (response.payload!.desireBase.isNotEmpty) {
-          userSuggestionsList.value = response.payload!.desireBase;
-        }
+        // Directly assign the new data. If the data is empty, the lists will become empty.
+        userSuggestionsList.value = response.payload!.desireBase;
+        userNearByList.value = response.payload!.locationBase;
+        userHighlightedList.value = response.payload!.highlightedAccount;
+        hookUpList.value = response.payload!.hookup;
 
-        if (response.payload!.locationBase.isNotEmpty) {
-          userNearByList.value = response.payload!.locationBase;
-          userSuggestionsList.addAll(response.payload!.locationBase);
-        }
-
-        if (response.payload!.preferenceBase.isNotEmpty) {
-          userSuggestionsList.addAll(response.payload!.preferenceBase);
-        }
-
-        if (response.payload!.languageBase.isNotEmpty) {
-          userSuggestionsList.addAll(response.payload!.languageBase);
-        }
-
-        if (response.payload!.highlightedAccount.isNotEmpty) {
-          userHighlightedList.value = response.payload!.highlightedAccount;
-        }
-
-        if (response.payload!.hookup.isNotEmpty) {
-          hookUpList.value = response.payload!.hookup;
-        }
+        // The 'All' list is an aggregation.
+        userSuggestionsList.addAll(response.payload!.locationBase);
+        userSuggestionsList.addAll(response.payload!.preferenceBase);
+        userSuggestionsList.addAll(response.payload!.languageBase);
 
         print("All user lists:");
         print("Nearby: ${userNearByList.length}");
@@ -1454,10 +1450,20 @@ class Controller extends GetxController {
 
         return true;
       } else {
+        // If the response is null, clear all lists.
+        userSuggestionsList.clear();
+        userNearByList.clear();
+        userHighlightedList.clear();
+        hookUpList.clear();
         failure('Error', 'Failed to fetch the user suggestions');
         return false;
       }
     } catch (e) {
+      // If there's an exception, clear all lists.
+      userSuggestionsList.clear();
+      userNearByList.clear();
+      userHighlightedList.clear();
+      hookUpList.clear();
       failure('Error', e.toString());
       return false;
     }
@@ -1716,7 +1722,7 @@ class Controller extends GetxController {
   RequestToVerifyAccount requestToVerifyAccount =
       RequestToVerifyAccount(identifyImage: '', identifyNo: '');
 
-  Future<bool> verifyuseraccount(
+  Future<int> verifyuseraccount(
       RequestToVerifyAccount requestToVerifyAccount) async {
     try {
       RequestToVerifyAccountResponse? response = await VerifyAccountProvider()
@@ -1724,16 +1730,16 @@ class Controller extends GetxController {
       if (response != null) {
         success('success', response.payload.message);
         Get.close(1);
-        return true;
+        return response.payload.packageStatus;
       } else {
         failure('Error', 'Failed to submit the verification request');
         Get.close(1);
-        return false;
+        return 0;
       }
     } catch (e) {
       failure('Error', e.toString());
       Get.close(1);
-      return false;
+      return 0;
     }
   }
 
@@ -1746,43 +1752,19 @@ class Controller extends GetxController {
     try {
       isLoading.value = true;
       hasError.value = false;
+      favourite.clear(); // Clear the list before fetching
       GetFavouritesResponse? response =
           await FetchAllFavouritesProvider().fetchallfavouritesprovider();
 
-      if (response != null && response.payload.data.isNotEmpty) {
-        print('Successfully fetched all the favourites');
-
-        // void addUniqueFavourites(
-        //     List<Favourite> favourites, RxList<Favourite> targetList) {
-        //   for (var favouriteItem in favourites) {
-        //     if (favouriteItem.userId != null &&
-        //         !seenFavouriteIds.contains(favouriteItem.userId)) {
-        //       targetList.assignAll(favouriteItem as Iterable<Favourite>);
-        //       seenFavouriteIds
-        //           .assignAll(favouriteItem.userId as Iterable<String?>);
-        //     }
-        //   }
-        // }
-
-        void addUniqueFavourites(
-            List<Favourite> favourites, RxList<Favourite> targetList) {
-          for (var favouriteItem in favourites) {
-            if (favouriteItem.userId.toString() != " " &&
-                !seenFavouriteIds.contains(favouriteItem.userId.toString())) {
-              targetList.add(favouriteItem);
-              seenFavouriteIds.add(favouriteItem.userId.toString());
-            }
-          }
+      if (response != null) {
+        if (response.payload.data.isNotEmpty) {
+          print('Successfully fetched all the favourites');
+          favourite.addAll(response.payload.data);
+          print('Favourites length is = ${favourite.length}');
+        } else {
+          print('No favourites found, list is empty.');
         }
-
-        addUniqueFavourites(response.payload.data, favourite);
-
-        print('Favourites length is = ${favourite.length}');
-        if (favourite.isNotEmpty) {
-          print('First favourite city: ${favourite.first.city}');
-        }
-
-        return true;
+        return true; // Return true even if the list is empty
       } else {
         failure('Error', 'Failed to fetch the favourites');
         hasError.value = true;
@@ -1830,8 +1812,7 @@ class Controller extends GetxController {
     // Fix profile image URL if needed
     String? profileImage = favourite.profileImage;
     if (profileImage != null && !profileImage.startsWith('http')) {
-      profileImage =
-          "http://192.168.1.27/dating_backend_springboot/uploads/user_pics/$profileImage";
+      profileImage = "${ip}uploads/user_pics/$profileImage";
     }
 
     return SuggestedUser(
@@ -1961,6 +1942,7 @@ class Controller extends GetxController {
   RxList<LikeRequestPages> likespage = <LikeRequestPages>[].obs;
   Future<bool> likesuserpage() async {
     try {
+      likespage.clear();
       GetAllLikesResponse? response =
           await FetchLikesPageProvider().likespageprovider();
       if (response != null) {
@@ -1968,16 +1950,15 @@ class Controller extends GetxController {
         if (response.payload.data.isNotEmpty) {
           likespage.assignAll(response.payload.data);
           print(response);
-          return true;
-        } else {
-          return true;
         }
+        return true;
       } else {
         failure('Error', 'Failed to fetch the Likes Users');
         print("Error${'Failed to fetch the Likes Users'}");
         return false;
       }
     } catch (e) {
+      likespage.clear();
       failure('Error', e.toString());
       print("Error${e.toString()}");
       return false;
@@ -2035,7 +2016,7 @@ class Controller extends GetxController {
         print('Successfully fetched all the chat history page');
         return true;
       } else {
-        failure('Error', 'Failed to fetch the chat history page');
+        // failure('Error', 'Failed to fetch the chat history page');
         return false;
       }
     } catch (e) {
@@ -2511,6 +2492,18 @@ class Controller extends GetxController {
       }
     } catch (e) {
       failure('Error', e.toString());
+      return false;
+    }
+  }
+
+  RxBool isuserPackage = false.obs;
+  Future<bool> userPackage() async {
+    try {
+      bool response = await CheckPackageProvider().checkUserPackage();
+      isuserPackage.value = response;
+      return response;
+    } catch (e) {
+      failure('Error in userPackage', e.toString());
       return false;
     }
   }

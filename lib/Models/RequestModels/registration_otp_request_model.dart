@@ -80,7 +80,7 @@ class RegistrationOTPRequest {
       return 'Name cannot be empty';
     }
 
-    final nameRegExp = RegExp(r'^[a-zA-Z\s]+$');
+    final nameRegExp = RegExp(r"^[a-zA-Z\s']+$");
     if (!nameRegExp.hasMatch(name)) {
       failure(
           'Error', 'Name can only contain alphabetic characters and spaces');

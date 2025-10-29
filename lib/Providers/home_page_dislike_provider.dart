@@ -36,7 +36,7 @@ class HomePageDislikeProvider extends GetConnect {
       print("API Response body: ${response.body}");
 
       if (response.statusCode == 200) {
-        if (response.body != null && response.body is Map<String, dynamic>) {
+        if (response.body != null) {
           return HomepageDislikeResponse.fromJson(response.body);
         } else {
           print("Invalid response body format");

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:dating_application/Providers/fcmService.dart';
 import 'package:dating_application/Screens/auth.dart';
+import 'package:dating_application/Screens/navigationbar/unsubscribenavigation.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -389,6 +390,22 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
             index: navigationcontroller.selectedIndex.value,
             onTap: (index) {
               navigationcontroller.navigateTo(index);
+
+              controller.userPackage().then((status) {
+
+                if (!controller.isuserPackage.value) {
+                  failure('Subscription',
+                      'Please subscribe to use all this feature');
+
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    Get.offAll(Unsubscribenavigation());
+                  });
+                }
+              }).catchError((error) {
+                failure('Error',
+                    'Something went wrong while checking subscription.');
+              });
+
               _animationController.forward(from: 0);
             },
             backgroundColor: Colors.transparent,

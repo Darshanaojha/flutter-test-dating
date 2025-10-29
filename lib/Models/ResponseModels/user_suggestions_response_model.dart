@@ -123,6 +123,21 @@ class SuggestedUser {
   final String? preferenceId;
   final String? desiresId;
   final String? langId;
+  final String? countryCode;
+  final String? points;
+  final String? firstTranDone;
+  final String? lastSeen;
+  final String? packageStatus;
+  final String? minimumAge;
+  final String? maximumAge;
+  final String? rangeKm;
+  final String? version;
+  final String? banned;
+  final String? hookupStatus;
+  final String? incognativeMode;
+  final String? moodId;
+  final String? creator;
+  final double? distance;
 
   SuggestedUser({
     this.id,
@@ -162,6 +177,21 @@ class SuggestedUser {
     this.preferenceId,
     this.desiresId,
     this.langId,
+    this.countryCode,
+    this.points,
+    this.firstTranDone,
+    this.lastSeen,
+    this.packageStatus,
+    this.minimumAge,
+    this.maximumAge,
+    this.rangeKm,
+    this.version,
+    this.banned,
+    this.hookupStatus,
+    this.incognativeMode,
+    this.moodId,
+    this.creator,
+    this.distance,
   });
 
   factory SuggestedUser.fromJson(Map<String, dynamic> json) {
@@ -211,6 +241,21 @@ class SuggestedUser {
           json.containsKey('preference_id') ? json['preference_id'] : null,
       desiresId: json.containsKey('desires_id') ? json['desires_id'] : null,
       langId: json.containsKey('lang_id') ? json['lang_id'] : null,
+      countryCode: json['country_code'],
+      points: json['points'],
+      firstTranDone: json['first_tran_done'],
+      lastSeen: json['last_seen'],
+      packageStatus: json['package_status'],
+      minimumAge: json['minimumAge'],
+      maximumAge: json['maximumAge'],
+      rangeKm: json['rangeKm'],
+      version: json['version'],
+      banned: json['banned'],
+      hookupStatus: json['hookup_status'],
+      incognativeMode: json['incognative_mode'],
+      moodId: json['mood_id'],
+      creator: json['creator'],
+      distance: json['distance']?.toDouble(),
     );
   }
 
@@ -251,7 +296,22 @@ class SuggestedUser {
       'country_name': countryName,
       'images': images,
       'preference_id': preferenceId,
-      'lang_id': langId
+      'lang_id': langId,
+      'country_code': countryCode,
+      'points': points,
+      'first_tran_done': firstTranDone,
+      'last_seen': lastSeen,
+      'package_status': packageStatus,
+      'minimumAge': minimumAge,
+      'maximumAge': maximumAge,
+      'rangeKm': rangeKm,
+      'version': version,
+      'banned': banned,
+      'hookup_status': hookupStatus,
+      'incognative_mode': incognativeMode,
+      'mood_id': moodId,
+      'creator': creator,
+      'distance': distance,
     };
   }
 }

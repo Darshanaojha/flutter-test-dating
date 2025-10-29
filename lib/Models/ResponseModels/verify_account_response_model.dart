@@ -27,20 +27,24 @@ class RequestToVerifyAccountResponse {
 }
 
 class Payload {
+  final int packageStatus;
   final String message;
 
   Payload({
+    this.packageStatus = 0,
     required this.message,
   });
 
   Map<String, dynamic> toJson() {
     return {
+      'packageStatus': packageStatus,
       'message': message,
     };
   }
 
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
+      packageStatus: json['packageStatus'] ?? 0,
       message: json['message'] ?? '',
     );
   }

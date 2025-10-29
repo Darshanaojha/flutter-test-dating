@@ -7,6 +7,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/subgender_request_model.dart';
@@ -49,7 +50,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   @override
   void initState() {
     super.initState();
-    nicknameController.text = controller.userRegistrationRequest.nickname;
+    nicknameController.text = controller.userRegistrationRequest.name;
     nickname.value = controller.userRegistrationRequest.nickname;
     nicknameController.addListener(() {
       nickname.value = nicknameController.text;
@@ -345,7 +346,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     if (pickedDate != null) {
                       setState(() {
                         selectedDate = pickedDate;
-                        date.value = selectedDate.toString();
+                        date.value = DateFormat('dd/MM/yyyy').format(pickedDate);
                       });
                     }
                   },
@@ -360,8 +361,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                         ),
                         child: Text(
                           date.value.isEmpty
-                              ? 'Select Date of Birth'
-                              : date.value.split(' ')[0],
+                              ? 'DD/MM/YYYY'
+                              : date.value,
                           style: AppTextStyles.bodyText.copyWith(
                             fontSize: datePickerFontSize,
                             color: AppColors.textColor,
@@ -405,7 +406,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   return;
                 }
                 String formattedDate =
-                    '${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}';
+                    DateFormat('dd/MM/yyyy').format(selectedDate);
                 controller.userRegistrationRequest.dob = formattedDate;
                 markStepAsCompleted(1);
                 Get.snackbar(
@@ -497,7 +498,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 ),
                 SizedBox(height: 32),
                 Text(
-                  "Your Name",
+                  "Your Nick Name",
                   style: AppTextStyles.labelText.copyWith(
                     fontSize: labelfontSize,
                     color: AppColors.textColor,
@@ -2508,6 +2509,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
     images.addAll(List.filled(6, null));
   }
 
+  final RxInt photoUpdateTrigger = 0.obs;
   // Step 11 photos
   Widget buildPhotosOfUser(Size screenSize) {
     Future<void> requestCameraPermission() async {
@@ -2563,6 +2565,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
           controller.userRegistrationRequest.photos[index] = base64Image;
           images[index] = imageFile;
+          photoUpdateTrigger.value++;
         } else {
           Get.snackbar("Error", "Image compression failed.");
         }
@@ -3060,17 +3063,20 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
           left: 0,
           right: 0,
           bottom: 0,
-          child: buildBottomButtonRow(
-            onBack: onBackPressed,
-            onNext: onNextButtonPressed,
-            nextLabel: 'Next',
-            backLabel: 'Back',
-            nextEnabled: controller.userRegistrationRequest.photos
-                    .where((photo) => photo.isNotEmpty)
-                    .length >=
-                3,
-            context: context,
-          ),
+          child: Obx(() {
+            photoUpdateTrigger.value; // listen for changes
+            return buildBottomButtonRow(
+              onBack: onBackPressed,
+              onNext: onNextButtonPressed,
+              nextLabel: 'Next',
+              backLabel: 'Back',
+              nextEnabled: controller.userRegistrationRequest.photos
+                      .where((photo) => photo.isNotEmpty)
+                      .length >=
+                  3,
+              context: context,
+            );
+          }),
         ),
       ],
     );

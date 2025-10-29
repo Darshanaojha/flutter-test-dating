@@ -57,39 +57,140 @@ class EditPhotosPageState extends State<EditPhotosPage> {
     return screenWidth * scale;
   }
 
-  Future<void> requestCameraPermission() async {
-    var status = await Permission.camera.request();
-    if (status.isDenied) {
-      Get.snackbar('Permission Denied', "Camera permission denied");
+  Future<bool> requestCameraPermission() async {
+    var status = await Permission.camera.status;
+    if (status.isGranted) {
+      return true;
+    } else if (status.isDenied) {
+      // Request permission
+      status = await Permission.camera.request();
+      if (status.isGranted) {
+        return true;
+      } else {
+        Get.snackbar('Permission Denied', "Camera permission is required to take photos.");
+        return false;
+      }
+    } else if (status.isPermanentlyDenied || status.isRestricted) {
+      // Permission is permanently denied or restricted, open app settings
+      Get.snackbar(
+        'Permission Required',
+        "Camera permission has been permanently denied. Please enable it in app settings.",
+        mainButton: TextButton(
+          child: const Text("Open Settings"),
+          onPressed: () {
+            openAppSettings(); // This function from permission_handler opens the app's settings page
+          },
+        ),
+        duration: const Duration(seconds: 5), // Keep the snackbar longer
+      );
+      return false;
     }
+    return false; // Default case
   }
 
-  Future<void> requestGalleryPermission() async {
-    var status = await Permission.photos.request();
-    if (status.isDenied || status.isPermanentlyDenied) {
-      // Try requesting storage permission as fallback (for Android)
-      var storageStatus = await Permission.storage.request();
-      if (storageStatus.isDenied || storageStatus.isPermanentlyDenied) {
-        // Get.snackbar('Permission Denied', "Gallery permission denied");
-        return;
+
+  Future<bool> requestGalleryPermission() async {
+    Permission photoPermission;
+    if (Platform.isAndroid) {
+      // Consider adding checks for Android SDK version if you need very granular control
+      // For API 33+
+      // final androidInfo = await DeviceInfoPlugin().androidInfo;
+      // if (androidInfo.version.sdkInt >= 33) {
+      // photoPermission = Permission.photos;
+      // } else {
+      // photoPermission = Permission.storage;
+      // }
+      // However, permission_handler often abstracts this.
+      // Starting with Permission.photos is generally a good approach.
+      photoPermission = Permission.photos;
+    } else {
+      photoPermission = Permission.photos; // For iOS
+    }
+
+    var status = await photoPermission.status;
+
+    if (status.isGranted || (status.isLimited && Platform.isIOS)) {
+      return true;
+    }
+
+    if (status.isPermanentlyDenied || status.isRestricted) {
+      Get.snackbar(
+        'Permission Required',
+        "Gallery permission has been permanently denied. Please enable it in app settings.",
+        mainButton: TextButton(
+          child: const Text("Open Settings"),
+          onPressed: () {
+            openAppSettings();
+          },
+        ),
+        duration: const Duration(seconds: 5),
+      );
+      return false;
+    }
+
+    // Request the permission (photos first)
+    status = await photoPermission.request();
+
+    if (status.isGranted || (status.isLimited && Platform.isIOS)) {
+      return true;
+    } else if (Platform.isAndroid && (status.isDenied || status.isPermanentlyDenied)) {
+      // If photos permission denied on Android, try storage as a fallback for older versions
+      // or if the user somehow still gets here after a .photos denial.
+      // (This fallback might be less necessary with modern permission_handler versions
+      // but can be a safeguard).
+      var storageStatus = await Permission.storage.status;
+      if (storageStatus.isPermanentlyDenied || storageStatus.isRestricted) {
+        Get.snackbar(
+          'Permission Required',
+          "Storage permission has been permanently denied. Please enable it in app settings.",
+          mainButton: TextButton(onPressed: openAppSettings, child: const Text("Open Settings")),
+          duration: const Duration(seconds: 5),
+        );
+        return false;
+      }
+      storageStatus = await Permission.storage.request();
+      if (storageStatus.isGranted) {
+        return true;
       }
     }
+
+    // If all attempts fail or permission is denied
+    Get.snackbar(
+      'Permission Denied',
+      "Gallery permission is required. You can enable it in app settings.",
+      mainButton: TextButton(
+        child: const Text("Open Settings"),
+        onPressed: () {
+          openAppSettings();
+        },
+      ),
+      duration: const Duration(seconds: 5),
+    );
+    return false;
   }
+
 
   Future<void> pickImage(int index, ImageSource source) async {
     try {
+      bool permissionGranted = false;
       if (source == ImageSource.camera) {
-        await requestCameraPermission();
+        permissionGranted = await requestCameraPermission();
       } else if (source == ImageSource.gallery) {
-        await requestGalleryPermission();
+        permissionGranted = await requestGalleryPermission();
       }
+
+      if (!permissionGranted) {
+        return; // Exit if permission was not granted
+      }
+
+      // Permission is granted, proceed to pick image
       final pickedFile = await picker.pickImage(source: source);
       print('Picked file: ${pickedFile?.path}');
       if (pickedFile != null) {
         File imageFile = File(pickedFile.path);
         print('Image file exists: ${await imageFile.exists()}');
         filePaths[index] = imageFile;
-        filePaths.refresh();
+        filePaths.refresh(); // Assuming this is an Obx list
 
         final compressedImage = await FlutterImageCompress.compressWithFile(
           imageFile.path,
@@ -98,25 +199,30 @@ class EditPhotosPageState extends State<EditPhotosPage> {
 
         if (compressedImage != null) {
           String base64Image = base64Encode(compressedImage);
-          updatedImages[index] = base64Image.obs;
-          updatedImages.refresh();
+          updatedImages[index].value = base64Image; // Assuming RxString
+          updatedImages.refresh(); // Assuming this is an Obx list
 
           if (!indexUpdated.contains(index)) indexUpdated.add(index);
-          indexUpdated.refresh();
+          indexUpdated.refresh(); // Assuming this is an Obx list
 
-          success("Success", "Image updated successfully");
+          // success("Success", "Image updated successfully"); // Consider if Get.snackbar is better
+          Get.snackbar("Success", "Image updated successfully");
         } else {
-          failure("Error", "Image compression failed");
+          // failure("Error", "Image compression failed");
+          Get.snackbar("Error", "Image compression failed");
         }
       } else {
-        failure("Error", "No image selected");
+        // failure("Error", "No image selected");
+        // Get.snackbar("Info", "No image selected"); // User might have just cancelled the picker
       }
     } catch (e) {
-      failure("Error", e.toString());
+      // failure("Error", e.toString());
+      Get.snackbar("Error", "An error occurred: ${e.toString()}");
+      print("Error picking image: $e");
     }
 
-    // After picking and updating image
-    print('UpdatedImages: ${updatedImages.map((e) => e.value).toList()}');
+    // After picking and updating image (or failing)
+    print('UpdatedImages: ${updatedImages.map((e) => e.value.isNotEmpty ? "ImagePresent" : "Empty").toList()}');
     print('FilePaths: $filePaths');
     print('IndexUpdated: $indexUpdated');
   }

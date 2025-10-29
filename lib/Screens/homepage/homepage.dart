@@ -17,6 +17,7 @@ import '../../Models/RequestModels/update_lat_long_request_model.dart';
 import '../../Models/ResponseModels/user_suggestions_response_model.dart';
 import '../../Providers/WebSocketService.dart';
 import '../../constants.dart';
+import '../userprofile/userprofilesummary.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -63,7 +64,7 @@ class HomePageState extends State<HomePage>
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 300),
@@ -92,7 +93,6 @@ class HomePageState extends State<HomePage>
       }
     });
   }
-
 
   initialize() async {
     WebSocketService().connect(controller.token.value);
@@ -404,7 +404,7 @@ class HomePageState extends State<HomePage>
                       .sendConnectionMessage(establishConnectionMessageRequest);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.buttonColor,
+                  backgroundColor: AppColors.mediumGradientColor,
                 ),
                 child: Text('Send Message', style: AppTextStyles.buttonText),
               ),
@@ -513,7 +513,7 @@ class HomePageState extends State<HomePage>
   void rebuildSwipeItemsForFilter(int filterIndex) {
     swipeItems.clear();
 
-    List<SuggestedUser> currentList = controller.getListByFilter(filterIndex);
+    List<SuggestedUser> currentList = controller.getCurrentList(filterIndex);
     // print(
     //     "🔄 Rebuilding SwipeItems for Filter $filterIndex → Found: ${currentList.length}");
 
@@ -624,7 +624,7 @@ class HomePageState extends State<HomePage>
                               setState(() {
                                 selectedFilter.value = -1;
 
-                                final allList = controller.getListByFilter(-1);
+                                final allList = controller.getCurrentList(-1);
                                 print(
                                     "📣 Filter ALL clicked → total ${allList.length} users");
 
@@ -709,7 +709,7 @@ class HomePageState extends State<HomePage>
                     Expanded(
                       child: Obx(() {
                         final currentList =
-                            controller.getListByFilter(selectedFilter.value);
+                            controller.getCurrentList(selectedFilter.value);
 
                         return currentList.isEmpty && lastUser != null
                             ? buildCardLayoutAll(
@@ -725,32 +725,34 @@ class HomePageState extends State<HomePage>
                                   final SuggestedUser user = currentList[index];
                                   isLastCard = index == currentList.length - 1;
 
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      color: isLastCard
-                                          ? Colors.grey[300]
-                                          : const Color.fromARGB(
-                                              255, 109, 79, 197),
-                                      borderRadius: BorderRadius.circular(32),
-                                      border: Border.all(
-                                        color: isLastCard
-                                            ? Colors.grey
-                                            : const Color.fromARGB(
-                                                255, 1, 76, 151),
-                                        width: 2,
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.white.withOpacity(0.2),
-                                          spreadRadius: 2,
-                                          blurRadius: 5,
-                                          offset: Offset(0, 3),
+                                  return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0, horizontal: 12.0),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          gradient:
+                                              AppColors.gradientBackground,
+                                          borderRadius:
+                                              BorderRadius.circular(32),
+                                          border: Border.all(
+                                            color: isLastCard
+                                                ? Colors.grey
+                                                : Colors.white,
+                                            width: 2,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.white.withOpacity(0.2),
+                                              spreadRadius: 2,
+                                              blurRadius: 5,
+                                              offset: Offset(0, 3),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                    child: buildCardLayoutAll(
-                                        context, user, size, isLastCard),
-                                  );
+                                        child: buildCardLayoutAll(
+                                            context, user, size, isLastCard),
+                                      ));
                                 },
                                 upSwipeAllowed: true,
                                 leftSwipeAllowed: true,
@@ -780,389 +782,429 @@ class HomePageState extends State<HomePage>
     );
   }
 
-Widget buildCardLayoutAll(
-    BuildContext context, SuggestedUser user, Size size, bool isLastCard) {
-  print(user);
-  List<String> images = user.images;
-  List<String> interests = (user.interest ?? '')
-      .split(',')
-      .map((e) => e.trim())
-      .where((e) => e.isNotEmpty)
-      .toList();
+  Widget buildCardLayoutAll(
+      BuildContext context, SuggestedUser user, Size size, bool isLastCard) {
+    print(user);
+    List<String> images = user.images;
+    List<String> interests = (user.interest ?? '')
+        .split(',')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
 
-  // Format looking for text
-  String lookingForText = user.lookingFor == "1"
-      ? "Serious Relationship"
-      : user.lookingFor == "2"
-          ? "Hookup"
-          : "Unknown";
+    // Format looking for text
+    String lookingForText = user.lookingFor == "1"
+        ? "Serious Relationship"
+        : user.lookingFor == "2"
+            ? "Hookup"
+            : "Unknown";
 
-  return user.id == ''
-      ? Text("No users available")
-      : Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment(0.8, 1),
-              colors: AppColors.gradientBackgroundList,
-            ),
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // User Images
-              SizedBox(
-                height: size.height * 0.35,
-                child: Stack(
-                  children: [
-                    SafeArea(
-                      child: SizedBox(
-                        height: 450,
-                        child: Scrollbar(
-                          child: ListView.builder(
-                            controller: _imagePageController,
-                            itemCount: images.length,
-                            itemBuilder:
-                                (BuildContext context, int index) {
-                              if (images.isEmpty) {
-                                return Center(
-                                    child: Text('No Images Available'));
-                              }
-                              return GestureDetector(
-                                onTap: () => showFullImageDialog(
-                                    context, images[index]),
-                                child: Container(
-                                  margin: EdgeInsets.only(bottom: 12),
-                                  child: ClipRRect(
-                                    borderRadius:
-                                        BorderRadius.circular(28),
-                                    child: CachedNetworkImage(
-                                      imageUrl: images[index],
-                                      placeholder: (context, url) => Center(
-                                          child:
-                                              CircularProgressIndicator()),
-                                      errorWidget: (context, url, error) {
-                                        return Icon(
-                                            Icons.person_pin_outlined,
-                                            color: const Color.fromARGB(
-                                                255, 150, 148, 148));
-                                      },
-                                      fit: BoxFit.cover,
-                                      width: size.width * 0.9,
-                                      height: size.height * 0.45,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+    return user.id == ''
+        ? Text("No users available")
+        : GestureDetector(
+            onTap: () {
+              Get.bottomSheet(
+                UserProfileSummary(
+                  userId: user.userId.toString(),
+                  imageUrls: images,
                 ),
+                isScrollControlled: true,
+                backgroundColor: AppColors.primaryColor,
+                enterBottomSheetDuration: Duration(milliseconds: 300),
+                exitBottomSheetDuration: Duration(milliseconds: 300),
+              );
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment(0.8, 1),
+                  colors: AppColors.gradientBackgroundList,
+                ),
+                borderRadius: BorderRadius.circular(30),
               ),
-              // TOP ROW WITH LOCATION, NAME, AND CONNECT BUTTON
-              Padding(
-                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 8.0),
-                child: Row(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // LEFT SIDE: LOCATION AND NAME
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    // User Images
+                    SizedBox(
+                      height: size.height * 0.4,
+                      child: Stack(
                         children: [
-                          // Location
-                          if (user.city != null && user.city!.isNotEmpty)
-                            Row(
-                              children: [
-                                Icon(Icons.location_on,
-                                    size: 16, color: Colors.white70),
-                                SizedBox(width: 4),
-                                Text(
-                                  user.city!,
-                                  style: AppTextStyles.bodyText.copyWith(
-                                    color: Colors.white70,
-                                    fontSize: size.width * 0.035,
-                                  ),
+                          SafeArea(
+                            child: SizedBox(
+                              height: size.height * 0.35,
+                              child: Scrollbar(
+                                child: ListView.builder(
+                                  controller: _imagePageController,
+                                  itemCount: images.length,
+                                  itemBuilder: (BuildContext context, int index) {
+                                    if (images.isEmpty) {
+                                      return Center(
+                                          child: Text('No Images Available'));
+                                    }
+                                    return GestureDetector(
+                                      onTap: () => showFullImageDialog(
+                                          context, images[index]),
+                                      child: Container(
+                                        margin: EdgeInsets.only(bottom: 12),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(28),
+                                          child: CachedNetworkImage(
+                                            imageUrl: images[index],
+                                            placeholder: (context, url) => Center(
+                                                child: CircularProgressIndicator()),
+                                            errorWidget: (context, url, error) {
+                                              return Icon(Icons.person_pin_outlined,
+                                                  color: const Color.fromARGB(
+                                                      255, 150, 148, 148));
+                                            },
+                                            fit: BoxFit.cover,
+                                            width: size.width * 0.9,
+                                            height: size.height * 0.45,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
-                              ],
+                              ),
                             ),
-                          // User Name and Age
-                          Text(
-                            '${user.name ?? 'NA'}, ${calculateAge(user.dob ?? 'Unknown Date')}',
-                            style: AppTextStyles.headingText.copyWith(
-                              fontSize: size.width * 0.05,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
                     ),
-                    // RIGHT SIDE: CONNECT BUTTON
-                    GestureDetector(
-                      onTap: () {
-                        showmessageBottomSheet(user.userId.toString());
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: AppColors.reversedGradientColor,
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.deepPurple.withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: Offset(0, 3),
+                    // TOP ROW WITH LOCATION, NAME, AND CONNECT BUTTON
+                    Padding(
+                      padding:
+                          const EdgeInsets.only(left: 16.0, right: 16.0, top: 8.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // LEFT SIDE: AVATAR, LOCATION AND NAME
+                          Expanded(
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 30,
+                                  backgroundImage: images.isNotEmpty
+                                      ? CachedNetworkImageProvider(images[0])
+                                      : null,
+                                  child: images.isEmpty
+                                      ? Icon(Icons.person, size: 30)
+                                      : null,
+                                ),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // Location
+                                      if (user.city != null &&
+                                          user.city!.isNotEmpty)
+                                        Row(
+                                          children: [
+                                            Icon(Icons.location_on,
+                                                size: 16, color: Colors.white70),
+                                            SizedBox(width: 4),
+                                            Text(
+                                              user.city!,
+                                              style:
+                                                  AppTextStyles.bodyText.copyWith(
+                                                color: Colors.white70,
+                                                fontSize: size.width * 0.035,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      // User Name and Age
+                                      Text(
+                                        '${user.name ?? 'NA'}, ${calculateAge(user.dob ?? 'Unknown Date')}',
+                                        style:
+                                            AppTextStyles.headingText.copyWith(
+                                          fontSize: size.width * 0.05,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: Text(
-                          "Connect",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: getResponsiveFontSize(0.03),
-                            fontWeight: FontWeight.bold,
                           ),
-                        ),
+                          // RIGHT SIDE: CONNECT BUTTON
+                          GestureDetector(
+                            onTap: () {
+                              showmessageBottomSheet(user.userId.toString());
+                            },
+                            child: Container(
+                              padding:
+                                  EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: AppColors.reversedGradientColor,
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.deepPurple.withOpacity(0.3),
+                                    blurRadius: 8,
+                                    offset: Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Text(
+                                "Connect",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: getResponsiveFontSize(0.03),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-              // DETAILS ROW (Interests, Looking For, Sub Gender)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Interests
-                    if (interests.isNotEmpty)
-                      Flexible(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.13),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.tag, size: 16, color: Colors.white70),
-                              SizedBox(width: 6),
-                              Flexible(
-                                child: Text(
-                                  interests.length > 1
-                                      ? '${interests[0]} +${interests.length - 1}'
-                                      : interests[0],
-                                  style: AppTextStyles.bodyText.copyWith(
-                                    color: Colors.white,
-                                    fontSize: size.width * 0.035,
-                                    fontWeight: FontWeight.w500,
+                    // DETAILS ROW (Interests, Looking For, Sub Gender)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Interests
+                          if (interests.isNotEmpty)
+                            Flexible(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.13),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.tag,
+                                        size: 16, color: Colors.white70),
+                                    SizedBox(width: 6),
+                                    Flexible(
+                                      child: Text(
+                                        interests.length > 1
+                                            ? '${interests[0]} +${interests.length - 1}'
+                                            : interests[0],
+                                        style: AppTextStyles.bodyText.copyWith(
+                                          color: Colors.white,
+                                          fontSize: size.width * 0.035,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          SizedBox(width: 10),
+                          // Looking For
+                          Flexible(
+                            child: Container(
+                              padding:
+                                  EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.13),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.favorite_border,
+                                      size: 16, color: Colors.white70),
+                                  SizedBox(width: 6),
+                                  Flexible(
+                                    child: Text(
+                                      lookingForText,
+                                      style: AppTextStyles.bodyText.copyWith(
+                                        color: Colors.white,
+                                        fontSize: size.width * 0.035,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          // Sub Gender
+                          Flexible(
+                            child: Container(
+                              padding:
+                                  EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.13),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.person_outline,
+                                      size: 16, color: Colors.white70),
+                                  SizedBox(width: 6),
+                                  Flexible(
+                                    child: Text(
+                                      user.subGenderName ?? 'Unknown',
+                                      style: AppTextStyles.bodyText.copyWith(
+                                        color: Colors.white,
+                                        fontSize: size.width * 0.035,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Action Buttons
+                    Padding(
+                      padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          // Nope Button
+                          Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    matchEngine.currentItem?.nope();
+                                  });
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.15),
+                                        blurRadius: 8,
+                                        offset: Offset(0, 4),
+                                      ),
+                                    ],
+                                    color: Colors.white,
+                                  ),
+                                  padding: EdgeInsets.all(18),
+                                  child: Icon(Icons.close_rounded,
+                                      color: Colors.black87, size: 36),
+                                ),
+                              ),
+                              SizedBox(height: 6),
+                              Text(
+                                "Nope",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ),
-                    SizedBox(width: 10),
-                    // Looking For
-                    Flexible(
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.13),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.favorite_border, size: 16, color: Colors.white70),
-                            SizedBox(width: 6),
-                            Flexible(
-                              child: Text(
-                                lookingForText,
-                                style: AppTextStyles.bodyText.copyWith(
+                          // Favourite Button
+                          if (selectedFilter.value != 2)
+                            Column(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      matchEngine.currentItem?.superLike();
+                                    });
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.15),
+                                          blurRadius: 8,
+                                          offset: Offset(0, 4),
+                                        ),
+                                      ],
+                                      color: Colors.white,
+                                    ),
+                                    padding: EdgeInsets.all(18),
+                                    child: Icon(Icons.favorite_rounded,
+                                        color: Colors.black87, size: 36),
+                                  ),
+                                ),
+                                SizedBox(height: 6),
+                                Text(
+                                  "Favourite",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          // Like Button
+                          Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    matchEngine.currentItem?.like();
+                                  });
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.15),
+                                        blurRadius: 8,
+                                        offset: Offset(0, 4),
+                                      ),
+                                    ],
+                                    color: Colors.white,
+                                  ),
+                                  padding: EdgeInsets.all(18),
+                                  child: Icon(Icons.thumb_up_rounded,
+                                      color: Colors.black87, size: 36),
+                                ),
+                              ),
+                              SizedBox(height: 6),
+                              Text(
+                                "Like",
+                                style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: size.width * 0.035,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 10),
-                    // Sub Gender
-                    Flexible(
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.13),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.person_outline, size: 16, color: Colors.white70),
-                            SizedBox(width: 6),
-                            Flexible(
-                              child: Text(
-                                user.subGenderName ?? 'Unknown',
-                                style: AppTextStyles.bodyText.copyWith(
-                                  color: Colors.white,
-                                  fontSize: size.width * 0.035,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-              // Action Buttons
-              Padding(
-                padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    // Nope Button
-                    Column(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              matchEngine.currentItem?.nope();
-                            });
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.15),
-                                  blurRadius: 8,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                              color: Colors.white,
-                            ),
-                            padding: EdgeInsets.all(18),
-                            child: Icon(Icons.close_rounded,
-                                color: Colors.black87, size: 36),
-                          ),
-                        ),
-                        SizedBox(height: 6),
-                        Text(
-                          "Nope",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    // Favourite Button
-                    if(selectedFilter.value != 2)
-                    Column(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              matchEngine.currentItem?.superLike();
-                            });
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.15),
-                                  blurRadius: 8,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                              color: Colors.white,
-                            ),
-                            padding: EdgeInsets.all(18),
-                            child: Icon(Icons.favorite_rounded,
-                                color: Colors.black87, size: 36),
-                          ),
-                        ),
-                        SizedBox(height: 6),
-                        Text(
-                          "Favourite",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    // Like Button
-                    Column(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              matchEngine.currentItem?.like();
-                            });
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.15),
-                                  blurRadius: 8,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                              color: Colors.white,
-                            ),
-                            padding: EdgeInsets.all(18),
-                            child: Icon(Icons.thumb_up_rounded,
-                                color: Colors.black87, size: 36),
-                          ),
-                        ),
-                        SizedBox(height: 6),
-                        Text(
-                          "Like",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-}
+            ),
+          );
+  }
 }
