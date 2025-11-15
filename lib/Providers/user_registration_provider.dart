@@ -6,8 +6,7 @@ import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
 
 class UserRegistrationProvider extends GetConnect {
-  Future<UserRegistrationResponse?> userRegistration(
-      UserRegistrationRequest userRegistrationRequest) async {
+  Future<UserRegistrationResponse?> userRegistration(UserRegistrationRequest userRegistrationRequest) async {
     print('=======');
 
     // debugPrint('name: ${userRegistrationRequest.name}');
@@ -57,16 +56,15 @@ class UserRegistrationProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return UserRegistrationResponse.fromJson(response.body);
         } else {
-          failure(
-              'Error in userRegistration', response.body['error']['message']);
+          failure('Error in userRegistration', response.body['error']['message']);
           return null;
         }
       } else {
-        failure('Error in userRegistration', response.body.toString());
+        failure('Error in userRegistration status', response.body.toString());
         return null;
       }
     } catch (e) {
-      failure('Error in userRegistration', e.toString());
+      failure('Error in userRegistration EXCEPTION', e.toString());
       return null;
     }
   }

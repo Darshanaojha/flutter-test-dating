@@ -6,6 +6,7 @@ import '../Models/ResponseModels/get_all_country_response_model.dart';
 import '../Models/ResponseModels/registration_otp_response_model.dart';
 import '../Models/ResponseModels/registration_otp_verification_response_model.dart';
 import '../constants.dart';
+
 class RegistrationProvider extends GetConnect {
   Controller controller = Get.find();
   Future<CountryResponse?> fetchCountries() async {
@@ -30,16 +31,15 @@ class RegistrationProvider extends GetConnect {
   }
 
   // Verify Email using OTP
-  Future<RegistrationOtpResponse?> getOtpForRegistration(
-      RegistrationOTPRequest registrationOTPRequest) async {
+  Future<RegistrationOtpResponse?> getOtpForRegistration(RegistrationOTPRequest registrationOTPRequest) async {
     try {
       final requestBody = registrationOTPRequest.toJson();
       if (baseurl.isEmpty) {
         throw Exception("Base URL is not defined.");
       }
+      print('baseurl: R$baseurl/Authentication/sendotp');
 
-      Response response =
-          await post('$baseurl/Authentication/sendotp', requestBody, headers: {
+      Response response = await post('$baseurl/Authentication/sendotp', requestBody, headers: {
         'Content-Type': 'application/json',
       });
 
@@ -69,9 +69,7 @@ class RegistrationProvider extends GetConnect {
   }
 
   // Verify password while registration
-  Future<RegistrationOtpVerificationResponse?> otpVerificationForRegistration(
-      RegistrationOtpVerificationRequest
-          registrationOtpVerificationRequest) async {
+  Future<RegistrationOtpVerificationResponse?> otpVerificationForRegistration(RegistrationOtpVerificationRequest registrationOtpVerificationRequest) async {
     try {
       print(registrationOtpVerificationRequest.toJson().toString());
 
@@ -92,8 +90,7 @@ class RegistrationProvider extends GetConnect {
           return null;
         }
       } else {
-        failure(
-            'Error', 'Received invalid status code: ${response.statusCode}');
+        failure('Error', 'Received invalid status code: ${response.statusCode}');
         return null;
       }
     } catch (e) {

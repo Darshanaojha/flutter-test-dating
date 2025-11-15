@@ -4,6 +4,7 @@ import '../Models/ResponseModels/ProfileResponse.dart';
 import '../Models/ResponseModels/all_active_user_resposne_model.dart';
 import '../Models/ResponseModels/get_all_desires_model_response.dart';
 import '../constants.dart';
+
 class HomePageProvider extends GetConnect {
   Future<DesiresResponse?> fetchDesires() async {
     try {
@@ -28,8 +29,7 @@ class HomePageProvider extends GetConnect {
 
   Future<UserProfileResponse?> fetchProfile([String id = ""]) async {
     try {
-      EncryptedSharedPreferences preferences =
-          EncryptedSharedPreferences.getInstance();
+      EncryptedSharedPreferences preferences = EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
       if (token == null || token.isEmpty) {
         failure('Error in fetchProfile', 'Token not found');
@@ -69,8 +69,7 @@ class HomePageProvider extends GetConnect {
 
   Future<AllActiveUsersResponse?> fetchAllActiveUsers() async {
     try {
-      EncryptedSharedPreferences preferences =
-          EncryptedSharedPreferences.getInstance();
+      EncryptedSharedPreferences preferences = EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
       if (token == null || token.isEmpty) {
         failure('Error in fetchAllActiveUsers', 'Token not found');
@@ -91,13 +90,11 @@ class HomePageProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return AllActiveUsersResponse.fromJson(response.body);
         } else {
-          failure('Error in fetchAllActiveUsers',
-              response.body['error']['message']);
+          failure('Error in fetchAllActiveUsers', response.body['error']['message']);
           return null;
         }
       } else {
-        failure(
-            'Error in fetchAllActiveUsers', response.body['error']['message']);
+        failure('Error in fetchAllActiveUsers', response.body['error']['message']);
         return null;
       }
     } catch (e) {

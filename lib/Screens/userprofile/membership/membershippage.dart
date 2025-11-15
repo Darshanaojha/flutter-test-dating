@@ -12,8 +12,7 @@ class MembershipPage extends StatefulWidget {
   MembershipPageState createState() => MembershipPageState();
 }
 
-class MembershipPageState extends State<MembershipPage>
-    with TickerProviderStateMixin {
+class MembershipPageState extends State<MembershipPage> with TickerProviderStateMixin {
   Controller controller = Get.put(Controller());
   late final AnimationController _animationController;
   late final DecorationTween decorationTween;
@@ -24,6 +23,9 @@ class MembershipPageState extends State<MembershipPage>
       vsync: this,
       duration: const Duration(seconds: 1),
     )..repeat(reverse: true);
+    controller.fetchAllPackages();
+    controller.fetchProfile();
+    controller.fetchProfileUserPhotos();
 
     decorationTween = DecorationTween(
       begin: BoxDecoration(
@@ -58,12 +60,12 @@ class MembershipPageState extends State<MembershipPage>
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
+    //print(controller);
     // double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor:
-            Colors.transparent, // Make background transparent for gradient
+        backgroundColor: Colors.transparent, // Make background transparent for gradient
         elevation: 0, // Remove default shadow
         centerTitle: true,
         title: Text(
@@ -103,98 +105,100 @@ class MembershipPageState extends State<MembershipPage>
         ),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Container(
-            //   height: screenHeight * 0.5,
-            //   decoration: BoxDecoration(
-            //     image: DecorationImage(
-            //       image: NetworkImage(controller.userPhotos!.img1),
-            //       fit: BoxFit.cover,
-            //     ),
-            //   ),
-            // ),
-            Container(
-              margin: const EdgeInsets.all(2),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: AppColors.gradientBackgroundList,
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 8,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        child: controller.isLoading.value == true
+            ? Text("Loading...")
+            : Column(
                 children: [
-                  Card(
-                    margin: const EdgeInsets.all(2), // Same margin as requested
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: Container(
-                      height: screenHeight * 0.5,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: NetworkImage(controller.userPhotos!.img1),
-                          fit: BoxFit.cover,
-                        ),
+                  // Container(
+                  //   height: screenHeight * 0.5,
+                  //   decoration: BoxDecoration(
+                  //     image: DecorationImage(
+                  //       image: NetworkImage(controller.userPhotos!.img1),
+                  //       fit: BoxFit.cover,
+                  //     ),
+                  //   ),
+                  // ),
+                  Container(
+                    margin: const EdgeInsets.all(2),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: AppColors.gradientBackgroundList,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Card(
+                          margin: const EdgeInsets.all(2), // Same margin as requested
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: Container(
+                            height: screenHeight * 0.5,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: NetworkImage(controller.userPhotos!.img1),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Our Membership Services',
+                          style: AppTextStyles.titleText.copyWith(
+                            color: Colors.white, // Ensure text is visible on gradient
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        buildMembershipServiceItem(
+                          title: 'Skip Profile',
+                          free: true,
+                          paid: true,
+                        ),
+                        buildMembershipServiceItem(
+                          title: 'Send Likes',
+                          free: false,
+                          paid: true,
+                        ),
+                        buildMembershipServiceItem(
+                          title: 'Explore Globally',
+                          free: true,
+                          paid: true,
+                        ),
+                        buildMembershipServiceItem(
+                          title: 'Free Message + Note (1 per day)',
+                          free: false,
+                          paid: true,
+                        ),
+                        buildMembershipServiceItem(
+                          title: 'See Who Likes You',
+                          free: false,
+                          paid: true,
+                        ),
+                        buildMembershipServiceItem(
+                          title: 'Chatting',
+                          free: false,
+                          paid: true,
+                        ),
+                        const SizedBox(height: 70),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Our Membership Services',
-                    style: AppTextStyles.titleText.copyWith(
-                      color: Colors.white, // Ensure text is visible on gradient
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  buildMembershipServiceItem(
-                    title: 'Skip Profile',
-                    free: true,
-                    paid: true,
-                  ),
-                  buildMembershipServiceItem(
-                    title: 'Send Likes',
-                    free: false,
-                    paid: true,
-                  ),
-                  buildMembershipServiceItem(
-                    title: 'Explore Globally',
-                    free: true,
-                    paid: true,
-                  ),
-                  buildMembershipServiceItem(
-                    title: 'Free Message + Note (1 per day)',
-                    free: false,
-                    paid: true,
-                  ),
-                  buildMembershipServiceItem(
-                    title: 'See Who Likes You',
-                    free: false,
-                    paid: true,
-                  ),
-                  buildMembershipServiceItem(
-                    title: 'Chatting',
-                    free: false,
-                    paid: true,
-                  ),
-                  const SizedBox(height: 70),
                 ],
               ),
-            ),
-          ],
-        ),
       ),
       floatingActionButton: Padding(
         padding: EdgeInsets.all(22.0),
@@ -225,8 +229,7 @@ class MembershipPageState extends State<MembershipPage>
             transitionType: TransitionType.LEFT_TO_RIGHT,
             textStyle: AppTextStyles.buttonText.copyWith(fontSize: 12),
             backgroundColor: Colors.transparent,
-            selectedBackgroundColor:
-                Colors.transparent, // Keep transparent for gradient effect
+            selectedBackgroundColor: Colors.transparent, // Keep transparent for gradient effect
             selectedTextColor: Colors.white,
             borderRadius: 16.0,
             height: 50,

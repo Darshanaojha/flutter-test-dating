@@ -24,28 +24,28 @@ android {
 
     defaultConfig {
         applicationId = "com.cajed.in"
-        minSdk = 23
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
-    signingConfigs {
-        create("release") {
-            val keystorePropertiesFile = rootProject.file("key.properties")
-            val keystoreProperties = Properties()
-            keystoreProperties.load(keystorePropertiesFile.inputStream())
+    // signingConfigs {
+    //     create("release") {
+    //         val keystorePropertiesFile = rootProject.file("key.properties")
+    //         val keystoreProperties = Properties()
+    //         keystoreProperties.load(keystorePropertiesFile.inputStream())
 
-            storeFile = file(keystoreProperties.getProperty("storeFile"))
-            storePassword = keystoreProperties.getProperty("storePassword")
-            keyAlias = keystoreProperties.getProperty("keyAlias")
-            keyPassword = keystoreProperties.getProperty("keyPassword")
-        }
-    }
+    //         storeFile = file(keystoreProperties.getProperty("storeFile"))
+    //         storePassword = keystoreProperties.getProperty("storePassword")
+    //         keyAlias = keystoreProperties.getProperty("keyAlias")
+    //         keyPassword = keystoreProperties.getProperty("keyPassword")
+    //     }
+    // }
 
     buildTypes {
-        getByName("release") {
-            signingConfig = signingConfigs.getByName("release")
+        getByName("debug") {
+            //signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(

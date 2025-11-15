@@ -36,8 +36,7 @@ import 'package:dating_application/Models/ResponseModels/get_all_whoareyoulookin
 import 'package:dating_application/Models/ResponseModels/get_content_by_id_response.dart';
 import 'package:dating_application/Models/ResponseModels/profile_like_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/subgender_response_model.dart';
-import 'package:dating_application/Models/ResponseModels/updateStatusResponse.dart'
-    show UpdateStatusResponse;
+import 'package:dating_application/Models/ResponseModels/updateStatusResponse.dart' show UpdateStatusResponse;
 import 'package:dating_application/Models/ResponseModels/updating_package_response_model.dart';
 import 'package:dating_application/Models/ResponseModels/user_upload_images_response_model.dart';
 import 'package:dating_application/Providers/ReferalCodeProvider.dart';
@@ -72,8 +71,7 @@ import 'package:dating_application/Providers/share_profile_provider.dart';
 import 'package:dating_application/Providers/user_profile_provider.dart';
 import 'package:dating_application/Screens/auth.dart';
 import 'package:dating_application/Screens/loginforgotpassword/forgotpasswordotp.dart';
-import 'package:dating_application/Screens/navigationbar/unsubscribenavigation.dart'
-    show Unsubscribenavigation;
+import 'package:dating_application/Screens/navigationbar/unsubscribenavigation.dart' show Unsubscribenavigation;
 import 'package:dating_application/Screens/userprofile/accountverification/useraccountverification.dart';
 import 'package:dating_application/Screens/userprofile/membership/membershippage.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
@@ -122,8 +120,7 @@ import '../Models/ResponseModels/ProfileResponse.dart';
 import '../Models/ResponseModels/ReferalCodeResponse.dart';
 import '../Models/ResponseModels/all_active_user_resposne_model.dart';
 import '../Models/ResponseModels/all_orders_response_model.dart';
-import '../Models/ResponseModels/all_transactions_response_model.dart'
-    as AllTransactions;
+import '../Models/ResponseModels/all_transactions_response_model.dart' as AllTransactions;
 import '../Models/ResponseModels/app_details_response_model.dart';
 import '../Models/ResponseModels/app_setting_response_model.dart';
 import '../Models/ResponseModels/block_user_response_model.dart';
@@ -229,18 +226,15 @@ class Controller extends GetxController {
 
   Future<void> storeUserData(UserLoginResponse userLoginResponse) async {
     try {
-      EncryptedSharedPreferences preferences =
-          EncryptedSharedPreferences.getInstance();
+      EncryptedSharedPreferences preferences = EncryptedSharedPreferences.getInstance();
 
       await preferences.setString('token', userLoginResponse.payload.token);
       await preferences.setString('userId', userLoginResponse.payload.userId);
       await preferences.setString('email', userLoginResponse.payload.email);
       await preferences.setString('contact', userLoginResponse.payload.contact);
       await preferences.setString('status', userLoginResponse.payload.status);
-      await preferences.setString(
-          'package_status', userLoginResponse.payload.packagestatus);
-      debugPrint(
-          "User Token save : ${preferences.getString('token').toString()}");
+      await preferences.setString('package_status', userLoginResponse.payload.packagestatus);
+      debugPrint("User Token save : ${preferences.getString('token').toString()}");
       token.value = userLoginResponse.payload.token;
     } catch (e) {
       failure('Error storeUserData', e.toString());
@@ -277,12 +271,9 @@ class Controller extends GetxController {
     lookingFor: '',
   );
 
-  Future<Map<String, String>?> register(
-      UserRegistrationRequest userRegistrationRequest) async {
+  Future<Map<String, String>?> register(UserRegistrationRequest userRegistrationRequest) async {
     try {
-      final UserRegistrationResponse? response =
-          await UserRegistrationProvider()
-              .userRegistration(userRegistrationRequest);
+      final UserRegistrationResponse? response = await UserRegistrationProvider().userRegistration(userRegistrationRequest);
 
       print(response);
 
@@ -332,8 +323,7 @@ class Controller extends GetxController {
         return null;
       }
     } catch (e) {
-      failure(
-          'Error register', 'An unexpected error occurred: ${e.toString()}');
+      failure('Error register', 'An unexpected error occurred: ${e.toString()}');
       return null;
     }
     return null;
@@ -341,8 +331,7 @@ class Controller extends GetxController {
 
   Future<UserLoginResponse?> login(dynamic userLoginRequest) async {
     try {
-      final UserLoginResponse? response =
-          await LoginProvider().userLogin(userLoginRequest);
+      final UserLoginResponse? response = await LoginProvider().userLogin(userLoginRequest);
 
       if (response != null) {
         await storeUserData(response);
@@ -359,27 +348,21 @@ class Controller extends GetxController {
     }
   }
 
-  RegistrationOTPRequest registrationOTPRequest =
-      RegistrationOTPRequest(email: '', name: '', mobile: '', referalcode: '');
+  RegistrationOTPRequest registrationOTPRequest = RegistrationOTPRequest(email: '', name: '', mobile: '', referalcode: '');
 
-  Future<bool> getOtpForRegistration(
-      RegistrationOTPRequest registrationOTPRequest) async {
+  Future<bool> getOtpForRegistration(RegistrationOTPRequest registrationOTPRequest) async {
     try {
-      final RegistrationOtpResponse? response = await RegistrationProvider()
-          .getOtpForRegistration(registrationOTPRequest);
+      final RegistrationOtpResponse? response = await RegistrationProvider().getOtpForRegistration(registrationOTPRequest);
       if (response != null) {
         String message = response.payload.message;
         RegExp otpRegExp = RegExp(r'(\d{6})');
         Match? otpMatch = otpRegExp.firstMatch(message);
-        EncryptedSharedPreferences prefs =
-            EncryptedSharedPreferences.getInstance();
-        await prefs.setString(
-            'registrationemail', registrationOTPRequest.email);
+        EncryptedSharedPreferences prefs = EncryptedSharedPreferences.getInstance();
+        await prefs.setString('registrationemail', registrationOTPRequest.email);
         if (otpMatch != null) {
           String otp = otpMatch.group(0) ?? 'OTP not found';
 
-          EncryptedSharedPreferences prefs =
-              EncryptedSharedPreferences.getInstance();
+          EncryptedSharedPreferences prefs = EncryptedSharedPreferences.getInstance();
           await prefs.setString('registrationotp', otp);
           success('OTP Received', 'Your OTP is: $otp');
           Get.to(OTPVerificationPage());
@@ -397,13 +380,9 @@ class Controller extends GetxController {
     }
   }
 
-  Future<bool> otpVerificationForRegistration(
-      RegistrationOtpVerificationRequest
-          registrationOtpVerificationRequest) async {
+  Future<bool> otpVerificationForRegistration(RegistrationOtpVerificationRequest registrationOtpVerificationRequest) async {
     try {
-      final RegistrationOtpVerificationResponse? response =
-          await RegistrationProvider().otpVerificationForRegistration(
-              registrationOtpVerificationRequest);
+      final RegistrationOtpVerificationResponse? response = await RegistrationProvider().otpVerificationForRegistration(registrationOtpVerificationRequest);
 
       print(response);
       if (response != null) {
@@ -430,8 +409,7 @@ class Controller extends GetxController {
     try {
       countries.clear();
 
-      final CountryResponse? response =
-          await FetchAllCountriesProvider().fetchCountries();
+      final CountryResponse? response = await FetchAllCountriesProvider().fetchCountries();
 
       if (response != null && response.payload.data.isNotEmpty) {
         countries.addAll(response.payload.data);
@@ -462,8 +440,7 @@ class Controller extends GetxController {
     try {
       language.clear();
 
-      final GetAllLanguagesResponse? response =
-          await FetchAllLanguageProvider().fetchlang();
+      final GetAllLanguagesResponse? response = await FetchAllLanguageProvider().fetchlang();
 
       if (response != null && response.payload.data.isNotEmpty) {
         language.addAll(response.payload.data);
@@ -493,8 +470,7 @@ class Controller extends GetxController {
     final key = _getKey(secretKey);
 
     // Initialize the AES CBC encrypter
-    final encrypter =
-        encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
+    final encrypter = encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
 
     // Encrypt the message
     final encrypted = encrypter.encrypt(message, iv: iv);
@@ -528,12 +504,10 @@ class Controller extends GetxController {
     final key = _getKey(secretKey);
 
     // Initialize the AES CBC decrypter
-    final encrypter =
-        encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
+    final encrypter = encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
 
     // Decrypt the message
-    final decrypted =
-        encrypter.decryptBytes(encrypt.Encrypted(encryptedMessage), iv: iv);
+    final decrypted = encrypter.decryptBytes(encrypt.Encrypted(encryptedMessage), iv: iv);
 
     // Convert the decrypted bytes back to a string
     return utf8.decode(decrypted);
@@ -564,16 +538,13 @@ class Controller extends GetxController {
 
   Future<bool> fetchChats(String connectionId) async {
     try {
-      final ChatResponse? response =
-          await ChatProvider().fetchChats(connectionId);
+      final ChatResponse? response = await ChatProvider().fetchChats(connectionId);
 
       if (response != null && response.chats.isNotEmpty) {
         final fetchedMessages = response.chats;
 
         final existingIds = messages.map((msg) => msg.id).toSet();
-        final newMessages = fetchedMessages
-            .where((msg) => !existingIds.contains(msg.id))
-            .toList();
+        final newMessages = fetchedMessages.where((msg) => !existingIds.contains(msg.id)).toList();
 
         if (newMessages.isEmpty) {
           print('No new messages to add.');
@@ -625,8 +596,7 @@ class Controller extends GetxController {
     try {
       categories.clear();
       desires.clear();
-      final DesiresResponse? response =
-          await FetchAllDesiresProvider().fetchDesires();
+      final DesiresResponse? response = await FetchAllDesiresProvider().fetchDesires();
       if (response != null) {
         categories.addAll(response.payload.data);
         for (var c in categories) {
@@ -650,33 +620,35 @@ class Controller extends GetxController {
   RxList<UserLang> userLang = <UserLang>[].obs;
   Future<bool> fetchProfile([String id = ""]) async {
     final dbHelper = DatabaseHelper();
-    EncryptedSharedPreferences preferences =
-        EncryptedSharedPreferences.getInstance();
+    EncryptedSharedPreferences preferences = EncryptedSharedPreferences.getInstance();
     String? userId = await preferences.getString('userId');
     String cacheId = id.isEmpty ? (userId ?? 'currentUser') : id;
 
     try {
+      isLoading.value = true;
       UserProfileResponse? response = await HomePageProvider().fetchProfile(id);
       if (response != null && response.success) {
         if (response.payload.data.isNotEmpty) {
           final user = response.payload.data.first;
           await dbHelper.saveUserProfile(user);
         }
-        print(
-            'Fetched user profile data: ${response.payload.data.first.toJson()}');
+        print('Fetched user profile data: ${response.payload.data.first.toJson()}');
         userData.assignAll(response.payload.data);
         userDesire.assignAll(response.payload.desires);
         userPreferences.assignAll(response.payload.preferences);
         userLang.assignAll(response.payload.lang);
         print('successfully fetched the user profile from API');
+        isLoading.value = false;
         return true;
       } else {
         final cachedUser = await dbHelper.getUserProfile(cacheId);
         if (cachedUser != null) {
           userData.assignAll([cachedUser]);
           print('successfully fetched the user profile from DB');
+          isLoading.value = false;
           return true;
         }
+        isLoading.value = false;
         failure('Error', 'Error fetching the user profile');
         return false;
       }
@@ -685,8 +657,10 @@ class Controller extends GetxController {
       if (cachedUser != null) {
         userData.assignAll([cachedUser]);
         print('successfully fetched the user profile from DB on exception');
+        isLoading.value = false;
         return true;
       }
+      isLoading.value = false;
       failure('Error', e.toString());
       return false;
     }
@@ -695,8 +669,7 @@ class Controller extends GetxController {
   RxList<UserDetails> userDetails = <UserDetails>[].obs;
   Future<bool> fetchAllActiveUsers() async {
     try {
-      final AllActiveUsersResponse? response =
-          await HomePageProvider().fetchAllActiveUsers();
+      final AllActiveUsersResponse? response = await HomePageProvider().fetchAllActiveUsers();
       if (response != null) {
         userDetails.addAll(response.payload.data);
         print('successfully fetched all the active users');
@@ -735,8 +708,7 @@ class Controller extends GetxController {
   Future<bool> fetchPreferences() async {
     try {
       preferences.clear();
-      UserPreferencesResponse? response =
-          await FetchAllPreferencesProvider().fetchPreferences();
+      UserPreferencesResponse? response = await FetchAllPreferencesProvider().fetchPreferences();
       if (response != null) {
         preferences.addAll(response.payload.data);
         // print('User preferences fetched successfully');
@@ -757,8 +729,7 @@ class Controller extends GetxController {
     try {
       isBenefitsLoading.value = true;
       benefits.clear();
-      BenefitsResponse? response =
-          await FetchBenefitsProvider().fetchBenefits();
+      BenefitsResponse? response = await FetchBenefitsProvider().fetchBenefits();
       if (response != null) {
         benefits.addAll(response.payload.data);
         print('Successfully fetched the benefits');
@@ -779,19 +750,22 @@ class Controller extends GetxController {
 
   Future<bool> fetchAllPackages() async {
     try {
-      GetAllPackagesResponseModel? response =
-          await FetchAllPackagesProvider().fetchAllPackages();
+      isLoading.value = true;
+      GetAllPackagesResponseModel? response = await FetchAllPackagesProvider().fetchAllPackages();
 
       if (response != null && response.success) {
         packages.assignAll(response.payload.data);
         print('Successfully fetched all the packages');
+        isLoading.value = false;
         return true;
       } else {
         failure('Error', response?.error.message ?? 'Unknown error');
+        isLoading.value = false;
         return false;
       }
     } catch (e) {
       failure('Error', 'An exception occurred: ${e.toString()}');
+      isLoading.value = false;
       return false;
     }
   }
@@ -801,8 +775,7 @@ class Controller extends GetxController {
   Future<bool> fetchSafetyGuidelines() async {
     try {
       safetyGuidelines.clear();
-      SafetyGuidelinesResponse? response =
-          await FetchAllSafetyGuildlinesProvider().fetchAllSafetyGuidelines();
+      SafetyGuidelinesResponse? response = await FetchAllSafetyGuildlinesProvider().fetchAllSafetyGuidelines();
       if (response != null) {
         safetyGuidelines.addAll(response.payload.data);
         print('successfully fetched the safety guidelines');
@@ -821,8 +794,7 @@ class Controller extends GetxController {
   Future<bool> fetchSubGender(SubGenderRequest subGenderRequest) async {
     try {
       subGenders.clear();
-      SubGenderResponse? response =
-          await FetchSubGendersProvider().getSubGenders(subGenderRequest);
+      SubGenderResponse? response = await FetchSubGendersProvider().getSubGenders(subGenderRequest);
       if (response != null) {
         subGenders.addAll(response.payload.data);
         print('successfully fetched the sub genders');
@@ -840,14 +812,16 @@ class Controller extends GetxController {
   UserImageData? userPhotos;
   Future<bool> fetchProfileUserPhotos([String id = ""]) async {
     try {
-      UserUploadImagesResponse? response =
-          await UserProfileProvider().fetchProfileUserPhotos(id);
+      isLoading.value = true;
+      UserUploadImagesResponse? response = await UserProfileProvider().fetchProfileUserPhotos(id);
       if (response != null && response.payload != null) {
         userPhotos = response.payload!.data;
         print('successfully fetched the user profile photos');
+        isLoading.value = false;
         return true;
       } else {
         failure('Error', 'Failed to fetch the  user profile photos');
+        isLoading.value = false;
         return false;
       }
     } catch (e) {
@@ -856,12 +830,10 @@ class Controller extends GetxController {
     }
   }
 
-  ChangePasswordRequest changePasswordRequest =
-      ChangePasswordRequest(oldPassword: '', newPassword: '');
+  ChangePasswordRequest changePasswordRequest = ChangePasswordRequest(oldPassword: '', newPassword: '');
   Future<bool> changePassword(ChangePasswordRequest request) async {
     try {
-      ChangePasswordResponse? response =
-          await ChangePasswordProvider().changePassword(request);
+      ChangePasswordResponse? response = await ChangePasswordProvider().changePassword(request);
       if (response != null) {
         success('success', response.payload.message);
         Get.to(CombinedAuthScreen());
@@ -878,8 +850,7 @@ class Controller extends GetxController {
 
   Future<bool> deleteMessage(DeleteMessageRequest request) async {
     try {
-      DeleteMessageResponse? response =
-          await DeleteMessageProvider().deleteMessage(request);
+      DeleteMessageResponse? response = await DeleteMessageProvider().deleteMessage(request);
       if (response != null) {
         success('success', response.payload.message);
         return true;
@@ -895,8 +866,7 @@ class Controller extends GetxController {
 
   Future<bool> editMessage(EditMessageRequest request) async {
     try {
-      EditMessageResponse? response =
-          await EditMessageProvider().editMessage(request);
+      EditMessageResponse? response = await EditMessageProvider().editMessage(request);
       if (response != null) {
         success('success', response.payload.message);
         return true;
@@ -910,13 +880,9 @@ class Controller extends GetxController {
     }
   }
 
-  Future<bool> sendConnectionMessage(
-      EstablishConnectionMessageRequest
-          establishConnectionMessageRequest) async {
+  Future<bool> sendConnectionMessage(EstablishConnectionMessageRequest establishConnectionMessageRequest) async {
     try {
-      EstablishConnectionResponse? response =
-          await EstablishConnectionProvider()
-              .sendConnectionMessageprovider(establishConnectionMessageRequest);
+      EstablishConnectionResponse? response = await EstablishConnectionProvider().sendConnectionMessageprovider(establishConnectionMessageRequest);
 
       if (response != null) {
         if (!response.success) {
@@ -946,8 +912,7 @@ class Controller extends GetxController {
   Future<bool> getAllActiveUser() async {
     try {
       activeUsers.clear();
-      AllActiveUsersResponse? response =
-          await FetchAllActiveUserProvider().getAllActiveUser();
+      AllActiveUsersResponse? response = await FetchAllActiveUserProvider().getAllActiveUser();
       if (response != null) {
         activeUsers.addAll(response.payload.data);
         success('success', 'Successfully fetched all the active users');
@@ -967,8 +932,7 @@ class Controller extends GetxController {
   Future<bool> fetchAllHeadlines() async {
     try {
       headlines.clear();
-      HeadlinesResponse? response =
-          await FetchAllHeadlinesProvider().fetchAllHeadlines();
+      HeadlinesResponse? response = await FetchAllHeadlinesProvider().fetchAllHeadlines();
       if (response != null) {
         headlines.addAll(response.payload.data);
         debugPrint('successfully fetched all the headlines');
@@ -983,22 +947,19 @@ class Controller extends GetxController {
     }
   }
 
-  ForgetPasswordRequest forgetPasswordRequest =
-      ForgetPasswordRequest(email: '', newPassword: '');
+  ForgetPasswordRequest forgetPasswordRequest = ForgetPasswordRequest(email: '', newPassword: '');
   Future<void> storeOtp(String otp) async {
     EncryptedSharedPreferences prefs = EncryptedSharedPreferences.getInstance();
     await prefs.setString('otp', otp);
   }
 
-  Future<bool> getOtpForgetPassword(
-      ForgetPasswordRequest forgetPasswordRequest) async {
+  Future<bool> getOtpForgetPassword(ForgetPasswordRequest forgetPasswordRequest) async {
     EncryptedSharedPreferences prefs = EncryptedSharedPreferences.getInstance();
     await prefs.setString('forgetpasswordemail', forgetPasswordRequest.email);
     await prefs.setString('forgetpassword', forgetPasswordRequest.newPassword);
 
     try {
-      ForgetPasswordResponse? response =
-          await LoginProvider().getOtpForgetPassword(forgetPasswordRequest);
+      ForgetPasswordResponse? response = await LoginProvider().getOtpForgetPassword(forgetPasswordRequest);
 
       if (response != null) {
         String message = response.payload.message;
@@ -1029,14 +990,10 @@ class Controller extends GetxController {
     }
   }
 
-  ForgetPasswordVerificationRequest forgetPasswordVerificationRequest =
-      ForgetPasswordVerificationRequest(email: '', otp: '', password: '');
-  Future<bool> otpVerificationForgetPassword(
-      ForgetPasswordVerificationRequest
-          forgetPasswordVerificationRequest) async {
+  ForgetPasswordVerificationRequest forgetPasswordVerificationRequest = ForgetPasswordVerificationRequest(email: '', otp: '', password: '');
+  Future<bool> otpVerificationForgetPassword(ForgetPasswordVerificationRequest forgetPasswordVerificationRequest) async {
     try {
-      ForgetPasswordVerificationResponse? response = await LoginProvider()
-          .otpVerificationForgetPassword(forgetPasswordVerificationRequest);
+      ForgetPasswordVerificationResponse? response = await LoginProvider().otpVerificationForgetPassword(forgetPasswordVerificationRequest);
       if (response != null) {
         success('success', response.payload.message);
         Get.to(CombinedAuthScreen());
@@ -1051,14 +1008,11 @@ class Controller extends GetxController {
     }
   }
 
-  UpdateEmailIdRequest updateEmailIdRequest =
-      UpdateEmailIdRequest(password: '', newEmail: '');
+  UpdateEmailIdRequest updateEmailIdRequest = UpdateEmailIdRequest(password: '', newEmail: '');
   Future<bool> updateEmailId(UpdateEmailIdRequest updateEmailIdRequest) async {
     try {
-      UpdateEmailIdResponse? response =
-          await UpdateEmailidProvider().updateEmailId(updateEmailIdRequest);
-      EncryptedSharedPreferences prefs =
-          EncryptedSharedPreferences.getInstance();
+      UpdateEmailIdResponse? response = await UpdateEmailidProvider().updateEmailId(updateEmailIdRequest);
+      EncryptedSharedPreferences prefs = EncryptedSharedPreferences.getInstance();
       await prefs.setString('update_email', updateEmailIdRequest.newEmail);
       if (response != null) {
         success('success', response.payload.message);
@@ -1074,12 +1028,10 @@ class Controller extends GetxController {
     }
   }
 
-  UpdateEmailVerificationRequest updateEmailVerificationRequest =
-      UpdateEmailVerificationRequest(newEmail: '', otp: '');
+  UpdateEmailVerificationRequest updateEmailVerificationRequest = UpdateEmailVerificationRequest(newEmail: '', otp: '');
   Future<bool> verifyEmailOtp(UpdateEmailVerificationRequest request) async {
     try {
-      UpdateEmailVerificationResponse? response =
-          await UpdateEmailVerificationProvider().verifyEmailOtp(request);
+      UpdateEmailVerificationResponse? response = await UpdateEmailVerificationProvider().verifyEmailOtp(request);
       if (response != null) {
         success('success', response.payload.message);
         Get.close(3);
@@ -1115,11 +1067,9 @@ class Controller extends GetxController {
     desires: [],
   );
 
-  Future<bool> updateProfile(
-      UserProfileUpdateRequest updateProfileRequest) async {
+  Future<bool> updateProfile(UserProfileUpdateRequest updateProfileRequest) async {
     try {
-      UserProfileUpdateResponse? response =
-          await UpdateProfileProvider().updateProfile(updateProfileRequest);
+      UserProfileUpdateResponse? response = await UpdateProfileProvider().updateProfile(updateProfileRequest);
       if (response != null) {
         success('success', response.payload.message);
         Get.close(1);
@@ -1277,8 +1227,7 @@ class Controller extends GetxController {
 
   Future<bool> blockUser(BlockToRequestModel blockToRequestModel) async {
     try {
-      BlockUserResponseModel? response =
-          await BlockUserProvider().blockUser(blockToRequestModel);
+      BlockUserResponseModel? response = await BlockUserProvider().blockUser(blockToRequestModel);
       if (response != null) {
         success('success', response.payload.message);
         return true;
@@ -1292,16 +1241,10 @@ class Controller extends GetxController {
     }
   }
 
-  ReportUserReasonFeedbackRequestModel reportUserReasonFeedbackRequestModel =
-      ReportUserReasonFeedbackRequestModel(
-          reportAgainst: '', reasonId: '', reason: '');
-  Future<bool> reportAgainstUser(
-      ReportUserReasonFeedbackRequestModel
-          reportUserReasonFeedbackRequestModel) async {
+  ReportUserReasonFeedbackRequestModel reportUserReasonFeedbackRequestModel = ReportUserReasonFeedbackRequestModel(reportAgainst: '', reasonId: '', reason: '');
+  Future<bool> reportAgainstUser(ReportUserReasonFeedbackRequestModel reportUserReasonFeedbackRequestModel) async {
     try {
-      ReportUserReasonFeedbackResponseModel? response =
-          await ReportUserProvider()
-              .reportAgainstUser(reportUserReasonFeedbackRequestModel);
+      ReportUserReasonFeedbackResponseModel? response = await ReportUserProvider().reportAgainstUser(reportUserReasonFeedbackRequestModel);
       if (response != null) {
         success('success', response.payload.message);
         return true;
@@ -1319,8 +1262,7 @@ class Controller extends GetxController {
   Future<bool> reportReason() async {
     try {
       reportReasons.clear();
-      ReportUserForBlockOptionsResponseModel? response =
-          await ReportReasonProvider().reportReason();
+      ReportUserForBlockOptionsResponseModel? response = await ReportReasonProvider().reportReason();
       if (response != null) {
         success('success', response.payload.message);
         reportReasons.addAll(response.payload.data);
@@ -1336,12 +1278,9 @@ class Controller extends GetxController {
     }
   }
 
-  Future<bool> updateprofilephoto(
-      UpdateProfilePhotoRequest updateProfilePhotoRequest) async {
+  Future<bool> updateprofilephoto(UpdateProfilePhotoRequest updateProfilePhotoRequest) async {
     try {
-      UserProfileUpdatePhotoResponse? response =
-          await UpdateProfilePhotoProvider()
-              .updateprofilephoto(updateProfilePhotoRequest);
+      UserProfileUpdatePhotoResponse? response = await UpdateProfilePhotoProvider().updateprofilephoto(updateProfilePhotoRequest);
       if (response != null) {
         success('success', response.payload.message);
         Get.close(2);
@@ -1364,8 +1303,7 @@ class Controller extends GetxController {
   );
   Future<bool> updatelatlong(UpdateLatLongRequest updateLatLongRequest) async {
     try {
-      UpdateLatLongResponse? response = await UpdateLatitudeLongitudeProvider()
-          .updatelatlong(updateLatLongRequest);
+      UpdateLatLongResponse? response = await UpdateLatitudeLongitudeProvider().updatelatlong(updateLatLongRequest);
       if (response != null) {
         success('success', response.payload);
         return true;
@@ -1379,13 +1317,10 @@ class Controller extends GetxController {
     }
   }
 
-  UpdateActivityStatusRequest updateActivityStatusRequest =
-      UpdateActivityStatusRequest(status: '');
-  Future<bool> updateactivitystatus(
-      UpdateActivityStatusRequest updateActivityStatusRequest) async {
+  UpdateActivityStatusRequest updateActivityStatusRequest = UpdateActivityStatusRequest(status: '');
+  Future<bool> updateactivitystatus(UpdateActivityStatusRequest updateActivityStatusRequest) async {
     try {
-      UpdateActivityStatusResponse? response = await ActivityStatusProvider()
-          .updateactivitystatusprovider(updateActivityStatusRequest);
+      UpdateActivityStatusResponse? response = await ActivityStatusProvider().updateactivitystatusprovider(updateActivityStatusRequest);
       if (response != null) {
         success('success', response.payload.message);
         return true;
@@ -1432,10 +1367,7 @@ class Controller extends GetxController {
       case 1:
         return userHighlightedList;
       case 2:
-        return favourite
-            .map((fav) => convertFavouriteToSuggestedUser(fav))
-            .toList()
-            .obs;
+        return favourite.map((fav) => convertFavouriteToSuggestedUser(fav)).toList().obs;
       case 3:
         return hookUpList;
       default:
@@ -1453,8 +1385,7 @@ class Controller extends GetxController {
   Future<bool> userSuggestions() async {
     try {
       isCardLoading.value = true;
-      UserSuggestionsResponseModel? response =
-          await UserSuggestionsProvider().userSuggestions();
+      UserSuggestionsResponseModel? response = await UserSuggestionsProvider().userSuggestions();
 
       if (response != null && response.payload != null) {
         userSuggestionsList.value = response.payload!.desireBase;
@@ -1475,8 +1406,7 @@ class Controller extends GetxController {
         return true;
       } else {
         failure('Error', 'Failed to fetch the user suggestions');
-        debugPrint(
-            'Error: Failed to fetch the user suggestions, response is null');
+        debugPrint('Error: Failed to fetch the user suggestions, response is null');
         return false;
       }
     } catch (e) {
@@ -1490,8 +1420,7 @@ class Controller extends GetxController {
   LikeModel likeModel = LikeModel(likedBy: '');
   Future<bool> postLike(LikeModel likeModel) async {
     try {
-      LikedByResponseModel? response =
-          await PostLikeProvider().postLike(likeModel);
+      LikedByResponseModel? response = await PostLikeProvider().postLike(likeModel);
       if (response != null && response.payload != null) {
         success('Success', response.payload!.message);
         return true;
@@ -1509,12 +1438,10 @@ class Controller extends GetxController {
   Future<bool> likedHistory() async {
     try {
       likes.clear();
-      LikeHistoryResponse? response =
-          await LikesHistoryProvider().likedHistory();
+      LikeHistoryResponse? response = await LikesHistoryProvider().likedHistory();
       if (response != null && response.payload != null) {
         success('Success', response.payload!.message);
-        if (response.payload!.data != null &&
-            response.payload!.data!.isNotEmpty) {
+        if (response.payload!.data != null && response.payload!.data!.isNotEmpty) {
           likes.addAll(response.payload!.data!);
           return true;
         } else {
@@ -1530,11 +1457,9 @@ class Controller extends GetxController {
     }
   }
 
-  Future<bool> pinProfilePic(
-      PinProfilePicRequestModel pinProfilePicRequestModel) async {
+  Future<bool> pinProfilePic(PinProfilePicRequestModel pinProfilePicRequestModel) async {
     try {
-      PinProfilePicResponseModel? response = await PinProfilePicProvider()
-          .pinProfilePic(pinProfilePicRequestModel);
+      PinProfilePicResponseModel? response = await PinProfilePicProvider().pinProfilePic(pinProfilePicRequestModel);
       if (response != null && response.payload != null) {
         success('Success', response.payload!.message);
         return true;
@@ -1551,8 +1476,7 @@ class Controller extends GetxController {
   AppDetailsData? appDetails;
   Future<bool> masterSetting() async {
     try {
-      AppDetailsResponse? response =
-          await MasterSettingProvider().masterSetting();
+      AppDetailsResponse? response = await MasterSettingProvider().masterSetting();
       if (response != null && response.payload != null) {
         success('Success', response.payload!.msg);
         appDetails = response.payload?.data;
@@ -1567,13 +1491,9 @@ class Controller extends GetxController {
     }
   }
 
-  Future<bool> updateVisibilityStatus(
-      UpdateVisibilityStatusRequestModel
-          updateVisibilityStatusRequestModel) async {
+  Future<bool> updateVisibilityStatus(UpdateVisibilityStatusRequestModel updateVisibilityStatusRequestModel) async {
     try {
-      UpdateVisibilityStatusResponseModel? response =
-          await UpdateVisibilityStatusProvider()
-              .updateVisibilityStatus(updateVisibilityStatusRequestModel);
+      UpdateVisibilityStatusResponseModel? response = await UpdateVisibilityStatusProvider().updateVisibilityStatus(updateVisibilityStatusRequestModel);
       if (response != null && response.payload != null) {
         success('Success', response.payload!.message);
         return true;
@@ -1592,11 +1512,9 @@ class Controller extends GetxController {
   }
 
   ShareProfileResponseModel? sharedUser;
-  Future<ShareProfileResponseModel?> shareProfileUser(
-      ShareProfileRequestModel shareProfileRequestModel) async {
+  Future<ShareProfileResponseModel?> shareProfileUser(ShareProfileRequestModel shareProfileRequestModel) async {
     try {
-      ShareProfileResponseModel? response = await ShareProfileProvider()
-          .shareProfileUser(shareProfileRequestModel);
+      ShareProfileResponseModel? response = await ShareProfileProvider().shareProfileUser(shareProfileRequestModel);
       if (response != null && response.payload != null) {
         sharedUser = response;
         return sharedUser;
@@ -1629,13 +1547,10 @@ class Controller extends GetxController {
     }
   }
 
-  UsernameUpdateRequest usernameUpdateRequest =
-      UsernameUpdateRequest(username: '');
-  Future<bool> updateusername(
-      UsernameUpdateRequest usernameUpdateRequest) async {
+  UsernameUpdateRequest usernameUpdateRequest = UsernameUpdateRequest(username: '');
+  Future<bool> updateusername(UsernameUpdateRequest usernameUpdateRequest) async {
     try {
-      UsernameUpdateResponse? response =
-          await UsernameUpdateProvider().updateUsername(usernameUpdateRequest);
+      UsernameUpdateResponse? response = await UsernameUpdateProvider().updateUsername(usernameUpdateRequest);
       if (response != null) {
         success('success', response.payload.message);
         return true;
@@ -1654,8 +1569,7 @@ class Controller extends GetxController {
   Future<bool> fetchAllsubscripted() async {
     subscripted.clear();
     try {
-      SubscribedPackagesModel? response =
-          await FetchSubscriptedPackageProvider().fetchAllSubscriptedPackage();
+      SubscribedPackagesModel? response = await FetchSubscriptedPackageProvider().fetchAllSubscriptedPackage();
       if (response != null) {
         subscripted.addAll(response.payload.data);
         print('successfully fetched all the subscripted');
@@ -1670,18 +1584,14 @@ class Controller extends GetxController {
     }
   }
 
-  UpdateNewPackageRequestModel updateNewPackageRequestModel =
-      UpdateNewPackageRequestModel(packageId: '');
-  Future<bool> updatinguserpackage(
-      UpdateNewPackageRequestModel updateNewPackageRequestModel) async {
+  UpdateNewPackageRequestModel updateNewPackageRequestModel = UpdateNewPackageRequestModel(packageId: '');
+  Future<bool> updatinguserpackage(UpdateNewPackageRequestModel updateNewPackageRequestModel) async {
     try {
-      UpdateNewPackageResponse? response = await UpdatingPackageProvider()
-          .updatingpackage(updateNewPackageRequestModel);
+      UpdateNewPackageResponse? response = await UpdatingPackageProvider().updatingpackage(updateNewPackageRequestModel);
       if (response != null && response.success == true) {
         success('success', response.payload.message);
         Get.offAll(NavigationBottomBar());
-        EncryptedSharedPreferences preferences =
-            EncryptedSharedPreferences.getInstance();
+        EncryptedSharedPreferences preferences = EncryptedSharedPreferences.getInstance();
         await preferences.setString('package_status', "1");
         return true;
       } else {
@@ -1694,19 +1604,14 @@ class Controller extends GetxController {
     }
   }
 
-  HighlightProfileStatusRequest highlightProfileStatusRequest =
-      HighlightProfileStatusRequest(status: '');
-  Future<bool> highlightProfile(
-      HighlightProfileStatusRequest highlightProfileStatusRequest) async {
+  HighlightProfileStatusRequest highlightProfileStatusRequest = HighlightProfileStatusRequest(status: '');
+  Future<bool> highlightProfile(HighlightProfileStatusRequest highlightProfileStatusRequest) async {
     try {
-      HighlightProfileStatusResponse? response =
-          await HighlightProfileStatusProvider()
-              .highlightProfileStatus(highlightProfileStatusRequest);
+      HighlightProfileStatusResponse? response = await HighlightProfileStatusProvider().highlightProfileStatus(highlightProfileStatusRequest);
       if (response != null) {
         success('success', response.payload.message);
         if (userData.isNotEmpty) {
-          userData.first.accountHighlightStatus =
-              highlightProfileStatusRequest.status;
+          userData.first.accountHighlightStatus = highlightProfileStatusRequest.status;
           userData.refresh();
         }
         // Get.close(1);
@@ -1721,13 +1626,11 @@ class Controller extends GetxController {
     }
   }
 
-  VerificationType verificationtype = VerificationType(
-      id: '', title: '', description: '', status: '', created: '', updated: '');
+  VerificationType verificationtype = VerificationType(id: '', title: '', description: '', status: '', created: '', updated: '');
 
   Future<bool> fetchAllverificationtype() async {
     try {
-      GetVerificationTypeResponse? response =
-          await FetchVerificationtypeProvider().fetchAllVerificationProvider();
+      GetVerificationTypeResponse? response = await FetchVerificationtypeProvider().fetchAllVerificationProvider();
       if (response != null) {
         verificationtype = response.payload.data;
         print('successfully fetched all the verification');
@@ -1742,14 +1645,11 @@ class Controller extends GetxController {
     }
   }
 
-  RequestToVerifyAccount requestToVerifyAccount =
-      RequestToVerifyAccount(identifyImage: '', identifyNo: '');
+  RequestToVerifyAccount requestToVerifyAccount = RequestToVerifyAccount(identifyImage: '', identifyNo: '');
 
-  Future<int> verifyuseraccount(
-      RequestToVerifyAccount requestToVerifyAccount) async {
+  Future<int> verifyuseraccount(RequestToVerifyAccount requestToVerifyAccount) async {
     try {
-      RequestToVerifyAccountResponse? response = await VerifyAccountProvider()
-          .verifyaccountprovider(requestToVerifyAccount);
+      RequestToVerifyAccountResponse? response = await VerifyAccountProvider().verifyaccountprovider(requestToVerifyAccount);
       if (response != null) {
         success('success', response.payload.message);
         Get.close(1);
@@ -1775,8 +1675,7 @@ class Controller extends GetxController {
     try {
       isLoading.value = true;
       hasError.value = false;
-      GetFavouritesResponse? response =
-          await FetchAllFavouritesProvider().fetchallfavouritesprovider();
+      GetFavouritesResponse? response = await FetchAllFavouritesProvider().fetchallfavouritesprovider();
 
       if (response != null) {
         if (response.payload.data.isNotEmpty) {
@@ -1827,9 +1726,7 @@ class Controller extends GetxController {
 
   SuggestedUser convertFavouriteToSuggestedUser(Favourite favourite) {
     // Fix status mapping for UI compatibility
-    String? status = favourite.status == "1"
-        ? "online"
-        : (favourite.status == "0" ? "offline" : favourite.status);
+    String? status = favourite.status == "1" ? "online" : (favourite.status == "0" ? "offline" : favourite.status);
 
     // Fix profile image URL if needed
     String? profileImage = favourite.profileImage;
@@ -1878,14 +1775,11 @@ class Controller extends GetxController {
     );
   }
 
-  MarkFavouriteRequestModel markFavouriteRequestModel =
-      MarkFavouriteRequestModel(favouriteId: '');
+  MarkFavouriteRequestModel markFavouriteRequestModel = MarkFavouriteRequestModel(favouriteId: '');
 
-  Future<bool> markasfavourite(
-      MarkFavouriteRequestModel markFavouriteRequestModel) async {
+  Future<bool> markasfavourite(MarkFavouriteRequestModel markFavouriteRequestModel) async {
     try {
-      MarkFavouriteResponse? response = await MarkasfavouriteProvider()
-          .markasfavouriteprovider(markFavouriteRequestModel);
+      MarkFavouriteResponse? response = await MarkasfavouriteProvider().markasfavouriteprovider(markFavouriteRequestModel);
       if (response != null) {
         success('success', response.payload.message);
         return true;
@@ -1899,14 +1793,11 @@ class Controller extends GetxController {
     }
   }
 
-  DeleteFavouritesRequest deleteFavouritesRequest =
-      DeleteFavouritesRequest(favouriteId: '');
+  DeleteFavouritesRequest deleteFavouritesRequest = DeleteFavouritesRequest(favouriteId: '');
 
-  Future<bool> deletefavourite(
-      DeleteFavouritesRequest deleteFavouritesRequest) async {
+  Future<bool> deletefavourite(DeleteFavouritesRequest deleteFavouritesRequest) async {
     try {
-      DeleteFavouriteResponse? response = await DeletefavouriteProviderModel()
-          .deletefavouriteprovider(deleteFavouritesRequest);
+      DeleteFavouriteResponse? response = await DeletefavouriteProviderModel().deletefavouriteprovider(deleteFavouritesRequest);
       if (response != null) {
         success('success', response.payload);
         return true;
@@ -1920,13 +1811,11 @@ class Controller extends GetxController {
     }
   }
 
-  AppSettingRequest appSettingRequest =
-      AppSettingRequest(minimumAge: '', maximumAge: '', rangeKm: '');
+  AppSettingRequest appSettingRequest = AppSettingRequest(minimumAge: '', maximumAge: '', rangeKm: '');
 
   Future<bool> appsetting(AppSettingRequest appSettingRequest) async {
     try {
-      AppSettingResponse? response =
-          await AppSettingProvider().appsettingprovider(appSettingRequest);
+      AppSettingResponse? response = await AppSettingProvider().appsettingprovider(appSettingRequest);
       if (response != null) {
         success('success', response.payload);
         if (userData.isNotEmpty) {
@@ -1950,11 +1839,9 @@ class Controller extends GetxController {
   }
 
   ProfileLikeRequest profileLikeRequest = ProfileLikeRequest(likedBy: '');
-  Future<ProfileLikeResponse?> profileLike(
-      ProfileLikeRequest profileLikeRequest) async {
+  Future<ProfileLikeResponse?> profileLike(ProfileLikeRequest profileLikeRequest) async {
     try {
-      ProfileLikeResponse? response =
-          await ProfileLikeProvider().profileLikeProvider(profileLikeRequest);
+      ProfileLikeResponse? response = await ProfileLikeProvider().profileLikeProvider(profileLikeRequest);
       if (response != null) {
         return response;
       }
@@ -1971,8 +1858,7 @@ class Controller extends GetxController {
   Future<bool> likesuserpage() async {
     try {
       likespage.clear();
-      GetAllLikesResponse? response =
-          await FetchLikesPageProvider().likespageprovider();
+      GetAllLikesResponse? response = await FetchLikesPageProvider().likespageprovider();
       if (response != null) {
         // success('Success', response.payload.message);
         if (response.payload.data.isNotEmpty) {
@@ -1994,11 +1880,9 @@ class Controller extends GetxController {
   }
 
   DislikeProfileRequest dislikeProfileRequest = DislikeProfileRequest(id: '');
-  Future<bool> dislikeprofile(
-      DislikeProfileRequest dislikeProfileRequest) async {
+  Future<bool> dislikeprofile(DislikeProfileRequest dislikeProfileRequest) async {
     try {
-      DislikeProfileResponse? response = await DislikeProfileProvider()
-          .dislikeProfileProvider(dislikeProfileRequest);
+      DislikeProfileResponse? response = await DislikeProfileProvider().dislikeProfileProvider(dislikeProfileRequest);
       if (response != null) {
         // success('Success', response.payload.message);
         return true;
@@ -2011,13 +1895,10 @@ class Controller extends GetxController {
     }
   }
 
-  HomepageDislikeRequest homepageDislikeRequest =
-      HomepageDislikeRequest(userId: '', connectionId: '');
-  Future<bool> homepagedislikeprofile(
-      HomepageDislikeRequest homepageDislikeRequest) async {
+  HomepageDislikeRequest homepageDislikeRequest = HomepageDislikeRequest(userId: '', connectionId: '');
+  Future<bool> homepagedislikeprofile(HomepageDislikeRequest homepageDislikeRequest) async {
     try {
-      HomepageDislikeResponse? response = await HomePageDislikeProvider()
-          .homePageDislikeProvider(homepageDislikeRequest);
+      HomepageDislikeResponse? response = await HomePageDislikeProvider().homePageDislikeProvider(homepageDislikeRequest);
       if (response != null) {
         success('Success', response.payload.message);
         return true;
@@ -2036,9 +1917,7 @@ class Controller extends GetxController {
   Future<bool> fetchalluserconnections() async {
     try {
       userConnections.clear();
-      GetAllChatHistoryPageResponse? response =
-          await FetchAllUserConnectionsProvider()
-              .fetchalluserconnectionsprovider();
+      GetAllChatHistoryPageResponse? response = await FetchAllUserConnectionsProvider().fetchalluserconnectionsprovider();
       if (response != null) {
         userConnections.addAll(response.payload.data);
         print('Successfully fetched all the chat history page');
@@ -2057,9 +1936,7 @@ class Controller extends GetxController {
   Future<bool> fetchallpingrequestmessage() async {
     try {
       messageRequest.clear();
-      GetAllRequestPingMessageResponse? response =
-          await FetchAllRequestMessageProvider()
-              .fetchallrequestmessageprovider();
+      GetAllRequestPingMessageResponse? response = await FetchAllRequestMessageProvider().fetchallrequestmessageprovider();
       if (response != null) {
         // success('Success', response.payload.message);
         if (response.payload.data.isNotEmpty) {
@@ -2083,8 +1960,7 @@ class Controller extends GetxController {
   Future<bool> fetchAllIntroSlider() async {
     try {
       sliderData.clear();
-      IntroSliderResponse? response =
-          await FetchAllIntroSliderProvider().fetchAllIntroSliderProvider();
+      IntroSliderResponse? response = await FetchAllIntroSliderProvider().fetchAllIntroSliderProvider();
 
       if (response != null) {
         // success('Success', response.payload!.msg!);
@@ -2121,8 +1997,7 @@ class Controller extends GetxController {
 
   Future<bool> deletechathistory(DeleteChatRequest deleteChatRequest) async {
     try {
-      DeleteChatResponse? response = await DeleteChatHistoryProvider()
-          .deletechathistoryprovider(deleteChatRequest);
+      DeleteChatResponse? response = await DeleteChatHistoryProvider().deletechathistoryprovider(deleteChatRequest);
       if (response != null) {
         success('success', response.payload.message);
         return true;
@@ -2141,8 +2016,7 @@ class Controller extends GetxController {
   Future<bool> fetchAllAddOn() async {
     try {
       addon.clear();
-      GetAllAddonsResponse? response =
-          await FetchAllAddOnProvider().getalladdonprovider();
+      GetAllAddonsResponse? response = await FetchAllAddOnProvider().getalladdonprovider();
 
       if (response != null && response.success) {
         if (response.payload.data.isNotEmpty) {
@@ -2163,12 +2037,10 @@ class Controller extends GetxController {
     }
   }
 
-  RxList<AllTransactions.Transaction> transactions =
-      <AllTransactions.Transaction>[].obs;
+  RxList<AllTransactions.Transaction> transactions = <AllTransactions.Transaction>[].obs;
   Future<bool> allTransactions() async {
     try {
-      AllTransactions.AllTransactionsResponseModel? response =
-          await OrderProvider().allTransactions();
+      AllTransactions.AllTransactionsResponseModel? response = await OrderProvider().allTransactions();
       if (response != null) {
         transactions.assignAll(response.payload.transactions);
         return true;
@@ -2202,8 +2074,7 @@ class Controller extends GetxController {
   RxList<PointAmount> pointamount = <PointAmount>[].obs;
   Future<bool> getpointdetailsamount() async {
     try {
-      PointAmountResponse? response =
-          await GetPointAmountProvider().getpointamount();
+      PointAmountResponse? response = await GetPointAmountProvider().getpointamount();
       if (response != null) {
         pointamount.assignAll(response.payload.pointToAmount);
         return true;
@@ -2216,17 +2087,13 @@ class Controller extends GetxController {
     }
   }
 
-  ReferralCodeRequestModel referalcoderequestmodel =
-      ReferralCodeRequestModel(mobile: '');
-  Future<bool> requestreference(
-      ReferralCodeRequestModel referalcoderequestmodel) async {
+  ReferralCodeRequestModel referalcoderequestmodel = ReferralCodeRequestModel(mobile: '');
+  Future<bool> requestreference(ReferralCodeRequestModel referalcoderequestmodel) async {
     try {
-      ReferralCodeResponse? response = await ReferalCodeProvider()
-          .referalcodeprovider(referalcoderequestmodel);
+      ReferralCodeResponse? response = await ReferalCodeProvider().referalcodeprovider(referalcoderequestmodel);
       if (response != null) {
         success("Success", response.payload.referralCode);
-        String referralMessage =
-            "Check out my referral code: ${response.payload.referralCode}";
+        String referralMessage = "Check out my referral code: ${response.payload.referralCode}";
         await Share.share(referralMessage); // This opens the native share sheet
         return true;
       } else {
@@ -2242,9 +2109,7 @@ class Controller extends GetxController {
   RxList<CreditDebitHistory> creditdebithistory = <CreditDebitHistory>[].obs;
   Future<bool> getcreditdebithistory() async {
     try {
-      GetPointCreditedDebitedResponse? response =
-          await GetPointCreditedDebitedProvider()
-              .getpointcrediteddebitedprovider();
+      GetPointCreditedDebitedResponse? response = await GetPointCreditedDebitedProvider().getpointcrediteddebitedprovider();
 
       if (response != null) {
         creditdebithistory.assignAll(response.payload.creditdebithistory);
@@ -2262,8 +2127,7 @@ class Controller extends GetxController {
 
   Future<bool> gettotalpoint() async {
     try {
-      GetUsersTotalPoints? response =
-          await GetUsertotalPointsProvider().getusertotalpointsprovider();
+      GetUsersTotalPoints? response = await GetUsertotalPointsProvider().getusertotalpointsprovider();
       if (response != null) {
         totalpoint.assignAll([response.payload.point]);
         return true;
@@ -2280,8 +2144,7 @@ class Controller extends GetxController {
 
   Future<bool> fetchAllPackagesForCreator() async {
     try {
-      CreatorPackageResponse? response =
-          await FetchAllCreatorPackageProvider().fetchCreatorPackage();
+      CreatorPackageResponse? response = await FetchAllCreatorPackageProvider().fetchCreatorPackage();
 
       if (response != null && response.success) {
         packageforcreator.assignAll(response.data);
@@ -2300,8 +2163,7 @@ class Controller extends GetxController {
   RxList<CreatorContent> creatorContent = <CreatorContent>[].obs;
   Future<bool> fetchAllCreatorContent() async {
     try {
-      CreatorContentResponse? response =
-          await CreatorAllContentProvider().fetchCreatorContent();
+      CreatorContentResponse? response = await CreatorAllContentProvider().fetchCreatorContent();
 
       if (response != null && response.success) {
         creatorContent.assignAll(response.data);
@@ -2320,8 +2182,7 @@ class Controller extends GetxController {
   RxList<CreatorGeneric> creatorGeneric = <CreatorGeneric>[].obs;
   Future<bool> fetchAllCreatorGeneric() async {
     try {
-      CreatorGenericResponse? response =
-          await FetchAllCreatorGenericProvider().fetchCreatorGeneric();
+      CreatorGenericResponse? response = await FetchAllCreatorGenericProvider().fetchCreatorGeneric();
 
       if (response != null && response.success) {
         // Flatten the list of lists
@@ -2343,8 +2204,7 @@ class Controller extends GetxController {
 
   Future<bool?> getAllCreators() async {
     try {
-      GetAllCreatorsResponse? response =
-          await GetAllCreatorsProvider().getAllCreators();
+      GetAllCreatorsResponse? response = await GetAllCreatorsProvider().getAllCreators();
       if (response != null && response.success) {
         creators.assignAll(response.data);
         return true;
@@ -2360,11 +2220,9 @@ class Controller extends GetxController {
 
   RxList<OrderData> creatorOrders = <OrderData>[].obs;
 
-  Future<CreatorOrderResponse?> createCreatorOrder(
-      CreatorOrderRequest request) async {
+  Future<CreatorOrderResponse?> createCreatorOrder(CreatorOrderRequest request) async {
     try {
-      final CreatorOrderResponse? response =
-          await CreatorOrderProvider().createOrder(request);
+      final CreatorOrderResponse? response = await CreatorOrderProvider().createOrder(request);
 
       if (response != null && response.success && response.data.isNotEmpty) {
         creatorOrders.assignAll(response.data);
@@ -2384,9 +2242,7 @@ class Controller extends GetxController {
 
   Future<bool> fetchCreatorTransactionHistory() async {
     try {
-      final CreatorTransactionHistoryResponse? response =
-          await CreatorTransactionHistoryProvider()
-              .fetchCreatorTransactionHistory();
+      final CreatorTransactionHistoryResponse? response = await CreatorTransactionHistoryProvider().fetchCreatorTransactionHistory();
 
       if (response != null && response.success && response.data.isNotEmpty) {
         creatorTransactionHistory.assignAll(response.data);
@@ -2402,14 +2258,11 @@ class Controller extends GetxController {
     }
   }
 
-  RxList<CreatorSubscriptionData> creatorSubscriptions =
-      <CreatorSubscriptionData>[].obs;
+  RxList<CreatorSubscriptionData> creatorSubscriptions = <CreatorSubscriptionData>[].obs;
 
-  Future<AddUserToCreatorResponse?> addUserToCreator(
-      AddUserToCreatorRequest request) async {
+  Future<AddUserToCreatorResponse?> addUserToCreator(AddUserToCreatorRequest request) async {
     try {
-      final AddUserToCreatorResponse? response =
-          await AddUserToCreatorProvider().addUserToCreator(request);
+      final AddUserToCreatorResponse? response = await AddUserToCreatorProvider().addUserToCreator(request);
 
       if (response != null && response.data.isNotEmpty) {
         creatorSubscriptions.assignAll(response.data);
@@ -2429,8 +2282,7 @@ class Controller extends GetxController {
 
   Future<bool> fetchCreatorsAllOrders() async {
     try {
-      final CreatorAllOrdersResponse? response =
-          await CreatorsAllOrdersProvider().fetchCreatorsAllOrders();
+      final CreatorAllOrdersResponse? response = await CreatorsAllOrdersProvider().fetchCreatorsAllOrders();
 
       if (response != null && response.data.isNotEmpty) {
         creatorsAllOrders.assignAll(response.data);
@@ -2450,8 +2302,7 @@ class Controller extends GetxController {
 
   Future<bool> fetchContentById(String contentId) async {
     try {
-      final CreatorContentByIdResponse? response =
-          await GetContentByIdProvider().fetchContentById(contentId);
+      final CreatorContentByIdResponse? response = await GetContentByIdProvider().fetchContentById(contentId);
 
       if (response != null && response.success && response.data.isNotEmpty) {
         contentById.assignAll(response.data);
@@ -2467,14 +2318,11 @@ class Controller extends GetxController {
     }
   }
 
-  RxList<CreatorSubscriptionHistory> creatorsSubscriptionHistory =
-      <CreatorSubscriptionHistory>[].obs;
+  RxList<CreatorSubscriptionHistory> creatorsSubscriptionHistory = <CreatorSubscriptionHistory>[].obs;
 
   Future<bool> fetchCreatorsSubscriptionHistory() async {
     try {
-      final CreatorSubscriptionHistoryResponse? response =
-          await CreatorsSubscriptionHistoryProvider()
-              .fetchCreatorsSubscriptionHistory();
+      final CreatorSubscriptionHistoryResponse? response = await CreatorsSubscriptionHistoryProvider().fetchCreatorsSubscriptionHistory();
 
       if (response != null && response.success && response.data.isNotEmpty) {
         creatorsSubscriptionHistory.assignAll(response.data);
@@ -2492,8 +2340,7 @@ class Controller extends GetxController {
 
   Future<bool> addUserToHookup(interestedId) async {
     try {
-      final bool response = await AddHookupRequestProvider()
-          .addHookupRequest(interestedId: interestedId);
+      final bool response = await AddHookupRequestProvider().addHookupRequest(interestedId: interestedId);
 
       if (response) {
         success('Success', 'User added to hookup successfully');
@@ -2510,8 +2357,7 @@ class Controller extends GetxController {
 
   Future<bool?> updateStatus(String status) async {
     try {
-      UpdateStatusResponse? response =
-          await Updatestatusprovider().updateStatus(status);
+      UpdateStatusResponse? response = await Updatestatusprovider().updateStatus(status);
       if (response != null) {
         // success('Success', response.message);
         return true;
@@ -2539,8 +2385,7 @@ class Controller extends GetxController {
 
   Future<bool> updateHookupStatus(int hookupStatus) async {
     try {
-      final bool response = await UpdateHookupStatusProvider()
-          .updateHookupStatus(hookupStatus: hookupStatus);
+      final bool response = await UpdateHookupStatusProvider().updateHookupStatus(hookupStatus: hookupStatus);
 
       if (response) {
         success('Success', 'Hookup status updated successfully');
@@ -2561,8 +2406,7 @@ class Controller extends GetxController {
 
   Future<bool> updateIncognitoStatus(int status) async {
     try {
-      final bool response =
-          await UpdateIncognitoStatusProvider().updateIncognitoStatus(
+      final bool response = await UpdateIncognitoStatusProvider().updateIncognitoStatus(
         status: status,
       );
 
@@ -2662,14 +2506,11 @@ class Controller extends GetxController {
   }
 
   // Add these getters to check user status
-  bool get isVerified =>
-      userData.isNotEmpty && userData.first.accountVerificationStatus == "1";
+  bool get isVerified => userData.isNotEmpty && userData.first.accountVerificationStatus == "1";
 
-  bool get isVerificationPending =>
-      userData.isNotEmpty && userData.first.accountVerificationStatus == "3";
+  bool get isVerificationPending => userData.isNotEmpty && userData.first.accountVerificationStatus == "3";
 
-  bool get hasSubscription =>
-      userData.isNotEmpty && userData.first.packageStatus == "1";
+  bool get hasSubscription => userData.isNotEmpty && userData.first.packageStatus == "1";
 
   // Helper method to check if user can interact
   Future<bool> canUserInteract(BuildContext context) async {
@@ -2738,37 +2579,32 @@ class Controller extends GetxController {
                 Center(
                   child: Text(
                     'Account Verification',
-                    style:
-                        AppTextStyles.titleText.copyWith(color: Colors.white),
+                    style: AppTextStyles.titleText.copyWith(color: Colors.white),
                     textAlign: TextAlign.center,
                   ),
                 ),
                 Center(
                   child: Text(
                     getVerificationMessage(verificationStatus),
-                    style: AppTextStyles.textStyle
-                        .copyWith(color: Colors.white70, fontSize: 10),
+                    style: AppTextStyles.textStyle.copyWith(color: Colors.white70, fontSize: 10),
                     textAlign: TextAlign.center,
                   ),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   'To verify your account, you need to submit a photo. Choose one of the following options for your photo submission.',
-                  style:
-                      AppTextStyles.textStyle.copyWith(color: Colors.white70),
+                  style: AppTextStyles.textStyle.copyWith(color: Colors.white70),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    if (verificationStatus == '1' ||
-                        verificationStatus == '2') ...[
+                    if (verificationStatus == '1' || verificationStatus == '2') ...[
                       // Cancel Button
                       SizedBox(
                         width: screenSize.width * 0.28, // 36% of screen width
-                        height:
-                            screenSize.height * 0.055, // 5.5% of screen height
+                        height: screenSize.height * 0.055, // 5.5% of screen height
                         child: Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -2792,15 +2628,12 @@ class Controller extends GetxController {
                                   colors: AppColors.gradientBackgroundList,
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
-                                ).createShader(Rect.fromLTWH(
-                                    0, 0, bounds.width, bounds.height)),
+                                ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
                                 blendMode: BlendMode.srcIn,
                                 child: Text(
                                   'Cancel',
                                   style: AppTextStyles.textStyle.copyWith(
-                                    fontSize:
-                                        MediaQuery.of(context).size.width *
-                                            0.035,
+                                    fontSize: MediaQuery.of(context).size.width * 0.035,
                                     color: Colors.white,
                                   ),
                                 ),
@@ -2812,10 +2645,8 @@ class Controller extends GetxController {
                       SizedBox(width: MediaQuery.of(context).size.width * 0.04),
                       // Confirm Button
                       SizedBox(
-                        width: MediaQuery.of(context).size.width *
-                            0.28, // same as Cancel
-                        height: MediaQuery.of(context).size.height *
-                            0.055, // same as Cancel
+                        width: MediaQuery.of(context).size.width * 0.28, // same as Cancel
+                        height: MediaQuery.of(context).size.height * 0.055, // same as Cancel
                         child: Container(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
@@ -2843,8 +2674,7 @@ class Controller extends GetxController {
                               child: Text(
                                 'Confirm',
                                 style: AppTextStyles.textStyle.copyWith(
-                                  fontSize:
-                                      MediaQuery.of(context).size.width * 0.035,
+                                  fontSize: MediaQuery.of(context).size.width * 0.035,
                                   color: Colors.white,
                                 ),
                               ),
@@ -2881,8 +2711,7 @@ class Controller extends GetxController {
                               child: Text(
                                 'OK',
                                 style: AppTextStyles.textStyle.copyWith(
-                                  fontSize:
-                                      MediaQuery.of(context).size.width * 0.035,
+                                  fontSize: MediaQuery.of(context).size.width * 0.035,
                                   color: Colors.white,
                                 ),
                               ),

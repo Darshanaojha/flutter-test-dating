@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-String get baseurl => "http://$ipAddress/dating_backend_springboot/admin";
-String get ip => "http://$ipAddress/dating_backend_springboot/";
+String get baseurl => "https://$ipAddress/dating_backend_springboot/admin";
+String get ip => "https://$ipAddress/dating_backend_springboot/";
 // String get baseurl => "http://$ipAddress";
 // String get ip => "http://$ipAddress/";
 String get springbooturl => "http://$ipSpringAddress:8080";
 // String ipAddress = "150.241.245.210";
-String ipSpringAddress = "150.241.245.210";
-// String ipSpringAddress = "192.168.1.23";
-String ipAddress = "192.168.1.6";
+//String ipSpringAddress = "150.241.245.210";
+String ipSpringAddress = "guidebooky-hezekiah-nonoperative.ngrok-free.dev.dev";
+String ipAddress = "guidebooky-hezekiah-nonoperative.ngrok-free.dev";
 const String appName = "cajed.in";
 
 const encryptionkey = "flamrpisyst2024!";
@@ -44,11 +44,9 @@ class AppColors {
   static Color formFieldColor = Color.fromARGB(255, 85, 84, 84);
   static Color inactiveColor = const Color.fromARGB(255, 178, 126, 122);
   static Color activeColor = const Color.fromARGB(255, 123, 124, 123);
-  static Color successColor =
-      const Color.fromARGB(255, 116, 158, 116).withOpacity(0.3);
+  static Color successColor = const Color.fromARGB(255, 116, 158, 116).withOpacity(0.3);
   static Color successBorderColor = const Color.fromARGB(255, 106, 154, 108);
-  static Color errorColor =
-      const Color.fromARGB(196, 114, 8, 0).withOpacity(0.3);
+  static Color errorColor = const Color.fromARGB(196, 114, 8, 0).withOpacity(0.3);
   static Color errorBorderColor = const Color.fromARGB(205, 100, 8, 0);
   //static Color navigationColor =  Color.fromARGB(255, 63, 62, 62);
   static Color navigationColor = Color.fromARGB(255, 197, 173, 122);
@@ -123,8 +121,7 @@ class AppColors {
         end: Alignment(0.8, 1),
       );
 
-  static var shader = LinearGradient(colors: gradientBackgroundList)
-      .createShader(const Rect.fromLTWH(0, 0, 200, 40));
+  static var shader = LinearGradient(colors: gradientBackgroundList).createShader(const Rect.fromLTWH(0, 0, 200, 40));
 
   // static List<Color> gradientColor = <Color>[
   //   Color(0xFF441752), // Darkest purple
@@ -469,8 +466,7 @@ class FirebaseConstants {
   static const String appId = '1:837611833070:android:3cd2c487816f9828f215ff';
   static const String messagingSenderId = '837611833070';
   static const String projectId = 'datingapplication-f7813';
-  static const String storageBucket =
-      'datingapplication-f7813.firebasestorage.app';
+  static const String storageBucket = 'datingapplication-f7813.firebasestorage.app';
 
   static const FirebaseOptions firebaseOptions = FirebaseOptions(
     apiKey: apiKey,
