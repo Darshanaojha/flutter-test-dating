@@ -1,11 +1,11 @@
-# Project setup — macOS (reproduce working machine environment)
+Project setup — macOS (reproduce working machine environment)
+=============================================================
 
-## Goal
-
+Goal
+----
 Reproduce the exact development environment from the source Mac so this project builds and runs identically on another Mac.
 
 Key versions from the working machine
-
 - Flutter: 3.32.4 (stable)
 - Dart: 3.8.1
 - Java: 17.0.12 (project requires Java 17)
@@ -16,7 +16,6 @@ Key versions from the working machine
 - Note: Keep pubspec.lock in repo to lock package versions.
 
 Overview (high level)
-
 1. Install Homebrew, Git, Android Studio (or SDK tools), Xcode and CocoaPods.
 2. Install Java 17 and set JAVA_HOME to it.
 3. Install Flutter (use FVM to pin 3.32.4).
@@ -25,32 +24,28 @@ Overview (high level)
 6. Add signing files locally (key.properties, keystore) if needed.
 7. Run app using fvm flutter run (or flutter if not using FVM).
 
-## Step A — Capture current working values (optional)
-
+Step A — Capture current working values (optional)
+--------------------------------------------------
 Run these on the working Mac and save outputs (already captured):
-
 - flutter --version -> Flutter 3.32.4
 - flutter doctor -v -> saved
 - java --version -> java 17.0.12
 - Inspect android/app/build.gradle.kts for ndkVersion (27.0.12077973)
 
-## Step B — Install system deps (on new Mac)
-
-1. Homebrew (if not installed)
-
+Step B — Install system deps (on new Mac)
+------------------------------------------
+1) Homebrew (if not installed)
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-2. Git & optional tools
-
+2) Git & optional tools
 ```bash
 brew install git
 brew install --cask visual-studio-code  # optional
 ```
 
-3. Java 17 (required)
-
+3) Java 17 (required)
 ```bash
 brew install openjdk@17
 # Set JAVA_HOME (add to ~/.zshrc or ~/.bash_profile)
@@ -59,21 +54,16 @@ echo 'export PATH="$JAVA_HOME/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 java -version   # should show 17.x
 ```
-
 Important: the project compiles with Java 17. If Android Studio provides a different JDK, configure flutter to use your JDK:
-
 ```bash
 flutter config --jdk-dir="$JAVA_HOME"
 ```
 
-4. Android Studio / Android SDK
-
+4) Android Studio / Android SDK
 - Recommended: install Android Studio (includes SDK Manager / emulator).
-
 ```bash
 brew install --cask android-studio
 ```
-
 - Then open Android Studio → SDK Manager → install:
   - Android SDK Platform-Tools
   - Android SDK Platform for API 33 and API 35 (match compileSdk if needed)
@@ -83,8 +73,7 @@ brew install --cask android-studio
 
 Alternatively install via sdkmanager (see Step C).
 
-5. Environment vars (add to ~/.zshrc)
-
+5) Environment vars (add to ~/.zshrc)
 ```bash
 echo 'export ANDROID_SDK_ROOT="$HOME/Library/Android/sdk"' >> ~/.zshrc
 echo 'export ANDROID_HOME="$ANDROID_SDK_ROOT"' >> ~/.zshrc
@@ -92,78 +81,66 @@ echo 'export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/
 source ~/.zshrc
 ```
 
-6. Install NDK and SDK components (using sdkmanager)
-
+6) Install NDK and SDK components (using sdkmanager)
 ```bash
 # ensure ANDROID_SDK_ROOT is set
 export ANDROID_SDK_ROOT="$HOME/Library/Android/sdk"
 sdkmanager --sdk_root="$ANDROID_SDK_ROOT" "platform-tools" "platforms;android-33" "platforms;android-35" "build-tools;33.0.2" "build-tools;35.0.0" "ndk;27.0.12077973" "cmdline-tools;latest"
 ```
 
-7. Accept Android licenses
-
+7) Accept Android licenses
 ```bash
 yes | sdkmanager --licenses --sdk_root="$ANDROID_SDK_ROOT"
 # or
 flutter doctor --android-licenses
 ```
 
-8. Xcode (for iOS)
-
+8) Xcode (for iOS)
 - Install from App Store or developer.apple.com.
 - Then run:
-
 ```bash
 sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 sudo xcodebuild -runFirstLaunch
 ```
-
 If you can't install Xcode (CI or headless), iOS builds will not work — Android will.
 
-9. CocoaPods (iOS)
-
+9) CocoaPods (iOS)
 ```bash
 # install recommended CocoaPods version
 sudo gem install cocoapods -v 1.16.2
 pod setup
 ```
-
 On Apple Silicon, you may need:
-
 ```bash
 sudo gem install ffi
 arch -x86_64 pod install
 ```
 
-## Step C — Install Flutter (FVM recommended) and tools
-
+Step C — Install Flutter (FVM recommended) and tools
+----------------------------------------------------
 FVM will pin Flutter to 3.32.4 for reproducibility.
 
-1. Install FVM:
-
+1) Install FVM:
 ```bash
 dart pub global activate fvm
 ```
 
-2. Install the exact Flutter SDK version used on the working machine:
-
+2) Install the exact Flutter SDK version used on the working machine:
 ```bash
 fvm install 3.32.4
 fvm use 3.32.4 --global
 # Use fvm flutter <command> or configure your IDE to use FVM Flutter path.
 ```
 
-3. Verify:
-
+3) Verify:
 ```bash
 fvm flutter --version   # should show Flutter 3.32.4 and Dart 3.8.1
 fvm flutter doctor -v
 ```
 
-## Step D — Clone repo & local steps
-
-1. Clone and fetch packages:
-
+Step D — Clone repo & local steps
+---------------------------------
+1) Clone and fetch packages:
 ```bash
 git clone <repo-url>
 cd dating_flutter_app
@@ -172,17 +149,57 @@ fvm flutter clean
 fvm flutter pub get
 ```
 
-2. Create android/local.properties (if absent — do NOT commit)
-
+2) Create android/local.properties (if absent — do NOT commit)
 ```bash
 echo "sdk.dir=${HOME}/Library/Android/sdk" > android/local.properties
 ```
 
-3. iOS pods:
-
+3) iOS pods:
 ```bash
 cd ios
 # On Intel mac:
 pod install --repo-update
-# On
+# On Apple Silicon, if problems:
+arch -x86_64 pod install --repo-update
+cd ..
 ```
+
+Step E — Signing keys (local only)
+----------------------------------
+If you sign releases or debug builds, add a local key.properties and store file. DO NOT commit.
+
+Sample android/key.properties:
+````properties
+// filepath: [key.properties](http://_vscodecontentref_/0)
+storePassword=your_store_password
+keyPassword=your_key_password
+keyAlias=your_key_alias
+storeFile=/Users/youruser/keystores/release.jks
+
+
+Place release.jks at the specified path and ensure android/app/build.gradle.kts reads key.properties (it typically does if commented example present).
+
+Step F — Run the app
+Start an Android emulator or attach device.
+Run: fvm flutter run   # or fvm flutter run -d <device-id>
+Build APK: fvm flutter build apk --release
+iOS (if Xcode installed):fvm flutter build ios
+# Or open ios/Runner.xcworkspace in Xcode and build from Xcode
+
+Step G — Useful helper script (optional)
+See scripts/setup-env.sh (optional) to automate SDK installs (requires manual steps for Android Studio/Xcode).
+
+Troubleshooting & notes
+Java mismatch: If you see Java 21 from Android Studio but need Java 17 for Gradle, point flutter to JDK 17:
+flutter config --jdk-dir="$JAVA_HOME"
+
+If build error mentions NDK mismatch, ensure ndk;27.0.12077973 installed and android/app/build.gradle.kts ndkVersion matches.
+If CocoaPods failing on Apple Silicon, run pod install with arch -x86_64.
+If flutter doctor shows Android licenses not accepted, run flutter doctor --android-licenses.
+If Gradle errors differ between machines, copy gradle-wrapper.properties and android/gradle.properties from working machine.
+Keep pubspec.lock committed to lock dependency versions.
+Verification checklist
+fvm flutter --version => 3.32.4 / Dart 3.8.1
+fvm flutter doctor -v => no critical errors (except Xcode if not installed)
+fvm flutter run works on Android emulator/device
+ios: pod install works and Xcode builds, if Xcode installed
