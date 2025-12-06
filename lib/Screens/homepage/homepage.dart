@@ -75,6 +75,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    print("❗ Page opened: initState called");
 
     _animationController = AnimationController(
       vsync: this,

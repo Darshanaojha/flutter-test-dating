@@ -23,7 +23,7 @@ class PricingPage extends StatefulWidget {
 
 class PricingPageState extends State<PricingPage>
     with TickerProviderStateMixin {
-  final Controller controller = Get.put(Controller());
+  final Controller controller = Get.find<Controller>();
   final RazorpayController razorpaycontroller = Get.put(RazorpayController());
   final RxString selectedPlan = ''.obs;
   final RxString planId = ''.obs;
@@ -36,6 +36,7 @@ class PricingPageState extends State<PricingPage>
 
   @override
   void initState() {
+    print("init of pricing page"  );
     super.initState();
     initializeData();
     _animationController = AnimationController(

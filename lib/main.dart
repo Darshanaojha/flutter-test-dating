@@ -15,6 +15,8 @@ void main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
 
+    Get.put(Controller());
+
     await EncryptedSharedPreferences.initialize(encryptionkey);
     await Firebase.initializeApp(
       options: FirebaseConstants.firebaseOptions,
@@ -24,7 +26,6 @@ void main() async {
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
     });
 
-    Get.put(Controller());
     Get.put(ConnectivityService());
     runApp(const MainApp());
   } catch (e) {

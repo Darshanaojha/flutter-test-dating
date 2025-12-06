@@ -26,11 +26,12 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
   }
 
   Future<bool> _initializeSummaryData() async {
+    print("Fetching profile photos for  ${widget.userId}");
     final profileSuccess = await (widget.userId != null
         ? controller.fetchProfile(widget.userId!)
         : controller.fetchProfile());
     if (!profileSuccess) return false;
-
+    
     return (widget.userId != null)
         ? controller.fetchProfileUserPhotos(widget.userId!)
         : controller.fetchProfileUserPhotos();

@@ -29,20 +29,40 @@ class HomePageProvider extends GetConnect {
 
   Future<UserProfileResponse?> fetchProfile([String id = ""]) async {
     try {
-      EncryptedSharedPreferences preferences = EncryptedSharedPreferences.getInstance();
+      print("in fetch profile provider...");
+      EncryptedSharedPreferences preferences =
+          EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
+      print("Token in fetch profile provider: $token");
+      print("Token EXACT: >$token<");
+
       if (token == null || token.isEmpty) {
         failure('Error in fetchProfile', 'Token not found');
         return null;
       }
+      print("RAW TOKEN: [$token]");
+      print("LENGTH: ${token.length}");
+      print("CODE UNITS: ${token.codeUnits}");
 
+      token = token.replaceAll('\n', '').replaceAll('\r', '').trim();
+
+      print("Fetching profile for ID: $id with token: $token");
       Response response = await get(
         '$baseurl/Profile/profile/$id',
-        headers: <String, String>{
+        headers: {
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer ' + token,
         },
       );
+      // Response response = await get(
+      //   '$baseurl/Profile/profile/$id',
+      //   headers: <String, String>{
+      //     'Content-Type': 'application/json; charset=UTF-8',
+      //     'Authorization': 'Bearer $token',
+      //   },
+      // );
+
+      print("respionse body in profile provider: ${response.body}");
 
       if (id == "") print("User Profile Response: ${response.body.toString()}");
       if (response.statusCode == null || response.body == null) {
@@ -54,11 +74,13 @@ class HomePageProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return UserProfileResponse.fromJson(response.body);
         } else {
-          failure('Error in fetchProfile', response.body['error']['message']);
+          failure('Error in fetchProfile  not json',
+              response.body['error']['message']);
           return null;
         }
       } else {
-        failure('Error in fetchProfile', response.body['error']['message']);
+        failure('Error in fetchProfile non 200 response',
+            response.body['error']['message']);
         return null;
       }
     } catch (e) {
@@ -69,7 +91,8 @@ class HomePageProvider extends GetConnect {
 
   Future<AllActiveUsersResponse?> fetchAllActiveUsers() async {
     try {
-      EncryptedSharedPreferences preferences = EncryptedSharedPreferences.getInstance();
+      EncryptedSharedPreferences preferences =
+          EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
       if (token == null || token.isEmpty) {
         failure('Error in fetchAllActiveUsers', 'Token not found');
@@ -90,11 +113,13 @@ class HomePageProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return AllActiveUsersResponse.fromJson(response.body);
         } else {
-          failure('Error in fetchAllActiveUsers', response.body['error']['message']);
+          failure('Error in fetchAllActiveUsers',
+              response.body['error']['message']);
           return null;
         }
       } else {
-        failure('Error in fetchAllActiveUsers', response.body['error']['message']);
+        failure(
+            'Error in fetchAllActiveUsers', response.body['error']['message']);
         return null;
       }
     } catch (e) {

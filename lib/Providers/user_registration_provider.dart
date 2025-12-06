@@ -39,6 +39,9 @@ class UserRegistrationProvider extends GetConnect {
     debugPrint('Photos: ${userRegistrationRequest.photos}');
 
     try {
+      print("📤 Request URL: $baseurl/Authentication/register");
+  print("📦 Request Body: ${userRegistrationRequest.toJson()}");
+  
       Response response = await post(
         '$baseurl/Authentication/register',
         userRegistrationRequest.toJson(),
@@ -46,6 +49,8 @@ class UserRegistrationProvider extends GetConnect {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
+      print("Response received...");
+      // print(response.body['error']['code'].toString());
       if (response.statusCode == null || response.body == null) {
         failure('Error in userRegistration', 'Server Failed To Respond');
         return null;

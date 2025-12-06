@@ -2,13 +2,23 @@ import 'package:dating_application/Models/ResponseModels/all_active_user_resposn
 import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get.dart';
+
 class FetchAllActiveUserProvider extends GetConnect {
   Future<AllActiveUsersResponse?> getAllActiveUser() async {
     try {
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
+      print("Token in all active user provider before if loop: $token");
       if (token != null && token.isNotEmpty) {
+        final url = "$baseurl/Profile/fetch_all_active_user";
+
+        print("➡️ GET Request for getting all active users");
+        print("URL: $url");
+        print("Headers: ${{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        }}");
         Response response = await get(
           "$baseurl/Profile/fetch_all_active_user",
           headers: <String, String>{
@@ -28,7 +38,8 @@ class FetchAllActiveUserProvider extends GetConnect {
           if (response.body['error']['code'] == 0) {
             return AllActiveUsersResponse.fromJson(response.body);
           } else {
-            failure('Error in getAllActiveUser', response.body['error']['message']);
+            failure(
+                'Error in getAllActiveUser', response.body['error']['message']);
             return null;
           }
         } else {
