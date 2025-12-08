@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:dating_application/Widgets/refresh_wrapper.dart';
 import 'package:heart_overlay/heart_overlay.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
@@ -540,6 +541,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           ),
         ),
       ),
+    ),
     );
   }
 
@@ -598,7 +600,9 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      body: SafeArea(
+      body: RefreshWrapper(
+        onRefresh: initializeApp,
+        child: SafeArea(
         child: Stack(
           children: [
             FutureBuilder(

@@ -24,6 +24,7 @@ class ContactListScreenState extends State<ContactListScreen> {
   RxBool isselected = false.obs;
   RxBool iswriting = false.obs;
   RxString selectedReason = ''.obs;
+  RxString selectedReasonId = ''.obs;
   RxString reportDescription = ''.obs;
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -40,7 +41,7 @@ class ContactListScreenState extends State<ContactListScreen> {
     await controller.fetchalluserconnections();
     await controller.fetchProfile();
     await controller.fetchallpingrequestmessage();
-    
+
     setState(() {
       isLoading = false;
     });
@@ -264,30 +265,55 @@ class ContactListScreenState extends State<ContactListScreen> {
                                                     Widget avatar = Stack(
                                                       children: [
                                                         CircleAvatar(
-                                                          radius: size.width * 0.045,
-                                                          backgroundColor: Colors.grey.shade800,
+                                                          radius: size.width *
+                                                              0.045,
+                                                          backgroundColor:
+                                                              Colors.grey
+                                                                  .shade800,
                                                           child: ClipOval(
-                                                            child: (connection.profileImage.isNotEmpty)
+                                                            child: (connection
+                                                                    .profileImage
+                                                                    .isNotEmpty)
                                                                 ? CachedNetworkImage(
-                                                                    imageUrl: connection.profileImage,
-                                                                    fit: BoxFit.cover,
-                                                                    width: size.width * 0.09,
-                                                                    height: size.width * 0.09,
-                                                                    placeholder: (context, url) =>
-                                                                        const Center(
+                                                                    imageUrl:
+                                                                        connection
+                                                                            .profileImage,
+                                                                    fit: BoxFit
+                                                                        .cover,
+                                                                    width: size
+                                                                            .width *
+                                                                        0.09,
+                                                                    height: size
+                                                                            .width *
+                                                                        0.09,
+                                                                    placeholder:
+                                                                        (context,
+                                                                                url) =>
+                                                                            const Center(
                                                                       child:
                                                                           CircularProgressIndicator(),
                                                                     ),
-                                                                    errorWidget: (context, url, error) =>
-                                                                        Image.asset(
+                                                                    errorWidget: (context,
+                                                                            url,
+                                                                            error) =>
+                                                                        Image
+                                                                            .asset(
                                                                       'assets/images/logo_redefined.png',
-                                                                      fit: BoxFit.cover,
+                                                                      fit: BoxFit
+                                                                          .cover,
                                                                     ),
                                                                   )
-                                                                : Icon(Icons.person, size: 18.0, color: Colors.white),
+                                                                : Icon(
+                                                                    Icons
+                                                                        .person,
+                                                                    size: 18.0,
+                                                                    color: Colors
+                                                                        .white),
                                                           ),
                                                         ),
-                                                        if (connection.isOnline == "online")
+                                                        if (connection
+                                                                .isOnline ==
+                                                            "online")
                                                           Positioned(
                                                             top: 0,
                                                             right: 2,
@@ -296,10 +322,14 @@ class ContactListScreenState extends State<ContactListScreen> {
                                                               height: 10,
                                                               decoration:
                                                                   BoxDecoration(
-                                                                color: Colors.green,
-                                                                shape: BoxShape.circle,
-                                                                border: Border.all(
-                                                                  color: Colors.white,
+                                                                color: Colors
+                                                                    .green,
+                                                                shape: BoxShape
+                                                                    .circle,
+                                                                border:
+                                                                    Border.all(
+                                                                  color: Colors
+                                                                      .white,
                                                                   width: 1,
                                                                 ),
                                                               ),
@@ -308,9 +338,11 @@ class ContactListScreenState extends State<ContactListScreen> {
                                                       ],
                                                     );
 
-                                                    if (connection.profileImage.isNotEmpty) {
+                                                    if (connection.profileImage
+                                                        .isNotEmpty) {
                                                       return Hero(
-                                                        tag: connection.profileImage,
+                                                        tag: connection
+                                                            .profileImage,
                                                         child: avatar,
                                                       );
                                                     }
@@ -392,7 +424,8 @@ class ContactListScreenState extends State<ContactListScreen> {
                                                             receiverName:
                                                                 connection.name,
                                                             receiverImageUrl:
-                                                                connection.profileImage,
+                                                                connection
+                                                                    .profileImage,
                                                           ));
                                                     }
                                                   }
@@ -522,10 +555,12 @@ class ContactListScreenState extends State<ContactListScreen> {
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.black,
                       backgroundColor: Colors.transparent,
-                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
-                        side: BorderSide(color: AppColors.activeColor, width: 2),
+                        side:
+                            BorderSide(color: AppColors.activeColor, width: 2),
                       ),
                     ),
                     onPressed: () {
@@ -639,7 +674,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                   backgroundColor: AppColors.buttonColor,
                   foregroundColor: AppColors.textColor,
                 ),
-                child: Text('Submit Report'),
+                child: Text('Report User'),
               ),
             ],
           );

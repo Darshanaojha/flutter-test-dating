@@ -55,7 +55,7 @@ class RazorpayController extends GetxController {
   Future<bool> startPayment(double totalAmount, String name, String description,
       String contact, String email) async {
     _paymentCompleter = Completer<bool>();
-
+print("Starting payment with amount: $totalAmount");
     EncryptedSharedPreferences preferences =
         EncryptedSharedPreferences.getInstance();
     String? orderId = preferences.getString('RazorpayOrderId');

@@ -76,7 +76,7 @@ dependencies:
   sqflite: ^2.4.2
   slide_to_act: ^2.0.2
   path: ^1.9.1
-  logging: ^1.0.2 # Added logging package
+  logging: ^1.0.2
 
 dev_dependencies:
   flutter_test:

@@ -3,6 +3,7 @@ import 'package:get/get_connect.dart';
 import '../Models/RequestModels/report_user_reason_feedback_request_model.dart';
 import '../Models/ResponseModels/report_user_reason_feedback_response_model.dart';
 import '../constants.dart';
+
 class ReportUserProvider extends GetConnect {
   Future<ReportUserReasonFeedbackResponseModel?> reportAgainstUser(
       ReportUserReasonFeedbackRequestModel
@@ -25,6 +26,7 @@ class ReportUserProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+      print("Response body in reportAgainstUser: ${response.body}");
       if (response.statusCode == null || response.body == null) {
         failure('Error in reportAgainstUser', 'Server Failed To Respond');
         return null;
@@ -34,7 +36,8 @@ class ReportUserProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return ReportUserReasonFeedbackResponseModel.fromJson(response.body);
         } else {
-          failure('Error in reportAgainstUser', response.body['error']['message']);
+          failure(
+              'Error in reportAgainstUser', response.body['error']['message']);
           return null;
         }
       } else {

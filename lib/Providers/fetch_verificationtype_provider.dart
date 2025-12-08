@@ -27,6 +27,8 @@ class FetchVerificationtypeProvider extends GetConnect {
       }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
+          print("of fetchall verification response = ");
+          print(response.body.toString());
           return GetVerificationTypeResponse.fromMap(response.body);
         } else {
           failure('Error in fetchAllVerificationProvider', response.body['error']['message']);

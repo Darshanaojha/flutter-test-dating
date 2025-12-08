@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dating_application/Screens/auth.dart';
+import 'package:dating_application/Widgets/description_text.dart';
+import 'package:dating_application/Widgets/headline_text.dart';
 import 'package:dating_application/constants.dart';
+import 'package:dating_application/utils/responsive_font.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -277,6 +280,156 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
   }
 
   // Step 1: DOB Input
+  // Widget buildBirthdayStep(Size screenSize) {
+  //   double titleFontSize = screenSize.width * 0.065;
+  //   double subHeadingFontSize = screenSize.width * 0.035;
+  //   double datePickerFontSize = screenSize.width * 0.04;
+
+  //   return Stack(
+  //     children: [
+  // // HeadlineText with shimmer — no Obx needed
+  // Center(
+  //   child: HeadlineText(
+  //     index: 0,
+  //     fontSize: titleFontSize,
+  //     align: TextAlign.left,
+  //   ),
+  // ),
+  // const SizedBox(height: 28),
+
+  // // DescriptionText with shimmer — no Obx needed
+  // Padding(
+  //   padding: const EdgeInsets.only(right: 8.0),
+  //   child: DescriptionText(
+  //     index: 0,
+  //     fontSize: subHeadingFontSize,
+  //     align: TextAlign.left,
+  //   ),
+  // ),
+  // const SizedBox(height: 42),
+
+  // // Date of Birth label
+  // Text(
+  //   "Date of Birth",
+  //   style: AppTextStyles.labelText.copyWith(
+  //     fontSize: datePickerFontSize,
+  //     color: AppColors.textColor,
+  //     fontWeight: FontWeight.w600,
+  //   ),
+  // ),
+  // const SizedBox(height: 8),
+
+  // // Date picker — Obx only here, because date.value is reactive
+  // GestureDetector(
+  //   onTap: () async {
+  //     final DateTime eighteenYearsAgo = DateTime(
+  //         DateTime.now().year - 18,
+  //         DateTime.now().month,
+  //         DateTime.now().day);
+  //     DateTime? pickedDate = await showDatePicker(
+  //       context: context,
+  //       initialDate: selectedDate.isAfter(eighteenYearsAgo)
+  //           ? eighteenYearsAgo
+  //           : selectedDate,
+  //       firstDate: DateTime(1900),
+  //       lastDate: eighteenYearsAgo,
+  //     );
+
+  //     if (pickedDate != null) {
+  //       setState(() {
+  //         selectedDate = pickedDate;
+  //         date.value = DateFormat('MM/dd/yyyy').format(pickedDate);
+  //       });
+  //     }
+  //   },
+  //   child: Obx(() => Container(
+  //         width: double.infinity,
+  //         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+  //         decoration: BoxDecoration(
+  //           color: AppColors.formFieldColor,
+  //           borderRadius: BorderRadius.circular(8),
+  //           border: Border.all(color: AppColors.textColor),
+  //         ),
+  //         child: Text(
+  //           date.value.isEmpty ? 'MM/DD/YYYY' : date.value,
+  //           style: AppTextStyles.bodyText.copyWith(
+  //             fontSize: datePickerFontSize,
+  //             color: AppColors.textColor,
+  //           ),
+  //         ),
+  //       )),
+  // ),
+  // const SizedBox(height: 32),
+  //     ]
+  //           ),
+  //         ),
+  //       ),
+  //       // Bottom-aligned Next button
+  //       Positioned(
+  //         left: 0,
+  //         right: 0,
+  //         bottom: 24,
+  //         child: Container(
+  //           width: double.infinity,
+  //           margin: const EdgeInsets.symmetric(horizontal: 16),
+  //           decoration: BoxDecoration(
+  //             gradient: LinearGradient(
+  //               begin: Alignment.topLeft,
+  //               end: Alignment(0.8, 1),
+  //               colors: AppColors.gradientBackgroundList,
+  //             ),
+  //             borderRadius: BorderRadius.circular(30),
+  //           ),
+  //           child: ElevatedButton(
+  //             onPressed: () {
+  //               DateTime now = DateTime.now();
+  //               int age = now.year - selectedDate.year;
+  //               if (now.month < selectedDate.month ||
+  //                   (now.month == selectedDate.month &&
+  //                       now.day < selectedDate.day)) {
+  //                 age--;
+  //               }
+  //               if (age < 18) {
+  //                 failure('Failed',
+  //                     'You must be at least 18 years old to proceed.');
+  //                 return;
+  //               }
+  //               String formattedDate =
+  //                   DateFormat('MM/dd/yyyy').format(selectedDate);
+  //               controller.userRegistrationRequest.dob = formattedDate;
+  //               markStepAsCompleted(1);
+  //               Get.snackbar(
+  //                   'dob', controller.userRegistrationRequest.dob.toString());
+  //               print(controller.userRegistrationRequest.dob.toString());
+  //               pageController.nextPage(
+  //                 duration: Duration(milliseconds: 300),
+  //                 curve: Curves.ease,
+  //               );
+  //             },
+  //             style: ElevatedButton.styleFrom(
+  //               minimumSize: Size(double.infinity, 48),
+  //               padding: EdgeInsets.symmetric(vertical: 10),
+  //               backgroundColor: Colors.transparent,
+  //               foregroundColor: AppColors.textColor,
+  //               shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadius.circular(30),
+  //               ),
+  //               elevation: 0,
+  //               shadowColor: Colors.transparent,
+  //             ),
+  //             child: Text(
+  //               'Next',
+  //               style: AppTextStyles.buttonText.copyWith(
+  //                 fontSize: screenSize.width * 0.05,
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
+
   Widget buildBirthdayStep(Size screenSize) {
     double titleFontSize = screenSize.width * 0.065;
     double subHeadingFontSize = screenSize.width * 0.035;
@@ -284,161 +437,124 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
 
     return Stack(
       children: [
-        Card(
-          elevation: 12,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start, // Align to top left
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Obx(() {
-                  return Center(
-                    child: Text(
-                      controller.headlines.isNotEmpty
-                          ? controller.headlines[0].title
-                          : 'Loading headlines...',
-                      style: AppTextStyles.titleText.copyWith(
-                        fontSize: titleFontSize,
-                      ),
-                      textAlign: TextAlign.left,
-                    ),
-                  );
-                }),
-                SizedBox(height: 28),
-                Obx(() {
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: Text(
-                      controller.headlines.isNotEmpty
-                          ? controller.headlines[0].description
-                          : 'Loading description...',
-                      style: AppTextStyles.bodyText.copyWith(
-                        color: Colors.white70,
-                        fontSize: subHeadingFontSize,
-                      ),
-                      textAlign: TextAlign.left,
-                    ),
-                  );
-                }),
-                SizedBox(height: 42),
-                Text(
-                  "Date of Birth",
-                  style: AppTextStyles.labelText.copyWith(
-                    fontSize: datePickerFontSize,
-                    color: AppColors.textColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  textAlign: TextAlign.left,
+        // Scrollable content
+        SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: HeadlineText(
+                  index: 0,
+                  fontSize: titleFontSize,
+                  align: TextAlign.left,
                 ),
-                SizedBox(height: 8),
-                GestureDetector(
-                  onTap: () async {
-                    final DateTime eighteenYearsAgo = DateTime(
-                        DateTime.now().year - 18,
-                        DateTime.now().month,
-                        DateTime.now().day);
-                    DateTime? pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: selectedDate.isAfter(eighteenYearsAgo)
-                          ? eighteenYearsAgo
-                          : selectedDate,
-                      firstDate: DateTime(1900),
-                      lastDate: eighteenYearsAgo,
-                    );
+              ),
+              const SizedBox(height: 28),
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: DescriptionText(
+                  index: 0,
+                  fontSize: subHeadingFontSize,
+                  align: TextAlign.left,
+                ),
+              ),
+              const SizedBox(height: 42),
+              Text(
+                "Date of Birth",
+                style: AppTextStyles.labelText.copyWith(
+                  fontSize: datePickerFontSize,
+                  color: AppColors.textColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: () async {
+                  final DateTime eighteenYearsAgo = DateTime(
+                      DateTime.now().year - 18,
+                      DateTime.now().month,
+                      DateTime.now().day);
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: selectedDate.isAfter(eighteenYearsAgo)
+                        ? eighteenYearsAgo
+                        : selectedDate,
+                    firstDate: DateTime(1900),
+                    lastDate: eighteenYearsAgo,
+                  );
 
-                    if (pickedDate != null) {
-                      setState(() {
-                        selectedDate = pickedDate;
-                        date.value =
-                            DateFormat('MM/dd/yyyy').format(pickedDate);
-                      });
-                    }
-                  },
-                  child: Obx(() => Container(
-                        width: double.infinity,
-                        padding:
-                            EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                        decoration: BoxDecoration(
-                          color: AppColors.formFieldColor,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: AppColors.textColor),
-                        ),
-                        child: Text(
-                          date.value.isEmpty ? 'MM/DD/YYYY' : date.value,
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: datePickerFontSize,
-                            color: AppColors.textColor,
-                          ),
-                        ),
-                      )),
+                  if (pickedDate != null) {
+                    setState(() {
+                      selectedDate = pickedDate;
+                      date.value = DateFormat('MM/dd/yyyy').format(pickedDate);
+                    });
+                  }
+                },
+                child: Obx(
+                  () => Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 16, horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: AppColors.formFieldColor,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.textColor),
+                    ),
+                    child: Text(
+                      date.value.isEmpty ? 'MM/DD/YYYY' : date.value,
+                      style: AppTextStyles.bodyText.copyWith(
+                        fontSize: datePickerFontSize,
+                        color: AppColors.textColor,
+                      ),
+                    ),
+                  ),
                 ),
-                SizedBox(height: 32),
-              ],
-            ),
+              ),
+              const SizedBox(height: 150), // space for bottom button
+            ],
           ),
         ),
+
         // Bottom-aligned Next button
         Positioned(
-          left: 0,
-          right: 0,
+          left: 16,
+          right: 16,
           bottom: 24,
-          child: Container(
-            width: double.infinity,
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment(0.8, 1),
-                colors: AppColors.gradientBackgroundList,
+          child: ElevatedButton(
+            onPressed: () {
+              DateTime now = DateTime.now();
+              int age = now.year - selectedDate.year;
+              if (now.month < selectedDate.month ||
+                  (now.month == selectedDate.month &&
+                      now.day < selectedDate.day)) {
+                age--;
+              }
+              if (age < 18) {
+                failure(
+                    'Failed', 'You must be at least 18 years old to proceed.');
+                return;
+              }
+              String formattedDate =
+                  DateFormat('MM/dd/yyyy').format(selectedDate);
+              controller.userRegistrationRequest.dob = formattedDate;
+              markStepAsCompleted(1);
+              pageController.nextPage(
+                duration: Duration(milliseconds: 300),
+                curve: Curves.ease,
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              minimumSize: Size(double.infinity, 48),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
               ),
-              borderRadius: BorderRadius.circular(30),
+              backgroundColor: Colors.purple, // example
             ),
-            child: ElevatedButton(
-              onPressed: () {
-                DateTime now = DateTime.now();
-                int age = now.year - selectedDate.year;
-                if (now.month < selectedDate.month ||
-                    (now.month == selectedDate.month &&
-                        now.day < selectedDate.day)) {
-                  age--;
-                }
-                if (age < 18) {
-                  failure('Failed',
-                      'You must be at least 18 years old to proceed.');
-                  return;
-                }
-                String formattedDate =
-                    DateFormat('MM/dd/yyyy').format(selectedDate);
-                controller.userRegistrationRequest.dob = formattedDate;
-                markStepAsCompleted(1);
-                Get.snackbar(
-                    'dob', controller.userRegistrationRequest.dob.toString());
-                print(controller.userRegistrationRequest.dob.toString());
-                pageController.nextPage(
-                  duration: Duration(milliseconds: 300),
-                  curve: Curves.ease,
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(double.infinity, 48),
-                padding: EdgeInsets.symmetric(vertical: 10),
-                backgroundColor: Colors.transparent,
-                foregroundColor: AppColors.textColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                elevation: 0,
-                shadowColor: Colors.transparent,
-              ),
-              child: Text(
-                'Next',
-                style: AppTextStyles.buttonText.copyWith(
-                  fontSize: screenSize.width * 0.05,
-                ),
+            child: Text(
+              'Next',
+              style: AppTextStyles.buttonText.copyWith(
+                fontSize: screenSize.width * 0.05,
               ),
             ),
           ),
@@ -489,26 +605,16 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               crossAxisAlignment: CrossAxisAlignment.start, // Align to top left
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Text(
-                  controller.headlines.isNotEmpty
-                      ? controller.headlines[1].title
-                      : "Loading Title",
-                  style: AppTextStyles.titleText.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: titleFontSize,
-                  ),
-                  textAlign: TextAlign.left,
+                HeadlineText(
+                  index: 1,
+                  fontSize: titleFontSize,
+                  align: TextAlign.left,
                 ),
                 SizedBox(height: 24),
-                Text(
-                  controller.headlines.isNotEmpty
-                      ? controller.headlines[1].description
-                      : "",
-                  style: AppTextStyles.bodyText.copyWith(
-                    color: Colors.white70,
-                    fontSize: subHeadingFontSize,
-                  ),
-                  textAlign: TextAlign.left,
+                DescriptionText(
+                  index: 1,
+                  fontSize: subHeadingFontSize,
+                  align: TextAlign.left,
                 ),
                 SizedBox(height: 32),
                 Text(
@@ -619,28 +725,17 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Title
-                  Text(
-                    controller.headlines.length > 2
-                        ? controller.headlines[2].title
-                        : "Gender Selection",
-                    style: AppTextStyles.titleText.copyWith(
-                      fontSize: titleFontSize,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textColor,
-                    ),
-                    textAlign: TextAlign.left,
+                  HeadlineText(
+                    index: 2,
+                    fontSize: titleFontSize,
+                    align: TextAlign.left,
                   ),
                   SizedBox(height: 12),
                   // Description
-                  Text(
-                    controller.headlines.length > 2
-                        ? controller.headlines[2].description
-                        : "",
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: optionFontSize * 0.9,
-                      color: AppColors.textColor.withOpacity(0.7),
-                    ),
-                    textAlign: TextAlign.left,
+                  DescriptionText(
+                    index: 2,
+                    fontSize: ResponsiveFont.subHeading(context),
+                    align: TextAlign.left,
                   ),
                   SizedBox(height: 24),
                   // Show error message prominently at the top of the content area
@@ -810,29 +905,20 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Title
-                  Text(
-                    controller.headlines.length > 3
-                        ? controller.headlines[3].title
-                        : "Describe Yourself",
-                    style: AppTextStyles.titleText.copyWith(
-                      fontSize: titleFontSize,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textColor,
-                    ),
-                    textAlign: TextAlign.left,
+                  HeadlineText(
+                    index: 3,
+                    fontSize: titleFontSize,
+                    align: TextAlign.left,
                   ),
                   SizedBox(height: 12),
                   // Description
-                  Text(
-                    controller.headlines.length > 3
-                        ? controller.headlines[3].description
-                        : "",
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: optionFontSize * 0.9,
-                      color: AppColors.textColor.withOpacity(0.7),
-                    ),
-                    textAlign: TextAlign.left,
+
+                  DescriptionText(
+                    index: 3,
+                    fontSize: ResponsiveFont.subHeading(context),
+                    align: TextAlign.left,
                   ),
+
                   SizedBox(height: 24),
                   // Sub-gender List
                   Expanded(
@@ -983,31 +1069,19 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Center(
-                      child: Text(
-                        controller.headlines.length > 4
-                            ? controller.headlines[4].title
-                            : "Loading Title...",
-                        style: AppTextStyles.titleText.copyWith(
-                          fontSize: titleFontSize,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textColor,
-                        ),
-                        textAlign: TextAlign.center,
+                      child: HeadlineText(
+                        index: 4,
+                        fontSize: titleFontSize,
+                        align: TextAlign.left,
                       ),
                     ),
                     SizedBox(height: 20),
                     Center(
-                      child: Text(
-                        controller.headlines.length > 4
-                            ? controller.headlines[4].description
-                            : "Select the preferences you're interested in.",
-                        style: AppTextStyles.bodyText.copyWith(
-                          fontSize: descriptionFontSize,
-                          color: AppColors.textColor.withOpacity(0.7),
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
+                        child: DescriptionText(
+                      index: 4,
+                      fontSize: ResponsiveFont.subHeading(context),
+                      align: TextAlign.left,
+                    )),
                     SizedBox(height: 24),
                     Expanded(
                       child: ListView.builder(
@@ -1238,25 +1312,16 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    controller.headlines.isNotEmpty
-                        ? controller.headlines[5].title
-                        : "Loading Title...",
-                    style: AppTextStyles.titleText.copyWith(
-                      fontSize: titleFontSize,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textColor,
-                    ),
+                  HeadlineText(
+                    index: 5,
+                    fontSize: titleFontSize,
+                    align: TextAlign.left,
                   ),
                   SizedBox(height: 20),
-                  Text(
-                    controller.headlines.isNotEmpty
-                        ? controller.headlines[5].description
-                        : "",
-                    style: AppTextStyles.bodyText.copyWith(
-                      fontSize: bodyFontSize,
-                      color: AppColors.textColor,
-                    ),
+                  DescriptionText(
+                    index: 5,
+                    fontSize: ResponsiveFont.subHeading(context),
+                    align: TextAlign.left,
                   ),
                   SizedBox(height: 20),
                   selectedStatus.isNotEmpty
@@ -1582,25 +1647,16 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      controller.headlines.isNotEmpty
-                          ? controller.headlines[6].title
-                          : "Loading Title...",
-                      style: AppTextStyles.titleText.copyWith(
-                        fontSize: titleFontSize,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textColor,
-                      ),
+                    HeadlineText(
+                      index: 6,
+                      fontSize: titleFontSize,
+                      align: TextAlign.left,
                     ),
                     SizedBox(height: 20),
-                    Text(
-                      controller.headlines.isNotEmpty
-                          ? controller.headlines[6].description
-                          : "Loading Description...",
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: bodyFontSize,
-                        color: AppColors.textColor.withOpacity(0.7),
-                      ),
+                    DescriptionText(
+                      index: 6,
+                      fontSize: ResponsiveFont.subHeading(context),
+                      align: TextAlign.left,
                     ),
                     SizedBox(height: 20),
                     TextField(
@@ -1805,25 +1861,16 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      controller.headlines.isNotEmpty
-                          ? controller.headlines[7].title
-                          : "Select Languages",
-                      style: AppTextStyles.titleText.copyWith(
-                        fontSize: titleFontSize,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textColor,
-                      ),
+                    HeadlineText(
+                      index: 7,
+                      fontSize: titleFontSize,
+                      align: TextAlign.left,
                     ),
                     SizedBox(height: 20),
-                    Text(
-                      controller.headlines.isNotEmpty
-                          ? controller.headlines[7].description
-                          : "Choose the languages you speak.",
-                      style: AppTextStyles.bodyText.copyWith(
-                        fontSize: bodyFontSize,
-                        color: AppColors.textColor.withOpacity(0.7),
-                      ),
+                    DescriptionText(
+                      index: 7,
+                      fontSize: ResponsiveFont.subHeading(context),
+                      align: TextAlign.left,
                     ),
                     SizedBox(height: 20),
                     TextField(
@@ -2321,25 +2368,16 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              controller.headlines.isNotEmpty
-                                  ? controller.headlines[9].title
-                                  : "Loading Title...",
-                              style: AppTextStyles.titleText.copyWith(
-                                fontSize: fontSize * 1.2,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textColor,
-                              ),
+                            HeadlineText(
+                              index: 9,
+                              fontSize: ResponsiveFont.heading(context),
+                              align: TextAlign.left,
                             ),
                             SizedBox(height: 16),
-                            Text(
-                              controller.headlines.isNotEmpty
-                                  ? controller.headlines[9].description
-                                  : "",
-                              style: AppTextStyles.bodyText.copyWith(
-                                fontSize: fontSize,
-                                color: AppColors.textColor.withOpacity(0.7),
-                              ),
+                            DescriptionText(
+                              index: 9,
+                              fontSize: ResponsiveFont.subHeading(context),
+                              align: TextAlign.left,
                             ),
                             SizedBox(height: 28),
                             GestureDetector(
@@ -2680,25 +2718,16 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  controller.headlines.isNotEmpty
-                      ? controller.headlines[8].title
-                      : "Loading Title...",
-                  style: AppTextStyles.titleText.copyWith(
-                    fontSize: screenWidth * 0.065,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textColor,
-                  ),
+                HeadlineText(
+                  index: 8,
+                  fontSize: ResponsiveFont.heading(context),
+                  align: TextAlign.left,
                 ),
                 SizedBox(height: 8),
-                Text(
-                  controller.headlines.isNotEmpty
-                      ? controller.headlines[8].description
-                      : "",
-                  style: AppTextStyles.bodyText.copyWith(
-                    fontSize: screenWidth * 0.035,
-                    color: AppColors.textColor.withOpacity(0.7),
-                  ),
+                DescriptionText(
+                  index: 8,
+                  fontSize: ResponsiveFont.subHeading(context),
+                  align: TextAlign.left,
                 ),
                 SizedBox(height: 20),
                 Obx(() {
@@ -3179,25 +3208,16 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          controller.headlines.isNotEmpty
-                              ? controller.headlines[11].title
-                              : "Loading Title...",
-                          style: AppTextStyles.titleText.copyWith(
-                            fontSize: titleFontSize,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textColor,
-                          ),
+                        HeadlineText(
+                          index: 11,
+                          fontSize: titleFontSize,
+                          align: TextAlign.left,
                         ),
                         SizedBox(height: 16),
-                        Text(
-                          controller.headlines.isNotEmpty
-                              ? controller.headlines[11].description
-                              : "Loading Description...",
-                          style: AppTextStyles.bodyText.copyWith(
-                            fontSize: bodyFontSize,
-                            color: AppColors.textColor.withOpacity(0.7),
-                          ),
+                        DescriptionText(
+                          index: 11,
+                          fontSize: ResponsiveFont.subHeading(context),
+                          align: TextAlign.left,
                         ),
                       ],
                     ),

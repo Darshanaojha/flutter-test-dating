@@ -61,6 +61,12 @@ class MembershipPageState extends State<MembershipPage>
       ),
     );
   }
+  @override
+void dispose() {
+  _animationController.dispose();   // 🔥 IMPORTANT
+  super.dispose();
+}
+
 
   @override
   Widget build(BuildContext context) {

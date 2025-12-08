@@ -78,7 +78,6 @@ class UserProfilePageState extends State<UserProfilePage>
       ),
     );
   }
-
   Future<bool> fetchAllData() async {
     if (!await controller.fetchProfileUserPhotos()) return false;
     if (!await controller.fetchAllsubscripted()) return false;
@@ -102,15 +101,17 @@ class UserProfilePageState extends State<UserProfilePage>
     if (controller.userData.isEmpty) {
       return 'Verification Pending';
     }
-    switch (controller.userData.first.accountVerificationStatus) {
+    switch (controller.userData.first.packageStatus) {
       case '0':
         return 'Not Verified';
       case '1':
-        return 'Verified';
+        return 'Account Verified';
       case '2':
         return 'Rejected';
       case '3':
         return 'Pending';
+      case '4':
+        return 'Account Verified';
       default:
         return 'Verification Pending';
     }
@@ -317,15 +318,17 @@ class UserProfilePageState extends State<UserProfilePage>
                                           ),
                                           if (controller.userData.isNotEmpty &&
                                               controller.userData.first
-                                                      .accountVerificationStatus ==
-                                                  '1')
+                                                      .packageStatus ==
+                                                  '1' || controller.
+                                                      userData
+                                                      .first
+                                                      .packageStatus == '4')
                                             Padding(
                                               padding: const EdgeInsets.only(
                                                   left: 8.0),
                                               child: Icon(
                                                 Icons.verified,
-                                                color: AppColors
-                                                    .lightGradientColor,
+                                                color: Colors.green,
                                                 size: getResponsiveFontSize(
                                                     0.045),
                                               ),
@@ -756,9 +759,11 @@ class UserProfilePageState extends State<UserProfilePage>
                               child: InkWell(
                                 onTap: () {
                                   if (controller.userData.isNotEmpty &&
-                                      controller.userData.first
-                                              .accountVerificationStatus ==
-                                          '1') {
+                                      (controller.userData.first.packageStatus ==
+                                          '1' || controller
+                                              .userData
+                                              .first
+                                              .packageStatus == '4')) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text(
@@ -825,7 +830,10 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                       .userData
                                                                       .first
                                                                       .accountVerificationStatus ==
-                                                                  '1'
+                                                                  '1' || controller
+                                                                      .userData
+                                                                      .first
+                                                                      .packageStatus == '4'
                                                           ? Icons.verified
                                                           : Icons.error_outline,
                                                       color: controller.userData
@@ -835,8 +843,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                       .first
                                                                       .accountVerificationStatus ==
                                                                   '1'
-                                                          ? AppColors
-                                                              .lightGradientColor
+                                                          ? Colors.green
                                                           : Colors.red,
                                                       size: screenWidth * 0.045,
                                                     ),
@@ -856,9 +863,12 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                 controller
                                                                         .userData
                                                                         .first
-                                                                        .accountVerificationStatus ==
-                                                                    '1'
-                                                            ? Colors.white
+                                                                        .packageStatus ==
+                                                                    '1' || controller
+                                                                        .userData
+                                                                        .first
+                                                                        .packageStatus == '4'
+                                                            ? Colors.green
                                                             : Colors.red,
                                                       ),
                                                     ),
@@ -955,7 +965,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                     screenWidth: screenWidth,
                                   ),
                                   buildSettingCard(
-                                    context,
+                                    context,  
                                     title: 'Membership',
                                     subtitle:
                                         'View or upgrade your membership plan',

@@ -28,6 +28,7 @@ class VerifyAccountProvider extends GetConnect {
 
         if (response.statusCode == 200 && response.body != null) {
           if (response.body['error']['code'] == 0) {
+            print("VERIFY ACCOUNT:   verify account response = ${response.body.toString()}");
             return RequestToVerifyAccountResponse.fromJson(response.body);
           } else {
             failure('Error in verifyaccountprovider', response.body['error']['message']);
@@ -41,6 +42,7 @@ class VerifyAccountProvider extends GetConnect {
         failure('Error in verifyaccountprovider', 'Token not found');
         return null;
       }
+      
     } catch (e) {
       failure('Error in verifyaccountprovider', e.toString());
       return null;

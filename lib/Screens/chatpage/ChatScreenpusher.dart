@@ -318,6 +318,7 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
   RxString selectedReason = ''.obs;
+  RxString selectedReasonId = ''.obs;
   bool isLoading = true;
   RxBool isselected = false.obs;
   RxBool iswriting = false.obs;
@@ -543,38 +544,41 @@ class ChatScreenState extends State<ChatScreen> {
             ),
           PopupMenuButton<String>(
             onSelected: (value) async {
-              if (value == 'audio') {
-                if (await _requestPermission(
-                    Permission.microphone, "Microphone")) {
-                  Get.to(AudioCallPage(
-                    caller: widget.senderId,
-                    receiver: widget.receiverId,
-                  ));
-                }
-              } else if (value == 'video') {
-                if (await _requestPermission(Permission.camera, "Camera") &&
-                    await _requestPermission(
-                        Permission.microphone, "Microphone")) {
-                  Get.to(VideoCallPage(
-                    caller: widget.senderId,
-                    receiver: widget.receiverId,
-                  ));
-                }
-              } else if (value == 'report') {
+              // if (value == 'audio') {
+              //   if (await _requestPermission(
+              //       Permission.microphone, "Microphone")) {
+              //     Get.to(AudioCallPage(
+              //       caller: widget.senderId,
+              //       receiver: widget.receiverId,
+              //     ));
+              //   }
+              // } else if (value == 'video') {
+              //   if (await _requestPermission(Permission.camera, "Camera") &&
+              //       await _requestPermission(
+              //           Permission.microphone, "Microphone")) {
+              //     Get.to(VideoCallPage(
+              //       caller: widget.senderId,
+              //       receiver: widget.receiverId,
+              //     ));
+              //   }
+              // } else
+              if (value == 'report') {
                 showReportUserDialog(widget.receiverId);
+              } else {
+                Get.snackbar("OOPS!", "Invalid Option.");
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'audio',
-                child: ListTile(
-                    leading: Icon(Icons.phone), title: Text('Audio Call')),
-              ),
-              const PopupMenuItem<String>(
-                value: 'video',
-                child: ListTile(
-                    leading: Icon(Icons.videocam), title: Text('Video Call')),
-              ),
+              // const PopupMenuItem<String>(
+              //   value: 'audio',
+              //   child: ListTile(
+              //       leading: Icon(Icons.phone), title: Text('Audio Call')),
+              // ),
+              // const PopupMenuItem<String>(
+              //   value: 'video',
+              //   child: ListTile(
+              //       leading: Icon(Icons.videocam), title: Text('Video Call')),
+              // ),
               const PopupMenuItem<String>(
                 value: 'report',
                 child: ListTile(
@@ -924,38 +928,38 @@ class ChatScreenState extends State<ChatScreen> {
                       ),
                     ),
                   ),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 4),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: AppColors.gradientBackgroundList,
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.deepPurple.withOpacity(0.18),
-                          blurRadius: 8,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: IconButton(
-                      icon: Icon(Icons.image, color: Colors.white),
-                      onPressed: () async {
-                        final pickedFile = await showModalBottomSheet<XFile?>(
-                          context: context,
-                          builder: (context) => _buildImagePickerOptions(),
-                        );
-                        if (pickedFile != null) {
-                          setState(() {
-                            selectedImage = File(pickedFile.path);
-                          });
-                        }
-                      },
-                    ),
-                  ),
+                  // Container(
+                  //   margin: EdgeInsets.symmetric(horizontal: 4),
+                  //   decoration: BoxDecoration(
+                  //     shape: BoxShape.circle,
+                  //     gradient: LinearGradient(
+                  //       colors: AppColors.gradientBackgroundList,
+                  //       begin: Alignment.topLeft,
+                  //       end: Alignment.bottomRight,
+                  //     ),
+                  //     boxShadow: [
+                  //       BoxShadow(
+                  //         color: Colors.deepPurple.withOpacity(0.18),
+                  //         blurRadius: 8,
+                  //         offset: Offset(0, 4),
+                  //       ),
+                  //     ],
+                  //   ),
+                  //   child: IconButton(
+                  //     icon: Icon(Icons.image, color: Colors.white),
+                  //     onPressed: () async {
+                  //       final pickedFile = await showModalBottomSheet<XFile?>(
+                  //         context: context,
+                  //         builder: (context) => _buildImagePickerOptions(),
+                  //       );
+                  //       if (pickedFile != null) {
+                  //         setState(() {
+                  //           selectedImage = File(pickedFile.path);
+                  //         });
+                  //       }
+                  //     },
+                  //   ),
+                  // ),
                   if (selectedImage != null)
                     GestureDetector(
                       onTap: () {
@@ -1195,7 +1199,8 @@ class ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void showReportUserDialog(reporttouserid) {
+  Future<void> showReportUserDialog(reporttouserid) async {
+    await controller.reportReason();
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1223,26 +1228,76 @@ class ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                   onPressed: () {
-                    showBottomSheet(
+                    showModalBottomSheet(
                       context: context,
-                      label: "Select Reason",
-                      options: controller.reportReasons
-                          .map((reason) => reason.title)
-                          .toList(),
-                      onSelected: (String? value) {
-                        Get.snackbar(
-                            "selected reasonId",
-                            controller
-                                .reportUserReasonFeedbackRequestModel.reasonId
-                                .toString());
-                        if (value != null && value.isNotEmpty) {
-                          selectedReason.value = value;
-                          isselected.value = true;
-                        } else {
-                          isselected.value = false;
-                        }
+                      shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(16))),
+                      builder: (_) {
+                        return ListView(
+                          children: controller.reportReasons.map((reason) {
+                            return ListTile(
+                              title: Text(reason.title),
+                              onTap: () {
+                                selectedReason.value = reason.title;
+                                selectedReasonId.value = reason.id;
+                                isselected.value = true;
+                                controller.reportUserReasonFeedbackRequestModel
+                                    .reasonId = reason.id;
+                                // Get.snackbar(
+                                //     "selected reasonId",
+                                //     controller
+                                //         .reportUserReasonFeedbackRequestModel
+                                //         .reasonId
+                                //         .toString());
+                                Get.snackbar("selected reasonId with title",
+                                    "${selectedReason.value} title ${selectedReasonId.value}");
+                                Navigator.pop(context, reason.id);
+                              },
+                            );
+                          }).toList(),
+                        );
                       },
+                      //label: "Select Reason",
+                      // options: controller.reportReasons
+                      //     .map((reason) => reason.id)
+                      //     .toList(),
+                      // onSelected: (String? value) {
+                      //   Get.snackbar(
+                      //       "selected reasonId",
+                      //       controller
+                      //           .reportUserReasonFeedbackRequestModel.reasonId
+                      //           .toString());
+                      //   if (value != null && value.isNotEmpty) {
+                      //     selectedReason.value = value;
+                      //     selectedReasonId.value. =
+                      //     isselected.value = true;
+                      //   } else {
+                      //     isselected.value = false;
+                      //   }
+                      // },
                     );
+                    // showBottomSheet(
+                    //   context: context,
+                    //   label: "Select Reason",
+                    //   options: controller.reportReasons
+                    //       .map((reason) => reason.id)
+                    //       .toList(),
+                    //   onSelected: (String? value) {
+                    //     Get.snackbar(
+                    //         "selected reasonId",
+                    //         controller
+                    //             .reportUserReasonFeedbackRequestModel.reasonId
+                    //             .toString());
+                    //     if (value != null && value.isNotEmpty) {
+                    //       selectedReason.value = value;
+                    //       selectedReasonId.value. =
+                    //       isselected.value = true;
+                    //     } else {
+                    //       isselected.value = false;
+                    //     }
+                    //   },
+                    // );
                   },
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -1295,13 +1350,13 @@ class ChatScreenState extends State<ChatScreen> {
                         if (selectedReason.value.isNotEmpty &&
                             reportDescription.value.isNotEmpty) {
                           controller.reportUserReasonFeedbackRequestModel
-                              .reasonId = selectedReason.value;
+                              .reasonId = selectedReasonId.value;
                           controller.reportUserReasonFeedbackRequestModel
                               .reason = reportDescription.value;
                           controller.reportUserReasonFeedbackRequestModel
                               .reportAgainst = reporttouserid;
                           Get.snackbar(
-                              "selected reason",
+                              "selected description",
                               controller
                                   .reportUserReasonFeedbackRequestModel.reason
                                   .toString());
@@ -1332,7 +1387,7 @@ class ChatScreenState extends State<ChatScreen> {
                   backgroundColor: AppColors.buttonColor,
                   foregroundColor: AppColors.textColor,
                 ),
-                child: Text('Submit Report'),
+                child: Text('Report User'),
               ),
             ],
           );

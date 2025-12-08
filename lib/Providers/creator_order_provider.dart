@@ -10,6 +10,7 @@ class CreatorOrderProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token != null && token.isNotEmpty) {
+        print('Token found in the create order: $token');
         final response = await post(
           '$springbooturl/creator/order',
           request.toJson(),

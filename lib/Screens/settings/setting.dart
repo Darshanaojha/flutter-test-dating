@@ -234,21 +234,32 @@ class SettingsPageState extends State<SettingsPage>
                 title: "Maximum Distance (km)",
                 child: StatefulBuilder(
                   builder: (context, setStateSB) {
-                    return Slider(
-                      value: maxDistance,
-                      min: 0,
-                      max: 500,
-                      divisions: 50,
-                      label: "${maxDistance.round()} km",
-                      activeColor: AppColors.cursorColor,
-                      inactiveColor: AppColors.inactiveColor,
-                      onChanged: (value) {
-                        setStateSB(() {
-                          maxDistance = value;
-                          controller.appSettingRequest.rangeKm =
-                              value.toString();
-                        });
-                      },
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Display the selected value
+                        Text(
+                          "Within: ${maxDistance.round()} km",
+                          style: AppTextStyles.textStyle
+                              .copyWith(color: Colors.white70),
+                        ),
+                        Slider(
+                          value: maxDistance,
+                          min: 0,
+                          max: 500,
+                          divisions: null,
+                          label: "${maxDistance.round()} km",
+                          activeColor: AppColors.cursorColor,
+                          inactiveColor: AppColors.inactiveColor,
+                          onChanged: (value) {
+                            setStateSB(() {
+                              maxDistance = value;
+                              controller.appSettingRequest.rangeKm =
+                                  value.toString();
+                            });
+                          },
+                        ),
+                      ],
                     );
                   },
                 ),
@@ -260,26 +271,38 @@ class SettingsPageState extends State<SettingsPage>
                 title: "Age Range",
                 child: StatefulBuilder(
                   builder: (context, setStateSB) {
-                    return RangeSlider(
-                      values: ageRange,
-                      min: 18,
-                      max: 100,
-                      divisions: 82,
-                      labels: RangeLabels(
-                        "${ageRange.start.round()}",
-                        "${ageRange.end.round()}",
-                      ),
-                      activeColor: AppColors.cursorColor,
-                      inactiveColor: AppColors.inactiveColor,
-                      onChanged: (RangeValues values) {
-                        setStateSB(() {
-                          ageRange = values;
-                          controller.appSettingRequest.minimumAge =
-                              values.start.round().toString();
-                          controller.appSettingRequest.maximumAge =
-                              values.end.round().toString();
-                        });
-                      },
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Show selected age range
+                        Text(
+                          "Within: ${ageRange.start.round()} - ${ageRange.end.round()} years",
+                          style: AppTextStyles.textStyle
+                              .copyWith(color: Colors.white70),
+                        ),
+                        const SizedBox(height: 8),
+                        RangeSlider(
+                          values: ageRange,
+                          min: 18,
+                          max: 100,
+                          divisions: 82,
+                          labels: RangeLabels(
+                            "${ageRange.start.round()}",
+                            "${ageRange.end.round()}",
+                          ),
+                          activeColor: AppColors.cursorColor,
+                          inactiveColor: AppColors.inactiveColor,
+                          onChanged: (RangeValues values) {
+                            setStateSB(() {
+                              ageRange = values;
+                              controller.appSettingRequest.minimumAge =
+                                  values.start.round().toString();
+                              controller.appSettingRequest.maximumAge =
+                                  values.end.round().toString();
+                            });
+                          },
+                        ),
+                      ],
                     );
                   },
                 ),
@@ -354,52 +377,53 @@ class SettingsPageState extends State<SettingsPage>
               SizedBox(height: screenHeight * 0.04),
 
               // 😎 Mood Section (Expandable)
-              GestureDetector(
-                onTap: () => setState(() => isExpanded = !isExpanded),
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: AppColors.gradientBackgroundList,
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: Card(
-                    color: Colors.transparent,
-                    elevation: 8,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    margin: EdgeInsets.zero,
-                    child: AnimatedContainer(
-                      duration: Duration(milliseconds: 400),
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.emoji_emotions, color: Colors.amberAccent),
-                          SizedBox(width: 12),
-                          Text(
-                            'Selected Mood',
-                            style: TextStyle(
-                              fontSize: fontSize * 1.1,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              // GestureDetector(
+              //   onTap: () => setState(() => isExpanded = !isExpanded),
+              //   child: Container(
+              //     decoration: BoxDecoration(
+              //       gradient: LinearGradient(
+              //         colors: AppColors.gradientBackgroundList,
+              //         begin: Alignment.topLeft,
+              //         end: Alignment.bottomRight,
+              //       ),
+              //       borderRadius: BorderRadius.circular(18),
+              //     ),
+              //     child: Card(
+              //       color: Colors.transparent,
+              //       elevation: 8,
+              //       shape: RoundedRectangleBorder(
+              //         borderRadius: BorderRadius.circular(18),
+              //       ),
+              //       margin: EdgeInsets.zero,
+              //       child: AnimatedContainer(
+              //         duration: Duration(milliseconds: 400),
+              //         padding: const EdgeInsets.all(18),
+              //         decoration: BoxDecoration(
+              //           color: Colors.transparent,
+              //           borderRadius: BorderRadius.circular(18),
+              //         ),
+              //         child: Row(
+              //           mainAxisAlignment: MainAxisAlignment.center,
+              //           children: [
+              //             Icon(Icons.emoji_emotions, color: Colors.amberAccent),
+              //             SizedBox(width: 12),
+              //             Text(
+              //               'Selected Mood',
+              //               style: TextStyle(
+              //                 fontSize: fontSize * 1.1,
+              //                 color: Colors.white,
+              //                 fontWeight: FontWeight.w600,
+              //               ),
+              //             ),
+              //           ],
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
 
-              SizedBox(height: screenHeight * 0.02),
+              // SizedBox(height: screenHeight * 0.02),
+
               // GestureDetector(
               //   onTap: () {
               //     Get.to(PricingPage());

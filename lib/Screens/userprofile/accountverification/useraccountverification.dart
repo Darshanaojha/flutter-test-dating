@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../Controllers/controller.dart';
 import '../../../constants.dart';
 
+
 class PhotoVerificationPage extends StatefulWidget {
   const PhotoVerificationPage({super.key});
 
@@ -19,16 +20,18 @@ class PhotoVerificationPage extends StatefulWidget {
 class PhotoVerificationPageState extends State<PhotoVerificationPage> {
   Controller controller = Get.put(Controller());
   final ImagePicker _picker = ImagePicker();
+
   bool isSelfieTaken = false;
   String selfiePath = '';
   bool isLoading = true;
-  bool isSubmitting = false; // Track submission state
-  late Future<bool> _fetchverification;
+  bool isSubmitting = false;
+
+  late Future<bool> _fetchVerification;
 
   @override
   void initState() {
     super.initState();
-    _fetchverification = initializeApp();
+    _fetchVerification = initializeApp();
   }
 
   Future<bool> initializeApp() async {
@@ -47,11 +50,12 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
         selfiePath = image.path;
         isSelfieTaken = true;
       });
+
       final base64Image = await encodeImageToBase64(image.path);
       print('Base64 Encoded Image: $base64Image');
+
       controller.requestToVerifyAccount.identifyImage = base64Image;
-      controller.requestToVerifyAccount.identifyNo =
-          controller.verificationtype.id;
+      controller.requestToVerifyAccount.identifyNo = controller.verificationtype.id;
     }
   }
 
@@ -61,38 +65,28 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
   }
 
   void submitVerification() async {
-    if (isSelfieTaken) {
-      setState(() {
-        isSubmitting = true;
-      });
-
-      await controller.verifyuseraccount(controller.requestToVerifyAccount);
-
-      setState(() {
-        isSubmitting = false;
-      });
-
-      bool isPackageSubscribed = await controller.userPackage();
-      controller.fetchProfile();
-
-      if (isPackageSubscribed) {
-        print('User has an active package');
-        Get.offAll(NavigationBottomBar());
-      } else {
-        print('User does not have an active package');
-        Get.offAll(Unsubscribenavigation());
-      }
-
-      // if (isVerified == 1) {
-      //   print('Verification successful');
-      //   Get.offAll(NavigationBottomBar());
-      // } else {
-      //   print('Verification failed');
-      //   Get.offAll(Unsubscribenavigation());
-      //   // failure('Error', "Verification failed. Please try again.");
-      // }
-    } else {
+    if (!isSelfieTaken) {
       failure('Error', "Please take a selfie to complete the verification.");
+      return;
+    }
+
+    setState(() {
+      isSubmitting = true;
+    });
+
+    await controller.verifyuseraccount(controller.requestToVerifyAccount);
+
+    setState(() {
+      isSubmitting = false;
+    });
+
+    bool isPackageSubscribed = await controller.userPackage();
+    controller.fetchProfile();
+
+    if (isPackageSubscribed) {
+      Get.offAll(NavigationBottomBar());
+    } else {
+      Get.offAll(Unsubscribenavigation());
     }
   }
 
@@ -114,7 +108,7 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder<bool>(
-        future: _fetchverification,
+        future: _fetchVerification,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -124,16 +118,17 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
               ),
             );
           }
+
           if (snapshot.hasError) {
             return Center(
               child: Text(
                 'Error: ${snapshot.error}',
-                style: TextStyle(color: Colors.red, fontSize: 18),
+                style: const TextStyle(color: Colors.red, fontSize: 18),
               ),
             );
           }
-          if (snapshot.connectionState == ConnectionState.done &&
-              snapshot.hasData) {
+
+          if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
             return Center(
               child: SingleChildScrollView(
                 child: Padding(
@@ -148,7 +143,7 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(
                           color: Colors.black26,
                           blurRadius: 8,
@@ -161,18 +156,18 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
                       children: [
                         Text(
                           "Verification Type: ${controller.verificationtype.title}",
-                          style: AppTextStyles.titleText
-                              .copyWith(color: Colors.white),
+                          style: AppTextStyles.titleText.copyWith(color: Colors.white),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'Description: ${controller.verificationtype.description}',
-                          style: AppTextStyles.textStyle
-                              .copyWith(color: Colors.white70),
+                          style: AppTextStyles.textStyle.copyWith(color: Colors.white70),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 50),
+
+                        // Selfie image or camera button
                         if (isSelfieTaken)
                           GestureDetector(
                             onTap: () => showFullImageDialog(selfiePath),
@@ -201,7 +196,10 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
                               size: 30,
                             ),
                           ),
+
                         const SizedBox(height: 50),
+
+                        // Submit Verification button
                         Center(
                           child: SizedBox(
                             width: MediaQuery.of(context).size.width * 0.6,
@@ -215,15 +213,14 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
                                   borderRadius: BorderRadius.circular(30),
                                 ),
                               ),
-                              onPressed:
-                                  isSubmitting ? null : submitVerification,
+                              onPressed: (!isSelfieTaken || isSubmitting) ? null : submitVerification,
                               child: isSubmitting
-                                  ? const CircularProgressIndicator(
-                                      color: Colors.black)
+                                  ? const CircularProgressIndicator(color: Colors.black)
                                   : Text(
-                                      'Submit Verification',
+                                      isSelfieTaken ? 'Submit Verification' : 'Take Selfie First',
                                       style: AppTextStyles.textStyle.copyWith(
-                                          color: AppColors.primaryColor),
+                                        color: isSelfieTaken ? AppColors.primaryColor : Colors.grey,
+                                      ),
                                     ),
                             ),
                           ),
@@ -235,7 +232,8 @@ class PhotoVerificationPageState extends State<PhotoVerificationPage> {
               ),
             );
           }
-          return Center(
+
+          return const Center(
             child: Text('No data available', style: TextStyle(fontSize: 18)),
           );
         },

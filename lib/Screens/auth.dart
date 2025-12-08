@@ -22,7 +22,7 @@ class _CombinedAuthScreenState extends State<CombinedAuthScreen>
   @override
   void initState() {
     super.initState();
-    Get.put(Controller());
+    // Get.put(Controller());
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),

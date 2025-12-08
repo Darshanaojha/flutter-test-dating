@@ -82,6 +82,8 @@ class VerificationType {
         "created": created,
         "updated": updated,
       };
+
+  toJson() {}
 }
 
 class Error {

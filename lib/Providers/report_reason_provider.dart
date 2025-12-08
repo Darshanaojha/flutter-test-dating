@@ -2,6 +2,7 @@ import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:get/get_connect.dart';
 import '../Models/ResponseModels/get_report_user_options_response_model.dart';
 import '../constants.dart';
+
 class ReportReasonProvider extends GetConnect {
   Future<ReportUserForBlockOptionsResponseModel?> reportReason() async {
     try {
@@ -21,6 +22,7 @@ class ReportReasonProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+      print("Reason responses: ${response.body}");
       if (response.statusCode == null || response.body == null) {
         failure('Error in reportReason', 'Server Failed To Respond');
         return null;

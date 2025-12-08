@@ -2,6 +2,9 @@ import 'dart:ui';
 
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Screens/userprofile/userprofilesummary.dart';
+import 'package:dating_application/Widgets/description_text.dart';
+import 'package:dating_application/Widgets/headline_text.dart';
+import 'package:dating_application/utils/responsive_font.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -478,27 +481,18 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                                   ),
                                 ),
                                 const SizedBox(height: 16),
-                                Text(
-                                  controller.headlines.isNotEmpty
-                                      ? controller.headlines[10].title
-                                      : "Loading Title...",
-                                  style: AppTextStyles.titleText.copyWith(
-                                    fontSize: fontSize + 2,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                                HeadlineText(
+  index: 10,
+  fontSize: ResponsiveFont.heading(context),
+  align: TextAlign.left,
+),
+
                                 const SizedBox(height: 10),
-                                Text(
-                                  controller.headlines.isNotEmpty
-                                      ? controller.headlines[10].description
-                                      : "Loading Description...",
-                                  textAlign: TextAlign.center,
-                                  style: AppTextStyles.bodyText.copyWith(
-                                    fontSize: fontSize,
-                                    color: Colors.white70,
-                                  ),
-                                ),
+                                DescriptionText(
+  index: 10,
+fontSize: ResponsiveFont.subHeading(context),
+  align: TextAlign.left,
+),
                               ],
                             ),
                           ),

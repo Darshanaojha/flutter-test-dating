@@ -1,121 +1,41 @@
-import 'dart:convert';
-import 'dart:io';
-import 'dart:math';
-import 'dart:typed_data';
-
-import 'package:crypto/crypto.dart';
-import 'package:dating_application/Models/RequestModels/add_user_to_creator_request.dart';
-import 'package:dating_application/Models/RequestModels/change_password_request.dart';
-import 'package:dating_application/Models/RequestModels/creator_order_request_model.dart';
-import 'package:dating_application/Models/RequestModels/delete_chat_history_request_model.dart';
-import 'package:dating_application/Models/RequestModels/profile_like_request_model.dart';
-import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
-import 'package:dating_application/Models/RequestModels/update_activity_status_request_model.dart';
-import 'package:dating_application/Models/RequestModels/updating_package_request_model.dart';
-import 'package:dating_application/Models/ResponseModels/activity_status_response_model.dart';
-import 'package:dating_application/Models/ResponseModels/add_user_to_creator_response.dart';
-import 'package:dating_application/Models/ResponseModels/change_password_response_model.dart';
-import 'package:dating_application/Models/ResponseModels/creator_order_response_model.dart';
-import 'package:dating_application/Models/ResponseModels/creators_all_orders_response.dart';
-import 'package:dating_application/Models/ResponseModels/creators_content_model.dart';
-import 'package:dating_application/Models/ResponseModels/creators_generic_response.dart';
-import 'package:dating_application/Models/ResponseModels/creators_subscription_history_response.dart';
-import 'package:dating_application/Models/ResponseModels/delete_chat_history_response.dart';
-import 'package:dating_application/Models/ResponseModels/deletefavourite_response_model.dart';
-import 'package:dating_application/Models/ResponseModels/get_all_benifites_response_model.dart';
-import 'package:dating_application/Models/ResponseModels/get_all_creators_packages_model.dart';
-import 'package:dating_application/Models/ResponseModels/get_all_faq_response_model.dart';
-import 'package:dating_application/Models/ResponseModels/get_all_favourites_response_model.dart';
-import 'package:dating_application/Models/ResponseModels/get_all_gender_from_response_model.dart';
-import 'package:dating_application/Models/ResponseModels/get_all_headlines_response_model.dart';
-import 'package:dating_application/Models/ResponseModels/get_all_introslider_response.dart';
-import 'package:dating_application/Models/ResponseModels/get_all_packages_response_model.dart';
-import 'package:dating_application/Models/ResponseModels/get_all_request_message_response.dart';
-import 'package:dating_application/Models/ResponseModels/get_all_saftey_guidelines_response_model.dart';
-import 'package:dating_application/Models/ResponseModels/get_all_whoareyoulookingfor_response_model.dart';
-import 'package:dating_application/Models/ResponseModels/get_content_by_id_response.dart';
-import 'package:dating_application/Models/ResponseModels/profile_like_response_model.dart';
-import 'package:dating_application/Models/ResponseModels/subgender_response_model.dart';
-import 'package:dating_application/Models/ResponseModels/updateStatusResponse.dart'
-    show UpdateStatusResponse;
-import 'package:dating_application/Models/ResponseModels/updating_package_response_model.dart';
-import 'package:dating_application/Models/ResponseModels/user_upload_images_response_model.dart';
 import 'package:dating_application/Providers/ReferalCodeProvider.dart';
 import 'package:dating_application/Providers/activity_status_provider.dart';
 import 'package:dating_application/Providers/add_user_to_hookup_provider.dart';
 import 'package:dating_application/Providers/app_setting_provider.dart';
-import 'package:dating_application/Providers/change_password_provider.dart';
-import 'package:dating_application/Providers/chat_provider.dart';
 import 'package:dating_application/Providers/check_package_provider.dart';
 import 'package:dating_application/Providers/creator_order_provider.dart';
 import 'package:dating_application/Providers/creators_all_content_provider.dart';
 import 'package:dating_application/Providers/creators_all_orders_provider.dart';
 import 'package:dating_application/Providers/creators_generic_provider.dart';
 import 'package:dating_application/Providers/creatos_subscription_history_provider.dart';
-import 'package:dating_application/Providers/delete_chat_history_provider.dart';
+import 'package:dating_application/Providers/delete_chat_history_provider.dart'
+    show DeleteChatHistoryProvider;
 import 'package:dating_application/Providers/fetch_all_add_on_provider.dart';
 import 'package:dating_application/Providers/fetch_all_chat_history_page.dart';
 import 'package:dating_application/Providers/fetch_all_creator_package_provider.dart';
-import 'package:dating_application/Providers/fetch_all_desires_provider.dart';
 import 'package:dating_application/Providers/fetch_all_faq_provider.dart';
 import 'package:dating_application/Providers/fetch_all_favourites_provider.dart';
-import 'package:dating_application/Providers/fetch_all_headlines_provider.dart';
 import 'package:dating_application/Providers/fetch_all_introslider_provider.dart';
-import 'package:dating_application/Providers/fetch_all_language_provider.dart';
-import 'package:dating_application/Providers/fetch_all_preferences_provider.dart';
-import 'package:dating_application/Providers/fetch_all_safety_guildlines_provider.dart';
 import 'package:dating_application/Providers/fetch_subscripted_package_provider.dart';
 import 'package:dating_application/Providers/get_content_by_id_provider.dart';
+import 'package:dating_application/Providers/get_rejection_message.dart';
 import 'package:dating_application/Providers/home_page_dislike_provider.dart';
-import 'package:dating_application/Providers/login_provider.dart';
 import 'package:dating_application/Providers/share_profile_provider.dart';
-import 'package:dating_application/Providers/user_profile_provider.dart';
-import 'package:dating_application/Screens/auth.dart';
 import 'package:dating_application/Screens/loginforgotpassword/forgotpasswordotp.dart';
-import 'package:dating_application/Screens/navigationbar/unsubscribenavigation.dart'
-    show Unsubscribenavigation;
-import 'package:dating_application/Screens/userprofile/accountverification/useraccountverification.dart';
 import 'package:dating_application/Screens/userprofile/membership/membershippage.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:encrypt_shared_preferences/provider.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../Models/RequestModels/ReferalCodeRequestModel.dart';
-import '../Models/RequestModels/app_setting_request_model.dart';
-import '../Models/RequestModels/block_User_request_model.dart';
-import '../Models/RequestModels/delete_message_request_model.dart';
-import '../Models/RequestModels/deletefavourite_request_model.dart';
-import '../Models/RequestModels/dislike_profile_request_model.dart';
-import '../Models/RequestModels/edit_message_request_model.dart';
-import '../Models/RequestModels/estabish_connection_request_model.dart';
-import '../Models/RequestModels/forget_password_request_model.dart';
-import '../Models/RequestModels/forget_password_verification_request_model.dart';
-import '../Models/RequestModels/highlight_profile_status_request_model.dart';
-import '../Models/RequestModels/homepage_dislike_request_model.dart';
-import '../Models/RequestModels/liked_by_request_model.dart';
-import '../Models/RequestModels/marksasfavourite_request_model.dart';
-import '../Models/RequestModels/pin_profile_pic_request_model.dart';
-import '../Models/RequestModels/registration_otp_request_model.dart';
-import '../Models/RequestModels/registration_otp_verification_request_model.dart';
-import '../Models/RequestModels/report_user_reason_feedback_request_model.dart';
-import '../Models/RequestModels/share_profile_request_model.dart';
-import '../Models/RequestModels/update_emailid_otp_verification_request_model.dart';
-import '../Models/RequestModels/update_emailid_request_model.dart';
-import '../Models/RequestModels/update_lat_long_request_model.dart';
-import '../Models/RequestModels/update_profile_photo_request_model.dart';
-import '../Models/RequestModels/update_visibility_status_request_model.dart';
-import '../Models/RequestModels/user_login_request_model.dart';
-import '../Models/RequestModels/user_profile_update_request_model.dart';
-import '../Models/RequestModels/user_registration_request_model.dart';
-import '../Models/RequestModels/usernameupdate_request_model.dart';
-import '../Models/RequestModels/verify_account_request_model.dart';
-import '../Models/ResponseModels/GetAllCreatorsResponse.dart';
-import '../Models/ResponseModels/GetPointAmountResponse.dart';
 import '../Models/ResponseModels/GetPointCreditedDebitedResponse.dart';
 import '../Models/ResponseModels/GetUsersTotalPointsResponse.dart';
 import '../Models/ResponseModels/ProfileResponse.dart';
@@ -214,6 +134,21 @@ import '../Providers/user_suggestions_provider.dart';
 import '../Providers/user_total_points_provider.dart';
 import '../Providers/usernameupdate_provider.dart';
 import '../Providers/verify_account_provider.dart';
+import '../Providers/login_provider.dart';
+import '../Providers/chat_provider.dart';
+import '../Providers/fetch_all_language_provider.dart';
+import '../Providers/fetch_all_desires_provider.dart';
+import '../Providers/fetch_all_preferences_provider.dart';
+import '../Providers/fetch_all_safety_guildlines_provider.dart';
+import '../Providers/user_profile_provider.dart';
+import '../Providers/change_password_provider.dart';
+import '../Providers/fetch_all_headlines_provider.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+
+// Screens referenced
+import '../Screens/userprofile/accountverification/useraccountverification.dart';
+import '../Screens/navigationbar/unsubscribenavigation.dart';
+import '../Screens/auth.dart';
 import '../Screens/navigationbar/navigationpage.dart';
 import '../Screens/register_subpag/registerdetails.dart';
 import '../Screens/register_subpag/registrationotp.dart';
@@ -222,6 +157,141 @@ import '../constants.dart';
 import '../Database/database_helper.dart';
 import '../utils/logger.dart';
 import 'package:logging/logging.dart';
+
+// Request models
+import '../Models/RequestModels/add_user_to_creator_request.dart';
+import '../Models/RequestModels/app_setting_request_model.dart';
+import '../Models/RequestModels/block_User_request_model.dart';
+import '../Models/RequestModels/delete_message_request_model.dart';
+import '../Models/RequestModels/deletefavourite_request_model.dart';
+import '../Models/RequestModels/dislike_profile_request_model.dart';
+import '../Models/RequestModels/edit_message_request_model.dart';
+import '../Models/RequestModels/estabish_connection_request_model.dart';
+import '../Models/RequestModels/forget_password_request_model.dart';
+import '../Models/RequestModels/forget_password_verification_request_model.dart';
+import '../Models/RequestModels/highlight_profile_status_request_model.dart';
+import '../Models/RequestModels/homepage_dislike_request_model.dart';
+import '../Models/RequestModels/liked_by_request_model.dart';
+import '../Models/RequestModels/marksasfavourite_request_model.dart';
+import '../Models/RequestModels/pin_profile_pic_request_model.dart';
+import '../Models/RequestModels/registration_otp_request_model.dart';
+import '../Models/RequestModels/registration_otp_verification_request_model.dart';
+import '../Models/RequestModels/report_user_reason_feedback_request_model.dart';
+import '../Models/RequestModels/share_profile_request_model.dart';
+import '../Models/RequestModels/update_emailid_otp_verification_request_model.dart';
+import '../Models/RequestModels/update_emailid_request_model.dart';
+import '../Models/RequestModels/update_lat_long_request_model.dart';
+import '../Models/RequestModels/update_profile_photo_request_model.dart';
+import '../Models/RequestModels/update_visibility_status_request_model.dart';
+import '../Models/RequestModels/user_login_request_model.dart';
+import '../Models/RequestModels/user_profile_update_request_model.dart';
+import '../Models/RequestModels/user_registration_request_model.dart';
+import '../Models/RequestModels/usernameupdate_request_model.dart';
+import '../Models/RequestModels/verify_account_request_model.dart';
+import '../Models/RequestModels/homepage_dislike_request_model.dart';
+import '../Models/RequestModels/ReferalCodeRequestModel.dart';
+import '../Models/RequestModels/profile_like_request_model.dart';
+import '../Models/RequestModels/subgender_request_model.dart';
+import '../Models/RequestModels/change_password_request.dart';
+import '../Models/RequestModels/update_activity_status_request_model.dart';
+import '../Models/RequestModels/creator_order_request_model.dart';
+import '../Models/RequestModels/delete_chat_history_request_model.dart';
+import '../Models/RequestModels/send_message_request_model.dart';
+import '../Models/RequestModels/chat_history_request_model.dart';
+import '../Models/RequestModels/transaction_request_model.dart';
+import '../Models/RequestModels/order_request_model.dart';
+import '../Models/RequestModels/updating_package_request_model.dart';
+
+// Response models (ensure needed types are available)
+import '../Models/ResponseModels/all_transactions_response_model.dart';
+import '../Models/ResponseModels/creator_package_response.dart';
+import '../Models/ResponseModels/get_all_benifites_response_model.dart';
+import '../Models/ResponseModels/ReferalCodeResponse.dart';
+import '../Models/ResponseModels/creators_subscription_history_response.dart';
+import '../Models/ResponseModels/get_all_request_message_response.dart';
+import '../Models/ResponseModels/edit_message_response_model.dart';
+import '../Models/ResponseModels/creator_order_response_model.dart';
+import '../Models/ResponseModels/GetUsersTotalPointsResponse.dart';
+import '../Models/ResponseModels/change_password_response_model.dart';
+import '../Models/ResponseModels/creators_content_model.dart';
+import '../Models/ResponseModels/get_all_subscripted_package_model.dart';
+import '../Models/ResponseModels/get_content_by_id_response.dart';
+import '../Models/ResponseModels/forget_password_verification_response_model.dart';
+import '../Models/ResponseModels/get_all_country_response_model.dart';
+import '../Models/ResponseModels/update_lat_long_response_model.dart';
+import '../Models/ResponseModels/app_details_response_model.dart';
+import '../Models/ResponseModels/connected_user_response_model.dart';
+import '../Models/ResponseModels/user_profile_update_response_model.dart';
+import '../Models/ResponseModels/delete_message_response_model.dart';
+import '../Models/ResponseModels/get_all_headlines_response_model.dart';
+import '../Models/ResponseModels/subgender_response_model.dart';
+import '../Models/ResponseModels/user_status_model.dart';
+import '../Models/ResponseModels/user_login_response_model.dart';
+import '../Models/ResponseModels/registration_otp_verification_response_model.dart';
+import '../Models/ResponseModels/get_all_desires_model_response.dart';
+import '../Models/ResponseModels/order_response_model.dart';
+import '../Models/ResponseModels/delete_chat_history_response.dart';
+import '../Models/ResponseModels/get_all_introslider_response.dart';
+import '../Models/ResponseModels/creators_generic_response.dart';
+import '../Models/ResponseModels/get_all_like_history_response_model.dart';
+import '../Models/ResponseModels/liked_by_response_model.dart';
+import '../Models/ResponseModels/fetch_all_creators_response.dart';
+import '../Models/ResponseModels/homepage_dislike_response_model.dart';
+import '../Models/ResponseModels/report_user_reason_feedback_response_model.dart';
+import '../Models/ResponseModels/update_creator_content_response.dart';
+import '../Models/ResponseModels/ProfileResponse.dart';
+import '../Models/ResponseModels/pin_profile_pic_response_model.dart';
+import '../Models/ResponseModels/block_user_response_model.dart';
+import '../Models/ResponseModels/add_user_to_content_response.dart';
+import '../Models/ResponseModels/all_orders_response_model.dart';
+import '../Models/ResponseModels/creator_transaction_response.dart';
+import '../Models/ResponseModels/update_emailid_otp_verification_response_model.dart';
+import '../Models/ResponseModels/get_all_whoareyoulookingfor_response_model.dart';
+import '../Models/ResponseModels/updateStatusResponse.dart';
+import '../Models/ResponseModels/establish_connection_response_model.dart';
+import '../Models/ResponseModels/add_user_to_creator_response.dart';
+import '../Models/ResponseModels/user_suggestions_response_model.dart';
+import '../Models/ResponseModels/registration_otp_response_model.dart';
+import '../Models/ResponseModels/highlight_profile_status_response_model.dart';
+import '../Models/ResponseModels/GetAllCreatorsResponse.dart';
+import '../Models/ResponseModels/share_profile_response_model.dart';
+import '../Models/ResponseModels/deletefavourite_response_model.dart';
+import '../Models/ResponseModels/usernameupdate_response_model.dart';
+import '../Models/ResponseModels/user_registration_response_model.dart';
+import '../Models/ResponseModels/update_visibility_status_response_model.dart';
+import '../Models/ResponseModels/subscribed_content_response.dart';
+import '../Models/ResponseModels/chat_history_response_model.dart';
+import '../Models/ResponseModels/creator_transaction_history_response.dart';
+import '../Models/ResponseModels/get_all_faq_response_model.dart';
+import '../Models/ResponseModels/update_emailid_response_model.dart';
+import '../Models/ResponseModels/all_active_user_resposne_model.dart';
+import '../Models/ResponseModels/forget_password_response_model.dart';
+import '../Models/ResponseModels/get_all_addon_response_model.dart';
+import '../Models/ResponseModels/get_all_packages_response_model.dart';
+import '../Models/ResponseModels/verify_account_response_model.dart';
+import '../Models/ResponseModels/get_all_likes_pages_response.dart';
+import '../Models/ResponseModels/update_profile_photo_response_model.dart';
+import '../Models/ResponseModels/creators_all_orders_response.dart';
+import '../Models/ResponseModels/get_all_chat_history_page.dart';
+import '../Models/ResponseModels/creator_by_creator_response.dart';
+import '../Models/ResponseModels/GetPointCreditedDebitedResponse.dart';
+import '../Models/ResponseModels/get_all_gender_from_response_model.dart';
+import '../Models/ResponseModels/app_setting_response_model.dart';
+import '../Models/ResponseModels/activity_status_response_model.dart';
+import '../Models/ResponseModels/get_all_verification_response_model.dart';
+import '../Models/ResponseModels/get_all_favourites_response_model.dart';
+import '../Models/ResponseModels/get_all_creators_packages_model.dart';
+import '../Models/ResponseModels/profile_like_response_model.dart';
+import '../Models/ResponseModels/GetPointAmountResponse.dart';
+import '../Models/ResponseModels/updating_package_response_model.dart';
+import '../Models/ResponseModels/get_all_language_response_model.dart';
+import '../Models/ResponseModels/chat_response.dart';
+import '../Models/ResponseModels/dislike_profile_response_model.dart';
+import '../Models/ResponseModels/transaction_response_model.dart';
+import '../Models/ResponseModels/user_upload_images_response_model.dart';
+import '../Models/ResponseModels/get_all_saftey_guidelines_response_model.dart';
+import '../Models/ResponseModels/marksasfavourite_response_model.dart';
+import '../Models/ResponseModels/get_report_user_options_response_model.dart';
 
 class Controller extends GetxController {
   final Logger logger = setup_logger(); // Initialize the logger
@@ -1340,6 +1410,7 @@ class Controller extends GetxController {
       reportReasons.clear();
       ReportUserForBlockOptionsResponseModel? response =
           await ReportReasonProvider().reportReason();
+      print("fetched reason: "+response!.toJsonString());
       if (response != null) {
         success('success', response.payload.message);
         reportReasons.addAll(response.payload.data);
@@ -1747,9 +1818,11 @@ class Controller extends GetxController {
     try {
       GetVerificationTypeResponse? response =
           await FetchVerificationtypeProvider().fetchAllVerificationProvider();
+
       if (response != null) {
         verificationtype = response.payload.data;
         print('successfully fetched all the verification');
+        print("verification type: ${response.payload.data}");
         return true;
       } else {
         failure('Error', 'Failed to fetch the verification');
@@ -2544,6 +2617,172 @@ class Controller extends GetxController {
     }
   }
 
+  List<Widget> buildVerificationButtons({
+    required String status,
+    required BuildContext context,
+    required Size screenSize,
+    required VoidCallback onConfirm,
+    required VoidCallback onCancel,
+  }) {
+    // Reusable styled button: GRADIENT
+    Widget gradientButton(String label, VoidCallback onPressed,
+        {required bool disabled}) {
+      return SizedBox(
+        width: screenSize.width * 0.28,
+        height: screenSize.height * 0.055,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: AppColors.reversedGradientColor,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              padding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: disabled ? null : onPressed,
+            child: Center(
+              child: Text(
+                label,
+                style: AppTextStyles.textStyle.copyWith(
+                  fontSize: MediaQuery.of(context).size.width * 0.035,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Reusable styled button: WHITE WITH GRADIENT TEXT
+    Widget whiteButton(String label, VoidCallback onPressed,
+        {required bool disabled}) {
+      return SizedBox(
+        width: screenSize.width * 0.28,
+        height: screenSize.height * 0.055,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              padding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: disabled ? null : onPressed,
+            child: Center(
+              child: ShaderMask(
+                shaderCallback: (bounds) => LinearGradient(
+                  colors: AppColors.gradientBackgroundList,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ).createShader(
+                    Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+                blendMode: BlendMode.srcIn,
+                child: Text(
+                  label,
+                  style: AppTextStyles.textStyle.copyWith(
+                    fontSize: MediaQuery.of(context).size.width * 0.035,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Now map status → buttons
+    switch (status) {
+      case '0': // ❌ Not submitted yet → Show OK only
+        return [
+          gradientButton("OK", onConfirm, disabled: false),
+        ];
+
+      case '1': // ✔️ Verified → Show Cancel + Confirm
+        return [
+          whiteButton("Cancel", onCancel, disabled: false),
+          SizedBox(width: screenSize.width * 0.04),
+          gradientButton("Confirm", onConfirm, disabled: false),
+        ];
+
+      case '2': // ❌ Rejected → Cancel + Reverify
+        return [
+          whiteButton("Cancel", onCancel, disabled: false),
+          SizedBox(width: screenSize.width * 0.04),
+          gradientButton("Reverify", onConfirm, disabled: false),
+        ];
+
+      case '3': // 🕒 Pending → show only informational OK to dismiss
+        return [
+          gradientButton("OK", onCancel, disabled: false),
+        ];
+
+      default:
+        return [
+          gradientButton("OK", onConfirm, disabled: false),
+        ];
+    }
+  }
+
+  // --- Verification helpers (reusable) ------------------------------
+  String getVerificationMessage(String status) {
+    switch (status) {
+      case '0':
+        return 'Not Applied for Verification';
+      case '1':
+        return 'Account Verified';
+      case '2':
+        return 'Verification Rejected';
+      case '3':
+        return 'Verification Pending';
+      default:
+        return 'Account Verification';
+    }
+  }
+
+  String _getVerificationDialogBodyText(String status) {
+    switch (status) {
+      case '0':
+        return 'You have not applied for verification. Submitting verification helps us confirm genuine profiles.';
+      case '1':
+        return 'Your account is verified.';
+      case '2':
+        return 'Your previous verification was rejected. You may re-submit with a clearer selfie or document.';
+      case '3':
+        return 'Your verification request is under review. Please wait until the admin approves your profile.';
+      default:
+        return 'Account verification information.';
+    }
+  }
+
+  List<Widget> _buildVerificationActions(
+      String status, BuildContext context, Size screenSize,
+      {required VoidCallback onConfirm, required VoidCallback onCancel}) {
+    return buildVerificationButtons(
+      status: status,
+      context: context,
+      screenSize: screenSize,
+      onConfirm: onConfirm,
+      onCancel: onCancel,
+    );
+  }
+
   RxBool isuserPackage = false.obs;
   Future<bool> userPackage() async {
     try {
@@ -2715,11 +2954,18 @@ class Controller extends GetxController {
 
   void showVerificationDialog(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
-    final verificationStatus = userData.first.packageStatus ?? '0';
+    final verificationStatus = userData.first.packageStatus ??
+        '0'; //verificaton status is package status bro...
+    final accountVerificationStatus =
+        userData.first.accountVerificationStatus ?? '0';
 
     String getVerificationMessage(String status) {
+      if (accountVerificationStatus == '1') {
+        return 'Account verified.';
+      }
+      //VERIFICATION STATUS IS TO BE CHECKED ONLY.
       switch (status) {
-        case '0':
+        case '0': //dialog box wihth not applied for verification
           return 'Not Applied for Verification';
         // case '1':
         //   return 'Verification Accepted';
@@ -2728,7 +2974,55 @@ class Controller extends GetxController {
         case '3':
           return 'Verification Pending';
         default:
-          return 'Account Verification';
+          return 'lemme see';
+      }
+    }
+
+//to get the rejection reason.
+    // String getRejectionReason(String status) {
+    //   String verificationStatus = userData.first.accountVerificationStatus;
+    //   String rejectionReason =
+    //       userData.first.rejectionReason ?? 'No reason provided.';
+    //   if (accountVerificationStatus == '2') {
+    //     return rejectionReason;
+    //   } else {
+    //     return '';
+    //   }
+    // }
+    RxString rejectedMessage = "".obs;
+
+    Future<String> loadRejectionReason() async {
+      print("Loading rejection reason...");
+      final res =
+          await GetRejectionMessageProvider().getRejectionMessageProvider();
+      if (res != null && res.payload.data != null) {
+        print("Rejection reason loaded: ${res.payload.data!.feedback}");
+        rejectedMessage.value = res.payload.data!.feedback;
+      }
+
+      return rejectedMessage.value;
+    }
+
+//a final function ot get correct buttons based on the verification statuses (package)
+    List<Widget> _buildButtons(
+        String status, BuildContext context, Size screenSize) {
+      // if (verificationStatus == '0') {
+      //   //dialog box of submit request with buttons cancel and verify.
+      //   return []; // No actions needed for verified accounts
+      // }
+      switch (status) {
+        case '0': //cancel and verify buttons
+          return [];
+        case '1': //account verified dialog box with ok button
+          return [];
+        case '2': //rejected dialog box with cancel and reverify buttons
+          return [];
+        case '3': //pending dialog with freezed buttons, cancel and verify.
+          return [];
+        default:
+          return [
+            // OK button
+          ];
       }
     }
 
@@ -2771,153 +3065,59 @@ class Controller extends GetxController {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  'To verify your account, you need to submit a photo. Choose one of the following options for your photo submission.',
-                  style:
-                      AppTextStyles.textStyle.copyWith(color: Colors.white70),
-                  textAlign: TextAlign.center,
+                Center(
+                  child: verificationStatus == '2'
+                      ? FutureBuilder<String>(
+                          future: loadRejectionReason(),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) {
+                              return const Text(
+                                "",
+                                style: TextStyle(color: Colors.white70),
+                                textAlign: TextAlign.center,
+                              );
+                            }
+
+                            return Text(
+                              snapshot.data ?? "",
+                              style: AppTextStyles.textStyle
+                                  .copyWith(color: Colors.white70),
+                              textAlign: TextAlign.center,
+                            );
+                          },
+                        )
+                      : verificationStatus == '3'
+                          ? Text(
+                              "Verification under review",
+                              style: AppTextStyles.textStyle
+                                  .copyWith(color: Colors.white70),
+                              textAlign: TextAlign.center,
+                            )
+                          : Text(
+                              "To verify your account, you need to submit a photo.",
+                              style: AppTextStyles.textStyle
+                                  .copyWith(color: Colors.white70),
+                              textAlign: TextAlign.center,
+                            ),
                 ),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (verificationStatus == '1' ||
-                        verificationStatus == '2') ...[
-                      // Cancel Button
-                      SizedBox(
-                        width: screenSize.width * 0.28, // 36% of screen width
-                        height:
-                            screenSize.height * 0.055, // 5.5% of screen height
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              padding: EdgeInsets.zero,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Center(
-                              child: ShaderMask(
-                                shaderCallback: (bounds) => LinearGradient(
-                                  colors: AppColors.gradientBackgroundList,
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ).createShader(Rect.fromLTWH(
-                                    0, 0, bounds.width, bounds.height)),
-                                blendMode: BlendMode.srcIn,
-                                child: Text(
-                                  'Cancel',
-                                  style: AppTextStyles.textStyle.copyWith(
-                                    fontSize:
-                                        MediaQuery.of(context).size.width *
-                                            0.035,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: MediaQuery.of(context).size.width * 0.04),
-                      // Confirm Button
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width *
-                            0.28, // same as Cancel
-                        height: MediaQuery.of(context).size.height *
-                            0.055, // same as Cancel
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: AppColors.reversedGradientColor,
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              padding: EdgeInsets.zero,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            onPressed: () {
-                              fetchAllverificationtype();
-                              Navigator.of(context).pop();
-                              Get.to(PhotoVerificationPage());
-                            },
-                            child: Center(
-                              child: Text(
-                                'Confirm',
-                                style: AppTextStyles.textStyle.copyWith(
-                                  fontSize:
-                                      MediaQuery.of(context).size.width * 0.035,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ] else ...[
-                      SizedBox(
-                        width: screenSize.width * 0.28,
-                        height: screenSize.height * 0.055,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: AppColors.reversedGradientColor,
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              padding: EdgeInsets.zero,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            // onPressed: () {
-                            //   Navigator.of(context).pop();
-
-                            // },
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              Future.microtask(() =>
-                                  Get.to(() => const PhotoVerificationPage()));
-                            },
-                            child: Center(
-                              child: Text(
-                                'OK',
-                                style: AppTextStyles.textStyle.copyWith(
-                                  fontSize:
-                                      MediaQuery.of(context).size.width * 0.035,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ]
-                  ],
-                )
+                  children: buildVerificationButtons(
+                    status: verificationStatus,
+                    context: context,
+                    screenSize: screenSize,
+                    onCancel: () {
+                      Navigator.of(context).pop();
+                    },
+                    onConfirm: () {
+                      Navigator.of(context).pop();
+                      Future.microtask(
+                        () => Get.to(() => const PhotoVerificationPage()),
+                      );
+                    },
+                  ),
+                ),
               ],
             ),
           ),
