@@ -26,6 +26,7 @@ class RefreshWrapper extends StatelessWidget {
     // Many pages use ListView/CustomScrollView; wrapping with RefreshIndicator
     // is safe as long as the scrollable has an associated ScrollController.
     return RefreshIndicator(
+      color: Color(0xFFCCB3F2), // Light purple color
       onRefresh: _safeRefresh,
       child: child,
     );

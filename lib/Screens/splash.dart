@@ -114,7 +114,8 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
 
       String? packageStatus = controller.userData.first.packageStatus;
       if (packageStatus != null && packageStatus.isNotEmpty) {
-        if (packageStatus == "1") {
+        if (packageStatus == "1" || packageStatus == "4") {
+          // Status '1' and '4' both mean subscribed/verified
           await controller.fetchallfavourites();
           await controller.userSuggestions();
           await controller.fetchProfileUserPhotos();

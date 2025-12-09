@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:dating_application/Screens/settings/appinfopages/faqpage.dart';
 import 'package:dating_application/Screens/userprofile/Orders/OrdersViewScreen.dart';
 import 'package:dating_application/Screens/userprofile/membership/userselectedplan.dart';
@@ -10,6 +11,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/usernameupdate_request_model.dart';
+import '../../Models/RequestModels/estabish_connection_request_model.dart';
 import '../settings/appinfopages/appinfopagestart.dart';
 import 'GenerateReferalCode/GenerateReferalCode.dart';
 import 'Transactions/TransactionsViewScreen.dart';
@@ -32,6 +34,86 @@ class UserProfilePageState extends State<UserProfilePage>
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
+  }
+
+  /// Helper function to normalize base64 string (add padding if needed)
+  String _normalizeBase64(String base64) {
+    // Remove data URL prefix if present
+    String clean = base64.contains(',') ? base64.split(',')[1] : base64;
+    // Remove whitespace
+    clean = clean.trim();
+    // Add padding if needed (base64 strings should be divisible by 4)
+    int remainder = clean.length % 4;
+    if (remainder != 0) {
+      clean += '=' * (4 - remainder);
+    }
+    return clean;
+  }
+
+  /// Helper function to check if a string is a base64 image
+  bool _isBase64Image(String? image) {
+    if (image == null || image.isEmpty) return false;
+    // If it starts with http, it's definitely a URL
+    if (image.startsWith('http://') || image.startsWith('https://')) {
+      return false;
+    }
+    // If it starts with /, it might be a base64 string (like /9j/ for JPEG)
+    // or it could be a path - check if it's long enough to be base64
+    if (image.startsWith('/') && image.length > 50) {
+      // Likely base64 if it's long and starts with /9j/ (JPEG) or /iVB (PNG)
+      if (image.startsWith('/9j/') || image.startsWith('/iVB')) {
+        try {
+          String normalized = _normalizeBase64(image);
+          base64Decode(normalized);
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+    }
+    // Remove data URL prefix if present (e.g., "data:image/jpeg;base64,")
+    String cleanImage = image.contains(',') ? image.split(',')[1] : image;
+    cleanImage = cleanImage.trim();
+    // Base64 strings should be reasonably long (at least 20 chars for a tiny image)
+    if (cleanImage.length < 20) return false;
+    // Try to normalize and decode
+    try {
+      String normalized = _normalizeBase64(cleanImage);
+      base64Decode(normalized);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Sort images: base64 images first, then URLs, maintaining order within each group
+  List<String> _sortImages(List<String> images, {String? profileImage}) {
+    if (images.isEmpty) return images;
+    
+    List<String> sortedImages = List.from(images);
+    
+    // Sort by type - base64 first, then URLs
+    sortedImages.sort((a, b) {
+      bool aIsBase64 = _isBase64Image(a);
+      bool bIsBase64 = _isBase64Image(b);
+      
+      if (aIsBase64 && !bIsBase64) return -1; // base64 comes first
+      if (!aIsBase64 && bIsBase64) return 1;  // URLs come after
+      return 0; // maintain original order within same type
+    });
+    
+    // If profile image exists and is in the list, move it to first position
+    if (profileImage != null && profileImage.isNotEmpty) {
+      if (sortedImages.contains(profileImage)) {
+        sortedImages.remove(profileImage);
+        sortedImages.insert(0, profileImage);
+      } else if (_isBase64Image(profileImage) || profileImage.startsWith('http')) {
+        // If profile image is not in the list but is valid, add it first
+        sortedImages.insert(0, profileImage);
+      }
+    }
+    
+    return sortedImages;
   }
 
   late final DecorationTween decorationTween;
@@ -124,9 +206,10 @@ class UserProfilePageState extends State<UserProfilePage>
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: RefreshIndicator(
+        color: Color(0xFFCCB3F2), // Light purple color
         onRefresh: _refreshData,
         child: Stack(
-          children: [
+        children: [
             FutureBuilder<bool>(
                 future: _fetchprofilepage,
                 builder: (context, snapshot) {
@@ -147,9 +230,9 @@ class UserProfilePageState extends State<UserProfilePage>
                     );
                   }
                   return Obx(() => SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            SizedBox(
+            child: Column(
+              children: [
+                SizedBox(
                               height: MediaQuery.of(context).size.height * 0.18,
                               child: Scrollbar(
                                 child: (controller.userPhotos == null ||
@@ -160,67 +243,163 @@ class UserProfilePageState extends State<UserProfilePage>
                                           style: TextStyle(color: Colors.grey),
                                         ),
                                       )
-                                    : ListView.builder(
-                                        scrollDirection: Axis.horizontal,
-                                        itemCount: controller
-                                                .userPhotos?.images.length ??
-                                            0,
-                                        itemBuilder: (context, index) {
-                                          return Padding(
-                                            padding: const EdgeInsets.all(6.0),
-                                            child: GestureDetector(
-                                              onTap: () => showFullImageDialog(
-                                                  context,
-                                                  controller.userPhotos!
-                                                      .images[index]),
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                                child: controller
-                                                        .userPhotos!
-                                                        .images[index]
-                                                        .isNotEmpty
-                                                    ? Image.network(
-                                                        controller.userPhotos
-                                                                    ?.images[
-                                                                index] ??
-                                                            '',
-                                                        fit: BoxFit.cover,
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
-                                                            0.3,
-                                                        height: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .height *
-                                                            0.3,
-                                                        loadingBuilder: (context,
-                                                            child,
-                                                            loadingProgress) {
-                                                          if (loadingProgress ==
-                                                              null) {
-                                                            return child;
-                                                          } else {
-                                                            return Center(
-                                                              child:
-                                                                  CircularProgressIndicator(
-                                                                value: loadingProgress
-                                                                            .expectedTotalBytes !=
-                                                                        null
-                                                                    ? loadingProgress
-                                                                            .cumulativeBytesLoaded /
-                                                                        (loadingProgress.expectedTotalBytes ??
-                                                                            1)
-                                                                    : null,
-                                                              ),
-                                                            );
-                                                          }
-                                                        },
-                                                        errorBuilder: (context,
-                                                            error, stackTrace) {
-                                                          return Container(
+                                    : Builder(
+                                        builder: (context) {
+                                          // Sort images: base64 first, then URLs
+                                          List<String> sortedImages = _sortImages(
+                                            controller.userPhotos!.images,
+                                            profileImage: controller.userData.isNotEmpty
+                                                ? controller.userData.first.profileImage
+                                                : null,
+                                          );
+                                          
+                                          return ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                                            itemCount: sortedImages.length,
+                    itemBuilder: (context, index) {
+                                              final imagePath = sortedImages[index];
+                      return Padding(
+                                                padding: const EdgeInsets.all(6.0),
+                        child: GestureDetector(
+                                                  onTap: () => showFullImageDialog(
+                                                      context, imagePath),
+                          child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(15),
+                                                    child: imagePath.isNotEmpty
+                                                        ? _isBase64Image(imagePath)
+                                                            ? Builder(
+                                                                builder: (context) {
+                                                                  try {
+                                                                    String normalizedBase64 = _normalizeBase64(imagePath);
+                                                                    return Image.memory(
+                                                                      base64Decode(normalizedBase64),
+                              fit: BoxFit.cover,
+                                                                      width: MediaQuery.of(
+                                                                                  context)
+                                                                              .size
+                                                                              .width *
+                                                                          0.3,
+                                                                      height: MediaQuery.of(
+                                                                                  context)
+                                                                              .size
+                                                                              .height *
+                                                                          0.3,
+                                                                      errorBuilder: (context,
+                                                                          error, stackTrace) {
+                                                                        print('Base64 image decode error: $error');
+                                                                        return Container(
+                                                                          width: MediaQuery.of(
+                                                                                      context)
+                                                                                  .size
+                                                                                  .width *
+                                                                              0.2,
+                                                                          height: MediaQuery.of(
+                                                                                      context)
+                                                                                  .size
+                                                                                  .height *
+                                                                              0.3,
+                                                                          color: Colors
+                                                                              .grey[300],
+                                                                          alignment: Alignment
+                                                                              .center,
+                                                                          child: Icon(
+                                                                            Icons
+                                                                                .co_present_rounded,
+                                                                            size: 70,
+                                                                            color:
+                                                                                Colors.grey,
+                                                                          ),
+                                                                        );
+                                                                      },
+                                                                    );
+                                                                  } catch (e) {
+                                                                    print('Error decoding base64 image: $e');
+                                                                    return Container(
+                                                                      width: MediaQuery.of(
+                                                                                  context)
+                                                                              .size
+                                                                              .width *
+                                                                          0.2,
+                                                                      height: MediaQuery.of(
+                                                                                  context)
+                                                                              .size
+                                                                              .height *
+                                                                          0.3,
+                                                                      color: Colors.grey[300],
+                                                                      alignment: Alignment.center,
+                                                                      child: Icon(
+                                                                        Icons.co_present_rounded,
+                                                                        size: 70,
+                                                                        color: Colors.grey,
+                                                                      ),
+                                                                    );
+                                                                  }
+                                                                },
+                                                              )
+                                                            : Image.network(
+                                                                imagePath,
+                                                                fit: BoxFit.cover,
+                                                                width: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width *
+                                                                    0.3,
+                                                                height: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .height *
+                                                                    0.3,
+                                                                loadingBuilder: (context,
+                                                                    child,
+                                                                    loadingProgress) {
+                                                                  if (loadingProgress ==
+                                                                      null) {
+                                                                    return child;
+                                                                  } else {
+                                                                    return Center(
+                                                                      child:
+                                                                          CircularProgressIndicator(
+                                                                        value: loadingProgress
+                                                                                    .expectedTotalBytes !=
+                                                                                null
+                                                                            ? loadingProgress
+                                                                                    .cumulativeBytesLoaded /
+                                                                                (loadingProgress.expectedTotalBytes ??
+                                                                                    1)
+                                                                            : null,
+                                                                      ),
+                                                                    );
+                                                                  }
+                                                                },
+                                                                errorBuilder: (context,
+                                                                    error, stackTrace) {
+                                                                  return Container(
+                                                                    width: MediaQuery.of(
+                                                                                context)
+                                                                            .size
+                                                                            .width *
+                                                                        0.2,
+                                                                    height: MediaQuery.of(
+                                                                                context)
+                                                                            .size
+                                                                            .height *
+                                                                        0.3,
+                                                                    color: Colors
+                                                                        .grey[300],
+                                                                    alignment: Alignment
+                                                                        .center,
+                                                                    child: Icon(
+                                                                      Icons
+                                                                          .co_present_rounded,
+                                                                      size: 70,
+                                                                      color:
+                                                                          Colors.grey,
+                                                                    ),
+                                                                  );
+                                                                },
+                                                              )
+                                                        : Container(
                                                             width: MediaQuery.of(
                                                                         context)
                                                                     .size
@@ -231,43 +410,20 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                     .size
                                                                     .height *
                                                                 0.3,
-                                                            color: Colors
-                                                                .grey[300],
-                                                            alignment: Alignment
-                                                                .center,
+                                                            color: Colors.grey[300],
+                                                            alignment:
+                                                                Alignment.center,
                                                             child: Icon(
                                                               Icons
                                                                   .co_present_rounded,
-                                                              size: 70,
-                                                              color:
-                                                                  Colors.grey,
-                                                            ),
-                                                          );
-                                                        },
-                                                      )
-                                                    : Container(
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
-                                                            0.2,
-                                                        height: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .height *
-                                                            0.3,
-                                                        color: Colors.grey[300],
-                                                        alignment:
-                                                            Alignment.center,
-                                                        child: Icon(
-                                                          Icons
-                                                              .co_present_rounded,
-                                                          size: 50,
-                                                          color: Colors.grey,
-                                                        ),
-                                                      ),
-                                              ),
-                                            ),
+                                                              size: 50,
+                                                              color: Colors.grey,
+                      ),
+                                                          ),
+                  ),
+                ),
+                                              );
+                                            },
                                           );
                                         },
                                       ),
@@ -291,11 +447,11 @@ class UserProfilePageState extends State<UserProfilePage>
                                   ),
                                 ],
                               ),
-                              child: Row(
+                  child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
+                    children: [
                                   Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -314,8 +470,8 @@ class UserProfilePageState extends State<UserProfilePage>
                                                   getResponsiveFontSize(0.045),
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
+                  ),
+                ),
                                           if (controller.userData.isNotEmpty &&
                                               controller.userData.first
                                                       .packageStatus ==
@@ -323,7 +479,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                       userData
                                                       .first
                                                       .packageStatus == '4')
-                                            Padding(
+                Padding(
                                               padding: const EdgeInsets.only(
                                                   left: 8.0),
                                               child: Icon(
@@ -379,10 +535,10 @@ class UserProfilePageState extends State<UserProfilePage>
                                           fontSize:
                                               getResponsiveFontSize(0.025),
                                           color: Colors.white,
-                                        ),
-                                      ),
+                      ),
+                    ),
                                     ],
-                                  ),
+                ),
                                   IconButton(
                                     icon: Icon(Icons.edit,
                                         size: screenWidth * 0.05,
@@ -406,7 +562,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                 mainAxisSize: MainAxisSize.min,
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
-                                                children: [
+                          children: [
                                                   Text(
                                                     'Edit Username',
                                                     style: AppTextStyles
@@ -417,11 +573,11 @@ class UserProfilePageState extends State<UserProfilePage>
                                                               0.04),
                                                       fontWeight:
                                                           FontWeight.bold,
-                                                      color: Colors.white,
-                                                    ),
+                              color: Colors.white,
+                            ),
                                                   ),
                                                   const SizedBox(height: 20),
-                                                  Text(
+                            Text(
                                                     'Be creative! Your username can have only letters, numbers, or underscores (_)',
                                                     style: AppTextStyles
                                                         .titleText
@@ -491,12 +647,12 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                           .none,
                                                                 ),
                                                               ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                                                   const SizedBox(height: 20),
                                                   Row(
                                                     mainAxisAlignment:
@@ -573,7 +729,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                             0.055,
                                                         width:
                                                             screenWidth * 0.28,
-                                                        child: Container(
+                      child: Container(
                                                           decoration:
                                                               BoxDecoration(
                                                             gradient:
@@ -670,23 +826,23 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                     getResponsiveFontSize(
                                                                         0.03),
                                                               ),
-                                                            ),
+                            ),
                                                           ),
                                                         ),
                                                       ),
                                                     ],
                                                   )
-                                                ],
-                                              ),
-                                            ),
+                          ],
+                        ),
+                      ),
                                           );
                                         },
                                       );
                                     },
                                   ),
                                 ],
-                              ),
-                            ),
+                  ),
+                ),
                             // Container(
                             //   margin: const EdgeInsets.symmetric(
                             //       horizontal: 16, vertical: 6),
@@ -756,7 +912,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                 gradient: AppColors.appBarGradient,
                                 borderRadius: BorderRadius.circular(16.0),
                               ),
-                              child: InkWell(
+                    child: InkWell(
                                 onTap: () {
                                   if (controller.userData.isNotEmpty &&
                                       (controller.userData.first.packageStatus ==
@@ -782,7 +938,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                     vertical: screenWidth * 0.025,
                                     horizontal: screenWidth * 0.045,
                                   ),
-                                  child: Row(
+                        child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
@@ -791,13 +947,13 @@ class UserProfilePageState extends State<UserProfilePage>
                                             CrossAxisAlignment.start,
                                         children: [
                                           Row(
-                                            children: [
-                                              Icon(
+                          children: [
+                            Icon(
                                                 Icons.verified_user_outlined,
                                                 size: screenWidth * 0.07,
-                                                color: Colors.white,
-                                              ),
-                                              SizedBox(
+                              color: Colors.white,
+                            ),
+                            SizedBox(
                                                   width: screenWidth * 0.025),
                                               Container(
                                                 decoration: BoxDecoration(
@@ -850,7 +1006,7 @@ class UserProfilePageState extends State<UserProfilePage>
                                                     SizedBox(
                                                         width: screenWidth *
                                                             0.015),
-                                                    Text(
+                            Text(
                                                       _getAccountVerificationStatusText(),
                                                       style: TextStyle(
                                                         fontSize:
@@ -871,10 +1027,10 @@ class UserProfilePageState extends State<UserProfilePage>
                                                             ? Colors.green
                                                             : Colors.red,
                                                       ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                                               // SizedBox(
                                               //     width: screenWidth * 0.02),
                                               // if (controller
@@ -949,21 +1105,21 @@ class UserProfilePageState extends State<UserProfilePage>
                                 ),
                               ),
                             ),
-                            Padding(
+                Padding(
                               padding: EdgeInsets.symmetric(
                                 horizontal: screenWidth * 0.025, // ~16
                                 vertical: screenWidth * 0.01, // ~4
                               ),
-                              child: Column(
-                                children: [
+                  child: Column(
+                    children: [
                                   buildSettingCard(
                                     context,
-                                    title: 'Edit Profile',
-                                    subtitle: 'Edit your profile details',
-                                    icon: Icons.edit,
+                        title: 'Edit Profile',
+                        subtitle: 'Edit your profile details',
+                        icon: Icons.edit,
                                     onTap: () => Get.to(EditProfilePage()),
                                     screenWidth: screenWidth,
-                                  ),
+                      ),
                                   buildSettingCard(
                                     context,  
                                     title: 'Membership',
@@ -1005,34 +1161,34 @@ class UserProfilePageState extends State<UserProfilePage>
                                     icon: Icons.offline_share_outlined,
                                     onTap: () => Get.to(GenerateReferralPage()),
                                     screenWidth: screenWidth,
-                                  ),
+                      ),
                                   buildSettingCard(
                                     context,
                                     title: 'Share The Application',
                                     subtitle:
                                         'Share our application with others',
-                                    icon: Icons.share,
-                                    onTap: showShareProfileBottomSheet,
+                        icon: Icons.share,
+                        onTap: showShareProfileBottomSheet,
                                     screenWidth: screenWidth,
                                   ),
                                   buildSettingCard(
                                     context,
-                                    title: 'Help',
+                          title: 'Help',
                                     subtitle: 'Helpline support',
-                                    icon: Icons.help,
+                          icon: Icons.help,
                                     onTap: () => showHelpBottomSheet(context),
                                     screenWidth: screenWidth,
                                   ),
-                                ],
-                              ),
+                    ],
+                  ),
                             )
                           ],
                         ),
                       ));
                 }),
-          ],
-        ),
-      ),
+              ],
+            ),
+          ),
     );
   }
 
@@ -1149,12 +1305,44 @@ class UserProfilePageState extends State<UserProfilePage>
           child: GestureDetector(
             onTap: () => Navigator.of(context).pop(),
             child: Center(
-              child: imagePath.startsWith('http')
-                  ? Image.network(
-                      imagePath,
+              child: _isBase64Image(imagePath)
+                  ? Builder(
+                      builder: (context) {
+                        try {
+                          String normalizedBase64 = _normalizeBase64(imagePath);
+                          return Image.memory(
+                            base64Decode(normalizedBase64),
+                            fit: BoxFit.contain,
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height,
+                            errorBuilder: (context, error, stackTrace) {
+                              print('Full image dialog base64 decode error: $error');
+                              return Center(
+                                child: Icon(
+                                  Icons.broken_image,
+                                  size: 100,
+                                  color: Colors.grey,
+                                ),
+                              );
+                            },
+                          );
+                        } catch (e) {
+                          print('Error decoding base64 in full image dialog: $e');
+                          return Center(
+                            child: Icon(
+                              Icons.broken_image,
+                              size: 100,
+                              color: Colors.grey,
+                            ),
+                          );
+                        }
+                      },
+                    )
+                  : Image.network(
+                imagePath,
                       fit: BoxFit.contain,
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
                       errorBuilder: (context, error, stackTrace) {
                         return Center(
                           child: Icon(
@@ -1164,13 +1352,7 @@ class UserProfilePageState extends State<UserProfilePage>
                           ),
                         );
                       },
-                    )
-                  : Image.network(
-                      imagePath,
-                      fit: BoxFit.contain,
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
-                    ),
+              ),
             ),
           ),
         );
@@ -1237,30 +1419,30 @@ class UserProfilePageState extends State<UserProfilePage>
     );
   }
 
-  void showShareProfileBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        double screenWidth = MediaQuery.of(context).size.width;
+ void showShareProfileBottomSheet() {
+  showModalBottomSheet(
+    context: context,
+    builder: (context) {
+      double screenWidth = MediaQuery.of(context).size.width;
 
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Wrap(
-            children: [
-              SizedBox(
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Wrap(
+          children: [
+            SizedBox(
                 width: screenWidth - 32,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
                       "Share application",
-                      style: AppTextStyles.titleText.copyWith(
-                        fontSize: getResponsiveFontSize(0.03),
-                        fontWeight: FontWeight.bold,
-                      ),
+                    style: AppTextStyles.titleText.copyWith(
+                      fontSize: getResponsiveFontSize(0.03),
+                      fontWeight: FontWeight.bold,
                     ),
-                    SizedBox(height: 16),
-                    SizedBox(
+                  ),
+                  SizedBox(height: 16),
+                  SizedBox(
                       width: double.infinity,
                       child: Container(
                         decoration: BoxDecoration(
@@ -1268,31 +1450,31 @@ class UserProfilePageState extends State<UserProfilePage>
                           borderRadius: BorderRadius.circular(
                               30), // You can adjust the border radius here
                         ),
-                        child: ElevatedButton(
-                          onPressed: () {
+                    child: ElevatedButton(
+                      onPressed: () {
                             Navigator.pop(context);
-                            shareUserProfile();
-                          },
-                          style: ElevatedButton.styleFrom(
+                        shareUserProfile();
+                      },
+                      style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent,
                             padding: EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: Text(
-                            "Share",
-                            style: AppTextStyles.buttonText.copyWith(
-                              fontSize: getResponsiveFontSize(0.03),
-                              fontWeight: FontWeight.w500,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        "Share",
+                        style: AppTextStyles.buttonText.copyWith(
+                          fontSize: getResponsiveFontSize(0.03),
+                          fontWeight: FontWeight.w500,
                               color: AppColors.textColor,
                             ),
-                          ),
                         ),
                       ),
                     ),
-                    SizedBox(height: 16),
-                    SizedBox(
+                  ),
+                  SizedBox(height: 16),
+                  SizedBox(
                       width: double.infinity,
                       child: Container(
                         decoration: BoxDecoration(
@@ -1300,90 +1482,147 @@ class UserProfilePageState extends State<UserProfilePage>
                           borderRadius: BorderRadius.circular(
                               30), // You can adjust the border radius here
                         ),
-                        child: ElevatedButton(
-                          onPressed: () {
+                    child: ElevatedButton(
+                      onPressed: () {
                             Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
+                      },
+                      style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent,
                             padding: EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: Text(
-                            "Cancel",
-                            style: AppTextStyles.buttonText.copyWith(
-                              fontSize: getResponsiveFontSize(0.03),
-                              fontWeight: FontWeight.w500,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        "Cancel",
+                        style: AppTextStyles.buttonText.copyWith(
+                          fontSize: getResponsiveFontSize(0.03),
+                          fontWeight: FontWeight.w500,
                               color: AppColors.textColor,
                             ),
-                          ),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        );
-      },
-      isScrollControlled: true,
-    );
-  }
-
-  void shareUserProfile() {
-    final String profileUrl = 'https://example.com/user-profile';
-    final String profileDetails =
-        "Check out this profile:\nJohn Doe\nAge: 25\nGender: Male\n$profileUrl";
-    Share.share(profileDetails);
-  }
-}
-
-Future<void> showMessageBottomSheet() async {
-  Get.bottomSheet(
-    Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Send a Message', style: AppTextStyles.inputFieldText),
-            SizedBox(height: 20),
-            TextField(
-              // controller: _pingController,
-              cursorColor: AppColors.cursorColor,
-              // focusNode: _pingFocusNode,
-              decoration: InputDecoration(
-                labelText: 'Write your message...',
-                labelStyle: AppTextStyles.labelText,
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                ),
-                fillColor: AppColors.formFieldColor,
-                filled: true,
-                hintText: 'Type your message here...',
-              ),
-              maxLines: 3,
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.buttonColor,
-              ),
-              child: Text('Send Message', style: AppTextStyles.buttonText),
             ),
           ],
         ),
-      ),
+      );
+    },
+      isScrollControlled: true,
+  );
+}
+
+void shareUserProfile() {
+    final String profileUrl = 'https://example.com/user-profile';
+    final String profileDetails =
+        "Check out this profile:\nJohn Doe\nAge: 25\nGender: Male\n$profileUrl";
+  Share.share(profileDetails);
+}
+}
+
+Future<void> showMessageBottomSheet(String? userId) async {
+  final Controller controller = Get.find<Controller>();
+  final TextEditingController messageController = TextEditingController();
+  final EstablishConnectionMessageRequest establishConnectionMessageRequest =
+      EstablishConnectionMessageRequest(
+    receiverId: userId ?? '',
+    message: '',
+    messagetype: 1,
+  );
+  bool isSending = false;
+
+  Get.bottomSheet(
+    StatefulBuilder(
+      builder: (context, setState) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Send a Message', style: AppTextStyles.inputFieldText),
+                SizedBox(height: 20),
+                TextField(
+                  controller: messageController,
+                  cursorColor: AppColors.cursorColor,
+                  decoration: InputDecoration(
+                    labelText: 'Write your message...',
+                    labelStyle: AppTextStyles.labelText,
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    fillColor: AppColors.formFieldColor,
+                    filled: true,
+                    hintText: 'Type your message here...',
+                  ),
+                  maxLines: 3,
+                  enabled: !isSending,
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: isSending
+                      ? null
+                      : () async {
+                          if (messageController.text.trim().isEmpty) {
+                            failure("Message Empty", "Please write a message to send.");
+                            return;
+                          }
+                          if (userId == null || userId.isEmpty) {
+                            failure("Error", "User ID is required to send message.");
+                            return;
+                          }
+                          setState(() {
+                            isSending = true;
+                          });
+
+                          establishConnectionMessageRequest.message =
+                              messageController.text.trim();
+                          establishConnectionMessageRequest.receiverId = userId;
+
+                          bool messageSent = await controller
+                              .sendConnectionMessage(establishConnectionMessageRequest);
+
+                          if (messageSent) {
+                            messageController.clear();
+                            // Close bottom sheet after successful send
+                            if (Get.isBottomSheetOpen ?? false) {
+                              Get.back();
+                            }
+                          }
+
+                          setState(() {
+                            isSending = false;
+                          });
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.buttonColor,
+                    disabledBackgroundColor: Colors.grey,
+                  ),
+                  child: isSending
+                      ? SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text('Send Message', style: AppTextStyles.buttonText),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     ),
     isScrollControlled: true,
     backgroundColor: AppColors.primaryColor,
@@ -1393,7 +1632,7 @@ Future<void> showMessageBottomSheet() async {
 }
 
 Future<void> showUpgradeBottomSheet(BuildContext context) async {
-  double screenWidth = MediaQuery.of(context).size.width;
+   double screenWidth = MediaQuery.of(context).size.width;
   Get.bottomSheet(
     Padding(
       padding: const EdgeInsets.all(0.0),
@@ -1662,7 +1901,7 @@ class SettingCard extends StatelessWidget {
     return SizedBox(
       width: screenWidth * 0.9, // Decrease width to 80% of the screen width
       height: screenHeight * 0.078,
-      child: Card(
+        child: Card(
         elevation: 4,
         color: Colors.transparent,
         shape: RoundedRectangleBorder(

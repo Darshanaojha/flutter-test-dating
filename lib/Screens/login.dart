@@ -108,7 +108,16 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                                   .subscribeToTopic(response.payload.userId);
                               FCMService().subscribeToTopic("alluser");
                               Get.offAll(Unsubscribenavigation());
-                            } else if (packagestatus == '1') {
+                            } else if (packagestatus == '1' || packagestatus == '4') {
+                              // Status '1' and '4' both mean subscribed/verified
+                              FCMService().subscribeToTopic("subscribed");
+                              FCMService()
+                                  .subscribeToTopic(response.payload.userId);
+                              FCMService().subscribeToTopic("alluser");
+                              
+                              Get.offAll(NavigationBottomBar());
+                            } else {
+                              // Handle other package statuses - default to subscribed navigation
                               FCMService().subscribeToTopic("subscribed");
                               FCMService()
                                   .subscribeToTopic(response.payload.userId);

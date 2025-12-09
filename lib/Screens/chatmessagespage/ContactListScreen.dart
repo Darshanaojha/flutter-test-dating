@@ -217,7 +217,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                           ),
                         )
                       : RefreshIndicator(
-                          color: AppColors.mediumGradientColor,
+                          color: Color(0xFFCCB3F2), // Light purple color
                           onRefresh: initialize,
                           child: Builder(
                             builder: (context) {

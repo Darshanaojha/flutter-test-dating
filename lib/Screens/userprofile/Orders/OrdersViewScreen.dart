@@ -325,10 +325,17 @@ class OrderDetailSheet extends StatelessWidget {
   final Order order;
   const OrderDetailSheet({required this.order, super.key});
 
+  double getResponsiveFontSize(BuildContext context, double scale) {
+    return MediaQuery.of(context).size.width * scale;
+  }
+
+  double getResponsiveHeight(BuildContext context, double scale) {
+    return MediaQuery.of(context).size.height * scale;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: AppColors.gradientBackgroundList,
@@ -337,52 +344,180 @@ class OrderDetailSheet extends StatelessWidget {
         ),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text(
-                order.packageTitle,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.white, // white text on gradient
+      padding: EdgeInsets.all(2.5),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      FontAwesomeIcons.crown,
+                      size: getResponsiveHeight(context, 0.06),
+                      color: Colors.white,
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      "Subscription Details",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: getResponsiveFontSize(context, 0.05),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Color(getStatusColor(order.status)),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  getStatusText(order.status),
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
+              SizedBox(height: 20),
+              Row(
+                children: [
+                  Icon(Icons.card_membership, color: Colors.white70, size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      order.packageTitle,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Color(getStatusColor(order.status)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      getStatusText(order.status),
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 6),
+              Row(
+                children: [
+                  Icon(Icons.currency_rupee, color: Colors.white70, size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '₹ ${order.offerAmount}',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 6),
+              Row(
+                children: [
+                  Icon(Icons.category, color: Colors.white70, size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Category: ${order.packageCategoryTitle}',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 6),
+              Row(
+                children: [
+                  Icon(Icons.schedule, color: Colors.white70, size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Duration: ${order.days} ${order.unit}',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 6),
+              Row(
+                children: [
+                  Icon(Icons.attach_money, color: Colors.white70, size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Actual Amount: ₹ ${order.actualAmount}',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 6),
+              Row(
+                children: [
+                  Icon(Icons.confirmation_number, color: Colors.white70, size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Order ID: ${order.razorpayOrderId}',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 6),
+              Row(
+                children: [
+                  Icon(Icons.access_time, color: Colors.white70, size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      DateFormat('dd MMM yyyy, hh:mm a').format(DateTime.parse(order.created)),
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              InkWell(
+                onTap: () => Navigator.pop(context),
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  padding: EdgeInsets.all(2.5),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: AppColors.gradientBackgroundList,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    height: getResponsiveHeight(context, 0.04),
+                    padding: EdgeInsets.symmetric(vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Close",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: getResponsiveFontSize(context, 0.038),
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ]),
-            const SizedBox(height: 10),
-            Text(
-              '₹ ${order.offerAmount}',
-              style: const TextStyle(fontSize: 18, color: Colors.white),
-            ),
-            const Divider(color: Colors.white70),
-            Text('Category: ${order.packageCategoryTitle}',
-                style: const TextStyle(color: Colors.white)),
-            // Text('Description: ${order.packageCategoryDescription}',
-            //     style: const TextStyle(color: Colors.white)),
-            Text('Duration: ${order.days} ${order.unit}',
-                style: const TextStyle(color: Colors.white)),
-            Text('Actual Amount: ₹ ${order.actualAmount}',
-                style: const TextStyle(color: Colors.white)),
-            Text('Order ID: ${order.razorpayOrderId}',
-                style: const TextStyle(color: Colors.white)),
-            Text(
-                'Date: ${DateFormat('MMM d, yyyy h:mm a').format(DateTime.parse(order.created))}',
-                style: const TextStyle(color: Colors.white)),
-            const SizedBox(height: 26),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -703,6 +703,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       body: RefreshIndicator(
+        color: Color(0xFFCCB3F2), // Light purple color
         onRefresh: _onRefresh,
         child: Stack(
           children: [

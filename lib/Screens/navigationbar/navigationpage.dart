@@ -265,21 +265,59 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                         ),
                         child: ElevatedButton(
                           onPressed: () async {
-                            UpdateActivityStatusRequest
-                                updateActivityStatusRequest =
-                                UpdateActivityStatusRequest(status: '0');
-                            controller.updateactivitystatus(
-                                updateActivityStatusRequest);
-                            FCMService().subscribeToTopic("unsubscribed");
-                            final preferences =
-                                EncryptedSharedPreferences.getInstance();
-                            preferences.clear();
-                            if (Get.isRegistered<Controller>()) {
-                              Get.delete<Controller>();
+                            try {
+                              // Update activity status before logout (fire and forget, but with timeout)
+                              if (Get.isRegistered<Controller>()) {
+                                try {
+                                  final controller = Get.find<Controller>();
+                                  UpdateActivityStatusRequest
+                                      updateActivityStatusRequest =
+                                      UpdateActivityStatusRequest(status: '0');
+                                  await controller.updateactivitystatus(
+                                          updateActivityStatusRequest)
+                                      .timeout(Duration(seconds: 2),
+                                          onTimeout: () {
+                                        return false;
+                                      });
+                                } catch (e) {
+                                  // Ignore errors during logout
+                                  debugPrint('Error updating activity status during logout: $e');
+                                }
+                              }
+                            } catch (e) {
+                              // Ignore any errors
+                              debugPrint('Error during logout preparation: $e');
                             }
-                            if (Get.isRegistered<NavigationController>()) {
-                              Get.delete<NavigationController>();
+
+                            // Subscribe to unsubscribed topic
+                            try {
+                              FCMService().subscribeToTopic("unsubscribed");
+                            } catch (e) {
+                              debugPrint('Error subscribing to FCM topic: $e');
                             }
+
+                            // Clear preferences
+                            try {
+                              final preferences =
+                                  EncryptedSharedPreferences.getInstance();
+                              await preferences.clear();
+                            } catch (e) {
+                              debugPrint('Error clearing preferences: $e');
+                            }
+
+                            // Delete controllers
+                            try {
+                              if (Get.isRegistered<Controller>()) {
+                                Get.delete<Controller>();
+                              }
+                              if (Get.isRegistered<NavigationController>()) {
+                                Get.delete<NavigationController>();
+                              }
+                            } catch (e) {
+                              debugPrint('Error deleting controllers: $e');
+                            }
+
+                            // Navigate to auth screen
                             Get.offAll(() => CombinedAuthScreen());
                           },
                           style: ElevatedButton.styleFrom(

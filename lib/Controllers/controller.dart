@@ -1012,13 +1012,15 @@ class Controller extends GetxController {
           failure('Error', response.error.message);
           return false;
         }
+        // Always show success message when message is sent successfully
         if (response.payload.message.isNotEmpty) {
-          success('Success', response.payload.message);
+          success('Message Sent!', response.payload.message);
           Get.close(1);
           return true;
         } else {
-          success('Success', 'Connection message sent successfully');
+          success('Message Sent!', 'Your message has been sent successfully');
         }
+        Get.close(1);
         return true;
       } else {
         failure('Error', 'Failed to send the connection message');

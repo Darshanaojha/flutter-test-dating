@@ -4,10 +4,12 @@ import '../Models/ResponseModels/user_upload_images_response_model.dart';
 import '../constants.dart';
 class UserProfileProvider extends GetConnect {
   Future<UserUploadImagesResponse?> fetchProfileUserPhotos(String id) async {
+    print("id in fetchProfileUserPhotos: $id");
     try {
       EncryptedSharedPreferences preferences =
           EncryptedSharedPreferences.getInstance();
       String? token = preferences.getString('token');
+      print("token in fetchProfileUserPhotos: $token");
       if (token == null || token.isEmpty) {
         failure('Error in fetchProfileUserPhotos', 'Token not found');
         return null;
@@ -19,6 +21,7 @@ class UserProfileProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+      print("response body in fetchProfileUserPhotos: ${response.body}");
       if (response.statusCode == null || response.body == null) {
         failure('Error in fetchProfileUserPhotos', 'Server Failed To Respond');
         return null;

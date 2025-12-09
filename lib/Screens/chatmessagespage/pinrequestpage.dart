@@ -313,13 +313,17 @@ class ReplyMessagePageState extends State<ReplyMessagePage> {
     establishConnectionMessageRequest.message = message;
     establishConnectionMessageRequest.receiverId = senderId;
 
-    bool success =
+    bool messageSent =
         await controller.sendConnectionMessage(establishConnectionMessageRequest);
 
-    if (success) {
+    if (messageSent) {
+      // Success notification is already shown by sendConnectionMessage
+      // but we can add additional feedback here if needed
       await controller.fetchallpingrequestmessage();
       await controller.fetchalluserconnections();
       messageController.clear();
+      // Additional success feedback for favorites page context
+      success('Message Sent!', 'Your message has been sent successfully');
     }
 
     if (mounted) {

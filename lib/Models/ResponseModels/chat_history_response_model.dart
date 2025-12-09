@@ -91,21 +91,30 @@ class Message {
   });
 
   factory Message.fromJson(Map<String, dynamic> json) {
+    // Handle both camelCase and snake_case for senderId
+    String? senderIdValue = json['sender_id']?.toString() ?? 
+                           json['senderId']?.toString();
+    
+    if (senderIdValue == null || senderIdValue == 'null' || senderIdValue.isEmpty) {
+      print('Warning: senderId is null or empty in message JSON. Available keys: ${json.keys.toList()}');
+      print('Full message JSON: $json');
+    }
+    
     return Message(
-      id: json['id'].toString(),
-      senderId: json['senderId'].toString(),
-      receiverId: json['receiver_id'].toString(),
+      id: json['id']?.toString() ?? '',
+      senderId: senderIdValue ?? '',
+      receiverId: json['receiver_id']?.toString() ?? json['receiverId']?.toString() ?? '',
       message: json['message'],
-      messageType: json['message_type'],
+      messageType: json['message_type'] ?? json['messageType'] ?? 1,
       created: json['created'],
       updated: json['updated'],
-      status: json['status'],
-      deletedBySender: json['deleted_by_sender'],
-      deletedByReceiver: json['deleted_by_receiver'],
-      deletedAtSender: json['deleted_at_sender'],
-      deletedAtReceiver: json['deleted_at_receiver'],
-      isEdited: json['is_edited'],
-      imagePath: json['imagePath'],
+      status: json['status'] ?? 0,
+      deletedBySender: json['deleted_by_sender'] ?? json['deletedBySender'] ?? 0,
+      deletedByReceiver: json['deleted_by_receiver'] ?? json['deletedByReceiver'] ?? 0,
+      deletedAtSender: json['deleted_at_sender'] ?? json['deletedAtSender'],
+      deletedAtReceiver: json['deleted_at_receiver'] ?? json['deletedAtReceiver'],
+      isEdited: json['is_edited'] ?? json['isEdited'] ?? 0,
+      imagePath: json['imagePath'] ?? json['image_path'],
       sensitivity: json['sensitivity'],
       timestamp: json['timestamp'],
     );

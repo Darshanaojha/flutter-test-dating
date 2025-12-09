@@ -633,12 +633,31 @@ class ChatScreenState extends State<ChatScreen> {
                       final message = item;
                       final messageTime = DateFormat('hh:mm a')
                           .format(DateTime.parse(message.created!));
-                      bool isSentByUser = message.senderId == widget.senderId;
+                      
+                      // Normalize senderId comparison (handle string/int and whitespace)
+                      String messageSenderId = message.senderId?.toString().trim() ?? '';
+                      String currentSenderId = widget.senderId.toString().trim();
+                      
+                      // If senderId is null/empty, try to determine from receiverId
+                      // If receiverId matches current user, it means we sent it to them
+                      bool isSentByUser;
+                      if (messageSenderId.isEmpty || messageSenderId == 'null') {
+                        // Fallback: if receiverId matches current user, we sent it
+                        String messageReceiverId = message.receiverId?.toString().trim() ?? '';
+                        isSentByUser = messageReceiverId == currentSenderId;
+                        print('Warning: senderId is null. Using fallback - receiverId: "$messageReceiverId", currentSenderId: "$currentSenderId", isSentByUser: $isSentByUser');
+                      } else {
+                        isSentByUser = messageSenderId == currentSenderId;
+                      }
+                      
+                      // Debug logging
+                      print('Message senderId: "$messageSenderId", widget.senderId: "$currentSenderId", isSentByUser: $isSentByUser');
 
                       Widget messageContent = Column(
                         crossAxisAlignment: isSentByUser
                             ? CrossAxisAlignment.end
                             : CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           if (message.message != null &&
                               message.message!.isNotEmpty)
@@ -659,11 +678,25 @@ class ChatScreenState extends State<ChatScreen> {
                             ),
                           if (message.imagePath != null)
                             Padding(
-                              padding: const EdgeInsets.only(top: 5.0),
-                              child: SensitiveImageWidget(
-                                imagePath: message.imagePath!,
-                                bearerToken: bearerToken!,
-                                sensitivity: message.sensitivity ?? 0,
+                              padding: EdgeInsets.only(
+                                top: 5.0,
+                                left: isSentByUser ? 50 : 0,
+                                right: isSentByUser ? 0 : 50,
+                              ),
+                              child: Align(
+                                alignment: isSentByUser
+                                    ? Alignment.centerRight
+                                    : Alignment.centerLeft,
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxWidth: MediaQuery.of(context).size.width * 0.7,
+                                  ),
+                                  child: SensitiveImageWidget(
+                                    imagePath: message.imagePath!,
+                                    bearerToken: bearerToken!,
+                                    sensitivity: message.sensitivity ?? 0,
+                                  ),
+                                ),
                               ),
                             ),
                           Padding(

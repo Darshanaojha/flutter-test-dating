@@ -936,30 +936,99 @@ class PricingPageState extends State<PricingPage>
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          backgroundColor: AppColors.secondaryColor,
-          title: Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.green, size: 28),
-              SizedBox(width: 10),
-              Text("Payment Successful", style: AppTextStyles.titleText),
-            ],
-          ),
-          content: Text(
-            "Welcome to the Dating App! You have successfully subscribed to the plan. Enjoy all the premium features and benefits.",
-            style: AppTextStyles.bodyText,
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text("Awesome!", style: AppTextStyles.buttonText),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.all(2.5),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: AppColors.gradientBackgroundList,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
             ),
-          ],
+            child: Container(
+              padding: EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Payment Done Animation
+                  SizedBox(
+                    width: 150,
+                    height: 150,
+                    child: Lottie.asset(
+                      "assets/animations/paymentdoneanimation.json",
+                      fit: BoxFit.contain,
+                      repeat: false,
+                      animate: true,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  // Title
+                  Text(
+                    "Payment Successful",
+                    style: AppTextStyles.titleText.copyWith(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 16),
+                  // Message
+                  Text(
+                    "Welcome to the Dating App! You have successfully subscribed to the plan. Enjoy all the premium features and benefits.",
+                    style: AppTextStyles.bodyText.copyWith(
+                      color: Colors.white.withOpacity(0.9),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 24),
+                  // Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        padding: EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: AppColors.gradientBackgroundList,
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: 14),
+                        child: Center(
+                          child: Text(
+                            "Awesome!",
+                            style: AppTextStyles.buttonText.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         );
       },
     );

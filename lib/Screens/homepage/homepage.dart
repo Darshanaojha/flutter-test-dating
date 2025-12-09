@@ -72,7 +72,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late MatchEngine matchEngine;
   late Future<bool> _fetchSuggestion;
   late HeartOverlayController heartOverlayController;
-  @override
+  
   @override
   void initState() {
     super.initState();
@@ -368,16 +368,55 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           child: GestureDetector(
             onTap: () => Navigator.of(context).pop(),
             child: Center(
-              child: CachedNetworkImage(
-                imageUrl: imagePath,
-                fit: BoxFit.contain,
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                placeholder: (context, url) =>
-                    const Center(child: CircularProgressIndicator()),
-                errorWidget: (context, url, error) =>
-                    Image.asset('assets/images/logo_redefined.png'),
-              ),
+              child: _isBase64Image(imagePath)
+                  ? Builder(
+                      builder: (context) {
+                        try {
+                          return Image.memory(
+                            base64Decode(imagePath.contains(',')
+                                ? imagePath.split(',')[1]
+                                : imagePath),
+                            fit: BoxFit.contain,
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height,
+                            errorBuilder: (context, error, stackTrace) {
+                              print('Base64 image decode error in full dialog: $error');
+                              return Image.asset('assets/images/logo_redefined.png');
+                            },
+                          );
+                        } catch (e) {
+                          print('Error decoding base64 in full image dialog: $e');
+                          return Image.asset('assets/images/logo_redefined.png');
+                        }
+                      },
+                    )
+                  : Builder(
+                      builder: (context) {
+                        try {
+                          return CachedNetworkImage(
+                            imageUrl: imagePath,
+                            fit: BoxFit.contain,
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height,
+                            placeholder: (context, url) => const Center(
+                              child: CircularProgressIndicator(
+                                color: Color(0xFFCCB3F2),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) {
+                              print('Full image dialog CachedNetworkImage error for $url: $error');
+                              return Image.asset('assets/images/logo_redefined.png');
+                            },
+                            httpHeaders: {
+                              'Accept': 'image/*',
+                            },
+                          );
+                        } catch (e) {
+                          print('Error loading network image in full dialog: $e');
+                          return Image.asset('assets/images/logo_redefined.png');
+                        }
+                      },
+                    ),
             ),
           ),
         );
@@ -434,8 +473,15 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     Get.snackbar("Error", "Message cannot be empty!");
                     return;
                   }
-                  await controller
+                  bool messageSent = await controller
                       .sendConnectionMessage(establishConnectionMessageRequest);
+                  if (messageSent) {
+                    // Additional success feedback - the controller already shows success snackbar
+                    // but we can close the bottom sheet here if it's still open
+                    if (Get.isBottomSheetOpen ?? false) {
+                      Get.back();
+                    }
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.mediumGradientColor,
@@ -541,7 +587,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           ),
         ),
       ),
-    ),
     );
   }
 
@@ -603,8 +648,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       body: RefreshWrapper(
         onRefresh: initializeApp,
         child: SafeArea(
-        child: Stack(
-          children: [
+          child: Stack(
+            children: [
             FutureBuilder(
               future: _fetchSuggestion,
               builder: (context, snapshot) {
@@ -915,13 +960,53 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ),
           ],
         ),
+        ),
       ),
     );
   }
 
+  /// Helper function to check if a string is a base64 image
+  bool _isBase64Image(String? image) {
+    if (image == null || image.isEmpty) return false;
+    // Base64 images typically start with "data:image" or are long base64 strings
+    return image.startsWith('data:image') || 
+           (image.length > 100 && !image.startsWith('http'));
+  }
+
+  /// Sort images: base64 images first, then URLs, maintaining order within each group
+  List<String> _sortImages(List<String> images, {String? profileImage}) {
+    if (images.isEmpty) return images;
+    
+    List<String> sortedImages = List.from(images);
+    
+    // Option 1: Sort by type - base64 first, then URLs
+    sortedImages.sort((a, b) {
+      bool aIsBase64 = _isBase64Image(a);
+      bool bIsBase64 = _isBase64Image(b);
+      
+      if (aIsBase64 && !bIsBase64) return -1; // base64 comes first
+      if (!aIsBase64 && bIsBase64) return 1;  // URLs come after
+      return 0; // maintain original order within same type
+    });
+    
+    // Option 2: If profile image exists and is in the list, move it to first position
+    if (profileImage != null && profileImage.isNotEmpty) {
+      if (sortedImages.contains(profileImage)) {
+        sortedImages.remove(profileImage);
+        sortedImages.insert(0, profileImage);
+      } else if (_isBase64Image(profileImage) || profileImage.startsWith('http')) {
+        // If profile image is not in the list but is valid, add it first
+        sortedImages.insert(0, profileImage);
+      }
+    }
+    
+    return sortedImages;
+  }
+
   Widget buildCardLayoutAll(
       BuildContext context, SuggestedUser user, Size size, bool isLastCard) {
-    List<String> images = user.images;
+    // Sort images: base64 first, then URLs, with profile image at the beginning
+    List<String> images = _sortImages(user.images, profileImage: user.profileImage);
     String lookingForText = user.lookingFor == "1"
         ? "Serious Relationship, "
         : user.lookingFor == "2"
@@ -985,19 +1070,50 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   showFullImageDialog(context, images[index]),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(20),
-                                child: CachedNetworkImage(
-                                  imageUrl: images[index],
-                                  placeholder: (context, url) => Center(
-                                      child: CircularProgressIndicator()),
-                                  errorWidget: (context, url, error) {
-                                    return Image.asset(
-                                        'assets/images/logo_redefined.png',
-                                        fit: BoxFit.contain);
-                                  },
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                ),
+                                child: _isBase64Image(images[index])
+                                    ? Image.memory(
+                                        base64Decode(images[index].contains(',')
+                                            ? images[index].split(',')[1]
+                                            : images[index]),
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return Image.asset(
+                                              'assets/images/logo_redefined.png',
+                                              fit: BoxFit.contain);
+                                        },
+                                      )
+                                    : Builder(
+                                        builder: (context) {
+                                          try {
+                                            return CachedNetworkImage(
+                                              imageUrl: images[index],
+                                              placeholder: (context, url) => Center(
+                                                  child: CircularProgressIndicator(
+                                                    color: Color(0xFFCCB3F2),
+                                                  )),
+                                              errorWidget: (context, url, error) {
+                                                print('CachedNetworkImage error for $url: $error');
+                                                return Image.asset(
+                                                    'assets/images/logo_redefined.png',
+                                                    fit: BoxFit.contain);
+                                              },
+                                              fit: BoxFit.cover,
+                                              width: double.infinity,
+                                              height: double.infinity,
+                                              httpHeaders: {
+                                                'Accept': 'image/*',
+                                              },
+                                            );
+                                          } catch (e) {
+                                            print('Error loading network image: $e');
+                                            return Image.asset(
+                                                'assets/images/logo_redefined.png',
+                                                fit: BoxFit.contain);
+                                          }
+                                        },
+                                      ),
                               ),
                             );
                           },
@@ -1354,21 +1470,49 @@ class MatchDialog extends StatelessWidget {
   }
 
   Widget _buildProfileImage(String? imageUrl) {
+    if (imageUrl == null || imageUrl.isEmpty) {
+      return CircleAvatar(
+        radius: 50,
+        backgroundColor: Colors.white24,
+        child: ClipOval(
+          child: Image.asset(
+            'assets/images/logo_redefined.png',
+            fit: BoxFit.contain,
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+    }
+    
     return CircleAvatar(
       radius: 50,
       backgroundColor: Colors.white24,
-      backgroundImage:
-          imageUrl != null ? CachedNetworkImageProvider(imageUrl) : null,
-      child: imageUrl == null
-          ? ClipOval(
-              child: Image.asset(
-                'assets/images/logo_redefined.png',
-                fit: BoxFit.contain,
-                width: 100,
-                height: 100,
-              ),
-            )
-          : null,
+      child: ClipOval(
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
+          placeholder: (context, url) => Center(
+            child: CircularProgressIndicator(
+              color: Color(0xFFCCB3F2),
+            ),
+          ),
+          errorWidget: (context, url, error) {
+            print('Profile image error for $url: $error');
+            return Image.asset(
+              'assets/images/logo_redefined.png',
+              fit: BoxFit.contain,
+              width: 100,
+              height: 100,
+            );
+          },
+          fit: BoxFit.cover,
+          width: 100,
+          height: 100,
+          httpHeaders: {
+            'Accept': 'image/*',
+          },
+        ),
+      ),
     );
   }
 }

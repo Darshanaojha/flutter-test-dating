@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_country_response_model.dart';
@@ -24,7 +25,7 @@ class EditProfilePage extends StatefulWidget {
 class EditProfilePageState extends State<EditProfilePage>
     with TickerProviderStateMixin {
   bool _photosUpdated = false;
-  Controller controller = Get.put(Controller());
+  late Controller controller;
   late final AnimationController _animationController;
   late final DecorationTween decorationTween;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -42,6 +43,56 @@ class EditProfilePageState extends State<EditProfilePage>
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
+  }
+
+  /// Helper function to normalize base64 string (add padding if needed)
+  String _normalizeBase64(String base64) {
+    // Remove data URL prefix if present
+    String clean = base64.contains(',') ? base64.split(',')[1] : base64;
+    // Remove whitespace
+    clean = clean.trim();
+    // Add padding if needed (base64 strings should be divisible by 4)
+    int remainder = clean.length % 4;
+    if (remainder != 0) {
+      clean += '=' * (4 - remainder);
+    }
+    return clean;
+  }
+
+  /// Helper function to check if a string is a base64 image
+  bool _isBase64Image(String? image) {
+    if (image == null || image.isEmpty) return false;
+    // If it starts with http, it's definitely a URL
+    if (image.startsWith('http://') || image.startsWith('https://')) {
+      return false;
+    }
+    // If it starts with /, it might be a base64 string (like /9j/ for JPEG)
+    // or it could be a path - check if it's long enough to be base64
+    if (image.startsWith('/') && image.length > 50) {
+      // Likely base64 if it's long and starts with /9j/ (JPEG) or /iVB (PNG)
+      if (image.startsWith('/9j/') || image.startsWith('/iVB')) {
+        try {
+          String normalized = _normalizeBase64(image);
+          base64Decode(normalized);
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+    }
+    // Remove data URL prefix if present (e.g., "data:image/jpeg;base64,")
+    String cleanImage = image.contains(',') ? image.split(',')[1] : image;
+    cleanImage = cleanImage.trim();
+    // Base64 strings should be reasonably long (at least 20 chars for a tiny image)
+    if (cleanImage.length < 20) return false;
+    // Try to normalize and decode
+    try {
+      String normalized = _normalizeBase64(cleanImage);
+      base64Decode(normalized);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   TextEditingController latitudeController = TextEditingController();
@@ -107,16 +158,53 @@ class EditProfilePageState extends State<EditProfilePage>
   late Future<bool> _fetchProfileFuture;
 
   Future<bool> _loadProfileData() async {
-    bool success = await fetchAllData();
-    if (success) {
-      await initialize();
+    try {
+      print('EditProfile: Starting _loadProfileData...');
+      
+      // Add timeout to prevent hanging forever
+      bool success = await fetchAllData().timeout(
+        Duration(seconds: 60),
+        onTimeout: () {
+          print('EditProfile: fetchAllData timed out after 60 seconds');
+          return false;
+        },
+      );
+      
+      print('EditProfile: fetchAllData completed with success: $success');
+      if (success) {
+        print('EditProfile: Initializing data...');
+        try {
+          await initialize().timeout(
+            Duration(seconds: 30),
+            onTimeout: () {
+              print('EditProfile: initialize timed out after 30 seconds');
+            },
+          );
+          print('EditProfile: Initialization completed');
+        } catch (initError) {
+          print('EditProfile: Initialize failed but continuing: $initError');
+          // Continue even if initialization fails partially
+        }
+      } else {
+        print('EditProfile: fetchAllData failed, cannot initialize');
+      }
+      return success;
+    } catch (e, stackTrace) {
+      print('EditProfile: Error in _loadProfileData: $e');
+      print('EditProfile: Stack trace: $stackTrace');
+      return false;
     }
-    return success;
   }
 
   @override
   void initState() {
     super.initState();
+    // Initialize controller - use existing if available, otherwise create new
+    try {
+      controller = Get.find<Controller>();
+    } catch (e) {
+      controller = Get.put(Controller());
+    }
     _fetchProfileFuture = _loadProfileData();
 
     _animationController = AnimationController(
@@ -166,23 +254,86 @@ class EditProfilePageState extends State<EditProfilePage>
   }
 
   Future<bool> fetchAllData() async {
-    if (await controller.fetchProfile()) {
-      controller.userProfileUpdateRequest.preferences =
-          controller.userPreferences.map((p) => p.preferenceId).toList();
-      controller.userProfileUpdateRequest.lang =
-          controller.userLang.map((l) => l.langId).toList();
+    try {
+      print('EditProfile: Starting fetchAllData...');
+      
+      // Fetch profile first - this is critical
+      print('EditProfile: Fetching profile...');
+      bool profileSuccess = await controller.fetchProfile();
+      print('EditProfile: Profile fetch result: $profileSuccess');
+      
+      if (!profileSuccess) {
+        print('EditProfile: Profile fetch failed, returning false');
+        return false;
+      }
+      
+      // Set preferences and languages from fetched profile
+      if (controller.userPreferences.isNotEmpty) {
+        controller.userProfileUpdateRequest.preferences =
+            controller.userPreferences.map((p) => p.preferenceId).toList();
+        print('EditProfile: Set ${controller.userProfileUpdateRequest.preferences.length} preferences');
+      }
+      if (controller.userLang.isNotEmpty) {
+        controller.userProfileUpdateRequest.lang =
+            controller.userLang.map((l) => l.langId).toList();
+        print('EditProfile: Set ${controller.userProfileUpdateRequest.lang.length} languages');
+      }
+      
+      // Fetch other required data
+      print('EditProfile: Fetching countries...');
+      if (!await controller.fetchCountries()) {
+        print('EditProfile: Failed to fetch countries');
+        return false;
+      }
+      
+      print('EditProfile: Fetching genders...');
+      if (!await controller.fetchGenders()) {
+        print('EditProfile: Failed to fetch genders');
+        return false;
+      }
+      
+      print('EditProfile: Fetching preferences...');
+      if (!await controller.fetchPreferences()) {
+        print('EditProfile: Failed to fetch preferences');
+        return false;
+      }
+      
+      print('EditProfile: Fetching languages...');
+      if (!await controller.fetchlang()) {
+        print('EditProfile: Failed to fetch languages');
+        return false;
+      }
+      
+      print('EditProfile: Fetching desires...');
+      if (!await controller.fetchDesires()) {
+        print('EditProfile: Failed to fetch desires');
+        return false;
+      }
+      
+      print('EditProfile: All data fetched successfully');
+      return true;
+    } catch (e, stackTrace) {
+      print('EditProfile: Exception in fetchAllData: $e');
+      print('EditProfile: Stack trace: $stackTrace');
+      return false;
     }
-    if (!await controller.fetchCountries()) return false;
-    if (!await controller.fetchGenders()) return false;
-    if (!await controller.fetchPreferences()) return false;
-    if (!await controller.fetchlang()) return false;
-    if (!await controller.fetchDesires()) return false;
-
-    return true;
   }
 
   initialize() async {
     try {
+      print('EditProfile: Starting initialize...');
+      
+      // Check if required data is available
+      if (controller.userData.isEmpty) {
+        print('EditProfile: userData is empty, cannot initialize');
+        throw Exception('User data not available');
+      }
+      
+      if (controller.genders.isEmpty) {
+        print('EditProfile: genders is empty, cannot initialize');
+        throw Exception('Genders data not available');
+      }
+      
       debounce?.cancel();
       isLatLongFetched.value = false;
 
@@ -201,42 +352,47 @@ class EditProfilePageState extends State<EditProfilePage>
       selectedGender.value = initialGender;
 
       if (selectedGender.value != null) {
+        print('EditProfile: Fetching sub-genders for gender: ${selectedGender.value!.id}');
         await controller.fetchSubGender(SubGenderRequest(
           genderId: selectedGender.value!.id,
         ));
       }
 
-      preferencesSelectedOptions.value =
-          List<bool>.filled(controller.preferences.length, false);
-      List<String> matchingIndexes = [];
-      for (var p in controller.userPreferences) {
-        int index = controller.preferences
-            .indexWhere((preference) => preference.id == p.preferenceId);
-        if (index != -1) {
-          matchingIndexes.add(index.toString());
-          preferencesSelectedOptions[index] = true;
+      if (controller.preferences.isNotEmpty) {
+        preferencesSelectedOptions.value =
+            List<bool>.filled(controller.preferences.length, false);
+        List<String> matchingIndexes = [];
+        for (var p in controller.userPreferences) {
+          int index = controller.preferences
+              .indexWhere((preference) => preference.id == p.preferenceId);
+          if (index != -1) {
+            matchingIndexes.add(index.toString());
+            preferencesSelectedOptions[index] = true;
+          }
         }
       }
-      // print("Matching indexes: $matchingIndexes");
 
-      // print(
-      //     "DOB : ${controller.userProfileUpdateRequest.dob} and previous ${controller.userData.first.dob}");
-      // selectedDate = DateFormat('dd/MM/yyyy')
-      //     .parse(controller.userProfileUpdateRequest.dob);
-      // print("SelectedDate: $selectedDate");
+      if (controller.userData.isNotEmpty) {
+        latitudeController.text = controller.userData.first.latitude.isNotEmpty
+            ? controller.userData.first.latitude
+            : controller.userProfileUpdateRequest.latitude;
 
-      latitudeController.text = controller.userData.first.latitude.isNotEmpty
-          ? controller.userData.first.latitude
-          : controller.userProfileUpdateRequest.latitude;
+        longitudeController.text = controller.userData.first.longitude.isNotEmpty
+            ? controller.userData.first.longitude
+            : controller.userProfileUpdateRequest.longitude;
+      }
 
-      longitudeController.text = controller.userData.first.longitude.isNotEmpty
-          ? controller.userData.first.longitude
-          : controller.userProfileUpdateRequest.longitude;
-
-      selectedOptions = RxList<bool>.filled(controller.desires.length, false);
+      if (controller.desires.isNotEmpty) {
+        selectedOptions = RxList<bool>.filled(controller.desires.length, false);
+      }
       selectedDesires = controller.userDesire;
-    } catch (e) {
+      
+      print('EditProfile: Initialize completed successfully');
+    } catch (e, stackTrace) {
+      print('EditProfile: Error in initialize: $e');
+      print('EditProfile: Stack trace: $stackTrace');
       failure('Error', e.toString());
+      rethrow; // Re-throw to let _loadProfileData know initialization failed
     }
   }
 
@@ -746,12 +902,15 @@ class EditProfilePageState extends State<EditProfilePage>
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(
-                    // child: SpinKitCircle(
-                    //   size: 150.0,
-                    //   color: AppColors.progressColor,
-                    // ),
                     child: Lottie.asset(
-                        "assets/animations/editprofileanimation.json"));
+                      "assets/animations/editprofileanimation.json",
+                      width: 150,
+                      height: 150,
+                      fit: BoxFit.contain,
+                      repeat: true,
+                      reverse: false,
+                      animate: true,
+                    ));
               }
               if (snapshot.hasError) {
                 return Center(
@@ -837,8 +996,85 @@ class EditProfilePageState extends State<EditProfilePage>
                                                                 BorderRadius
                                                                     .circular(
                                                                         10),
-                                                            child:
-                                                                Image.network(
+                                                            child: _isBase64Image(imageUrl)
+                                                                ? Builder(
+                                                                    builder: (context) {
+                                                                      try {
+                                                                        String normalizedBase64 = _normalizeBase64(imageUrl);
+                                                                        return Image.memory(
+                                                                          base64Decode(normalizedBase64),
+                                                                          fit: BoxFit.cover,
+                                                                          width: MediaQuery.of(
+                                                                                      context)
+                                                                                  .size
+                                                                                  .width *
+                                                                              0.9,
+                                                                          height: MediaQuery.of(
+                                                                                      context)
+                                                                                  .size
+                                                                                  .height *
+                                                                              0.35,
+                                                                          errorBuilder: (context,
+                                                                              error, stackTrace) {
+                                                                            print('Base64 image decode error in edit profile: $error');
+                                                                            return Container(
+                                                                              width: MediaQuery.of(
+                                                                                          context)
+                                                                                      .size
+                                                                                      .width *
+                                                                                  0.55,
+                                                                              height: MediaQuery.of(
+                                                                                          context)
+                                                                                      .size
+                                                                                      .height *
+                                                                                  0.25,
+                                                                              alignment:
+                                                                                  Alignment.center,
+                                                                              color: Colors
+                                                                                  .grey
+                                                                                  .shade200,
+                                                                              child:
+                                                                                  const Icon(
+                                                                                Icons
+                                                                                    .broken_image,
+                                                                                size: 48,
+                                                                                color: Colors
+                                                                                    .grey,
+                                                                              ),
+                                                                            );
+                                                                          },
+                                                                        );
+                                                                      } catch (e) {
+                                                                        print('Error decoding base64 image in edit profile: $e');
+                                                                        return Container(
+                                                                          width: MediaQuery.of(
+                                                                                      context)
+                                                                                  .size
+                                                                                  .width *
+                                                                              0.55,
+                                                                          height: MediaQuery.of(
+                                                                                      context)
+                                                                                  .size
+                                                                                  .height *
+                                                                              0.25,
+                                                                          alignment:
+                                                                              Alignment.center,
+                                                                          color: Colors
+                                                                              .grey
+                                                                              .shade200,
+                                                                          child:
+                                                                              const Icon(
+                                                                            Icons
+                                                                                .broken_image,
+                                                                            size: 48,
+                                                                            color: Colors
+                                                                                .grey,
+                                                                          ),
+                                                                        );
+                                                                      }
+                                                                    },
+                                                                  )
+                                                                : Image.network(
                                                               imageUrl,
                                                               fit: BoxFit.cover,
                                                               width: MediaQuery.of(
@@ -3182,6 +3418,46 @@ class EditProfilePageState extends State<EditProfilePage>
 }
 
 void showFullImageDialog(BuildContext context, String imagePath) {
+  // Helper function to normalize base64 string
+  String normalizeBase64(String base64) {
+    String clean = base64.contains(',') ? base64.split(',')[1] : base64;
+    clean = clean.trim();
+    int remainder = clean.length % 4;
+    if (remainder != 0) {
+      clean += '=' * (4 - remainder);
+    }
+    return clean;
+  }
+
+  // Helper function to check if a string is a base64 image
+  bool isBase64Image(String? image) {
+    if (image == null || image.isEmpty) return false;
+    if (image.startsWith('http://') || image.startsWith('https://')) {
+      return false;
+    }
+    if (image.startsWith('/') && image.length > 50) {
+      if (image.startsWith('/9j/') || image.startsWith('/iVB')) {
+        try {
+          String normalized = normalizeBase64(image);
+          base64Decode(normalized);
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+    }
+    String cleanImage = image.contains(',') ? image.split(',')[1] : image;
+    cleanImage = cleanImage.trim();
+    if (cleanImage.length < 20) return false;
+    try {
+      String normalized = normalizeBase64(cleanImage);
+      base64Decode(normalized);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   showDialog(
     context: context,
     builder: (context) {
@@ -3190,12 +3466,54 @@ void showFullImageDialog(BuildContext context, String imagePath) {
         child: GestureDetector(
           onTap: () => Navigator.of(context).pop(),
           child: Center(
-            child: Image.network(
-              imagePath,
-              fit: BoxFit.contain,
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-            ),
+            child: isBase64Image(imagePath)
+                ? Builder(
+                    builder: (context) {
+                      try {
+                        String normalizedBase64 = normalizeBase64(imagePath);
+                        return Image.memory(
+                          base64Decode(normalizedBase64),
+                          fit: BoxFit.contain,
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height,
+                          errorBuilder: (context, error, stackTrace) {
+                            print('Full image dialog base64 decode error: $error');
+                            return Center(
+                              child: Icon(
+                                Icons.broken_image,
+                                size: 100,
+                                color: Colors.grey,
+                              ),
+                            );
+                          },
+                        );
+                      } catch (e) {
+                        print('Error decoding base64 in full image dialog: $e');
+                        return Center(
+                          child: Icon(
+                            Icons.broken_image,
+                            size: 100,
+                            color: Colors.grey,
+                          ),
+                        );
+                      }
+                    },
+                  )
+                : Image.network(
+                    imagePath,
+                    fit: BoxFit.contain,
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Center(
+                        child: Icon(
+                          Icons.broken_image,
+                          size: 100,
+                          color: Colors.grey,
+                        ),
+                      );
+                    },
+                  ),
           ),
         ),
       );
