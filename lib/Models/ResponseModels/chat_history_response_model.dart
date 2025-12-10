@@ -123,7 +123,7 @@ class Message {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'senderId': senderId,
+      'sender_id': senderId,
       'receiver_id': receiverId,
       'message': message,
       'message_type': messageType,

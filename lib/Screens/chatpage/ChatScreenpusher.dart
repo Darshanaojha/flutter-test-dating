@@ -961,38 +961,38 @@ class ChatScreenState extends State<ChatScreen> {
                       ),
                     ),
                   ),
-                  // Container(
-                  //   margin: EdgeInsets.symmetric(horizontal: 4),
-                  //   decoration: BoxDecoration(
-                  //     shape: BoxShape.circle,
-                  //     gradient: LinearGradient(
-                  //       colors: AppColors.gradientBackgroundList,
-                  //       begin: Alignment.topLeft,
-                  //       end: Alignment.bottomRight,
-                  //     ),
-                  //     boxShadow: [
-                  //       BoxShadow(
-                  //         color: Colors.deepPurple.withOpacity(0.18),
-                  //         blurRadius: 8,
-                  //         offset: Offset(0, 4),
-                  //       ),
-                  //     ],
-                  //   ),
-                  //   child: IconButton(
-                  //     icon: Icon(Icons.image, color: Colors.white),
-                  //     onPressed: () async {
-                  //       final pickedFile = await showModalBottomSheet<XFile?>(
-                  //         context: context,
-                  //         builder: (context) => _buildImagePickerOptions(),
-                  //       );
-                  //       if (pickedFile != null) {
-                  //         setState(() {
-                  //           selectedImage = File(pickedFile.path);
-                  //         });
-                  //       }
-                  //     },
-                  //   ),
-                  // ),
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 4),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: AppColors.gradientBackgroundList,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.deepPurple.withOpacity(0.18),
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: IconButton(
+                      icon: Icon(Icons.image, color: Colors.white),
+                      onPressed: () async {
+                        final pickedFile = await showModalBottomSheet<XFile?>(
+                          context: context,
+                          builder: (context) => _buildImagePickerOptions(),
+                        );
+                        if (pickedFile != null) {
+                          setState(() {
+                            selectedImage = File(pickedFile.path);
+                          });
+                        }
+                      },
+                    ),
+                  ),
                   if (selectedImage != null)
                     GestureDetector(
                       onTap: () {

@@ -61,6 +61,10 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
     );
   }
 
+  bool isExpired(DateTime expiryDate) {
+    return expiryDate.isBefore(DateTime.now());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,13 +133,20 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
 
                     switch (plan.unit.toLowerCase()) {
                       case 'days':
-                        expiryDate = subscriptionDate.add(Duration(days: int.parse(plan.days)));
+                        expiryDate = subscriptionDate
+                            .add(Duration(days: int.parse(plan.days)));
                         break;
                       case 'months':
-                        expiryDate = DateTime(subscriptionDate.year, subscriptionDate.month + int.parse(plan.days), subscriptionDate.day);
+                        expiryDate = DateTime(
+                            subscriptionDate.year,
+                            subscriptionDate.month + int.parse(plan.days),
+                            subscriptionDate.day);
                         break;
                       case 'years':
-                        expiryDate = DateTime(subscriptionDate.year + int.parse(plan.days), subscriptionDate.month, subscriptionDate.day);
+                        expiryDate = DateTime(
+                            subscriptionDate.year + int.parse(plan.days),
+                            subscriptionDate.month,
+                            subscriptionDate.day);
                         break;
                       default:
                         expiryDate = subscriptionDate;
@@ -163,28 +174,40 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     plan.packageTitle,
                                     style: AppTextStyles.headingText.copyWith(
-                                      fontSize: getResponsiveFontSize(context, 0.045),
+                                      fontSize:
+                                          getResponsiveFontSize(context, 0.045),
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
                                     ),
                                   ),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 6),
                                     decoration: BoxDecoration(
-                                      color: isActive ? Colors.green.withOpacity(0.2) : Colors.red.withOpacity(0.2),
+                                      color: isActive
+                                          ? Colors.green.withOpacity(0.2)
+                                          : Colors.red.withOpacity(0.2),
                                       borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(color: isActive ? Colors.white : Colors.red, width: 1),
+                                      border: Border.all(
+                                          color: isActive
+                                              ? Colors.white
+                                              : Colors.red,
+                                          width: 1),
                                     ),
                                     child: Text(
                                       isActive ? 'Active' : 'Inactive',
                                       style: AppTextStyles.textStyle.copyWith(
-                                        fontSize: getResponsiveFontSize(context, 0.03),
-                                        color: isActive ? Colors.greenAccent : Colors.white,
+                                        fontSize: getResponsiveFontSize(
+                                            context, 0.03),
+                                        color: isActive
+                                            ? Colors.greenAccent
+                                            : Colors.white,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -192,12 +215,21 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
                                 ],
                               ),
                               SizedBox(height: 16),
-                              _buildInfoRow(context, "Subscribed on:", DateFormat.yMMMd().format(subscriptionDate)),
-                              _buildInfoRow(context, "Expires on:", DateFormat.yMMMd().format(expiryDate)),
-                              _buildInfoRow(context, "Duration:", "${plan.days} ${plan.unit}"),
+                              _buildInfoRow(context, "Subscribed on:",
+                                  DateFormat.yMMMd().format(subscriptionDate)),
+                              isExpired(expiryDate)
+                                  ? _buildInfoRow(context, "Expired on:",
+                                      DateFormat.yMMMd().format(expiryDate))
+                                  : _buildInfoRow(context, "Expires on:",
+                                      DateFormat.yMMMd().format(expiryDate)),
+                              _buildInfoRow(context, "Duration:",
+                                  "${plan.days} ${plan.unit}"),
                               Divider(color: Colors.white24, height: 24),
-                              _buildPriceRow(context, "Actual Price:", plan.actualAmount, strikethrough: true),
-                              _buildPriceRow(context, "Offer Price:", plan.offerAmount),
+                              _buildPriceRow(
+                                  context, "Actual Price:", plan.actualAmount,
+                                  strikethrough: true),
+                              _buildPriceRow(
+                                  context, "Offer Price:", plan.offerAmount),
                             ],
                           ),
                         ),
@@ -263,7 +295,8 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildPriceRow(BuildContext context, String label, String value, {bool strikethrough = false}) {
+  Widget _buildPriceRow(BuildContext context, String label, String value,
+      {bool strikethrough = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
@@ -280,13 +313,19 @@ class PlanPageState extends State<PlanPage> with TickerProviderStateMixin {
             "₹$value",
             style: AppTextStyles.subheadingText.copyWith(
               fontSize: getResponsiveFontSize(context, 0.04),
-              color:  Colors.white,
+              color: Colors.white,
               fontWeight: strikethrough ? FontWeight.normal : FontWeight.bold,
-              decoration: strikethrough ? TextDecoration.lineThrough : TextDecoration.none,
+              decoration: strikethrough
+                  ? TextDecoration.lineThrough
+                  : TextDecoration.none,
             ),
           ),
         ],
       ),
     );
   }
+}
+
+extension on String {
+  void operator <(String other) {}
 }

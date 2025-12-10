@@ -32,7 +32,7 @@ class MessageRequestPageState extends State<MessageRequestPage> {
                 width: 300,
                 errorBuilder: (context, error, stackTrace) {
                   return Image.asset(
-                    'assets/images/logo_redefined.png',
+                    'assets/images/cajed_logo.png',
                     fit: BoxFit.contain,
                   );
                 },
@@ -313,8 +313,8 @@ class ReplyMessagePageState extends State<ReplyMessagePage> {
     establishConnectionMessageRequest.message = message;
     establishConnectionMessageRequest.receiverId = senderId;
 
-    bool messageSent =
-        await controller.sendConnectionMessage(establishConnectionMessageRequest);
+    bool messageSent = await controller
+        .sendConnectionMessage(establishConnectionMessageRequest);
 
     if (messageSent) {
       // Success notification is already shown by sendConnectionMessage

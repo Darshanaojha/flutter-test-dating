@@ -13,7 +13,7 @@ class DislikeProfileProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error in dislikeProfileProvider', 'Token not found');
+        // failure('Error in dislikeProfileProvider', 'Token not found'); // Commented out for swipe actions
         return null;
       }
       print(
@@ -32,25 +32,25 @@ class DislikeProfileProvider extends GetConnect {
       );
 
       if (response.statusCode == null || response.body == null) {
-        failure('Error in dislikeProfileProvider', 'Server Failed To Respond');
+        // failure('Error in dislikeProfileProvider', 'Server Failed To Respond'); // Commented out for swipe actions
         return null;
       }
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
           return DislikeProfileResponse.fromMap(response.body);
         } else {
-          failure('Error in dislikeProfileProvider',
-              response.body['error']['message']);
+          // failure('Error in dislikeProfileProvider',
+          //     response.body['error']['message']); // Commented out for swipe actions
           return null;
         }
       } else {
-        failure(
-            response.statusCode.toString(), response.body['error']['message']);
+        // failure(
+        //     response.statusCode.toString(), response.body['error']['message']); // Commented out for swipe actions
         return null;
       }
     } catch (e) {
       print("Error in DislikeProfileProvider: $e");
-      failure('Errorrr', e.toString());
+      // failure('Errorrr', e.toString()); // Commented out for swipe actions
       return null;
     }
   }

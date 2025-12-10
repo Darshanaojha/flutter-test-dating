@@ -287,7 +287,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
             height: MediaQuery.of(context).size.height * 0.7,
             errorBuilder: (context, error, stackTrace) {
               return Image.asset(
-                'assets/images/logo_redefined.png',
+                'assets/images/cajed_logo.png',
                 fit: BoxFit.contain,
               );
             },

@@ -101,7 +101,7 @@ class PricingPageState extends State<PricingPage>
         title: Obx(() {
           double fontSize = MediaQuery.of(context).size.width * 0.05;
           return Text(
-            controller.headlines.length > 10
+            controller.headlines.length >= 10
                 ? controller.headlines[10].title
                 : "Loading Title...",
             style: TextStyle(

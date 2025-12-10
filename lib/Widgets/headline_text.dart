@@ -6,11 +6,13 @@ import 'package:dating_application/Controllers/controller.dart';
 class HeadlineText extends StatelessWidget {
   final int index;
   final double fontSize;
+  final TextAlign align;
 
   const HeadlineText({
     super.key,
     required this.index,
-    this.fontSize = 20, required TextAlign align,
+    this.fontSize = 20,
+    this.align = TextAlign.left,
   });
 
   @override

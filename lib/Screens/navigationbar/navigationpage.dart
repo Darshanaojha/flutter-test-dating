@@ -316,6 +316,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                             } catch (e) {
                               debugPrint('Error deleting controllers: $e');
                             }
+  Get.put(Controller());
 
                             // Navigate to auth screen
                             Get.offAll(() => CombinedAuthScreen());

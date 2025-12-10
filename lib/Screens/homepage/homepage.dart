@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dating_application/Controllers/controller.dart';
@@ -24,6 +25,41 @@ import '../../Providers/WebSocketService.dart';
 import '../../constants.dart';
 import '../userprofile/userprofilesummary.dart';
 
+/// Particle class for confetti effects
+class Particle {
+  double x;
+  double y;
+  final double vx;
+  final double vy;
+  final Color color;
+  final IconData icon;
+  final double size;
+  double opacity;
+  double rotation;
+  final double rotationSpeed;
+
+  Particle({
+    required this.x,
+    required this.y,
+    required this.vx,
+    required this.vy,
+    required this.color,
+    required this.icon,
+    required this.size,
+    this.opacity = 1.0,
+    this.rotation = 0.0,
+    required this.rotationSpeed,
+  });
+
+    void update() {
+      x += vx;
+      y += vy;
+      rotation += rotationSpeed;
+      // Faster fade for snappier feel
+      opacity = (opacity - 0.025).clamp(0.0, 1.0);
+    }
+}
+
 class HomePage extends StatefulWidget {
   final bool isUnsubscribed;
   const HomePage({super.key, this.isUnsubscribed = false});
@@ -42,6 +78,11 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool _showLikeAnimation = false;
   bool _showDislikeAnimation = false;
   bool _showFavouriteAnimation = false;
+  List<Particle> _particles = [];
+  Timer? _particleTimer;
+  bool _showFlash = false;
+  Color _flashColor = Colors.transparent;
+  double _flashOpacity = 0.0;
 
   SuggestedUser? lastUser;
   SuggestedUser? lastUserNearBy;
@@ -72,7 +113,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late MatchEngine matchEngine;
   late Future<bool> _fetchSuggestion;
   late HeartOverlayController heartOverlayController;
-  
+
   @override
   void initState() {
     super.initState();
@@ -101,7 +142,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     _fetchSuggestion.then((_) {
       if (mounted) {
-        setState(() {
+    setState(() {
           rebuildSwipeItemsForFilter(
               -1); // Build swipe cards for ALL users initially
         });
@@ -296,6 +337,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       content: user,
       likeAction: () async {
         if (await checkInteractionAllowed()) {
+          _createParticles('like');
           setState(() {
             _showLikeAnimation = true;
           });
@@ -315,6 +357,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       },
       nopeAction: () async {
         if (await checkInteractionAllowed()) {
+          _createParticles('dislike');
           setState(() {
             _showDislikeAnimation = true;
           });
@@ -329,6 +372,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       },
       superlikeAction: () async {
         if (await checkInteractionAllowed()) {
+          _createParticles('superlike');
           setState(() {
             _showFavouriteAnimation = true;
           });
@@ -347,9 +391,13 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    _particleTimer?.cancel();
     _animationController.dispose();
     _lottieAnimationController.dispose();
     messageFocusNode.dispose();
+    messageController.dispose();
+    _imagePageController.dispose();
+
     super.dispose();
   }
 
@@ -373,25 +421,26 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       builder: (context) {
                         try {
                           return Image.memory(
-                            base64Decode(imagePath.contains(',')
-                                ? imagePath.split(',')[1]
-                                : imagePath),
+                            base64Decode(_normalizeBase64(imagePath)),
                             fit: BoxFit.contain,
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
                             errorBuilder: (context, error, stackTrace) {
-                              print('Base64 image decode error in full dialog: $error');
-                              return Image.asset('assets/images/logo_redefined.png');
+                              print(
+                                  'Base64 image decode error in full dialog: $error');
+                              return Image.asset(
+                                  'assets/images/cajed_logo.png');
                             },
                           );
                         } catch (e) {
-                          print('Error decoding base64 in full image dialog: $e');
-                          return Image.asset('assets/images/logo_redefined.png');
+                          print(
+                              'Error decoding base64 in full image dialog: $e');
+                          return Image.asset('assets/images/cajed_logo.png');
                         }
                       },
                     )
                   : Builder(
-                      builder: (context) {
+      builder: (context) {
                         try {
                           return CachedNetworkImage(
                             imageUrl: imagePath,
@@ -404,16 +453,19 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               ),
                             ),
                             errorWidget: (context, url, error) {
-                              print('Full image dialog CachedNetworkImage error for $url: $error');
-                              return Image.asset('assets/images/logo_redefined.png');
+                              print(
+                                  'Full image dialog CachedNetworkImage error for $url: $error');
+                              return Image.asset(
+                                  'assets/images/cajed_logo.png');
                             },
                             httpHeaders: {
                               'Accept': 'image/*',
                             },
                           );
                         } catch (e) {
-                          print('Error loading network image in full dialog: $e');
-                          return Image.asset('assets/images/logo_redefined.png');
+                          print(
+                              'Error loading network image in full dialog: $e');
+                          return Image.asset('assets/images/cajed_logo.png');
                         }
                       },
                     ),
@@ -479,7 +531,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     // Additional success feedback - the controller already shows success snackbar
                     // but we can close the bottom sheet here if it's still open
                     if (Get.isBottomSheetOpen ?? false) {
-                      Get.back();
+                    Get.back();
                     }
                   }
                 },
@@ -644,148 +696,142 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+        resizeToAvoidBottomInset: true,
       body: RefreshWrapper(
         onRefresh: initializeApp,
         child: SafeArea(
           child: Stack(
-            children: [
-            FutureBuilder(
-              future: _fetchSuggestion,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                      child:
-                          Lottie.asset("assets/animations/LoveIsBlind.json"));
-                }
+          children: [
+              FutureBuilder(
+                future: _fetchSuggestion,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                        child:
+                            Lottie.asset("assets/animations/LoveIsBlind.json"));
+                  }
 
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.error, color: Colors.red, size: 50),
-                        SizedBox(height: 10),
-                        Text(
-                          'Error loading user photos: ${snapshot.error}',
-                          style: TextStyle(color: Colors.red),
-                        ),
-                        SizedBox(height: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              isLoading = true;
-                            });
-                          },
-                          child: Text('Retry'),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                if (!snapshot.hasData || snapshot.data == null) {
-                  return Center(
-                    child: Text(
-                      'No data available.',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  );
-                }
-
-                return Column(
-                  children: [
-                    // Filter Buttons Row
-                    Container(
-                      height: MediaQuery.of(context).size.height * 0.07,
-                      padding: const EdgeInsets.symmetric(horizontal: 6),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            buildFilterButton(context, -1, 'All', Icons.people,
-                                (value) {
+                  if (snapshot.hasError) {
+                    return Center(
+              child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                          Icon(Icons.error, color: Colors.red, size: 50),
+                          SizedBox(height: 10),
+                          Text(
+                            'Error loading user photos: ${snapshot.error}',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                          SizedBox(height: 10),
+                          ElevatedButton(
+                            onPressed: () {
                               setState(() {
-                                selectedFilter.value = -1;
-
-                                final allList = controller.getCurrentList(-1);
-                                print(
-                                    "📣 Filter ALL clicked → total ${allList.length} users");
-
-                                if (allList.isNotEmpty) {
-                                  rebuildSwipeItemsForFilter(-1);
-                                } else {
-                                  print("❌ Can't rebuild, list is empty.");
-                                  failure('No Data',
-                                      'No profiles available to show for "All".');
-                                }
+                                isLoading = true;
                               });
-                            }),
-                            buildFilterButton(
-                              context,
-                              2,
-                              'Favourite',
-                              FontAwesome.heart,
-                              (value) async {
+                            },
+                            child: Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  if (!snapshot.hasData || snapshot.data == null) {
+                    return Center(
+                      child: Text(
+                        'No data available.',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    );
+                  }
+
+                  return Column(
+                            children: [
+                      // Filter Buttons Row
+                      Container(
+                        height: MediaQuery.of(context).size.height * 0.07,
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                              buildFilterButton(
+                                  context, -1, 'All', Icons.people, (value) {
                                 setState(() {
-                                  selectedFilter.value = 2;
-                                  isLoading = true;
-                                });
-                                // Fetch favourites from API
-                                bool success =
-                                    await controller.fetchallfavourites();
-                                setState(() {
-                                  isLoading = false;
-                                  if (success) {
-                                    rebuildSwipeItemsForFilter(2);
+                                  selectedFilter.value = -1;
+
+                                  final allList = controller.getCurrentList(-1);
+                                  print(
+                                      "📣 Filter ALL clicked → total ${allList.length} users");
+
+                                  if (allList.isNotEmpty) {
+                                    rebuildSwipeItemsForFilter(-1);
+                                  } else {
+                                    print("❌ Can't rebuild, list is empty.");
+                                    failure('No Data',
+                                        'No profiles available to show for "All".');
                                   }
                                 });
+                              }),
+                              buildFilterButton(
+                                context,
+                                2,
+                                'Favourite',
+                                FontAwesome.heart,
+                                (value) async {
+                                  setState(() {
+                                    selectedFilter.value = 2;
+                                    isLoading = true;
+                                  });
+                                  // Fetch favourites from API
+                                  bool success =
+                                      await controller.fetchallfavourites();
+                                  setState(() {
+                                    isLoading = false;
+                                    if (success) {
+                                      rebuildSwipeItemsForFilter(2);
+                                    }
+                                  });
+                                  debugPrint(
+                                      'Favourites : ${controller.favourite.length}');
+                                },
+                              ),
+                              buildFilterButton(context, 0, 'NearBy',
+                                  FontAwesome.map_location_dot_solid, (value) {
+                                setState(() {
+                                  selectedFilter.value = 0;
+                                  rebuildSwipeItemsForFilter(0);
+                                });
                                 debugPrint(
-                                    'Favourites : ${controller.favourite.length}');
-                              },
-                            ),
-                            buildFilterButton(context, 0, 'NearBy',
-                                FontAwesome.map_location_dot_solid, (value) {
-                              setState(() {
-                                selectedFilter.value = 0;
-                                rebuildSwipeItemsForFilter(0);
-                              });
-                              debugPrint(
-                                  'NearBy : ${controller.userNearByList.length}');
-                            }),
-                            buildFilterButton(
-                                context, 1, 'Highlighted', FontAwesome.star,
-                                (value) {
-                              setState(() {
-                                selectedFilter.value = 1;
-                                rebuildSwipeItemsForFilter(1);
-                              });
-                              debugPrint(
-                                  'Highlighted : ${controller.userHighlightedList.length}');
-                            }),
-                            buildFilterButton(context, 3, 'HookUp',
-                                FontAwesome.heart_pulse_solid, (value) {
-                              setState(() {
-                                selectedFilter.value = 3;
-                                rebuildSwipeItemsForFilter(3);
-                              });
-                              debugPrint(
-                                  'HookUp : ${controller.hookUpList.length}');
-                            }),
-                          ],
+                                    'NearBy : ${controller.userNearByList.length}');
+                              }),
+                              buildFilterButton(
+                                  context, 1, 'Highlighted', FontAwesome.star,
+                                  (value) {
+                                setState(() {
+                                  selectedFilter.value = 1;
+                                  rebuildSwipeItemsForFilter(1);
+                                });
+                                debugPrint(
+                                    'Highlighted : ${controller.userHighlightedList.length}');
+                              }),
+                              buildFilterButton(context, 3, 'HookUp',
+                                  FontAwesome.heart_pulse_solid, (value) {
+                                setState(() {
+                                  selectedFilter.value = 3;
+                                  rebuildSwipeItemsForFilter(3);
+                                });
+                                debugPrint(
+                                    'HookUp : ${controller.hookUpList.length}');
+                              }),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
 
-                    //  Cards Area - Takes 80% of screen height responsively
-                    Expanded(
-                      child: Opacity(
-                        opacity: _showLikeAnimation ||
-                                _showDislikeAnimation ||
-                                _showFavouriteAnimation
-                            ? 0.0
-                            : 1.0,
+                      //  Cards Area - Takes 80% of screen height responsively
+                      Expanded(
                         child: Obx(() {
                           final currentList =
                               controller.getCurrentList(selectedFilter.value);
@@ -797,169 +843,328 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               child: currentList.isEmpty
                                   ? Center(child: Text('No users available.'))
                                   : SwipeCards(
-                                      matchEngine: matchEngine,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        if (index >= currentList.length) {
-                                          return Center(
-                                              child:
-                                                  Text("No users available"));
-                                        }
+                                        matchEngine: matchEngine,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          if (index >= currentList.length) {
+                                            return Center(
+                                                child:
+                                                    Text("No users available"));
+                                          }
 
-                                        final SuggestedUser user =
-                                            currentList[index];
-                                        isLastCard =
-                                            index == currentList.length - 1;
+                                          final SuggestedUser user =
+                                              currentList[index];
+                                          isLastCard =
+                                              index == currentList.length - 1;
 
-                                        return Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 8.0),
-                                            child: GestureDetector(
-                                              onTap: widget.isUnsubscribed
-                                                  ? () {
-                                                      controller
-                                                          .showPackagesDialog();
-                                                    }
-                                                  : null,
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  gradient: LinearGradient(
-                                                    colors: AppColors
-                                                        .gradientBackgroundList,
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(32),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.white
-                                                          .withOpacity(0.2),
-                                                      spreadRadius: 2,
-                                                      blurRadius: 5,
-                                                      offset: Offset(0, 3),
-                                                    ),
-                                                  ],
-                                                ),
-                                                padding:
-                                                    const EdgeInsets.all(2),
-                                                child: Container(
+                                          return Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 8.0),
+                                              child: GestureDetector(
+                                                onTap: widget.isUnsubscribed
+                                                    ? () {
+                                                        controller
+                                                            .showPackagesDialog();
+                                                      }
+                                                    : null,
+                                          child: Container(
                                                   decoration: BoxDecoration(
                                                     gradient: LinearGradient(
                                                       colors: AppColors
-                                                          .reversedGradientColor,
+                                                          .gradientBackgroundList,
                                                       begin: Alignment.topLeft,
                                                       end:
                                                           Alignment.bottomRight,
                                                     ),
-                                                    borderRadius:
+                                              borderRadius:
                                                         BorderRadius.circular(
-                                                            12),
+                                                            24),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.white
+                                                            .withOpacity(0.2),
+                                                        spreadRadius: 2,
+                                                        blurRadius: 5,
+                                                        offset: Offset(0, 3),
+                                                      ),
+                                                    ],
                                                   ),
-                                                  child: buildCardLayoutAll(
-                                                      context,
-                                                      user,
-                                                      size,
-                                                      isLastCard),
-                                                ),
-                                              ),
-                                            ));
+                                                  padding:
+                                                      const EdgeInsets.all(4.0),
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      gradient: LinearGradient(
+                                                        colors: AppColors
+                                                            .reversedGradientColor,
+                                                        begin:
+                                                            Alignment.topLeft,
+                                                        end: Alignment
+                                                            .bottomRight,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              24),
+                                                    ),
+                                                    child: buildCardLayoutAll(
+                                                        context,
+                                                        user,
+                                                        size,
+                                                        isLastCard),
+                                                  ),
+                                            ),
+                                          ),
+                                        );
                                       },
-                                      upSwipeAllowed: true,
-                                      leftSwipeAllowed: true,
-                                      rightSwipeAllowed: true,
-                                      fillSpace: true,
-                                      onStackFinished: () async {
-                                        isSwipeFinished = true;
-                                        if (currentList.isNotEmpty) {
-                                          lastUser = currentList.last;
-                                          await _storeLastUserForAllLists(
-                                              lastUser!);
-                                        }
-                                        failure('Finished', "Stack Finished");
-                                      },
-                                      itemChanged: (SwipeItem item, int index) {
-                                        print(
-                                            "Item: ${item.content}, Index: $index");
-                                      },
-                                    ),
+                                        upSwipeAllowed: true,
+                                        leftSwipeAllowed: true,
+                                        rightSwipeAllowed: true,
+                                        fillSpace: true,
+                                        onStackFinished: () async {
+                                          isSwipeFinished = true;
+                                          if (currentList.isNotEmpty) {
+                                            lastUser = currentList.last;
+                                            await _storeLastUserForAllLists(
+                                                lastUser!);
+                                          }
+                                          failure('Finished', "Stack Finished");
+                                        },
+                                        itemChanged:
+                                            (SwipeItem item, int index) {
+                                          print(
+                                              "Item: ${item.content}, Index: $index");
+                                        },
+                                      ),
                             ),
                           );
                         }),
                       ),
-                    )
-                  ],
-                );
-              },
-            ),
-            if (_showLikeAnimation)
-              Center(
-                child: Lottie.asset(
-                  'assets/animations/Liked.json',
-                  controller: _lottieAnimationController,
-                  width: 200,
-                  height: 200,
-                  repeat: false,
-                  onLoaded: (composition) {
-                    _lottieAnimationController
-                      ..duration = composition.duration
-                      ..forward().whenComplete(() {
-                        if (mounted) {
-                          setState(() {
-                            _showLikeAnimation = false;
-                          });
-                          _lottieAnimationController.reset();
-                        }
-                      });
-                  },
-                ),
+                    ],
+                  );
+                },
               ),
-            if (_showDislikeAnimation)
-              Center(
-                child: Lottie.asset(
-                  'assets/animations/Disliked.json',
-                  controller: _lottieAnimationController,
-                  width: 200,
-                  height: 200,
-                  repeat: false,
-                  onLoaded: (composition) {
-                    _lottieAnimationController
-                      ..duration = composition.duration
-                      ..forward().whenComplete(() {
-                        if (mounted) {
-                          setState(() {
-                            _showDislikeAnimation = false;
-                          });
-                          _lottieAnimationController.reset();
-                        }
-                      });
-                  },
+              // Confetti-style particle effects (Option 2)
+              ..._particles.map((particle) => _buildParticle(particle)).toList(),
+              // Screen flash overlay
+              if (_showFlash)
+                Positioned.fill(
+                  child: AnimatedOpacity(
+                    opacity: _flashOpacity,
+                    duration: Duration(milliseconds: 300),
+                    child: Container(
+                      color: _flashColor,
+                    ),
+                  ),
                 ),
-              ),
-            if (_showFavouriteAnimation)
-              Center(
-                child: Lottie.asset(
-                  'assets/animations/Favourite.json',
-                  controller: _lottieAnimationController,
-                  width: 200,
-                  height: 200,
-                  repeat: false,
-                  onLoaded: (composition) {
-                    _lottieAnimationController
-                      ..duration = composition.duration
-                      ..forward().whenComplete(() {
-                        if (mounted) {
-                          setState(() {
-                            _showFavouriteAnimation = false;
-                          });
-                          _lottieAnimationController.reset();
-                        }
-                      });
-                  },
-                ),
-              ),
-          ],
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  /// Create particles based on swipe type
+  void _createParticles(String type) {
+    _particles.clear();
+    final screenSize = MediaQuery.of(context).size;
+    final centerX = screenSize.width / 2;
+    final centerY = screenSize.height / 2;
+    final random = Random(DateTime.now().millisecondsSinceEpoch);
+
+    List<Color> colors;
+    IconData icon;
+    int particleCount = 50; // Increased count
+
+    if (type == 'like') {
+      // Pink/red hearts for like - burst in all directions
+      colors = [
+        Colors.pink.shade400,
+        Colors.red.shade300,
+        Color(0xFFEFB6C8), // Light pink
+        Colors.pink.shade300,
+        Colors.red.shade200,
+        Colors.pink.shade200,
+      ];
+      icon = Icons.favorite;
+      particleCount = 50;
+      _flashColor = Colors.pink.withOpacity(0.3);
+    } else if (type == 'dislike') {
+      // Grey/dark colors for "passed" - clearly negative/rejection indication
+      colors = [
+        Colors.grey.shade700,
+        Colors.grey.shade600,
+        Colors.grey.shade800,
+        Colors.grey.shade500,
+        Colors.black87,
+        Colors.grey.shade900,
+      ];
+      icon = Icons.close; // X mark for clear "passed" indication
+      particleCount = 50;
+      _flashColor = Colors.black.withOpacity(0.2);
+    } else {
+      // Sparkles and stars for super like - very different from like, burst upward with sparkle effect
+      colors = [
+        Colors.amber.shade400,
+        Colors.yellow.shade300,
+        Colors.amber.shade300,
+        Colors.yellow.shade200,
+        Colors.orange.shade300,
+        Colors.amber.shade200,
+      ];
+      icon = Icons.auto_awesome; // Sparkle icon - very different from hearts
+      particleCount = 60; // More particles for sparkle effect
+      _flashColor = Colors.amber.withOpacity(0.3);
+    }
+    
+    for (int i = 0; i < particleCount; i++) {
+      double angle;
+      if (type == 'like') {
+        // Burst in all directions with some randomness
+        angle = (i / particleCount) * 2 * pi + (random.nextDouble() - 0.5) * 0.3;
+      } else if (type == 'dislike') {
+        // Burst from center in all directions (changed from left-only)
+        angle = (i / particleCount) * 2 * pi + (random.nextDouble() - 0.5) * 0.4;
+      } else {
+        // Burst upward with wider spread for sparkle effect
+        angle = -pi / 2 + (random.nextDouble() - 0.5) * 1.2; // Wider spread
+      }
+
+      // Much faster speed - 10-18 pixels per frame
+      final speed = 10.0 + random.nextDouble() * 8.0;
+      final vx = speed * cos(angle);
+      final vy = speed * sin(angle);
+
+      // Icon selection based on type
+      IconData particleIcon = icon;
+      if (type == 'dislike') {
+        // Mix X marks, broken hearts, and thumbs down for clear "passed" indication
+        final iconChoice = random.nextDouble();
+        if (iconChoice > 0.66) {
+          particleIcon = Icons.heart_broken; // Broken heart
+        } else if (iconChoice > 0.33) {
+          particleIcon = Icons.thumb_down; // Thumbs down
+        }
+        // Otherwise use X mark (icon)
+      } else if (type == 'superlike') {
+        // Mix sparkles and stars for super like
+        if (random.nextDouble() > 0.4) {
+          particleIcon = Icons.star; // Star for some particles
+        }
+      }
+      
+      _particles.add(Particle(
+        x: centerX + (random.nextDouble() - 0.5) * 30,
+        y: centerY + (random.nextDouble() - 0.5) * 30,
+        vx: vx,
+        vy: vy,
+        color: colors[random.nextInt(colors.length)],
+        icon: particleIcon,
+        size: 18.0 + random.nextDouble() * 16.0, // 18-34px range
+        rotationSpeed: (random.nextDouble() - 0.5) * 0.35, // Faster rotation
+      ));
+    }
+
+    // Show flash after particles start (after 200ms)
+    Timer(Duration(milliseconds: 200), () {
+      if (mounted) {
+        setState(() {
+          _showFlash = true;
+          _flashOpacity = 1.0;
+        });
+        // Fade out flash
+        Timer(Duration(milliseconds: 300), () {
+          if (mounted) {
+            setState(() {
+              _flashOpacity = 0.0;
+            });
+            Timer(Duration(milliseconds: 200), () {
+              if (mounted) {
+                setState(() {
+                  _showFlash = false;
+                });
+              }
+            });
+          }
+        });
+      }
+    });
+
+    // Animate particles
+    _particleTimer?.cancel();
+    _particleTimer = Timer.periodic(Duration(milliseconds: 16), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
+      bool hasVisibleParticles = false;
+      for (var particle in _particles) {
+        particle.update();
+        if (particle.opacity > 0) {
+          hasVisibleParticles = true;
+        }
+      }
+
+      if (mounted) {
+        setState(() {});
+      }
+
+      if (!hasVisibleParticles) {
+        timer.cancel();
+        if (mounted) {
+          setState(() {
+            _particles.clear();
+            _showLikeAnimation = false;
+            _showDislikeAnimation = false;
+            _showFavouriteAnimation = false;
+          });
+        }
+      }
+    });
+  }
+
+  /// Build individual particle widget
+  Widget _buildParticle(Particle particle) {
+    return Positioned(
+      left: particle.x - particle.size / 2,
+      top: particle.y - particle.size / 2,
+      child: IgnorePointer(
+        child: AnimatedOpacity(
+          opacity: particle.opacity,
+          duration: Duration(milliseconds: 100),
+          child: Transform.rotate(
+            angle: particle.rotation,
+            child: Container(
+              width: particle.size,
+              height: particle.size,
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  colors: [
+                    particle.color.withOpacity(1.0),
+                    particle.color.withOpacity(0.6),
+                  ],
+                ),
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: particle.color.withOpacity(0.8),
+                    blurRadius: 12,
+                    spreadRadius: 3,
+                  ),
+                  BoxShadow(
+                    color: particle.color.withOpacity(0.4),
+                    blurRadius: 20,
+                    spreadRadius: 5,
+                  ),
+                ],
+              ),
+              child: Icon(
+                particle.icon,
+                color: Colors.white,
+                size: particle.size * 0.65,
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -969,44 +1174,60 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool _isBase64Image(String? image) {
     if (image == null || image.isEmpty) return false;
     // Base64 images typically start with "data:image" or are long base64 strings
-    return image.startsWith('data:image') || 
-           (image.length > 100 && !image.startsWith('http'));
+    return image.startsWith('data:image') ||
+        (image.length > 100 && !image.startsWith('http'));
+  }
+
+  /// Helper function to normalize base64 string (add padding if needed)
+  String _normalizeBase64(String base64) {
+    // Remove data URL prefix if present
+    String clean = base64.contains(',') ? base64.split(',')[1] : base64;
+    // Remove whitespace
+    clean = clean.trim();
+    // Add padding if needed (base64 strings should be divisible by 4)
+    int remainder = clean.length % 4;
+    if (remainder != 0) {
+      clean += '=' * (4 - remainder);
+    }
+    return clean;
   }
 
   /// Sort images: base64 images first, then URLs, maintaining order within each group
   List<String> _sortImages(List<String> images, {String? profileImage}) {
     if (images.isEmpty) return images;
-    
+
     List<String> sortedImages = List.from(images);
-    
+
     // Option 1: Sort by type - base64 first, then URLs
     sortedImages.sort((a, b) {
       bool aIsBase64 = _isBase64Image(a);
       bool bIsBase64 = _isBase64Image(b);
-      
+
       if (aIsBase64 && !bIsBase64) return -1; // base64 comes first
-      if (!aIsBase64 && bIsBase64) return 1;  // URLs come after
+      if (!aIsBase64 && bIsBase64) return 1; // URLs come after
       return 0; // maintain original order within same type
     });
-    
+
     // Option 2: If profile image exists and is in the list, move it to first position
     if (profileImage != null && profileImage.isNotEmpty) {
       if (sortedImages.contains(profileImage)) {
         sortedImages.remove(profileImage);
         sortedImages.insert(0, profileImage);
-      } else if (_isBase64Image(profileImage) || profileImage.startsWith('http')) {
+      } else if (_isBase64Image(profileImage) ||
+          profileImage.startsWith('http')) {
         // If profile image is not in the list but is valid, add it first
         sortedImages.insert(0, profileImage);
       }
     }
-    
+
     return sortedImages;
   }
 
   Widget buildCardLayoutAll(
       BuildContext context, SuggestedUser user, Size size, bool isLastCard) {
     // Sort images: base64 first, then URLs, with profile image at the beginning
-    List<String> images = _sortImages(user.images, profileImage: user.profileImage);
+    List<String> images =
+        _sortImages(user.images, profileImage: user.profileImage);
     String lookingForText = user.lookingFor == "1"
         ? "Serious Relationship, "
         : user.lookingFor == "2"
@@ -1038,7 +1259,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Stack(
-                children: [
+                                        children: [
                   // Profile Image with curved borders
                   SizedBox.expand(
                     child: Stack(
@@ -1048,18 +1269,18 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           controller: _imagePageController,
                           itemCount: images.length,
                           onPageChanged: (index) {
-                            setState(() {
+                                        setState(() {
                               _currentImageIndex = index;
-                            });
-                          },
+                                        });
+                                      },
                           itemBuilder: (BuildContext context, int index) {
                             if (images.isEmpty) {
                               return SizedBox(
                                 width: size.width * 0.5,
                                 child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(12),
                                   child: Image.asset(
-                                    'assets/images/logo_redefined.png',
+                                    'assets/images/cajed_logo.png',
                                     fit: BoxFit.none,
                                   ),
                                 ),
@@ -1069,18 +1290,18 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               onTap: () =>
                                   showFullImageDialog(context, images[index]),
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(12),
                                 child: _isBase64Image(images[index])
                                     ? Image.memory(
-                                        base64Decode(images[index].contains(',')
-                                            ? images[index].split(',')[1]
-                                            : images[index]),
+                                        base64Decode(
+                                            _normalizeBase64(images[index])),
                                         fit: BoxFit.cover,
                                         width: double.infinity,
                                         height: double.infinity,
-                                        errorBuilder: (context, error, stackTrace) {
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
                                           return Image.asset(
-                                              'assets/images/logo_redefined.png',
+                                              'assets/images/cajed_logo.png',
                                               fit: BoxFit.contain);
                                         },
                                       )
@@ -1089,14 +1310,18 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                           try {
                                             return CachedNetworkImage(
                                               imageUrl: images[index],
-                                              placeholder: (context, url) => Center(
-                                                  child: CircularProgressIndicator(
-                                                    color: Color(0xFFCCB3F2),
-                                                  )),
-                                              errorWidget: (context, url, error) {
-                                                print('CachedNetworkImage error for $url: $error');
+                                              placeholder: (context, url) =>
+                                                  Center(
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                color: Color(0xFFCCB3F2),
+                                              )),
+                                              errorWidget:
+                                                  (context, url, error) {
+                                                print(
+                                                    'CachedNetworkImage error for $url: $error');
                                                 return Image.asset(
-                                                    'assets/images/logo_redefined.png',
+                                                    'assets/images/cajed_logo.png',
                                                     fit: BoxFit.contain);
                                               },
                                               fit: BoxFit.cover,
@@ -1107,9 +1332,10 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                               },
                                             );
                                           } catch (e) {
-                                            print('Error loading network image: $e');
+                                            print(
+                                                'Error loading network image: $e');
                                             return Image.asset(
-                                                'assets/images/logo_redefined.png',
+                                                'assets/images/cajed_logo.png',
                                                 fit: BoxFit.contain);
                                           }
                                         },
@@ -1119,9 +1345,9 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           },
                         ),
                         if (images.length > 1)
-                          Positioned(
+                                            Positioned(
                             right: 10,
-                            top: 0,
+                                              top: 0,
                             bottom: 0,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -1140,11 +1366,11 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   ),
                                 );
                               }),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
                   Positioned(
                     bottom: 0,
                     left: 0,
@@ -1160,9 +1386,9 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             Colors.transparent,
                             Colors.black38,
                             Colors.black54
-                          ],
-                        ),
-                      ),
+                                  ],
+                                ),
+                              ),
                     ),
                   ),
 
@@ -1183,7 +1409,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             Icon(Icons.location_on,
                                 size: 14, color: Colors.white),
                             SizedBox(width: 4),
-                            Text(
+                              Text(
                               // "${user.city ?? ''} ${user.distance ?? ''}",
                               user.city ?? '',
                               style:
@@ -1201,9 +1427,9 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Text(
+                              Row(
+                                children: [
+                                  Text(
                               "${user.name ?? 'NA'}, ${calculateAge(user.dob ?? 'Unknown Date')}",
                               style: AppTextStyles.headingText.copyWith(
                                 fontSize: size.width * 0.055,
@@ -1225,30 +1451,30 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         SizedBox(height: 4),
                         Row(
                           children: [
-                            Text(
+                                  Text(
                               lookingForText,
-                              style: AppTextStyles.bodyText.copyWith(
+                                    style: AppTextStyles.bodyText.copyWith(
                                 color: Colors.white.withOpacity(0.9),
                                 fontSize: size.width * 0.035,
-                              ),
-                            ),
+                                    ),
+                                  ),
                             SizedBox(height: 4),
-                            Text(
+                                  Text(
                               (user.interest != null &&
                                       user.interest!.isNotEmpty)
                                   ? user.interest!.split(',').first.trim()
                                   : '',
-                              style: AppTextStyles.bodyText.copyWith(
+                                    style: AppTextStyles.bodyText.copyWith(
                                 color: Colors.white.withOpacity(0.9),
                                 fontSize: size.width * 0.035,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 4),
-                        Text(
+                              SizedBox(height: 4),
+                              Text(
                           user.genderName ?? 'Not Specified',
-                          style: AppTextStyles.bodyText.copyWith(
+                                style: AppTextStyles.bodyText.copyWith(
                             color: Colors.white.withOpacity(0.9),
                             fontSize: size.width * 0.035,
                           ),
@@ -1304,7 +1530,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         child: Text(
                           "Connect",
                           style: TextStyle(
-                            color: Colors.white,
+                                            color: Colors.white,
                             fontSize: getResponsiveFontSize(0.03),
                             fontWeight: FontWeight.bold,
                           ),
@@ -1373,9 +1599,9 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               : Icons.keyboard_arrow_up_outlined),
                         ),
                       ],
-                    ),
-                  )
-                ],
+                                ),
+                              )
+                            ],
               ),
             ),
           );
@@ -1476,7 +1702,7 @@ class MatchDialog extends StatelessWidget {
         backgroundColor: Colors.white24,
         child: ClipOval(
           child: Image.asset(
-            'assets/images/logo_redefined.png',
+            'assets/images/cajed_logo.png',
             fit: BoxFit.contain,
             width: 100,
             height: 100,
@@ -1484,7 +1710,7 @@ class MatchDialog extends StatelessWidget {
         ),
       );
     }
-    
+
     return CircleAvatar(
       radius: 50,
       backgroundColor: Colors.white24,
@@ -1499,7 +1725,7 @@ class MatchDialog extends StatelessWidget {
           errorWidget: (context, url, error) {
             print('Profile image error for $url: $error');
             return Image.asset(
-              'assets/images/logo_redefined.png',
+              'assets/images/cajed_logo.png',
               fit: BoxFit.contain,
               width: 100,
               height: 100,

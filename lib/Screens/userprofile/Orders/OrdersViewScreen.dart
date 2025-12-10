@@ -82,7 +82,7 @@ class _OrdersViewState extends State<AllOrdersPage> {
                     ),
                     const SizedBox(height: 10),
                     const Text(
-                      "Your plan has expired. Please renew your plan to continue.",
+                      "Please renew your plan to continue.",
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.white70, fontSize: 16),
                     ),
@@ -163,7 +163,7 @@ class _OrdersViewState extends State<AllOrdersPage> {
     return AppBar(
       centerTitle: true,
       title: Text(
-        'Subscription History',
+        "Packages",
         style: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: MediaQuery.of(context).size.width * 0.05,

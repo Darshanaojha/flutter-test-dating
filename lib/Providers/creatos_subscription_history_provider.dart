@@ -20,7 +20,7 @@ class CreatorsSubscriptionHistoryProvider extends GetConnect {
             'Authorization': 'Bearer $token',
           },
         );
-
+        print('CreatorsSubscriptionHistoryProvider response: ${response.body}');
         if (response.statusCode == null || response.body == null) {
           failure('Error in fetchCreatorsSubscriptionHistory', 'Server Failed To Respond');
           return null;

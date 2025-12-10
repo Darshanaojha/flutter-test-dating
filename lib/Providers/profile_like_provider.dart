@@ -14,7 +14,7 @@ class ProfileLikeProvider extends GetConnect {
       String? token = preferences.getString('token');
 
       if (token == null || token.isEmpty) {
-        failure('Error in profileLikeProvider', 'Token not found');
+        // failure('Error in profileLikeProvider', 'Token not found'); // Commented out for swipe actions
         return null;
       }
 
@@ -35,7 +35,7 @@ class ProfileLikeProvider extends GetConnect {
         if (response.body['error']['code'] == 0) {
           return ProfileLikeResponse.fromJson(response.body);
         } else {
-          failure('Oops!', response.body['error']['message']);
+          // failure('Oops!', response.body['error']['message']); // Commented out for swipe actions
           debugPrint(
               "Error in profileLikeProvider: ${response.body['error']['message']}");
           return null;
@@ -46,7 +46,7 @@ class ProfileLikeProvider extends GetConnect {
         return null;
       }
     } catch (e) {
-      failure('Excep in profileLikeProvider', e.toString());
+      // failure('Excep in profileLikeProvider', e.toString()); // Commented out for swipe actions
       return null;
     }
   }

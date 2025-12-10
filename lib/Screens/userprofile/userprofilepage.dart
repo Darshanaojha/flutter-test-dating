@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:dating_application/Screens/settings/appinfopages/faqpage.dart';
 import 'package:dating_application/Screens/userprofile/Orders/OrdersViewScreen.dart';
+import 'package:dating_application/Screens/userprofile/membership/membershippage.dart';
 import 'package:dating_application/Screens/userprofile/membership/userselectedplan.dart';
+import 'package:dating_application/Screens/userprofile/plans/planspage.dart';
 import 'package:dating_application/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -959,11 +961,14 @@ class UserProfilePageState extends State<UserProfilePage>
                                                 decoration: BoxDecoration(
                                                   color: controller.userData
                                                               .isNotEmpty &&
-                                                          controller
+                                                          (controller
                                                                   .userData
                                                                   .first
                                                                   .accountVerificationStatus ==
-                                                              '1'
+                                                              '1' || controller
+                                                                  .userData
+                                                                  .first
+                                                                  .packageStatus == '4')
                                                       ? AppColors
                                                           .lightGradientColor
                                                           .withOpacity(0.15)
@@ -982,23 +987,26 @@ class UserProfilePageState extends State<UserProfilePage>
                                                     Icon(
                                                       controller.userData
                                                                   .isNotEmpty &&
-                                                              controller
+                                                              (controller
                                                                       .userData
                                                                       .first
                                                                       .accountVerificationStatus ==
                                                                   '1' || controller
                                                                       .userData
                                                                       .first
-                                                                      .packageStatus == '4'
+                                                                      .packageStatus == '4' || controller.userData.first.packageStatus == '1')
                                                           ? Icons.verified
                                                           : Icons.error_outline,
                                                       color: controller.userData
                                                                   .isNotEmpty &&
-                                                              controller
+                                                              (controller
                                                                       .userData
                                                                       .first
                                                                       .accountVerificationStatus ==
-                                                                  '1'
+                                                                  '1' || controller
+                                                                      .userData
+                                                                      .first
+                                                                      .packageStatus == '4')
                                                           ? Colors.green
                                                           : Colors.red,
                                                       size: screenWidth * 0.045,
@@ -1016,14 +1024,14 @@ class UserProfilePageState extends State<UserProfilePage>
                                                         color: controller
                                                                     .userData
                                                                     .isNotEmpty &&
-                                                                controller
+                                                                (controller
                                                                         .userData
                                                                         .first
                                                                         .packageStatus ==
                                                                     '1' || controller
                                                                         .userData
                                                                         .first
-                                                                        .packageStatus == '4'
+                                                                        .packageStatus == '4')
                                                             ? Colors.green
                                                             : Colors.red,
                                                       ),
@@ -1122,7 +1130,7 @@ class UserProfilePageState extends State<UserProfilePage>
                       ),
                                   buildSettingCard(
                                     context,  
-                                    title: 'Membership',
+                                    title: 'Subscription History',
                                     subtitle:
                                         'View or upgrade your membership plan',
                                     icon: Icons.card_membership,
@@ -1131,10 +1139,11 @@ class UserProfilePageState extends State<UserProfilePage>
                                   ),
                                   buildSettingCard(
                                     context,
-                                    title: 'Subscription History',
+                                    title: 'Packages & Add-ons',
                                     subtitle: 'See Your All Orders',
                                     icon: Icons.plagiarism_outlined,
-                                    onTap: () => Get.to(AllOrdersPage()),
+                                    onTap: () => Get.to(PricingPage()),
+                                    // onTap: () => Get.to(AllOrdersPage()),
                                     screenWidth: screenWidth,
                                   ),
                                   buildSettingCard(

@@ -1516,9 +1516,58 @@ class Controller extends GetxController {
   // }
 
   RxList<SuggestedUser> getCurrentList(int filterIndex) {
+    print("Filter Index in getcurentlist: $filterIndex");
     switch (filterIndex) {
+      
       case -1:
-        return userSuggestionsList;
+        print("Returning all users");
+        // Combine all lists: favorites, nearby, highlight, hookup, and suggestions
+        final Set<String?> seen = {};
+        final List<SuggestedUser> all = [];
+        
+        // Add favorites
+        for (var fav in favourite) {
+          final user = convertFavouriteToSuggestedUser(fav);
+          if (user.userId != null && !seen.contains(user.userId)) {
+            all.add(user);
+            seen.add(user.userId);
+          }
+        }
+        
+        // Add nearby users
+        for (var user in userNearByList) {
+          if (user.userId != null && !seen.contains(user.userId)) {
+            all.add(user);
+            seen.add(user.userId);
+          }
+        }
+        
+        // Add highlighted users
+        for (var user in userHighlightedList) {
+          if (user.userId != null && !seen.contains(user.userId)) {
+            all.add(user);
+            seen.add(user.userId);
+          }
+        }
+        
+        // Add hookup users
+        for (var user in hookUpList) {
+          if (user.userId != null && !seen.contains(user.userId)) {
+            all.add(user);
+            seen.add(user.userId);
+          }
+        }
+        
+        // Add suggestion users
+        for (var user in userSuggestionsList) {
+          if (user.userId != null && !seen.contains(user.userId)) {
+            all.add(user);
+            seen.add(user.userId);
+          }
+        }
+        
+        print("Total users in ALL: ${all.length}");
+        return all.obs;
       case 0:
         return userNearByList;
       case 1:
@@ -1981,14 +2030,14 @@ class Controller extends GetxController {
       MarkFavouriteResponse? response = await MarkasfavouriteProvider()
           .markasfavouriteprovider(markFavouriteRequestModel);
       if (response != null) {
-        success('success', response.payload.message);
+        // success('success', response.payload.message); // Commented out for swipe actions
         return true;
       } else {
         // failure('Error', 'Failed to submit the mark as favourite request');
         return false;
       }
     } catch (e) {
-      failure('Error in controllerr', e.toString());
+      // failure('Error in controllerr', e.toString()); // Commented out for swipe actions
       return false;
     }
   }
@@ -2056,7 +2105,7 @@ class Controller extends GetxController {
       // failure('Error', 'Failed to process the like request.');
       return null;
     } catch (e) {
-      failure('Error', e.toString());
+      // failure('Error', e.toString()); // Commented out for swipe actions
       return null;
     }
   }
@@ -2100,7 +2149,7 @@ class Controller extends GetxController {
       // failure('Error', 'Failed to process the dislike request.');
       return false;
     } catch (e) {
-      failure('Error', e.toString());
+      // failure('Error', e.toString()); // Commented out for swipe actions
       return false;
     }
   }
@@ -2572,6 +2621,8 @@ class Controller extends GetxController {
 
       if (response != null && response.success && response.data.isNotEmpty) {
         creatorsSubscriptionHistory.assignAll(response.data);
+        print("in the fetch creator subscription history");
+        print(creatorsSubscriptionHistory.length);
         debugPrint('Successfully fetched creator subscription history');
         return true;
       } else {

@@ -16,7 +16,7 @@ class _AppInfoPageState extends State<AppInfoPage> {
     return screenWidth * scale;
   }
 
-  String logoUrl = "${ip}uploads/applogo/logo.png"; 
+  String logoUrl = "${ip}uploads/applogo/logo.png";
   String releaseDate = "2024-11-23";
   String version = "1.0";
   String createdDate = "2024-11-23 15:53:48";
@@ -103,7 +103,7 @@ class _AppInfoPageState extends State<AppInfoPage> {
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return Image.asset(
-                            'assets/images/logo_redefined.png',
+                            'assets/images/cajed_logo.png',
                             height: 150,
                             width: 150,
                             fit: BoxFit.cover,

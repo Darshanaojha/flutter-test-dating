@@ -298,7 +298,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                                                                             error) =>
                                                                         Image
                                                                             .asset(
-                                                                      'assets/images/logo_redefined.png',
+                                                                      'assets/images/cajed_logo.png',
                                                                       fit: BoxFit
                                                                           .cover,
                                                                     ),
@@ -789,7 +789,7 @@ class FullScreenImagePage extends StatelessWidget {
                 },
                 errorBuilder: (context, error, stackTrace) {
                   return Image.asset(
-                    'assets/images/logo_redefined.png',
+                    'assets/images/cajed_logo.png',
                     fit: BoxFit.contain,
                   );
                 },

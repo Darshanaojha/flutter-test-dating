@@ -15,7 +15,6 @@ void main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
 
-    Get.put(Controller());
 
     await EncryptedSharedPreferences.initialize(encryptionkey);
     await Firebase.initializeApp(
@@ -27,6 +26,8 @@ void main() async {
     });
 
     Get.put(ConnectivityService());
+        Get.put(Controller());
+
     runApp(const MainApp());
   } catch (e) {
     failure('Error', 'Error in the main method');

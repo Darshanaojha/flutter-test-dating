@@ -447,7 +447,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                 child: HeadlineText(
                   index: 0,
                   fontSize: titleFontSize,
-                  align: TextAlign.left,
+                  align: TextAlign.right,
                 ),
               ),
               const SizedBox(height: 28),

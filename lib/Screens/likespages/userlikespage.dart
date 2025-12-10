@@ -235,7 +235,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                       errorBuilder: (context, error, stackTrace) {
                         return Center(
                           child: Image.asset(
-                            'assets/images/logo_redefined.png',
+                            'assets/images/cajed_logo.png',
                             fit: BoxFit.contain,
                             width: MediaQuery.of(context).size.width,
                             height: MediaQuery.of(context).size.height,
@@ -251,7 +251,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                       errorBuilder: (context, error, stackTrace) {
                         return Center(
                           child: Image.asset(
-                            'assets/images/logo_redefined.png',
+                            'assets/images/cajed_logo.png',
                             fit: BoxFit.contain,
                             width: MediaQuery.of(context).size.width,
                             height: MediaQuery.of(context).size.height,
@@ -807,7 +807,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  "Liked by Others",
+                                  "Who Liked You",
                                   style: AppTextStyles.titleText
                                       .copyWith(color: Colors.white),
                                 ),
@@ -893,7 +893,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                           Padding(
                             padding: const EdgeInsets.all(12.0),
                             child: Text(
-                              "You Liked",
+                              "Liked by You",
                               style: AppTextStyles.titleText
                                   .copyWith(color: Colors.white),
                             ),
@@ -1295,13 +1295,13 @@ class UserCardState extends State<UserCard>
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return Image.asset(
-                            'assets/images/logo_redefined.png',
+                            'assets/images/cajed_logo.png',
                             fit: BoxFit.cover,
                           );
                         },
                       )
                     : Image.asset(
-                        'assets/images/logo_redefined.png',
+                        'assets/images/cajed_logo.png',
                         fit: BoxFit.cover,
                       ),
               ),

@@ -53,6 +53,8 @@ class _CreatorsTransactionPageState extends State<CreatorsTransactionPage> {
             Color statusColor;
             switch (tx.paymentStatus.toLowerCase()) {
               case 'success':
+              statusColor = Colors.green;
+                break;
               case 'completed':
                 statusColor = Colors.green;
                 break;

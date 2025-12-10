@@ -34,7 +34,6 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
   late Future<bool> _fetchProfileFuture;
   RxString selectedPlan = 'None'.obs;
   bool isProcessingPayment = false;
-  
 
   @override
   void initState() {
@@ -110,7 +109,7 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                 height: MediaQuery.of(context).size.height,
                 errorBuilder: (context, error, stackTrace) {
                   return Image.asset(
-                    'assets/images/logo_redefined.png',
+                    'assets/images/cajed_logo.png',
                     fit: BoxFit.contain,
                   );
                 },
@@ -244,8 +243,7 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                                   shrinkWrap: true,
                                   itemCount: controller.packages.length,
                                   itemBuilder: (context, index) {
-                                    final package =
-                                        controller.packages[index];
+                                    final package = controller.packages[index];
                                     double offerPercentage =
                                         calculateOfferPercentage(
                                             package.actualAmount,
@@ -261,11 +259,10 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                                           package.id,
                                           package.offerAmount,
                                         );
-                                        controller
-                                            .updateNewPackageRequestModel
+                                        controller.updateNewPackageRequestModel
                                             .packageId = package.id;
-                                        razorpaycontroller.orderRequestModel
-                                                .amount =
+                                        razorpaycontroller
+                                                .orderRequestModel.amount =
                                             package.offerAmount.toString();
                                         razorpaycontroller.orderRequestModel
                                             .packageId = package.id;
@@ -287,19 +284,17 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                                                   selectedPlan.value ==
                                                       package.id;
                                               return DecoratedBoxTransition(
-                                                decoration: decorationTween
-                                                    .animate(
+                                                decoration:
+                                                    decorationTween.animate(
                                                         _animationController),
                                                 child: Card(
                                                   elevation: 8,
-                                                  shape:
-                                                      RoundedRectangleBorder(
+                                                  shape: RoundedRectangleBorder(
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             10),
                                                   ),
-                                                  clipBehavior:
-                                                      Clip.antiAlias,
+                                                  clipBehavior: Clip.antiAlias,
                                                   child: Container(
                                                     decoration: BoxDecoration(
                                                       gradient: isSelected
@@ -325,16 +320,17 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                                                                     .darkGradientColor
                                                                 : AppColors
                                                                     .lightGradientColor,
-                                                            size: fontSize *
-                                                                1.5,
+                                                            size:
+                                                                fontSize * 1.5,
                                                           ),
                                                           SizedBox(width: 8),
                                                           Expanded(
                                                             child: Text(
                                                               "${toBeginningOfSentenceCase(package.unit.toLowerCase())} Plan  ₹${package.offerAmount}",
-                                                              style: AppTextStyles
-                                                                  .bodyText
-                                                                  .copyWith(
+                                                              style:
+                                                                  AppTextStyles
+                                                                      .bodyText
+                                                                      .copyWith(
                                                                 fontSize:
                                                                     fontSize -
                                                                         4,
@@ -349,10 +345,9 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                                                                 .bodyText
                                                                 .copyWith(
                                                               fontSize:
-                                                                  fontSize -
-                                                                      6,
-                                                              color: Colors
-                                                                  .white,
+                                                                  fontSize - 6,
+                                                              color:
+                                                                  Colors.white,
                                                             ),
                                                           ),
                                                           // IconButton(
@@ -457,7 +452,8 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                               Positioned(
                                 right: 0,
                                 child: IconButton(
-                                  icon: const Icon(Icons.close, color: Colors.white),
+                                  icon: const Icon(Icons.close,
+                                      color: Colors.white),
                                   onPressed: () {
                                     Navigator.of(context).pop();
                                   },
@@ -482,17 +478,16 @@ class UnsubscribeuserState extends State<Unsubscribeuser>
                                 ),
                                 const SizedBox(height: 16),
                                 HeadlineText(
-  index: 10,
-  fontSize: ResponsiveFont.heading(context),
-  align: TextAlign.left,
-),
-
+                                  index: 10,
+                                  fontSize: ResponsiveFont.heading(context),
+                                  align: TextAlign.left,
+                                ),
                                 const SizedBox(height: 10),
                                 DescriptionText(
-  index: 10,
-fontSize: ResponsiveFont.subHeading(context),
-  align: TextAlign.left,
-),
+                                  index: 10,
+                                  fontSize: ResponsiveFont.subHeading(context),
+                                  align: TextAlign.left,
+                                ),
                               ],
                             ),
                           ),
@@ -527,7 +522,8 @@ fontSize: ResponsiveFont.subHeading(context),
                                 decoration: BoxDecoration(
                                   color: AppColors.darkGradientColor,
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Colors.white, width: 1.5),
+                                  border: Border.all(
+                                      color: Colors.white, width: 1.5),
                                 ),
                                 child: const Icon(
                                   Icons.double_arrow_outlined,
