@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
@@ -8,6 +9,7 @@ import 'package:dating_application/Screens/chatpage/VideoCallPage.dart';
 import 'package:dating_application/constants.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -102,13 +104,44 @@ class ChatScreenState extends State<ChatScreen> {
     debugPrint('Chat reqeust header: ${request.headers}');
 
     if (image != null) {
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'image',
+      // Compress the image and convert to base64
+      String? base64ImageString;
+      
+      try {
+        // Compress the image before converting to base64
+        final compressedImageBytes = await FlutterImageCompress.compressWithFile(
           image.path,
-          contentType: MediaType('image', 'jpeg'), // or detect content type
-        ),
-      );
+          quality: 50,
+        );
+
+        if (compressedImageBytes != null) {
+          // Convert compressed image to base64
+          base64ImageString = base64Encode(compressedImageBytes);
+          print('✅ Image compressed and converted to base64: ${base64ImageString.length} characters');
+        } else {
+          print('❌ Image compression failed, using original image');
+          // Fallback to original image if compression fails
+          final originalImageBytes = await image.readAsBytes();
+          base64ImageString = base64Encode(originalImageBytes);
+        }
+      } catch (e) {
+        print('❌ Error compressing image: $e, using original image');
+        // Fallback to original image if compression fails
+        final originalImageBytes = await image.readAsBytes();
+        base64ImageString = base64Encode(originalImageBytes);
+      }
+      
+      request.fields['image'] = base64ImageString!;
+      // Use the base64 string (stored in base64ImageString variable)
+      // You can use this variable as needed
+      
+      // request.files.add(
+      //   await http.MultipartFile.fromPath(
+      //     'image',
+      //     image.path,
+      //     contentType: MediaType('image', 'jpeg'), // or detect content type
+      //   ),
+      // );
     }
 
     try {
@@ -1493,7 +1526,7 @@ class SensitiveImageWidget extends StatefulWidget {
 
 class _SensitiveImageWidgetState extends State<SensitiveImageWidget> {
   bool _showBlur = true;
-  late Future<Uint8List> _imageFuture;
+  late Future<String> _imageFuture;
 
   @override
   void initState() {
@@ -1512,7 +1545,7 @@ class _SensitiveImageWidgetState extends State<SensitiveImageWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Uint8List>(
+    return FutureBuilder<String>(
       future: _imageFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -1520,10 +1553,13 @@ class _SensitiveImageWidgetState extends State<SensitiveImageWidget> {
         } else if (snapshot.hasError) {
           return const Icon(Icons.broken_image);
         } else if (snapshot.hasData) {
+          // Decode base64 string to bytes for Image.memory
+          final imageBytes = base64Decode(snapshot.data!);
+          
           Widget chatBubbleImage = ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Image.memory(
-              snapshot.data!,
+              imageBytes,
               width: 180,
               height: 180,
               fit: BoxFit.cover,
@@ -1531,7 +1567,7 @@ class _SensitiveImageWidgetState extends State<SensitiveImageWidget> {
           );
 
           Widget fullScreenImage = Image.memory(
-            snapshot.data!,
+            imageBytes,
           );
 
           if (widget.sensitivity == 1 && _showBlur) {
@@ -1627,7 +1663,7 @@ class _SensitiveImageWidgetState extends State<SensitiveImageWidget> {
     );
   }
 
-  Future<Uint8List> _fetchImageBytes(
+  Future<String> _fetchImageBytes(
       String imagePath, String bearerToken) async {
     final response = await http.get(
       Uri.parse('$springbooturl/ChatController/uploads/$imagePath'),
@@ -1637,7 +1673,8 @@ class _SensitiveImageWidgetState extends State<SensitiveImageWidget> {
       },
     );
     if (response.statusCode == 200) {
-      return response.bodyBytes;
+      // Backend returns base64 string, return it directly
+      return response.body;
     } else {
       throw Exception('Failed to load image');
     }

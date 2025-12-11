@@ -171,7 +171,7 @@ class EditProfilePageState extends State<EditProfilePage>
       );
       
       print('EditProfile: fetchAllData completed with success: $success');
-      if (success) {
+    if (success) {
         print('EditProfile: Initializing data...');
         try {
           await initialize().timeout(
@@ -187,8 +187,8 @@ class EditProfilePageState extends State<EditProfilePage>
         }
       } else {
         print('EditProfile: fetchAllData failed, cannot initialize');
-      }
-      return success;
+    }
+    return success;
     } catch (e, stackTrace) {
       print('EditProfile: Error in _loadProfileData: $e');
       print('EditProfile: Stack trace: $stackTrace');
@@ -269,13 +269,13 @@ class EditProfilePageState extends State<EditProfilePage>
       
       // Set preferences and languages from fetched profile
       if (controller.userPreferences.isNotEmpty) {
-        controller.userProfileUpdateRequest.preferences =
-            controller.userPreferences.map((p) => p.preferenceId).toList();
+      controller.userProfileUpdateRequest.preferences =
+          controller.userPreferences.map((p) => p.preferenceId).toList();
         print('EditProfile: Set ${controller.userProfileUpdateRequest.preferences.length} preferences');
       }
       if (controller.userLang.isNotEmpty) {
-        controller.userProfileUpdateRequest.lang =
-            controller.userLang.map((l) => l.langId).toList();
+      controller.userProfileUpdateRequest.lang =
+          controller.userLang.map((l) => l.langId).toList();
         print('EditProfile: Set ${controller.userProfileUpdateRequest.lang.length} languages');
       }
       
@@ -311,7 +311,7 @@ class EditProfilePageState extends State<EditProfilePage>
       }
       
       print('EditProfile: All data fetched successfully');
-      return true;
+    return true;
     } catch (e, stackTrace) {
       print('EditProfile: Exception in fetchAllData: $e');
       print('EditProfile: Stack trace: $stackTrace');
@@ -359,31 +359,31 @@ class EditProfilePageState extends State<EditProfilePage>
       }
 
       if (controller.preferences.isNotEmpty) {
-        preferencesSelectedOptions.value =
-            List<bool>.filled(controller.preferences.length, false);
-        List<String> matchingIndexes = [];
-        for (var p in controller.userPreferences) {
-          int index = controller.preferences
-              .indexWhere((preference) => preference.id == p.preferenceId);
-          if (index != -1) {
-            matchingIndexes.add(index.toString());
-            preferencesSelectedOptions[index] = true;
-          }
+      preferencesSelectedOptions.value =
+          List<bool>.filled(controller.preferences.length, false);
+      List<String> matchingIndexes = [];
+      for (var p in controller.userPreferences) {
+        int index = controller.preferences
+            .indexWhere((preference) => preference.id == p.preferenceId);
+        if (index != -1) {
+          matchingIndexes.add(index.toString());
+          preferencesSelectedOptions[index] = true;
         }
+      }
       }
 
       if (controller.userData.isNotEmpty) {
-        latitudeController.text = controller.userData.first.latitude.isNotEmpty
-            ? controller.userData.first.latitude
-            : controller.userProfileUpdateRequest.latitude;
+      latitudeController.text = controller.userData.first.latitude.isNotEmpty
+          ? controller.userData.first.latitude
+          : controller.userProfileUpdateRequest.latitude;
 
-        longitudeController.text = controller.userData.first.longitude.isNotEmpty
-            ? controller.userData.first.longitude
-            : controller.userProfileUpdateRequest.longitude;
+      longitudeController.text = controller.userData.first.longitude.isNotEmpty
+          ? controller.userData.first.longitude
+          : controller.userProfileUpdateRequest.longitude;
       }
 
       if (controller.desires.isNotEmpty) {
-        selectedOptions = RxList<bool>.filled(controller.desires.length, false);
+      selectedOptions = RxList<bool>.filled(controller.desires.length, false);
       }
       selectedDesires = controller.userDesire;
       
@@ -1033,7 +1033,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                                                               color: Colors
                                                                                   .grey
                                                                                   .shade200,
-                                                                              child:
+                                                            child:
                                                                                   const Icon(
                                                                                 Icons
                                                                                     .broken_image,
@@ -3500,10 +3500,10 @@ void showFullImageDialog(BuildContext context, String imagePath) {
                     },
                   )
                 : Image.network(
-                    imagePath,
-                    fit: BoxFit.contain,
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
+              imagePath,
+              fit: BoxFit.contain,
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
                     errorBuilder: (context, error, stackTrace) {
                       return Center(
                         child: Icon(
@@ -3513,7 +3513,7 @@ void showFullImageDialog(BuildContext context, String imagePath) {
                         ),
                       );
                     },
-                  ),
+            ),
           ),
         ),
       );

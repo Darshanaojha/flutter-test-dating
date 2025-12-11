@@ -25,6 +25,177 @@ import '../../Providers/WebSocketService.dart';
 import '../../constants.dart';
 import '../userprofile/userprofilesummary.dart';
 
+  /// Trail point for fading trail effect
+class TrailPoint {
+  double x;
+  double y;
+  double opacity;
+  double scale;
+  
+  TrailPoint(this.x, this.y, this.opacity, this.scale);
+}
+
+/// Sparkle particle around hearts
+class Sparkle {
+  double x;
+  double y;
+  double opacity;
+  double size;
+  double angle;
+  double distance;
+  
+  Sparkle(this.x, this.y, this.opacity, this.size, this.angle, this.distance);
+}
+
+/// Flying heart with wings animation class
+class FlyingHeart {
+  double x;
+  double y;
+  double vx; // Horizontal velocity
+  double vy; // Vertical velocity
+  final AnimationController controller;
+  final AnimationController entranceController; // For entrance animation
+  double rotation; // Rotation angle
+  double rotationSpeed; // Rotation speed
+  double scale; // Scale factor for size variation
+  double floatOffset; // For floating/bobbing animation
+  double floatSpeed; // Speed of floating animation
+  int frameCount; // Frame counter for animations
+  double opacity; // For entrance animation
+  List<TrailPoint> trail; // Trail points for fading effect
+  List<Sparkle> sparkles; // Sparkle particles around heart
+  double curveProgress; // For bezier curve movement
+  late double startX, startY; // Starting position for curves
+  late double controlX1, controlY1; // Bezier control points
+  late double controlX2, controlY2;
+  late double endX, endY; // End position for curves
+  
+  FlyingHeart({
+    required this.x,
+    required this.y,
+    required this.vx,
+    required this.vy,
+    required this.controller,
+    required this.entranceController,
+    this.rotation = 0.0,
+    this.rotationSpeed = 0.0,
+    this.scale = 1.0,
+    this.floatOffset = 0.0,
+    this.floatSpeed = 0.0,
+    this.frameCount = 0,
+    this.opacity = 0.0,
+    this.curveProgress = 0.0,
+    List<TrailPoint>? trail,
+    List<Sparkle>? sparkles,
+  }) : trail = trail ?? [],
+       sparkles = sparkles ?? [];
+  
+  void update(double screenWidth, double screenHeight) {
+    frameCount++;
+    
+    // Update entrance animation (fade in + scale up)
+    if (entranceController.value < 1.0) {
+      opacity = entranceController.value;
+      scale = 0.3 + (entranceController.value * 0.7); // Scale from 0.3 to 1.0
+    } else {
+      opacity = 1.0;
+    }
+    
+    // More natural flying motion - use direct velocity with occasional curve changes
+    // Make movement more random and less predictable
+    final random = Random();
+    
+    // Occasionally change direction for more natural flight
+    if (frameCount % (30 + random.nextInt(40)) == 0) {
+      // Randomly adjust velocity slightly for more natural movement
+      vx += (random.nextDouble() - 0.5) * 0.5;
+      vy += (random.nextDouble() - 0.5) * 0.5;
+      // Limit velocity
+      final currentSpeed = sqrt(vx * vx + vy * vy);
+      if (currentSpeed > 5.0) {
+        vx = (vx / currentSpeed) * 5.0;
+        vy = (vy / currentSpeed) * 5.0;
+      }
+    }
+    
+    // Direct movement with natural physics
+    x += vx;
+    y += vy;
+    
+    // Add floating/bobbing motion (gentle up and down)
+    floatOffset = sin(frameCount * floatSpeed) * 3.0; // 3px up/down movement
+    y += floatOffset * 0.1; // Subtle vertical bobbing
+    
+    // Update rotation with slight variation
+    rotation += rotationSpeed;
+    
+    // Gentle scale pulsing (breathing effect) - only after entrance
+    if (entranceController.value >= 1.0) {
+      scale = 1.0 + sin(frameCount * 0.05) * 0.05; // 5% size variation
+    }
+    
+    // Update trail - add current position, remove old ones
+    // Reduce trail visibility or disable it if it looks weird
+    trail.insert(0, TrailPoint(x, y, 1.0, scale));
+    if (trail.length > 5) { // Reduced from 8 to 5
+      trail.removeLast();
+    }
+    // Fade trail points more aggressively
+    for (int i = 0; i < trail.length; i++) {
+      trail[i].opacity = (1.0 - (i / trail.length)) * 0.3; // Reduced from 0.6 to 0.3
+      trail[i].scale = trail[i].scale * 0.9; // Faster scale down
+    }
+    
+    // Update sparkles
+    for (var sparkle in sparkles) {
+      sparkle.angle += 0.1;
+      sparkle.opacity = (sin(sparkle.angle) + 1) / 2 * 0.8;
+      sparkle.x = x + cos(sparkle.angle) * sparkle.distance;
+      sparkle.y = y + sin(sparkle.angle) * sparkle.distance;
+    }
+    
+    // Keep hearts within screen bounds (accounting for heart size ~180px)
+    final margin = 90.0; // Half of heart size to keep it fully visible
+    if (x < margin) {
+      x = margin;
+      vx = -vx * 0.8; // Bounce back with reduced velocity
+    } else if (x > screenWidth - margin) {
+      x = screenWidth - margin;
+      vx = -vx * 0.8;
+    }
+    if (y < margin) {
+      y = margin;
+      vy = -vy * 0.8;
+    } else if (y > screenHeight - margin) {
+      y = screenHeight - margin;
+      vy = -vy * 0.8;
+    }
+  }
+  
+  void _generateNewCurve(double screenWidth, double screenHeight) {
+    final random = Random();
+    startX = x;
+    startY = y;
+    
+    // Random end position
+    endX = screenWidth * (0.1 + random.nextDouble() * 0.8);
+    endY = screenHeight * (0.1 + random.nextDouble() * 0.8);
+    
+    // Control points for smooth curve
+    controlX1 = startX + (endX - startX) * 0.3 + (random.nextDouble() - 0.5) * 100;
+    controlY1 = startY + (endY - startY) * 0.3 + (random.nextDouble() - 0.5) * 100;
+    controlX2 = startX + (endX - startX) * 0.7 + (random.nextDouble() - 0.5) * 100;
+    controlY2 = startY + (endY - startY) * 0.7 + (random.nextDouble() - 0.5) * 100;
+  }
+  
+  bool shouldRemove(double screenWidth, double screenHeight) {
+    // Remove if off-screen for too long or animation completed
+    return x < -100 || x > screenWidth + 100 || 
+           y < -100 || y > screenHeight + 100 ||
+           controller.isCompleted;
+  }
+}
+
 /// Particle class for confetti effects
 class Particle {
   double x;
@@ -51,13 +222,13 @@ class Particle {
     required this.rotationSpeed,
   });
 
-    void update() {
-      x += vx;
-      y += vy;
-      rotation += rotationSpeed;
-      // Faster fade for snappier feel
-      opacity = (opacity - 0.025).clamp(0.0, 1.0);
-    }
+  void update() {
+    x += vx;
+    y += vy;
+    rotation += rotationSpeed;
+    // Faster fade for snappier feel
+    opacity = (opacity - 0.025).clamp(0.0, 1.0);
+  }
 }
 
 class HomePage extends StatefulWidget {
@@ -83,6 +254,19 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool _showFlash = false;
   Color _flashColor = Colors.transparent;
   double _flashOpacity = 0.0;
+  
+  // Flying hearts for like action
+  List<FlyingHeart> _flyingHearts = [];
+  List<AnimationController> _flyingHeartControllers = [];
+  List<AnimationController> _entranceControllers = []; // For entrance animations
+  Timer? _flyingHeartTimer;
+  
+  // Crying bear animation for dislike action
+  AnimationController? _cryingBearController;
+  bool _showCryingBear = false;
+  bool _showNextCardOverlay = false;
+  Duration? _cryingBearDuration;
+  
 
   SuggestedUser? lastUser;
   SuggestedUser? lastUserNearBy;
@@ -125,6 +309,13 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
 
     _lottieAnimationController = AnimationController(vsync: this);
+    
+    // Initialize crying bear controller
+    // Duration will be updated when Lottie loads
+    _cryingBearController = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 2), // Default duration, will be updated by Lottie
+    );
 
     _rotationAnimation = Tween<double>(begin: 0, end: 2 * 3.1415927).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
@@ -337,7 +528,13 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       content: user,
       likeAction: () async {
         if (await checkInteractionAllowed()) {
-          _createParticles('like');
+          // Don't show pink flash for like action - completely clear it immediately
+          setState(() {
+            _showFlash = false;
+            _flashOpacity = 0.0;
+            _flashColor = Colors.transparent;
+          });
+          _createFlyingHearts(); // Create flying hearts animation
           setState(() {
             _showLikeAnimation = true;
           });
@@ -357,10 +554,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       },
       nopeAction: () async {
         if (await checkInteractionAllowed()) {
-          _createParticles('dislike');
-          setState(() {
-            _showDislikeAnimation = true;
-          });
+          // Show crying bear animation and next card overlay
+          _showCryingBearAnimation();
           if (user.userId != null) {
             controller.dislikeProfileRequest.id = user.userId.toString();
             controller.dislikeprofile(controller.dislikeProfileRequest);
@@ -392,8 +587,18 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void dispose() {
     _particleTimer?.cancel();
+    _flyingHeartTimer?.cancel();
     _animationController.dispose();
     _lottieAnimationController.dispose();
+    _cryingBearController?.dispose();
+    // Dispose all flying heart controllers
+    for (var controller in _flyingHeartControllers) {
+      controller.dispose();
+    }
+    // Dispose entrance controllers
+    for (var controller in _entranceControllers) {
+      controller.dispose();
+    }
     messageFocusNode.dispose();
     messageController.dispose();
     _imagePageController.dispose();
@@ -436,7 +641,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           print(
                               'Error decoding base64 in full image dialog: $e');
                           return Image.asset('assets/images/cajed_logo.png');
-                        }
+  }
                       },
                     )
                   : Builder(
@@ -469,7 +674,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         }
                       },
                     ),
-            ),
+                ),
           ),
         );
       },
@@ -911,7 +1116,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                         user,
                                                         size,
                                                         isLastCard),
-                                                  ),
+                                              ),
                                             ),
                                           ),
                                         );
@@ -943,10 +1148,71 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   );
                 },
               ),
-              // Confetti-style particle effects (Option 2)
+              // Subtle background overlay when hearts are visible (light background)
+              if (_flyingHearts.isNotEmpty)
+                Positioned.fill(
+                  child: AnimatedOpacity(
+                    opacity: 0.15, // Subtle light overlay
+                    duration: Duration(milliseconds: 300),
+                    child: Container(
+                      color: Colors.white, // Light background
+                    ),
+                  ),
+                ),
+              // Flying hearts for like action
+              ..._flyingHearts.map((heart) => _buildFlyingHeart(heart)).toList(),
+              // Crying bear animation for dislike action
+              if (_showCryingBear && _cryingBearController != null)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: Stack(
+                      children: [
+                        // Semi-transparent overlay to show next card
+                        if (_showNextCardOverlay)
+                          Positioned.fill(
+                            child: Container(
+                              color: Colors.black.withOpacity(0.3),
+                            ),
+                          ),
+                        // Crying bear animation - centered
+                        Center(
+                          child: SizedBox(
+                            width: 300,
+                            height: 300,
+                            child: Lottie.asset(
+                              'assets/animations/cryingBear.json',
+                              controller: _cryingBearController,
+                              repeat: false,
+                              fit: BoxFit.contain,
+                              onLoaded: (composition) {
+                                print("🐻 Crying bear Lottie loaded successfully, duration: ${composition.duration}");
+                                // Update controller duration to match Lottie animation
+                                if (_cryingBearController != null) {
+                                  _cryingBearController!.duration = composition.duration;
+                                  _cryingBearDuration = composition.duration;
+                                }
+                              },
+                              errorBuilder: (context, error, stackTrace) {
+                                print("❌ Error loading crying bear: $error");
+                                return Container(
+                                  color: Colors.red.withOpacity(0.3),
+                                  child: Center(
+                                    child: Text("Error loading animation"),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              // Confetti-style particle effects (Option 2) - only for superlike now
               ..._particles.map((particle) => _buildParticle(particle)).toList(),
-              // Screen flash overlay
-              if (_showFlash)
+              // Screen flash overlay (only for superlike, not for like or dislike)
+              // Only show if hearts are not visible AND flash is enabled AND color is not transparent
+              if (_showFlash && _flyingHearts.isEmpty && _flashColor != Colors.transparent && !_showCryingBear)
                 Positioned.fill(
                   child: AnimatedOpacity(
                     opacity: _flashOpacity,
@@ -956,15 +1222,70 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
-            ],
-          ),
-        ),
+                                  ],
+                                ),
+                              ),
       ),
     );
   }
 
-  /// Create particles based on swipe type
+  /// Create Lottie-based falling and breaking hearts for dislike
+  /// Show crying bear animation for dislike
+  void _showCryingBearAnimation() {
+    if (_cryingBearController == null) {
+      print("❌ Crying bear controller is null!");
+      return;
+    }
+    
+    print("🐻 Showing crying bear animation");
+    
+    setState(() {
+      _showCryingBear = true;
+      _showNextCardOverlay = true;
+    });
+    
+    // Remove any existing listeners first
+    _cryingBearController!.removeStatusListener(_onCryingBearAnimationStatus);
+    
+    // Add status listener
+    _cryingBearController!.addStatusListener(_onCryingBearAnimationStatus);
+    
+    // Reset and play animation
+    _cryingBearController!.reset();
+    _cryingBearController!.forward();
+    
+    // Show next card overlay
+    _showNextCardPreview();
+  }
+  
+  void _onCryingBearAnimationStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      print("🐻 Crying bear animation completed");
+      Future.delayed(Duration(milliseconds: 500), () {
+        if (mounted) {
+          setState(() {
+            _showCryingBear = false;
+            _showNextCardOverlay = false;
+          });
+          _cryingBearController!.removeStatusListener(_onCryingBearAnimationStatus);
+        }
+      });
+    }
+  }
+  
+  /// Show preview of next card in overlay
+  void _showNextCardPreview() {
+    // The next card will be shown through the semi-transparent overlay
+    // The current card is being swiped away, so the next one becomes visible
+  }
+
+  /// Create particles based on swipe type (only for superlike now)
   void _createParticles(String type) {
+    // Skip dislike - we use crying bear instead
+    if (type == 'dislike') {
+      return;
+    }
+    
     _particles.clear();
     final screenSize = MediaQuery.of(context).size;
     final centerX = screenSize.width / 2;
@@ -987,20 +1308,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       ];
       icon = Icons.favorite;
       particleCount = 50;
-      _flashColor = Colors.pink.withOpacity(0.3);
-    } else if (type == 'dislike') {
-      // Grey/dark colors for "passed" - clearly negative/rejection indication
-      colors = [
-        Colors.grey.shade700,
-        Colors.grey.shade600,
-        Colors.grey.shade800,
-        Colors.grey.shade500,
-        Colors.black87,
-        Colors.grey.shade900,
-      ];
-      icon = Icons.close; // X mark for clear "passed" indication
-      particleCount = 50;
-      _flashColor = Colors.black.withOpacity(0.2);
+      // Don't set flash color for like - we use flying hearts instead
+      _flashColor = Colors.transparent;
     } else {
       // Sparkles and stars for super like - very different from like, burst upward with sparkle effect
       colors = [
@@ -1021,11 +1330,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       if (type == 'like') {
         // Burst in all directions with some randomness
         angle = (i / particleCount) * 2 * pi + (random.nextDouble() - 0.5) * 0.3;
-      } else if (type == 'dislike') {
-        // Burst from center in all directions (changed from left-only)
-        angle = (i / particleCount) * 2 * pi + (random.nextDouble() - 0.5) * 0.4;
       } else {
-        // Burst upward with wider spread for sparkle effect
+        // Burst upward with wider spread for sparkle effect (superlike)
         angle = -pi / 2 + (random.nextDouble() - 0.5) * 1.2; // Wider spread
       }
 
@@ -1036,16 +1342,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
       // Icon selection based on type
       IconData particleIcon = icon;
-      if (type == 'dislike') {
-        // Mix X marks, broken hearts, and thumbs down for clear "passed" indication
-        final iconChoice = random.nextDouble();
-        if (iconChoice > 0.66) {
-          particleIcon = Icons.heart_broken; // Broken heart
-        } else if (iconChoice > 0.33) {
-          particleIcon = Icons.thumb_down; // Thumbs down
-        }
-        // Otherwise use X mark (icon)
-      } else if (type == 'superlike') {
+      if (type == 'superlike') {
         // Mix sparkles and stars for super like
         if (random.nextDouble() > 0.4) {
           particleIcon = Icons.star; // Star for some particles
@@ -1064,33 +1361,37 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       ));
     }
 
-    // Show flash after particles start (after 200ms)
-    Timer(Duration(milliseconds: 200), () {
-      if (mounted) {
-        setState(() {
-          _showFlash = true;
-          _flashOpacity = 1.0;
-        });
-        // Fade out flash
-        Timer(Duration(milliseconds: 300), () {
-          if (mounted) {
-            setState(() {
-              _flashOpacity = 0.0;
-            });
-            Timer(Duration(milliseconds: 200), () {
-              if (mounted) {
-                setState(() {
-                  _showFlash = false;
-                });
-              }
-            });
-          }
-        });
-      }
-    });
+    // Show flash after particles start (only for superlike, not for like or dislike)
+    if (type == 'superlike') {
+      final flashDelay = 200;
+      Timer(Duration(milliseconds: flashDelay), () {
+        if (mounted) {
+          setState(() {
+            _showFlash = true;
+            _flashOpacity = 1.0;
+          });
+          // Fade out flash
+          Timer(Duration(milliseconds: 300), () {
+            if (mounted) {
+              setState(() {
+                _flashOpacity = 0.0;
+              });
+              Timer(Duration(milliseconds: 200), () {
+                if (mounted) {
+                  setState(() {
+                    _showFlash = false;
+                  });
+                }
+              });
+            }
+          });
+        }
+      });
+    }
 
     // Animate particles
     _particleTimer?.cancel();
+    final currentScreenSize = screenSize; // Capture screen size for timer
     _particleTimer = Timer.periodic(Duration(milliseconds: 16), (timer) {
       if (!mounted) {
         timer.cancel();
@@ -1104,6 +1405,14 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           hasVisibleParticles = true;
         }
       }
+
+      // Remove particles that are off-screen or faded
+      _particles.removeWhere((p) => 
+        p.opacity <= 0 || 
+        p.y > currentScreenSize.height + 100 ||
+        p.x < -100 || 
+        p.x > currentScreenSize.width + 100
+      );
 
       if (mounted) {
         setState(() {});
@@ -1121,6 +1430,287 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
         }
       }
     });
+  }
+
+  /// Create flying hearts animation for like action
+  void _createFlyingHearts() {
+    final screenSize = MediaQuery.of(context).size;
+    final random = Random(DateTime.now().millisecondsSinceEpoch);
+    
+    // Clear existing hearts
+    _flyingHearts.clear();
+    
+    // Create 4-5 flying hearts at different locations (more hearts for better effect)
+    final heartCount = 4 + random.nextInt(2); // 4 or 5 hearts
+    
+    // Ensure we have enough controllers
+    while (_flyingHeartControllers.length < heartCount) {
+      _flyingHeartControllers.add(AnimationController(
+        vsync: this,
+        duration: Duration(seconds: 3), // Animation duration
+      ));
+    }
+    while (_entranceControllers.length < heartCount) {
+      _entranceControllers.add(AnimationController(
+        vsync: this,
+        duration: Duration(milliseconds: 500), // Entrance animation duration
+      ));
+    }
+    
+    // Create a grid to ensure hearts are spread across the whole screen
+    final gridCols = 3;
+    final gridRows = 3;
+    final cellWidth = screenSize.width / gridCols;
+    final cellHeight = screenSize.height / gridRows;
+    final usedCells = <int>[];
+    
+    for (int i = 0; i < heartCount && i < _flyingHeartControllers.length; i++) {
+      // Staggered timing - random delay for each heart (more natural)
+      final delay = (i * 100) + random.nextInt(200); // 100-300ms random delay
+      
+      // Ensure hearts are spread across different grid cells to cover whole screen
+      int cellIndex;
+      do {
+        cellIndex = random.nextInt(gridCols * gridRows);
+      } while (usedCells.contains(cellIndex) && usedCells.length < gridCols * gridRows);
+      usedCells.add(cellIndex);
+      
+      final col = cellIndex % gridCols;
+      final row = cellIndex ~/ gridCols;
+      
+      // Random position within the grid cell (ensuring hearts stay fully visible on screen)
+      final cellStartX = col * cellWidth;
+      final cellStartY = row * cellHeight;
+      // Use margin to ensure hearts are fully visible (heart size is ~180px, so need ~90px margin)
+      final margin = 90.0; // Half of heart size to keep it fully visible
+      // Calculate position within cell, ensuring it stays within screen bounds
+      final cellCenterX = cellStartX + cellWidth / 2;
+      final cellCenterY = cellStartY + cellHeight / 2;
+      // Add some random offset but keep within bounds
+      final offsetX = (random.nextDouble() - 0.5) * (cellWidth * 0.5);
+      final offsetY = (random.nextDouble() - 0.5) * (cellHeight * 0.5);
+      final startX = (cellCenterX + offsetX).clamp(margin, screenSize.width - margin);
+      final startY = (cellCenterY + offsetY).clamp(margin, screenSize.height - margin);
+      
+      // Completely random movement directions and speeds (more natural flying)
+      final speed = 1.5 + random.nextDouble() * 3.5; // 1.5-5 pixels per frame
+      final angle = random.nextDouble() * 2 * pi; // Completely random direction
+      final vx = speed * cos(angle);
+      final vy = speed * sin(angle);
+      
+      // Random rotation speed (gentler rotation)
+      final rotationSpeed = (random.nextDouble() - 0.5) * 0.08; // -0.04 to 0.04
+      
+      // Random scale for size variation (0.9 to 1.1 for less variation)
+      final scale = 0.9 + random.nextDouble() * 0.2;
+      
+      // Random floating speed for bobbing animation
+      final floatSpeed = 0.02 + random.nextDouble() * 0.03; // 0.02 to 0.05
+      
+      // Reset and start controllers
+      _flyingHeartControllers[i].reset();
+      _flyingHeartControllers[i].forward();
+      _entranceControllers[i].reset();
+      
+      // Create sparkles around the heart
+      final sparkles = <Sparkle>[];
+      for (int j = 0; j < 6; j++) {
+        final sparkleAngle = (j / 6.0) * 2 * pi;
+        final sparkleDistance = 40.0 + random.nextDouble() * 20.0;
+        sparkles.add(Sparkle(
+          startX + cos(sparkleAngle) * sparkleDistance,
+          startY + sin(sparkleAngle) * sparkleDistance,
+          0.8,
+          4.0 + random.nextDouble() * 4.0,
+          sparkleAngle,
+          sparkleDistance,
+        ));
+      }
+      
+      final heart = FlyingHeart(
+        x: startX,
+        y: startY,
+        vx: vx,
+        vy: vy,
+        controller: _flyingHeartControllers[i],
+        entranceController: _entranceControllers[i],
+        rotationSpeed: rotationSpeed,
+        scale: scale,
+        floatSpeed: floatSpeed,
+        sparkles: sparkles,
+      );
+      
+      // Initialize curve
+      heart._generateNewCurve(screenSize.width, screenSize.height);
+      
+      // Start entrance animation with delay (staggered timing)
+      Future.delayed(Duration(milliseconds: delay), () {
+        if (mounted) {
+          _entranceControllers[i].forward();
+        }
+      });
+      
+      _flyingHearts.add(heart);
+    }
+    
+    // Animate flying hearts
+    _flyingHeartTimer?.cancel();
+    _flyingHeartTimer = Timer.periodic(Duration(milliseconds: 16), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      
+      bool hasVisibleHearts = false;
+      for (var heart in _flyingHearts) {
+        heart.update(screenSize.width, screenSize.height);
+        if (!heart.shouldRemove(screenSize.width, screenSize.height)) {
+          hasVisibleHearts = true;
+        }
+      }
+      
+      // Remove hearts that are off-screen or completed
+      _flyingHearts.removeWhere((heart) => 
+        heart.shouldRemove(screenSize.width, screenSize.height)
+      );
+      
+      if (mounted) {
+        setState(() {}); // Force rebuild to show animation
+      }
+      
+      if (!hasVisibleHearts) {
+        timer.cancel();
+        if (mounted) {
+          setState(() {
+            _flyingHearts.clear();
+          });
+        }
+      }
+    });
+  }
+  
+  /// Build flying heart widget with proper shadow handling
+  Widget _buildFlyingHeart(FlyingHeart heart) {
+    final heartSize = 180.0; // Increased size from 120 to 180
+    final shadowOffset = 8.0; // Shadow offset below the heart
+    
+    return Positioned(
+      left: 0,
+      top: 0,
+      right: 0,
+      bottom: 0,
+      child: IgnorePointer(
+        child: Stack(
+                                            children: [
+            // Trail effect - fading trail behind heart (more subtle, smaller)
+            ...heart.trail.where((trailPoint) => trailPoint.opacity > 0.15).map((trailPoint) {
+              return Positioned(
+                left: trailPoint.x - heartSize / 2,
+                top: trailPoint.y - heartSize / 2,
+                child: Opacity(
+                  opacity: trailPoint.opacity * heart.opacity * 0.4, // Much more subtle (40% of original)
+                  child: Transform.scale(
+                    scale: trailPoint.scale * 0.3, // Smaller trail (30% of heart size)
+                    child: Container(
+                      width: heartSize,
+                      height: heartSize,
+                      child: Lottie.asset(
+                        'assets/animations/Flying heart.json',
+                        controller: heart.controller,
+                        repeat: true,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+            // Sparkle particles around the heart
+            ...heart.sparkles.map((sparkle) {
+              return Positioned(
+                left: sparkle.x - sparkle.size / 2,
+                top: sparkle.y - sparkle.size / 2,
+                child: Opacity(
+                  opacity: sparkle.opacity * heart.opacity,
+                  child: Container(
+                    width: sparkle.size,
+                    height: sparkle.size,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          Colors.white.withOpacity(0.9),
+                          Colors.amber.withOpacity(0.4), // Changed from pink
+                          Colors.transparent,
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.amber.withOpacity(0.3), // Changed from pink
+                          blurRadius: 8,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+            // Shadow layer - doesn't rotate, always below the heart
+            Positioned(
+              left: heart.x + shadowOffset - heartSize / 2,
+              top: heart.y + shadowOffset + heartSize * 0.85 - heartSize / 2,
+              child: Transform.scale(
+                scale: heart.scale * 0.6 * heart.opacity, // Smaller shadow with entrance fade
+                child: Opacity(
+                  opacity: 0.3 * heart.opacity, // Semi-transparent shadow
+                  child: Container(
+                    width: heartSize * 0.7,
+                    height: heartSize * 0.2,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(heartSize * 0.1), // Elliptical shape
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 15,
+                          spreadRadius: 5,
+                        ),
+                                  ],
+                                ),
+                              ),
+                ),
+              ),
+            ),
+            // Heart layer - rotates and scales with entrance animation
+                              Positioned(
+              left: heart.x - heartSize / 2,
+              top: heart.y - heartSize / 2,
+              child: Opacity(
+                opacity: heart.opacity, // Entrance fade in
+                child: Transform.scale(
+                  scale: heart.scale, // Entrance scale up + breathing
+                  child: Transform.rotate(
+                    angle: heart.rotation,
+                    child: Container(
+                      width: heartSize,
+                      height: heartSize,
+                      // Removed pink/purple glow to avoid pink background
+                      decoration: BoxDecoration(),
+                      child: Lottie.asset(
+                        'assets/animations/Flying heart.json',
+                        controller: heart.controller,
+                        repeat: true,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   /// Build individual particle widget
@@ -1282,8 +1872,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   child: Image.asset(
                                     'assets/images/cajed_logo.png',
                                     fit: BoxFit.none,
-                                  ),
-                                ),
+                                      ),
+                                    ),
                               );
                             }
                             return GestureDetector(
@@ -1343,7 +1933,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               ),
                             );
                           },
-                        ),
+                                          ),
                         if (images.length > 1)
                                             Positioned(
                             right: 10,
@@ -1363,7 +1953,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     color: _currentImageIndex == index
                                         ? AppColors.lightGradientColor
                                         : Colors.white.withOpacity(0.5),
-                                  ),
+                                                  ),
                                 );
                               }),
                                               ),
@@ -1417,8 +2007,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             ),
                           ],
                         ),
-                      ),
-                    ),
+                                ),
+                              ),
 
                   // Name & Title bottom-left
                   Positioned(
@@ -1444,8 +2034,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   Icons.verified,
                                   color: AppColors.lightGradientColor,
                                   size: getResponsiveFontSize(0.045),
-                                ),
-                              ),
+                                    ),
+                                  ),
                           ],
                         ),
                         SizedBox(height: 4),
@@ -1477,8 +2067,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 style: AppTextStyles.bodyText.copyWith(
                             color: Colors.white.withOpacity(0.9),
                             fontSize: size.width * 0.035,
-                          ),
-                        ),
+                                ),
+                              ),
                         SizedBox(height: 8),
                         Container(
                           padding:
@@ -1493,7 +2083,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               color: Colors.white,
                               fontSize: size.width * 0.03,
                               fontWeight: FontWeight.w500,
-                            ),
+                                ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -1533,8 +2123,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                             color: Colors.white,
                             fontSize: getResponsiveFontSize(0.03),
                             fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                                          ),
+                                        ),
                       ),
                     ),
                   ),
@@ -1570,7 +2160,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   }
                                 },
                                 child: Icon(Icons.star, color: Colors.white),
-                              ),
+                                        ),
                               SizedBox(height: 12),
                               FloatingActionButton(
                                 backgroundColor: AppColors.lightGradientColor,
@@ -1597,17 +2187,18 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           child: Icon(_isFabMenuOpen
                               ? Icons.check
                               : Icons.keyboard_arrow_up_outlined),
-                        ),
+                                      ),
                       ],
                                 ),
                               )
                             ],
-              ),
+                          ),
             ),
-          );
+                        );
   }
 }
 
+/// Custom painter for glass shard to look like actual glass pieces
 class MatchDialog extends StatelessWidget {
   final UserData currentUser;
   final SuggestedUser matchedUser;
@@ -1669,7 +2260,7 @@ class MatchDialog extends StatelessWidget {
                 _buildProfileImage(matchedUser.images.isNotEmpty
                     ? matchedUser.images.first
                     : null),
-              ],
+                ],
             ),
             const SizedBox(height: 30),
             ElevatedButton.icon(

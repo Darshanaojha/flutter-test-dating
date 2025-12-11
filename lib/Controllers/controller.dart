@@ -1521,52 +1521,60 @@ class Controller extends GetxController {
       
       case -1:
         print("Returning all users");
-        // Combine all lists: favorites, nearby, highlight, hookup, and suggestions
-        final Set<String?> seen = {};
-        final List<SuggestedUser> all = [];
+        // Use HashMap (Map) to ensure unique users by userId
+        // Key: userId (String), Value: SuggestedUser
+        final Map<String, SuggestedUser> uniqueUsersMap = {};
         
-        // Add favorites
+        // Helper function to normalize userId to String
+        String? normalizeUserId(dynamic userId) {
+          if (userId == null) return null;
+          return userId.toString().trim();
+        }
+        
+        // Add favorites first (they have priority)
         for (var fav in favourite) {
           final user = convertFavouriteToSuggestedUser(fav);
-          if (user.userId != null && !seen.contains(user.userId)) {
-            all.add(user);
-            seen.add(user.userId);
+          final userId = normalizeUserId(user.userId);
+          if (userId != null && userId.isNotEmpty && !uniqueUsersMap.containsKey(userId)) {
+            uniqueUsersMap[userId] = user;
           }
         }
         
-        // Add nearby users
+        // Add nearby users (if not already added)
         for (var user in userNearByList) {
-          if (user.userId != null && !seen.contains(user.userId)) {
-            all.add(user);
-            seen.add(user.userId);
+          final userId = normalizeUserId(user.userId);
+          if (userId != null && userId.isNotEmpty && !uniqueUsersMap.containsKey(userId)) {
+            uniqueUsersMap[userId] = user;
           }
         }
         
-        // Add highlighted users
+        // Add highlighted users (if not already added)
         for (var user in userHighlightedList) {
-          if (user.userId != null && !seen.contains(user.userId)) {
-            all.add(user);
-            seen.add(user.userId);
+          final userId = normalizeUserId(user.userId);
+          if (userId != null && userId.isNotEmpty && !uniqueUsersMap.containsKey(userId)) {
+            uniqueUsersMap[userId] = user;
           }
         }
         
-        // Add hookup users
+        // Add hookup users (if not already added)
         for (var user in hookUpList) {
-          if (user.userId != null && !seen.contains(user.userId)) {
-            all.add(user);
-            seen.add(user.userId);
+          final userId = normalizeUserId(user.userId);
+          if (userId != null && userId.isNotEmpty && !uniqueUsersMap.containsKey(userId)) {
+            uniqueUsersMap[userId] = user;
           }
         }
         
-        // Add suggestion users
+        // Add suggestion users (if not already added)
         for (var user in userSuggestionsList) {
-          if (user.userId != null && !seen.contains(user.userId)) {
-            all.add(user);
-            seen.add(user.userId);
+          final userId = normalizeUserId(user.userId);
+          if (userId != null && userId.isNotEmpty && !uniqueUsersMap.containsKey(userId)) {
+            uniqueUsersMap[userId] = user;
           }
         }
         
-        print("Total users in ALL: ${all.length}");
+        // Convert HashMap values to list
+        final all = uniqueUsersMap.values.toList();
+        print("Total unique users in ALL: ${all.length} (from ${uniqueUsersMap.length} unique IDs)");
         return all.obs;
       case 0:
         return userNearByList;

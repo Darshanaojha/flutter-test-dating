@@ -1547,37 +1547,37 @@ Future<void> showMessageBottomSheet(String? userId) async {
     StatefulBuilder(
       builder: (context, setState) {
         return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('Send a Message', style: AppTextStyles.inputFieldText),
-                SizedBox(height: 20),
-                TextField(
+      padding: const EdgeInsets.all(16.0),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Send a Message', style: AppTextStyles.inputFieldText),
+            SizedBox(height: 20),
+            TextField(
                   controller: messageController,
-                  cursorColor: AppColors.cursorColor,
-                  decoration: InputDecoration(
-                    labelText: 'Write your message...',
-                    labelStyle: AppTextStyles.labelText,
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    fillColor: AppColors.formFieldColor,
-                    filled: true,
-                    hintText: 'Type your message here...',
-                  ),
-                  maxLines: 3,
-                  enabled: !isSending,
+              cursorColor: AppColors.cursorColor,
+              decoration: InputDecoration(
+                labelText: 'Write your message...',
+                labelStyle: AppTextStyles.labelText,
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
                 ),
-                SizedBox(height: 20),
-                ElevatedButton(
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+                fillColor: AppColors.formFieldColor,
+                filled: true,
+                hintText: 'Type your message here...',
+              ),
+              maxLines: 3,
+                  enabled: !isSending,
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
                   onPressed: isSending
                       ? null
                       : () async {
@@ -1611,9 +1611,9 @@ Future<void> showMessageBottomSheet(String? userId) async {
                           setState(() {
                             isSending = false;
                           });
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.buttonColor,
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.buttonColor,
                     disabledBackgroundColor: Colors.grey,
                   ),
                   child: isSending
@@ -1626,10 +1626,10 @@ Future<void> showMessageBottomSheet(String? userId) async {
                           ),
                         )
                       : Text('Send Message', style: AppTextStyles.buttonText),
-                ),
-              ],
             ),
-          ),
+          ],
+        ),
+      ),
         );
       },
     ),
