@@ -24,6 +24,7 @@ import '../../Models/ResponseModels/user_suggestions_response_model.dart';
 import '../../Providers/WebSocketService.dart';
 import '../../constants.dart';
 import '../userprofile/userprofilesummary.dart';
+import '../introsliderpages/introsliderswipepage.dart';
 
   /// Trail point for fading trail effect
 class TrailPoint {
@@ -249,6 +250,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool _showLikeAnimation = false;
   bool _showDislikeAnimation = false;
   bool _showFavouriteAnimation = false;
+  bool _showWaitingAnimation = false;
   List<Particle> _particles = [];
   Timer? _particleTimer;
   bool _showFlash = false;
@@ -567,17 +569,36 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       },
       superlikeAction: () async {
         if (await checkInteractionAllowed()) {
-          _createParticles('superlike');
+          // Clear all particles and hearts, show waiting animation instead
+          _particles.clear();
+          _flyingHearts.clear();
+          _showFlash = false;
+          _flashColor = Colors.transparent;
+          _flashOpacity = 0.0;
+          
+          // Show waiting animation instead of particles and hearts
           setState(() {
-            _showFavouriteAnimation = true;
+            _showWaitingAnimation = true;
           });
           if (user.userId != null) {
             controller.markFavouriteRequestModel.favouriteId =
                 user.userId.toString();
             print("id ${user.userId}");
             controller.markasfavourite(controller.markFavouriteRequestModel);
+            
+            // Hide waiting animation after a delay
+            Future.delayed(const Duration(seconds: 2), () {
+              if (mounted) {
+                setState(() {
+                  _showWaitingAnimation = false;
+                });
+              }
+            });
           } else {
             failure('Error', "Error: User ID is null.");
+            setState(() {
+              _showWaitingAnimation = false;
+            });
           }
         }
       },
@@ -902,6 +923,14 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     return Scaffold(
         resizeToAvoidBottomInset: true,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Get.to(() => const IntroSlidingPages());
+          },
+          backgroundColor: AppColors.gradientBackgroundList.first,
+          child: const Icon(Icons.slideshow, color: Colors.white),
+          tooltip: 'Test Intro Slider',
+        ),
       body: RefreshWrapper(
         onRefresh: initializeApp,
         child: SafeArea(
@@ -1046,15 +1075,66 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               widthFactor: 0.95,
                               heightFactor: 0.98,
                               child: currentList.isEmpty
-                                  ? Center(child: Text('No users available.'))
+                                  ? Center(
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          SizedBox(
+                                            width: 200,
+                                            height: 200,
+                                            child: Lottie.asset(
+                                              'assets/animations/usernotavailable.json',
+                                              repeat: true,
+                                              fit: BoxFit.contain,
+                                              errorBuilder: (context, error, stackTrace) {
+                                                return Icon(
+                                                  Icons.person_off,
+                                                  size: 100,
+                                                  color: Colors.white70,
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                          SizedBox(height: 16),
+                                          Text(
+                                            'No users available',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
                                   : SwipeCards(
                                         matchEngine: matchEngine,
                                         itemBuilder:
                                             (BuildContext context, int index) {
                                           if (index >= currentList.length) {
                                             return Center(
-                                                child:
-                                                    Text("No users available"));
+                                              child: Column(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  SizedBox(
+                                                    width: 200,
+                                                    height: 200,
+                                                    child: Lottie.asset(
+                                                      'assets/animations/usernotavailable.json',
+                                                      repeat: true,
+                                                      fit: BoxFit.contain,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 16),
+                                                  Text(
+                                                    "No users available",
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 18,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
                                           }
 
                                           final SuggestedUser user =
@@ -1132,7 +1212,62 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                             await _storeLastUserForAllLists(
                                                 lastUser!);
                                           }
-                                          failure('Finished', "Stack Finished");
+                                          
+                                          // Wait a bit to ensure UI is ready
+                                          await Future.delayed(Duration(milliseconds: 300));
+                                          
+                                          // Show animation dialog for stack finished
+                                          if (mounted) {
+                                            showDialog(
+                                              context: context,
+                                              barrierDismissible: true,
+                                              barrierColor: Colors.black54,
+                                              builder: (BuildContext context) {
+                                                return Dialog(
+                                                  backgroundColor: Colors.transparent,
+                                                  elevation: 0,
+                                                  child: ClipRRect(
+                                                    borderRadius: BorderRadius.circular(20),
+                                                    child: Container(
+                                                      color: Color(0xCC000000),
+                                                      padding: EdgeInsets.all(20),
+                                                      child: Column(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        children: [
+                                                          SizedBox(
+                                                            width: 200,
+                                                            height: 200,
+                                                            child: Lottie.asset(
+                                                              'assets/animations/usernotavailable.json',
+                                                              repeat: true,
+                                                              fit: BoxFit.contain,
+                                                            ),
+                                                          ),
+                                                          SizedBox(height: 16),
+                                                          Text(
+                                                            "Stack Finished",
+                                                            style: TextStyle(
+                                                              color: Colors.white,
+                                                              fontSize: 18,
+                                                              fontWeight: FontWeight.bold,
+                                                            ),
+                                                          ),
+                                                          SizedBox(height: 8),
+                                                          Text(
+                                                            "No more users available",
+                                                            style: TextStyle(
+                                                              color: Colors.white70,
+                                                              fontSize: 14,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          }
                                         },
                                         itemChanged:
                                             (SwipeItem item, int index) {
@@ -1208,17 +1343,25 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
-              // Confetti-style particle effects (Option 2) - only for superlike now
-              ..._particles.map((particle) => _buildParticle(particle)).toList(),
-              // Screen flash overlay (only for superlike, not for like or dislike)
-              // Only show if hearts are not visible AND flash is enabled AND color is not transparent
-              if (_showFlash && _flyingHearts.isEmpty && _flashColor != Colors.transparent && !_showCryingBear)
+              // Waiting animation for super like (swipe up)
+              if (_showWaitingAnimation)
                 Positioned.fill(
-                  child: AnimatedOpacity(
-                    opacity: _flashOpacity,
-                    duration: Duration(milliseconds: 300),
+                  child: IgnorePointer(
                     child: Container(
-                      color: _flashColor,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                      ),
+                      child: Center(
+                        child: SizedBox(
+                          width: 350,
+                          height: 350,
+                          child: Lottie.asset(
+                            'assets/animations/Waiting_train.json',
+                            repeat: true,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -1825,7 +1968,30 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
             : "Unknown, ";
 
     return user.id == ''
-        ? Text("No users available")
+        ? Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 200,
+                  height: 200,
+                  child: Lottie.asset(
+                    'assets/animations/usernotavailable',
+                    repeat: true,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  "No users available",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
+              ],
+            ),
+          )
         : GestureDetector(
             onTap: () {
               Get.bottomSheet(
@@ -2234,9 +2400,10 @@ class MatchDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Lottie.asset(
-              'assets/animations/hearth_match_lottie.json',
-              height: 100,
+              'assets/animations/Couple on the Garden with Heart and Flower Celebration with confetti (1).lottie',
+              height: 200,
               repeat: false,
+              fit: BoxFit.contain,
             ),
             const SizedBox(height: 10),
             Text(

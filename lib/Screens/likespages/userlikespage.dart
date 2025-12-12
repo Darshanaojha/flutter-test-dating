@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/ResponseModels/profile_like_response_model.dart';
+import 'package:dating_application/Models/ResponseModels/user_suggestions_response_model.dart';
+import 'package:dating_application/Screens/homepage/homepage.dart';
 import 'package:dating_application/Screens/userprofile/userprofilesummary.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -47,6 +49,45 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
+  }
+
+  // Convert LikeRequestPages to SuggestedUser for match dialog
+  SuggestedUser convertLikeRequestPagesToSuggestedUser(LikeRequestPages user) {
+    return SuggestedUser(
+      id: user.id,
+      userId: user.userId,
+      name: user.name,
+      dob: user.dob,
+      username: user.nickname,
+      city: user.countryName,
+      images: user.images,
+      status: user.status,
+      created: user.created,
+      updated: user.updated,
+      email: user.email,
+      gender: user.gender,
+      profileImage: user.profileImage,
+    );
+  }
+
+  // Show match dialog when connection is made
+  void _showMatchDialog(LikeRequestPages matchedUser) {
+    if (controller.userData.isEmpty) {
+      failure('Error', 'Current user data is not available.');
+      return;
+    }
+
+    final suggestedUser = convertLikeRequestPagesToSuggestedUser(matchedUser);
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return MatchDialog(
+          currentUser: controller.userData.first,
+          matchedUser: suggestedUser,
+        );
+      },
+    );
   }
 
   final HeartOverlayController heartOverlayController =
@@ -979,6 +1020,9 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
         print(
             'LikesPage: _animatingUserId after likesuserpage(): $_animatingUserId');
       },
+      onMatch: (matchedUser) {
+        _showMatchDialog(matchedUser);
+      },
       animatingUserId: _animatingUserId,
     );
   }
@@ -1202,6 +1246,7 @@ class UserCard extends StatefulWidget {
   final bool isLiked;
   final Function(String userId, int newLikeStatus) onLikeToggle;
   final Function(String userId) onShowAnimation;
+  final Function(LikeRequestPages matchedUser)? onMatch;
   final String? animatingUserId;
 
   const UserCard({
@@ -1215,6 +1260,7 @@ class UserCard extends StatefulWidget {
     required this.isLiked,
     required this.onLikeToggle,
     required this.onShowAnimation,
+    this.onMatch,
     this.animatingUserId,
   });
 
@@ -1384,7 +1430,14 @@ class UserCardState extends State<UserCard>
                       ProfileLikeResponse? response = await widget.controller
                           .profileLike(widget.controller.profileLikeRequest);
                       successStatus = response != null && response.success;
-                      if (successStatus) {
+                      
+                      // Check if it's a match (connection is true)
+                      if (successStatus && response != null && response.payload.connection) {
+                        // Show match dialog via callback
+                        if (widget.onMatch != null) {
+                          widget.onMatch!(widget.user);
+                        }
+                      } else if (successStatus) {
                         success("Liked!",
                             "You have successfully liked ${widget.user.name}. Ready to chat!");
                       }

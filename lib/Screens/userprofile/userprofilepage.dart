@@ -18,6 +18,7 @@ import '../settings/appinfopages/appinfopagestart.dart';
 import 'GenerateReferalCode/GenerateReferalCode.dart';
 import 'Transactions/TransactionsViewScreen.dart';
 import 'editprofile/edituserprofile.dart';
+import 'package:encrypt_shared_preferences/provider.dart';
 
 class UserProfilePage extends StatefulWidget {
   final String? userId;

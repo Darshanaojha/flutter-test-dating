@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:country_code_picker/country_code_picker.dart';
+import 'package:lottie/lottie.dart';
 import '../../Controllers/controller.dart';
 import '../../constants.dart';
+import '../../Providers/check_username_provider.dart';
 
 class UserInputPage extends StatefulWidget {
   const UserInputPage({super.key});
@@ -19,6 +21,13 @@ class UserInputPageState extends State<UserInputPage>
   final controller = Get.find<Controller>();
   late AnimationController animationController;
   late Animation<double> fadeInAnimation;
+  final CheckUsernameProvider checkUsernameProvider = CheckUsernameProvider();
+  final TextEditingController usernameController = TextEditingController();
+  
+  bool _isCheckingUsername = false;
+  bool _isUsernameChecked = false;
+  bool _isUsernameAvailable = false;
+  String? _usernameStatusMessage;
 
   String selectedCountryCode = '+91';
 
@@ -36,6 +45,98 @@ class UserInputPageState extends State<UserInputPage>
     fadeInAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: animationController, curve: Curves.easeIn),
     );
+  }
+
+  @override
+  void dispose() {
+    usernameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _checkUsernameAvailability() async {
+    final username = usernameController.text.trim().toLowerCase();
+    
+    if (username.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please enter a username first',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    // Validate username format
+    if (RegExp(r'[0-9!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/;`~]').hasMatch(username)) {
+      Get.snackbar(
+        'Invalid Username',
+        'Name must not contain numbers or special characters',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    setState(() {
+      _isCheckingUsername = true;
+      _isUsernameChecked = false;
+      _isUsernameAvailable = false;
+      _usernameStatusMessage = null;
+    });
+
+    try {
+      final result = await checkUsernameProvider.checkUsernameAvailability(username);
+      
+      setState(() {
+        _isCheckingUsername = false;
+        if (result != null) {
+          _isUsernameChecked = true;
+          _isUsernameAvailable = result['available'] ?? false;
+          _usernameStatusMessage = result['message'] ?? 
+            (_isUsernameAvailable ? 'Username is available' : 'Username is not available');
+          
+          if (_isUsernameAvailable) {
+            Get.snackbar(
+              'Success',
+              'Username is available',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Color(0xFF895294), // Medium-light purple
+              colorText: Colors.white,
+              duration: Duration(seconds: 2),
+            );
+          } else {
+            Get.snackbar(
+              'Unavailable',
+              'This username is already taken',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.orange,
+              colorText: Colors.white,
+              duration: Duration(seconds: 2),
+            );
+          }
+        } else {
+          _isUsernameChecked = false;
+          _isUsernameAvailable = false;
+          _usernameStatusMessage = 'Failed to check username availability';
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _isCheckingUsername = false;
+        _isUsernameChecked = false;
+        _isUsernameAvailable = false;
+        _usernameStatusMessage = 'Error checking username';
+      });
+      Get.snackbar(
+        'Error',
+        'Failed to check username availability. Please try again.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 
 
@@ -148,13 +249,203 @@ class UserInputPageState extends State<UserInputPage>
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 16),
-              buildTextField(
-                label: 'User Name',
-                onChanged: (value) {
-                  controller.registrationOTPRequest.name = value.trim();
-                  controller.userRegistrationRequest.username = value.trim();
-                },
-                validator: validateName,
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextFormField(
+                      controller: usernameController,
+                      cursorColor: AppColors.cursorColor,
+                      decoration: InputDecoration(
+                        labelText: 'User Name',
+                        labelStyle: AppTextStyles.labelText
+                            .copyWith(fontSize: fontSize, color: Colors.white),
+                        filled: true,
+                        fillColor: AppColors.formFieldColor,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: AppColors.textColor),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: AppColors.activeColor),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: AppColors.textColor),
+                        ),
+                        suffixIcon: Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (_isCheckingUsername)
+                                Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    ),
+                                  ),
+                                )
+                              else if (_isUsernameChecked)
+                                _isUsernameAvailable
+                                    ? Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Color(0xFFB06BB8).withValues(alpha: 0.6),
+                                              blurRadius: 8,
+                                              spreadRadius: 2,
+                                            ),
+                                            BoxShadow(
+                                              color: Color(0xFFA073AE).withValues(alpha: 0.4),
+                                              blurRadius: 12,
+                                              spreadRadius: 3,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Icon(
+                                          Icons.check_circle,
+                                          color: Color(0xFFB06BB8), // Bright light purple
+                                          size: 24,
+                                        ),
+                                      )
+                                    : SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: Lottie.asset(
+                                          'assets/animations/usernotavailable.json',
+                                          repeat: true,
+                                          fit: BoxFit.contain,
+                                        ),
+                                      ),
+                              SizedBox(width: 4),
+                              Container(
+                                margin: EdgeInsets.only(right: 4),
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    onTap: _checkUsernameAvailability,
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            Color(0xFF895294), // Medium-light purple
+                                            Color(0xFF703A7E), // Purple
+                                            Color(0xFF562B63), // Deep violet
+                                          ],
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                        boxShadow: [
+                                          // Outer glow
+                                          BoxShadow(
+                                            color: Color(0xFF895294).withValues(alpha: 0.5),
+                                            blurRadius: 8,
+                                            spreadRadius: 1,
+                                            offset: Offset(0, 2),
+                                          ),
+                                          // 3D depth shadow
+                                          BoxShadow(
+                                            color: Colors.black.withValues(alpha: 0.3),
+                                            blurRadius: 6,
+                                            spreadRadius: 0,
+                                            offset: Offset(0, 4),
+                                          ),
+                                          // Inner highlight
+                                          BoxShadow(
+                                            color: Color(0xFFB06BB8).withValues(alpha: 0.3),
+                                            blurRadius: 4,
+                                            spreadRadius: -2,
+                                            offset: Offset(0, -1),
+                                          ),
+                                        ],
+                                        border: Border.all(
+                                          color: Color(0xFFA073AE).withValues(alpha: 0.5),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Check',
+                                        style: TextStyle(
+                                          fontSize: fontSize * 0.85,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0.5,
+                                          shadows: [
+                                            Shadow(
+                                              color: Colors.black.withValues(alpha: 0.3),
+                                              blurRadius: 2,
+                                              offset: Offset(0, 1),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      style: TextStyle(fontSize: fontSize, color: Colors.white),
+                      validator: (value) {
+                        final validationError = validateName(value);
+                        if (validationError != null) {
+                          return validationError;
+                        }
+                        if (!_isUsernameChecked) {
+                          return 'Please check username availability';
+                        }
+                        if (!_isUsernameAvailable) {
+                          return 'Username is not available';
+                        }
+                        return null;
+                      },
+                      onChanged: (value) {
+                        setState(() {
+                          // Reset availability check when username changes
+                          _isUsernameChecked = false;
+                          _isUsernameAvailable = false;
+                          _usernameStatusMessage = null;
+                        });
+                        controller.registrationOTPRequest.name = value.trim();
+                        controller.userRegistrationRequest.username = value.trim().toLowerCase();
+                      },
+                    ),
+                    if (_usernameStatusMessage != null && _isUsernameChecked)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4.0, left: 12.0),
+                        child: Text(
+                          _usernameStatusMessage!,
+                          style: TextStyle(
+                            fontSize: fontSize * 0.85,
+                            color: _isUsernameAvailable 
+                                ? Color(0xFFB06BB8) // Bright light purple with glow effect
+                                : Colors.orange,
+                            shadows: _isUsernameAvailable
+                                ? [
+                                    Shadow(
+                                      color: Color(0xFFB06BB8).withValues(alpha: 0.5),
+                                      blurRadius: 4,
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
               buildTextField(
                 label: 'Email',
@@ -295,15 +586,24 @@ class UserInputPageState extends State<UserInputPage>
               SizedBox(height: 16),
               Container(
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment(0.8, 1),
-                    colors: AppColors.gradientBackgroundList,
-                  ),
+                  gradient: (_isUsernameChecked && _isUsernameAvailable)
+                      ? LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment(0.8, 1),
+                          colors: AppColors.gradientBackgroundList,
+                        )
+                      : LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment(0.8, 1),
+                          colors: [
+                            Colors.grey.shade700,
+                            Colors.grey.shade800,
+                          ],
+                        ),
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: (_isUsernameChecked && _isUsernameAvailable) ? () {
                     if (formKey.currentState?.validate() ?? false) {
                       if (controller.registrationOTPRequest.validate()) {
                         controller.getOtpForRegistration(
@@ -319,7 +619,7 @@ class UserInputPageState extends State<UserInputPage>
                     }
                     Get.snackbar('',
                         controller.userRegistrationRequest.toJson().toString());
-                  },
+                  } : null,
                   style: ElevatedButton.styleFrom(
                     foregroundColor: AppColors.textColor,
                     backgroundColor: Colors.transparent,
@@ -330,9 +630,14 @@ class UserInputPageState extends State<UserInputPage>
                     ),
                     elevation: 0,
                     shadowColor: Colors.transparent,
-                  ),
+                    disabledForegroundColor: Colors.grey.shade400,
+                ),
                   child: Text(
-                    'Register',
+                    (_isUsernameChecked && !_isUsernameAvailable)
+                        ? 'Username Not Available'
+                        : (!_isUsernameChecked)
+                            ? 'Check Username First'
+                            : 'Register',
                     style:
                         AppTextStyles.buttonText.copyWith(fontSize: fontSize),
                   ),

@@ -49,11 +49,51 @@ class ChatScreenState extends State<ChatScreen> {
   final TextEditingController messageController = TextEditingController();
   String? bearerToken =
       EncryptedSharedPreferences.getInstance().getString('token');
+  final ScrollController scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     websocketService.connect(controller.token.value);
+    
+    // Fetch chat history and scroll to bottom after loading
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.fetchChats(widget.receiverId).then((_) {
+        // Scroll to bottom after messages are loaded
+        _scrollToBottom();
+      });
+    });
+  }
+
+  void _scrollToBottom() {
+    // Wait a bit longer to ensure images are loaded and rendered
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (scrollController.hasClients) {
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      } else {
+        // If controller doesn't have clients yet, wait a bit more and try again
+        Future.delayed(const Duration(milliseconds: 200), () {
+          if (scrollController.hasClients) {
+            scrollController.animateTo(
+              scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          }
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    websocketService.disconnect();
+    super.dispose();
   }
 
   // void _sendMessage() {
@@ -357,12 +397,6 @@ class ChatScreenState extends State<ChatScreen> {
   RxBool iswriting = false.obs;
   RxString reportDescription = ''.obs;
 
-  @override
-  void dispose() {
-    websocketService.disconnect();
-    super.dispose();
-  }
-
   // Group messages by date
   Map<String, List<Message>> _groupMessagesByDate(List<Message> messages) {
     final Map<String, List<Message>> groupedMessages = {};
@@ -403,7 +437,6 @@ class ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final scrollController = ScrollController();
     return Scaffold(
       appBar: AppBar(
         title: GestureDetector(
@@ -636,6 +669,14 @@ class ChatScreenState extends State<ChatScreen> {
                   chatItems.add(_formatDateHeader(dateKey));
                   chatItems.addAll(groupedMessages[dateKey]!);
                 }
+
+                // Auto-scroll to bottom when messages update (with delay for images to load)
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  // Wait for images to load before scrolling
+                  Future.delayed(const Duration(milliseconds: 500), () {
+                    _scrollToBottom();
+                  });
+                });
 
                 return ListView.builder(
                   controller: scrollController,
@@ -1081,7 +1122,10 @@ class ChatScreenState extends State<ChatScreen> {
                           setState(() {
                             selectedImage = null;
                           });
-                          controller.fetchChats(widget.receiverId);
+                          controller.fetchChats(widget.receiverId).then((_) {
+                            // Scroll to bottom after sending message
+                            _scrollToBottom();
+                          });
                         } else {
                           Get.snackbar("Empty Message",
                               "Please type a message or select an image.");
@@ -1556,12 +1600,16 @@ class _SensitiveImageWidgetState extends State<SensitiveImageWidget> {
           // Decode base64 string to bytes for Image.memory
           final imageBytes = base64Decode(snapshot.data!);
           
+          // Responsive image sizing
+          final screenWidth = MediaQuery.of(context).size.width;
+          final imageSize = (screenWidth * 0.5).clamp(150.0, 250.0);
+          
           Widget chatBubbleImage = ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Image.memory(
               imageBytes,
-              width: 180,
-              height: 180,
+              width: imageSize,
+              height: imageSize,
               fit: BoxFit.cover,
             ),
           );
@@ -1573,59 +1621,44 @@ class _SensitiveImageWidgetState extends State<SensitiveImageWidget> {
           if (widget.sensitivity == 1 && _showBlur) {
             return GestureDetector(
               onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (_) => AlertDialog(
-                    title: const Text("Sensitive Content"),
-                    content: const Text(
-                        "This image contains 18+ content. Are you sure you want to view it?"),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text("Cancel"),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            _showBlur = false;
-                          });
-                          Navigator.pop(context);
-                        },
-                        child: const Text("Proceed"),
-                      ),
-                    ],
-                  ),
-                );
+                setState(() {
+                  _showBlur = false;
+                });
               },
               child: Stack(
                 children: [
+                  // Blurred image
                   ImageFiltered(
-                    imageFilter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                    imageFilter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                     child: chatBubbleImage,
                   ),
+                  // Simple overlay - Reddit style
                   Positioned.fill(
                     child: Container(
-                      alignment: Alignment.center,
-                      color: Colors.black.withOpacity(0.3),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.warning,
-                            color: Colors.white,
-                            size: 32,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.black.withOpacity(0.1),
+                      ),
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20, 
+                            vertical: 10,
                           ),
-                          const SizedBox(height: 8),
-                          const Text(
-                            "Sensitive Content",
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.6),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text(
+                            "View sensitive content",
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              backgroundColor: Colors.black54,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),

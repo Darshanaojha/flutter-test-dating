@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:swipe_cards/draggable_card.dart';
 import 'package:swipe_cards/swipe_cards.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import '../../Models/ResponseModels/user_suggestions_response_model.dart';
 
 class MySwipePage extends StatefulWidget {
@@ -100,27 +101,146 @@ class MySwipePageState extends State<MySwipePage> {
                 SuggestedUser user;
                 if (controller.userNearByList.isEmpty ||
                     index >= controller.userNearByList.length) {
-                  return Center(child: Text("No users available"));
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 200,
+                          height: 200,
+                          child: Lottie.asset(
+                            'assets/animations/usernotavailable.json',
+                            repeat: true,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.person_off,
+                                size: 100,
+                                color: Colors.white70,
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          "No users available",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
                 } else {
                   user = controller.userNearByList[index];
                 }
                 if (controller.userHighlightedList.isEmpty ||
                     index >= controller.userHighlightedList.length) {
                   return Center(
-                      child: Text("No highlighted users available"));
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 200,
+                          height: 200,
+                          child: Lottie.asset(
+                            'assets/animations/usernotavailable.json',
+                            repeat: true,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.person_off,
+                                size: 100,
+                                color: Colors.white70,
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          "No highlighted users available",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
                 } else {
                   user = controller.userHighlightedList[index];
                 }
                 if (controller.favourite.isEmpty ||
                     index >= controller.favourite.length) {
-                  return Center(child: Text("No favourites available"));
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 200,
+                          height: 200,
+                          child: Lottie.asset(
+                            'assets/animations/usernotavailable.json',
+                            repeat: true,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.person_off,
+                                size: 100,
+                                color: Colors.white70,
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          "No favourites available",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
                 } else {
                   user = controller.convertFavouriteToSuggestedUser(
                       controller.favourite[index]);
                 }
                 if (controller.hookUpList.isEmpty ||
                     index >= controller.hookUpList.length) {
-                  return Center(child: Text("No HookUp available"));
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 200,
+                          height: 200,
+                          child: Lottie.asset(
+                            'assets/animations/usernotavailable.json',
+                            repeat: true,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.person_off,
+                                size: 100,
+                                color: Colors.white70,
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          "No HookUp available",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
                 } else {
                   user = controller.hookUpList[index];
                 }
@@ -150,12 +270,65 @@ class MySwipePageState extends State<MySwipePage> {
                     _swipeItems.insert(0, lastItem);
                     _matchEngine = MatchEngine(swipeItems: _swipeItems);
                   }
-      
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text("Stack Finished, Last Card Reinserted"),
-                    duration: Duration(milliseconds: 500),
-                  ));
                 });
+                
+                // Show animation dialog for stack finished
+                showDialog(
+                  context: context,
+                  barrierDismissible: true,
+                  barrierColor: Colors.black54,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          color: Color(0xCC000000), // Using hex instead of withValues
+                          padding: EdgeInsets.all(20),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(
+                                width: 200,
+                                height: 200,
+                                child: Lottie.asset(
+                                  'assets/animations/usernotavailable.json',
+                                  repeat: true,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Icon(
+                                      Icons.person_off,
+                                      size: 100,
+                                      color: Colors.white70,
+                                    );
+                                  },
+                                ),
+                              ),
+                              SizedBox(height: 16),
+                              Text(
+                                "Stack Finished",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                "No more users available",
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
               },
               itemChanged: (SwipeItem item, int index) {
                 print("Item: ${item.content}, Index: $index");

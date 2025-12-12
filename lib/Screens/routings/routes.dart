@@ -16,6 +16,7 @@ import '../settings/updateemailid/updateemailotpverification.dart';
 import '../splash.dart';
 import '../userprofile/editphoto/edituserprofilephoto.dart';
 import '../userprofile/editprofile/edituserprofile.dart';
+import '../introsliderpages/introsliderswipepage.dart';
 
 final routes = [
   GetPage(
@@ -43,6 +44,7 @@ final routes = [
   //GetPage(name: '/messages', page: () => ChatHistoryPage()),
 
   GetPage(name: '/profile', page: () => UserProfilePage()),
+  GetPage(name: '/intro', page: () => IntroSlidingPages()),
   GetPage(name: '/editprofile', page: () => EditProfilePage()),
   GetPage(name: '/editphoto', page: () => EditPhotosPage()),
   GetPage(name: '/membership', page: () => MembershipPage()),
