@@ -28,6 +28,7 @@ class UserInputPageState extends State<UserInputPage>
   bool _isUsernameChecked = false;
   bool _isUsernameAvailable = false;
   String? _usernameStatusMessage;
+  bool _privacyPolicyAccepted = false;
 
   String selectedCountryCode = '+91';
 
@@ -584,9 +585,82 @@ class UserInputPageState extends State<UserInputPage>
                 maxLength: 6,
               ),
               SizedBox(height: 16),
+              // Privacy Policy Checkbox
               Container(
                 decoration: BoxDecoration(
-                  gradient: (_isUsernameChecked && _isUsernameAvailable)
+                  gradient: LinearGradient(
+                    colors: AppColors.gradientBackgroundList,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Card(
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  color: Colors.transparent,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          value: _privacyPolicyAccepted,
+                          onChanged: (value) {
+                            // When checkbox is clicked, open the privacy policy sheet
+                            // The checkbox will only be checked if user accepts in the sheet
+                            _showPrivacyPolicyBottomSheet(context);
+                          },
+                          activeColor: const Color(0xFF895294),
+                          checkColor: Colors.white,
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              _showPrivacyPolicyBottomSheet(context);
+                            },
+                            child: RichText(
+                              text: TextSpan(
+                                style: TextStyle(
+                                  fontSize: fontSize * 0.9,
+                                  color: Colors.white.withOpacity(0.9),
+                                ),
+                                children: [
+                                  TextSpan(text: 'I accept the '),
+                                  TextSpan(
+                                    text: 'Privacy Policy',
+                                    style: TextStyle(
+                                      color: const Color(0xFF895294),
+                                      fontWeight: FontWeight.bold,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              if (!_privacyPolicyAccepted)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0, left: 16.0),
+                  child: Text(
+                    'Please accept the Privacy Policy to continue',
+                    style: TextStyle(
+                      fontSize: fontSize * 0.85,
+                      color: Colors.red.shade300,
+                    ),
+                  ),
+                ),
+              SizedBox(height: 16),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: (_isUsernameChecked && _isUsernameAvailable && _privacyPolicyAccepted)
                       ? LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment(0.8, 1),
@@ -603,7 +677,7 @@ class UserInputPageState extends State<UserInputPage>
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: ElevatedButton(
-                  onPressed: (_isUsernameChecked && _isUsernameAvailable) ? () {
+                  onPressed: (_isUsernameChecked && _isUsernameAvailable && _privacyPolicyAccepted) ? () {
                     if (formKey.currentState?.validate() ?? false) {
                       if (controller.registrationOTPRequest.validate()) {
                         controller.getOtpForRegistration(
@@ -637,7 +711,9 @@ class UserInputPageState extends State<UserInputPage>
                         ? 'Username Not Available'
                         : (!_isUsernameChecked)
                             ? 'Check Username First'
-                            : 'Register',
+                            : (!_privacyPolicyAccepted)
+                                ? 'Accept Privacy Policy'
+                                : 'Register',
                     style:
                         AppTextStyles.buttonText.copyWith(fontSize: fontSize),
                   ),
@@ -648,6 +724,275 @@ class UserInputPageState extends State<UserInputPage>
           ),
         ),
       ),
+    );
+  }
+
+  void _showPrivacyPolicyBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.9,
+            ),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: AppColors.gradientBackgroundList,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              color: Colors.transparent,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '🔒 Privacy Policy',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.close,
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Content
+                  Flexible(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Last updated: ${DateTime.now().toString().split(' ')[0]}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white.withOpacity(0.6),
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'We respect your privacy and take care to protect your information. This policy explains what we collect, why we collect it, and how we use it when you use our app.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white.withOpacity(0.9),
+                              height: 1.5,
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                          _buildPrivacySection(
+                            context,
+                            'Information We Collect',
+                            [
+                              'When you create an account, we collect information you provide such as your profile details (name or username, age, gender, preferences), photos, bio, email or phone number, and login info.',
+                              'We also collect information about how you use the app, your interactions (matches, swipes, messages), and device or connection information (device type, OS version).',
+                              'If you allow location access, we use your approximate location to show nearby matches. We do not collect precise GPS data unless you explicitly permit it.',
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          _buildPrivacySection(
+                            context,
+                            'How We Use Your Information',
+                            [
+                              'Your information helps us run the app, personalize your experience, enable features like matching and chats, improve performance, and keep things safe and reliable.',
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          _buildPrivacySection(
+                            context,
+                            'Data Sharing',
+                            [
+                              'We do not sell your personal information to third parties. We may share data only with trusted service providers (for hosting, analytics, customer support) and when required by law or for safety reasons.',
+                              'Your content (profile, photos, messages) may be shown to other users or service partners so the service can work as intended.',
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          _buildPrivacySection(
+                            context,
+                            'Cookies and Technologies',
+                            [
+                              'We may use cookies and similar technologies to understand app usage and enhance your experience.',
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          _buildPrivacySection(
+                            context,
+                            'Data Security',
+                            [
+                              'Your data is stored securely and only accessible to authorized teams. We use industry-standard security practices to protect it.',
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          _buildPrivacySection(
+                            context,
+                            'Your Rights',
+                            [
+                              'You control your information: you can edit your profile, update settings, or delete your account at any time. If you delete your account, your personal information will be removed unless we must retain certain data for legal compliance or safety purposes.',
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          _buildPrivacySection(
+                            context,
+                            'Age Requirement',
+                            [
+                              'This service is for users 18 years or older. We do not knowingly collect data from minors.',
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          _buildPrivacySection(
+                            context,
+                            'Policy Updates',
+                            [
+                              'We may update this policy from time to time to reflect changes in our practices. Significant updates will be communicated in the app.',
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          Container(
+                            padding: EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.2),
+                                width: 1,
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '📩 Contact Us',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white.withOpacity(0.9),
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'If you have questions about privacy or your data, email us at support@[yourappname].com',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white.withOpacity(0.8),
+                                    height: 1.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Accept Button
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: AppColors.gradientBackgroundList,
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _privacyPolicyAccepted = true;
+                          });
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.check_circle, size: 20),
+                            SizedBox(width: 8),
+                            Text(
+                              'Accept Privacy Policy',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPrivacySection(BuildContext context, String title, List<String> points) {
+    double fontSize = MediaQuery.of(context).size.width * 0.03;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '• $title',
+          style: TextStyle(
+            fontSize: fontSize + 2,
+            fontWeight: FontWeight.bold,
+            color: Colors.white.withOpacity(0.9),
+          ),
+        ),
+        SizedBox(height: 8),
+        ...points.map((point) => Padding(
+              padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
+              child: Text(
+                point,
+                style: TextStyle(
+                  fontSize: fontSize,
+                  color: Colors.white.withOpacity(0.8),
+                  height: 1.5,
+                ),
+              ),
+            )),
+      ],
     );
   }
 }

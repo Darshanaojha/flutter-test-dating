@@ -68,7 +68,7 @@ class Message {
   String? deletedAtReceiver;
   int isEdited;
   String? imagePath;
-  int? sensitivity;
+  String? sensitivity;
   String? timestamp;
 
   Message({
@@ -115,7 +115,7 @@ class Message {
       deletedAtReceiver: json['deleted_at_receiver'] ?? json['deletedAtReceiver'],
       isEdited: json['is_edited'] ?? json['isEdited'] ?? 0,
       imagePath: json['imagePath'] ?? json['image_path'],
-      sensitivity: json['sensitivity'],
+      sensitivity: json['sensitivity']?.toString() ?? 'non-explicit',
       timestamp: json['timestamp'],
     );
   }
@@ -162,7 +162,7 @@ class Message {
     String? deletedAtReceiver,
     int? isEdited,
     String? imagePath,
-    int? sensitivity,
+    String? sensitivity,
     String? timestamp,
   }) {
     return Message(

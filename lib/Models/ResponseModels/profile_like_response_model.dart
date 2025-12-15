@@ -16,9 +16,9 @@ class ProfileLikeResponse {
 
   factory ProfileLikeResponse.fromJson(Map<String, dynamic> json) {
     return ProfileLikeResponse(
-      success: json['success'] as bool,
-      payload: Payload.fromJson(json['payload']),
-      error: Error.fromJson(json['error']),
+      success: json['success'] as bool? ?? false,
+      payload: Payload.fromJson(json['payload'] ?? {}),
+      error: Error.fromJson(json['error'] ?? {}),
     );
   }
 }
@@ -37,8 +37,8 @@ class Payload {
 
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
-      connection: json['connection'] as bool,
-      message: json['message'].toString(),
+      connection: json['connection'] as bool? ?? false,
+      message: json['message']?.toString() ?? '',
     );
   }
 }
@@ -58,8 +58,8 @@ class Error {
 
   factory Error.fromJson(Map<String, dynamic> json) {
     return Error(
-      code: json['code'] as int,
-      message: json['message'].toString(),
+      code: json['code'] as int? ?? -1,
+      message: json['message']?.toString() ?? '',
     );
   }
 }

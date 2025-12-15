@@ -14,14 +14,15 @@ import '../register_subpag/registrationotp.dart';
 import '../settings/updateemailid/updateemailidpage.dart';
 import '../settings/updateemailid/updateemailotpverification.dart';
 import '../splash.dart';
+
 import '../userprofile/editphoto/edituserprofilephoto.dart';
 import '../userprofile/editprofile/edituserprofile.dart';
 import '../introsliderpages/introsliderswipepage.dart';
-
+import '../register_subpag/registerdetails.dart';
 final routes = [
   GetPage(
     name: '/',
-    page: () => Splash(),
+    page: () => Splash(),  // Splash screen - shows intro slider on first launch
     transition: Transition.fadeIn,
   ),
   GetPage(

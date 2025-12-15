@@ -3,13 +3,22 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import '../../../Controllers/controller.dart';
+import '../../../Models/ResponseModels/profile_like_response_model.dart';
 import '../../../constants.dart';
 
 class UserProfileSummary extends StatefulWidget {
   // optional prameter for user id
   final String? userId;
   final List<String>? imageUrls;
-  const UserProfileSummary({super.key, this.userId, this.imageUrls});
+  final bool showLikeButton;
+  final Function(bool isMatch)? onLikeSuccess;
+  const UserProfileSummary({
+    super.key, 
+    this.userId, 
+    this.imageUrls,
+    this.showLikeButton = false,
+    this.onLikeSuccess,
+  });
 
   @override
   State<UserProfileSummary> createState() => _UserProfileSummaryState();
@@ -18,11 +27,112 @@ class UserProfileSummary extends StatefulWidget {
 class _UserProfileSummaryState extends State<UserProfileSummary> {
   final Controller controller = Get.find();
   late Future<bool> _fetchProfileFuture;
+  bool _isLiking = false;
 
   @override
   void initState() {
     super.initState();
     _fetchProfileFuture = _initializeSummaryData();
+  }
+
+  Future<void> _handleLike() async {
+    print("UserProfileSummary: _handleLike called");
+    if (_isLiking || widget.userId == null) {
+      print("UserProfileSummary: Early return - _isLiking: $_isLiking, userId: ${widget.userId}");
+      return;
+    }
+    
+    print("UserProfileSummary: Setting _isLiking to true");
+    setState(() {
+      _isLiking = true;
+    });
+
+    try {
+      print("UserProfileSummary: Calling profileLike with userId: ${widget.userId}");
+      controller.profileLikeRequest.likedBy = widget.userId!;
+      ProfileLikeResponse? response = await controller.profileLike(controller.profileLikeRequest);
+      
+      // Debug logging
+      print("UserProfileSummary: ProfileLike Response: $response");
+      if (response != null) {
+        print("UserProfileSummary: Response success: ${response.success}");
+        print("UserProfileSummary: Response error code: ${response.error.code}");
+        print("UserProfileSummary: Response error message: ${response.error.message}");
+        print("UserProfileSummary: Response connection: ${response.payload.connection}");
+      } else {
+        print("UserProfileSummary: Response is null");
+      }
+      
+      if (response != null) {
+        // First check if the error message indicates "already liked" - treat as success
+        String errorMsg = response.error.message.toLowerCase().trim();
+        print("UserProfileSummary: Checking error message: '$errorMsg'");
+        print("UserProfileSummary: Error code: ${response.error.code}, Success: ${response.success}");
+        
+        // Check for various forms of "already liked" message
+        bool isAlreadyLiked = errorMsg.contains("already liked") || 
+                             errorMsg.contains("already like") ||
+                             errorMsg.contains("you have already") ||
+                             errorMsg.contains("have already liked");
+        
+        print("UserProfileSummary: isAlreadyLiked: $isAlreadyLiked");
+        
+        // Check if it's a successful like (error.code == 0 or success == true)
+        bool isSuccessful = response.error.code == 0 || response.success == true;
+        
+        if (isAlreadyLiked || isSuccessful) {
+          // Profile is already liked or successfully liked, treat as success
+          if (isAlreadyLiked) {
+            print("UserProfileSummary: Showing 'Already Liked' success message");
+            success("Already Liked", "You have already liked this profile.");
+          } else {
+            print("UserProfileSummary: Successful like");
+            bool isMatch = response.payload.connection;
+            
+            if (isMatch) {
+              success("It's a Match!", "You both liked each other!");
+            } else {
+              success("Liked!", "You have successfully liked this profile.");
+            }
+          }
+          
+          // Call the callback to refresh the page (only if not already liked, or always to refresh)
+          if (widget.onLikeSuccess != null) {
+            print("UserProfileSummary: Calling onLikeSuccess callback");
+            try {
+              bool isMatch = response.payload.connection;
+              await widget.onLikeSuccess!(isMatch);
+              print("UserProfileSummary: onLikeSuccess callback completed successfully");
+            } catch (e, stackTrace) {
+              print("UserProfileSummary: Error in onLikeSuccess callback: $e");
+              print("Stack trace: $stackTrace");
+              // Don't show error to user since the like operation itself succeeded
+            }
+          }
+        } else {
+          // Only show error if it's actually an error (not already liked and not successful)
+          print("UserProfileSummary: Showing error - code: ${response.error.code}, message: ${response.error.message}");
+          String displayMsg = response.error.message.isNotEmpty 
+              ? response.error.message 
+              : "Failed to like the profile. Please try again.";
+          failure("Failed", displayMsg);
+        }
+      } else {
+        print("UserProfileSummary: Response is null, showing failure");
+        failure("Failed", "Failed to like the profile. Please try again.");
+      }
+    } catch (e, stackTrace) {
+      print("Exception in _handleLike: $e");
+      print("Stack trace: $stackTrace");
+      // Only show error if it's a real exception, not if the operation succeeded
+      failure("Error", "An error occurred while liking the profile: ${e.toString()}");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLiking = false;
+        });
+      }
+    }
   }
 
   Future<bool> _initializeSummaryData() async {
@@ -64,7 +174,7 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
         double fontSize = MediaQuery.of(context).size.width * 0.045;
         double valueFontSize = fontSize * 0.85;
 
-        return SingleChildScrollView(
+        Widget content = SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -307,6 +417,34 @@ class _UserProfileSummaryState extends State<UserProfileSummary> {
             ],
           ),
         );
+
+        // Wrap in Scaffold with FAB if showLikeButton is true
+        if (widget.showLikeButton) {
+          return Scaffold(
+            backgroundColor: AppColors.primaryColor,
+            body: content,
+            floatingActionButton: FloatingActionButton(
+              onPressed: _isLiking ? null : _handleLike,
+              backgroundColor: AppColors.mediumGradientColor,
+              child: _isLiking
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Icon(
+                      Icons.favorite,
+                      color: Colors.white,
+                    ),
+            ),
+            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+          );
+        }
+
+        return content;
       },
     );
   }

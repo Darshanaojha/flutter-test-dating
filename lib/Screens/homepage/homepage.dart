@@ -18,6 +18,7 @@ import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:swipe_cards/swipe_cards.dart';
+import 'package:swipe_cards/draggable_card.dart';
 
 import '../../Models/RequestModels/update_lat_long_request_model.dart';
 import '../../Models/ResponseModels/user_suggestions_response_model.dart';
@@ -268,6 +269,11 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool _showCryingBear = false;
   bool _showNextCardOverlay = false;
   Duration? _cryingBearDuration;
+  
+  // Track current user being swiped for animation overlay
+  SuggestedUser? _currentSwipedUser;
+  bool _showLikeAnimationOnCard = false;
+  bool _showCryingBearOnCard = false;
   
 
   SuggestedUser? lastUser;
@@ -528,18 +534,60 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   SwipeItem _createSwipeItem(SuggestedUser user) {
     return SwipeItem(
       content: user,
+      onSlideUpdate: (SlideRegion? region) async {
+        // Show animation when user starts swiping in a direction
+        if (region == SlideRegion.inLikeRegion) {
+          // User is swiping right (like) - show hearts animation on card
+          if (_currentSwipedUser?.userId != user.userId) {
+            setState(() {
+              _currentSwipedUser = user;
+              _showLikeAnimationOnCard = true;
+            });
+            _createFlyingHearts();
+            setState(() {
+              _showLikeAnimation = true;
+            });
+          }
+        } else if (region == SlideRegion.inNopeRegion) {
+          // User is swiping left (nope) - show crying bear animation on card
+          if (_currentSwipedUser?.userId != user.userId) {
+            setState(() {
+              _currentSwipedUser = user;
+              _showCryingBearOnCard = true;
+            });
+            _showCryingBearAnimation();
+          }
+        } else if (region == null) {
+          // User released or moved back - hide animations
+          if (_currentSwipedUser?.userId == user.userId) {
+            setState(() {
+              _showLikeAnimationOnCard = false;
+              _showCryingBearOnCard = false;
+              _currentSwipedUser = null;
+            });
+          }
+        }
+      },
       likeAction: () async {
         if (await checkInteractionAllowed()) {
-          // Don't show pink flash for like action - completely clear it immediately
+          // Track current user and show animation on card
           setState(() {
+            _currentSwipedUser = user;
+            _showLikeAnimationOnCard = true;
             _showFlash = false;
             _flashOpacity = 0.0;
             _flashColor = Colors.transparent;
           });
-          _createFlyingHearts(); // Create flying hearts animation
+          
+          // Show animation on card first
+          _createFlyingHearts();
           setState(() {
             _showLikeAnimation = true;
           });
+          
+          // Wait for animation to play before making API call
+          await Future.delayed(Duration(milliseconds: 1500));
+          
           if (user.userId != null) {
             print("Pressed like button for user: ${user.name}");
             controller.profileLikeRequest.likedBy = user.userId.toString();
@@ -552,18 +600,44 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
             print("User ID is null");
             failure('Error', "Error: User ID is null.");
           }
+          
+          // Hide animation after API call
+          if (mounted) {
+            setState(() {
+              _showLikeAnimationOnCard = false;
+              _currentSwipedUser = null;
+            });
+          }
         }
       },
       nopeAction: () async {
         if (await checkInteractionAllowed()) {
-          // Show crying bear animation and next card overlay
+          // Track current user and show animation on card
+          setState(() {
+            _currentSwipedUser = user;
+            _showCryingBearOnCard = true;
+          });
+          
+          // Show crying bear animation on card first
           _showCryingBearAnimation();
+          
+          // Wait for animation to play before making API call
+          await Future.delayed(Duration(milliseconds: 2000));
+          
           if (user.userId != null) {
             controller.dislikeProfileRequest.id = user.userId.toString();
             controller.dislikeprofile(controller.dislikeProfileRequest);
             print("User ${user.name} was 'nope'd");
           } else {
             print("User ID is null on nope");
+          }
+          
+          // Hide animation after API call
+          if (mounted) {
+            setState(() {
+              _showCryingBearOnCard = false;
+              _currentSwipedUser = null;
+            });
           }
         }
       },
@@ -1244,22 +1318,22 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                             ),
                                                           ),
                                                           SizedBox(height: 16),
-                                                          Text(
-                                                            "Stack Finished",
-                                                            style: TextStyle(
-                                                              color: Colors.white,
-                                                              fontSize: 18,
-                                                              fontWeight: FontWeight.bold,
-                                                            ),
-                                                          ),
-                                                          SizedBox(height: 8),
-                                                          Text(
-                                                            "No more users available",
-                                                            style: TextStyle(
-                                                              color: Colors.white70,
-                                                              fontSize: 14,
-                                                            ),
-                                                          ),
+                                                          // Text(
+                                                          //   "Stack Finished",
+                                                          //   style: TextStyle(
+                                                          //     color: Colors.white,
+                                                          //     fontSize: 18,
+                                                          //     fontWeight: FontWeight.bold,
+                                                          //   ),
+                                                          // ),
+                                                          // SizedBox(height: 8),
+                                                          // Text(
+                                                          //   "No more users available",
+                                                          //   style: TextStyle(
+                                                          //     color: Colors.white70,
+                                                          //     fontSize: 14,
+                                                          //   ),
+                                                          // ),
                                                         ],
                                                       ),
                                                     ),
@@ -2356,7 +2430,36 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       ),
                       ],
                                 ),
-                              )
+                              ),
+                            
+                            // Animation overlay on card - shows while card is visible
+                            if (_currentSwipedUser?.userId == user.userId)
+                              Positioned.fill(
+                                child: IgnorePointer(
+                                  child: Stack(
+                                    children: [
+                                      // Like animation (flying hearts)
+                                      if (_showLikeAnimationOnCard && _flyingHearts.isNotEmpty)
+                                        ..._flyingHearts.map((heart) => _buildFlyingHeart(heart)).toList(),
+                                      
+                                      // Crying bear animation for dislike
+                                      if (_showCryingBearOnCard && _cryingBearController != null)
+                                        Center(
+                                          child: SizedBox(
+                                            width: 300,
+                                            height: 300,
+                                            child: Lottie.asset(
+                                              'assets/animations/cryingBear.json',
+                                              controller: _cryingBearController,
+                                              repeat: false,
+                                              fit: BoxFit.contain,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
             ),

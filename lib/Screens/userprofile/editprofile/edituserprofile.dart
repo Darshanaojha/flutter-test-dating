@@ -12,7 +12,14 @@ import 'package:pushable_button/pushable_button.dart';
 import '../../../Models/RequestModels/user_profile_update_request_model.dart';
 import '../../../Models/ResponseModels/ProfileResponse.dart';
 import '../../../Models/ResponseModels/get_all_gender_from_response_model.dart';
+import '../../../Models/ResponseModels/get_all_language_response_model.dart';
+import '../../../Models/ResponseModels/get_all_desires_model_response.dart';
+import '../../../Models/ResponseModels/get_all_whoareyoulookingfor_response_model.dart';
 import '../../../constants.dart';
+import '../../../Widgets/glassmorphism_background.dart';
+import '../../../Widgets/glass_surface.dart';
+import '../../../Widgets/glass_input_field.dart';
+import '../../../Widgets/glass_chip.dart';
 import '../editphoto/edituserprofilephoto.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -117,6 +124,7 @@ class EditProfilePageState extends State<EditProfilePage>
   RxString errorMessage = ''.obs; // Declare this at the top of your class
   RxBool preferencesError = false.obs;
   RxBool languageError = false.obs; // reactive bool to track error
+  RxBool desiresError = false.obs; // Error state for desires
   RxString interestInstruction = ''.obs;
 
   void addInterest() {
@@ -157,7 +165,10 @@ class EditProfilePageState extends State<EditProfilePage>
 
   late Future<bool> _fetchProfileFuture;
 
+  // Mock data mode removed - using only backend data
+
   Future<bool> _loadProfileData() async {
+    // Using only backend data - no mock data mode
     try {
       print('EditProfile: Starting _loadProfileData...');
       
@@ -171,7 +182,7 @@ class EditProfilePageState extends State<EditProfilePage>
       );
       
       print('EditProfile: fetchAllData completed with success: $success');
-    if (success) {
+      if (success) {
         print('EditProfile: Initializing data...');
         try {
           await initialize().timeout(
@@ -185,10 +196,11 @@ class EditProfilePageState extends State<EditProfilePage>
           print('EditProfile: Initialize failed but continuing: $initError');
           // Continue even if initialization fails partially
         }
+        return true;
       } else {
         print('EditProfile: fetchAllData failed, cannot initialize');
-    }
-    return success;
+        return false;
+      }
     } catch (e, stackTrace) {
       print('EditProfile: Error in _loadProfileData: $e');
       print('EditProfile: Stack trace: $stackTrace');
@@ -750,7 +762,7 @@ class EditProfilePageState extends State<EditProfilePage>
             filled: true,
             fillColor: AppColors.formFieldColor,
             contentPadding:
-                const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+                const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(20),
               borderSide: BorderSide.none,
@@ -787,7 +799,7 @@ class EditProfilePageState extends State<EditProfilePage>
   }) {
     TextEditingController controller = TextEditingController(text: value);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: DecoratedBoxTransition(
         decoration: decorationTween.animate(_animationController),
         child: TextFormField(
@@ -850,54 +862,32 @@ class EditProfilePageState extends State<EditProfilePage>
 
     // double chipFontSize = screenWidth * 0.03;
     return Scaffold(
+        backgroundColor: Colors.transparent,
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
-          backgroundColor: Colors.transparent, // Transparent for gradient
-          elevation: 0, // Remove default shadow
+          backgroundColor: Colors.transparent,
+          elevation: 0,
           centerTitle: true,
-
           title: Builder(
             builder: (context) {
-              double fontSize = MediaQuery.of(context).size.width *
-                  0.05; // ~5% of screen width
+              double fontSize = MediaQuery.of(context).size.width * 0.05;
               return Text(
                 'Edit Profile',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: fontSize,
-                  color: AppColors.textColor,
+                  color: Colors.white.withOpacity(0.9),
                 ),
               );
             },
           ),
-          flexibleSpace: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment(0.8, 1),
-                colors: AppColors.gradientBackgroundList,
-              ),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(40.0),
-                bottomRight: Radius.circular(40.0),
-              ),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x66666666),
-                  blurRadius: 10.0,
-                  spreadRadius: 3.0,
-                  offset: Offset(0, 6.0),
-                ),
-              ],
-            ),
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(40.0),
-              bottomRight: Radius.circular(40.0),
-            ),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.white.withOpacity(0.9)),
+            onPressed: () => Navigator.of(context).pop(),
           ),
         ),
-        body: FutureBuilder<bool>(
+        body: GlassmorphismBackground(
+          child: FutureBuilder<bool>(
             future: _fetchProfileFuture, //controller.fetchProfile(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -914,342 +904,193 @@ class EditProfilePageState extends State<EditProfilePage>
               }
               if (snapshot.hasError) {
                 return Center(
-                  child: Text(
-                    'Error loading user profile: ${snapshot.error}',
-                    style: TextStyle(color: Colors.red),
+                  child: GlassSurface(
+                    child: Text(
+                      'Error loading user profile: ${snapshot.error}',
+                      style: TextStyle(color: Colors.red.shade300),
+                    ),
                   ),
                 );
               }
               if (!snapshot.hasData || snapshot.data != true) {
                 return Center(
-                  child: Text(
-                    'No data available.',
-                    style: TextStyle(color: Colors.grey),
+                  child: GlassSurface(
+                    child: Text(
+                      'No data available.',
+                      style: TextStyle(color: Colors.white.withOpacity(0.7)),
+                    ),
                   ),
                 );
               }
 
-              return SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(18.0),
-                  child: Column(
+              return SafeArea(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Stack(
-                        children: [
-                          DecoratedBoxTransition(
-                            decoration:
-                                decorationTween.animate(_animationController),
-                            child: Material(
-                              elevation: 5,
+                      DecoratedBoxTransition(
+                        decoration: decorationTween.animate(_animationController),
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: AppColors.gradientBackgroundList,
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Card(
+                            elevation: 8,
+                            shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: AppColors.gradientBackgroundList,
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
+                            ),
+                            color: Colors.transparent,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Profile Photos',
+                                    style: AppTextStyles.bodyText.copyWith(
+                                      fontSize: bodyFontSize,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.textColor,
+                                    ),
                                   ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      width: MediaQuery.of(context).size.width *
-                                          0.9,
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.25,
-                                      child: (controller.userPhotos == null ||
-                                              controller
-                                                  .userPhotos!.images.isEmpty)
-                                          ? const Center(
-                                              child: Text("No images available",
-                                                  style: TextStyle(
-                                                      color: Colors.white)))
-                                          : Scrollbar(
-                                              child: ListView.builder(
-                                                scrollDirection: Axis.vertical,
-                                                itemCount: controller
-                                                    .userPhotos!.images.length,
-                                                itemBuilder: (context, index) {
-                                                  String imageUrl = controller
-                                                      .userPhotos!
-                                                      .images[index];
-                                                  return Padding(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        vertical: 6.0),
-                                                    child: Stack(
-                                                      alignment:
-                                                          Alignment.center,
-                                                      children: [
-                                                        GestureDetector(
-                                                          onTap: () =>
-                                                              showFullImageDialog(
-                                                                  context,
-                                                                  imageUrl),
-                                                          child: ClipRRect(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        10),
-                                                            child: _isBase64Image(imageUrl)
-                                                                ? Builder(
-                                                                    builder: (context) {
-                                                                      try {
-                                                                        String normalizedBase64 = _normalizeBase64(imageUrl);
-                                                                        return Image.memory(
-                                                                          base64Decode(normalizedBase64),
-                                                                          fit: BoxFit.cover,
-                                                                          width: MediaQuery.of(
-                                                                                      context)
-                                                                                  .size
-                                                                                  .width *
-                                                                              0.9,
-                                                                          height: MediaQuery.of(
-                                                                                      context)
-                                                                                  .size
-                                                                                  .height *
-                                                                              0.35,
-                                                                          errorBuilder: (context,
-                                                                              error, stackTrace) {
-                                                                            print('Base64 image decode error in edit profile: $error');
-                                                                            return Container(
-                                                                              width: MediaQuery.of(
-                                                                                          context)
-                                                                                      .size
-                                                                                      .width *
-                                                                                  0.55,
-                                                                              height: MediaQuery.of(
-                                                                                          context)
-                                                                                      .size
-                                                                                      .height *
-                                                                                  0.25,
-                                                                              alignment:
-                                                                                  Alignment.center,
-                                                                              color: Colors
-                                                                                  .grey
-                                                                                  .shade200,
-                                                            child:
-                                                                                  const Icon(
-                                                                                Icons
-                                                                                    .broken_image,
-                                                                                size: 48,
-                                                                                color: Colors
-                                                                                    .grey,
-                                                                              ),
-                                                                            );
-                                                                          },
-                                                                        );
-                                                                      } catch (e) {
-                                                                        print('Error decoding base64 image in edit profile: $e');
-                                                                        return Container(
-                                                                          width: MediaQuery.of(
-                                                                                      context)
-                                                                                  .size
-                                                                                  .width *
-                                                                              0.55,
-                                                                          height: MediaQuery.of(
-                                                                                      context)
-                                                                                  .size
-                                                                                  .height *
-                                                                              0.25,
-                                                                          alignment:
-                                                                              Alignment.center,
-                                                                          color: Colors
-                                                                              .grey
-                                                                              .shade200,
-                                                                          child:
-                                                                              const Icon(
-                                                                            Icons
-                                                                                .broken_image,
-                                                                            size: 48,
-                                                                            color: Colors
-                                                                                .grey,
-                                                                          ),
-                                                                        );
-                                                                      }
-                                                                    },
-                                                                  )
-                                                                : Image.network(
-                                                              imageUrl,
-                                                              fit: BoxFit.cover,
-                                                              width: MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .width *
-                                                                  0.9,
-                                                              height: MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .height *
-                                                                  0.35,
-                                                              loadingBuilder:
-                                                                  (context,
-                                                                      child,
-                                                                      loadingProgress) {
-                                                                if (loadingProgress ==
-                                                                    null) {
-                                                                  return child;
-                                                                } else {
-                                                                  return const Center(
-                                                                    child:
-                                                                        CircularProgressIndicator(),
-                                                                  );
-                                                                }
-                                                              },
-                                                              errorBuilder:
-                                                                  (context,
-                                                                      error,
-                                                                      stackTrace) {
-                                                                return Container(
-                                                                  width: MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .width *
-                                                                      0.55,
-                                                                  height: MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .height *
-                                                                      0.25,
-                                                                  alignment:
-                                                                      Alignment
-                                                                          .center,
-                                                                  color: Colors
-                                                                      .grey
-                                                                      .shade200,
-                                                                  child:
-                                                                      const Icon(
-                                                                    Icons
-                                                                        .broken_image,
-                                                                    size: 48,
-                                                                    color: Colors
-                                                                        .grey,
-                                                                  ),
-                                                                );
-                                                              },
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                },
+                                  const SizedBox(height: 8),
+                                  SizedBox(
+                                    height: MediaQuery.of(context).size.height * 0.25,
+                                    child: (controller.userPhotos == null ||
+                                            controller.userPhotos!.images.isEmpty)
+                                        ? Center(
+                                            child: Text(
+                                              "No images available",
+                                              style: TextStyle(
+                                                color: Colors.white.withOpacity(0.7),
                                               ),
                                             ),
-                                    ),
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.02,
-                                    ),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        OutlinedButton.icon(
-                                          onPressed: () async {
-                                            final result = await Get.to(
-                                                () => const EditPhotosPage());
-                                            if (result == 'updated') {
-                                              setState(() {});
-                                            }
-                                          },
-                                          icon: Builder(
-                                            builder: (context) {
-                                              double iconSize =
-                                                  MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.04;
-                                              return Icon(
-                                                Icons.edit,
-                                                color: Colors.white,
-                                                size: iconSize,
+                                          )
+                                        : ListView.builder(
+                                            scrollDirection: Axis.horizontal,
+                                            itemCount: controller.userPhotos!.images.length,
+                                            itemBuilder: (context, index) {
+                                              String imageUrl = controller
+                                                  .userPhotos!.images[index];
+                                              return Padding(
+                                                padding: const EdgeInsets.only(right: 8.0),
+                                                child: GestureDetector(
+                                                  onTap: () => showFullImageDialog(
+                                                      context, imageUrl),
+                                                  child: ClipRRect(
+                                                    borderRadius: BorderRadius.circular(12),
+                                                    child: _isBase64Image(imageUrl)
+                                                        ? Builder(
+                                                            builder: (context) {
+                                                              try {
+                                                                String normalizedBase64 = _normalizeBase64(imageUrl);
+                                                                return Image.memory(
+                                                                  base64Decode(normalizedBase64),
+                                                                  fit: BoxFit.cover,
+                                                                  width: MediaQuery.of(context).size.width * 0.3,
+                                                                  height: MediaQuery.of(context).size.height * 0.25,
+                                                                  errorBuilder: (context, error, stackTrace) {
+                                                                    return Container(
+                                                                      width: MediaQuery.of(context).size.width * 0.3,
+                                                                      height: MediaQuery.of(context).size.height * 0.25,
+                                                                      alignment: Alignment.center,
+                                                                      color: Colors.grey.shade200,
+                                                                      child: const Icon(
+                                                                        Icons.broken_image,
+                                                                        size: 48,
+                                                                        color: Colors.grey,
+                                                                      ),
+                                                                    );
+                                                                  },
+                                                                );
+                                                              } catch (e) {
+                                                                return Container(
+                                                                  width: MediaQuery.of(context).size.width * 0.3,
+                                                                  height: MediaQuery.of(context).size.height * 0.25,
+                                                                  alignment: Alignment.center,
+                                                                  color: Colors.grey.shade200,
+                                                                  child: const Icon(
+                                                                    Icons.broken_image,
+                                                                    size: 48,
+                                                                    color: Colors.grey,
+                                                                  ),
+                                                                );
+                                                              }
+                                                            },
+                                                          )
+                                                        : Image.network(
+                                                            imageUrl,
+                                                            fit: BoxFit.cover,
+                                                            width: MediaQuery.of(context).size.width * 0.3,
+                                                            height: MediaQuery.of(context).size.height * 0.25,
+                                                            loadingBuilder: (context, child, loadingProgress) {
+                                                              if (loadingProgress == null) {
+                                                                return child;
+                                                              } else {
+                                                                return Container(
+                                                                  width: MediaQuery.of(context).size.width * 0.3,
+                                                                  height: MediaQuery.of(context).size.height * 0.25,
+                                                                  alignment: Alignment.center,
+                                                                  child: CircularProgressIndicator(
+                                                                    value: loadingProgress.expectedTotalBytes != null
+                                                                        ? loadingProgress.cumulativeBytesLoaded /
+                                                                            loadingProgress.expectedTotalBytes!
+                                                                        : null,
+                                                                    color: Colors.white.withOpacity(0.7),
+                                                                  ),
+                                                                );
+                                                              }
+                                                            },
+                                                            errorBuilder: (context, error, stackTrace) {
+                                                              return Container(
+                                                                width: MediaQuery.of(context).size.width * 0.3,
+                                                                height: MediaQuery.of(context).size.height * 0.25,
+                                                                alignment: Alignment.center,
+                                                                color: Colors.grey.shade200,
+                                                                child: const Icon(
+                                                                  Icons.broken_image,
+                                                                  size: 48,
+                                                                  color: Colors.grey,
+                                                                ),
+                                                              );
+                                                            },
+                                                          ),
+                                                  ),
+                                                ),
                                               );
                                             },
                                           ),
-                                          label: Text(
-                                            'Edit Photos',
-                                            style: AppTextStyles.buttonText
-                                                .copyWith(
-                                              color: Colors.white,
-                                              fontSize: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.025,
-                                            ),
-                                          ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  GlassButton(
+                                    text: 'Edit Photos',
+                                    icon: Icons.camera_alt,
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const EditPhotosPage(),
                                         ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                          Positioned(
-                            top: 14,
-                            right: 2,
-                            child: Transform.rotate(
-                              angle: 0.5,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 4, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: AppColors.textColor,
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black38,
-                                      blurRadius: 4,
-                                      offset: Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.photo_library,
-                                      color: Colors.black87,
-                                      size: 16,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      'Photos',
-                                      style: AppTextStyles.textStyle.copyWith(
-                                        fontSize: getResponsiveFontSize(0.03),
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-
-                                    // Text(
-                                    //   'Photos',
-                                    //   style: AppTextStyles.titleText.copyWith(
-                                    //     fontSize: 10,
-                                    //     foreground: Paint()
-                                    //       ..shader = LinearGradient(
-                                    //         colors: AppColors
-                                    //             .gradientBackgroundList,
-                                    //       ).createShader(
-                                    //         Rect.fromLTWH(0, 0, 200,
-                                    //             70), // You can adjust size
-                                    //       ),
-                                    //   ),
-                                    // ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.02,
+                        height: MediaQuery.of(context).size.height * 0.01,
                       ),
                       isLoading
                           ? Center(
@@ -1261,245 +1102,157 @@ class EditProfilePageState extends State<EditProfilePage>
                               key: _formKey,
                               child: Column(
                                 children: [
-                                  InfoField(
-                                    initialValue: controller
-                                            .userProfileUpdateRequest
-                                            .name
-                                            .isNotEmpty
-                                        ? controller
-                                            .userProfileUpdateRequest.name
-                                        : controller.userData.first.name,
-                                    label: 'Name',
-                                    onChanged: onUserNameChanged,
-                                    validator: (value) {
-                                      return validateName(value);
-                                    },
-                                  ),
-                                  SizedBox(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.01,
-                                  ),
+                                  // Combined Personal Information Tile
                                   DecoratedBoxTransition(
-                                    decoration:
-                                        decorationTween.animate(_animationController),
-                                    child: Material(
-                                      elevation: 5,
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: AppColors.gradientBackgroundList,
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                        padding: const EdgeInsets.all(10.0),
-                                        child: TextFormField(
-                                          initialValue: controller.userData.first.email,
-                                          enabled: false,
-                                          decoration: InputDecoration(
-                                            labelText: 'Email',
-                                            labelStyle: AppTextStyles.labelText.copyWith(
-                                              fontSize: getResponsiveFontSize(0.03),
-                                              color: Colors.white70,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            filled: true,
-                                            fillColor: AppColors.formFieldColor.withOpacity(0.5),
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(20),
-                                              borderSide: BorderSide.none,
-                                            ),
-                                            disabledBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(20),
-                                              borderSide: BorderSide(color: AppColors.textColor.withOpacity(0.5)),
-                                            ),
-                                          ),
-                                          style: AppTextStyles.bodyText.copyWith(
-                                            fontSize: getResponsiveFontSize(0.03),
-                                            color: Colors.white70,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.01,
-                                  ),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors:
-                                            AppColors.gradientBackgroundList,
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ),
-                                      borderRadius: BorderRadius.circular(12),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black12,
-                                          blurRadius: 6,
-                                          offset: Offset(0, 3),
-                                        ),
-                                      ],
-                                    ),
-                                    padding: const EdgeInsets.all(12.0),
-                                    child: dobPicker(
-                                      context: context,
-                                      initialValue: controller
-                                              .userProfileUpdateRequest
-                                              .dob
-                                              .isNotEmpty
-                                          ? controller
-                                              .userProfileUpdateRequest.dob
-                                          : controller.userData.first.dob,
-                                      onChanged: (value) {
-                                        controller.userProfileUpdateRequest
-                                            .dob = value;
-                                        print("Date of Birth: $value");
-                                      },
-                                      validator: (value) => validateDob(value),
-                                      label: 'Date of Birth',
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.01,
-                                  ),
-                                  InfoField(
-                                    initialValue: controller
-                                            .userProfileUpdateRequest
-                                            .nickname
-                                            .isNotEmpty
-                                        ? controller
-                                            .userProfileUpdateRequest.nickname
-                                        : controller.userData.first.nickname,
-                                    label: 'Nick name',
-                                    onChanged: onNickNameChanged,
-                                    validator: (value) {
-                                      return validateNickname(value.trim());
-                                    },
-                                  ),
-                                  SizedBox(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.01,
-                                  ),
-                                  DecoratedBoxTransition(
-                                    decoration: decorationTween
-                                        .animate(_animationController),
-                                    child: Material(
-                                      elevation: 5,
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: AppColors
-                                                .gradientBackgroundList,
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                        padding: const EdgeInsets.all(10.0),
-                                        child: TextFormField(
-                                          initialValue: controller
-                                                  .userProfileUpdateRequest
-                                                  .bio
-                                                  .isNotEmpty
-                                              ? controller
-                                                  .userProfileUpdateRequest.bio
-                                              : controller.userData.first.bio,
-                                          onChanged: onAboutChanged,
-                                          validator: (value) {
-                                            return validateBio(value ?? '');
-                                          },
-                                          keyboardType: TextInputType.multiline,
-                                          minLines: 3,
-                                          maxLines: 5,
-                                          decoration: InputDecoration(
-                                            labelText: 'About',
-                                            labelStyle: AppTextStyles.labelText
-                                                .copyWith(
-                                              fontSize:
-                                                  getResponsiveFontSize(0.03),
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            filled: true,
-                                            fillColor: AppColors.formFieldColor,
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              borderSide: BorderSide.none,
-                                            ),
-                                          ),
-                                          style:
-                                              AppTextStyles.bodyText.copyWith(
-                                            fontSize:
-                                                getResponsiveFontSize(0.03),
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.01,
-                                  ),
-                                  DecoratedBoxTransition(
-                                    decoration: decorationTween
-                                        .animate(_animationController),
+                                    decoration: decorationTween.animate(_animationController),
                                     child: Container(
                                       decoration: BoxDecoration(
                                         gradient: LinearGradient(
-                                          colors:
-                                              AppColors.gradientBackgroundList,
+                                          colors: AppColors.gradientBackgroundList,
                                           begin: Alignment.topLeft,
                                           end: Alignment.bottomRight,
                                         ),
-                                        borderRadius: BorderRadius.circular(
-                                            12), // Match Card's shape
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black26,
-                                            blurRadius: 5,
-                                            offset: Offset(0, 3),
-                                          ),
-                                        ],
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Card(
-                                        elevation:
-                                            0, // Remove elevation as Container has shadow
-                                        color: Colors
-                                            .transparent, // Make card transparent
+                                        elevation: 8,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(12),
                                         ),
+                                        color: Colors.transparent,
                                         child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
+                                          padding: const EdgeInsets.all(10.0),
                                           child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
+                                              // Name
+                                              GlassInputField(
+                                                label: 'Name',
+                                                controller: TextEditingController(
+                                                  text: controller
+                                                              .userProfileUpdateRequest
+                                                              .name
+                                                              .isNotEmpty
+                                                          ? controller
+                                                              .userProfileUpdateRequest.name
+                                                          : controller.userData.first.name,
+                                                ),
+                                                onChanged: onUserNameChanged,
+                                                validator: (value) {
+                                                  return validateName(value ?? '');
+                                                },
+                                              ),
+                                              const SizedBox(height: 12),
+                                              // Email
+                                              GlassInputField(
+                                                label: 'Email',
+                                                controller: TextEditingController(text: controller.userData.first.email),
+                                                keyboardType: TextInputType.emailAddress,
+                                              ),
+                                              const SizedBox(height: 12),
+                                              // Date of Birth
+                                              dobPicker(
+                                                context: context,
+                                                initialValue: controller
+                                                        .userProfileUpdateRequest
+                                                        .dob
+                                                        .isNotEmpty
+                                                    ? controller
+                                                        .userProfileUpdateRequest.dob
+                                                    : controller.userData.first.dob,
+                                                onChanged: (value) {
+                                                  controller.userProfileUpdateRequest
+                                                      .dob = value;
+                                                  print("Date of Birth: $value");
+                                                },
+                                                validator: (value) => validateDob(value),
+                                                label: 'Date of Birth',
+                                              ),
+                                              const SizedBox(height: 12),
+                                              // Nickname
+                                              GlassInputField(
+                                                label: 'Nick name',
+                                                controller: TextEditingController(
+                                                  text: controller
+                                                              .userProfileUpdateRequest
+                                                              .nickname
+                                                              .isNotEmpty
+                                                          ? controller
+                                                              .userProfileUpdateRequest.nickname
+                                                          : controller.userData.first.nickname,
+                                                ),
+                                                onChanged: onNickNameChanged,
+                                                validator: (value) {
+                                                  return validateNickname(value?.trim() ?? '');
+                                                },
+                                              ),
+                                              const SizedBox(height: 12),
+                                              // About
+                                              GlassInputField(
+                                                label: 'About',
+                                                controller: TextEditingController(
+                                                  text: controller
+                                                              .userProfileUpdateRequest
+                                                              .bio
+                                                              .isNotEmpty
+                                                          ? controller
+                                                              .userProfileUpdateRequest.bio
+                                                          : controller.userData.first.bio,
+                                                ),
+                                                maxLines: 5,
+                                                onChanged: onAboutChanged,
+                                                validator: (value) {
+                                                  return validateBio(value ?? '');
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.01,
+                                  ),
+                                  // Combined Location & Language Tile
+                                  DecoratedBoxTransition(
+                                    decoration: decorationTween.animate(_animationController),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: AppColors.gradientBackgroundList,
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Card(
+                                        elevation: 8,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        color: Colors.transparent,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(10.0),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              // Country
                                               Text(
                                                 "Country: ${controller.selectedCountry.value?.name ?? ''}",
-                                                style: const TextStyle(
-                                                    fontSize: 12.0),
+                                                style: AppTextStyles.bodyText.copyWith(
+                                                  fontSize: bodyFontSize,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: AppColors.textColor,
+                                                ),
                                               ),
                                               const SizedBox(height: 8.0),
                                               Obx(() {
-                                                if (controller
-                                                    .countries.isEmpty) {
+                                                if (controller.countries.isEmpty) {
                                                   return Center(
-                                                    child:
-                                                        CircularProgressIndicator(
-                                                      color: AppColors
-                                                          .progressColor,
+                                                    child: CircularProgressIndicator(
+                                                      color: Colors.white.withOpacity(0.7),
                                                     ),
                                                   );
                                                 }
@@ -1525,49 +1278,52 @@ class EditProfilePageState extends State<EditProfilePage>
                                                           country.name,
                                                 );
                                               }),
+                                              const SizedBox(height: 12),
+                                              // City
+                                              GlassInputField(
+                                                label: 'City',
+                                                controller: TextEditingController(
+                                                  text: controller
+                                                              .userProfileUpdateRequest
+                                                              .city
+                                                              .isNotEmpty
+                                                          ? controller
+                                                              .userProfileUpdateRequest.city
+                                                          : controller.userData.first.city,
+                                                ),
+                                                onChanged: (value) {
+                                                  onCityChanged(value);
+                                                },
+                                                validator: (value) {
+                                                  return validateCity(value ?? '');
+                                                },
+                                              ),
+                                              const SizedBox(height: 12),
+                                              // Address
+                                              GlassInputField(
+                                                label: 'Address',
+                                                controller: TextEditingController(
+                                                  text: controller
+                                                              .userProfileUpdateRequest
+                                                              .address
+                                                              .isNotEmpty
+                                                          ? controller
+                                                              .userProfileUpdateRequest.address
+                                                          : controller.userData.first.address,
+                                                ),
+                                                onChanged: onAddressChnaged,
+                                                validator: (value) {
+                                                  return validateAddress(value ?? '');
+                                                },
+                                              ),
+                                              const SizedBox(height: 12),
+                                              // Languages
+                                              _languagesContent(context),
                                             ],
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  SizedBox(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.01,
-                                  ),
-                                  InfoField(
-                                    initialValue: controller
-                                            .userProfileUpdateRequest
-                                            .address
-                                            .isNotEmpty
-                                        ? controller
-                                            .userProfileUpdateRequest.address
-                                        : controller.userData.first.address,
-                                    label: 'Address',
-                                    onChanged: onAddressChnaged,
-                                    validator: (value) {
-                                      return validateAddress(value);
-                                    },
-                                  ),
-                                  SizedBox(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.01,
-                                  ),
-                                  InfoField(
-                                    initialValue: controller
-                                            .userProfileUpdateRequest
-                                            .city
-                                            .isNotEmpty
-                                        ? controller
-                                            .userProfileUpdateRequest.city
-                                        : controller.userData.first.city,
-                                    label: 'City',
-                                    onChanged: (value) {
-                                      onCityChanged(value);
-                                    },
-                                    validator: (value) {
-                                      return validateCity(value);
-                                    },
                                   ),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
@@ -1615,501 +1371,16 @@ class EditProfilePageState extends State<EditProfilePage>
                                   }),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.001,
+                                        0.01,
                                   ),
-                                  languages(context),
+                                  genderAndRelationship(context),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
                                         0.01,
                                   ),
-                                  DecoratedBoxTransition(
-                                    decoration: decorationTween
-                                        .animate(_animationController),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors:
-                                              AppColors.gradientBackgroundList,
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.circular(12),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.08),
-                                            blurRadius: 8,
-                                            offset: Offset(0, 4),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Card(
-                                        color: Colors
-                                            .transparent, // Keep transparent so gradient is visible
-                                        elevation: 8,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(16.0),
-                                          child: Center(
-                                            child: Column(
-                                              children: [
-                                                Text(
-                                                  'Gender',
-                                                  style: TextStyle(
-                                                    color: Colors
-                                                        .white, // Set text color to white
-                                                    fontWeight: FontWeight
-                                                        .bold, // Make text bold
-                                                    fontSize:
-                                                        16, // Optional: set font size
-                                                  ),
-                                                ),
-                                                Obx(() {
-                                                  if (controller
-                                                      .genders.isEmpty) {
-                                                    return Center(
-                                                      child:
-                                                          CircularProgressIndicator(
-                                                        color: AppColors
-                                                            .progressColor,
-                                                      ),
-                                                    );
-                                                  }
-                                                  if (selectedGender.value ==
-                                                          null &&
-                                                      controller.userData
-                                                          .isNotEmpty) {
-                                                    String? genderFromUserData =
-                                                        controller.userData
-                                                            .first.gender;
-                                                    if (genderFromUserData
-                                                        .isNotEmpty) {
-                                                      selectedGender.value =
-                                                          controller.genders
-                                                              .firstWhere(
-                                                        (gender) =>
-                                                            gender.id ==
-                                                            genderFromUserData,
-                                                        orElse: () => controller
-                                                            .genders.first,
-                                                      );
-                                                    }
-                                                  }
-                                                  return SizedBox(
-                                                    height: 200,
-                                                    child: Scrollbar(
-                                                      child:
-                                                          SingleChildScrollView(
-                                                        child: Column(
-                                                          children: controller
-                                                              .genders
-                                                              .map((gender) {
-                                                            return RadioListTile<
-                                                                Gender?>(
-                                                              title: Text(
-                                                                gender.title,
-                                                                style: AppTextStyles
-                                                                    .bodyText
-                                                                    .copyWith(
-                                                                  fontSize:
-                                                                      bodyFontSize,
-                                                                  color: AppColors
-                                                                      .textColor,
-                                                                ),
-                                                              ),
-                                                              value: gender,
-                                                              groupValue:
-                                                                  selectedGender
-                                                                      .value,
-                                                              onChanged:
-                                                                  (Gender?
-                                                                      value) {
-                                                                selectedGender
-                                                                        .value =
-                                                                    value;
+                                  preferences(context),
 
-                                                                final parsedGenderId =
-                                                                    value?.id ??
-                                                                        '';
 
-                                                                controller
-                                                                        .userProfileUpdateRequest
-                                                                        .gender =
-                                                                    parsedGenderId
-                                                                        .toString();
-
-                                                                controller
-                                                                    .fetchSubGender(
-                                                                        SubGenderRequest(
-                                                                  genderId:
-                                                                      parsedGenderId
-                                                                          .toString(),
-                                                                ));
-                                                              },
-                                                              activeColor:
-                                                                  AppColors
-                                                                      .buttonColor,
-                                                            );
-                                                          }).toList(),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                }),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.01,
-                                  ),
-                                  Obx(() {
-                                    String initialLookingFor = controller
-                                            .userProfileUpdateRequest
-                                            .lookingFor
-                                            .isNotEmpty
-                                        ? controller
-                                            .userProfileUpdateRequest.lookingFor
-                                        : controller.userData.first.lookingFor;
-
-                                    return DecoratedBoxTransition(
-                                      decoration: decorationTween
-                                          .animate(_animationController),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: AppColors
-                                                .gradientBackgroundList,
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black
-                                                  .withOpacity(0.08),
-                                              blurRadius: 8,
-                                              offset: Offset(0, 4),
-                                            ),
-                                          ],
-                                        ),
-                                        child: Card(
-                                          color: Colors
-                                              .transparent, // Transparent to show gradient from Container
-                                          elevation: 8,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(16.0),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                buildSelectableFieldRelationship<
-                                                    String>(
-                                                  "Relationship Type",
-                                                  ['1', '2'],
-                                                  initialLookingFor.isEmpty
-                                                      ? null
-                                                      : initialLookingFor,
-                                                  bodyFontSize,
-                                                  (String? value) {
-                                                    setState(() {
-                                                      controller
-                                                          .userProfileUpdateRequest
-                                                          .lookingFor = value ?? '';
-                                                    });
-                                                  },
-                                                  displayValue: (String value) {
-                                                    if (value == '1') {
-                                                      return 'Serious Relationship';
-                                                    } else if (value == '2') {
-                                                      return 'Hookup';
-                                                    }
-                                                    return '';
-                                                  },
-                                                  context: context,
-                                                ),
-                                                SizedBox(height: 20),
-                                                Center(
-                                                  child: Text(
-                                                    'Sub Gender',
-                                                    style: AppTextStyles
-                                                        .bodyText
-                                                        .copyWith(
-                                                      fontSize: bodyFontSize,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color:
-                                                          AppColors.textColor,
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(height: 10),
-                                                SizedBox(
-                                                  height: 200,
-                                                  child: Scrollbar(
-                                                    child:
-                                                        SingleChildScrollView(
-                                                      child: Column(
-                                                        children: List.generate(
-                                                            controller
-                                                                .subGenders
-                                                                .length,
-                                                            (index) {
-                                                          if (selectedSubGender
-                                                                      .value ==
-                                                                  '' &&
-                                                              controller
-                                                                  .userData
-                                                                  .isNotEmpty) {
-                                                            String?
-                                                                subGenderFromUserData =
-                                                                controller
-                                                                    .userData
-                                                                    .first
-                                                                    .subGender;
-                                                            if (subGenderFromUserData
-                                                                .isNotEmpty) {
-                                                              selectedSubGender
-                                                                      .value =
-                                                                  subGenderFromUserData;
-                                                            }
-                                                          }
-
-                                                          return RadioListTile<
-                                                              String>(
-                                                            title: Text(
-                                                              controller
-                                                                  .subGenders[
-                                                                      index]
-                                                                  .title,
-                                                              style:
-                                                                  AppTextStyles
-                                                                      .bodyText
-                                                                      .copyWith(
-                                                                fontSize:
-                                                                    bodyFontSize,
-                                                                color: AppColors
-                                                                    .textColor,
-                                                              ),
-                                                            ),
-                                                            value: controller
-                                                                .subGenders[
-                                                                    index]
-                                                                .id,
-                                                            groupValue:
-                                                                selectedSubGender
-                                                                    .value,
-                                                            onChanged: (String?
-                                                                value) {
-                                                              selectedSubGender
-                                                                      .value =
-                                                                  value ?? '';
-                                                              controller
-                                                                      .userProfileUpdateRequest
-                                                                      .subGender =
-                                                                  value ?? '';
-                                                            },
-                                                            activeColor:
-                                                                AppColors
-                                                                    .buttonColor,
-                                                            contentPadding:
-                                                                EdgeInsets.zero,
-                                                          );
-                                                        }),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }),
-                                  SizedBox(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.01,
-                                  ),
-                                  Obx(() {
-                                    if (controller.preferences.isEmpty) {
-                                      return Center(
-                                        child: CircularProgressIndicator(
-                                          color: AppColors.progressColor,
-                                        ),
-                                      );
-                                    }
-                                    if (preferencesSelectedOptions.length !=
-                                        controller.preferences.length) {
-                                      preferencesSelectedOptions.value =
-                                          List<bool>.filled(
-                                              controller.preferences.length,
-                                              false);
-                                    }
-                                    for (var p in controller.userPreferences) {
-                                      int index =
-                                          controller.preferences.indexWhere(
-                                        (preference) =>
-                                            preference.id == p.preferenceId,
-                                      );
-                                      if (index != -1 &&
-                                          !selectedPreferences
-                                              .contains(index.toString())) {
-                                        selectedPreferences
-                                            .add(index.toString());
-                                        preferencesSelectedOptions[index] =
-                                            true;
-                                      }
-                                    }
-
-                                    return DecoratedBoxTransition(
-                                      decoration: decorationTween
-                                          .animate(_animationController),
-                                      child: Card(
-                                        color: Colors.transparent,
-                                        elevation: 8,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            gradient: LinearGradient(
-                                              colors: AppColors
-                                                  .gradientBackgroundList,
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(12.0),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  "Your Selected Preferences",
-                                                  style: AppTextStyles
-                                                      .subheadingText
-                                                      .copyWith(
-                                                    fontSize: 14,
-                                                    color: AppColors.textColor,
-                                                  ),
-                                                  textAlign: TextAlign.left,
-                                                ),
-                                                Obx(() => preferencesError.value
-                                                    ? Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .only(top: 4.0),
-                                                        child: Text(
-                                                          "Preference is required",
-                                                          style: TextStyle(
-                                                            color: Colors.red,
-                                                            fontSize: 12,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                          ),
-                                                        ),
-                                                      )
-                                                    : SizedBox.shrink()),
-                                                const SizedBox(height: 20),
-                                                SizedBox(
-                                                  height: 300,
-                                                  child: Scrollbar(
-                                                    child:
-                                                        SingleChildScrollView(
-                                                      child: ListView.builder(
-                                                        shrinkWrap: true,
-                                                        physics:
-                                                            NeverScrollableScrollPhysics(),
-                                                        itemCount: controller
-                                                            .preferences.length,
-                                                        itemBuilder:
-                                                            (context, index) {
-                                                          return CheckboxListTile(
-                                                            title: Text(
-                                                              controller
-                                                                  .preferences[
-                                                                      index]
-                                                                  .title,
-                                                              style:
-                                                                  AppTextStyles
-                                                                      .bodyText
-                                                                      .copyWith(
-                                                                fontSize:
-                                                                    bodyFontSize,
-                                                                color: AppColors
-                                                                    .textColor,
-                                                              ),
-                                                            ),
-                                                            value:
-                                                                preferencesSelectedOptions[
-                                                                    index],
-                                                            onChanged:
-                                                                (bool? value) {
-                                                              preferencesSelectedOptions[
-                                                                      index] =
-                                                                  value ??
-                                                                      false;
-
-                                                              if (preferencesSelectedOptions[
-                                                                  index]) {
-                                                                selectedPreferences
-                                                                    .add(controller
-                                                                        .preferences[
-                                                                            index]
-                                                                        .id);
-                                                              } else {
-                                                                selectedPreferences
-                                                                    .remove(controller
-                                                                        .preferences[
-                                                                            index]
-                                                                        .id);
-                                                              }
-
-                                                              preferencesError
-                                                                      .value =
-                                                                  !preferencesSelectedOptions
-                                                                      .contains(
-                                                                          true);
-                                                            },
-                                                            activeColor:
-                                                                AppColors
-                                                                    .buttonColor,
-                                                            checkColor:
-                                                                Colors.white,
-                                                            contentPadding:
-                                                                EdgeInsets.zero,
-                                                          );
-                                                        },
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
                                         0.01,
@@ -2131,7 +1402,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                           borderRadius:
                                               BorderRadius.circular(12),
                                         ),
-                                        padding: const EdgeInsets.all(10.0),
+                                        padding: const EdgeInsets.all(8.0),
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
@@ -2373,8 +1644,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                     height: MediaQuery.of(context).size.height *
                                         0.01,
                                   ),
-                                  buildRelationshipStatusInterestStep(
-                                      context, MediaQuery.of(context).size),
+                                  desires(context),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
                                         0.01,
@@ -2420,7 +1690,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                     end: Alignment.bottomRight,
                                   ),
                                 ),
-                                padding: const EdgeInsets.all(12.0),
+                                padding: const EdgeInsets.all(8.0),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
@@ -2508,10 +1778,18 @@ class EditProfilePageState extends State<EditProfilePage>
                                         'Preference is required. Please select at least one.');
                                     return;
                                   }
+                                  if (!selectedOptions.contains(true)) {
+                                    failure('Validation Error',
+                                        'Desire is required. Please select at least one.');
+                                    desiresError.value = true;
+                                    return;
+                                  }
                                   if (selectedLanguages.isEmpty) {
                                     print("select language");
                                     return;
                                   }
+                                  // Update desires IDs before submission
+                                  updateSelectedDesiresIds();
                                   List<String> selectedPreferences = [];
                                   for (int i = 0;
                                       i < preferencesSelectedOptions.length;
@@ -2677,9 +1955,15 @@ class EditProfilePageState extends State<EditProfilePage>
                     ],
                   ),
                 ),
-              );
-            }));
+              ),
+            );
+          },
+        ),
+      ),
+    );
   }
+
+
 
   Country selectedCountry = Country(
       id: '', name: '', countryCode: '', status: '', created: '', updated: '');
@@ -2701,7 +1985,7 @@ class EditProfilePageState extends State<EditProfilePage>
         builder: (BuildContext context) {
           return Container(
             height: 300,
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
+            padding: const EdgeInsets.symmetric(vertical: 6.0),
             child: Column(
               children: [
                 Text(
@@ -2738,7 +2022,7 @@ class EditProfilePageState extends State<EditProfilePage>
         },
       ),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 18.0),
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8.0),
           border: Border.all(color: AppColors.formFieldColor),
@@ -2776,7 +2060,7 @@ class EditProfilePageState extends State<EditProfilePage>
     required BuildContext context,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: GestureDetector(
         onTap: () => _showBottomSheet<T>(
             context, items, selectedValue, onChanged, displayValue),
@@ -2826,7 +2110,7 @@ class EditProfilePageState extends State<EditProfilePage>
       context: context,
       builder: (BuildContext context) {
         return Container(
-          padding: EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(10.0),
           child: Column(
             children: [
               Text("Select $selectedValue",
@@ -2864,13 +2148,16 @@ class EditProfilePageState extends State<EditProfilePage>
     // Removed initialization here to avoid late initialization error
 
     controller.userProfileUpdateRequest.desires =
-        selectedDesires.map((userDesire) => userDesire.desiresId).toList();
+        selectedDesires.map((d) => d.desiresId).toList();
 
-    for (var userDesire in controller.userDesire) {
+    print('EditProfile: Controller Desires: ${controller.userDesire.length}');
+    for (var ud in controller.userDesire) {
       int index =
-          controller.desires.indexWhere((d) => d.id == userDesire.desiresId);
+          controller.desires.indexWhere((d) => d.id == ud.desiresId);
       if (index != -1) {
+        print('EditProfile: Selected Desires: ${ud.desiresId} and index is: $index');
         selectedOptions[index] = true;
+        selectedDesires.add(ud);
       }
     }
 
@@ -2895,12 +2182,13 @@ class EditProfilePageState extends State<EditProfilePage>
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           color: Colors.transparent,
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(10.0),
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Obx(() {
+                    
                     return selectedDesires.isNotEmpty
                         ? Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -2942,8 +2230,8 @@ class EditProfilePageState extends State<EditProfilePage>
                                           controller.userProfileUpdateRequest
                                                   .desires =
                                               selectedDesires
-                                                  .map((userDesire) =>
-                                                      userDesire.desiresId)
+                                                  .map((ud) =>
+                                                      ud.desiresId)
                                                   .toList();
 
                                           if (selectedDesires.isEmpty) {
@@ -2963,7 +2251,7 @@ class EditProfilePageState extends State<EditProfilePage>
                   }),
                   Obx(() => errorMessage.value.isNotEmpty
                       ? Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0),
+                          padding: const EdgeInsets.only(bottom: 4.0),
                           child: Text(
                             errorMessage.value,
                             style: TextStyle(
@@ -2985,8 +2273,8 @@ class EditProfilePageState extends State<EditProfilePage>
                         ? SingleChildScrollView(
                             scrollDirection: Axis.vertical,
                             child: Wrap(
-                              spacing: 10,
-                              runSpacing: 10,
+                              spacing: 6,
+                              runSpacing: 6,
                               children: List.generate(controller.desires.length,
                                   (index) {
                                 return GestureDetector(
@@ -3011,7 +2299,7 @@ class EditProfilePageState extends State<EditProfilePage>
                                     }
                                   },
                                   child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 8.0),
+                                    padding: const EdgeInsets.only(bottom: 4.0),
                                     child: Chip(
                                       label:
                                           Text(controller.desires[index].title),
@@ -3117,8 +2405,17 @@ class EditProfilePageState extends State<EditProfilePage>
   RxList<String> selectedLanguages = <String>[].obs;
   RxList<String> selectedLanguagesId = <String>[].obs;
   RxString searchQuery = ''.obs;
+  RxString selectedGenderDisplay = ''.obs; // For displaying selected gender
+  RxString genderSearchQuery = ''.obs; // Search query for gender selection
+  RxBool genderError = false.obs; // Error state for gender
+  RxString selectedSubGenderDisplay = ''.obs; // For displaying selected sub-gender
+  RxString subGenderSearchQuery = ''.obs; // Search query for sub-gender selection
+  RxBool subGenderError = false.obs; // Error state for sub-gender
+  RxBool subGenderNeedsSelection = false.obs; // Flag to indicate sub-gender needs selection after gender change
+  RxString preferencesSearchQuery = ''.obs; // Search query for preferences selection
+  RxString desiresSearchQuery = ''.obs; // Search query for desires selection
 
-  Widget languages(BuildContext context) {
+  Widget _languagesContent(BuildContext context) {
     // Initialize selectedLanguages if empty
     if (selectedLanguages.isEmpty) {
       selectedLanguages.addAll(controller.userLang.map((lang) => lang.title));
@@ -3128,6 +2425,133 @@ class EditProfilePageState extends State<EditProfilePage>
 
     // Update error state whenever languages list changes
     languageError.value = selectedLanguages.isEmpty;
+
+    // Calculate font size
+    double screenWidth = MediaQuery.of(context).size.width;
+    double bodyFontSize = screenWidth * 0.04;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                'Languages',
+                style: AppTextStyles.bodyText.copyWith(
+                  fontSize: bodyFontSize,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textColor,
+                ),
+              ),
+            ),
+            GlassButton(
+              text: selectedLanguages.isEmpty ? 'Select' : 'Edit',
+              icon: Icons.language,
+              fontSize: 14,
+              borderRadius: 20.0,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              onPressed: () {
+                showLanguageSelectionBottomSheet(context);
+              },
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Obx(() {
+          if (languageError.value) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text(
+                'Language is required',
+                style: TextStyle(
+                  color: Colors.red.shade300,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            );
+          }
+          return const SizedBox.shrink();
+        }),
+        Obx(() {
+          if (selectedLanguages.isEmpty) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Text(
+                'No languages selected',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.5),
+                  fontSize: 14,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            );
+          }
+          return Wrap(
+            spacing: 8.0,
+            runSpacing: 8.0,
+            children: selectedLanguages.map((language) {
+              return GestureDetector(
+                onTap: () {
+                  selectedLanguages.remove(language);
+                  updateSelectedLanguageIds();
+                  languageError.value = selectedLanguages.isEmpty;
+                },
+                child: Container(
+                  padding: const EdgeInsets.only(
+                    left: 12.0,
+                    top: 8.0,
+                    bottom: 8.0,
+                    right: 8.0,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: AppColors.gradientBackgroundList,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(25.0),
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        language,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 8.0),
+                      Icon(
+                        Icons.cancel,
+                        color: Colors.white.withOpacity(0.8),
+                        size: 20.0,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget languages(BuildContext context, {bool includeContainer = true}) {
+    Widget content = _languagesContent(context);
+    
+    if (!includeContainer) {
+      return content;
+    }
 
     return DecoratedBoxTransition(
       decoration: decorationTween.animate(_animationController),
@@ -3139,140 +2563,16 @@ class EditProfilePageState extends State<EditProfilePage>
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 8,
-              offset: Offset(0, 4),
-            ),
-          ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              /// White header section
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: AppColors.formFieldColor,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 8,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                padding:
-                    const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Select Languages',
-                        style: AppTextStyles.buttonText.copyWith(
-                          fontSize: getResponsiveFontSize(0.028),
-                          color: Colors.white,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white.withOpacity(0.12),
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          side: BorderSide(
-                            color: Colors.white.withOpacity(0.4),
-                            width: 1.2,
-                          ),
-                        ),
-                      ),
-                      onPressed: () {
-                        showLanguageSelectionBottomSheet(context);
-                      },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Select',
-                            style: AppTextStyles.buttonText.copyWith(
-                              fontSize: getResponsiveFontSize(0.026),
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Icon(
-                            Icons.arrow_drop_down,
-                            color: Colors.black,
-                            size: getResponsiveFontSize(0.035),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Show error message if no languages selected
-              Obx(() {
-                return Padding(
-                  padding: const EdgeInsets.only(top: 6, bottom: 8),
-                  child: languageError.value
-                      ? Text(
-                          'Language is required',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        )
-                      : SizedBox(height: 0),
-                );
-              }),
-
-              SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-
-              Obx(() {
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: selectedLanguages.map((language) {
-                      return Chip(
-                        label: Text(
-                          language,
-                          style: const TextStyle(
-                              fontSize: 12, color: Colors.black),
-                        ),
-                        deleteIcon: const Icon(
-                          Icons.delete_forever_outlined,
-                          size: 18,
-                          color: Colors.black,
-                        ),
-                        onDeleted: () {
-                          selectedLanguages.remove(language);
-                          updateSelectedLanguageIds();
-
-                          // Update error when user deletes
-                          languageError.value = selectedLanguages.isEmpty;
-                        },
-                        backgroundColor: Colors.white,
-                        labelStyle: const TextStyle(fontSize: 9),
-                      );
-                    }).toList(),
-                  ),
-                );
-              }),
-            ],
+        child: Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          color: Colors.transparent,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: content,
           ),
         ),
       ),
@@ -3293,123 +2593,2156 @@ class EditProfilePageState extends State<EditProfilePage>
   void showLanguageSelectionBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (BuildContext context) {
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Select Languages',
-                style: TextStyle(fontSize: 12),
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.01,
-              ),
-              TextField(
-                onChanged: (query) {
-                  searchQuery.value = query;
-                },
-                decoration: InputDecoration(
-                  hintText: 'Search Languages...',
-                  border: OutlineInputBorder(),
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        return GlassSurface(
+          margin: EdgeInsets.zero,
+          borderRadius: 20.0,
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.8,
+            ),
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Select Languages',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: Colors.white.withOpacity(0.9)),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Builder(
+                  builder: (context) {
+                    final searchController = TextEditingController(text: searchQuery.value);
+                    return GlassInputField(
+                      label: 'Search Languages',
+                      hint: 'Type to search...',
+                      controller: searchController,
+                      prefixIcon: Icons.search,
+                      onChanged: (value) {
+                        searchQuery.value = value ?? '';
+                        searchController.text = value ?? '';
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 10),
+                Flexible(
+                  child: Obx(() {
+                    if (controller.language.isEmpty) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.language_outlined,
+                                size: 48,
+                                color: Colors.white.withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'No languages available',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.7),
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    var filteredLanguages = controller.language
+                        .where((language) => language.title
+                            .toLowerCase()
+                            .contains(searchQuery.value.toLowerCase()))
+                        .toList();
+
+                    if (filteredLanguages.isEmpty) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.search_off,
+                                size: 48,
+                                color: Colors.white.withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'No languages found',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.7),
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Try a different search term',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.5),
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    return SingleChildScrollView(
+                      child: Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: filteredLanguages.map((language) {
+                          String languageTitle = language.title;
+                          return Obx(() {
+                            bool isSelected = selectedLanguages.contains(languageTitle);
+                            return GestureDetector(
+                              onTap: () {
+                                if (isSelected) {
+                                  selectedLanguages.remove(languageTitle);
+                                } else {
+                                  if (!selectedLanguages.contains(languageTitle)) {
+                                    selectedLanguages.add(languageTitle);
+                                  }
+                                }
+                                updateSelectedLanguageIds();
+                                languageError.value = selectedLanguages.isEmpty;
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12.0,
+                                  vertical: 8.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  gradient: isSelected
+                                      ? LinearGradient(
+                                          colors: AppColors.gradientBackgroundList,
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        )
+                                      : null,
+                                  color: isSelected ? null : AppColors.formFieldColor,
+                                  borderRadius: BorderRadius.circular(25.0),
+                                  border: Border.all(
+                                    color: isSelected ? Colors.white : Colors.white.withOpacity(0.3),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Text(
+                                  languageTitle,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                            );
+                          });
+                        }).toList(),
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 10),
+                GlassButton(
+                  text: 'Done',
+                  icon: Icons.check,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  onPressed: () {
+                    updateSelectedLanguageIds();
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _genderContent(BuildContext context) {
+    // Initialize selectedGenderDisplay if empty
+    if (selectedGenderDisplay.isEmpty) {
+      if (selectedGender.value != null) {
+        selectedGenderDisplay.value = selectedGender.value!.title;
+      } else if (controller.userData.isNotEmpty) {
+        String? genderFromUserData = controller.userData.first.gender;
+        if (genderFromUserData.isNotEmpty) {
+          try {
+            selectedGender.value = controller.genders.firstWhere(
+              (gender) => gender.id == genderFromUserData,
+              orElse: () => controller.genders.first,
+            );
+            selectedGenderDisplay.value = selectedGender.value!.title;
+          } catch (e) {
+            // Gender not found, will be empty
+          }
+        }
+      }
+    }
+
+    // Update error state
+    genderError.value = selectedGender.value == null;
+
+    // Calculate font size
+    double screenWidth = MediaQuery.of(context).size.width;
+    double bodyFontSize = screenWidth * 0.04;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                'Gender',
+                style: AppTextStyles.bodyText.copyWith(
+                  fontSize: bodyFontSize,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textColor,
                 ),
               ),
-              SizedBox(height: 10),
-              Expanded(
-                child: Obx(() {
-                  var filteredLanguages = controller.language
-                      .where((language) => language.title
-                          .toLowerCase()
-                          .contains(searchQuery.value.toLowerCase()))
-                      .toList();
-
-                  return GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 5,
-                      mainAxisSpacing: 5,
-                    ),
-                    itemCount: filteredLanguages.length,
-                    itemBuilder: (context, index) {
-                      String language = filteredLanguages[index].title;
-
-                      return Obx(() {
-                        bool isSelected = selectedLanguages.contains(language);
-                        return ChoiceChip(
-                          label: Text(language),
-                          selected: isSelected,
-                          selectedColor: Colors.blue.withOpacity(0.3),
-                          backgroundColor: Colors.grey[200],
-                          labelStyle: TextStyle(
-                            color: isSelected ? Colors.white : Colors.black,
-                            fontSize: 14,
-                          ),
-                          onSelected: (bool selected) {
-                            if (selected) {
-                              if (!selectedLanguages.contains(language)) {
-                                selectedLanguages.add(language);
-                              }
-                            } else {
-                              selectedLanguages.remove(language);
-                            }
-                            updateSelectedLanguageIds();
-                          },
-                        );
-                      });
-                    },
-                  );
-                }),
+            ),
+            Obx(() => GlassButton(
+              text: selectedGenderDisplay.isEmpty ? 'Select' : 'Edit',
+              icon: Icons.person,
+              fontSize: 14,
+              borderRadius: 20.0,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              onPressed: () {
+                showGenderSelectionBottomSheet(context);
+              },
+            )),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Obx(() {
+          if (genderError.value) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text(
+                'Gender is required',
+                style: TextStyle(
+                  color: Colors.red.shade300,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: SizedBox(
-                  width: 90.0, // Set your desired button width here
-                  height: 60.0,
-                  child: PushableButton(
-                    onPressed: () {
-                      updateSelectedLanguageIds();
-                      Navigator.pop(context);
-                      print("Languages: ${selectedLanguages.toList()}");
-                    },
-                    // Required by the widget, provide a dummy solid color
-                    hslColor: HSLColor.fromColor(
-                        AppColors.gradientBackgroundList.first),
-                    height: 50.0,
-                    elevation: 8.0,
-                    shadow: BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 4.0,
-                      spreadRadius: 2.0,
-                      offset: const Offset(0, 4),
+            );
+          }
+          return const SizedBox.shrink();
+        }),
+        Obx(() {
+          if (selectedGenderDisplay.isEmpty) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Text(
+                'No gender selected',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.5),
+                  fontSize: 14,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            );
+          }
+          return Wrap(
+            spacing: 8.0,
+            runSpacing: 8.0,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  selectedGender.value = null;
+                  selectedGenderDisplay.value = '';
+                  controller.userProfileUpdateRequest.gender = '';
+                  genderError.value = true;
+                },
+                child: Container(
+                  padding: const EdgeInsets.only(
+                    left: 12.0,
+                    top: 8.0,
+                    bottom: 8.0,
+                    right: 8.0,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: AppColors.gradientBackgroundList,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                    child: Container(
-                      width: double.infinity,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: AppColors.gradientBackgroundList,
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Text(
-                        'Done',
-                        style: TextStyle(
+                    borderRadius: BorderRadius.circular(25.0),
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        selectedGenderDisplay.value,
+                        style: const TextStyle(
+                          fontSize: 15,
                           color: Colors.white,
-                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
+                      const SizedBox(width: 8.0),
+                      Icon(
+                        Icons.cancel,
+                        color: Colors.white.withOpacity(0.8),
+                        size: 20.0,
+                      ),
+                    ],
                   ),
                 ),
               ),
             ],
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget gender(BuildContext context, {bool includeContainer = true}) {
+    Widget content = _genderContent(context);
+    
+    if (!includeContainer) {
+      return content;
+    }
+
+    return DecoratedBoxTransition(
+      decoration: decorationTween.animate(_animationController),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: AppColors.gradientBackgroundList,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          color: Colors.transparent,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: content,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void showGenderSelectionBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return GlassSurface(
+          margin: EdgeInsets.zero,
+          borderRadius: 20.0,
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.8,
+            ),
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Select Gender',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: Colors.white.withOpacity(0.9)),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Builder(
+                  builder: (context) {
+                    final searchController = TextEditingController(text: genderSearchQuery.value);
+                    return GlassInputField(
+                      label: 'Search Gender',
+                      hint: 'Type to search...',
+                      controller: searchController,
+                      prefixIcon: Icons.search,
+                      onChanged: (value) {
+                        genderSearchQuery.value = value ?? '';
+                        searchController.text = value ?? '';
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 10),
+                Flexible(
+                  child: Obx(() {
+                    if (controller.genders.isEmpty) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.person_outline,
+                                size: 48,
+                                color: Colors.white.withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'No genders available',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.7),
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    var filteredGenders = controller.genders
+                        .where((gender) => gender.title
+                            .toLowerCase()
+                            .contains(genderSearchQuery.value.toLowerCase()))
+                        .toList();
+
+                    if (filteredGenders.isEmpty) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.search_off,
+                                size: 48,
+                                color: Colors.white.withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'No genders found',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.7),
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Try a different search term',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.5),
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    return SingleChildScrollView(
+                      child: Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: filteredGenders.map((gender) {
+                          return Obx(() {
+                            bool isSelected = selectedGender.value?.id == gender.id;
+                            return GestureDetector(
+                              onTap: () {
+                                selectedGender.value = gender;
+                                selectedGenderDisplay.value = gender.title;
+                                final parsedGenderId = gender.id;
+                                controller.userProfileUpdateRequest.gender = parsedGenderId.toString();
+                                // Clear sub-gender when gender changes
+                                selectedSubGender.value = '';
+                                selectedSubGenderDisplay.value = '';
+                                controller.userProfileUpdateRequest.subGender = '';
+                                subGenderNeedsSelection.value = true;
+                                subGenderError.value = true;
+                                controller.fetchSubGender(SubGenderRequest(
+                                  genderId: parsedGenderId.toString(),
+                                ));
+                                genderError.value = false;
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12.0,
+                                  vertical: 8.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  gradient: isSelected
+                                      ? LinearGradient(
+                                          colors: AppColors.gradientBackgroundList,
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        )
+                                      : null,
+                                  color: isSelected ? null : AppColors.formFieldColor,
+                                  borderRadius: BorderRadius.circular(25.0),
+                                  border: Border.all(
+                                    color: isSelected ? Colors.white : Colors.white.withOpacity(0.3),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Text(
+                                  gender.title,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                            );
+                          });
+                        }).toList(),
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 10),
+                GlassButton(
+                  text: 'Done',
+                  icon: Icons.check,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _subGenderContent(BuildContext context) {
+    // Initialize selectedSubGenderDisplay if empty
+    if (selectedSubGenderDisplay.isEmpty && selectedSubGender.value.isNotEmpty && controller.subGenders.isNotEmpty) {
+      try {
+        final subGender = controller.subGenders.firstWhere(
+          (sg) => sg.id == selectedSubGender.value,
+        );
+        selectedSubGenderDisplay.value = subGender.title;
+      } catch (e) {
+        // Sub-gender not found, try to initialize from userData
+        if (controller.userData.isNotEmpty) {
+          String? subGenderFromUserData = controller.userData.first.subGender;
+          if (subGenderFromUserData.isNotEmpty && subGenderFromUserData == selectedSubGender.value) {
+            // Wait for sub-genders to load
+          }
+        }
+      }
+    } else if (selectedSubGender.value.isEmpty && controller.userData.isNotEmpty && controller.subGenders.isNotEmpty) {
+      String? subGenderFromUserData = controller.userData.first.subGender;
+      if (subGenderFromUserData.isNotEmpty) {
+        selectedSubGender.value = subGenderFromUserData;
+        try {
+          final subGender = controller.subGenders.firstWhere(
+            (sg) => sg.id == subGenderFromUserData,
+          );
+          selectedSubGenderDisplay.value = subGender.title;
+          subGenderNeedsSelection.value = false;
+        } catch (e) {
+          // Sub-gender not found
+        }
+      }
+    }
+    
+    // Update display if sub-genders are loaded and we have a selected sub-gender
+    if (selectedSubGender.value.isNotEmpty && selectedSubGenderDisplay.isEmpty && controller.subGenders.isNotEmpty) {
+      try {
+        final subGender = controller.subGenders.firstWhere(
+          (sg) => sg.id == selectedSubGender.value,
+        );
+        selectedSubGenderDisplay.value = subGender.title;
+      } catch (e) {
+        // Sub-gender not found
+      }
+    }
+
+    // Update error state - sub-gender is required if gender is selected
+    if (selectedGender.value != null) {
+      subGenderError.value = selectedSubGender.value.isEmpty;
+    } else {
+      subGenderError.value = false; // No error if no gender selected
+    }
+
+    // Calculate font size
+    double screenWidth = MediaQuery.of(context).size.width;
+    double bodyFontSize = screenWidth * 0.04;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  Text(
+                    'Sub Gender',
+                    style: AppTextStyles.bodyText.copyWith(
+                      fontSize: bodyFontSize,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textColor,
+                    ),
+                  ),
+                  Obx(() {
+                    if (subGenderNeedsSelection.value && selectedSubGender.value.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 6),
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  }),
+                ],
+              ),
+            ),
+            Obx(() => GlassButton(
+              text: selectedSubGenderDisplay.isEmpty ? 'Select' : 'Edit',
+              icon: Icons.person_outline,
+              fontSize: 14,
+              borderRadius: 20.0,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              onPressed: () {
+                if (selectedGender.value == null) {
+                  Get.snackbar('Error', 'Please select a gender first');
+                  return;
+                }
+                showSubGenderSelectionBottomSheet(context);
+              },
+            )),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Obx(() {
+          if (subGenderError.value && selectedGender.value != null) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text(
+                'Sub Gender is required',
+                style: TextStyle(
+                  color: Colors.red.shade300,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            );
+          }
+          return const SizedBox.shrink();
+        }),
+        Obx(() {
+          if (selectedSubGenderDisplay.isEmpty) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Text(
+                selectedGender.value == null
+                    ? 'Select a gender first'
+                    : 'No sub gender selected',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.5),
+                  fontSize: 14,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            );
+          }
+          return Wrap(
+            spacing: 8.0,
+            runSpacing: 8.0,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  selectedSubGender.value = '';
+                  selectedSubGenderDisplay.value = '';
+                  controller.userProfileUpdateRequest.subGender = '';
+                  subGenderError.value = selectedGender.value != null;
+                  subGenderNeedsSelection.value = selectedGender.value != null;
+                },
+                child: Container(
+                  padding: const EdgeInsets.only(
+                    left: 12.0,
+                    top: 8.0,
+                    bottom: 8.0,
+                    right: 8.0,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: AppColors.gradientBackgroundList,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(25.0),
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        selectedSubGenderDisplay.value,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 8.0),
+                      Icon(
+                        Icons.cancel,
+                        color: Colors.white.withOpacity(0.8),
+                        size: 20.0,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget subGender(BuildContext context, {bool includeContainer = true}) {
+    Widget content = _subGenderContent(context);
+    
+    if (!includeContainer) {
+      return content;
+    }
+
+    return DecoratedBoxTransition(
+      decoration: decorationTween.animate(_animationController),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: AppColors.gradientBackgroundList,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          color: Colors.transparent,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: content,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void showSubGenderSelectionBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return GlassSurface(
+          margin: EdgeInsets.zero,
+          borderRadius: 20.0,
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.8,
+            ),
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Select Sub Gender',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: Colors.white.withOpacity(0.9)),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Builder(
+                  builder: (context) {
+                    final searchController = TextEditingController(text: subGenderSearchQuery.value);
+                    return GlassInputField(
+                      label: 'Search Sub Gender',
+                      hint: 'Type to search...',
+                      controller: searchController,
+                      prefixIcon: Icons.search,
+                      onChanged: (value) {
+                        subGenderSearchQuery.value = value ?? '';
+                        searchController.text = value ?? '';
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 10),
+                Flexible(
+                  child: Obx(() {
+                    if (controller.subGenders.isEmpty) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.person_outline,
+                                size: 48,
+                                color: Colors.white.withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'No sub genders available',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.7),
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Select a gender first',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.5),
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    var filteredSubGenders = controller.subGenders
+                        .where((subGender) => subGender.title
+                            .toLowerCase()
+                            .contains(subGenderSearchQuery.value.toLowerCase()))
+                        .toList();
+
+                    if (filteredSubGenders.isEmpty) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.search_off,
+                                size: 48,
+                                color: Colors.white.withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'No sub genders found',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.7),
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Try a different search term',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.5),
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    return SingleChildScrollView(
+                      child: Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: filteredSubGenders.map((subGender) {
+                          return Obx(() {
+                            bool isSelected = selectedSubGender.value == subGender.id;
+                            return GestureDetector(
+                              onTap: () {
+                                selectedSubGender.value = subGender.id;
+                                selectedSubGenderDisplay.value = subGender.title;
+                                controller.userProfileUpdateRequest.subGender = subGender.id;
+                                subGenderError.value = false;
+                                subGenderNeedsSelection.value = false;
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12.0,
+                                  vertical: 8.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  gradient: isSelected
+                                      ? LinearGradient(
+                                          colors: AppColors.gradientBackgroundList,
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        )
+                                      : null,
+                                  color: isSelected ? null : AppColors.formFieldColor,
+                                  borderRadius: BorderRadius.circular(25.0),
+                                  border: Border.all(
+                                    color: isSelected ? Colors.white : Colors.white.withOpacity(0.3),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Text(
+                                  subGender.title,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                            );
+                          });
+                        }).toList(),
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 10),
+                GlassButton(
+                  text: 'Done',
+                  icon: Icons.check,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget genderAndRelationship(BuildContext context) {
+    // Calculate font size
+    double screenWidth = MediaQuery.of(context).size.width;
+    double bodyFontSize = screenWidth * 0.04;
+
+    return DecoratedBoxTransition(
+      decoration: decorationTween.animate(_animationController),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: AppColors.gradientBackgroundList,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          color: Colors.transparent,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Relationship Type at the top
+                Obx(() {
+                  String initialLookingFor = controller
+                          .userProfileUpdateRequest
+                          .lookingFor
+                          .isNotEmpty
+                      ? controller
+                          .userProfileUpdateRequest.lookingFor
+                      : controller.userData.first.lookingFor;
+
+                  return buildSelectableFieldRelationship<String>(
+                    "Relationship Type",
+                    ['1', '2'],
+                    initialLookingFor.isEmpty
+                        ? null
+                        : initialLookingFor,
+                    bodyFontSize,
+                    (String? value) {
+                      setState(() {
+                        controller
+                            .userProfileUpdateRequest
+                            .lookingFor = value ?? '';
+                      });
+                    },
+                    displayValue: (String value) {
+                      if (value == '1') {
+                        return 'Serious Relationship';
+                      } else if (value == '2') {
+                        return 'Hookup';
+                      }
+                      return '';
+                    },
+                    context: context,
+                  );
+                }),
+                const SizedBox(height: 12),
+                // Gender
+                _genderContent(context),
+                const SizedBox(height: 12),
+                // Sub Gender
+                _subGenderContent(context),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void updateSelectedPreferencesIds() {
+    // Update controller.userProfileUpdateRequest.preferences with IDs
+    // This matches the old logic: collect IDs from preferencesSelectedOptions
+    List<String> selectedPreferences = [];
+    for (int i = 0; i < preferencesSelectedOptions.length; i++) {
+      if (preferencesSelectedOptions[i]) {
+        selectedPreferences.add(controller.preferences[i].id);
+      }
+    }
+    controller.userProfileUpdateRequest.preferences = selectedPreferences;
+    preferencesError.value = !preferencesSelectedOptions.contains(true);
+  }
+
+  Widget preferences(BuildContext context) {
+    // Initialize preferencesSelectedOptions from backend userPreferences
+    // This matches the old logic in initialize() function (lines 567-579)
+    // Use Obx to reactively initialize when data becomes available
+    Obx(() {
+      if (controller.preferences.isNotEmpty) {
+        if (preferencesSelectedOptions.length != controller.preferences.length) {
+          preferencesSelectedOptions.value =
+              List<bool>.filled(controller.preferences.length, false);
+          // Match userPreferences with preferences by ID and set selected options
+          for (var p in controller.userPreferences) {
+            int index = controller.preferences
+                .indexWhere((preference) => preference.id == p.preferenceId);
+            if (index != -1) {
+              preferencesSelectedOptions[index] = true;
+            }
+          }
+        }
+      }
+      return const SizedBox.shrink();
+    });
+
+    // Update error state
+    preferencesError.value = !preferencesSelectedOptions.contains(true);
+
+    // Calculate font size
+    double screenWidth = MediaQuery.of(context).size.width;
+    double bodyFontSize = screenWidth * 0.04;
+
+    return DecoratedBoxTransition(
+      decoration: decorationTween.animate(_animationController),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: AppColors.gradientBackgroundList,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          color: Colors.transparent,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Preferences',
+                        style: AppTextStyles.bodyText.copyWith(
+                          fontSize: bodyFontSize,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textColor,
+                        ),
+                      ),
+                    ),
+                    Obx(() => GlassButton(
+                      text: !preferencesSelectedOptions.contains(true) ? 'Select' : 'Edit',
+                      icon: Icons.favorite,
+                      fontSize: 14,
+                      borderRadius: 20.0,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      onPressed: () async {
+                        // Ensure preferences are loaded before showing bottom sheet
+                        if (controller.preferences.isEmpty) {
+                          await controller.fetchPreferences();
+                        }
+                        showPreferencesSelectionBottomSheet(context);
+                      },
+                    )),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Obx(() {
+                  if (preferencesError.value) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        'Preference is required',
+                        style: TextStyle(
+                          color: Colors.red.shade300,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                }),
+                Obx(() {
+                  // Get selected preferences based on preferencesSelectedOptions
+                  List<String> selectedPrefs = [];
+                  for (int i = 0; i < preferencesSelectedOptions.length && i < controller.preferences.length; i++) {
+                    if (preferencesSelectedOptions[i]) {
+                      selectedPrefs.add(controller.preferences[i].title);
+                    }
+                  }
+                  
+                  if (selectedPrefs.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Text(
+                        'No preferences selected',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.5),
+                          fontSize: 14,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    );
+                  }
+                  return Wrap(
+                    spacing: 8.0,
+                    runSpacing: 8.0,
+                    children: selectedPrefs.map((preference) {
+                      return GestureDetector(
+                        onTap: () {
+                          // Find the index and unselect it
+                          int index = controller.preferences.indexWhere((p) => p.title == preference);
+                          if (index != -1) {
+                            preferencesSelectedOptions[index] = false;
+                            updateSelectedPreferencesIds();
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.only(
+                            left: 12.0,
+                            top: 8.0,
+                            bottom: 8.0,
+                            right: 8.0,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: AppColors.gradientBackgroundList,
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(25.0),
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                preference,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(width: 8.0),
+                              Icon(
+                                Icons.cancel,
+                                color: Colors.white.withOpacity(0.8),
+                                size: 20.0,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  );
+                }),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void showPreferencesSelectionBottomSheet(BuildContext context) {
+    // Ensure preferencesSelectedOptions is initialized before showing bottom sheet
+    if (controller.preferences.isNotEmpty && preferencesSelectedOptions.length != controller.preferences.length) {
+      preferencesSelectedOptions.value =
+          List<bool>.filled(controller.preferences.length, false);
+      // Match userPreferences with preferences by ID and set selected options
+      for (var p in controller.userPreferences) {
+        int index = controller.preferences
+            .indexWhere((preference) => preference.id == p.preferenceId);
+        if (index != -1) {
+          preferencesSelectedOptions[index] = true;
+        }
+      }
+    }
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return GlassSurface(
+          margin: EdgeInsets.zero,
+          borderRadius: 20.0,
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.8,
+            ),
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Select Preferences',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: Colors.white.withOpacity(0.9)),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Builder(
+                  builder: (context) {
+                    final searchController = TextEditingController(text: preferencesSearchQuery.value);
+                    return GlassInputField(
+                      label: 'Search Preferences',
+                      hint: 'Type to search...',
+                      controller: searchController,
+                      prefixIcon: Icons.search,
+                      onChanged: (value) {
+                        preferencesSearchQuery.value = value ?? '';
+                        searchController.text = value ?? '';
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 10),
+                Flexible(
+                  child: Obx(() {
+                    if (controller.preferences.isEmpty) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircularProgressIndicator(
+                                color: Colors.white.withOpacity(0.7),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Loading preferences...',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.7),
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    var filteredPreferences = controller.preferences
+                        .where((preference) => preference.title
+                            .toLowerCase()
+                            .contains(preferencesSearchQuery.value.toLowerCase()))
+                        .toList();
+
+                    if (filteredPreferences.isEmpty) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.search_off,
+                                size: 48,
+                                color: Colors.white.withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'No preferences found',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.7),
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Try a different search term',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.5),
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    return SingleChildScrollView(
+                      child: Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: filteredPreferences.map((preference) {
+                          // Find the index of this preference in controller.preferences
+                          int preferenceIndex = controller.preferences.indexWhere((p) => p.id == preference.id);
+                          return Obx(() {
+                            bool isSelected = preferenceIndex != -1 && 
+                                preferenceIndex < preferencesSelectedOptions.length &&
+                                preferencesSelectedOptions[preferenceIndex];
+                            return GestureDetector(
+                              onTap: () {
+                                if (preferenceIndex != -1) {
+                                  // Toggle selection using preferencesSelectedOptions
+                                  if (preferenceIndex < preferencesSelectedOptions.length) {
+                                    preferencesSelectedOptions[preferenceIndex] = !preferencesSelectedOptions[preferenceIndex];
+                                    updateSelectedPreferencesIds();
+                                  }
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12.0,
+                                  vertical: 8.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  gradient: isSelected
+                                      ? LinearGradient(
+                                          colors: AppColors.gradientBackgroundList,
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        )
+                                      : null,
+                                  color: isSelected ? null : AppColors.formFieldColor,
+                                  borderRadius: BorderRadius.circular(25.0),
+                                  border: Border.all(
+                                    color: isSelected ? Colors.white : Colors.white.withOpacity(0.3),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Text(
+                                  preference.title,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                            );
+                          });
+                        }).toList(),
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 10),
+                GlassButton(
+                  text: 'Done',
+                  icon: Icons.check,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  onPressed: () {
+                    updateSelectedPreferencesIds();
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void updateSelectedDesiresIds() {
+    // Build list of selected desire IDs from selectedOptions
+    List<String> selectedDesireIds = [];
+    for (int i = 0; i < selectedOptions.length && i < controller.desires.length; i++) {
+      if (selectedOptions[i]) {
+        selectedDesireIds.add(controller.desires[i].id);
+      }
+    }
+    controller.userProfileUpdateRequest.desires = selectedDesireIds;
+    desiresError.value = !selectedOptions.contains(true);
+    
+    // Update selectedDesires list for display
+    selectedDesires.clear();
+    for (int i = 0; i < selectedOptions.length && i < controller.desires.length; i++) {
+      if (selectedOptions[i]) {
+        selectedDesires.add(UserDesire(
+          desiresId: controller.desires[i].id,
+          title: controller.desires[i].title,
+        ));
+      }
+    }
+  }
+
+  // Widget desires(BuildContext context) {
+  //   // Initialize selectedOptions from backend userDesire
+  //   print('EditProfile: Desires: ${controller.userDesire.length}');
+  //   for (var d in controller.userDesire) {
+  //       print('EditProfile: Desires: ${d.desiresId} ${d.title}');
+  //     }
+  //   Obx(() {
+  //     print('EditProfile: Controller Desires: ${controller.desires.length}');
+  //     if (controller.desires.isNotEmpty) {
+  //       // Initialize or update selectedOptions if needed
+  //       print('EditProfile: Controller Desires: ${controller.desires.length}');
+  //       bool needsInit = selectedOptions.length != controller.desires.length;
+  //       if (needsInit) {
+  //         selectedOptions.value = List<bool>.filled(controller.desires.length, false);
+  //       }
+        
+  //       // Always sync with userDesire from backend (in case it changes)
+  //       List<bool> updatedOptions = List<bool>.filled(controller.desires.length, false);
+        
+  //       // Match userDesire with desires by ID and set selected options
+  //       for (var d in controller.userDesire) {
+  //         int index = controller.desires.indexWhere((desire) => desire.id == d.desiresId);
+  //         print('EditProfile: Desires: ${d.desiresId} ${d.title} and index is: $index');
+  //        // selectedDesires.add(d);
+  //         if (index != -1 && index < updatedOptions.length) {
+  //           updatedOptions[index] = true;
+  //         }
+  //       }
+        
+  //       // Check if update is needed by comparing with current selectedOptions
+  //       bool needsUpdate = needsInit;
+  //       if (!needsUpdate && selectedOptions.length == updatedOptions.length) {
+  //         for (int i = 0; i < selectedOptions.length; i++) {
+  //           if (selectedOptions[i] != updatedOptions[i]) {
+  //             needsUpdate = true;
+  //             break;
+  //           }
+  //         }
+  //       }
+  //       print('EditProfile: Needs Update: $needsUpdate');
+        
+  //       // Update if there were changes
+  //       if (needsUpdate) {
+  //         selectedOptions.value = updatedOptions;
+  //         // Update selectedDesires list
+  //         updateSelectedDesiresIds();
+  //       }
+  //     }
+  //     return const SizedBox.shrink();
+  //   });
+
+  //   // Update error state
+  //   desiresError.value = !selectedOptions.contains(true);
+
+  //   // Calculate font size
+  //   double screenWidth = MediaQuery.of(context).size.width;
+  //   double bodyFontSize = screenWidth * 0.04;
+
+  //   return DecoratedBoxTransition(
+  //     decoration: decorationTween.animate(_animationController),
+  //     child: Container(
+  //       decoration: BoxDecoration(
+  //         gradient: LinearGradient(
+  //           colors: AppColors.gradientBackgroundList,
+  //           begin: Alignment.topLeft,
+  //           end: Alignment.bottomRight,
+  //         ),
+  //         borderRadius: BorderRadius.circular(12),
+  //       ),
+  //       child: Card(
+  //         elevation: 8,
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(12),
+  //         ),
+  //         color: Colors.transparent,
+  //         child: Padding(
+  //           padding: const EdgeInsets.all(10.0),
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 children: [
+  //                   Expanded(
+  //                     child: Text(
+  //                       'Desires',
+  //                       style: AppTextStyles.bodyText.copyWith(
+  //                         fontSize: bodyFontSize,
+  //                         fontWeight: FontWeight.bold,
+  //                         color: AppColors.textColor,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                   Obx(() => GlassButton(
+  //                     text: !selectedOptions.contains(true) ? 'Select' : 'Edit',
+  //                     icon: Icons.favorite_border,
+  //                     fontSize: 14,
+  //                     borderRadius: 20.0,
+  //                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+  //                     onPressed: () async {
+  //                       // Ensure desires are loaded before showing bottom sheet
+  //                       if (controller.desires.isEmpty) {
+  //                         await controller.fetchDesires();
+  //                       }
+  //                       showDesiresSelectionBottomSheet(context);
+  //                     },
+  //                   )),
+  //                 ],
+  //               ),
+  //               const SizedBox(height: 12),
+  //               Obx(() {
+  //                 if (desiresError.value) {
+  //                   return Padding(
+  //                     padding: const EdgeInsets.only(bottom: 4),
+  //                     child: Text(
+  //                       'Desire is required',
+  //                       style: TextStyle(
+  //                         color: Colors.red.shade300,
+  //                         fontSize: 12,
+  //                         fontWeight: FontWeight.w500,
+  //                       ),
+  //                     ),
+  //                   );
+  //                 }
+  //                 return const SizedBox.shrink();
+  //               }),
+  //               Obx(() {
+  //                 // Ensure selectedOptions is initialized
+  //                 if (controller.desires.isNotEmpty && selectedOptions.length != controller.desires.length) {
+  //                   selectedOptions.value = List<bool>.filled(controller.desires.length, false);
+  //                   // Match userDesire with desires by ID
+  //                   for (var d in controller.userDesire) {
+  //                     int index = controller.desires.indexWhere((desire) => desire.id == d.desiresId);
+  //                     if (index != -1 && index < selectedOptions.length) {
+  //                       selectedOptions[index] = true;
+  //                     }
+  //                   }
+  //                   updateSelectedDesiresIds();
+  //                 }
+                  
+  //                 // Get selected desires based on selectedOptions
+  //                 List<String> selectedDesireTitles = [];
+  //                 if (controller.desires.isNotEmpty && selectedOptions.length == controller.desires.length) {
+  //                   for (int i = 0; i < selectedOptions.length && i < controller.desires.length; i++) {
+  //                     if (selectedOptions[i]) {
+  //                       selectedDesireTitles.add(controller.desires[i].title);
+  //                     }
+  //                   }
+  //                 }
+                  
+  //                 if (selectedDesireTitles.isEmpty) {
+  //                   return Padding(
+  //                     padding: const EdgeInsets.symmetric(vertical: 4),
+  //                     child: Text(
+  //                       'No desires selected',
+  //                       style: TextStyle(
+  //                         color: Colors.white.withOpacity(0.5),
+  //                         fontSize: 14,
+  //                         fontStyle: FontStyle.italic,
+  //                       ),
+  //                     ),
+  //                   );
+  //                 }
+  //                 return Wrap(
+  //                   spacing: 8.0,
+  //                   runSpacing: 8.0,
+  //                   children: selectedDesireTitles.map((desire) {
+  //                     return GestureDetector(
+  //                       onTap: () {
+  //                         // Find the index and unselect it
+  //                         int index = controller.desires.indexWhere((d) => d.title == desire);
+  //                         if (index != -1 && index < selectedOptions.length) {
+  //                           selectedOptions[index] = false;
+  //                           updateSelectedDesiresIds();
+  //                         }
+  //                       },
+  //                       child: Container(
+  //                         padding: const EdgeInsets.only(
+  //                           left: 12.0,
+  //                           top: 8.0,
+  //                           bottom: 8.0,
+  //                           right: 8.0,
+  //                         ),
+  //                         decoration: BoxDecoration(
+  //                           gradient: LinearGradient(
+  //                             colors: AppColors.gradientBackgroundList,
+  //                             begin: Alignment.topLeft,
+  //                             end: Alignment.bottomRight,
+  //                           ),
+  //                           borderRadius: BorderRadius.circular(25.0),
+  //                           border: Border.all(
+  //                             color: Colors.white,
+  //                             width: 1.5,
+  //                           ),
+  //                         ),
+  //                         child: Row(
+  //                           mainAxisSize: MainAxisSize.min,
+  //                           children: [
+  //                             Text(
+  //                               desire,
+  //                               style: const TextStyle(
+  //                                 fontSize: 15,
+  //                                 color: Colors.white,
+  //                                 fontWeight: FontWeight.bold,
+  //                               ),
+  //                             ),
+  //                             const SizedBox(width: 8.0),
+  //                             Icon(
+  //                               Icons.cancel,
+  //                               color: Colors.white.withOpacity(0.8),
+  //                               size: 20.0,
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ),
+  //                     );
+  //                   }).toList(),
+  //                 );
+  //               }),
+  //             ],
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+Widget desires(BuildContext context) {
+  // Static logs (runs once per build)
+  print('EditProfile: userDesire length: ${controller.userDesire.length}');
+  for (var d in controller.userDesire) {
+    print('EditProfile: userDesire → ${d.desiresId} ${d.title}');
+  }
+
+  return Obx(() {
+    // 🔥 THIS NOW EXECUTES
+    print('EditProfile: controller.desires length: ${controller.desires.length}');
+
+    /// -------------------------------
+    /// 🔁 SYNC LOGIC (reactive)
+    /// -------------------------------
+    if (controller.desires.isNotEmpty) {
+      final int len = controller.desires.length;
+      bool needsInit = selectedOptions.length != len;
+
+      // Init selectedOptions length
+      if (needsInit) {
+        selectedOptions.value = List<bool>.filled(len, false);
+      }
+
+      // Build updated selection list
+      final List<bool> updatedOptions = List<bool>.filled(len, false);
+
+      for (var d in controller.userDesire) {
+        int index = controller.desires
+            .indexWhere((desire) => desire.id == d.desiresId);
+
+        print(
+          'EditProfile: match desireId=${d.desiresId}, index=$index',
+        );
+
+        if (index != -1) {
+          updatedOptions[index] = true;
+        }
+      }
+
+      // Detect changes
+      bool needsUpdate = needsInit;
+      if (!needsUpdate) {
+        for (int i = 0; i < len; i++) {
+          if (selectedOptions[i] != updatedOptions[i]) {
+            needsUpdate = true;
+            break;
+          }
+        }
+      }
+
+      print('EditProfile: needsUpdate = $needsUpdate');
+
+      if (needsUpdate) {
+        selectedOptions.value = updatedOptions;
+        updateSelectedDesiresIds();
+      }
+    }
+
+    /// -------------------------------
+    /// ❗ Error state (reactive)
+    /// -------------------------------
+    desiresError.value = !selectedOptions.contains(true);
+
+    /// -------------------------------
+    /// 📐 UI
+    /// -------------------------------
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double bodyFontSize = screenWidth * 0.04;
+
+    // Selected desire titles
+    final List<String> selectedTitles = [];
+    if (controller.desires.isNotEmpty &&
+        selectedOptions.length == controller.desires.length) {
+      for (int i = 0; i < selectedOptions.length; i++) {
+        if (selectedOptions[i]) {
+          selectedTitles.add(controller.desires[i].title);
+        }
+      }
+    }
+
+    return DecoratedBoxTransition(
+      decoration: decorationTween.animate(_animationController),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: AppColors.gradientBackgroundList,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          color: Colors.transparent,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// -------------------------------
+                /// Header
+                /// -------------------------------
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Desires',
+                        style: AppTextStyles.bodyText.copyWith(
+                          fontSize: bodyFontSize,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textColor,
+                        ),
+                      ),
+                    ),
+                    GlassButton(
+                      text: selectedTitles.isEmpty ? 'Select' : 'Edit',
+                      icon: Icons.favorite_border,
+                      fontSize: 14,
+                      borderRadius: 20,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      onPressed: () async {
+                        if (controller.desires.isEmpty) {
+                          await controller.fetchDesires();
+                        }
+                        showDesiresSelectionBottomSheet(context);
+                      },
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                /// -------------------------------
+                /// Error
+                /// -------------------------------
+                if (desiresError.value)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      'Desire is required',
+                      style: TextStyle(
+                        color: Colors.red.shade300,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+
+                /// -------------------------------
+                /// Selected Chips
+                /// -------------------------------
+                if (selectedTitles.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Text(
+                      'No desires selected',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.5),
+                        fontSize: 14,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  )
+                else
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: selectedTitles.map((title) {
+                      final int index = controller.desires
+                          .indexWhere((d) => d.title == title);
+
+                      return GestureDetector(
+                        onTap: () {
+                          if (index != -1) {
+                            selectedOptions[index] = false;
+                            updateSelectedDesiresIds();
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: AppColors.gradientBackgroundList,
+                            ),
+                            borderRadius: BorderRadius.circular(25),
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                title,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Icon(
+                                Icons.cancel,
+                                size: 20,
+                                color: Colors.white.withOpacity(0.8),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  });
+}
+
+  void showDesiresSelectionBottomSheet(BuildContext context) {
+    // Ensure selectedOptions is initialized before showing bottom sheet
+    if (controller.desires.isNotEmpty && selectedOptions.length != controller.desires.length) {
+      selectedOptions.value = List<bool>.filled(controller.desires.length, false);
+      // Match userDesire with desires by ID and set selected options
+      for (var d in controller.userDesire) {
+        int index = controller.desires.indexWhere((desire) => desire.id == d.desiresId);
+        if (index != -1) {
+          selectedOptions[index] = true;
+        }
+      }
+    }
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return GlassSurface(
+          margin: EdgeInsets.zero,
+          borderRadius: 20.0,
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.8,
+            ),
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Select Desires',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: Colors.white.withOpacity(0.9)),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Builder(
+                  builder: (context) {
+                    final searchController = TextEditingController(text: desiresSearchQuery.value);
+                    return GlassInputField(
+                      label: 'Search Desires',
+                      hint: 'Type to search...',
+                      controller: searchController,
+                      prefixIcon: Icons.search,
+                      onChanged: (value) {
+                        desiresSearchQuery.value = value ?? '';
+                        searchController.text = value ?? '';
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 10),
+                Flexible(
+                  child: Obx(() {
+                    if (controller.desires.isEmpty) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircularProgressIndicator(
+                                color: Colors.white.withOpacity(0.7),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Loading desires...',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.7),
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    var filteredDesires = controller.desires
+                        .where((desire) => desire.title
+                            .toLowerCase()
+                            .contains(desiresSearchQuery.value.toLowerCase()))
+                        .toList();
+
+                    if (filteredDesires.isEmpty) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.search_off,
+                                size: 48,
+                                color: Colors.white.withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'No desires found',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.7),
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Try a different search term',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.5),
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    return SingleChildScrollView(
+                      child: Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: filteredDesires.map((desire) {
+                          // Find the index of this desire in controller.desires
+                          int desireIndex = controller.desires.indexWhere((d) => d.id == desire.id);
+                          return Obx(() {
+                            bool isSelected = desireIndex != -1 && 
+                                desireIndex < selectedOptions.length &&
+                                selectedOptions[desireIndex];
+                            return GestureDetector(
+                              onTap: () {
+                                if (desireIndex != -1) {
+                                  // Toggle selection using selectedOptions
+                                  if (desireIndex < selectedOptions.length) {
+                                    selectedOptions[desireIndex] = !selectedOptions[desireIndex];
+                                    updateSelectedDesiresIds();
+                                  }
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12.0,
+                                  vertical: 8.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  gradient: isSelected
+                                      ? LinearGradient(
+                                          colors: AppColors.gradientBackgroundList,
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        )
+                                      : null,
+                                  color: isSelected ? null : AppColors.formFieldColor,
+                                  borderRadius: BorderRadius.circular(25.0),
+                                  border: Border.all(
+                                    color: isSelected ? Colors.white : Colors.white.withOpacity(0.3),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Text(
+                                  desire.title,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                            );
+                          });
+                        }).toList(),
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 10),
+                GlassButton(
+                  text: 'Done',
+                  icon: Icons.check,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  onPressed: () {
+                    updateSelectedDesiresIds();
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -3588,8 +4921,11 @@ class InfoFieldState extends State<InfoField> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    controller.dispose();
+    // Stop the animation before disposing
+    _animationController.stop();
     _animationController.dispose();
+    // Don't dispose GetX controller - it's managed by GetX
+    // controller.dispose();
     super.dispose();
   }
 
@@ -3623,7 +4959,7 @@ class InfoFieldState extends State<InfoField> with TickerProviderStateMixin {
             ),
             borderRadius: BorderRadius.circular(12),
           ),
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -3658,7 +4994,7 @@ class InfoFieldState extends State<InfoField> with TickerProviderStateMixin {
                   filled: true,
                   fillColor: AppColors.formFieldColor,
                   contentPadding:
-                      const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20),
                     borderSide: BorderSide.none,

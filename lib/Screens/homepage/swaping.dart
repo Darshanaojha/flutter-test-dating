@@ -305,23 +305,23 @@ class MySwipePageState extends State<MySwipePage> {
                                   },
                                 ),
                               ),
-                              SizedBox(height: 16),
-                              Text(
-                                "Stack Finished",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                "No more users available",
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 14,
-                                ),
-                              ),
+                              // SizedBox(height: 16),
+                              // Text(
+                              //   "Stack Finished",
+                              //   style: TextStyle(
+                              //     color: Colors.white,
+                              //     fontSize: 18,
+                              //     fontWeight: FontWeight.bold,
+                              //   ),
+                              // ),
+                              // SizedBox(height: 8),
+                              // Text(
+                              //   "No more users available",
+                              //   style: TextStyle(
+                              //     color: Colors.white70,
+                              //     fontSize: 14,
+                              //   ),
+                              // ),
                             ],
                           ),
                         ),

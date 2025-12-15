@@ -42,7 +42,7 @@ dependencies:
   swipe_cards: ^2.0.0+1
   cached_network_image: ^3.4.1
   lightning_overlay: ^0.0.8
-  liquid_swipe: ^3.1.0
+  # liquid_swipe: ^3.1.0
   pusher_channels_flutter: ^2.4.0
   web_socket_channel: ^3.0.1
   stomp_dart_client: ^2.1.0
@@ -105,6 +105,7 @@ flutter:
     - assets/images/emoji/
     - assets/images/
     - assets/animations/
+    - assets/images/pexels-pixabay-289227.jpg
 
   fonts:
     - family: RusticRoadway

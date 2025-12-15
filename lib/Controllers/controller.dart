@@ -2231,9 +2231,21 @@ class Controller extends GetxController {
   }
 
   RxList<SliderData> sliderData = <SliderData>[].obs;
+  
+  // MOCK DATA MODE - For UI development without server access
+  // Set this to true to use mock data, false to use real server calls
+  static const bool USE_MOCK_INTRO_DATA = true;
+  
   Future<bool> fetchAllIntroSlider() async {
     try {
       sliderData.clear();
+      
+      // Use mock data if enabled
+      if (USE_MOCK_INTRO_DATA) {
+        _initializeMockIntroData();
+        return true;
+      }
+      
       IntroSliderResponse? response =
           await FetchAllIntroSliderProvider().fetchAllIntroSliderProvider();
 
@@ -2256,6 +2268,44 @@ class Controller extends GetxController {
       failure('Error', e.toString());
       return false;
     }
+  }
+  
+  /// Initialize mock data for intro slider (realistic dating app content)
+  void _initializeMockIntroData() {
+    sliderData.addAll([
+      SliderData(
+        id: '1',
+        title: 'FIND YOUR PERFECT MATCH',
+        image: 'assets/images/pexels-cottonbro-5928587.jpg',
+        status: '1',
+        created: DateTime.now().toString(),
+        updated: DateTime.now().toString(),
+      ),
+      SliderData(
+        id: '2',
+        title: 'CONNECT WITH REAL PEOPLE',
+        image: 'assets/images/pexels-pixabay-289227.jpg',
+        status: '1',
+        created: DateTime.now().toString(),
+        updated: DateTime.now().toString(),
+      ),
+      SliderData(
+        id: '3',
+        title: 'CHAT AND BUILD MEANINGFUL RELATIONSHIPS',
+        image: 'assets/images/pexels-cottonbro-5928587.jpg',
+        status: '1',
+        created: DateTime.now().toString(),
+        updated: DateTime.now().toString(),
+      ),
+      SliderData(
+        id: '4',
+        title: 'START YOUR JOURNEY TODAY',
+        image: 'assets/images/pexels-pixabay-289227.jpg',
+        status: '1',
+        created: DateTime.now().toString(),
+        updated: DateTime.now().toString(),
+      ),
+    ]);
   }
 
   Color getRandomColor() {

@@ -13,7 +13,7 @@ String get springbooturl => "http://$ipSpringAddress:8080";
 String ipSpringAddress = "192.168.1.4";
 // String ipAddress = "guidebooky-hezekiah-nonoperative.ngrok-free.dev";
 String ipAddress = "192.168.1.4";
-const String appName = "cajed.in";
+const String appName = "hhukd";
 
 const encryptionkey = "flamrpisyst2024!";
 const secretkey = "ArqamzSnehaSadiq@flamrdating2024";

@@ -768,7 +768,7 @@ class ChatScreenState extends State<ChatScreen> {
                                   child: SensitiveImageWidget(
                                     imagePath: message.imagePath!,
                                     bearerToken: bearerToken!,
-                                    sensitivity: message.sensitivity ?? 0,
+                                    sensitivity: message.sensitivity ?? 'non-explicit',
                                   ),
                                 ),
                               ),
@@ -1555,7 +1555,7 @@ class ChatScreenState extends State<ChatScreen> {
 class SensitiveImageWidget extends StatefulWidget {
   final String imagePath;
   final String bearerToken;
-  final int sensitivity;
+  final String sensitivity;
 
   const SensitiveImageWidget({
     super.key,
@@ -1618,7 +1618,7 @@ class _SensitiveImageWidgetState extends State<SensitiveImageWidget> {
             imageBytes,
           );
 
-          if (widget.sensitivity == 1 && _showBlur) {
+          if (widget.sensitivity != "non-explicit" && _showBlur) {
             return GestureDetector(
               onTap: () {
                 setState(() {

@@ -32,17 +32,19 @@ class ProfileLikeProvider extends GetConnect {
       }
 
       if (response.statusCode == 200) {
-        if (response.body['error']['code'] == 0) {
+        // Always parse and return the response so we can check error messages
+        // This allows us to handle cases like "already liked" gracefully
+        try {
+          debugPrint("ProfileLikeProvider response body: ${response.body}");
           return ProfileLikeResponse.fromJson(response.body);
-        } else {
-          // failure('Oops!', response.body['error']['message']); // Commented out for swipe actions
-          debugPrint(
-              "Error in profileLikeProvider: ${response.body['error']['message']}");
+        } catch (e) {
+          debugPrint("Error parsing ProfileLikeResponse: $e");
+          debugPrint("Response body that failed to parse: ${response.body}");
           return null;
         }
       } else {
         debugPrint(
-            "Error in profileLikeProvider: ${response.body['error']['message']}");
+            "Error in profileLikeProvider: ${response.body?['error']?['message'] ?? 'Unknown error'}");
         return null;
       }
     } catch (e) {

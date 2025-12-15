@@ -81,19 +81,26 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
 
       String? token = preferences.getString('token');
       debugPrint("Token: $token");
-      bool? value = preferences.getBoolean('isSeenUser');
+      bool? hasSeenIntro = preferences.getBoolean('isSeenUser');
 
-      if (value == null || value == false) {
+      // Flow: Intro Slider → Registration/Auth → App
+      // Step 1: Check if user has seen intro slider (first time launch)
+      if (hasSeenIntro == null || hasSeenIntro == false) {
+        // First time - show intro slider
         bool success = await controller.fetchAllIntroSlider();
         if (success) {
-          preferences.setBoolean('isSeenUser', true);
+          // Mark intro as seen (will be set after user completes it)
+          // Don't set it here - let intro slider set it when user finishes
           Get.offAll(() => IntroSlidingPages());
         } else {
           failure('Error', 'Failed to fetch the intro slider');
-          Get.offAll(() => CombinedAuthScreen()); // Fallback
+          // If intro fails, go directly to auth
+          Get.offAll(() => CombinedAuthScreen());
         }
         return;
       }
+
+      // Step 2: User has seen intro - continue with normal flow
 
       await controller.fetchAllHeadlines();
       await controller.fetchSafetyGuidelines();

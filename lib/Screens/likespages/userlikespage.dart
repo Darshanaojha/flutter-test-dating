@@ -909,22 +909,22 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
                       ),
 
                     // Divider with "Liked by you" text at right
-                    if (likedByCurrentUser.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 8.0),
-                        child: Row(
-                          children: [
-                            Expanded(child: Divider(color: Colors.white54)),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: Text("Liked by you",
-                                  style: AppTextStyles.bodyText
-                                      .copyWith(color: Colors.white)),
-                            ),
-                          ],
-                        ),
-                      ),
+                    // if (likedByCurrentUser.isNotEmpty)
+                    //   Padding(
+                    //     padding: const EdgeInsets.symmetric(
+                    //         horizontal: 12.0, vertical: 8.0),
+                    //     child: Row(
+                    //       children: [
+                    //         Expanded(child: Divider(color: Colors.white54)),
+                    //         Padding(
+                    //           padding: const EdgeInsets.only(left: 8.0),
+                    //           child: Text("Liked by you",
+                    //               style: AppTextStyles.bodyText
+                    //                   .copyWith(color: Colors.white)),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
 
                     // Section: You Liked
                     if (likedByCurrentUser.isNotEmpty)
@@ -994,6 +994,51 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
   //   );
   // }
 
+  Future<void> _handleProfileLikeSuccess(String userId, LikeRequestPages user, bool isMatch) async {
+    try {
+      // Update optimistic state
+      setState(() {
+        optimisticLikeStatus[userId] = 1;
+      });
+      
+      // Refresh the likes page data
+      bool refreshSuccess = await controller.likesuserpage();
+      if (!refreshSuccess) {
+        print("LikesPage: Warning - likesuserpage returned false, but continuing...");
+      }
+      
+      // Update filtered list
+      if (mounted) {
+        setState(() {
+          filteredLikesPage = List.from(controller.likespage);
+          // Update like count
+          likeCount.value = filteredLikesPage.where((user) => user.likedByMe == 0).length;
+        });
+      }
+      
+      // Show match dialog if it's a match
+      if (isMatch && mounted) {
+        _showMatchDialog(user);
+      }
+    } catch (e, stackTrace) {
+      print("LikesPage: Error in _handleProfileLikeSuccess: $e");
+      print("Stack trace: $stackTrace");
+      // Don't show error to user since the like operation itself succeeded
+      // Just try to refresh the data
+      if (mounted) {
+        try {
+          await controller.likesuserpage();
+          setState(() {
+            filteredLikesPage = List.from(controller.likespage);
+            likeCount.value = filteredLikesPage.where((user) => user.likedByMe == 0).length;
+          });
+        } catch (refreshError) {
+          print("LikesPage: Error refreshing data: $refreshError");
+        }
+      }
+    }
+  }
+
   Widget _buildUserCard(
       BuildContext context, LikeRequestPages user, bool isLiked,
       {Key? key}) {
@@ -1023,6 +1068,7 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
       onMatch: (matchedUser) {
         _showMatchDialog(matchedUser);
       },
+      onProfileLikeSuccess: _handleProfileLikeSuccess,
       animatingUserId: _animatingUserId,
     );
   }
@@ -1247,6 +1293,7 @@ class UserCard extends StatefulWidget {
   final Function(String userId, int newLikeStatus) onLikeToggle;
   final Function(String userId) onShowAnimation;
   final Function(LikeRequestPages matchedUser)? onMatch;
+  final Function(String userId, LikeRequestPages user, bool isMatch)? onProfileLikeSuccess;
   final String? animatingUserId;
 
   const UserCard({
@@ -1261,6 +1308,7 @@ class UserCard extends StatefulWidget {
     required this.onLikeToggle,
     required this.onShowAnimation,
     this.onMatch,
+    this.onProfileLikeSuccess,
     this.animatingUserId,
   });
 
@@ -1308,6 +1356,25 @@ class UserCardState extends State<UserCard>
               : UserProfileSummary(
                   userId: widget.user.userId.toString(),
                   imageUrls: widget.user.images,
+                  showLikeButton: true,
+                  onLikeSuccess: (bool isMatch) async {
+                    try {
+                      // Close the bottom sheet first
+                      Get.back();
+                      
+                      // Wait a bit for the bottom sheet to close
+                      await Future.delayed(const Duration(milliseconds: 300));
+                      
+                      // Call the parent's callback to handle refresh and match dialog
+                      if (widget.onProfileLikeSuccess != null) {
+                        await widget.onProfileLikeSuccess!(widget.user.userId, widget.user, isMatch);
+                      }
+                    } catch (e, stackTrace) {
+                      print("UserCard: Error in onLikeSuccess callback: $e");
+                      print("Stack trace: $stackTrace");
+                      // Don't show error to user since the like operation itself succeeded
+                    }
+                  },
                 ),
           isScrollControlled: true,
           backgroundColor: AppColors.primaryColor,
@@ -1412,7 +1479,7 @@ class UserCardState extends State<UserCard>
 
               // Like/Unlike Button
               Positioned(
-                bottom: 8,
+                top: 8,
                 right: 8,
                 child: GestureDetector(
                   onTap: () async {
