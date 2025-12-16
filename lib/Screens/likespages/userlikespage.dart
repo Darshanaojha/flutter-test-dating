@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/ResponseModels/profile_like_response_model.dart';
@@ -49,6 +50,56 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
+  }
+
+  /// Helper function to normalize base64 string (add padding if needed)
+  String _normalizeBase64(String base64) {
+    // Remove data URL prefix if present
+    String clean = base64.contains(',') ? base64.split(',')[1] : base64;
+    // Remove whitespace
+    clean = clean.trim();
+    // Add padding if needed (base64 strings should be divisible by 4)
+    int remainder = clean.length % 4;
+    if (remainder != 0) {
+      clean += '=' * (4 - remainder);
+    }
+    return clean;
+  }
+
+  /// Helper function to check if a string is a base64 image
+  bool _isBase64Image(String? image) {
+    if (image == null || image.isEmpty) return false;
+    // If it starts with http, it's definitely a URL
+    if (image.startsWith('http://') || image.startsWith('https://')) {
+      return false;
+    }
+    // If it starts with /, it might be a base64 string (like /9j/ for JPEG)
+    // or it could be a path - check if it's long enough to be base64
+    if (image.startsWith('/') && image.length > 50) {
+      // Likely base64 if it's long and starts with /9j/ (JPEG) or /iVB (PNG)
+      if (image.startsWith('/9j/') || image.startsWith('/iVB')) {
+        try {
+          String normalized = _normalizeBase64(image);
+          base64Decode(normalized);
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+    }
+    // Remove data URL prefix if present (e.g., "data:image/jpeg;base64,")
+    String cleanImage = image.contains(',') ? image.split(',')[1] : image;
+    cleanImage = cleanImage.trim();
+    // Base64 strings should be reasonably long (at least 20 chars for a tiny image)
+    if (cleanImage.length < 20) return false;
+    // Try to normalize and decode
+    try {
+      String normalized = _normalizeBase64(cleanImage);
+      base64Decode(normalized);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   // Convert LikeRequestPages to SuggestedUser for match dialog
@@ -267,39 +318,72 @@ class LikesPageState extends State<LikesPage> with TickerProviderStateMixin {
           child: GestureDetector(
             onTap: () => Navigator.of(context).pop(),
             child: Center(
-              child: imagePath.startsWith('http')
-                  ? Image.network(
-                      imagePath,
-                      fit: BoxFit.contain,
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Center(
-                          child: Image.asset(
-                            'assets/images/cajed_logo.png',
+              child: _isBase64Image(imagePath)
+                  ? Builder(
+                      builder: (context) {
+                        try {
+                          String normalizedBase64 = _normalizeBase64(imagePath);
+                          return Image.memory(
+                            base64Decode(normalizedBase64),
                             fit: BoxFit.contain,
                             width: MediaQuery.of(context).size.width,
                             height: MediaQuery.of(context).size.height,
-                          ),
-                        );
+                            errorBuilder: (context, error, stackTrace) {
+                              return Center(
+                                child: Image.asset(
+                                  'assets/images/cajed_logo.png',
+                                  fit: BoxFit.contain,
+                                  width: MediaQuery.of(context).size.width,
+                                  height: MediaQuery.of(context).size.height,
+                                ),
+                              );
+                            },
+                          );
+                        } catch (e) {
+                          return Center(
+                            child: Image.asset(
+                              'assets/images/cajed_logo.png',
+                              fit: BoxFit.contain,
+                              width: MediaQuery.of(context).size.width,
+                              height: MediaQuery.of(context).size.height,
+                            ),
+                          );
+                        }
                       },
                     )
-                  : Image.asset(
-                      imagePath,
-                      fit: BoxFit.contain,
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Center(
-                          child: Image.asset(
-                            'assets/images/cajed_logo.png',
-                            fit: BoxFit.contain,
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.height,
-                          ),
-                        );
-                      },
-                    ),
+                  : imagePath.startsWith('http')
+                      ? Image.network(
+                          imagePath,
+                          fit: BoxFit.contain,
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Center(
+                              child: Image.asset(
+                                'assets/images/cajed_logo.png',
+                                fit: BoxFit.contain,
+                                width: MediaQuery.of(context).size.width,
+                                height: MediaQuery.of(context).size.height,
+                              ),
+                            );
+                          },
+                        )
+                      : Image.asset(
+                          imagePath,
+                          fit: BoxFit.contain,
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Center(
+                              child: Image.asset(
+                                'assets/images/cajed_logo.png',
+                                fit: BoxFit.contain,
+                                width: MediaQuery.of(context).size.width,
+                                height: MediaQuery.of(context).size.height,
+                              ),
+                            );
+                          },
+                        ),
             ),
           ),
         );
@@ -1343,6 +1427,96 @@ class UserCardState extends State<UserCard>
     super.dispose();
   }
 
+  /// Helper function to normalize base64 string (add padding if needed)
+  String _normalizeBase64(String base64) {
+    // Remove data URL prefix if present
+    String clean = base64.contains(',') ? base64.split(',')[1] : base64;
+    // Remove whitespace
+    clean = clean.trim();
+    // Add padding if needed (base64 strings should be divisible by 4)
+    int remainder = clean.length % 4;
+    if (remainder != 0) {
+      clean += '=' * (4 - remainder);
+    }
+    return clean;
+  }
+
+  /// Helper function to check if a string is a base64 image
+  bool _isBase64Image(String? image) {
+    if (image == null || image.isEmpty) return false;
+    // If it starts with http, it's definitely a URL
+    if (image.startsWith('http://') || image.startsWith('https://')) {
+      return false;
+    }
+    // If it starts with /, it might be a base64 string (like /9j/ for JPEG)
+    // or it could be a path - check if it's long enough to be base64
+    if (image.startsWith('/') && image.length > 50) {
+      // Likely base64 if it's long and starts with /9j/ (JPEG) or /iVB (PNG)
+      if (image.startsWith('/9j/') || image.startsWith('/iVB')) {
+        try {
+          String normalized = _normalizeBase64(image);
+          base64Decode(normalized);
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+    }
+    // Remove data URL prefix if present (e.g., "data:image/jpeg;base64,")
+    String cleanImage = image.contains(',') ? image.split(',')[1] : image;
+    cleanImage = cleanImage.trim();
+    // Base64 strings should be reasonably long (at least 20 chars for a tiny image)
+    if (cleanImage.length < 20) return false;
+    // Try to normalize and decode
+    try {
+      String normalized = _normalizeBase64(cleanImage);
+      base64Decode(normalized);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Build image widget that handles both network URLs and base64 strings
+  Widget _buildImageWidget(String imageUrl) {
+    if (_isBase64Image(imageUrl)) {
+      return Builder(
+        builder: (context) {
+          try {
+            String normalizedBase64 = _normalizeBase64(imageUrl);
+            return Image.memory(
+              base64Decode(normalizedBase64),
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Image.asset(
+                  'assets/images/cajed_logo.png',
+                  fit: BoxFit.cover,
+                );
+              },
+            );
+          } catch (e) {
+            return Image.asset(
+              'assets/images/cajed_logo.png',
+              fit: BoxFit.cover,
+            );
+          }
+        },
+      );
+    } else {
+      // Network image
+      return Image.network(
+        imageUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Image.asset(
+            'assets/images/cajed_logo.png',
+            fit: BoxFit.cover,
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -1403,16 +1577,7 @@ class UserCardState extends State<UserCard>
               // Background image
               Positioned.fill(
                 child: widget.user.images.isNotEmpty
-                    ? Image.network(
-                        widget.user.images.first,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Image.asset(
-                            'assets/images/cajed_logo.png',
-                            fit: BoxFit.cover,
-                          );
-                        },
-                      )
+                    ? _buildImageWidget(widget.user.images.first)
                     : Image.asset(
                         'assets/images/cajed_logo.png',
                         fit: BoxFit.cover,

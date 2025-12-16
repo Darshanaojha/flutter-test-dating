@@ -56,6 +56,11 @@ class AppColors {
   static Color navigationColorleft = Color.fromARGB(255, 47, 27, 27);
   static Color navigationright = Color.fromARGB(255, 115, 111, 111);
   static Color progressColor = Color(0xFFD3D3D3);
+  // Fuchsia colors for glassmorphism - optimized for transparency and depth
+  static Color fuschia = Color(0xBD8E43EB); // Base fuchsia (more vibrant)
+  static Color fuschiaLight = Color(0xFFD18FE8); // Lighter fuchsia for highlights
+  static Color borderFuschia = Color(0xBD8037DC); // Bright fuchsia for borders
+  
   static var primaryTextColor;
   static var shadowColor;
   // static LinearGradient gradientBackground = LinearGradient(
@@ -111,11 +116,12 @@ class AppColors {
   // ];
 
   static List<Color> gradientBackgroundList = <Color>[
-    Color(0xFF331E3F), // darkest purple
-    Color(0xFF4A2655), // dark violet
-    Color(0xFF562B63), // deep violet
-    Color(0xFF703A7E), // purple
-    Color(0xFF895294), // medium-light purple
+    Color(0xFF2D1B4E), // deep dark purple
+    Color(0xFF3D2A5F), // dark purple
+    Color(0xFF4A2C6F), // rich purple
+    Color(0xFF5B3A7F), // vibrant purple
+    Color(0xFF6B4A8F), // medium purple
+    Color(0xFF7C5A9F), // light purple
   ];
 
   static LinearGradient get appBarGradient => LinearGradient(

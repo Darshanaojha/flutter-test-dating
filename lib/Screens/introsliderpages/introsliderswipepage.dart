@@ -310,18 +310,19 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> {
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               // Icon or emoji
               if (icon != null)
                 Icon(
                   icon,
-                  size: 48,
+                  size: 46,
                   color: _pinkAccent,
                 )
               else
                 Text(
                   '💕',
-                  style: TextStyle(fontSize: 48),
+                  style: TextStyle(fontSize: 46),
                 ),
             ],
           ),

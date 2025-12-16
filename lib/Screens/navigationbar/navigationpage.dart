@@ -450,51 +450,58 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
       child: Scaffold(
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(size.height * 0.06),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: AppColors.appBarGradient,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: AppBar(
-              elevation: 5,
-              title: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    appName,
-                    style: AppTextStyles.headingText.copyWith(
-                      fontSize: getResponsiveFontSize(context, 0.07),
-                      fontFamily: 'RusticRoadway',
-                      // fontWeight: FontWeight.normal,
-                    ),
+          child: AppBar(
+            elevation: 0,
+            title: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  appName,
+                  style: AppTextStyles.headingText.copyWith(
+                    fontSize: getResponsiveFontSize(context, 0.07),
+                    fontFamily: 'RusticRoadway',
+                    // fontWeight: FontWeight.normal,
                   ),
                 ),
               ),
-              backgroundColor: Colors.transparent,
-              shape: RoundedRectangleBorder(
+            ),
+            backgroundColor: Colors.transparent,
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: AppColors.gradientBackgroundList,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(30),
                   bottomRight: Radius.circular(30),
                 ),
               ),
-              leading: IconButton(
-                icon: Icon(Icons.settings),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+              ),
+            ),
+            leading: IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage()),
+                );
+              },
+            ),
+            actions: [
+              IconButton(
+                icon: Icon(Icons.exit_to_app),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SettingsPage()),
-                  );
+                  showLogoutDialog(context);
                 },
               ),
-              actions: [
-                IconButton(
-                  icon: Icon(Icons.exit_to_app),
-                  onPressed: () {
-                    showLogoutDialog(context);
-                  },
-                ),
-              ],
-            ),
+            ],
           ),
         ),
         body: Obx(() {

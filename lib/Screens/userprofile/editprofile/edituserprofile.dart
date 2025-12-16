@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Models/RequestModels/subgender_request_model.dart';
 import 'package:dating_application/Models/ResponseModels/get_all_country_response_model.dart';
@@ -20,6 +21,7 @@ import '../../../Widgets/glassmorphism_background.dart';
 import '../../../Widgets/glass_surface.dart';
 import '../../../Widgets/glass_input_field.dart';
 import '../../../Widgets/glass_chip.dart';
+import '../../../Widgets/glass_tile.dart';
 import '../editphoto/edituserprofilephoto.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -930,125 +932,56 @@ class EditProfilePageState extends State<EditProfilePage>
                     child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      DecoratedBoxTransition(
-                        decoration: decorationTween.animate(_animationController),
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: AppColors.gradientBackgroundList,
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
+                      GlassTile(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Profile Photos',
+                              style: AppTextStyles.bodyText.copyWith(
+                                fontSize: bodyFontSize,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textColor,
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Card(
-                            elevation: 8,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            color: Colors.transparent,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Profile Photos',
-                                    style: AppTextStyles.bodyText.copyWith(
-                                      fontSize: bodyFontSize,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.textColor,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  SizedBox(
-                                    height: MediaQuery.of(context).size.height * 0.25,
-                                    child: (controller.userPhotos == null ||
-                                            controller.userPhotos!.images.isEmpty)
-                                        ? Center(
-                                            child: Text(
-                                              "No images available",
-                                              style: TextStyle(
-                                                color: Colors.white.withOpacity(0.7),
-                                              ),
-                                            ),
-                                          )
-                                        : ListView.builder(
-                                            scrollDirection: Axis.horizontal,
-                                            itemCount: controller.userPhotos!.images.length,
-                                            itemBuilder: (context, index) {
-                                              String imageUrl = controller
-                                                  .userPhotos!.images[index];
-                                              return Padding(
-                                                padding: const EdgeInsets.only(right: 8.0),
-                                                child: GestureDetector(
-                                                  onTap: () => showFullImageDialog(
-                                                      context, imageUrl),
-                                                  child: ClipRRect(
-                                                    borderRadius: BorderRadius.circular(12),
-                                                    child: _isBase64Image(imageUrl)
-                                                        ? Builder(
-                                                            builder: (context) {
-                                                              try {
-                                                                String normalizedBase64 = _normalizeBase64(imageUrl);
-                                                                return Image.memory(
-                                                                  base64Decode(normalizedBase64),
-                                                                  fit: BoxFit.cover,
-                                                                  width: MediaQuery.of(context).size.width * 0.3,
-                                                                  height: MediaQuery.of(context).size.height * 0.25,
-                                                                  errorBuilder: (context, error, stackTrace) {
-                                                                    return Container(
-                                                                      width: MediaQuery.of(context).size.width * 0.3,
-                                                                      height: MediaQuery.of(context).size.height * 0.25,
-                                                                      alignment: Alignment.center,
-                                                                      color: Colors.grey.shade200,
-                                                                      child: const Icon(
-                                                                        Icons.broken_image,
-                                                                        size: 48,
-                                                                        color: Colors.grey,
-                                                                      ),
-                                                                    );
-                                                                  },
-                                                                );
-                                                              } catch (e) {
-                                                                return Container(
-                                                                  width: MediaQuery.of(context).size.width * 0.3,
-                                                                  height: MediaQuery.of(context).size.height * 0.25,
-                                                                  alignment: Alignment.center,
-                                                                  color: Colors.grey.shade200,
-                                                                  child: const Icon(
-                                                                    Icons.broken_image,
-                                                                    size: 48,
-                                                                    color: Colors.grey,
-                                                                  ),
-                                                                );
-                                                              }
-                                                            },
-                                                          )
-                                                        : Image.network(
-                                                            imageUrl,
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.25,
+                              child: (controller.userPhotos == null ||
+                                      controller.userPhotos!.images.isEmpty)
+                                  ? Center(
+                                      child: Text(
+                                        "No images available",
+                                        style: TextStyle(
+                                          color: Colors.white.withOpacity(0.7),
+                                        ),
+                                      ),
+                                    )
+                                  : ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: controller.userPhotos!.images.length,
+                                      itemBuilder: (context, index) {
+                                        String imageUrl = controller
+                                            .userPhotos!.images[index];
+                                        return Padding(
+                                          padding: const EdgeInsets.only(right: 8.0),
+                                          child: GestureDetector(
+                                            onTap: () => showFullImageDialog(
+                                                context, imageUrl),
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(12),
+                                              child: _isBase64Image(imageUrl)
+                                                  ? Builder(
+                                                      builder: (context) {
+                                                        try {
+                                                          String normalizedBase64 = _normalizeBase64(imageUrl);
+                                                          return Image.memory(
+                                                            base64Decode(normalizedBase64),
                                                             fit: BoxFit.cover,
                                                             width: MediaQuery.of(context).size.width * 0.3,
                                                             height: MediaQuery.of(context).size.height * 0.25,
-                                                            loadingBuilder: (context, child, loadingProgress) {
-                                                              if (loadingProgress == null) {
-                                                                return child;
-                                                              } else {
-                                                                return Container(
-                                                                  width: MediaQuery.of(context).size.width * 0.3,
-                                                                  height: MediaQuery.of(context).size.height * 0.25,
-                                                                  alignment: Alignment.center,
-                                                                  child: CircularProgressIndicator(
-                                                                    value: loadingProgress.expectedTotalBytes != null
-                                                                        ? loadingProgress.cumulativeBytesLoaded /
-                                                                            loadingProgress.expectedTotalBytes!
-                                                                        : null,
-                                                                    color: Colors.white.withOpacity(0.7),
-                                                                  ),
-                                                                );
-                                                              }
-                                                            },
                                                             errorBuilder: (context, error, stackTrace) {
                                                               return Container(
                                                                 width: MediaQuery.of(context).size.width * 0.3,
@@ -1062,33 +995,83 @@ class EditProfilePageState extends State<EditProfilePage>
                                                                 ),
                                                               );
                                                             },
+                                                          );
+                                                        } catch (e) {
+                                                          return Container(
+                                                            width: MediaQuery.of(context).size.width * 0.3,
+                                                            height: MediaQuery.of(context).size.height * 0.25,
+                                                            alignment: Alignment.center,
+                                                            color: Colors.grey.shade200,
+                                                            child: const Icon(
+                                                              Icons.broken_image,
+                                                              size: 48,
+                                                              color: Colors.grey,
+                                                            ),
+                                                          );
+                                                        }
+                                                      },
+                                                    )
+                                                  : Image.network(
+                                                      imageUrl,
+                                                      fit: BoxFit.cover,
+                                                      width: MediaQuery.of(context).size.width * 0.3,
+                                                      height: MediaQuery.of(context).size.height * 0.25,
+                                                      loadingBuilder: (context, child, loadingProgress) {
+                                                        if (loadingProgress == null) {
+                                                          return child;
+                                                        } else {
+                                                          return Container(
+                                                            width: MediaQuery.of(context).size.width * 0.3,
+                                                            height: MediaQuery.of(context).size.height * 0.25,
+                                                            alignment: Alignment.center,
+                                                            child: CircularProgressIndicator(
+                                                              value: loadingProgress.expectedTotalBytes != null
+                                                                  ? loadingProgress.cumulativeBytesLoaded /
+                                                                      loadingProgress.expectedTotalBytes!
+                                                                  : null,
+                                                              color: Colors.white.withOpacity(0.7),
+                                                            ),
+                                                          );
+                                                        }
+                                                      },
+                                                      errorBuilder: (context, error, stackTrace) {
+                                                        return Container(
+                                                          width: MediaQuery.of(context).size.width * 0.3,
+                                                          height: MediaQuery.of(context).size.height * 0.25,
+                                                          alignment: Alignment.center,
+                                                          color: Colors.grey.shade200,
+                                                          child: const Icon(
+                                                            Icons.broken_image,
+                                                            size: 48,
+                                                            color: Colors.grey,
                                                           ),
-                                                  ),
-                                                ),
-                                              );
-                                            },
+                                                        );
+                                                      },
+                                                    ),
+                                            ),
                                           ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  GlassButton(
-                                    text: 'Edit Photos',
-                                    icon: Icons.camera_alt,
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const EditPhotosPage(),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
+                                        );
+                                      },
+                                    ),
                             ),
-                          ),
+                            const SizedBox(height: 4),
+                            GlassButton(
+                              text: 'Edit Photos',
+                              icon: Icons.camera_alt,
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const EditPhotosPage(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       ),
+                      
                       SizedBox(
                         height: MediaQuery.of(context).size.height * 0.01,
                       ),
@@ -1103,112 +1086,93 @@ class EditProfilePageState extends State<EditProfilePage>
                               child: Column(
                                 children: [
                                   // Combined Personal Information Tile
-                                  DecoratedBoxTransition(
-                                    decoration: decorationTween.animate(_animationController),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: AppColors.gradientBackgroundList,
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Card(
-                                        elevation: 8,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                        color: Colors.transparent,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10.0),
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              // Name
-                                              GlassInputField(
-                                                label: 'Name',
-                                                controller: TextEditingController(
-                                                  text: controller
-                                                              .userProfileUpdateRequest
-                                                              .name
-                                                              .isNotEmpty
-                                                          ? controller
-                                                              .userProfileUpdateRequest.name
-                                                          : controller.userData.first.name,
-                                                ),
-                                                onChanged: onUserNameChanged,
-                                                validator: (value) {
-                                                  return validateName(value ?? '');
-                                                },
-                                              ),
-                                              const SizedBox(height: 12),
-                                              // Email
-                                              GlassInputField(
-                                                label: 'Email',
-                                                controller: TextEditingController(text: controller.userData.first.email),
-                                                keyboardType: TextInputType.emailAddress,
-                                              ),
-                                              const SizedBox(height: 12),
-                                              // Date of Birth
-                                              dobPicker(
-                                                context: context,
-                                                initialValue: controller
+                                  GlassTile(
+                                    margin: const EdgeInsets.only(bottom: 10),
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        // Name
+                                        GlassInputField(
+                                          label: 'Name',
+                                          controller: TextEditingController(
+                                            text: controller
                                                         .userProfileUpdateRequest
-                                                        .dob
+                                                        .name
                                                         .isNotEmpty
                                                     ? controller
-                                                        .userProfileUpdateRequest.dob
-                                                    : controller.userData.first.dob,
-                                                onChanged: (value) {
-                                                  controller.userProfileUpdateRequest
-                                                      .dob = value;
-                                                  print("Date of Birth: $value");
-                                                },
-                                                validator: (value) => validateDob(value),
-                                                label: 'Date of Birth',
-                                              ),
-                                              const SizedBox(height: 12),
-                                              // Nickname
-                                              GlassInputField(
-                                                label: 'Nick name',
-                                                controller: TextEditingController(
-                                                  text: controller
-                                                              .userProfileUpdateRequest
-                                                              .nickname
-                                                              .isNotEmpty
-                                                          ? controller
-                                                              .userProfileUpdateRequest.nickname
-                                                          : controller.userData.first.nickname,
-                                                ),
-                                                onChanged: onNickNameChanged,
-                                                validator: (value) {
-                                                  return validateNickname(value?.trim() ?? '');
-                                                },
-                                              ),
-                                              const SizedBox(height: 12),
-                                              // About
-                                              GlassInputField(
-                                                label: 'About',
-                                                controller: TextEditingController(
-                                                  text: controller
-                                                              .userProfileUpdateRequest
-                                                              .bio
-                                                              .isNotEmpty
-                                                          ? controller
-                                                              .userProfileUpdateRequest.bio
-                                                          : controller.userData.first.bio,
-                                                ),
-                                                maxLines: 5,
-                                                onChanged: onAboutChanged,
-                                                validator: (value) {
-                                                  return validateBio(value ?? '');
-                                                },
-                                              ),
-                                            ],
+                                                        .userProfileUpdateRequest.name
+                                                    : controller.userData.first.name,
                                           ),
+                                          onChanged: onUserNameChanged,
+                                          validator: (value) {
+                                            return validateName(value ?? '');
+                                          },
                                         ),
-                                      ),
+                                        const SizedBox(height: 12),
+                                        // Email
+                                        GlassInputField(
+                                          label: 'Email',
+                                          controller: TextEditingController(text: controller.userData.first.email),
+                                          keyboardType: TextInputType.emailAddress,
+                                        ),
+                                        const SizedBox(height: 12),
+                                        // Date of Birth
+                                        dobPicker(
+                                          context: context,
+                                          initialValue: controller
+                                                  .userProfileUpdateRequest
+                                                  .dob
+                                                  .isNotEmpty
+                                              ? controller
+                                                  .userProfileUpdateRequest.dob
+                                              : controller.userData.first.dob,
+                                          onChanged: (value) {
+                                            controller.userProfileUpdateRequest
+                                                .dob = value;
+                                            print("Date of Birth: $value");
+                                          },
+                                          validator: (value) => validateDob(value),
+                                          label: 'Date of Birth',
+                                        ),
+                                        const SizedBox(height: 12),
+                                        // Nickname
+                                        GlassInputField(
+                                          label: 'Nick name',
+                                          controller: TextEditingController(
+                                            text: controller
+                                                        .userProfileUpdateRequest
+                                                        .nickname
+                                                        .isNotEmpty
+                                                    ? controller
+                                                        .userProfileUpdateRequest.nickname
+                                                    : controller.userData.first.nickname,
+                                          ),
+                                          onChanged: onNickNameChanged,
+                                          validator: (value) {
+                                            return validateNickname(value?.trim() ?? '');
+                                          },
+                                        ),
+                                        const SizedBox(height: 12),
+                                        // About
+                                        GlassInputField(
+                                          label: 'About',
+                                          controller: TextEditingController(
+                                            text: controller
+                                                        .userProfileUpdateRequest
+                                                        .bio
+                                                        .isNotEmpty
+                                                    ? controller
+                                                        .userProfileUpdateRequest.bio
+                                                    : controller.userData.first.bio,
+                                          ),
+                                          maxLines: 5,
+                                          onChanged: onAboutChanged,
+                                          validator: (value) {
+                                            return validateBio(value ?? '');
+                                          },
+                                        ),
+                                      ],
                                     ),
                                   ),
                                   SizedBox(
@@ -1216,113 +1180,94 @@ class EditProfilePageState extends State<EditProfilePage>
                                         0.01,
                                   ),
                                   // Combined Location & Language Tile
-                                  DecoratedBoxTransition(
-                                    decoration: decorationTween.animate(_animationController),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: AppColors.gradientBackgroundList,
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Card(
-                                        elevation: 8,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                        color: Colors.transparent,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10.0),
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              // Country
-                                              Text(
-                                                "Country: ${controller.selectedCountry.value?.name ?? ''}",
-                                                style: AppTextStyles.bodyText.copyWith(
-                                                  fontSize: bodyFontSize,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: AppColors.textColor,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 8.0),
-                                              Obx(() {
-                                                if (controller.countries.isEmpty) {
-                                                  return Center(
-                                                    child: CircularProgressIndicator(
-                                                      color: Colors.white.withOpacity(0.7),
-                                                    ),
-                                                  );
-                                                }
-                                                return buildDropdownWithBottomSheet<
-                                                    Country>(
-                                                  context,
-                                                  "Country",
-                                                  controller.countries,
-                                                  controller.initialCountry,
-                                                  controller.selectedCountry,
-                                                  12.0,
-                                                  (Country? value) {
-                                                    if (value != null) {
-                                                      controller
-                                                          .userProfileUpdateRequest
-                                                          .countryId = value.id;
-                                                      Get.snackbar('Selected',
-                                                          value.name);
-                                                    }
-                                                  },
-                                                  displayValue:
-                                                      (Country country) =>
-                                                          country.name,
-                                                );
-                                              }),
-                                              const SizedBox(height: 12),
-                                              // City
-                                              GlassInputField(
-                                                label: 'City',
-                                                controller: TextEditingController(
-                                                  text: controller
-                                                              .userProfileUpdateRequest
-                                                              .city
-                                                              .isNotEmpty
-                                                          ? controller
-                                                              .userProfileUpdateRequest.city
-                                                          : controller.userData.first.city,
-                                                ),
-                                                onChanged: (value) {
-                                                  onCityChanged(value);
-                                                },
-                                                validator: (value) {
-                                                  return validateCity(value ?? '');
-                                                },
-                                              ),
-                                              const SizedBox(height: 12),
-                                              // Address
-                                              GlassInputField(
-                                                label: 'Address',
-                                                controller: TextEditingController(
-                                                  text: controller
-                                                              .userProfileUpdateRequest
-                                                              .address
-                                                              .isNotEmpty
-                                                          ? controller
-                                                              .userProfileUpdateRequest.address
-                                                          : controller.userData.first.address,
-                                                ),
-                                                onChanged: onAddressChnaged,
-                                                validator: (value) {
-                                                  return validateAddress(value ?? '');
-                                                },
-                                              ),
-                                              const SizedBox(height: 12),
-                                              // Languages
-                                              _languagesContent(context),
-                                            ],
+                                  GlassTile(
+                                    margin: const EdgeInsets.only(bottom: 10),
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        // Country
+                                        Text(
+                                          "Country: ${controller.selectedCountry.value?.name ?? ''}",
+                                          style: AppTextStyles.bodyText.copyWith(
+                                            fontSize: bodyFontSize,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.textColor,
                                           ),
                                         ),
-                                      ),
+                                        const SizedBox(height: 8.0),
+                                        Obx(() {
+                                          if (controller.countries.isEmpty) {
+                                            return Center(
+                                              child: CircularProgressIndicator(
+                                                color: Colors.white.withOpacity(0.7),
+                                              ),
+                                            );
+                                          }
+                                          return buildDropdownWithBottomSheet<
+                                              Country>(
+                                            context,
+                                            "Country",
+                                            controller.countries,
+                                            controller.initialCountry,
+                                            controller.selectedCountry,
+                                            12.0,
+                                            (Country? value) {
+                                              if (value != null) {
+                                                controller
+                                                    .userProfileUpdateRequest
+                                                    .countryId = value.id;
+                                                Get.snackbar('Selected',
+                                                    value.name);
+                                              }
+                                            },
+                                            displayValue:
+                                                (Country country) =>
+                                                    country.name,
+                                          );
+                                        }),
+                                        const SizedBox(height: 12),
+                                        // City
+                                        GlassInputField(
+                                          label: 'City',
+                                          controller: TextEditingController(
+                                            text: controller
+                                                        .userProfileUpdateRequest
+                                                        .city
+                                                        .isNotEmpty
+                                                    ? controller
+                                                        .userProfileUpdateRequest.city
+                                                    : controller.userData.first.city,
+                                          ),
+                                          onChanged: (value) {
+                                            onCityChanged(value);
+                                          },
+                                          validator: (value) {
+                                            return validateCity(value ?? '');
+                                          },
+                                        ),
+                                        const SizedBox(height: 12),
+                                        // Address
+                                        GlassInputField(
+                                          label: 'Address',
+                                          controller: TextEditingController(
+                                            text: controller
+                                                        .userProfileUpdateRequest
+                                                        .address
+                                                        .isNotEmpty
+                                                    ? controller
+                                                        .userProfileUpdateRequest.address
+                                                    : controller.userData.first.address,
+                                          ),
+                                          onChanged: onAddressChnaged,
+                                          validator: (value) {
+                                            return validateAddress(value ?? '');
+                                          },
+                                        ),
+                                        const SizedBox(height: 12),
+                                        // Languages
+                                        _languagesContent(context),
+                                      ],
                                     ),
                                   ),
                                   SizedBox(
@@ -1378,273 +1323,249 @@ class EditProfilePageState extends State<EditProfilePage>
                                     height: MediaQuery.of(context).size.height *
                                         0.01,
                                   ),
-                                  preferences(context),
-
-
+                                  preferencesAndDesires(context),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
                                         0.01,
                                   ),
-                                  DecoratedBoxTransition(
-                                    decoration: decorationTween
-                                        .animate(_animationController),
-                                    child: Material(
-                                      elevation: 5,
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: AppColors
-                                                .gradientBackgroundList,
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
+                                  GlassTile(
+                                    margin: const EdgeInsets.only(bottom: 10),
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        // Title
+                                        Center(
+                                          child: Text(
+                                            "Interests",
+                                            style: AppTextStyles.textStyle
+                                                .copyWith(
+                                              fontSize:
+                                                  getResponsiveFontSize(
+                                                      0.04),
+                                              color: Colors.white,
+                                            ),
+                                            textAlign: TextAlign
+                                                .center, // optional for safety
                                           ),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
                                         ),
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                        const SizedBox(height: 10),
+
+                                        // Input field + Add button
+                                        Row(
                                           children: [
-                                            // Title
-                                            Center(
-                                              child: Text(
-                                                "Interests",
-                                                style: AppTextStyles.textStyle
-                                                    .copyWith(
-                                                  fontSize:
-                                                      getResponsiveFontSize(
-                                                          0.04),
-                                                  color: Colors.white,
-                                                ),
-                                                textAlign: TextAlign
-                                                    .center, // optional for safety
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment
+                                                        .start,
+                                                children: [
+                                                  TextField(
+                                                    controller:
+                                                        interestController,
+                                                    cursorColor: AppColors
+                                                        .cursorColor,
+                                                    decoration:
+                                                        InputDecoration(
+                                                      labelText:
+                                                          'Update Interest',
+                                                      labelStyle:
+                                                          AppTextStyles
+                                                              .buttonText
+                                                              .copyWith(
+                                                        fontSize:
+                                                            getResponsiveFontSize(
+                                                                0.03),
+                                                      ),
+                                                      filled: true,
+                                                      fillColor: AppColors
+                                                          .formFieldColor,
+                                                      border:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(
+                                                                    10),
+                                                        borderSide:
+                                                            BorderSide.none,
+                                                      ),
+                                                      focusedBorder:
+                                                          OutlineInputBorder(
+                                                        borderSide:
+                                                            const BorderSide(
+                                                          color:
+                                                              Colors.green,
+                                                          width: 2.0,
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(
+                                                                    20),
+                                                      ),
+                                                      enabledBorder:
+                                                          OutlineInputBorder(
+                                                        borderSide:
+                                                            BorderSide(
+                                                          color: AppColors
+                                                              .textColor,
+                                                          width: 1.5,
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(
+                                                                    20),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Obx(() {
+                                                    return interestInstruction
+                                                            .value
+                                                            .isNotEmpty
+                                                        ? Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    top:
+                                                                        6.0),
+                                                            child: Text(
+                                                              interestInstruction
+                                                                  .value,
+                                                              style:
+                                                                  TextStyle(
+                                                                color: Colors
+                                                                    .orange,
+                                                                fontSize:
+                                                                    12,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                              ),
+                                                            ),
+                                                          )
+                                                        : SizedBox.shrink();
+                                                  }),
+                                                  Obx(() {
+                                                    return interestError
+                                                            .value
+                                                            .isNotEmpty
+                                                        ? Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    top:
+                                                                        6.0),
+                                                            child: Text(
+                                                              interestError
+                                                                  .value,
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .red,
+                                                                  fontSize:
+                                                                      12),
+                                                            ),
+                                                          )
+                                                        : SizedBox.shrink();
+                                                  }),
+                                                ],
                                               ),
                                             ),
-                                            const SizedBox(height: 10),
-
-                                            // Input field + Add button
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      TextField(
-                                                        controller:
-                                                            interestController,
-                                                        cursorColor: AppColors
-                                                            .cursorColor,
-                                                        decoration:
-                                                            InputDecoration(
-                                                          labelText:
-                                                              'Update Interest',
-                                                          labelStyle:
-                                                              AppTextStyles
-                                                                  .buttonText
-                                                                  .copyWith(
-                                                            fontSize:
-                                                                getResponsiveFontSize(
-                                                                    0.03),
-                                                          ),
-                                                          filled: true,
-                                                          fillColor: AppColors
-                                                              .formFieldColor,
-                                                          border:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        10),
-                                                            borderSide:
-                                                                BorderSide.none,
-                                                          ),
-                                                          focusedBorder:
-                                                              OutlineInputBorder(
-                                                            borderSide:
-                                                                const BorderSide(
-                                                              color:
-                                                                  Colors.green,
-                                                              width: 2.0,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        20),
-                                                          ),
-                                                          enabledBorder:
-                                                              OutlineInputBorder(
-                                                            borderSide:
-                                                                BorderSide(
-                                                              color: AppColors
-                                                                  .textColor,
-                                                              width: 1.5,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        20),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      Obx(() {
-                                                        return interestInstruction
-                                                                .value
-                                                                .isNotEmpty
-                                                            ? Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .only(
-                                                                        top:
-                                                                            6.0),
-                                                                child: Text(
-                                                                  interestInstruction
-                                                                      .value,
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: Colors
-                                                                        .orange,
-                                                                    fontSize:
-                                                                        12,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500,
-                                                                  ),
-                                                                ),
-                                                              )
-                                                            : SizedBox.shrink();
-                                                      }),
-                                                      Obx(() {
-                                                        return interestError
-                                                                .value
-                                                                .isNotEmpty
-                                                            ? Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .only(
-                                                                        top:
-                                                                            6.0),
-                                                                child: Text(
-                                                                  interestError
-                                                                      .value,
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .red,
-                                                                      fontSize:
-                                                                          12),
-                                                                ),
-                                                              )
-                                                            : SizedBox.shrink();
-                                                      }),
-                                                    ],
-                                                  ),
-                                                ),
-                                                IconButton(
-                                                  icon: Icon(Icons.add,
-                                                      color: Colors.white),
-                                                  onPressed: addInterest,
-                                                ),
-                                              ],
+                                            IconButton(
+                                              icon: Icon(Icons.add,
+                                                  color: Colors.white),
+                                              onPressed: addInterest,
                                             ),
-
-                                            const SizedBox(height: 10),
-
-                                            // Chips display
-                                            Obx(() {
-                                              if (updatedSelectedInterests
-                                                      .isEmpty &&
-                                                  controller.userData.first
-                                                      .interest.isNotEmpty) {
-                                                updatedSelectedInterests.addAll(
-                                                  controller
-                                                      .userData.first.interest
-                                                      .split(',')
-                                                      .toSet(),
-                                                );
-                                              }
-
-                                              return Wrap(
-                                                spacing: 8.0,
-                                                runSpacing:
-                                                    8.0, // Added for vertical spacing
-                                                children: List.generate(
-                                                    updatedSelectedInterests
-                                                        .length, (index) {
-                                                  final interest =
-                                                      updatedSelectedInterests[
-                                                          index];
-                                                  return Container(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            left: 12.0,
-                                                            top: 8.0,
-                                                            bottom: 8.0,
-                                                            right: 8.0),
-                                                    decoration: BoxDecoration(
-                                                      gradient: LinearGradient(
-                                                        colors: AppColors
-                                                            .gradientBackgroundList,
-                                                        begin:
-                                                            Alignment.topLeft,
-                                                        end: Alignment
-                                                            .bottomRight,
-                                                      ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              25.0),
-                                                      border: Border.all(
-                                                        color: Colors.white,
-                                                        width: 1.5,
-                                                      ),
-                                                    ),
-                                                    child: Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        Text(
-                                                          interest,
-                                                          style: const TextStyle(
-                                                              fontSize: 15,
-                                                              color:
-                                                                  Colors.white,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                        SizedBox(width: 8.0),
-                                                        GestureDetector(
-                                                          onTap: () {
-                                                            deleteInterest(
-                                                                index);
-                                                            updateUserInterests();
-                                                          },
-                                                          child: Icon(
-                                                            Icons.cancel,
-                                                            color: Colors.white
-                                                                .withOpacity(
-                                                                    0.8),
-                                                            size: 20.0,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                }),
-                                              );
-                                            }),
                                           ],
                                         ),
-                                      ),
+
+                                        const SizedBox(height: 10),
+
+                                        // Chips display
+                                        Obx(() {
+                                          if (updatedSelectedInterests
+                                                  .isEmpty &&
+                                              controller.userData.first
+                                                  .interest.isNotEmpty) {
+                                            updatedSelectedInterests.addAll(
+                                              controller
+                                                  .userData.first.interest
+                                                  .split(',')
+                                                  .toSet(),
+                                            );
+                                          }
+
+                                          return Wrap(
+                                            spacing: 8.0,
+                                            runSpacing:
+                                                8.0, // Added for vertical spacing
+                                            children: List.generate(
+                                                updatedSelectedInterests
+                                                    .length, (index) {
+                                              final interest =
+                                                  updatedSelectedInterests[
+                                                      index];
+                                              return Container(
+                                                padding:
+                                                    const EdgeInsets.only(
+                                                        left: 12.0,
+                                                        top: 8.0,
+                                                        bottom: 8.0,
+                                                        right: 8.0),
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    colors: AppColors
+                                                        .gradientBackgroundList,
+                                                    begin:
+                                                        Alignment.topLeft,
+                                                    end: Alignment
+                                                        .bottomRight,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          25.0),
+                                                  border: Border.all(
+                                                    color: Colors.white,
+                                                    width: 1.5,
+                                                  ),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                      interest,
+                                                      style: const TextStyle(
+                                                          fontSize: 15,
+                                                          color:
+                                                              Colors.white,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold),
+                                                    ),
+                                                    SizedBox(width: 8.0),
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        deleteInterest(
+                                                            index);
+                                                        updateUserInterests();
+                                                      },
+                                                      child: Icon(
+                                                        Icons.cancel,
+                                                        color: Colors.white
+                                                            .withOpacity(
+                                                                0.8),
+                                                        size: 20.0,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            }),
+                                          );
+                                        }),
+                                      ],
                                     ),
                                   ),
-                                  SizedBox(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.01,
-                                  ),
-                                  desires(context),
                                   SizedBox(
                                     height: MediaQuery.of(context).size.height *
                                         0.01,
@@ -1655,93 +1576,56 @@ class EditProfilePageState extends State<EditProfilePage>
                       SizedBox(
                         height: MediaQuery.of(context).size.height * 0.01,
                       ),
-                      DecoratedBoxTransition(
-                        decoration:
-                            decorationTween.animate(_animationController),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: AppColors.gradientBackgroundList,
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 6,
-                                offset: Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Card(
-                              elevation: 2,
-                              margin: EdgeInsets.zero,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: AppColors.gradientBackgroundList,
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
+                      GlassTile(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(10.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Center(
+                              child: Text(
+                                "Privacy Settings",
+                                style: AppTextStyles.subheadingText
+                                    .copyWith(
+                                  fontSize: getResponsiveFontSize(0.04),
+                                  color: Colors
+                                      .white, // Ensure it's readable on gradient
                                 ),
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Center(
-                                      child: Text(
-                                        "Privacy Settings",
-                                        style: AppTextStyles.subheadingText
-                                            .copyWith(
-                                          fontSize: getResponsiveFontSize(0.04),
-                                          color: Colors
-                                              .white, // Ensure it's readable on gradient
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
 
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.01,
-                                    ),
-                                    PrivacyToggle(
-                                      label: "Email Alert",
-                                      value: emailAlerts.value,
-                                      onChanged: (val) => setState(
-                                          () => emailAlerts.value = val),
-                                    ),
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.01,
-                                    ),
-                                    PrivacyToggle(
-                                      label: visibility_status.value
-                                          ? "Online Visible"
-                                          : "Hide Online",
-                                      value: visibility_status.value,
-                                      onChanged: (val) {
-                                        setState(() {
-                                          visibility_status.value = val;
-                                          controller.userProfileUpdateRequest
-                                              .visibility = val ? '1' : '0';
-                                        });
-                                      },
-                                    ),
-                                    // Add other toggles here if needed
-                                  ],
-                                ),
-                              ),
+                            SizedBox(
+                              height:
+                                  MediaQuery.of(context).size.height *
+                                      0.01,
                             ),
-                          ),
+                            PrivacyToggle(
+                              label: "Email Alert",
+                              value: emailAlerts.value,
+                              onChanged: (val) => setState(
+                                  () => emailAlerts.value = val),
+                            ),
+                            SizedBox(
+                              height:
+                                  MediaQuery.of(context).size.height *
+                                      0.01,
+                            ),
+                            PrivacyToggle(
+                              label: visibility_status.value
+                                  ? "Online Visible"
+                                  : "Hide Online",
+                              value: visibility_status.value,
+                              onChanged: (val) {
+                                setState(() {
+                                  visibility_status.value = val;
+                                  controller.userProfileUpdateRequest
+                                      .visibility = val ? '1' : '0';
+                                });
+                              },
+                            ),
+                            // Add other toggles here if needed
+                          ],
                         ),
                       ),
                       SizedBox(
@@ -2766,14 +2650,48 @@ class EditProfilePageState extends State<EditProfilePage>
                   }),
                 ),
                 const SizedBox(height: 10),
-                GlassButton(
-                  text: 'Done',
-                  icon: Icons.check,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  onPressed: () {
-                    updateSelectedLanguageIds();
-                    Navigator.pop(context);
-                  },
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: AppColors.gradientBackgroundList,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        updateSelectedLanguageIds();
+                        Navigator.pop(context);
+                      },
+                      borderRadius: BorderRadius.circular(16.0),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Done',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -3590,73 +3508,54 @@ class EditProfilePageState extends State<EditProfilePage>
     double screenWidth = MediaQuery.of(context).size.width;
     double bodyFontSize = screenWidth * 0.04;
 
-    return DecoratedBoxTransition(
-      decoration: decorationTween.animate(_animationController),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: AppColors.gradientBackgroundList,
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Card(
-          elevation: 8,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          color: Colors.transparent,
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Relationship Type at the top
-                Obx(() {
-                  String initialLookingFor = controller
-                          .userProfileUpdateRequest
-                          .lookingFor
-                          .isNotEmpty
-                      ? controller
-                          .userProfileUpdateRequest.lookingFor
-                      : controller.userData.first.lookingFor;
+    return GlassTile(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Relationship Type at the top
+          Obx(() {
+            String initialLookingFor = controller
+                    .userProfileUpdateRequest
+                    .lookingFor
+                    .isNotEmpty
+                ? controller
+                    .userProfileUpdateRequest.lookingFor
+                : controller.userData.first.lookingFor;
 
-                  return buildSelectableFieldRelationship<String>(
-                    "Relationship Type",
-                    ['1', '2'],
-                    initialLookingFor.isEmpty
-                        ? null
-                        : initialLookingFor,
-                    bodyFontSize,
-                    (String? value) {
-                      setState(() {
-                        controller
-                            .userProfileUpdateRequest
-                            .lookingFor = value ?? '';
-                      });
-                    },
-                    displayValue: (String value) {
-                      if (value == '1') {
-                        return 'Serious Relationship';
-                      } else if (value == '2') {
-                        return 'Hookup';
-                      }
-                      return '';
-                    },
-                    context: context,
-                  );
-                }),
-                const SizedBox(height: 12),
-                // Gender
-                _genderContent(context),
-                const SizedBox(height: 12),
-                // Sub Gender
-                _subGenderContent(context),
-              ],
-            ),
-          ),
-        ),
+            return buildSelectableFieldRelationship<String>(
+              "Relationship Type",
+              ['1', '2'],
+              initialLookingFor.isEmpty
+                  ? null
+                  : initialLookingFor,
+              bodyFontSize,
+              (String? value) {
+                setState(() {
+                  controller
+                      .userProfileUpdateRequest
+                      .lookingFor = value ?? '';
+                });
+              },
+              displayValue: (String value) {
+                if (value == '1') {
+                  return 'Serious Relationship';
+                } else if (value == '2') {
+                  return 'Hookup';
+                }
+                return '';
+              },
+              context: context,
+            );
+          }),
+          const SizedBox(height: 12),
+          // Gender
+          _genderContent(context),
+          const SizedBox(height: 12),
+          // Sub Gender
+          _subGenderContent(context),
+        ],
       ),
     );
   }
@@ -4545,6 +4444,380 @@ Widget desires(BuildContext context) {
   });
 }
 
+  Widget preferencesAndDesires(BuildContext context) {
+    // Calculate font size
+    double screenWidth = MediaQuery.of(context).size.width;
+    double bodyFontSize = screenWidth * 0.04;
+
+    return GlassTile(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Preferences Section
+          // Initialize preferencesSelectedOptions from backend userPreferences
+          Obx(() {
+            if (controller.preferences.isNotEmpty) {
+              if (preferencesSelectedOptions.length != controller.preferences.length) {
+                preferencesSelectedOptions.value =
+                    List<bool>.filled(controller.preferences.length, false);
+                // Match userPreferences with preferences by ID and set selected options
+                for (var p in controller.userPreferences) {
+                  int index = controller.preferences
+                      .indexWhere((preference) => preference.id == p.preferenceId);
+                  if (index != -1) {
+                    preferencesSelectedOptions[index] = true;
+                  }
+                }
+              }
+            }
+            return const SizedBox.shrink();
+          }),
+
+          // Update error state
+          Obx(() {
+            preferencesError.value = !preferencesSelectedOptions.contains(true);
+            return const SizedBox.shrink();
+          }),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  'Preferences',
+                  style: AppTextStyles.bodyText.copyWith(
+                    fontSize: bodyFontSize,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textColor,
+                  ),
+                ),
+              ),
+              Obx(() => GlassButton(
+                text: !preferencesSelectedOptions.contains(true) ? 'Select' : 'Edit',
+                icon: Icons.favorite,
+                fontSize: 14,
+                borderRadius: 20.0,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                onPressed: () async {
+                  // Ensure preferences are loaded before showing bottom sheet
+                  if (controller.preferences.isEmpty) {
+                    await controller.fetchPreferences();
+                  }
+                  showPreferencesSelectionBottomSheet(context);
+                },
+              )),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Obx(() {
+            if (preferencesError.value) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  'Preference is required',
+                  style: TextStyle(
+                    color: Colors.red.shade300,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          }),
+          Obx(() {
+            // Get selected preferences based on preferencesSelectedOptions
+            List<String> selectedPrefs = [];
+            for (int i = 0; i < preferencesSelectedOptions.length && i < controller.preferences.length; i++) {
+              if (preferencesSelectedOptions[i]) {
+                selectedPrefs.add(controller.preferences[i].title);
+              }
+            }
+            
+            if (selectedPrefs.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Text(
+                  'No preferences selected',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.5),
+                    fontSize: 14,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              );
+            }
+            return Wrap(
+              spacing: 8.0,
+              runSpacing: 8.0,
+              children: selectedPrefs.map((preference) {
+                return GestureDetector(
+                  onTap: () {
+                    // Find the index and unselect it
+                    int index = controller.preferences.indexWhere((p) => p.title == preference);
+                    if (index != -1) {
+                      preferencesSelectedOptions[index] = false;
+                      updateSelectedPreferencesIds();
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.only(
+                      left: 12.0,
+                      top: 8.0,
+                      bottom: 8.0,
+                      right: 8.0,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: AppColors.gradientBackgroundList,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(25.0),
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          preference,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 8.0),
+                        Icon(
+                          Icons.cancel,
+                          color: Colors.white.withOpacity(0.8),
+                          size: 20.0,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            );
+          }),
+          
+          const SizedBox(height: 24),
+          
+          // Desires Section
+          Builder(
+            builder: (context) {
+              // Static logs (runs once per build)
+              print('EditProfile: userDesire length: ${controller.userDesire.length}');
+              for (var d in controller.userDesire) {
+                print('EditProfile: userDesire → ${d.desiresId} ${d.title}');
+              }
+
+              return Obx(() {
+                // 🔥 THIS NOW EXECUTES
+                print('EditProfile: controller.desires length: ${controller.desires.length}');
+
+                /// -------------------------------
+                /// 🔁 SYNC LOGIC (reactive)
+                /// -------------------------------
+                if (controller.desires.isNotEmpty) {
+                  final int len = controller.desires.length;
+                  bool needsInit = selectedOptions.length != len;
+
+                  // Init selectedOptions length
+                  if (needsInit) {
+                    selectedOptions.value = List<bool>.filled(len, false);
+                  }
+
+                  // Build updated selection list
+                  final List<bool> updatedOptions = List<bool>.filled(len, false);
+
+                  for (var d in controller.userDesire) {
+                    int index = controller.desires
+                        .indexWhere((desire) => desire.id == d.desiresId);
+
+                    print(
+                      'EditProfile: match desireId=${d.desiresId}, index=$index',
+                    );
+
+                    if (index != -1) {
+                      updatedOptions[index] = true;
+                    }
+                  }
+
+                  // Detect changes
+                  bool needsUpdate = needsInit;
+                  if (!needsUpdate) {
+                    for (int i = 0; i < len; i++) {
+                      if (selectedOptions[i] != updatedOptions[i]) {
+                        needsUpdate = true;
+                        break;
+                      }
+                    }
+                  }
+
+                  print('EditProfile: needsUpdate = $needsUpdate');
+
+                  if (needsUpdate) {
+                    selectedOptions.value = updatedOptions;
+                    updateSelectedDesiresIds();
+                  }
+                }
+
+                /// -------------------------------
+                /// ❗ Error state (reactive)
+                /// -------------------------------
+                desiresError.value = !selectedOptions.contains(true);
+
+                // Selected desire titles
+                final List<String> selectedTitles = [];
+                if (controller.desires.isNotEmpty &&
+                    selectedOptions.length == controller.desires.length) {
+                  for (int i = 0; i < selectedOptions.length; i++) {
+                    if (selectedOptions[i]) {
+                      selectedTitles.add(controller.desires[i].title);
+                    }
+                  }
+                }
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    /// -------------------------------
+                    /// Header
+                    /// -------------------------------
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Desires',
+                            style: AppTextStyles.bodyText.copyWith(
+                              fontSize: bodyFontSize,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textColor,
+                            ),
+                          ),
+                        ),
+                        GlassButton(
+                          text: selectedTitles.isEmpty ? 'Select' : 'Edit',
+                          icon: Icons.favorite_border,
+                          fontSize: 14,
+                          borderRadius: 20,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          onPressed: () async {
+                            if (controller.desires.isEmpty) {
+                              await controller.fetchDesires();
+                            }
+                            showDesiresSelectionBottomSheet(context);
+                          },
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    /// -------------------------------
+                    /// Error
+                    /// -------------------------------
+                    if (desiresError.value)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Text(
+                          'Desire is required',
+                          style: TextStyle(
+                            color: Colors.red.shade300,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+
+                    /// -------------------------------
+                    /// Selected Chips
+                    /// -------------------------------
+                    if (selectedTitles.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Text(
+                          'No desires selected',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.5),
+                            fontSize: 14,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      )
+                    else
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: selectedTitles.map((title) {
+                          final int index = controller.desires
+                              .indexWhere((d) => d.title == title);
+
+                          return GestureDetector(
+                            onTap: () {
+                              if (index != -1) {
+                                selectedOptions[index] = false;
+                                updateSelectedDesiresIds();
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: AppColors.gradientBackgroundList,
+                                ),
+                                borderRadius: BorderRadius.circular(25),
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    title,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Icon(
+                                    Icons.cancel,
+                                    size: 20,
+                                    color: Colors.white.withOpacity(0.8),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                  ],
+                );
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   void showDesiresSelectionBottomSheet(BuildContext context) {
     // Ensure selectedOptions is initialized before showing bottom sheet
     if (controller.desires.isNotEmpty && selectedOptions.length != controller.desires.length) {
@@ -4921,9 +5194,13 @@ class InfoFieldState extends State<InfoField> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    // Stop the animation before disposing
-    _animationController.stop();
+    // Stop and reset the animation before disposing
+    if (_animationController.isAnimating) {
+      _animationController.stop();
+    }
+    _animationController.reset();
     _animationController.dispose();
+    // Note: debounce Timer will auto-cleanup when widget is disposed
     // Don't dispose GetX controller - it's managed by GetX
     // controller.dispose();
     super.dispose();
