@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:dating_application/Providers/fcmService.dart';
+import 'package:dating_application/Providers/WebSocketService.dart';
 import 'package:dating_application/Screens/auth.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -19,6 +20,7 @@ import '../homepage/homepage.dart';
 import '../likespages/userlikespage.dart';
 import '../settings/setting.dart';
 import '../userprofile/userprofilepage.dart';
+import '../introsliderpages/introsliderswipepage.dart';
 
 class NavigationController extends GetxController {
   final Rx<int> selectedIndex = 0.obs;
@@ -265,7 +267,14 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                         ),
                         child: ElevatedButton(
                           onPressed: () async {
+                            String? userId;
+                            
                             try {
+                              // Get userId before clearing preferences
+                              final preferences =
+                                  EncryptedSharedPreferences.getInstance();
+                              userId = preferences.getString('userId');
+                              
                               // Update activity status before logout (fire and forget, but with timeout)
                               if (Get.isRegistered<Controller>()) {
                                 try {
@@ -289,11 +298,23 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                               debugPrint('Error during logout preparation: $e');
                             }
 
-                            // Subscribe to unsubscribed topic
+                            // Disconnect WebSocket
                             try {
-                              FCMService().subscribeToTopic("unsubscribed");
+                              final websocketService = WebSocketService();
+                              if (websocketService.isConnected()) {
+                                websocketService.disconnect();
+                                debugPrint('✅ WebSocket disconnected');
+                              }
                             } catch (e) {
-                              debugPrint('Error subscribing to FCM topic: $e');
+                              debugPrint('Error disconnecting WebSocket: $e');
+                            }
+
+                            // Unsubscribe from all FCM topics
+                            try {
+                              await FCMService().unsubscribeFromAllTopics(userId);
+                              debugPrint('✅ Unsubscribed from all FCM topics');
+                            } catch (e) {
+                              debugPrint('Error unsubscribing from FCM topics: $e');
                             }
 
                             // Clear preferences
@@ -316,7 +337,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                             } catch (e) {
                               debugPrint('Error deleting controllers: $e');
                             }
-  Get.put(Controller());
+                            Get.put(Controller());
 
                             // Navigate to auth screen
                             Get.offAll(() => CombinedAuthScreen());
@@ -495,6 +516,14 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
               },
             ),
             actions: [
+              // Test button for intro slider
+              IconButton(
+                icon: Icon(Icons.slideshow, color: Colors.pink),
+                onPressed: () {
+                  Get.to(() => IntroSlidingPages());
+                },
+                tooltip: 'Test Intro Slider',
+              ),
               IconButton(
                 icon: Icon(Icons.exit_to_app),
                 onPressed: () {

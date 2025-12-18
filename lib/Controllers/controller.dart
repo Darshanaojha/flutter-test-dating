@@ -2276,7 +2276,7 @@ class Controller extends GetxController {
       SliderData(
         id: '1',
         title: 'FIND YOUR PERFECT MATCH',
-        image: 'assets/images/pexels-cottonbro-5928587.jpg',
+        image: 'assets/images/intro1.png',
         status: '1',
         created: DateTime.now().toString(),
         updated: DateTime.now().toString(),
@@ -2284,7 +2284,7 @@ class Controller extends GetxController {
       SliderData(
         id: '2',
         title: 'CONNECT WITH REAL PEOPLE',
-        image: 'assets/images/pexels-pixabay-289227.jpg',
+        image: 'assets/images/intro1.png',
         status: '1',
         created: DateTime.now().toString(),
         updated: DateTime.now().toString(),
@@ -2292,7 +2292,7 @@ class Controller extends GetxController {
       SliderData(
         id: '3',
         title: 'CHAT AND BUILD MEANINGFUL RELATIONSHIPS',
-        image: 'assets/images/pexels-cottonbro-5928587.jpg',
+        image: 'assets/images/intro1.png',
         status: '1',
         created: DateTime.now().toString(),
         updated: DateTime.now().toString(),
@@ -2300,7 +2300,7 @@ class Controller extends GetxController {
       SliderData(
         id: '4',
         title: 'START YOUR JOURNEY TODAY',
-        image: 'assets/images/pexels-pixabay-289227.jpg',
+        image: 'assets/images/intro1.png',
         status: '1',
         created: DateTime.now().toString(),
         updated: DateTime.now().toString(),

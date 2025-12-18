@@ -28,6 +28,7 @@ class UserRegistrationRequest {
   String emailAlerts;
   String username;
   String lookingFor;
+  String? googleToken;
 
   UserRegistrationRequest({
     required this.name,
@@ -55,6 +56,7 @@ class UserRegistrationRequest {
     required this.emailAlerts,
     required this.username,
     required this.lookingFor,
+    this.googleToken,
   });
 
   factory UserRegistrationRequest.fromJson(Map<String, dynamic> json) {
@@ -84,6 +86,7 @@ class UserRegistrationRequest {
       emailAlerts: json['email_alerts'],
       username: json['username'],
       lookingFor: json['looking_for'],
+      googleToken: json['google_token'],
     );
   }
 
@@ -113,6 +116,7 @@ class UserRegistrationRequest {
     emailAlerts = '';
     username = '';
     lookingFor = '';
+    googleToken = null;
   }
 
   Map<String, dynamic> toJson() {
@@ -142,6 +146,7 @@ class UserRegistrationRequest {
       'email_alerts': emailAlerts,
       'username': username,
       'looking_for': lookingFor,
+      'google_token': googleToken ?? '',
     };
   }
 

@@ -1,5 +1,6 @@
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Screens/settings/appinfopages/appinfopagestart.dart';
+import 'package:dating_application/Screens/introsliderpages/introsliderswipepage.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -154,7 +155,7 @@ class SettingsPageState extends State<SettingsPage>
     } else if (permission == LocationPermission.whileInUse ||
         permission == LocationPermission.always) {
       Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+          desiredAccuracy: LocationAccuracy.medium);
       if (!mounted) return;
       setState(() {
         currentLocation =
@@ -217,6 +218,15 @@ class SettingsPageState extends State<SettingsPage>
             onPressed: () => Get.to(AppInfoPage()),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Test button to access intro slider
+          Get.to(() => IntroSlidingPages());
+        },
+        backgroundColor: Colors.pink,
+        child: Icon(Icons.slideshow, color: Colors.white),
+        tooltip: 'Test Intro Slider',
       ),
       body: FutureBuilder<void>(
         future: _settingsInitializationFuture,

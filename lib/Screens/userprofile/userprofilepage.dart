@@ -19,6 +19,7 @@ import 'GenerateReferalCode/GenerateReferalCode.dart';
 import 'Transactions/TransactionsViewScreen.dart';
 import 'editprofile/edituserprofile.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
+import '../register_subpag/privacy_policy_webview.dart';
 
 class UserProfilePage extends StatefulWidget {
   final String? userId;
@@ -1189,6 +1190,14 @@ class UserProfilePageState extends State<UserProfilePage>
                                     onTap: () => showHelpBottomSheet(context),
                                     screenWidth: screenWidth,
                                   ),
+                                  buildSettingCard(
+                                    context,
+                                    title: 'Delete Account',
+                                    subtitle: 'Permanently delete your account',
+                                    icon: Icons.delete_outline,
+                                    onTap: () => deleteAccount(context),
+                                    screenWidth: screenWidth,
+                                  ),
                     ],
                   ),
                             )
@@ -1404,6 +1413,26 @@ class UserProfilePageState extends State<UserProfilePage>
         );
       },
     );
+  }
+
+  Future<void> deleteAccount(BuildContext context) async {
+    try {
+      // TODO: Replace with your actual delete account URL
+      const String deleteAccountUrl = 'https://spenterprises.tech/hhukd/deactivate.html';
+      
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PrivacyPolicyWebView(
+            url: deleteAccountUrl,
+            title: 'Delete Account',
+            acceptButtonText: null, // No accept button for delete account
+          ),
+        ),
+      );
+    } catch (e) {
+      failure('Error', 'Failed to open delete account page: ${e.toString()}');
+    }
   }
 
   Widget buildFeatureCard(String title, IconData icon, VoidCallback onTap) {

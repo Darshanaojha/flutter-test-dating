@@ -89,6 +89,137 @@ class ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  /// Helper function to normalize base64 string (add padding if needed)
+  String _normalizeBase64(String base64) {
+    // Remove data URL prefix if present
+    String clean = base64.contains(',') ? base64.split(',')[1] : base64;
+    // Remove whitespace
+    clean = clean.trim();
+    // Add padding if needed (base64 strings should be divisible by 4)
+    int remainder = clean.length % 4;
+    if (remainder != 0) {
+      clean += '=' * (4 - remainder);
+    }
+    return clean;
+  }
+
+  /// Helper function to check if a string is a base64 image
+  bool _isBase64Image(String? image) {
+    if (image == null || image.isEmpty) return false;
+    // If it starts with http, it's definitely a URL
+    if (image.startsWith('http://') || image.startsWith('https://')) {
+      return false;
+    }
+    // If it starts with /, it might be a base64 string (like /9j/ for JPEG)
+    // or it could be a path - check if it's long enough to be base64
+    if (image.startsWith('/') && image.length > 50) {
+      // Likely base64 if it's long and starts with /9j/ (JPEG) or /iVB (PNG)
+      if (image.startsWith('/9j/') || image.startsWith('/iVB')) {
+        try {
+          String normalized = _normalizeBase64(image);
+          base64Decode(normalized);
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+    }
+    // Remove data URL prefix if present (e.g., "data:image/jpeg;base64,")
+    String cleanImage = image.contains(',') ? image.split(',')[1] : image;
+    cleanImage = cleanImage.trim();
+    // Base64 strings should be reasonably long (at least 20 chars for a tiny image)
+    if (cleanImage.length < 20) return false;
+    // If it's a very long string without http, it's likely base64
+    if (cleanImage.length > 100) {
+      try {
+        String normalized = _normalizeBase64(cleanImage);
+        base64Decode(normalized);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+    // Try to normalize and decode
+    try {
+      String normalized = _normalizeBase64(cleanImage);
+      base64Decode(normalized);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Build image widget that handles both network URLs and base64 strings
+  Widget _buildProfileImageWidget(String imageUrl, {double radius = 20}) {
+    if (imageUrl.isEmpty) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: Colors.grey.shade800,
+        child: Icon(
+          Icons.person,
+          size: radius,
+          color: Colors.white.withOpacity(0.7),
+        ),
+      );
+    }
+
+    if (_isBase64Image(imageUrl)) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: Colors.grey.shade800,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(radius),
+          child: Builder(
+            builder: (context) {
+              try {
+                String normalizedBase64 = _normalizeBase64(imageUrl);
+                Uint8List imageBytes = base64Decode(normalizedBase64);
+                return Image.memory(
+                  imageBytes,
+                  fit: BoxFit.cover,
+                  width: radius * 2,
+                  height: radius * 2,
+                  errorBuilder: (context, error, stackTrace) {
+                    print('Error displaying base64 image: $error');
+                    return Icon(
+                      Icons.person,
+                      size: radius,
+                      color: Colors.white.withOpacity(0.7),
+                    );
+                  },
+                );
+              } catch (e) {
+                print('Error decoding base64 image: $e');
+                return Icon(
+                  Icons.person,
+                  size: radius,
+                  color: Colors.white.withOpacity(0.7),
+                );
+              }
+            },
+          ),
+        ),
+      );
+    } else {
+      // Network image
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: Colors.grey.shade800,
+        backgroundImage: NetworkImage(imageUrl),
+        onBackgroundImageError: (exception, stackTrace) {
+          print('Error loading network image: $exception');
+        },
+        child: imageUrl.isEmpty
+            ? Icon(
+                Icons.person,
+                size: radius,
+                color: Colors.white.withOpacity(0.7),
+              )
+            : null,
+      );
+    }
+  }
+
   @override
   void dispose() {
     scrollController.dispose();
@@ -453,10 +584,7 @@ class ChatScreenState extends State<ChatScreen> {
           },
           child: Row(
             children: [
-              CircleAvatar(
-                backgroundImage: NetworkImage(widget.receiverImageUrl),
-                radius: 20,
-              ),
+              _buildProfileImageWidget(widget.receiverImageUrl, radius: 20),
               SizedBox(width: 10),
               Text(
                 widget.receiverName,
@@ -660,8 +788,20 @@ class ChatScreenState extends State<ChatScreen> {
           children: [
             Expanded(
               child: Obx(() {
+                // Filter messages to only show messages between current sender and receiver
+                final filteredMessages = controller.messages.where((message) {
+                  final messageSenderId = message.senderId?.toString().trim() ?? '';
+                  final messageReceiverId = message.receiverId?.toString().trim() ?? '';
+                  final currentSenderId = widget.senderId.toString().trim();
+                  final currentReceiverId = widget.receiverId.toString().trim();
+                  
+                  // Show message if it's between current sender and receiver
+                  return (messageSenderId == currentSenderId && messageReceiverId == currentReceiverId) ||
+                         (messageSenderId == currentReceiverId && messageReceiverId == currentSenderId);
+                }).toList();
+                
                 final groupedMessages =
-                    _groupMessagesByDate(controller.messages);
+                    _groupMessagesByDate(filteredMessages);
                 final dateKeys = groupedMessages.keys.toList()..sort();
 
                 List<dynamic> chatItems = [];

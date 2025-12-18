@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:dating_application/Models/ResponseModels/get_all_chat_history_page.dart';
 import 'package:dating_application/Screens/chatmessagespage/pinrequestpage.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
@@ -26,6 +27,110 @@ class ContactListScreenState extends State<ContactListScreen> {
   RxString selectedReason = ''.obs;
   RxString selectedReasonId = ''.obs;
   RxString reportDescription = ''.obs;
+
+  /// Helper function to normalize base64 string (add padding if needed)
+  String _normalizeBase64(String base64) {
+    // Remove data URL prefix if present
+    String clean = base64.contains(',') ? base64.split(',')[1] : base64;
+    // Remove whitespace
+    clean = clean.trim();
+    // Add padding if needed (base64 strings should be divisible by 4)
+    int remainder = clean.length % 4;
+    if (remainder != 0) {
+      clean += '=' * (4 - remainder);
+    }
+    return clean;
+  }
+
+  /// Helper function to check if a string is a base64 image
+  bool _isBase64Image(String? image) {
+    if (image == null || image.isEmpty) return false;
+    // If it starts with http, it's definitely a URL
+    if (image.startsWith('http://') || image.startsWith('https://')) {
+      return false;
+    }
+    // If it starts with /, it might be a base64 string (like /9j/ for JPEG)
+    // or it could be a path - check if it's long enough to be base64
+    if (image.startsWith('/') && image.length > 50) {
+      // Likely base64 if it's long and starts with /9j/ (JPEG) or /iVB (PNG)
+      if (image.startsWith('/9j/') || image.startsWith('/iVB')) {
+        try {
+          String normalized = _normalizeBase64(image);
+          base64Decode(normalized);
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+    }
+    // Remove data URL prefix if present (e.g., "data:image/jpeg;base64,")
+    String cleanImage = image.contains(',') ? image.split(',')[1] : image;
+    cleanImage = cleanImage.trim();
+    // Base64 strings should be reasonably long (at least 20 chars for a tiny image)
+    if (cleanImage.length < 20) return false;
+    // Try to normalize and decode
+    try {
+      String normalized = _normalizeBase64(cleanImage);
+      base64Decode(normalized);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Build image widget that handles both network URLs and base64 strings
+  Widget _buildAvatarWidget(String imageUrl, double size) {
+    if (imageUrl.isEmpty) {
+      return Icon(
+        Icons.person,
+        size: 18.0,
+        color: Colors.white,
+      );
+    }
+
+    if (_isBase64Image(imageUrl)) {
+      return Builder(
+        builder: (context) {
+          try {
+            String normalizedBase64 = _normalizeBase64(imageUrl);
+            return Image.memory(
+              base64Decode(normalizedBase64),
+              fit: BoxFit.cover,
+              width: size,
+              height: size,
+              errorBuilder: (context, error, stackTrace) {
+                return Image.asset(
+                  'assets/images/cajed_logo.png',
+                  fit: BoxFit.cover,
+                );
+              },
+            );
+          } catch (e) {
+            return Image.asset(
+              'assets/images/cajed_logo.png',
+              fit: BoxFit.cover,
+            );
+          }
+        },
+      );
+    } else {
+      // Network image
+      return CachedNetworkImage(
+        imageUrl: imageUrl,
+        fit: BoxFit.cover,
+        width: size,
+        height: size,
+        placeholder: (context, url) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+        errorWidget: (context, url, error) => Image.asset(
+          'assets/images/cajed_logo.png',
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+  }
+
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
@@ -271,44 +376,10 @@ class ContactListScreenState extends State<ContactListScreen> {
                                                               Colors.grey
                                                                   .shade800,
                                                           child: ClipOval(
-                                                            child: (connection
-                                                                    .profileImage
-                                                                    .isNotEmpty)
-                                                                ? CachedNetworkImage(
-                                                                    imageUrl:
-                                                                        connection
-                                                                            .profileImage,
-                                                                    fit: BoxFit
-                                                                        .cover,
-                                                                    width: size
-                                                                            .width *
-                                                                        0.09,
-                                                                    height: size
-                                                                            .width *
-                                                                        0.09,
-                                                                    placeholder:
-                                                                        (context,
-                                                                                url) =>
-                                                                            const Center(
-                                                                      child:
-                                                                          CircularProgressIndicator(),
-                                                                    ),
-                                                                    errorWidget: (context,
-                                                                            url,
-                                                                            error) =>
-                                                                        Image
-                                                                            .asset(
-                                                                      'assets/images/cajed_logo.png',
-                                                                      fit: BoxFit
-                                                                          .cover,
-                                                                    ),
-                                                                  )
-                                                                : Icon(
-                                                                    Icons
-                                                                        .person,
-                                                                    size: 18.0,
-                                                                    color: Colors
-                                                                        .white),
+                                                            child: _buildAvatarWidget(
+                                                              connection.profileImage,
+                                                              size.width * 0.09,
+                                                            ),
                                                           ),
                                                         ),
                                                         if (connection
@@ -767,6 +838,56 @@ class FullScreenImagePage extends StatelessWidget {
 
   const FullScreenImagePage({super.key, required this.imageUrl});
 
+  /// Helper function to normalize base64 string (add padding if needed)
+  String _normalizeBase64(String base64) {
+    // Remove data URL prefix if present
+    String clean = base64.contains(',') ? base64.split(',')[1] : base64;
+    // Remove whitespace
+    clean = clean.trim();
+    // Add padding if needed (base64 strings should be divisible by 4)
+    int remainder = clean.length % 4;
+    if (remainder != 0) {
+      clean += '=' * (4 - remainder);
+    }
+    return clean;
+  }
+
+  /// Helper function to check if a string is a base64 image
+  bool _isBase64Image(String? image) {
+    if (image == null || image.isEmpty) return false;
+    // If it starts with http, it's definitely a URL
+    if (image.startsWith('http://') || image.startsWith('https://')) {
+      return false;
+    }
+    // If it starts with /, it might be a base64 string (like /9j/ for JPEG)
+    // or it could be a path - check if it's long enough to be base64
+    if (image.startsWith('/') && image.length > 50) {
+      // Likely base64 if it's long and starts with /9j/ (JPEG) or /iVB (PNG)
+      if (image.startsWith('/9j/') || image.startsWith('/iVB')) {
+        try {
+          String normalized = _normalizeBase64(image);
+          base64Decode(normalized);
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+    }
+    // Remove data URL prefix if present (e.g., "data:image/jpeg;base64,")
+    String cleanImage = image.contains(',') ? image.split(',')[1] : image;
+    cleanImage = cleanImage.trim();
+    // Base64 strings should be reasonably long (at least 20 chars for a tiny image)
+    if (cleanImage.length < 20) return false;
+    // Try to normalize and decode
+    try {
+      String normalized = _normalizeBase64(cleanImage);
+      base64Decode(normalized);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -778,22 +899,49 @@ class FullScreenImagePage extends StatelessWidget {
           },
           child: Builder(
             builder: (context) {
-              Widget imageWidget = Image.network(
-                imageUrl,
-                fit: BoxFit.contain,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) {
-                    return InteractiveViewer(child: child);
-                  }
-                  return Center(child: CircularProgressIndicator());
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return Image.asset(
+              Widget imageWidget;
+              
+              // Check if it's a base64 image
+              bool isBase64 = _isBase64Image(imageUrl);
+              
+              if (isBase64) {
+                try {
+                  String normalizedBase64 = _normalizeBase64(imageUrl);
+                  imageWidget = Image.memory(
+                    base64Decode(normalizedBase64),
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Image.asset(
+                        'assets/images/cajed_logo.png',
+                        fit: BoxFit.contain,
+                      );
+                    },
+                  );
+                } catch (e) {
+                  imageWidget = Image.asset(
                     'assets/images/cajed_logo.png',
                     fit: BoxFit.contain,
                   );
-                },
-              );
+                }
+              } else {
+                // Network image
+                imageWidget = Image.network(
+                  imageUrl,
+                  fit: BoxFit.contain,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) {
+                      return InteractiveViewer(child: child);
+                    }
+                    return Center(child: CircularProgressIndicator());
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Image.asset(
+                      'assets/images/cajed_logo.png',
+                      fit: BoxFit.contain,
+                    );
+                  },
+                );
+              }
 
               if (imageUrl.isNotEmpty) {
                 return Hero(

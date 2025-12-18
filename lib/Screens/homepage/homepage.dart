@@ -395,7 +395,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
 
     return await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+        desiredAccuracy: LocationAccuracy.medium);
   }
 
   Future<void> _storeLastUserForAllLists(SuggestedUser suggestedUser) async {
@@ -997,14 +997,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     return Scaffold(
         resizeToAvoidBottomInset: true,
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Get.to(() => const IntroSlidingPages());
-          },
-          backgroundColor: AppColors.gradientBackgroundList.first,
-          child: const Icon(Icons.slideshow, color: Colors.white),
-          tooltip: 'Test Intro Slider',
-        ),
       body: RefreshWrapper(
         onRefresh: initializeApp,
         child: SafeArea(
