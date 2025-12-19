@@ -8,7 +8,9 @@ import '../adapters/ui_message.dart';
 abstract interface class ChatSoundHooks {
   void onMessageSent(UIMessage message);
   void onMessageReceived(UIMessage message);
+  void onMessageDelivered(UIMessage message);
   void onMessageSeen(UIMessage message);
   void onMessageFailed(UIMessage message);
+  void onMessageRetry(UIMessage message);
   void onOpenChat();
 }

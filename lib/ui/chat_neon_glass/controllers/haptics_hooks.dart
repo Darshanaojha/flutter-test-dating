@@ -7,7 +7,9 @@ import '../adapters/ui_message.dart';
 /// - Do not add audio/video/voice features.
 abstract interface class ChatHapticsHooks {
   void onSendMessage(UIMessage message);
-  void onReceiveMessage(UIMessage message);
+  void onMessageDelivered(UIMessage message);
+  void onMessageSeen(UIMessage message);
   void onLongPressMessage(UIMessage message);
   void onScrollBounce();
+  void onMessageRetry(UIMessage message);
 }

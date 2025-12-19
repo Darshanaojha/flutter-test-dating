@@ -1,5 +1,6 @@
 import '../adapters/message_adapter.dart';
 import '../adapters/ui_message.dart';
+import '../state_machine/chat_events.dart';
 import '../state_machine/chat_state_machine.dart';
 import '../state_machine/chat_state.dart';
 import 'haptics_hooks.dart';

@@ -51,24 +51,3 @@ final class NeonChatTypography implements ChatTypographyTokens {
         color: Color.fromRGBO(255, 255, 255, 0.45),
       );
 }
-bubbleTextPrimary: 
-  fontFamily: Inter (fallback: system sans)
-  fontSize: 14
-  fontWeight: FontWeight.w400
-  height: 1.32   // line height = 18.5px equivalent
-  color: rgba(255,255,255,0.92)
-
-bubbleTextSecondary:
-  fontFamily: Inter
-  fontSize: 14
-  fontWeight: FontWeight.w400
-  height: 1.32
-  color: rgba(255,255,255,0.65)
-
-bubbleDeletedText:
-  fontFamily: Inter
-  fontSize: 14
-  fontWeight: FontWeight.w400
-  fontStyle: italic
-  height: 1.32
-  color: rgba(255,255,255,0.45)

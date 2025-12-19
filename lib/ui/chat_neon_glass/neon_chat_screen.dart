@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'adapters/ui_message.dart';
+import 'controllers/haptics_hooks.dart';
 import 'controllers/neon_chat_controller.dart';
+import 'controllers/sound_hooks.dart';
 import 'components/messages/neon_message_list.dart';
 import 'layers/background/background_layer.dart';
 import 'layers/background/parallax_driver.dart';
+import 'components/input_bar/neon_input_bar.dart';
 import 'state_machine/chat_state.dart';
 import 'state_machine/chat_state_machine.dart';
 import 'utils/perf/effect_suppression.dart';
@@ -26,6 +30,15 @@ class NeonChatScreen extends StatefulWidget {
   final EffectSuppressionPolicy effectPolicy;
   final ChatStateMachine stateMachine;
   final ScrollVelocityTracker velocityTracker;
+  final void Function(UIMessage message)? onRetry;
+  final ChatSoundHooks? soundHooks;
+  final ChatHapticsHooks? hapticsHooks;
+  final VoidCallback? onAttach;
+  final ValueChanged<String>? onSendText;
+  final ValueChanged<String>? onTextChanged;
+  final bool isPeerTyping;
+  final void Function(UIMessage message)? onBlockUser;
+  final void Function(UIMessage message)? onReportUser;
 
   const NeonChatScreen({
     super.key,
@@ -34,6 +47,15 @@ class NeonChatScreen extends StatefulWidget {
     required this.effectPolicy,
     required this.stateMachine,
     required this.velocityTracker,
+    this.onRetry,
+    this.soundHooks,
+    this.hapticsHooks,
+    this.onAttach,
+    this.onSendText,
+    this.onTextChanged,
+    this.isPeerTyping = false,
+    this.onBlockUser,
+    this.onReportUser,
   });
 
   @override
@@ -75,6 +97,9 @@ class _NeonChatScreenState extends State<NeonChatScreen> {
           maxDrift: widget.tokens.spacing.parallaxDriftMax,
         );
 
+        final double timestampOpacityMult =
+            widget.effectPolicy.timestampOpacityMultiplier(state);
+
         return Scaffold(
           backgroundColor: widget.tokens.colors.bgBase,
           body: Stack(
@@ -109,6 +134,19 @@ class _NeonChatScreenState extends State<NeonChatScreen> {
                     velocityTracker: widget.velocityTracker,
                     tokens: widget.tokens,
                     onScrollOffset: (value) => _scrollOffset.value = value,
+                    uiState: state,
+                    timestampOpacityMultiplier: timestampOpacityMult,
+                    onRetry: widget.onRetry,
+                    soundHooks: widget.soundHooks,
+                    hapticsHooks: widget.hapticsHooks,
+                    blurMultiplier: blurMultiplier,
+                    glowMultiplier: glowMultiplier,
+                    onAttach: widget.onAttach,
+                    onSendText: widget.onSendText,
+                    onTextChanged: widget.onTextChanged,
+                    isPeerTyping: widget.isPeerTyping,
+                    onBlockUser: widget.onBlockUser,
+                    onReportUser: widget.onReportUser,
                   ),
                 ),
               ),
@@ -202,6 +240,19 @@ class _ChatContentShell extends StatelessWidget {
   final ChatStateMachine stateMachine;
   final ScrollVelocityTracker velocityTracker;
   final ValueChanged<double> onScrollOffset;
+  final ChatUiState uiState;
+  final double timestampOpacityMultiplier;
+  final void Function(UIMessage message)? onRetry;
+  final ChatSoundHooks? soundHooks;
+  final ChatHapticsHooks? hapticsHooks;
+  final double blurMultiplier;
+  final double glowMultiplier;
+  final VoidCallback? onAttach;
+  final ValueChanged<String>? onSendText;
+  final ValueChanged<String>? onTextChanged;
+  final bool isPeerTyping;
+  final void Function(UIMessage message)? onBlockUser;
+  final void Function(UIMessage message)? onReportUser;
 
   const _ChatContentShell({
     required this.controller,
@@ -209,6 +260,19 @@ class _ChatContentShell extends StatelessWidget {
     required this.velocityTracker,
     required this.tokens,
     required this.onScrollOffset,
+    required this.uiState,
+    required this.timestampOpacityMultiplier,
+    this.onRetry,
+    this.soundHooks,
+    this.hapticsHooks,
+    required this.blurMultiplier,
+    required this.glowMultiplier,
+    this.onAttach,
+    this.onSendText,
+    this.onTextChanged,
+    required this.isPeerTyping,
+    this.onBlockUser,
+    this.onReportUser,
   });
 
   @override
@@ -224,9 +288,26 @@ class _ChatContentShell extends StatelessWidget {
             stateMachine: stateMachine,
             velocityTracker: velocityTracker,
             onScrollOffset: onScrollOffset,
+            uiState: uiState,
+            timestampOpacityMultiplier: timestampOpacityMultiplier,
+            onRetry: onRetry,
+            soundHooks: soundHooks,
+            hapticsHooks: hapticsHooks,
+            blurMultiplier: blurMultiplier,
+            glowMultiplier: glowMultiplier,
+            isPeerTyping: isPeerTyping,
+            onBlockUser: onBlockUser,
+            onReportUser: onReportUser,
           ),
         ),
-        _InputBarPlaceholder(tokens: tokens),
+        NeonInputBar(
+          tokens: tokens,
+          blurMultiplier: blurMultiplier,
+          glowMultiplier: glowMultiplier,
+          onAttach: onAttach,
+          onSend: onSendText,
+          onChanged: onTextChanged,
+        ),
       ],
     );
   }

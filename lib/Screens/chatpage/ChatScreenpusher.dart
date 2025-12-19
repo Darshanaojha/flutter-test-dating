@@ -23,6 +23,7 @@ import '../../Models/ResponseModels/chat_history_response_model.dart';
 import '../../Providers/WebsocketService.dart';
 import '../userprofile/userprofilesummary.dart';
 import 'AudioCallPage.dart';
+import '../../ui/chat_neon_glass/neon_chat_live_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   final String senderId;
@@ -736,6 +737,22 @@ class ChatScreenState extends State<ChatScreen> {
                 );
               },
             ),
+          IconButton(
+            tooltip: 'Open Neon Chat',
+            icon: Icon(Icons.bolt_outlined),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => NeonChatLiveScreen(
+                    viewerId: widget.senderId,
+                    peerId: widget.receiverId,
+                    peerName: widget.receiverName,
+                    peerImageUrl: widget.receiverImageUrl,
+                  ),
+                ),
+              );
+            },
+          ),
           PopupMenuButton<String>(
             onSelected: (value) async {
               // if (value == 'audio') {

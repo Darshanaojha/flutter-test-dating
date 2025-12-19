@@ -30,6 +30,15 @@ class BubbleText extends StatelessWidget {
     // For now images remain as placeholder text.
     final String display = isImagePlaceholder ? '[image]' : (text ?? '');
 
+    if (status == UIMessageStatus.failed) {
+      final TextStyle base = tokens.typography.bubbleTextPrimary;
+      final Color c = base.color ?? Colors.white;
+      return Text(
+        display,
+        style: base.copyWith(color: c.withOpacity(c.opacity * 0.88)),
+      );
+    }
+
     return Text(
       display,
       style: tokens.typography.bubbleTextPrimary,

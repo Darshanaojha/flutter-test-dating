@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 
 import '../../adapters/ui_message.dart';
 import '../../state_machine/chat_events.dart';
+import '../../state_machine/chat_state.dart';
 import '../../state_machine/chat_state_machine.dart';
 import '../../tokens/chat_tokens.dart';
 import '../../utils/perf/scroll_velocity_tracker.dart';
 import '../../controllers/neon_chat_controller.dart';
+import '../../controllers/sound_hooks.dart';
+import '../../controllers/haptics_hooks.dart';
 import 'date_header.dart';
 import 'message_grouping.dart';
 import 'message_item_builder.dart';
+import 'typing/typing_indicator.dart';
 
 /// Message list shell with grouping and scroll velocity signaling.
 class NeonMessageList extends StatefulWidget {
@@ -17,6 +21,16 @@ class NeonMessageList extends StatefulWidget {
   final ChatStateMachine stateMachine;
   final ScrollVelocityTracker velocityTracker;
   final ValueChanged<double> onScrollOffset;
+  final ChatUiState uiState;
+  final double timestampOpacityMultiplier;
+  final void Function(UIMessage message)? onRetry;
+  final ChatSoundHooks? soundHooks;
+  final ChatHapticsHooks? hapticsHooks;
+  final double blurMultiplier;
+  final double glowMultiplier;
+  final bool isPeerTyping;
+  final void Function(UIMessage message)? onBlockUser;
+  final void Function(UIMessage message)? onReportUser;
 
   const NeonMessageList({
     super.key,
@@ -25,6 +39,16 @@ class NeonMessageList extends StatefulWidget {
     required this.stateMachine,
     required this.velocityTracker,
     required this.onScrollOffset,
+    required this.uiState,
+    required this.timestampOpacityMultiplier,
+    this.onRetry,
+    this.soundHooks,
+    this.hapticsHooks,
+    required this.blurMultiplier,
+    required this.glowMultiplier,
+    required this.isPeerTyping,
+    this.onBlockUser,
+    this.onReportUser,
   });
 
   @override
@@ -72,6 +96,10 @@ class _NeonMessageListState extends State<NeonMessageList> {
         final Map<String, List<UIMessage>> grouped =
             _grouping.groupByDate(messages);
         final List<String> orderedKeys = grouped.keys.toList();
+        final bool hasIncomingTail =
+            messages.isNotEmpty && !messages.last.isOutgoing;
+        final bool showTyping =
+            widget.isPeerTyping && !hasIncomingTail;
 
         return ListView.builder(
           controller: _scrollController,
@@ -79,9 +107,9 @@ class _NeonMessageListState extends State<NeonMessageList> {
             horizontal: widget.tokens.spacing.l,
             vertical: widget.tokens.spacing.m,
           ),
-          itemCount: _countItems(grouped),
+          itemCount: _countItems(grouped) + (showTyping ? 1 : 0),
           itemBuilder: (context, index) {
-            return _buildItem(grouped, orderedKeys, index);
+            return _buildItem(grouped, orderedKeys, index, showTyping);
           },
         );
       },
@@ -101,6 +129,7 @@ class _NeonMessageListState extends State<NeonMessageList> {
     Map<String, List<UIMessage>> grouped,
     List<String> keys,
     int index,
+    bool showTyping,
   ) {
     int cursor = 0;
     for (final String key in keys) {
@@ -119,9 +148,37 @@ class _NeonMessageListState extends State<NeonMessageList> {
         return MessageItemBuilder(
           message: msg,
           tokens: widget.tokens,
+          uiState: widget.uiState,
+          timestampOpacityMultiplier: widget.timestampOpacityMultiplier,
+          onRetry: widget.onRetry,
+          soundHooks: widget.soundHooks,
+          hapticsHooks: widget.hapticsHooks,
+          blurMultiplier: widget.blurMultiplier,
+          glowMultiplier: widget.glowMultiplier,
+          onBlockUser: widget.onBlockUser,
+          onReportUser: widget.onReportUser,
         );
       }
       cursor += bucket.length;
+    }
+
+    // Typing footer
+    if (showTyping && index == cursor) {
+      return Padding(
+        padding: EdgeInsets.only(
+          top: widget.tokens.spacing.s,
+          left: widget.tokens.spacing.l,
+          right: widget.tokens.spacing.l,
+          bottom: widget.tokens.spacing.m,
+        ),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: TypingIndicator(
+            tokens: widget.tokens,
+            glowMultiplier: widget.glowMultiplier,
+          ),
+        ),
+      );
     }
 
     return const SizedBox.shrink();

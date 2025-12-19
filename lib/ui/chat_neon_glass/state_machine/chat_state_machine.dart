@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'chat_events.dart';
 import 'chat_state.dart';
 import 'chat_transition_rules.dart';
