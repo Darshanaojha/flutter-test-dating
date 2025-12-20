@@ -2277,6 +2277,7 @@ class Controller extends GetxController {
         id: '1',
         title: 'FIND YOUR PERFECT MATCH',
         image: 'assets/images/pexels-cottonbro-5928587.jpg',
+        //added images ,changed the path for the assets also in pubspec yaml file
         status: '1',
         created: DateTime.now().toString(),
         updated: DateTime.now().toString(),
