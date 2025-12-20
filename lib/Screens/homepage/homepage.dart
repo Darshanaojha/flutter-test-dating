@@ -2369,6 +2369,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           Column(
                             children: [
                               FloatingActionButton(
+                                heroTag: null,
                                 backgroundColor: AppColors.darkGradientColor,
                                 onPressed: () async {
                                   if (await checkInteractionAllowed()) {
@@ -2382,6 +2383,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               ),
                               SizedBox(height: 12),
                               FloatingActionButton(
+                                heroTag: null,
                                 backgroundColor: AppColors.mediumGradientColor,
                                 onPressed: () async {
                                   if (await checkInteractionAllowed()) {
@@ -2395,6 +2397,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                         ),
                               SizedBox(height: 12),
                               FloatingActionButton(
+                                heroTag: null,
                                 backgroundColor: AppColors.lightGradientColor,
                                 onPressed: () async {
                                   if (await checkInteractionAllowed()) {
@@ -2410,6 +2413,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             ],
                           ),
                         FloatingActionButton(
+                          heroTag: null,
                           backgroundColor: AppColors.mediumGradientColor,
                           onPressed: () {
                             setState(() {

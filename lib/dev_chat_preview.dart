@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:dating_application/Controllers/controller.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'ui/chat_neon_glass/adapters/message_adapter.dart';
 import 'ui/chat_neon_glass/adapters/raw_backend_message.dart';
@@ -190,15 +193,25 @@ class _ChatPreviewAppState extends State<ChatPreviewApp> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: NeonChatScreen(
-          controller: _controller,
           tokens: _tokens,
           effectPolicy: _effectPolicy,
           stateMachine: _stateMachine,
           velocityTracker: _velocityTracker,
-          onSendText: _handleSendText,
-          onRetry: _handleRetry,
+          peerName: 'Chat',
+          peerImageUrl: null,
+          viewerId: 'dev_viewer',
+          peerId: 'dev_peer',
+          legacyController: Controller(),
+          messageController: TextEditingController(),
+          scrollController: ScrollController(),
+          bearerToken: '',
+          onSendMessage: ({
+            required String message,
+            required String receiverId,
+            File? image,
+          }) async {},
+          pickImageFromGallery: () async => null,
           isPeerTyping: _isPeerTyping,
-          onAttach: () {},
           onTextChanged: (value) => _stateMachine
               .dispatch(ChatInputModeChanged(isTyping: value.trim().isNotEmpty)),
         ),

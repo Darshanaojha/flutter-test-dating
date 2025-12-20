@@ -68,25 +68,32 @@ final class DefaultNeonChatController implements NeonChatController {
   @override
   Stream<List<UIMessage>> watchUiMessages() {
     return bridge.watchConversationMessages().map((rawList) {
-      final List<UIMessage> mapped = adapter.fromRawList(rawList);
+      print("NEON: controller mapping raw list count=${rawList.length}");
+      try {
+        final List<UIMessage> mapped = adapter.fromRawList(rawList);
+        print("NEON: controller mapped UI list count=${mapped.length}");
 
-      // Deterministic ordering: timestamp ascending, then id.
-      final List<UIMessage> sorted = List<UIMessage>.of(mapped);
-      sorted.sort((a, b) {
-        final int t = a.timestamp.compareTo(b.timestamp);
-        if (t != 0) return t;
-        return a.id.compareTo(b.id);
-      });
+        // Deterministic ordering: timestamp ascending, then id.
+        final List<UIMessage> sorted = List<UIMessage>.of(mapped);
+        sorted.sort((a, b) {
+          final int t = a.timestamp.compareTo(b.timestamp);
+          if (t != 0) return t;
+          return a.id.compareTo(b.id);
+        });
 
-      // Emit immutable list instance.
-      final List<UIMessage> out = List<UIMessage>.unmodifiable(sorted);
+        // Emit immutable list instance.
+        final List<UIMessage> out = List<UIMessage>.unmodifiable(sorted);
 
-      // Drive state machine with message updates (deterministic per list emission).
-      for (final UIMessage m in out) {
-        stateMachine.dispatch(ChatMessageUpdated(m));
+        // Drive state machine with message updates (deterministic per list emission).
+        for (final UIMessage m in out) {
+          stateMachine.dispatch(ChatMessageUpdated(m));
+        }
+
+        return out;
+      } catch (e, st) {
+        print("NEON: controller mapping error=$e\n$st");
+        return const <UIMessage>[];
       }
-
-      return out;
     });
   }
 

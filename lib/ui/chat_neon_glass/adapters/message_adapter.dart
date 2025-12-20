@@ -1,3 +1,10 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:crypto/crypto.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
+
+import 'package:dating_application/constants.dart';
 import 'raw_backend_message.dart';
 import 'ui_message.dart';
 import 'ui_message_status.dart';
@@ -45,7 +52,26 @@ final class DefaultMessageAdapter implements MessageAdapter {
 
   @override
   List<UIMessage> fromRawList(Iterable<RawBackendMessage> raws) {
-    return raws.map(fromRaw).toList(growable: false);
+    final List<UIMessage> out = <UIMessage>[];
+    int idx = 0;
+    for (final RawBackendMessage raw in raws) {
+      try {
+        out.add(fromRaw(raw));
+      } catch (e, st) {
+        print("NEON: adapter map error at index=$idx error=$e\n$st");
+        out.add(UIMessage(
+          id: 'adapter_error_$idx',
+          timestamp: DateTime.now(),
+          status: UIMessageStatus.failed,
+          isOutgoing: false,
+          text: null,
+          imageUrl: null,
+        ));
+      }
+      idx++;
+    }
+    print("NEON: adapter mapped ${raws.length} raw messages → UIMessage list");
+    return out;
   }
 
   UIMessage _fromMap(Map<String, dynamic> json) {
@@ -103,10 +129,13 @@ final class DefaultMessageAdapter implements MessageAdapter {
             messageType: messageTypeRaw,
           );
 
+    final UIMessageStatus finalStatus =
+        content.decryptFailed ? UIMessageStatus.failed : status;
+
     return UIMessage(
       id: finalId,
       timestamp: ts,
-      status: status,
+      status: finalStatus,
       isOutgoing: isOutgoing,
       text: content.text,
       imageUrl: content.imageUrl,
@@ -170,7 +199,7 @@ final class DefaultMessageAdapter implements MessageAdapter {
       messageType: messageTypeRaw,
       messageText: d.message?.toString(),
       imagePath: d.imagePath?.toString(),
-      mediaUrl: d.mediaUrl?.toString(),
+      mediaUrl: _tryReadMediaUrl(d),
     );
 
     final String finalId = id.isNotEmpty
@@ -182,10 +211,13 @@ final class DefaultMessageAdapter implements MessageAdapter {
             messageType: messageTypeRaw,
           );
 
+    final UIMessageStatus finalStatus =
+        content.decryptFailed ? UIMessageStatus.failed : status;
+
     return UIMessage(
       id: finalId,
       timestamp: ts,
-      status: status,
+      status: finalStatus,
       isOutgoing: isOutgoing,
       text: content.text,
       imageUrl: content.imageUrl,
@@ -305,10 +337,24 @@ final class DefaultMessageAdapter implements MessageAdapter {
     final bool isImage = mtInt == 2 || mtStr == 'image';
 
     if (isText) {
-      final String? t = (messageText != null && messageText.trim().isNotEmpty)
-          ? messageText
-          : null;
-      return _Content(text: t, imageUrl: null);
+      bool decryptFailed = false;
+      bool attemptedDecrypt = false;
+      final String? maybeDecrypted = _maybeDecrypt(
+        messageText,
+        onFail: () {
+          decryptFailed = true;
+        },
+        onAttempt: () {
+          attemptedDecrypt = true;
+        },
+      );
+      final String? t =
+          (maybeDecrypted != null && maybeDecrypted.trim().isNotEmpty)
+              ? maybeDecrypted
+              : null;
+      // Only mark decryptFailed if we actually attempted AES and it failed.
+      final bool finalDecryptFailed = attemptedDecrypt && decryptFailed;
+      return _Content(text: t, imageUrl: null, decryptFailed: finalDecryptFailed);
     }
 
     if (isImage) {
@@ -317,10 +363,34 @@ final class DefaultMessageAdapter implements MessageAdapter {
       // For entity models, images may use `mediaUrl`.
       final String? entityUrl =
           (mediaUrl != null && mediaUrl.trim().isNotEmpty) ? mediaUrl : null;
-      return _Content(text: null, imageUrl: url ?? entityUrl);
+      return _Content(
+        text: null,
+        imageUrl: url ?? entityUrl,
+        decryptFailed: false,
+      );
     }
 
-    return const _Content(text: null, imageUrl: null);
+    // Fallback: treat as text if message body exists.
+    if (messageText != null && messageText.trim().isNotEmpty) {
+      bool decryptFailed = false;
+      final String? maybeDecrypted = _maybeDecrypt(
+        messageText,
+        onFail: () {
+          decryptFailed = true;
+        },
+      );
+      final String? t =
+          (maybeDecrypted != null && maybeDecrypted.trim().isNotEmpty)
+              ? maybeDecrypted
+              : null;
+      return _Content(text: t, imageUrl: null, decryptFailed: decryptFailed);
+    }
+
+    return const _Content(
+      text: null,
+      imageUrl: null,
+      decryptFailed: false,
+    );
   }
 
   int? _toInt(dynamic value) {
@@ -345,5 +415,54 @@ final class DefaultMessageAdapter implements MessageAdapter {
 class _Content {
   final String? text;
   final String? imageUrl;
-  const _Content({required this.text, required this.imageUrl});
+  final bool decryptFailed;
+  const _Content({
+    required this.text,
+    required this.imageUrl,
+    required this.decryptFailed,
+  });
+}
+
+String? _maybeDecrypt(
+  String? input, {
+  required void Function() onFail,
+  void Function()? onAttempt,
+}) {
+  if (input == null || input.isEmpty) return input;
+  if (!input.contains('::')) return input;
+  onAttempt?.call();
+  try {
+    final parts = input.split('::');
+    if (parts.length != 2) {
+      // Not a valid encrypted payload; treat as plain text.
+      return input;
+    }
+    final encodedEncryptedMessage = parts[0];
+    final encodedIv = parts[1];
+
+    final encryptedMessage = base64.decode(encodedEncryptedMessage);
+    final ivBytes = base64.decode(encodedIv);
+    final iv = encrypt.IV(ivBytes);
+    final key = _deriveKey(secretkey);
+    final encrypter = encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
+    final decrypted =
+        encrypter.decryptBytes(encrypt.Encrypted(encryptedMessage), iv: iv);
+    return utf8.decode(decrypted);
+  } catch (_) {
+    onFail();
+    return input; // Preserve original text on failure to avoid dropping.
+  }
+}
+
+encrypt.Key _deriveKey(String secretKey) {
+  final keyBytes = sha256.convert(utf8.encode(secretKey)).bytes;
+  return encrypt.Key(Uint8List.fromList(keyBytes));
+}
+
+String? _tryReadMediaUrl(dynamic d) {
+  try {
+    return d.mediaUrl?.toString();
+  } catch (_) {
+    return null;
+  }
 }

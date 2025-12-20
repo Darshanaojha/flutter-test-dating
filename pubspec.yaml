@@ -106,6 +106,7 @@ flutter:
     - assets/images/emoji/
     - assets/images/
     - assets/animations/
+    - assets/images/pexels-pixabay-289227.jpg
 
   fonts:
     - family: RusticRoadway

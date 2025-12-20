@@ -1,54 +1,65 @@
-import 'package:flutter/material.dart';
+import 'dart:math' as math;
 
-import '../../adapters/ui_message.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../../../Controllers/controller.dart';
+import '../../../../Models/RequestModels/delete_message_request_model.dart';
+import '../../../../Models/RequestModels/edit_message_request_model.dart';
+import '../../../../Models/ResponseModels/chat_history_response_model.dart';
+import '../../controllers/haptics_hooks.dart';
+import '../../controllers/sound_hooks.dart';
 import '../../state_machine/chat_events.dart';
 import '../../state_machine/chat_state.dart';
 import '../../state_machine/chat_state_machine.dart';
 import '../../tokens/chat_tokens.dart';
 import '../../utils/perf/scroll_velocity_tracker.dart';
-import '../../controllers/neon_chat_controller.dart';
-import '../../controllers/sound_hooks.dart';
-import '../../controllers/haptics_hooks.dart';
-import 'date_header.dart';
-import 'message_grouping.dart';
 import 'message_item_builder.dart';
-import 'typing/typing_indicator.dart';
 
-/// Message list shell with grouping and scroll velocity signaling.
+/// Message list shell that renders the legacy GetX message list.
+///
+/// IMPORTANT:
+/// - No parallel message models/list sources.
+/// - UI only: consumes [Controller.messages] and renders.
 class NeonMessageList extends StatefulWidget {
-  final NeonChatController controller;
+  final Controller controller;
+  final ScrollController scrollController;
+  final String viewerId;
+  final String bearerToken;
+  // final String peerId;
+  final String peerId;
+
   final ChatTokens tokens;
   final ChatStateMachine stateMachine;
   final ScrollVelocityTracker velocityTracker;
   final ValueChanged<double> onScrollOffset;
   final ChatUiState uiState;
   final double timestampOpacityMultiplier;
-  final void Function(UIMessage message)? onRetry;
   final ChatSoundHooks? soundHooks;
   final ChatHapticsHooks? hapticsHooks;
   final double blurMultiplier;
   final double glowMultiplier;
   final bool isPeerTyping;
-  final void Function(UIMessage message)? onBlockUser;
-  final void Function(UIMessage message)? onReportUser;
 
   const NeonMessageList({
     super.key,
     required this.controller,
+    required this.scrollController,
+    required this.viewerId,
+    required this.bearerToken,
+    required this.peerId,
+    // required this.peerId,
     required this.tokens,
     required this.stateMachine,
     required this.velocityTracker,
     required this.onScrollOffset,
     required this.uiState,
     required this.timestampOpacityMultiplier,
-    this.onRetry,
     this.soundHooks,
     this.hapticsHooks,
     required this.blurMultiplier,
     required this.glowMultiplier,
     required this.isPeerTyping,
-    this.onBlockUser,
-    this.onReportUser,
   });
 
   @override
@@ -56,17 +67,47 @@ class NeonMessageList extends StatefulWidget {
 }
 
 class _NeonMessageListState extends State<NeonMessageList> {
-  final MessageGrouping _grouping = const MessageGrouping();
-  final ScrollController _scrollController = ScrollController();
+  double _scrollOffsetPx = 0.0;
+  Worker? _messagesWorker;
+  int _lastMessageCount = 0;
+  bool _suppressAutoScroll = false;
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll);
+    _lastMessageCount = widget.controller.messages.length;
+    widget.scrollController.addListener(_onScroll);
+    _messagesWorker = ever(widget.controller.messages, (_) {
+      final int newCount = widget.controller.messages.length;
+      if (!_suppressAutoScroll && newCount > _lastMessageCount) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!widget.scrollController.hasClients) return;
+          final position = widget.scrollController.position;
+          final double min = position.minScrollExtent;
+          final double max = position.maxScrollExtent;
+          widget.scrollController.jumpTo(max.clamp(min, max));
+        });
+      }
+      _lastMessageCount = newCount;
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!widget.scrollController.hasClients) return;
+      final position = widget.scrollController.position;
+      final double min = position.minScrollExtent;
+      final double max = position.maxScrollExtent;
+      widget.scrollController.jumpTo(max.clamp(min, max));
+    });
   }
 
   void _onScroll() {
-    final double offset = _scrollController.position.pixels;
+    if (!widget.scrollController.hasClients) return;
+    final double offset = widget.scrollController.position.pixels;
+    _scrollOffsetPx = offset;
     final Duration now = Duration(
       microseconds: DateTime.now().microsecondsSinceEpoch,
     );
@@ -82,105 +123,197 @@ class _NeonMessageListState extends State<NeonMessageList> {
 
   @override
   void dispose() {
-    _scrollController.removeListener(_onScroll);
-    _scrollController.dispose();
+    widget.scrollController.removeListener(_onScroll);
+    _messagesWorker?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<UIMessage>>(
-      stream: widget.controller.watchUiMessages(),
-      builder: (context, snapshot) {
-        final List<UIMessage> messages = snapshot.data ?? const <UIMessage>[];
-        final Map<String, List<UIMessage>> grouped =
-            _grouping.groupByDate(messages);
-        final List<String> orderedKeys = grouped.keys.toList();
-        final bool hasIncomingTail =
-            messages.isNotEmpty && !messages.last.isOutgoing;
-        final bool showTyping =
-            widget.isPeerTyping && !hasIncomingTail;
+    final double h = MediaQuery.of(context).size.height;
+    final double bottomPad = math.max(12, (0.02 * h));
 
-        return ListView.builder(
-          controller: _scrollController,
-          padding: EdgeInsets.symmetric(
-            horizontal: widget.tokens.spacing.l,
-            vertical: widget.tokens.spacing.m,
+    return Obx(() {
+      final List<Message> messages = List<Message>.from(
+        widget.controller.messages.where((m) {
+          final bool viewerIsSender =
+              widget.viewerId.isNotEmpty && widget.viewerId == m.senderId;
+          final bool deletedForViewer = viewerIsSender
+              ? (m.deletedBySender != 0)
+              : (m.deletedByReceiver != 0);
+          if (deletedForViewer) return false;
+          if (m.status == 4) return false; // server-side deleted/failed
+          return true;
+        }),
+      )
+        ..sort((a, b) {
+          DateTime? pa = _tryParseDate(a.created ?? a.timestamp);
+          DateTime? pb = _tryParseDate(b.created ?? b.timestamp);
+          if (pa != null && pb != null) return pa.compareTo(pb);
+          if (pa != null) return -1;
+          if (pb != null) return 1;
+          return (a.id ?? '').compareTo(b.id ?? '');
+        });
+      return ListView.builder(
+        controller: widget.scrollController,
+        padding: EdgeInsets.fromLTRB(
+          widget.tokens.spacing.l,
+          widget.tokens.spacing.m,
+          widget.tokens.spacing.l,
+          bottomPad,
+        ),
+        itemCount: messages.length,
+              itemBuilder: (context, index) {
+          final Message msg = messages[index];
+          final bool sameSenderPrev = index > 0 &&
+              messages[index - 1].senderId == msg.senderId;
+          final bool sameSenderNext = index + 1 < messages.length &&
+              messages[index + 1].senderId == msg.senderId;
+
+          return MessageItemBuilder(
+            message: msg,
+            viewerId: widget.viewerId,
+            bearerToken: widget.bearerToken,
+            tokens: widget.tokens,
+            uiState: widget.uiState,
+            timestampOpacityMultiplier: widget.timestampOpacityMultiplier,
+            soundHooks: widget.soundHooks,
+            hapticsHooks: widget.hapticsHooks,
+            blurMultiplier: widget.blurMultiplier,
+            glowMultiplier: widget.glowMultiplier,
+            scrollOffset: _scrollOffsetPx % 2000.0,
+            showTimestamp: true,
+            sameSenderPrev: sameSenderPrev,
+            sameSenderNext: sameSenderNext,
+            onEdit: (m) => _editMessage(context, m),
+            onDelete: (m) => _deleteMessage(context, m),
+          );
+        },
+      );
+    });
+  }
+
+  Future<void> _editMessage(BuildContext context, Message message) async {
+    if (message.id == null || message.id!.isEmpty) return;
+    final TextEditingController controller =
+        TextEditingController(text: message.message ?? '');
+    final String? result = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Edit message'),
+          content: TextField(
+            controller: controller,
+            minLines: 1,
+            maxLines: 4,
+            decoration: const InputDecoration(hintText: 'Update message'),
           ),
-          itemCount: _countItems(grouped) + (showTyping ? 1 : 0),
-          itemBuilder: (context, index) {
-            return _buildItem(grouped, orderedKeys, index, showTyping);
-          },
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              child: const Text('Save'),
+            ),
+          ],
         );
       },
     );
-  }
+    if (result == null || result.isEmpty) return;
 
-  int _countItems(Map<String, List<UIMessage>> grouped) {
-    int count = 0;
-    for (final entries in grouped.entries) {
-      count += 1; // date header
-      count += entries.value.length;
-    }
-    return count;
-  }
-
-  Widget _buildItem(
-    Map<String, List<UIMessage>> grouped,
-    List<String> keys,
-    int index,
-    bool showTyping,
-  ) {
-    int cursor = 0;
-    for (final String key in keys) {
-      final List<UIMessage> bucket = grouped[key]!;
-
-      if (index == cursor) {
-        // date header
-        final DateTime date = bucket.first.timestamp;
-        return DateHeader(date: date, tokens: widget.tokens);
-      }
-      cursor += 1;
-
-      final int localIndex = index - cursor;
-      if (localIndex < bucket.length) {
-        final UIMessage msg = bucket[localIndex];
-        return MessageItemBuilder(
-          message: msg,
-          tokens: widget.tokens,
-          uiState: widget.uiState,
-          timestampOpacityMultiplier: widget.timestampOpacityMultiplier,
-          onRetry: widget.onRetry,
-          soundHooks: widget.soundHooks,
-          hapticsHooks: widget.hapticsHooks,
-          blurMultiplier: widget.blurMultiplier,
-          glowMultiplier: widget.glowMultiplier,
-          onBlockUser: widget.onBlockUser,
-          onReportUser: widget.onReportUser,
-        );
-      }
-      cursor += bucket.length;
-    }
-
-    // Typing footer
-    if (showTyping && index == cursor) {
-      return Padding(
-        padding: EdgeInsets.only(
-          top: widget.tokens.spacing.s,
-          left: widget.tokens.spacing.l,
-          right: widget.tokens.spacing.l,
-          bottom: widget.tokens.spacing.m,
-        ),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: TypingIndicator(
-            tokens: widget.tokens,
-            glowMultiplier: widget.glowMultiplier,
-          ),
-        ),
+    final req = EditMessageRequest(
+      message: result,
+      messageId: message.id!,
+      messageType: message.messageType.toString(),
+    );
+    _suppressAutoScroll = true;
+    // Optimistically update the local list so UI reflects immediately.
+    final int idx =
+        widget.controller.messages.indexWhere((m) => m.id == message.id);
+    if (idx != -1) {
+      final Message updated = widget.controller.messages[idx].copyWith(
+        message: result,
       );
+      widget.controller.messages[idx] = updated;
+      widget.controller.messages.refresh();
     }
+    await widget.controller.editMessage(req);
+    await widget.controller.fetchChats(widget.peerId);
+    widget.controller.messages.refresh(); // force rebuild even if count unchanged
+    _suppressAutoScroll = false;
+  }
 
-    return const SizedBox.shrink();
+  Future<void> _deleteMessage(BuildContext context, Message message) async {
+    if (message.id == null || message.id!.isEmpty) return;
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete message?'),
+        content: const Text('This will remove the message for you.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    final req = DeleteMessageRequest(messageIds: [message.id!]);
+    _suppressAutoScroll = true;
+    final double? offsetBefore = widget.scrollController.hasClients
+        ? widget.scrollController.position.pixels
+        : null;
+    // Optimistically mark deleted in-place to avoid reordering.
+    final int idx =
+        widget.controller.messages.indexWhere((m) => m.id == message.id);
+    if (idx != -1) {
+      final Message marked = widget.controller.messages[idx].copyWith(
+        deletedBySender: 1,
+        deletedByReceiver: 1,
+        status: 4, // failed/deleted state
+      );
+      widget.controller.messages[idx] = marked;
+      widget.controller.messages.refresh();
+    }
+    await widget.controller.deleteMessage(req);
+    await widget.controller.fetchChats(widget.peerId);
+    // Remove any messages flagged as deleted or status=4 (failed/deleted) for this viewer after fetch.
+    widget.controller.messages.removeWhere((m) {
+      final bool viewerIsSender =
+          widget.viewerId.isNotEmpty && widget.viewerId == m.senderId;
+      final bool deletedForViewer = viewerIsSender
+          ? (m.deletedBySender != 0)
+          : (m.deletedByReceiver != 0);
+      return deletedForViewer || m.status == 4;
+    });
+    widget.controller.messages.refresh(); // force rebuild
+    _suppressAutoScroll = false;
+    if (offsetBefore != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!widget.scrollController.hasClients) return;
+        final position = widget.scrollController.position;
+        final double min = position.minScrollExtent;
+        final double max = position.maxScrollExtent;
+        final double target = offsetBefore.clamp(min, max);
+        widget.scrollController.jumpTo(target);
+      });
+    }
+  }
+
+  DateTime? _tryParseDate(String? value) {
+    if (value == null || value.isEmpty) return null;
+    try {
+      return DateTime.parse(value);
+    } catch (_) {
+      return null;
+    }
   }
 }

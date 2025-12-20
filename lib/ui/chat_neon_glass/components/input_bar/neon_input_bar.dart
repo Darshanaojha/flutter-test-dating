@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
+import '../../../../Controllers/controller.dart';
 import '../../tokens/chat_tokens.dart';
 
 /// Neon glass input bar with attach + send.
@@ -13,17 +16,31 @@ class NeonInputBar extends StatefulWidget {
   final ChatTokens tokens;
   final double blurMultiplier;
   final double glowMultiplier;
-  final VoidCallback? onAttach;
-  final ValueChanged<String>? onSend;
   final ValueChanged<String>? onChanged;
+  final Controller legacyController;
+  final TextEditingController messageController;
+  final ScrollController scrollController;
+  final String peerId;
+  final bool isBlocked;
+  final Future<void> Function({
+    required String message,
+    required String receiverId,
+    File? image,
+  }) onSendMessage;
+  final Future<XFile?> Function()? pickImageFromGallery;
 
   const NeonInputBar({
     super.key,
     required this.tokens,
+    required this.legacyController,
+    required this.messageController,
+    required this.scrollController,
+    required this.peerId,
+    required this.isBlocked,
+    required this.onSendMessage,
+    this.pickImageFromGallery,
     this.blurMultiplier = 1.0,
     this.glowMultiplier = 1.0,
-    this.onAttach,
-    this.onSend,
     this.onChanged,
   });
 
@@ -32,26 +49,29 @@ class NeonInputBar extends StatefulWidget {
 }
 
 class _NeonInputBarState extends State<NeonInputBar> {
-  final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   bool _hasText = false;
+  bool _isFocused = false;
+  XFile? selectedImage;
+  bool _isSending = false;
 
   @override
   void initState() {
     super.initState();
-    _controller.addListener(_handleText);
+    widget.messageController.addListener(_handleText);
+    _focusNode.addListener(_handleFocus);
   }
 
   @override
   void dispose() {
-    _controller.removeListener(_handleText);
-    _controller.dispose();
+    _focusNode.removeListener(_handleFocus);
+    widget.messageController.removeListener(_handleText);
     _focusNode.dispose();
     super.dispose();
   }
 
   void _handleText() {
-    final String value = _controller.text;
+    final String value = widget.messageController.text;
     final bool next = value.trim().isNotEmpty;
     if (next != _hasText) {
       setState(() {
@@ -61,12 +81,104 @@ class _NeonInputBarState extends State<NeonInputBar> {
     widget.onChanged?.call(value);
   }
 
-  void _handleSend() {
-    if (!_hasText) return;
-    final String value = _controller.text.trim();
-    if (value.isEmpty) return;
-    widget.onSend?.call(value);
-    _controller.clear();
+  void _handleFocus() {
+    setState(() {
+      _isFocused = _focusNode.hasFocus;
+    });
+  }
+
+  Future<void> _handleSend() async {
+    if (widget.isBlocked) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You have blocked this user')),
+      );
+      return;
+    }
+    if (_isSending) return;
+    final String rawText = widget.messageController.text.trim();
+    if (rawText.isEmpty && selectedImage == null) return;
+    // Legacy API expects a non-empty message field; use a single space placeholder
+    // when sending image-only to keep the existing encrypt/send pipeline intact.
+    final String outboundText =
+        rawText.isNotEmpty ? rawText : (selectedImage != null ? ' ' : '');
+
+    final int beforeCount = widget.legacyController.messages.length;
+
+    setState(() => _isSending = true);
+    try {
+      await widget
+          .onSendMessage(
+            message: outboundText,
+            receiverId: widget.peerId,
+            image: selectedImage != null ? File(selectedImage!.path) : null,
+          )
+          .timeout(const Duration(seconds: 35));
+
+      await widget
+          .legacyController
+          .fetchChats(widget.peerId)
+          .timeout(const Duration(seconds: 15));
+
+      // If the backend hasn't surfaced the new message yet, do one short retry
+      // before clearing UI (prevents "sent but nothing happened" feeling).
+      if (widget.legacyController.messages.length == beforeCount) {
+        await Future.delayed(const Duration(milliseconds: 650));
+        await widget
+            .legacyController
+            .fetchChats(widget.peerId)
+            .timeout(const Duration(seconds: 15));
+      }
+
+      final bool didAdd = widget.legacyController.messages.length > beforeCount;
+      if (!didAdd) {
+        // Keep input + preview so user can retry if send failed / not returned yet.
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Send may still be processing. Try again.')),
+        );
+        return;
+      }
+
+      widget.messageController.clear();
+      setState(() {
+        selectedImage = null;
+      });
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!widget.scrollController.hasClients) return;
+        final position = widget.scrollController.position;
+        final double min = position.minScrollExtent;
+        final double max = position.maxScrollExtent;
+        widget.scrollController.jumpTo(max.clamp(min, max));
+      });
+    } catch (e) {
+      // Don't clear input/preview; allow retry.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to send. ${e.toString()}')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSending = false);
+      }
+    }
+  }
+
+  Future<void> _handleAttach() async {
+    if (widget.isBlocked) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You have blocked this user')),
+      );
+      return;
+    }
+    if (_isSending) return;
+    final picker = widget.pickImageFromGallery;
+    if (picker == null) return;
+    final XFile? picked = await picker();
+    if (!mounted) return;
+    if (picked != null) {
+      setState(() {
+        selectedImage = picked;
+      });
+    }
   }
 
   @override
@@ -89,7 +201,15 @@ class _NeonInputBarState extends State<NeonInputBar> {
           borderRadius: BorderRadius.circular(widget.tokens.radius.inputBarMax),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-            child: Container(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOut,
+              // When an attachment preview is shown, allow the input bar to grow
+              // so the preview + row can fit without RenderFlex overflow.
+              constraints: BoxConstraints(
+                minHeight: 56,
+                maxHeight: selectedImage != null ? 180 : 120,
+              ),
               padding: EdgeInsets.symmetric(
                 horizontal: widget.tokens.spacing.m,
                 vertical: widget.tokens.spacing.s,
@@ -106,6 +226,12 @@ class _NeonInputBarState extends State<NeonInputBar> {
                 ),
                 boxShadow: [
                   BoxShadow(
+                    color: Colors.white.withOpacity(_isFocused ? 0.20 : 0.05),
+                    blurRadius: _isFocused ? 22 : 8,
+                    spreadRadius: _isFocused ? 3 : 1,
+                    offset: const Offset(0, -3),
+                  ),
+                  BoxShadow(
                     color: widget.tokens.colors.glassStroke.withOpacity(glowOpacity),
                     blurRadius: widget.tokens.shadows.floatingBlur,
                     spreadRadius: 0,
@@ -113,11 +239,67 @@ class _NeonInputBarState extends State<NeonInputBar> {
                   ),
                 ],
               ),
-              child: Row(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  const double rowMinHeight = 56; // matches input bar minHeight
+                  const double desiredPreview = 64;
+                  const double previewGap = 6;
+
+                  final double available = constraints.maxHeight.isFinite
+                      ? constraints.maxHeight
+                      : (selectedImage != null ? 180 : 120);
+                  final double maxPreview = (available - rowMinHeight - previewGap)
+                      .clamp(0.0, desiredPreview);
+                  final bool showPreview = selectedImage != null && maxPreview >= 36;
+
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (showPreview)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: previewGap),
+                          child: Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.file(
+                                  File(selectedImage!.path),
+                                  height: maxPreview,
+                                  width: maxPreview,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              Positioned(
+                                top: 0,
+                                right: 0,
+                                child: GestureDetector(
+                                  onTap: _isSending
+                                      ? null
+                                      : () => setState(() => selectedImage = null),
+                                  behavior: HitTestBehavior.opaque,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.45),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: const Icon(
+                                      Icons.close,
+                                      size: 18,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      Row(
                 children: [
                   _GlassIconButton(
                     icon: Icons.attach_file,
-                    onTap: widget.onAttach,
+                            onTap: _isSending ? null : _handleAttach,
                     tokens: widget.tokens,
                     glowMultiplier: widget.glowMultiplier,
                   ),
@@ -126,7 +308,7 @@ class _NeonInputBarState extends State<NeonInputBar> {
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(minHeight: 24),
                       child: TextField(
-                        controller: _controller,
+                                controller: widget.messageController,
                         focusNode: _focusNode,
                         minLines: 1,
                         maxLines: 4,
@@ -141,16 +323,60 @@ class _NeonInputBarState extends State<NeonInputBar> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  _GlassIconButton(
-                    icon: Icons.send,
-                    onTap: _hasText ? _handleSend : null,
-                    tokens: widget.tokens,
-                    glowMultiplier: _hasText ? widget.glowMultiplier : 0.0,
-                    color: _hasText
-                        ? widget.tokens.colors.outgoingBubbleStart
-                        : widget.tokens.colors.glassStroke,
+                  Material(
+                    color: Colors.transparent,
+                    child: InkResponse(
+                              onTap: (_hasText || selectedImage != null)
+                                  ? (_isSending ? null : _handleSend)
+                                  : null,
+                      borderRadius: BorderRadius.circular(40),
+                      radius: 26,
+                      splashColor: Colors.white.withOpacity(0.25),
+                      highlightColor: Colors.transparent,
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(
+                            (widget.tokens.opacity.microGlassOpacityMin +
+                                            widget.tokens.opacity
+                                                .microGlassOpacityMax) /
+                                2,
+                          ),
+                          border: Border.all(
+                            color: widget.tokens.colors.glassStroke,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: widget.tokens.colors.glassStroke
+                                          .withOpacity(
+                                        (_hasText || selectedImage != null)
+                                            ? widget.glowMultiplier * glowOpacity
+                                            : 0.0,
+                                      ),
+                                      blurRadius:
+                                          widget.tokens.shadows.floatingBlur,
+                              spreadRadius: 0,
+                                      offset: Offset(0,
+                                          widget.tokens.shadows.floatingYOffset),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                                  _isSending ? Icons.hourglass_top : Icons.send,
+                                  color: (_hasText || selectedImage != null)
+                              ? widget.tokens.colors.outgoingBubbleStart
+                              : widget.tokens.colors.glassStroke,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ),

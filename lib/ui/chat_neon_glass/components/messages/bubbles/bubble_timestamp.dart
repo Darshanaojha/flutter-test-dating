@@ -31,6 +31,8 @@ class _BubbleTimestampState extends State<BubbleTimestamp>
   double _targetOpacity = 1.0;
   double _currentDrift = 0.0;
   double _targetDrift = 0.0;
+  double _currentSlide = 0.0;
+  double _targetSlide = 0.0;
 
   @override
   void initState() {
@@ -69,10 +71,16 @@ class _BubbleTimestampState extends State<BubbleTimestamp>
     _targetDrift = state == _TimestampState.active
         ? widget.tokens.spacing.timestampDriftPx
         : 0.0;
+    _targetSlide = switch (state) {
+      _TimestampState.active => widget.tokens.spacing.timestampDriftPx * 0.35,
+      _TimestampState.fast => widget.tokens.spacing.timestampDriftPx * -0.25,
+      _ => 0.0,
+    };
 
     if (firstBuild) {
       _currentOpacity = _targetOpacity;
       _currentDrift = _targetDrift;
+      _currentSlide = _targetSlide;
       setState(() {});
       return;
     }
@@ -86,6 +94,7 @@ class _BubbleTimestampState extends State<BubbleTimestamp>
     setState(() {
       _currentOpacity = _lerp(_currentOpacity, _targetOpacity, k);
       _currentDrift = _lerp(_currentDrift, _targetDrift, k);
+      _currentSlide = _lerp(_currentSlide, _targetSlide, k);
     });
   }
 
@@ -104,14 +113,26 @@ class _BubbleTimestampState extends State<BubbleTimestamp>
     return Opacity(
       opacity: _currentOpacity,
       child: Transform.translate(
-        offset: Offset(0, -_currentDrift),
-        child: Text(
-          _formatTime(widget.message.timestamp),
-          style: widget.tokens.typography.bubbleTextSecondary ??
-              TextStyle(
-                fontSize: widget.tokens.typography.timestampFontSizeMax,
-                color: widget.tokens.colors.textSecondary,
-              ),
+        offset: Offset(
+          _currentSlide,
+          -_currentDrift - 3 * (1 - widget.opacityMultiplier),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(right: 8, bottom: 3),
+          child: Text(
+            _formatTime(widget.message.timestamp),
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.white.withOpacity(0.85),
+              shadows: [
+                Shadow(
+                  blurRadius: 4,
+                  offset: Offset.zero,
+                  color: Colors.white.withOpacity(0.6),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

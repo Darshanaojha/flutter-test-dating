@@ -53,10 +53,10 @@ final class NeonChatColors implements ChatColorTokens {
 
   @override
   List<Color> get backgroundGradientStops => const <Color>[
-        Color(0xFF1B0129),
-        Color(0xFF320248),
-        Color(0xFF45026A),
-        Color(0xFF210034),
+        Color(0xFF13011D), // darkened ~30% to let blobs show through
+        Color(0xFF230132),
+        Color(0xFF30014A),
+        Color(0xFF170024),
       ];
 
   @override
