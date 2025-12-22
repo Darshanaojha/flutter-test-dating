@@ -31,22 +31,31 @@ android {
         versionName = flutter.versionName
     }
 
-    // signingConfigs {
-    //     create("release") {
-    //         val keystorePropertiesFile = rootProject.file("key.properties")
-    //         val keystoreProperties = Properties()
-    //         keystoreProperties.load(keystorePropertiesFile.inputStream())
+    signingConfigs {
+        create("release") {
+            val keystorePropertiesFile = rootProject.file("key.properties")
+            val keystoreProperties = Properties()
+            keystoreProperties.load(keystorePropertiesFile.inputStream())
 
-    //         storeFile = file(keystoreProperties.getProperty("storeFile"))
-    //         storePassword = keystoreProperties.getProperty("storePassword")
-    //         keyAlias = keystoreProperties.getProperty("keyAlias")
-    //         keyPassword = keystoreProperties.getProperty("keyPassword")
-    //     }
-    // }
+            storeFile = file(keystoreProperties.getProperty("storeFile") ?: "app/upload-keystore.jks")
+            storePassword = keystoreProperties.getProperty("storePassword")
+            keyAlias = keystoreProperties.getProperty("keyAlias")
+            keyPassword = keystoreProperties.getProperty("keyPassword")
+        }
+    }
 
     buildTypes {
         getByName("debug") {
             //signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(

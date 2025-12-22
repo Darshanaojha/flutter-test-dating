@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-String get baseurl => "http://$ipAddress/dating_backend_springboot/admin";
+String get baseurl => "https://spenterprises.tech/dating/admin";
+// String get baseurl => "http://$ipAddress/dating_backend_springboot/admin";
 String get ip => "http://$ipAddress/dating_backend_springboot/";
 // String get baseurl => "http://$ipAddress";
 // String get ip => "http://$ipAddress/";

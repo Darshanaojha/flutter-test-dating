@@ -193,4 +193,37 @@ class FCMService {
       print('Error unsubscribing from topic: $e');
     }
   }
+
+  /// Unsubscribe from all common topics
+  /// Call this during logout to clean up all subscriptions
+  Future<void> unsubscribeFromAllTopics(String? userId) async {
+    try {
+      // List of all possible topics to unsubscribe from
+      List<String> topicsToUnsubscribe = [
+        'subscribed',
+        'unsubscribed',
+        'alluser',
+      ];
+
+      // Add user-specific topic if userId is provided
+      if (userId != null && userId.isNotEmpty) {
+        topicsToUnsubscribe.add(userId);
+      }
+
+      // Unsubscribe from all topics
+      for (String topic in topicsToUnsubscribe) {
+        try {
+          await unsubscribeFromTopic(topic);
+          print('✅ Unsubscribed from topic: $topic');
+        } catch (e) {
+          print('⚠️ Error unsubscribing from topic $topic: $e');
+          // Continue with other topics even if one fails
+        }
+      }
+
+      print('✅ Completed unsubscribing from all topics');
+    } catch (e) {
+      print('❌ Error in unsubscribeFromAllTopics: $e');
+    }
+  }
 }

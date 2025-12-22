@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class UserSuggestionsResponseModel {
   final bool success;
   final Payload? payload;
@@ -195,77 +197,87 @@ class SuggestedUser {
   });
 
   factory SuggestedUser.fromJson(Map<String, dynamic> json) {
-    String? _parseString(dynamic value) {
+    String? _parseString(dynamic value, {String? fieldName}) {
       if (value == null) {
         return null;
       }
       if (value is String) {
         return value;
       }
-      return value.toString();
+      // Handle int, double, bool, and other types by converting to String
+      try {
+        if (value is int || value is double || value is bool) {
+          return value.toString();
+        }
+        // For other types, try toString()
+        return value.toString();
+      } catch (e) {
+        debugPrint('⚠️ Error parsing field "$fieldName": $e (value: $value, type: ${value.runtimeType})');
+        return null;
+      }
     }
 
     return SuggestedUser(
-      id: _parseString(json['id']),
-      userId: _parseString(json['user_id']),
-      name: _parseString(json['name']),
-      email: _parseString(json['email']),
-      mobile: _parseString(json['mobile']),
-      city: _parseString(json['city']),
-      address: _parseString(json['address']),
-      gender: _parseString(json['gender']),
-      subGender: _parseString(json['sub_gender']),
-      countryId: _parseString(json['country_id']),
-      password: _parseString(json['password']),
-      latitude: _parseString(json['latitude']),
-      longitude: _parseString(json['longitude']),
-      otp: _parseString(json['otp']),
-      type: _parseString(json['type']),
-      dob: _parseString(json['dob']),
-      nickname: _parseString(json['nickname']),
-      interest: _parseString(json['interest']),
-      bio: _parseString(json['bio']),
-      emailAlerts: _parseString(json['email_alerts']),
-      lookingFor: _parseString(json['looking_for']),
-      username: _parseString(json['username']),
-      profileImage: _parseString(json['profile_image']),
-      userActiveStatus: _parseString(json['user_active_status']),
-      statusSetting: _parseString(json['status_setting']),
-      accountVerificationStatus: _parseString(json['account_verification_status']),
-      accountHighlightStatus: _parseString(json['account_highlight_status']),
-      status: _parseString(json['status']),
-      created: _parseString(json['created']),
-      updated: _parseString(json['updated']),
-      genderName: _parseString(json['gender_name']),
-      subGenderName: _parseString(json['sub_gender_name'] ?? json['sub_gender_nm']),
-      countryName: _parseString(json['country_name']),
+      id: _parseString(json['id'], fieldName: 'id'),
+      userId: _parseString(json['user_id'], fieldName: 'user_id'),
+      name: _parseString(json['name'], fieldName: 'name'),
+      email: _parseString(json['email'], fieldName: 'email'),
+      mobile: _parseString(json['mobile'], fieldName: 'mobile'),
+      city: _parseString(json['city'], fieldName: 'city'),
+      address: _parseString(json['address'], fieldName: 'address'),
+      gender: _parseString(json['gender'], fieldName: 'gender'),
+      subGender: _parseString(json['sub_gender'], fieldName: 'sub_gender'),
+      countryId: _parseString(json['country_id'], fieldName: 'country_id'),
+      password: _parseString(json['password'], fieldName: 'password'),
+      latitude: _parseString(json['latitude'], fieldName: 'latitude'),
+      longitude: _parseString(json['longitude'], fieldName: 'longitude'),
+      otp: _parseString(json['otp'], fieldName: 'otp'),
+      type: _parseString(json['type'], fieldName: 'type'),
+      dob: _parseString(json['dob'], fieldName: 'dob'),
+      nickname: _parseString(json['nickname'], fieldName: 'nickname'),
+      interest: _parseString(json['interest'], fieldName: 'interest'),
+      bio: _parseString(json['bio'], fieldName: 'bio'),
+      emailAlerts: _parseString(json['email_alerts'], fieldName: 'email_alerts'),
+      lookingFor: _parseString(json['looking_for'], fieldName: 'looking_for'),
+      username: _parseString(json['username'], fieldName: 'username'),
+      profileImage: _parseString(json['profile_image'], fieldName: 'profile_image'),
+      userActiveStatus: _parseString(json['user_active_status'], fieldName: 'user_active_status'),
+      statusSetting: _parseString(json['status_setting'], fieldName: 'status_setting'),
+      accountVerificationStatus: _parseString(json['account_verification_status'], fieldName: 'account_verification_status'),
+      accountHighlightStatus: _parseString(json['account_highlight_status'], fieldName: 'account_highlight_status'),
+      status: _parseString(json['status'], fieldName: 'status'),
+      created: _parseString(json['created'], fieldName: 'created'),
+      updated: _parseString(json['updated'], fieldName: 'updated'),
+      genderName: _parseString(json['gender_name'], fieldName: 'gender_name'),
+      subGenderName: _parseString(json['sub_gender_name'] ?? json['sub_gender_nm'], fieldName: 'sub_gender_name'),
+      countryName: _parseString(json['country_name'], fieldName: 'country_name'),
       images: [
-        _parseString(json['img1']) ?? '',
-        _parseString(json['img2']) ?? '',
-        _parseString(json['img3']) ?? '',
-        _parseString(json['img4']) ?? '',
-        _parseString(json['img5']) ?? '',
-        _parseString(json['img6']) ?? '',
+        _parseString(json['img1'], fieldName: 'img1') ?? '',
+        _parseString(json['img2'], fieldName: 'img2') ?? '',
+        _parseString(json['img3'], fieldName: 'img3') ?? '',
+        _parseString(json['img4'], fieldName: 'img4') ?? '',
+        _parseString(json['img5'], fieldName: 'img5') ?? '',
+        _parseString(json['img6'], fieldName: 'img6') ?? '',
       ].where((img) => img.isNotEmpty).toList(),
       preferenceId:
-          json.containsKey('preference_id') ? _parseString(json['preference_id']) : null,
-      desiresId: json.containsKey('desires_id') ? _parseString(json['desires_id']) : null,
-      langId: json.containsKey('lang_id') ? _parseString(json['lang_id']) : null,
-      countryCode: _parseString(json['country_code']),
-      points: _parseString(json['points']),
-      firstTranDone: _parseString(json['first_tran_done']),
-      lastSeen: _parseString(json['last_seen']),
-      packageStatus: _parseString(json['package_status']),
-      minimumAge: _parseString(json['minimumAge']),
-      maximumAge: _parseString(json['maximumAge']),
-      rangeKm: _parseString(json['rangeKm']),
-      version: _parseString(json['version']),
-      banned: _parseString(json['banned']),
-      hookupStatus: _parseString(json['hookup_status']),
-      incognativeMode: _parseString(json['incognative_mode']),
-      moodId: _parseString(json['mood_id']),
-      creator: _parseString(json['creator']),
-      distance: json['distance']?.toDouble(),
+          json.containsKey('preference_id') ? _parseString(json['preference_id'], fieldName: 'preference_id') : null,
+      desiresId: json.containsKey('desires_id') ? _parseString(json['desires_id'], fieldName: 'desires_id') : null,
+      langId: json.containsKey('lang_id') ? _parseString(json['lang_id'], fieldName: 'lang_id') : null,
+      countryCode: _parseString(json['country_code'], fieldName: 'country_code'),
+      points: _parseString(json['points'], fieldName: 'points'),
+      firstTranDone: _parseString(json['first_tran_done'], fieldName: 'first_tran_done'),
+      lastSeen: _parseString(json['last_seen'], fieldName: 'last_seen'),
+      packageStatus: _parseString(json['package_status'], fieldName: 'package_status'),
+      minimumAge: _parseString(json['minimumAge'], fieldName: 'minimumAge'),
+      maximumAge: _parseString(json['maximumAge'], fieldName: 'maximumAge'),
+      rangeKm: _parseString(json['rangeKm'], fieldName: 'rangeKm'),
+      version: _parseString(json['version'], fieldName: 'version'),
+      banned: _parseString(json['banned'], fieldName: 'banned'),
+      hookupStatus: _parseString(json['hookup_status'], fieldName: 'hookup_status'),
+      incognativeMode: _parseString(json['incognative_mode'], fieldName: 'incognative_mode'),
+      moodId: _parseString(json['mood_id'], fieldName: 'mood_id'),
+      creator: _parseString(json['creator'], fieldName: 'creator'),
+      distance: json['distance'] is num ? (json['distance'] as num).toDouble() : (json['distance'] is String ? double.tryParse(json['distance']) : null),
     );
   }
 
@@ -336,9 +348,36 @@ class Error {
   });
 
   factory Error.fromJson(Map<String, dynamic> json) {
+    // Safe parser for message field (backend might send int or String)
+    String? _parseMessage(dynamic value) {
+      if (value == null) {
+        return null;
+      }
+      if (value is String) {
+        return value;
+      }
+      // Convert int or other types to String
+      return value.toString();
+    }
+    
+    // Safe parser for code field (backend might send int or String)
+    int _parseCode(dynamic value) {
+      if (value == null) {
+        return 0;
+      }
+      if (value is int) {
+        return value;
+      }
+      if (value is String) {
+        return int.tryParse(value) ?? 0;
+      }
+      // For other types, try to convert to int
+      return int.tryParse(value.toString()) ?? 0;
+    }
+    
     return Error(
-      code: json['code'],
-      message: json['message'],
+      code: _parseCode(json['code']),
+      message: _parseMessage(json['message']),
     );
   }
 

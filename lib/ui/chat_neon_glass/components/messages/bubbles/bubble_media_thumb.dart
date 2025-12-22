@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:dating_application/constants.dart';
 import '../../../tokens/chat_tokens.dart';
+import '../../media_viewer_fullscreen.dart';
 
 /// Glass-styled media thumbnail for image bubbles.
 class BubbleMediaThumb extends StatelessWidget {
@@ -19,6 +20,7 @@ class BubbleMediaThumb extends StatelessWidget {
   final bool isFailed;
   final bool isDeleted;
   final double blurMultiplier; // typically 0..1 based on fast scroll suppression
+  final String? messageId; // For unique Hero tag
 
   const BubbleMediaThumb({
     super.key,
@@ -30,13 +32,15 @@ class BubbleMediaThumb extends StatelessWidget {
     required this.isFailed,
     required this.isDeleted,
     required this.blurMultiplier,
+    this.messageId,
   });
 
   @override
   Widget build(BuildContext context) {
     final Size screen = MediaQuery.of(context).size;
-    final double maxWidth = screen.width * tokens.spacing.bubbleMaxWidthFractionMin;
-    final double maxHeight = screen.height * 0.5; // mid of 40–55%
+    final double maxWidth = screen.width * 0.75;
+    final double maxHeight = screen.height * 0.35;
+    const double minWidth = 120;
 
     // Default aspect ratio 4:5 until image loads.
     const double fallbackAspect = 4 / 5;
@@ -48,59 +52,76 @@ class BubbleMediaThumb extends StatelessWidget {
 
     final Gradient tint = _tintGradient();
 
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        maxWidth: maxWidth,
-        maxHeight: maxHeight,
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(tokens.radius.bubbleMax),
-        child: Stack(
-          children: [
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-              child: Container(
-                color: Colors.white.withOpacity(glassOpacity),
-              ),
-            ),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final double width = constraints.maxWidth;
-                final double height =
-                    min(constraints.maxHeight, width / fallbackAspect);
-                return SizedBox(
-                  width: width,
-                  height: height,
-                  child: _SensitiveImageThumb(
-                    imagePath: imagePath,
-                    bearerToken: bearerToken,
-                    sensitivity: sensitivity,
-                    tokens: tokens,
-                    isDeleted: isDeleted,
-                  ),
-                );
-              },
-            ),
-            // Tint overlay (suppressed if deleted)
-            if (!isDeleted)
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: Container(
-                    decoration: BoxDecoration(gradient: tint),
-                  ),
+    final bool isSensitive = sensitivity.trim() != 'non-explicit';
+
+    // Image bubbles are edge-to-edge, no padding
+    // BubbleShell handles alignment and max width constraints
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Use available width from parent (BubbleShell provides max 70% screen width)
+        final double availableWidth = constraints.maxWidth;
+        final double availableHeight = constraints.maxHeight;
+        
+        // Calculate height based on aspect ratio, respecting max height
+        final double imageHeight = min(
+          availableHeight > 0 ? availableHeight : maxHeight,
+          availableWidth / fallbackAspect,
+        );
+        
+        return SizedBox(
+          width: availableWidth,
+          height: imageHeight,
+          child: Stack(
+            children: [
+              // Backdrop blur layer
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
+                child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Colors.white.withOpacity(glassOpacity),
                 ),
               ),
-            if (isDeleted)
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: Container(
-                    color: Colors.black.withOpacity(0.55),
-                  ),
+              // Image content
+              _SensitiveImageThumb(
+                imagePath: imagePath,
+                bearerToken: bearerToken,
+                sensitivity: sensitivity,
+                tokens: tokens,
+                isDeleted: isDeleted,
+                heroTag: messageId != null 
+                    ? 'image_hero_${messageId}_${imagePath.hashCode}'
+                    : 'image_hero_${imagePath.hashCode}',
+                onOpen: (bytes, heroTag) => _openFullscreen(
+                  context: context,
+                  mediaUrl: imagePath,
+                  isSensitive: isSensitive,
+                  bytes: bytes,
+                  heroTag: heroTag,
                 ),
               ),
-          ],
-        ),
-      ),
+              // Gradient tint overlay
+              if (!isDeleted)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: Container(
+                      decoration: BoxDecoration(gradient: tint),
+                    ),
+                  ),
+                ),
+              // Deleted overlay
+              if (isDeleted)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: Container(
+                      color: Colors.black.withOpacity(0.55),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -134,6 +155,26 @@ class BubbleMediaThumb extends StatelessWidget {
       end: Alignment.bottomRight,
     );
   }
+
+  Future<void> _openFullscreen({
+    required BuildContext context,
+    required String mediaUrl,
+    required bool isSensitive,
+    required Uint8List bytes,
+    required String heroTag,
+  }) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MediaViewerFullscreen(
+          mediaUrl: mediaUrl,
+          isSensitive: isSensitive,
+          initialBytes: bytes,
+          heroTag: heroTag,
+        ),
+      ),
+    );
+  }
 }
 
 class _SensitiveImageThumb extends StatefulWidget {
@@ -142,6 +183,8 @@ class _SensitiveImageThumb extends StatefulWidget {
   final String sensitivity;
   final ChatTokens tokens;
   final bool isDeleted;
+  final String heroTag;
+  final void Function(Uint8List bytes, String heroTag) onOpen;
 
   const _SensitiveImageThumb({
     required this.imagePath,
@@ -149,6 +192,8 @@ class _SensitiveImageThumb extends StatefulWidget {
     required this.sensitivity,
     required this.tokens,
     required this.isDeleted,
+    required this.heroTag,
+    required this.onOpen,
   });
 
   @override
@@ -187,19 +232,33 @@ class _SensitiveImageThumbState extends State<_SensitiveImageThumb> {
         }
 
         final Uint8List bytes = snapshot.data!;
-        final Widget image = Image.memory(bytes, fit: BoxFit.cover);
+        final Widget baseImage = Image.memory(
+          bytes,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+        );
 
-        final bool isSensitive =
-            widget.sensitivity.trim() != 'non-explicit' && _showBlur;
+        // Wrap image in Hero for smooth animation
+        final Widget heroImage = Hero(
+          tag: widget.heroTag,
+          child: Material(
+            color: Colors.transparent,
+            child: baseImage,
+          ),
+        );
 
-        if (isSensitive) {
+        final bool isSensitive = widget.sensitivity.trim() != 'non-explicit';
+        final bool shouldObscure = isSensitive && _showBlur;
+
+        if (shouldObscure) {
           return GestureDetector(
             onTap: () => setState(() => _showBlur = false),
             child: Stack(
               children: [
                 ImageFiltered(
                   imageFilter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                  child: image,
+                  child: heroImage,
                 ),
                 Positioned.fill(
                   child: Container(
@@ -231,29 +290,11 @@ class _SensitiveImageThumbState extends State<_SensitiveImageThumb> {
           );
         }
 
-        // Normal tap-to-view behavior (kept minimal to avoid changing logic).
         return GestureDetector(
           onTap: widget.isDeleted
               ? null
-              : () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return Dialog(
-                        backgroundColor: Colors.transparent,
-                        insetPadding: const EdgeInsets.all(10),
-                        child: SizedBox(
-                          width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.height,
-                          child: InteractiveViewer(
-                            child: Image.memory(bytes),
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-          child: image,
+              : () => widget.onOpen(bytes, widget.heroTag),
+          child: heroImage,
         );
       },
     );

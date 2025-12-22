@@ -121,7 +121,7 @@ class MessageRequest {
         "DOB": dob,
         "gender": gender,
         "profile_image": profileImage,
-        "message": message,
+        "message": message ?? '',
       };
 }
 

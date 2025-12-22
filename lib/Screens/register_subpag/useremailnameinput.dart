@@ -7,6 +7,8 @@ import 'package:lottie/lottie.dart';
 import '../../Controllers/controller.dart';
 import '../../constants.dart';
 import '../../Providers/check_username_provider.dart';
+import 'privacy_policy_webview.dart';
+import 'registerdetails.dart';
 
 class UserInputPage extends StatefulWidget {
   const UserInputPage({super.key});
@@ -608,9 +610,9 @@ class UserInputPageState extends State<UserInputPage>
                         Checkbox(
                           value: _privacyPolicyAccepted,
                           onChanged: (value) {
-                            // When checkbox is clicked, open the privacy policy sheet
-                            // The checkbox will only be checked if user accepts in the sheet
-                            _showPrivacyPolicyBottomSheet(context);
+                            // When checkbox is clicked, open the privacy policy webview
+                            // The checkbox will only be checked if user accepts in the webview
+                            _openPrivacyPolicyWebView(context);
                           },
                           activeColor: const Color(0xFF895294),
                           checkColor: Colors.white,
@@ -618,7 +620,7 @@ class UserInputPageState extends State<UserInputPage>
                         Expanded(
                           child: GestureDetector(
                             onTap: () {
-                              _showPrivacyPolicyBottomSheet(context);
+                              _openPrivacyPolicyWebView(context);
                             },
                             child: RichText(
                               text: TextSpan(
@@ -679,10 +681,13 @@ class UserInputPageState extends State<UserInputPage>
                 child: ElevatedButton(
                   onPressed: (_isUsernameChecked && _isUsernameAvailable && _privacyPolicyAccepted) ? () {
                     if (formKey.currentState?.validate() ?? false) {
-                      if (controller.registrationOTPRequest.validate()) {
-                        controller.getOtpForRegistration(
-                            controller.registrationOTPRequest);
-                      }
+                      // OTP check commented out - directly proceed to next page
+                      // if (controller.registrationOTPRequest.validate()) {
+                      //   controller.getOtpForRegistration(
+                      //       controller.registrationOTPRequest);
+                      // }
+                      // Directly navigate to RegisterProfilePage without OTP verification
+                      Get.to(RegisterProfilePage());
                       // Get.snackbar('Email is',
                       //     controller.registrationOTPRequest.email.toString());
                     } else {
@@ -722,6 +727,27 @@ class UserInputPageState extends State<UserInputPage>
               SizedBox(height: 16),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void _openPrivacyPolicyWebView(BuildContext context) {
+    // TODO: Replace with your actual privacy policy URL
+    const String privacyPolicyUrl = 'https://spenterprises.tech/hhukd/privacy_policy.html';
+    
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PrivacyPolicyWebView(
+          url: privacyPolicyUrl,
+          onAccept: (accepted) {
+            if (accepted) {
+              setState(() {
+                _privacyPolicyAccepted = true;
+              });
+            }
+          },
         ),
       ),
     );

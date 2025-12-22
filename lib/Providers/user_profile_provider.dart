@@ -29,7 +29,24 @@ class UserProfileProvider extends GetConnect {
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
-          return UserUploadImagesResponse.fromJson(response.body);
+          final result = UserUploadImagesResponse.fromJson(response.body);
+          // Debug: Check image data quality
+          if (result.payload?.data?.images != null) {
+            print('📸 Fetched ${result.payload!.data!.images.length} images');
+            for (int i = 0; i < result.payload!.data!.images.length; i++) {
+              final img = result.payload!.data!.images[i];
+              print('📸 Image $i: length=${img.length}, starts with: ${img.substring(0, img.length > 20 ? 20 : img.length)}...');
+              // Check if it's a valid base64 or URL
+              if (img.startsWith('http')) {
+                print('📸 Image $i: Network URL');
+              } else if (img.length > 50) {
+                print('📸 Image $i: Base64 (${img.length} chars)');
+              } else {
+                print('⚠️ Image $i: Suspiciously short (${img.length} chars) - might be corrupted');
+              }
+            }
+          }
+          return result;
         } else {
           failure('Error in fetchProfileUserPhotos', response.body['error']['message']);
           return null;

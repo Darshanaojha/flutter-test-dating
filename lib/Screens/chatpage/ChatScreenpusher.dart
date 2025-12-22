@@ -24,6 +24,7 @@ import '../../Providers/WebsocketService.dart';
 import '../userprofile/userprofilesummary.dart';
 import 'AudioCallPage.dart';
 import '../../ui/chat_neon_glass/neon_chat_live_screen.dart';
+import 'package:dating_application/widgets/frosted_dialog.dart';
 
 class ChatScreen extends StatefulWidget {
   final String senderId;
@@ -44,7 +45,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class ChatScreenState extends State<ChatScreen> {
-  Controller controller = Get.put(Controller());
+  Controller controller = Get.find<Controller>();
   final WebSocketService websocketService = WebSocketService();
   File? selectedImage;
   final TextEditingController messageController = TextEditingController();
@@ -281,9 +282,13 @@ class ChatScreenState extends State<ChatScreen> {
       
       try {
         // Compress the image before converting to base64
+        // Use higher quality (85) for better visual quality in fullscreen
+        // minWidth/minHeight ensure larger images maintain detail
         final compressedImageBytes = await FlutterImageCompress.compressWithFile(
           image.path,
-          quality: 50,
+          quality: 85,
+          minWidth: 1920,
+          minHeight: 1920,
         );
 
         if (compressedImageBytes != null) {
@@ -344,6 +349,19 @@ class ChatScreenState extends State<ChatScreen> {
 
   // Method to delete selected messages
   Future<void> deleteSelectedMessages() async {
+    bool proceed = false;
+    await showFrostedDialog(
+      context: context,
+      title: 'Delete selected?',
+      message: 'This will permanently delete the selected messages.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      onConfirm: () async {
+        proceed = true;
+      },
+    );
+    if (!proceed) return;
+
     if (selectedMessages.isNotEmpty) {
       bool success = await controller
           .deleteChats(selectedMessages); // Your method to delete
@@ -360,6 +378,19 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> deleteAllMessages() async {
+    bool proceed = false;
+    await showFrostedDialog(
+      context: context,
+      title: 'Delete all?',
+      message: 'This will permanently delete all messages in this chat.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      onConfirm: () async {
+        proceed = true;
+      },
+    );
+    if (!proceed) return;
+
     List<Message> selectedMessages = controller.messages
         .where((m) => m.senderId == widget.senderId)
         .toList();
@@ -377,6 +408,19 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> deleteSingleMessage(int index) async {
+    bool proceed = false;
+    await showFrostedDialog(
+      context: context,
+      title: 'Delete message?',
+      message: 'This will permanently delete this message.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      onConfirm: () async {
+        proceed = true;
+      },
+    );
+    if (!proceed) return;
+
     selectedMessages.clear();
     selectedMessages.add(controller.messages[index]);
     bool success =
@@ -393,106 +437,15 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
   void _showMessageDialog(BuildContext context, Message message, int index) {
-    TextEditingController messageController =
-        TextEditingController(text: message.message);
-
-    // bool isSentByUser = message.senderId == widget.senderId;
-
-    showDialog(
+    showFrostedTextInputDialog(
       context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          elevation: 12,
-          backgroundColor: Colors
-              .transparent, // Make dialog background transparent for gradient
-          child: Container(
-            padding: EdgeInsets.symmetric(vertical: 24, horizontal: 18),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: AppColors.gradientBackgroundList,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  padding: EdgeInsets.all(16),
-                  child: Icon(Icons.chat,
-                      color: Colors.white, size: 48), // Changed to chat icon
-                ),
-                SizedBox(height: 18),
-                Text(
-                  "Edit Message",
-                  style: AppTextStyles.headingText.copyWith(
-                    fontSize: 20,
-                    color: AppColors.textColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  cursorColor: AppColors.activeColor,
-                  controller: messageController,
-                  decoration: InputDecoration(
-                    hintText: "Edit your message",
-                    hintStyle: TextStyle(color: Colors.grey),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          BorderSide(color: AppColors.buttonColor, width: 2.0),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey, width: 1.5),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 22),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        textStyle: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      child: Text("Cancel"),
-                    ),
-                    SizedBox(width: 8),
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.darkGradientColor,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        elevation: 4,
-                      ),
-                      icon: Icon(Icons.check),
-                      label: Text("Update"),
-                      onPressed: () {
-                        _editMessage(messageController.text, index);
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
+      title: 'Edit Message',
+      hintText: 'Edit your message',
+      initialValue: message.message ?? '',
+      confirmText: 'Update',
+      cancelText: 'Cancel',
+      onConfirm: (editedText) {
+        _editMessage(editedText, index);
       },
     );
   }

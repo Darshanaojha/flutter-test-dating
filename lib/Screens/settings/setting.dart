@@ -29,7 +29,7 @@ class SettingsPageState extends State<SettingsPage>
     return screenWidth * scale;
   }
 
-  Controller controller = Get.put(Controller(), permanent: true);
+  Controller controller = Get.find<Controller>();
   final TextEditingController desireController = TextEditingController();
   bool showOnlineUsers = false;
   bool isExpanded = false;
@@ -256,7 +256,8 @@ class SettingsPageState extends State<SettingsPage>
                         Slider(
                           value: maxDistance,
                           min: 0,
-                          max: 500,
+                          // max: 500,
+                          max: 1000000,
                           divisions: null,
                           label: "${maxDistance.round()} km",
                           activeColor: AppColors.cursorColor,

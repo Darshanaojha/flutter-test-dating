@@ -487,7 +487,8 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   if (pickedDate != null) {
                     setState(() {
                       selectedDate = pickedDate;
-                      date.value = DateFormat('MM/dd/yyyy').format(pickedDate);
+                      // Display in user-friendly format (dd/MM/yyyy) for UI
+                      date.value = DateFormat('dd/MM/yyyy').format(pickedDate);
                     });
                   }
                 },
@@ -502,7 +503,7 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                       border: Border.all(color: AppColors.textColor),
                     ),
                     child: Text(
-                      date.value.isEmpty ? 'MM/DD/YYYY' : date.value,
+                      date.value.isEmpty ? 'DD/MM/YYYY' : date.value,
                       style: AppTextStyles.bodyText.copyWith(
                         fontSize: datePickerFontSize,
                         color: AppColors.textColor,
@@ -535,9 +536,13 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                     'Failed', 'You must be at least 18 years old to proceed.');
                 return;
               }
+              // Backend expects dd/MM/yyyy format (with / separator)
               String formattedDate =
-                  DateFormat('MM/dd/yyyy').format(selectedDate);
+                  DateFormat('dd/MM/yyyy').format(selectedDate);
+              debugPrint('📅 Selected Date: $selectedDate');
+              debugPrint('📅 DOB formatted for backend (dd/MM/yyyy): $formattedDate');
               controller.userRegistrationRequest.dob = formattedDate;
+              debugPrint('📅 DOB set in request object: ${controller.userRegistrationRequest.dob}');
               markStepAsCompleted(1);
               pageController.nextPage(
                 duration: Duration(milliseconds: 300),
@@ -2110,26 +2115,26 @@ class MultiStepFormPageState extends State<MultiStepFormPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        controller.headlines.isNotEmpty
-                            ? controller.headlines[8].title
-                            : "Loading Title...",
-                        style: AppTextStyles.titleText.copyWith(
-                          fontSize: titleFontSize,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textColor,
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      Text(
-                        controller.headlines.isNotEmpty
-                            ? controller.headlines[8].description
-                            : "",
-                        style: AppTextStyles.bodyText.copyWith(
-                          fontSize: bodyFontSize,
-                          color: AppColors.textColor.withOpacity(0.7),
-                        ),
-                      ),
+                      // Text(
+                      //   controller.headlines.isNotEmpty
+                      //       ? controller.headlines[8].title
+                      //       : "Loading Title...",
+                      //   style: AppTextStyles.titleText.copyWith(
+                      //     fontSize: titleFontSize,
+                      //     fontWeight: FontWeight.bold,
+                      //     color: AppColors.textColor,
+                      //   ),
+                      // ),
+                      // SizedBox(height: 20),
+                      // Text(
+                      //   controller.headlines.isNotEmpty
+                      //       ? controller.headlines[8].description
+                      //       : "",
+                      //   style: AppTextStyles.bodyText.copyWith(
+                      //     fontSize: bodyFontSize,
+                      //     color: AppColors.textColor.withOpacity(0.7),
+                      //   ),
+                      // ),
                       SizedBox(height: 20),
                       TextField(
                         controller: descriptionController,

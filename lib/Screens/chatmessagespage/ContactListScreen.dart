@@ -232,7 +232,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                               color: Colors.white,
                             ),
                             decoration: InputDecoration(
-                              hintText: 'Search Contacts...',
+                              hintText: 'Search Profiles...',
                               hintStyle: AppTextStyles.customTextStyle(
                                 color: Colors.white70,
                                 fontSize: 14,
@@ -261,7 +261,7 @@ class ContactListScreenState extends State<ContactListScreen> {
                       height: 50,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: AppColors.gradientBackgroundList,
+                          colors: AppColors.gradientBackgroundList.reversed.toList(),
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -584,9 +584,8 @@ class ContactListScreenState extends State<ContactListScreen> {
                 leading: Icon(Icons.block, color: Colors.red),
                 title: Text('Block User'),
                 onTap: () {
-                  controller.blockToRequestModel.blockto = selecteduser;
-                  controller.blockUser(controller.blockToRequestModel);
                   Navigator.pop(context);
+                  _confirmBlockUser(selecteduser);
                 },
               ),
               ListTile(
@@ -750,6 +749,34 @@ class ContactListScreenState extends State<ContactListScreen> {
             ],
           );
         });
+      },
+    );
+  }
+
+  void _confirmBlockUser(String userIdToBlock) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: Text('Block user?'),
+          content: const Text(
+            'This will block the user permanently. You will not see them again in this version. Continue?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(ctx);
+                controller.blockToRequestModel.blockto = userIdToBlock;
+                await controller.blockUser(controller.blockToRequestModel);
+              },
+              child: const Text('Block'),
+            ),
+          ],
+        );
       },
     );
   }
@@ -957,3 +984,4 @@ class FullScreenImagePage extends StatelessWidget {
     );
   }
 }
+

@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
@@ -16,6 +19,80 @@ class MessageRequestPage extends StatefulWidget {
 class MessageRequestPageState extends State<MessageRequestPage> {
   final Controller controller = Get.find();
 
+  String _normalizeBase64(String base64) {
+    String clean = base64.contains(',') ? base64.split(',')[1] : base64;
+    clean = clean.trim();
+    final int remainder = clean.length % 4;
+    if (remainder != 0) {
+      clean += '=' * (4 - remainder);
+    }
+    return clean;
+  }
+
+  bool _isBase64Image(String? image) {
+    if (image == null || image.isEmpty) return false;
+    if (image.startsWith('http://') || image.startsWith('https://')) {
+      return false;
+    }
+    final String trimmed = image.trim();
+    if (trimmed.length < 20) return false;
+    try {
+      final String normalized = _normalizeBase64(trimmed);
+      base64Decode(normalized);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Widget _buildAvatar(String imageUrl, double radius) {
+    if (imageUrl.isEmpty) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: Colors.grey.shade300,
+        child: const Icon(Icons.person, color: Colors.white),
+      );
+    }
+
+    if (_isBase64Image(imageUrl)) {
+      try {
+        final Uint8List bytes = base64Decode(_normalizeBase64(imageUrl));
+        return CircleAvatar(
+          radius: radius,
+          backgroundColor: Colors.grey.shade200,
+          child: ClipOval(
+            child: Image.memory(
+              bytes,
+              fit: BoxFit.cover,
+              width: radius * 2,
+              height: radius * 2,
+              errorBuilder: (_, __, ___) => Image.asset(
+                'assets/images/cajed_logo.png',
+                fit: BoxFit.cover,
+                width: radius * 2,
+                height: radius * 2,
+              ),
+            ),
+          ),
+        );
+      } catch (_) {
+        // Fallback to placeholder on decode failure
+        return CircleAvatar(
+          radius: radius,
+          backgroundColor: Colors.grey.shade300,
+          child: const Icon(Icons.person, color: Colors.white),
+        );
+      }
+    }
+
+    return CircleAvatar(
+      radius: radius,
+      backgroundImage: NetworkImage(imageUrl),
+      backgroundColor: Colors.grey.shade200,
+      onBackgroundImageError: (_, __) {},
+    );
+  }
+
   void showImageDialog(String imageUrl) {
     showDialog(
       context: context,
@@ -25,18 +102,31 @@ class MessageRequestPageState extends State<MessageRequestPage> {
           child: GestureDetector(
             onTap: () => Navigator.pop(context),
             child: Center(
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.contain,
-                height: 300,
-                width: 300,
-                errorBuilder: (context, error, stackTrace) {
-                  return Image.asset(
-                    'assets/images/cajed_logo.png',
-                    fit: BoxFit.contain,
-                  );
-                },
-              ),
+              child: _isBase64Image(imageUrl)
+                  ? Image.memory(
+                      base64Decode(_normalizeBase64(imageUrl)),
+                      fit: BoxFit.contain,
+                      height: 300,
+                      width: 300,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image.asset(
+                          'assets/images/cajed_logo.png',
+                          fit: BoxFit.contain,
+                        );
+                      },
+                    )
+                  : Image.network(
+                      imageUrl,
+                      fit: BoxFit.contain,
+                      height: 300,
+                      width: 300,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image.asset(
+                          'assets/images/cajed_logo.png',
+                          fit: BoxFit.contain,
+                        );
+                      },
+                    ),
             ),
           ),
         );
@@ -144,10 +234,9 @@ class MessageRequestPageState extends State<MessageRequestPage> {
                       leading: GestureDetector(
                         onTap: () =>
                             showImageDialog(messageRequest.profileImage),
-                        child: CircleAvatar(
-                          backgroundImage:
-                              NetworkImage(messageRequest.profileImage),
-                          radius: screenWidth < 600 ? 30 : 40,
+                        child: _buildAvatar(
+                          messageRequest.profileImage,
+                          screenWidth < 600 ? 30 : 40,
                         ),
                       ),
                       title: Row(

@@ -734,59 +734,72 @@ class EditProfilePageState extends State<EditProfilePage>
       }
     }
 
-    double getResponsiveFontSize(double scale) {
-      double screenWidth = MediaQuery.of(context).size.width;
-      return screenWidth * scale;
-    }
-
     return GestureDetector(
       onTap: selectDate,
       child: AbsorbPointer(
-        child: TextFormField(
-          controller: controller,
-          cursorColor: AppColors.cursorColor,
-          style: AppTextStyles.bodyText.copyWith(
-            fontSize: getResponsiveFontSize(0.03),
-            color: Colors.white,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12.0),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(12.0),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.18),
+                  width: 1.0,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 15.0,
+                    offset: const Offset(0, 6),
+                  ),
+                  BoxShadow(
+                    color: Colors.white.withOpacity(0.08),
+                    blurRadius: 8.0,
+                    spreadRadius: -1.0,
+                    offset: const Offset(-1, -1),
+                  ),
+                ],
+              ),
+              child: TextFormField(
+                controller: controller,
+                cursorColor: AppColors.cursorColor,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.9),
+                  fontSize: 15,
+                ),
+                decoration: InputDecoration(
+                  labelText: label,
+                  hintText: "Select your Date of Birth",
+                  hintStyle: TextStyle(
+                    color: Colors.white.withOpacity(0.5),
+                    fontSize: 15,
+                  ),
+                  labelStyle: TextStyle(
+                    color: Colors.white.withOpacity(0.7),
+                    fontSize: 14,
+                  ),
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  errorBorder: InputBorder.none,
+                  disabledBorder: InputBorder.none,
+                  focusedErrorBorder: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 8,
+                  ),
+                  errorText: errorText,
+                ),
+                onChanged: (value) {
+                  onChanged(value);
+                  validateInput(value);
+                },
+              ),
+            ),
           ),
-          decoration: InputDecoration(
-            labelText: label, // <--- Floating label inside input
-            labelStyle: AppTextStyles.labelText.copyWith(
-              fontSize: getResponsiveFontSize(0.03),
-              color: Colors.white70,
-            ),
-            floatingLabelStyle: AppTextStyles.labelText.copyWith(
-              fontSize: getResponsiveFontSize(0.028),
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-            hintText: "Select your Date of Birth",
-            filled: true,
-            fillColor: AppColors.formFieldColor,
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.green, width: 2.0),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: AppColors.textColor, width: 1.5),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.red, width: 1.5),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            errorText: errorText,
-          ),
-          onChanged: (value) {
-            onChanged(value);
-            validateInput(value);
-          },
         ),
       ),
     );
@@ -1361,60 +1374,61 @@ class EditProfilePageState extends State<EditProfilePage>
                                                     CrossAxisAlignment
                                                         .start,
                                                 children: [
-                                                  TextField(
-                                                    controller:
-                                                        interestController,
-                                                    cursorColor: AppColors
-                                                        .cursorColor,
-                                                    decoration:
-                                                        InputDecoration(
-                                                      labelText:
-                                                          'Update Interest',
-                                                      labelStyle:
-                                                          AppTextStyles
-                                                              .buttonText
-                                                              .copyWith(
-                                                        fontSize:
-                                                            getResponsiveFontSize(
-                                                                0.03),
-                                                      ),
-                                                      filled: true,
-                                                      fillColor: AppColors
-                                                          .formFieldColor,
-                                                      border:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(
-                                                                    10),
-                                                        borderSide:
-                                                            BorderSide.none,
-                                                      ),
-                                                      focusedBorder:
-                                                          OutlineInputBorder(
-                                                        borderSide:
-                                                            const BorderSide(
-                                                          color:
-                                                              Colors.green,
-                                                          width: 2.0,
+                                                  ClipRRect(
+                                                    borderRadius: BorderRadius.circular(12.0),
+                                                    child: BackdropFilter(
+                                                      filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                                                      child: Container(
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.white.withOpacity(0.12),
+                                                          borderRadius: BorderRadius.circular(12.0),
+                                                          border: Border.all(
+                                                            color: Colors.white.withOpacity(0.18),
+                                                            width: 1.0,
+                                                          ),
+                                                          boxShadow: [
+                                                            BoxShadow(
+                                                              color: Colors.black.withOpacity(0.2),
+                                                              blurRadius: 15.0,
+                                                              offset: const Offset(0, 6),
+                                                            ),
+                                                            BoxShadow(
+                                                              color: Colors.white.withOpacity(0.08),
+                                                              blurRadius: 8.0,
+                                                              spreadRadius: -1.0,
+                                                              offset: const Offset(-1, -1),
+                                                            ),
+                                                          ],
                                                         ),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(
-                                                                    20),
-                                                      ),
-                                                      enabledBorder:
-                                                          OutlineInputBorder(
-                                                        borderSide:
-                                                            BorderSide(
-                                                          color: AppColors
-                                                              .textColor,
-                                                          width: 1.5,
+                                                        child: TextField(
+                                                          controller: interestController,
+                                                          cursorColor: AppColors.cursorColor,
+                                                          style: TextStyle(
+                                                            color: Colors.white.withOpacity(0.9),
+                                                            fontSize: 15,
+                                                          ),
+                                                          decoration: InputDecoration(
+                                                            labelText: 'Type Your Interest Here...',
+                                                            labelStyle: TextStyle(
+                                                              color: Colors.white.withOpacity(0.7),
+                                                              fontSize: 14,
+                                                            ),
+                                                            hintStyle: TextStyle(
+                                                              color: Colors.white.withOpacity(0.5),
+                                                              fontSize: 15,
+                                                            ),
+                                                            border: InputBorder.none,
+                                                            enabledBorder: InputBorder.none,
+                                                            focusedBorder: InputBorder.none,
+                                                            errorBorder: InputBorder.none,
+                                                            disabledBorder: InputBorder.none,
+                                                            focusedErrorBorder: InputBorder.none,
+                                                            contentPadding: const EdgeInsets.symmetric(
+                                                              horizontal: 10,
+                                                              vertical: 8,
+                                                            ),
+                                                          ),
                                                         ),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(
-                                                                    20),
                                                       ),
                                                     ),
                                                   ),
@@ -1905,30 +1919,57 @@ class EditProfilePageState extends State<EditProfilePage>
           );
         },
       ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8.0),
-          border: Border.all(color: AppColors.formFieldColor),
-          color: AppColors.formFieldColor,
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Obx(() {
-                return Text(
-                  selectedValue.value != null
-                      ? (displayValue != null
-                          ? displayValue(selectedValue.value as T)
-                          : selectedValue.value.toString())
-                      : controller.initialCountry!.name.toString(),
-                  style:
-                      AppTextStyles.inputFieldText.copyWith(fontSize: fontSize),
-                );
-              }),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12.0),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(12.0),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.18),
+                width: 1.0,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 15.0,
+                  offset: const Offset(0, 6),
+                ),
+                BoxShadow(
+                  color: Colors.white.withOpacity(0.08),
+                  blurRadius: 8.0,
+                  spreadRadius: -1.0,
+                  offset: const Offset(-1, -1),
+                ),
+              ],
             ),
-            Icon(Icons.arrow_drop_down, color: AppColors.activeColor),
-          ],
+            child: Row(
+              children: [
+                Expanded(
+                  child: Obx(() {
+                    return Text(
+                      selectedValue.value != null
+                          ? (displayValue != null
+                              ? displayValue(selectedValue.value as T)
+                              : selectedValue.value.toString())
+                          : controller.initialCountry!.name.toString(),
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 15,
+                      ),
+                    );
+                  }),
+                ),
+                Icon(
+                  Icons.arrow_drop_down,
+                  color: Colors.white.withOpacity(0.7),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

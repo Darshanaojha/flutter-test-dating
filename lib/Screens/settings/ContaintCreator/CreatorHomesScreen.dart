@@ -215,9 +215,23 @@ class CreatorHomeScreen extends StatelessWidget {
                   ),
                 ),
                 if (user.accountVerificationStatus == "1" ||
+                    user.packageStatus == "4" ||
+                    user.packageStatus == "1" ||
                     user.accountVerificationStatus.toLowerCase() == "verified")
-                  const Icon(Icons.verified,
-                      color: Colors.pinkAccent, size: 22),
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.mediumGradientColor.withOpacity(0.6),
+                          blurRadius: 12,
+                          spreadRadius: 3,
+                        ),
+                      ],
+                    ),
+                    child: Icon(Icons.verified,
+                        color: AppColors.mediumGradientColor, size: 22),
+                  ),
               ],
             );
           }),

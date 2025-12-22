@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dating_application/Controllers/controller.dart';
@@ -783,69 +784,105 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     Get.bottomSheet(
       Padding(
         padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Send a Message', style: AppTextStyles.inputFieldText),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.02,
+        child: ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.12),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                border: Border.all(color: Colors.white.withOpacity(0.25)),
               ),
-              TextField(
-                cursorColor: AppColors.cursorColor,
-                focusNode: messageFocusNode,
-                decoration: InputDecoration(
-                  labelText: 'Write your message...',
-                  labelStyle: AppTextStyles.labelText,
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Send a Message',
+                          style: AppTextStyles.inputFieldText.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          )),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.02,
+                      ),
+                      TextField(
+                        cursorColor: AppColors.cursorColor,
+                        focusNode: messageFocusNode,
+                        decoration: InputDecoration(
+                          labelText: 'Write your message...',
+                          labelStyle: AppTextStyles.labelText.copyWith(
+                            color: Colors.white70,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide:
+                                BorderSide(color: Colors.white.withOpacity(0.4)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide:
+                                BorderSide(color: Colors.white.withOpacity(0.7)),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide:
+                                BorderSide(color: Colors.white.withOpacity(0.25)),
+                          ),
+                          fillColor: Colors.white.withOpacity(0.08),
+                          filled: true,
+                          hintText: 'Type your message here...',
+                          hintStyle:
+                              AppTextStyles.labelText.copyWith(color: Colors.white54),
+                        ),
+                        style: AppTextStyles.bodyText.copyWith(color: Colors.white),
+                        onChanged: (value) {
+                          establishConnectionMessageRequest.message = value;
+                          establishConnectionMessageRequest.receiverId = userid;
+                        },
+                        maxLines: 3,
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.02,
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (establishConnectionMessageRequest.message.isEmpty) {
+                            Get.snackbar("Error", "Message cannot be empty!");
+                            return;
+                          }
+                          bool messageSent = await controller
+                              .sendConnectionMessage(establishConnectionMessageRequest);
+                          if (messageSent) {
+                            if (Get.isBottomSheetOpen ?? false) {
+                              Get.back();
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.mediumGradientColor,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text('Send Message',
+                            style: AppTextStyles.buttonText.copyWith(
+                                color: Colors.white, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                  fillColor: AppColors.formFieldColor,
-                  filled: true,
-                  hintText: 'Type your message here...',
                 ),
-                onChanged: (value) {
-                  establishConnectionMessageRequest.message = value;
-                  establishConnectionMessageRequest.receiverId = userid;
-                },
-                maxLines: 3,
               ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.02,
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  if (establishConnectionMessageRequest.message.isEmpty) {
-                    Get.snackbar("Error", "Message cannot be empty!");
-                    return;
-                  }
-                  bool messageSent = await controller
-                      .sendConnectionMessage(establishConnectionMessageRequest);
-                  if (messageSent) {
-                    // Additional success feedback - the controller already shows success snackbar
-                    // but we can close the bottom sheet here if it's still open
-                    if (Get.isBottomSheetOpen ?? false) {
-                    Get.back();
-                    }
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.mediumGradientColor,
-                ),
-                child: Text('Send Message', style: AppTextStyles.buttonText),
-              ),
-            ],
+            ),
           ),
         ),
       ),
       isScrollControlled: true,
-      backgroundColor: AppColors.primaryColor,
+      backgroundColor: Colors.black54,
       enterBottomSheetDuration: Duration(milliseconds: 300),
       exitBottomSheetDuration: Duration(milliseconds: 300),
     );
@@ -2259,15 +2296,29 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 color: Colors.white,
                               ),
                             ),
-                            if (user.accountVerificationStatus == '1')
+                            if (user.accountVerificationStatus == '1' ||
+                                user.packageStatus == '4' ||
+                                user.packageStatus == '1')
                               Padding(
                                 padding: const EdgeInsets.only(left: 8.0),
-                                child: Icon(
-                                  Icons.verified,
-                                  color: AppColors.lightGradientColor,
-                                  size: getResponsiveFontSize(0.045),
-                                    ),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColors.mediumGradientColor.withOpacity(0.6),
+                                        blurRadius: 12,
+                                        spreadRadius: 3,
+                                      ),
+                                    ],
                                   ),
+                                  child: Icon(
+                                    Icons.verified,
+                                    color: AppColors.mediumGradientColor,
+                                    size: getResponsiveFontSize(0.045),
+                                  ),
+                                ),
+                              ),
                           ],
                         ),
                         SizedBox(height: 4),

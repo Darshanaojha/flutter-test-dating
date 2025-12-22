@@ -33,7 +33,9 @@ class RegistrationProvider extends GetConnect {
   // Verify Email using OTP
   Future<RegistrationOtpResponse?> getOtpForRegistration(RegistrationOTPRequest registrationOTPRequest) async {
     try {
+      print("before requestBody");
       final requestBody = registrationOTPRequest.toJson();
+      print('requestBody: ${requestBody}');
       if (baseurl.isEmpty) {
         throw Exception("Base URL is not defined.");
       }

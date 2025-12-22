@@ -35,13 +35,16 @@ class UserRegistrationProvider extends GetConnect {
     // debugPrint('lookingFor: ${userRegistrationRequest.lookingFor}');
 
     print('=======');
-    debugPrint('Request: ${userRegistrationRequest.toJson()}');
-    debugPrint('Photos: ${userRegistrationRequest.photos}');
+    debugPrint('📋 Full Request: ${userRegistrationRequest.toJson()}');
+    debugPrint('📅 DOB in request: ${userRegistrationRequest.dob}');
+    debugPrint('📸 Photos: ${userRegistrationRequest.photos}');
 
     try {
       print("📤 Request URL: $baseurl/Authentication/register");
-  print("📦 Request Body: ${userRegistrationRequest.toJson()}");
-  
+      final requestBody = userRegistrationRequest.toJson();
+      print("📦 Request Body: $requestBody");
+      print("📅 DOB in JSON: ${requestBody['dob']}");
+      
       Response response = await post(
         '$baseurl/Authentication/register',
         userRegistrationRequest.toJson(),

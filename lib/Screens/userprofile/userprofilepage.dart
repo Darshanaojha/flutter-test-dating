@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:dating_application/Screens/settings/appinfopages/faqpage.dart';
 import 'package:dating_application/Screens/userprofile/Orders/OrdersViewScreen.dart';
 import 'package:dating_application/Screens/userprofile/membership/membershippage.dart';
@@ -19,6 +20,7 @@ import 'GenerateReferalCode/GenerateReferalCode.dart';
 import 'Transactions/TransactionsViewScreen.dart';
 import 'editprofile/edituserprofile.dart';
 import 'package:encrypt_shared_preferences/provider.dart';
+import '../register_subpag/privacy_policy_webview.dart';
 
 class UserProfilePage extends StatefulWidget {
   final String? userId;
@@ -30,7 +32,7 @@ class UserProfilePage extends StatefulWidget {
 
 class UserProfilePageState extends State<UserProfilePage>
     with TickerProviderStateMixin {
-  Controller controller = Get.put(Controller());
+  Controller controller = Get.find<Controller>();
   bool isLoading = true;
   String userProfileCompletion = '80% Complete';
   late Future<bool> _fetchprofilepage;
@@ -163,6 +165,20 @@ class UserProfilePageState extends State<UserProfilePage>
       ),
     );
   }
+  Widget _buildErrorImage(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.2,
+      height: MediaQuery.of(context).size.height * 0.3,
+      color: Colors.grey[300],
+      alignment: Alignment.center,
+      child: const Icon(
+        Icons.co_present_rounded,
+        size: 70,
+        color: Colors.grey,
+      ),
+    );
+  }
+
   Future<bool> fetchAllData() async {
     if (!await controller.fetchProfileUserPhotos()) return false;
     if (!await controller.fetchAllsubscripted()) return false;
@@ -275,8 +291,23 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                 builder: (context) {
                                                                   try {
                                                                     String normalizedBase64 = _normalizeBase64(imagePath);
+                                                                    
+                                                                    // Validate base64 before decoding
+                                                                    if (normalizedBase64.isEmpty) {
+                                                                      debugPrint('⚠️ Empty base64 string at index $index');
+                                                                      return _buildErrorImage(context);
+                                                                    }
+                                                                    
+                                                                    final Uint8List bytes = base64Decode(normalizedBase64);
+                                                                    
+                                                                    // Validate decoded bytes
+                                                                    if (bytes.isEmpty) {
+                                                                      debugPrint('⚠️ Decoded bytes are empty at index $index');
+                                                                      return _buildErrorImage(context);
+                                                                    }
+                                                                    
                                                                     return Image.memory(
-                                                                      base64Decode(normalizedBase64),
+                                                                      bytes,
                               fit: BoxFit.cover,
                                                                       width: MediaQuery.of(
                                                                                   context)
@@ -285,58 +316,22 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                           0.3,
                                                                       height: MediaQuery.of(
                                                                                   context)
-                                                                              .size
-                                                                              .height *
-                                                                          0.3,
-                                                                      errorBuilder: (context,
-                                                                          error, stackTrace) {
-                                                                        print('Base64 image decode error: $error');
-                                                                        return Container(
-                                                                          width: MediaQuery.of(
-                                                                                      context)
-                                                                                  .size
-                                                                                  .width *
-                                                                              0.2,
-                                                                          height: MediaQuery.of(
-                                                                                      context)
                                                                                   .size
                                                                                   .height *
                                                                               0.3,
-                                                                          color: Colors
-                                                                              .grey[300],
-                                                                          alignment: Alignment
-                                                                              .center,
-                                                                          child: Icon(
-                                                                            Icons
-                                                                                .co_present_rounded,
-                                                                            size: 70,
-                                                                            color:
-                                                                                Colors.grey,
-                                                                          ),
-                                                                        );
+                                                                      errorBuilder: (context,
+                                                                          error, stackTrace) {
+                                                                        debugPrint('⚠️ Image.memory decode error at index $index: $error');
+                                                                        debugPrint('⚠️ Base64 length: ${normalizedBase64.length}');
+                                                                        debugPrint('⚠️ Base64 preview: ${normalizedBase64.substring(0, normalizedBase64.length > 50 ? 50 : normalizedBase64.length)}...');
+                                                                        return _buildErrorImage(context);
                                                                       },
                                                                     );
-                                                                  } catch (e) {
-                                                                    print('Error decoding base64 image: $e');
-                                                                    return Container(
-                                                                      width: MediaQuery.of(
-                                                                                  context)
-                                                                              .size
-                                                                              .width *
-                                                                          0.2,
-                                                                      height: MediaQuery.of(
-                                                                                  context)
-                                                                              .size
-                                                                              .height *
-                                                                          0.3,
-                                                                      color: Colors.grey[300],
-                                                                      alignment: Alignment.center,
-                                                                      child: Icon(
-                                                                        Icons.co_present_rounded,
-                                                                        size: 70,
-                                                                        color: Colors.grey,
-                                                                      ),
-                                                                    );
+                                                                  } catch (e, stackTrace) {
+                                                                    debugPrint('⚠️ Base64 decode exception at index $index: $e');
+                                                                    debugPrint('⚠️ Stack trace: $stackTrace');
+                                                                    debugPrint('⚠️ Image path preview: ${imagePath.substring(0, imagePath.length > 100 ? 100 : imagePath.length)}...');
+                                                                    return _buildErrorImage(context);
                                                                   }
                                                                 },
                                                               )
@@ -476,20 +471,32 @@ class UserProfilePageState extends State<UserProfilePage>
                   ),
                 ),
                                           if (controller.userData.isNotEmpty &&
-                                              controller.userData.first
-                                                      .packageStatus ==
+                                              (controller.userData.first
+                                                      .accountVerificationStatus ==
                                                   '1' || controller.
                                                       userData
                                                       .first
-                                                      .packageStatus == '4')
+                                                      .packageStatus == '4' || controller.userData.first.packageStatus == '1'))
                 Padding(
                                               padding: const EdgeInsets.only(
                                                   left: 8.0),
-                                              child: Icon(
-                                                Icons.verified,
-                                                color: Colors.green,
-                                                size: getResponsiveFontSize(
-                                                    0.045),
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: AppColors.mediumGradientColor.withOpacity(0.6),
+                                                      blurRadius: 12,
+                                                      spreadRadius: 3,
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: Icon(
+                                                  Icons.verified,
+                                                  color: AppColors.mediumGradientColor,
+                                                  size: getResponsiveFontSize(
+                                                      0.045),
+                                                ),
                                               ),
                                             ),
                                         ],
@@ -985,33 +992,38 @@ class UserProfilePageState extends State<UserProfilePage>
                                                 ),
                                                 child: Row(
                                                   children: [
-                                                    Icon(
-                                                      controller.userData
-                                                                  .isNotEmpty &&
-                                                              (controller
-                                                                      .userData
-                                                                      .first
-                                                                      .accountVerificationStatus ==
-                                                                  '1' || controller
-                                                                      .userData
-                                                                      .first
-                                                                      .packageStatus == '4' || controller.userData.first.packageStatus == '1')
-                                                          ? Icons.verified
-                                                          : Icons.error_outline,
-                                                      color: controller.userData
-                                                                  .isNotEmpty &&
-                                                              (controller
-                                                                      .userData
-                                                                      .first
-                                                                      .accountVerificationStatus ==
-                                                                  '1' || controller
-                                                                      .userData
-                                                                      .first
-                                                                      .packageStatus == '4')
-                                                          ? Colors.green
-                                                          : Colors.red,
-                                                      size: screenWidth * 0.045,
-                                                    ),
+                                                    controller.userData
+                                                                .isNotEmpty &&
+                                                            (controller
+                                                                    .userData
+                                                                    .first
+                                                                    .accountVerificationStatus ==
+                                                                '1' || controller
+                                                                    .userData
+                                                                    .first
+                                                                    .packageStatus == '4' || controller.userData.first.packageStatus == '1')
+                                                        ? Container(
+                                                            decoration: BoxDecoration(
+                                                              shape: BoxShape.circle,
+                                                              boxShadow: [
+                                                                BoxShadow(
+                                                                  color: AppColors.mediumGradientColor.withOpacity(0.6),
+                                                                  blurRadius: 12,
+                                                                  spreadRadius: 3,
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            child: Icon(
+                                                              Icons.verified,
+                                                              color: AppColors.mediumGradientColor,
+                                                              size: screenWidth * 0.045,
+                                                            ),
+                                                          )
+                                                        : Icon(
+                                                            Icons.error_outline_outlined,
+                                                            color: Colors.yellow[700],
+                                                            size: screenWidth * 0.045,
+                                                          ),
                                                     SizedBox(
                                                         width: screenWidth *
                                                             0.015),
@@ -1028,13 +1040,13 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                 (controller
                                                                         .userData
                                                                         .first
-                                                                        .packageStatus ==
+                                                                        .accountVerificationStatus ==
                                                                     '1' || controller
                                                                         .userData
                                                                         .first
-                                                                        .packageStatus == '4')
-                                                            ? Colors.green
-                                                            : Colors.red,
+                                                                        .packageStatus == '4' || controller.userData.first.packageStatus == '1')
+                                                            ? Colors.white
+                                                            : Colors.white70,
                                                       ),
                             ),
                           ],
@@ -1187,6 +1199,14 @@ class UserProfilePageState extends State<UserProfilePage>
                                     subtitle: 'Helpline support',
                           icon: Icons.help,
                                     onTap: () => showHelpBottomSheet(context),
+                                    screenWidth: screenWidth,
+                                  ),
+                                  buildSettingCard(
+                                    context,
+                                    title: 'Delete Account',
+                                    subtitle: 'Permanently delete your account',
+                                    icon: Icons.delete_outline,
+                                    onTap: () => deleteAccount(context),
                                     screenWidth: screenWidth,
                                   ),
                     ],
@@ -1404,6 +1424,26 @@ class UserProfilePageState extends State<UserProfilePage>
         );
       },
     );
+  }
+
+  Future<void> deleteAccount(BuildContext context) async {
+    try {
+      // TODO: Replace with your actual delete account URL
+      const String deleteAccountUrl = 'https://spenterprises.tech/hhukd/deactivate.html';
+      
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PrivacyPolicyWebView(
+            url: deleteAccountUrl,
+            title: 'Delete Account',
+            acceptButtonText: null, // No accept button for delete account
+          ),
+        ),
+      );
+    } catch (e) {
+      failure('Error', 'Failed to open delete account page: ${e.toString()}');
+    }
   }
 
   Widget buildFeatureCard(String title, IconData icon, VoidCallback onTap) {

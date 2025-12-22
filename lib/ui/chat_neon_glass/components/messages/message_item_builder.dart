@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import '../../../../Models/ResponseModels/chat_history_response_model.dart';
@@ -172,6 +174,7 @@ class _MessageItemBuilderState extends State<MessageItemBuilder>
                       isFailed: isFailed,
                       isDeleted: isDeleted,
                       blurMultiplier: effectiveBlur,
+                      messageId: widget.message.id,
                     )
                   : BubbleText(
                       text: widget.message.message,
@@ -192,32 +195,54 @@ class _MessageItemBuilderState extends State<MessageItemBuilder>
         message.imagePath != null && message.imagePath!.isNotEmpty;
     await showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (!hasImage)
-                ListTile(
-                  leading: const Icon(Icons.edit),
-                  title: const Text('Edit'),
-                  onTap: () async {
-                    Navigator.pop(context);
-                    await widget.onEdit?.call(message);
-                  },
+        return ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.14),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                border: Border(
+                  top: BorderSide(
+                    color: Colors.white.withOpacity(0.35),
+                    width: 1,
+                  ),
                 ),
-              ListTile(
-                leading: const Icon(Icons.delete_outline),
-                title: const Text('Delete'),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await widget.onDelete?.call(message);
-                },
               ),
-            ],
+              child: SafeArea(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (!hasImage)
+                      ListTile(
+                        leading: const Icon(Icons.edit, color: Colors.white),
+                        title: const Text(
+                          'Edit',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onTap: () async {
+                          Navigator.pop(context);
+                          await widget.onEdit?.call(message);
+                        },
+                      ),
+                    ListTile(
+                      leading: const Icon(Icons.delete_outline, color: Colors.white),
+                      title: const Text(
+                        'Delete',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await widget.onDelete?.call(message);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         );
       },

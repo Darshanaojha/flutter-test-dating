@@ -19,7 +19,7 @@ class Login extends StatefulWidget {
 }
 
 class LoginState extends State<Login> with TickerProviderStateMixin {
-  final controller = Get.find<Controller>();
+  late final Controller controller;
   final formKey = GlobalKey<FormState>();
   late UserLoginRequest loginRequest;
   late AnimationController animationController;
@@ -31,6 +31,9 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    controller = Get.isRegistered<Controller>()
+        ? Get.find<Controller>()
+        : Get.put(Controller(), permanent: true);
     loginRequest = UserLoginRequest(email: '', password: '');
 
     animationController = AnimationController(

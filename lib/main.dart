@@ -26,7 +26,7 @@ void main() async {
     });
 
     Get.put(ConnectivityService());
-        Get.put(Controller());
+    Get.put(Controller(), permanent: true);
 
     runApp(const MainApp());
   } catch (e) {
@@ -85,7 +85,7 @@ class MainAppState extends State<MainApp>
     super.dispose();
   }
 
-  Controller controller = Get.put(Controller());
+  final Controller controller = Get.find<Controller>();
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {

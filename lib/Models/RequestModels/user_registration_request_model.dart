@@ -28,6 +28,7 @@ class UserRegistrationRequest {
   String emailAlerts;
   String username;
   String lookingFor;
+  String? googleToken;
 
   UserRegistrationRequest({
     required this.name,
@@ -55,6 +56,7 @@ class UserRegistrationRequest {
     required this.emailAlerts,
     required this.username,
     required this.lookingFor,
+    this.googleToken,
   });
 
   factory UserRegistrationRequest.fromJson(Map<String, dynamic> json) {
@@ -84,6 +86,7 @@ class UserRegistrationRequest {
       emailAlerts: json['email_alerts'],
       username: json['username'],
       lookingFor: json['looking_for'],
+      googleToken: json['google_token'],
     );
   }
 
@@ -113,6 +116,7 @@ class UserRegistrationRequest {
     emailAlerts = '';
     username = '';
     lookingFor = '';
+    googleToken = null;
   }
 
   Map<String, dynamic> toJson() {
@@ -142,6 +146,7 @@ class UserRegistrationRequest {
       'email_alerts': emailAlerts,
       'username': username,
       'looking_for': lookingFor,
+      'google_token': googleToken ?? '',
     };
   }
 
@@ -183,18 +188,40 @@ class UserRegistrationRequest {
   }
 
   void validateDateFormat(String date) {
-    final datePattern = RegExp(r'^\d{4}-\d{2}-\d{2}$');
+    // Backend expects dd/MM/yyyy format (with / separator)
+    final datePattern = RegExp(r'^\d{2}/\d{2}/\d{4}$');
     if (!datePattern.hasMatch(date)) {
       throw ArgumentError(
-          "Date of birth must be in the format YYYY-MM-DD for field: Date of Birth.");
+          "Date of birth must be in the format dd/MM/yyyy (e.g., 16/12/1993) for field: Date of Birth.");
     }
   }
 
   void validateAge(String dob) {
-    final dateOfBirth = DateTime.parse(dob);
-    final age = DateTime.now().year - dateOfBirth.year;
-    if (age < 18) {
-      throw ArgumentError("User must be at least 18 years old.");
+    // Parse dd/MM/yyyy format (with / separator)
+    try {
+      final parts = dob.split('/');
+      if (parts.length != 3) {
+        throw ArgumentError("Invalid date format. Expected dd/MM/yyyy");
+      }
+      final day = int.parse(parts[0]);
+      final month = int.parse(parts[1]);
+      final year = int.parse(parts[2]);
+      final dateOfBirth = DateTime(year, month, day);
+      final now = DateTime.now();
+      int age = now.year - dateOfBirth.year;
+      // Adjust for month and day
+      if (now.month < dateOfBirth.month || 
+          (now.month == dateOfBirth.month && now.day < dateOfBirth.day)) {
+        age--;
+      }
+      if (age < 18) {
+        throw ArgumentError("User must be at least 18 years old.");
+      }
+    } catch (e) {
+      if (e is ArgumentError) {
+        rethrow;
+      }
+      throw ArgumentError("Invalid date format. Expected dd/MM/yyyy");
     }
   }
 

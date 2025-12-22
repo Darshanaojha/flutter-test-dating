@@ -183,9 +183,6 @@ class _NeonInputBarState extends State<NeonInputBar> {
 
   @override
   Widget build(BuildContext context) {
-    final double padH = widget.tokens.spacing.l;
-    final double padV = widget.tokens.spacing.s;
-
     final double blurSigma = ((widget.tokens.blur.microMin + widget.tokens.blur.microMax) / 2) *
         widget.blurMultiplier.clamp(0, 1);
 
@@ -196,7 +193,10 @@ class _NeonInputBarState extends State<NeonInputBar> {
     return SafeArea(
       top: false,
       child: Padding(
-        padding: EdgeInsets.fromLTRB(padH, padV, padH, widget.tokens.spacing.m),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 8,
+          vertical: 6,
+        ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(widget.tokens.radius.inputBarMax),
           child: BackdropFilter(
@@ -210,9 +210,9 @@ class _NeonInputBarState extends State<NeonInputBar> {
                 minHeight: 56,
                 maxHeight: selectedImage != null ? 180 : 120,
               ),
-              padding: EdgeInsets.symmetric(
-                horizontal: widget.tokens.spacing.m,
-                vertical: widget.tokens.spacing.s,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 6,
               ),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(

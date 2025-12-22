@@ -15,6 +15,7 @@ import '../../state_machine/chat_state_machine.dart';
 import '../../tokens/chat_tokens.dart';
 import '../../utils/perf/scroll_velocity_tracker.dart';
 import 'message_item_builder.dart';
+import '../../../../widgets/frosted_dialog.dart';
 
 /// Message list shell that renders the legacy GetX message list.
 ///
@@ -131,6 +132,7 @@ class _NeonMessageListState extends State<NeonMessageList> {
   @override
   Widget build(BuildContext context) {
     final double h = MediaQuery.of(context).size.height;
+    final double gap = MediaQuery.of(context).size.height * 0.006;
     final double bottomPad = math.max(12, (0.02 * h));
 
     return Obx(() {
@@ -163,30 +165,36 @@ class _NeonMessageListState extends State<NeonMessageList> {
           bottomPad,
         ),
         itemCount: messages.length,
-              itemBuilder: (context, index) {
+        itemBuilder: (context, index) {
           final Message msg = messages[index];
           final bool sameSenderPrev = index > 0 &&
               messages[index - 1].senderId == msg.senderId;
           final bool sameSenderNext = index + 1 < messages.length &&
               messages[index + 1].senderId == msg.senderId;
 
-          return MessageItemBuilder(
-            message: msg,
-            viewerId: widget.viewerId,
-            bearerToken: widget.bearerToken,
-            tokens: widget.tokens,
-            uiState: widget.uiState,
-            timestampOpacityMultiplier: widget.timestampOpacityMultiplier,
-            soundHooks: widget.soundHooks,
-            hapticsHooks: widget.hapticsHooks,
-            blurMultiplier: widget.blurMultiplier,
-            glowMultiplier: widget.glowMultiplier,
-            scrollOffset: _scrollOffsetPx % 2000.0,
-            showTimestamp: true,
-            sameSenderPrev: sameSenderPrev,
-            sameSenderNext: sameSenderNext,
-            onEdit: (m) => _editMessage(context, m),
-            onDelete: (m) => _deleteMessage(context, m),
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (index > 0) SizedBox(height: gap),
+              MessageItemBuilder(
+                message: msg,
+                viewerId: widget.viewerId,
+                bearerToken: widget.bearerToken,
+                tokens: widget.tokens,
+                uiState: widget.uiState,
+                timestampOpacityMultiplier: widget.timestampOpacityMultiplier,
+                soundHooks: widget.soundHooks,
+                hapticsHooks: widget.hapticsHooks,
+                blurMultiplier: widget.blurMultiplier,
+                glowMultiplier: widget.glowMultiplier,
+                scrollOffset: _scrollOffsetPx % 2000.0,
+                showTimestamp: true,
+                sameSenderPrev: sameSenderPrev,
+                sameSenderNext: sameSenderNext,
+                onEdit: (m) => _editMessage(context, m),
+                onDelete: (m) => _deleteMessage(context, m),
+              ),
+            ],
           );
         },
       );
@@ -195,36 +203,23 @@ class _NeonMessageListState extends State<NeonMessageList> {
 
   Future<void> _editMessage(BuildContext context, Message message) async {
     if (message.id == null || message.id!.isEmpty) return;
-    final TextEditingController controller =
-        TextEditingController(text: message.message ?? '');
-    final String? result = await showDialog<String>(
+    String? result;
+    await showFrostedTextInputDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Edit message'),
-          content: TextField(
-            controller: controller,
-            minLines: 1,
-            maxLines: 4,
-            decoration: const InputDecoration(hintText: 'Update message'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, controller.text.trim()),
-              child: const Text('Save'),
-            ),
-          ],
-        );
+      title: 'Edit message',
+      hintText: 'Update message',
+      initialValue: message.message ?? '',
+      confirmText: 'Save',
+      cancelText: 'Cancel',
+      onConfirm: (editedText) {
+        result = editedText.trim();
       },
     );
-    if (result == null || result.isEmpty) return;
+    if (result?.isEmpty ?? true) return;
+    final String editedText = result!;
 
     final req = EditMessageRequest(
-      message: result,
+      message: editedText,
       messageId: message.id!,
       messageType: message.messageType.toString(),
     );
@@ -234,7 +229,7 @@ class _NeonMessageListState extends State<NeonMessageList> {
         widget.controller.messages.indexWhere((m) => m.id == message.id);
     if (idx != -1) {
       final Message updated = widget.controller.messages[idx].copyWith(
-        message: result,
+        message: editedText,
       );
       widget.controller.messages[idx] = updated;
       widget.controller.messages.refresh();
@@ -247,24 +242,18 @@ class _NeonMessageListState extends State<NeonMessageList> {
 
   Future<void> _deleteMessage(BuildContext context, Message message) async {
     if (message.id == null || message.id!.isEmpty) return;
-    final bool? confirmed = await showDialog<bool>(
+    bool confirmed = false;
+    await showFrostedDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete message?'),
-        content: const Text('This will remove the message for you.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      title: 'Delete message?',
+      message: 'This will permanently delete this message.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      onConfirm: () async {
+        confirmed = true;
+      },
     );
-    if (confirmed != true) return;
+    if (!confirmed) return;
 
     final req = DeleteMessageRequest(messageIds: [message.id!]);
     _suppressAutoScroll = true;

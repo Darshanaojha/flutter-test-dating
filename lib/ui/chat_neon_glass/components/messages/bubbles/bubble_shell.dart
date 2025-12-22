@@ -352,9 +352,12 @@ class _BubbleShellState extends State<BubbleShell> with TickerProviderStateMixin
     }
 
     double _resolveMaxWidth() {
+      if (isImage) {
+        // Image bubbles: max 70% of screen width, responsive
+        return (screenWidth * 0.70).clamp(120.0, screenWidth * 0.70);
+      }
+      // Text bubbles: account for text width + padding + timestamp/tick row
       final double cap = screenWidth * 0.82;
-      if (isImage) return cap;
-      // account for text width + padding + timestamp/tick row
       final double estimated = _estimateTextWidth() + 5 + 5 + 20;
       final double min = 120;
       return estimated.clamp(min, cap);
@@ -408,10 +411,12 @@ class _BubbleShellState extends State<BubbleShell> with TickerProviderStateMixin
                           rippleSuppression: widget.glowMultiplier,
                         ),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 7,
-                          ),
+                          padding: isImage
+                              ? EdgeInsets.zero
+                              : const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
                         decoration: BoxDecoration(
                           borderRadius: radius,
                             gradient: LinearGradient(

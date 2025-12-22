@@ -17,9 +17,10 @@ class DateHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String label = DateFormat.yMMMMd().format(date);
+    final double vMargin = MediaQuery.of(context).size.height * 0.004;
     return Padding(
       padding: EdgeInsets.symmetric(
-        vertical: tokens.spacing.s,
+        vertical: vMargin,
       ),
       child: Center(
         child: Container(

@@ -15,6 +15,8 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/update_activity_status_request_model.dart';
 import '../../constants.dart';
+import '../../widgets/loading_overlay.dart';
+import '../../services/logout_service.dart';
 import '../chatmessagespage/ContactListScreen.dart';
 import '../homepage/homepage.dart';
 import '../likespages/userlikespage.dart';
@@ -47,7 +49,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _rotationAnimation;
-  final controller = Get.put(Controller());
+  final controller = Get.find<Controller>();
   final navigationcontroller = Get.put(NavigationController());
 
   @override
@@ -267,80 +269,77 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                         ),
                         child: ElevatedButton(
                           onPressed: () async {
-                            String? userId;
+                            // Close the dialog first
+                            Navigator.of(context).pop();
                             
-                            try {
-                              // Get userId before clearing preferences
-                              final preferences =
-                                  EncryptedSharedPreferences.getInstance();
-                              userId = preferences.getString('userId');
-                              
-                              // Update activity status before logout (fire and forget, but with timeout)
-                              if (Get.isRegistered<Controller>()) {
-                                try {
-                                  final controller = Get.find<Controller>();
-                                  UpdateActivityStatusRequest
-                                      updateActivityStatusRequest =
-                                      UpdateActivityStatusRequest(status: '0');
-                                  await controller.updateactivitystatus(
-                                          updateActivityStatusRequest)
-                                      .timeout(Duration(seconds: 2),
-                                          onTimeout: () {
-                                        return false;
-                                      });
-                                } catch (e) {
-                                  // Ignore errors during logout
-                                  debugPrint('Error updating activity status during logout: $e');
-                                }
-                              }
-                            } catch (e) {
-                              // Ignore any errors
-                              debugPrint('Error during logout preparation: $e');
-                            }
+                            // Show loading overlay immediately
+                            await showLoadingOverlay(
+                              context,
+                              messages: [
+                                'Clearing session...',
+                                'Syncing with server...',
+                                'Finishing up...',
+                              ],
+                              messageDuration: const Duration(seconds: 1),
+                              indicatorColor: AppColors.mediumGradientColor,
+                            );
 
-                            // Disconnect WebSocket
-                            try {
-                              final websocketService = WebSocketService();
-                              if (websocketService.isConnected()) {
-                                websocketService.disconnect();
-                                debugPrint('✅ WebSocket disconnected');
-                              }
-                            } catch (e) {
-                              debugPrint('Error disconnecting WebSocket: $e');
-                            }
+                            // Perform logout with timeout and status updates
+                            final result = await LogoutService.performLogoutWithTimeout(
+                              timeout: const Duration(seconds: 15),
+                              onStatusUpdate: (status) {
+                                // Status updates are handled by message cycling
+                                debugPrint('Logout status: $status');
+                              },
+                            );
 
-                            // Unsubscribe from all FCM topics
+                            // Delete NavigationController if registered
                             try {
-                              await FCMService().unsubscribeFromAllTopics(userId);
-                              debugPrint('✅ Unsubscribed from all FCM topics');
-                            } catch (e) {
-                              debugPrint('Error unsubscribing from FCM topics: $e');
-                            }
-
-                            // Clear preferences
-                            try {
-                              final preferences =
-                                  EncryptedSharedPreferences.getInstance();
-                              await preferences.clear();
-                            } catch (e) {
-                              debugPrint('Error clearing preferences: $e');
-                            }
-
-                            // Delete controllers
-                            try {
-                              if (Get.isRegistered<Controller>()) {
-                                Get.delete<Controller>();
-                              }
                               if (Get.isRegistered<NavigationController>()) {
                                 Get.delete<NavigationController>();
                               }
                             } catch (e) {
-                              debugPrint('Error deleting controllers: $e');
+                              debugPrint('Error deleting NavigationController: $e');
                             }
-                            Get.put(Controller());
 
-                            // Navigate to auth screen
-                            Get.offAll(() => CombinedAuthScreen());
+                            // Hide loading overlay
+                            await hideLoadingOverlay();
+
+                            // Handle result
+                            if (result.success) {
+                              // Navigate to auth screen only after successful logout
+                              Get.offAll(() => CombinedAuthScreen());
+                            } else {
+                              // Show error dialog if logout failed
+                              if (context.mounted) {
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Logout Error'),
+                                    content: Text(
+                                      result.errorMessage.isNotEmpty
+                                          ? result.errorMessage
+                                          : 'Logout failed. Please try again.',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                          // Force navigation even on error
+                                          Get.offAll(() => CombinedAuthScreen());
+                                        },
+                                        child: const Text('Continue Anyway'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => Navigator.of(context).pop(),
+                                        child: const Text('Retry'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+                            }
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent,
@@ -538,13 +537,20 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
               .screens[navigationcontroller.selectedIndex.value];
         }),
         bottomNavigationBar: Obx(() {
-          return Container(
-            decoration: BoxDecoration(
-              gradient: AppColors.appBarGradient,
-              borderRadius: BorderRadius.circular(
-                  30), // You can adjust the border radius here
-            ),
-            child: CurvedNavigationBar(
+          // Calculate responsive height: clamp between 55-70px based on screen size
+          // Small phones get 55px, medium get 60px, large get 65-70px
+          final double screenHeight = MediaQuery.of(context).size.height;
+          final double navBarHeight = (screenHeight * 0.08).clamp(55.0, 70.0);
+          
+          return SafeArea(
+            top: false,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: AppColors.appBarGradient,
+                borderRadius: BorderRadius.circular(
+                    30), // You can adjust the border radius here
+              ),
+              child: CurvedNavigationBar(
               index: navigationcontroller.selectedIndex.value,
               onTap: (index) {
                 navigationcontroller.navigateTo(index);
@@ -568,7 +574,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
               },
               backgroundColor: Colors.transparent,
               color: Colors.black,
-              height: size.height * 0.05,
+              height: navBarHeight,
               animationDuration: Duration(milliseconds: 300),
               items: <Widget>[
                 AnimatedBuilder(
@@ -640,6 +646,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                   },
                 ),
               ],
+              ),
             ),
           );
         }),

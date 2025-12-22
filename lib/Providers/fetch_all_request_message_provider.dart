@@ -22,6 +22,9 @@ class FetchAllRequestMessageProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+      print('RAW BODY = ${response.body.runtimeType}');
+      print('RAW BODY = ${response.body}');
+      print("response in pings provider: ${response.body}");
       if (response.statusCode == null || response.body == null) {
         failure('Error in fetchallrequestmessageprovider', 'Server Failed To Respond');
         return null;
@@ -29,6 +32,9 @@ class FetchAllRequestMessageProvider extends GetConnect {
 
       if (response.statusCode == 200) {
         if (response.body['error']['code'] == 0) {
+          print("response in pings if if : ${response.body}");
+          print("iska return let me see. ");
+          print(GetAllRequestPingMessageResponse.fromJson(response.body).toJson());
           return GetAllRequestPingMessageResponse.fromJson(response.body);
         } else {
           failure('Error in fetchallrequestmessageprovider', response.body['error']['message']);

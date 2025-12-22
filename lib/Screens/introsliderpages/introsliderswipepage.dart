@@ -2,6 +2,7 @@ import 'package:dating_application/Screens/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:ui';
+import 'dart:convert';
 import 'dart:math' as math;
 import 'package:encrypt_shared_preferences/provider.dart';
 import '../../Controllers/controller.dart';
@@ -15,7 +16,7 @@ class IntroSlidingPages extends StatefulWidget {
 }
 
 class IntroSlidingPagesState extends State<IntroSlidingPages> with TickerProviderStateMixin {
-  Controller controller = Get.put(Controller());
+  Controller controller = Get.find<Controller>();
   late PageController pageController;
   int currentPage = 0;
   bool _isLoading = true;
@@ -388,14 +389,79 @@ class IntroSlidingPagesState extends State<IntroSlidingPages> with TickerProvide
   }
 
   Widget _buildBackgroundImage(sliderItem, int pageIndex) {
+    String? imagePath = sliderItem?.image;
+    
+    // If no image from slider data, use default
+    if (imagePath == null || imagePath.isEmpty) {
+      imagePath = 'assets/images/intro1.jpg';
+    }
+    
     return ImageFiltered(
       imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-      child: Image.asset(
-        'assets/images/intro1.jpg',
+      child: _buildImageWidget(imagePath),
+    );
+  }
+  
+  Widget _buildImageWidget(String imagePath) {
+    // Check if it's a network URL
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return Image.network(
+        imagePath,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) => Container(
           color: _primaryBackground,
         ),
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Container(
+            color: _primaryBackground,
+            child: Center(
+              child: CircularProgressIndicator(
+                color: _accentNeon,
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            ),
+          );
+        },
+      );
+    }
+    
+    // Check if it's a base64 image
+    if (imagePath.startsWith('data:image/') || imagePath.startsWith('/9j/') || imagePath.length > 100) {
+      try {
+        // Try to decode base64
+        final base64String = imagePath.contains(',') 
+            ? imagePath.split(',')[1] 
+            : imagePath;
+        final bytes = base64Decode(base64String);
+        return Image.memory(
+          bytes,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Container(
+            color: _primaryBackground,
+          ),
+        );
+      } catch (e) {
+        // If base64 decode fails, fall back to asset
+        return Image.asset(
+          'assets/images/intro1.jpg',
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Container(
+            color: _primaryBackground,
+          ),
+        );
+      }
+    }
+    
+    // Default to asset image
+    return Image.asset(
+      imagePath,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => Container(
+        color: _primaryBackground,
       ),
     );
   }
