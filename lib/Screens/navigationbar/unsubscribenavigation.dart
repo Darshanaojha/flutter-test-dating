@@ -14,6 +14,8 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../Controllers/controller.dart';
 import '../../Models/RequestModels/update_activity_status_request_model.dart';
 import '../../constants.dart';
+import '../../Providers/fcmService.dart';
+import '../../Providers/WebSocketService.dart';
 import '../settings/setting.dart';
 
 class UnSubscribeNavigationController extends GetxController {
@@ -265,15 +267,42 @@ class UnsubscribenavigationState extends State<Unsubscribenavigation>
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
+                            String? userId;
                             EncryptedSharedPreferences preferences =
                                 EncryptedSharedPreferences.getInstance();
+
+                            // Get userId before clearing preferences
+                            try {
+                              userId = preferences.getString('userId');
+                            } catch (e) {
+                              debugPrint('Error getting userId: $e');
+                            }
 
                             UpdateActivityStatusRequest
                                 updateActivityStatusRequest =
                                 UpdateActivityStatusRequest(status: '0');
                             // controller.updateactivitystatus(
                             //     updateActivityStatusRequest);
+
+                            // Disconnect WebSocket
+                            try {
+                              final websocketService = WebSocketService();
+                              if (websocketService.isConnected()) {
+                                websocketService.disconnect();
+                                debugPrint('✅ WebSocket disconnected');
+                              }
+                            } catch (e) {
+                              debugPrint('Error disconnecting WebSocket: $e');
+                            }
+
+                            // Unsubscribe from all FCM topics
+                            try {
+                              await FCMService().unsubscribeFromAllTopics(userId);
+                              debugPrint('✅ Unsubscribed from all FCM topics');
+                            } catch (e) {
+                              debugPrint('Error unsubscribing from FCM topics: $e');
+                            }
 
                             preferences.clear();
                             Get.offAll(() => CombinedAuthScreen());

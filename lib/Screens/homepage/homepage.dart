@@ -395,7 +395,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
 
     return await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+        desiredAccuracy: LocationAccuracy.medium);
   }
 
   Future<void> _storeLastUserForAllLists(SuggestedUser suggestedUser) async {
@@ -997,14 +997,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     return Scaffold(
         resizeToAvoidBottomInset: true,
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Get.to(() => const IntroSlidingPages());
-          },
-          backgroundColor: AppColors.gradientBackgroundList.first,
-          child: const Icon(Icons.slideshow, color: Colors.white),
-          tooltip: 'Test Intro Slider',
-        ),
       body: RefreshWrapper(
         onRefresh: initializeApp,
         child: SafeArea(
@@ -2377,6 +2369,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           Column(
                             children: [
                               FloatingActionButton(
+                                heroTag: null,
                                 backgroundColor: AppColors.darkGradientColor,
                                 onPressed: () async {
                                   if (await checkInteractionAllowed()) {
@@ -2390,6 +2383,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               ),
                               SizedBox(height: 12),
                               FloatingActionButton(
+                                heroTag: null,
                                 backgroundColor: AppColors.mediumGradientColor,
                                 onPressed: () async {
                                   if (await checkInteractionAllowed()) {
@@ -2403,6 +2397,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                         ),
                               SizedBox(height: 12),
                               FloatingActionButton(
+                                heroTag: null,
                                 backgroundColor: AppColors.lightGradientColor,
                                 onPressed: () async {
                                   if (await checkInteractionAllowed()) {
@@ -2418,6 +2413,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             ],
                           ),
                         FloatingActionButton(
+                          heroTag: null,
                           backgroundColor: AppColors.mediumGradientColor,
                           onPressed: () {
                             setState(() {

@@ -2234,6 +2234,7 @@ class Controller extends GetxController {
   
   // MOCK DATA MODE - For UI development without server access
   // Set this to true to use mock data, false to use real server calls
+  // Enable mock intro data so the bundled pexels-pixabay image is shown.
   static const bool USE_MOCK_INTRO_DATA = true;
   
   Future<bool> fetchAllIntroSlider() async {
@@ -2276,8 +2277,7 @@ class Controller extends GetxController {
       SliderData(
         id: '1',
         title: 'FIND YOUR PERFECT MATCH',
-        image: 'assets/images/pexels-cottonbro-5928587.jpg',
-        //added images ,changed the path for the assets also in pubspec yaml file
+        image: 'assets/images/pexels-pixabay-289227.jpg',
         status: '1',
         created: DateTime.now().toString(),
         updated: DateTime.now().toString(),
@@ -2293,7 +2293,7 @@ class Controller extends GetxController {
       SliderData(
         id: '3',
         title: 'CHAT AND BUILD MEANINGFUL RELATIONSHIPS',
-        image: 'assets/images/pexels-cottonbro-5928587.jpg',
+        image: 'assets/images/pexels-pixabay-289227.jpg',
         status: '1',
         created: DateTime.now().toString(),
         updated: DateTime.now().toString(),

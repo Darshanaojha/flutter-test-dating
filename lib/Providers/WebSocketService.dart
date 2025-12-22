@@ -81,6 +81,7 @@ class WebSocketService {
             // Decrypt the message
             message.message =
                 controller.decryptMessage(message.message!, secretkey);
+            
             // Assuming message has an 'id' property
             if (controller.messages.any((m) => m.id == message.id)) {
               // Find the index of the message with the same ID
@@ -93,10 +94,12 @@ class WebSocketService {
               controller.messages.add(message);
             }
 
-            // Add the message to the RxList
+            // Force UI update by refreshing the RxList
+            // This ensures Obx widgets rebuild when messages arrive
+            controller.messages.refresh();
 
             // Log the decrypted message
-            print('Decrypted message: ${message.message}');
+            print('✅ WebSocket: New message received and added - ID: ${message.id}, From: ${message.senderId}, To: ${message.receiverId}');
           } catch (e) {
             print('Error in subscription callback: $e');
             print('Frame body: ${frame.body}');
