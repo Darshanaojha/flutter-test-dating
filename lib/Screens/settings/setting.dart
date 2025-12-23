@@ -1,6 +1,6 @@
 import 'package:dating_application/Controllers/controller.dart';
 import 'package:dating_application/Screens/settings/appinfopages/appinfopagestart.dart';
-import 'package:dating_application/Screens/introsliderpages/introsliderswipepage.dart';
+// import 'package:dating_application/Screens/introsliderpages/introsliderswipepage.dart'; // Commented out - mock introslider
 import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -219,15 +219,15 @@ class SettingsPageState extends State<SettingsPage>
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Test button to access intro slider
-          Get.to(() => IntroSlidingPages());
-        },
-        backgroundColor: Colors.pink,
-        child: Icon(Icons.slideshow, color: Colors.white),
-        tooltip: 'Test Intro Slider',
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     // Test button to access intro slider
+      //     Get.to(() => IntroSlidingPages());
+      //   },
+      //   backgroundColor: Colors.pink,
+      //   child: Icon(Icons.slideshow, color: Colors.white),
+      //   tooltip: 'Test Intro Slider',
+      // ), // Commented out - mock introslider
       body: FutureBuilder<void>(
         future: _settingsInitializationFuture,
         builder: (context, snapshot) {

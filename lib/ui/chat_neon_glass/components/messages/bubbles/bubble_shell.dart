@@ -414,9 +414,9 @@ class _BubbleShellState extends State<BubbleShell> with TickerProviderStateMixin
                           padding: isImage
                               ? EdgeInsets.zero
                               : const EdgeInsets.symmetric(
-                                  horizontal: 10,
+                            horizontal: 10,
                                   vertical: 6,
-                                ),
+                          ),
                         decoration: BoxDecoration(
                           borderRadius: radius,
                             gradient: LinearGradient(

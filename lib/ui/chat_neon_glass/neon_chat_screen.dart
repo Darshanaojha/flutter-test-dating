@@ -204,14 +204,14 @@ class _NeonChatScreenState extends State<NeonChatScreen> {
       confirmText: 'Block',
       cancelText: 'Cancel',
       onConfirm: () async {
-        widget.legacyController.blockToRequestModel.blockto = widget.peerId;
+    widget.legacyController.blockToRequestModel.blockto = widget.peerId;
         final ok = await widget.legacyController
             .blockUser(widget.legacyController.blockToRequestModel);
-        if (ok && mounted) {
-          setState(() => _isBlocked = true);
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('User blocked')));
-        }
+    if (ok && mounted) {
+      setState(() => _isBlocked = true);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('User blocked')));
+    }
       },
     );
   }
@@ -719,46 +719,47 @@ class _ChatContentShell extends StatelessWidget {
         NeonChatHeader(
           title: peerName,
           imageUrl: peerImageUrl,
+          peerId: peerId,
           onReport: onReportUser,
           onBlock: onBlockUser,
         ),
         Expanded(
           child: Padding(
             padding: shellPadding,
-            child: NeonMessageList(
-              controller: legacyController,
-              scrollController: scrollController,
-              viewerId: viewerId,
-              bearerToken: bearerToken,
-              peerId: peerId,
-              tokens: tokens,
-              stateMachine: stateMachine,
-              velocityTracker: velocityTracker,
-              onScrollOffset: onScrollOffset,
-              uiState: uiState,
-              timestampOpacityMultiplier: timestampOpacityMultiplier,
-              soundHooks: soundHooks,
-              hapticsHooks: hapticsHooks,
-              blurMultiplier: blurMultiplier,
-              glowMultiplier: glowMultiplier,
-              isPeerTyping: isPeerTyping,
-            ),
+          child: NeonMessageList(
+            controller: legacyController,
+            scrollController: scrollController,
+            viewerId: viewerId,
+            bearerToken: bearerToken,
+            peerId: peerId,
+            tokens: tokens,
+            stateMachine: stateMachine,
+            velocityTracker: velocityTracker,
+            onScrollOffset: onScrollOffset,
+            uiState: uiState,
+            timestampOpacityMultiplier: timestampOpacityMultiplier,
+            soundHooks: soundHooks,
+            hapticsHooks: hapticsHooks,
+            blurMultiplier: blurMultiplier,
+            glowMultiplier: glowMultiplier,
+            isPeerTyping: isPeerTyping,
           ),
+        ),
         ),
         Padding(
           padding: shellPadding,
           child: NeonInputBar(
-            tokens: tokens,
-            blurMultiplier: blurMultiplier,
-            glowMultiplier: glowMultiplier,
-            legacyController: legacyController,
-            messageController: messageController,
-            scrollController: scrollController,
-            peerId: peerId,
-            onSendMessage: onSendMessage,
-            pickImageFromGallery: pickImageFromGallery,
-            isBlocked: isBlocked,
-            onChanged: onTextChanged,
+          tokens: tokens,
+          blurMultiplier: blurMultiplier,
+          glowMultiplier: glowMultiplier,
+          legacyController: legacyController,
+          messageController: messageController,
+          scrollController: scrollController,
+          peerId: peerId,
+          onSendMessage: onSendMessage,
+          pickImageFromGallery: pickImageFromGallery,
+          isBlocked: isBlocked,
+          onChanged: onTextChanged,
           ),
         ),
       ],

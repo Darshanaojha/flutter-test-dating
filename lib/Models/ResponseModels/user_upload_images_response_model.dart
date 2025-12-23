@@ -10,12 +10,32 @@ class UserUploadImagesResponse {
   });
 
   factory UserUploadImagesResponse.fromJson(Map<String, dynamic> json) {
+    UserUploadImagesPayload? payloadData;
+    if (json['payload'] != null && json['payload'] is Map<String, dynamic>) {
+      try {
+        payloadData = UserUploadImagesPayload.fromJson(json['payload'] as Map<String, dynamic>);
+      } catch (e) {
+        print('Error parsing UserUploadImagesPayload: $e');
+        payloadData = null;
+      }
+    }
+    
+    ApiError errorData;
+    if (json['error'] != null && json['error'] is Map<String, dynamic>) {
+      try {
+        errorData = ApiError.fromJson(json['error'] as Map<String, dynamic>);
+      } catch (e) {
+        print('Error parsing ApiError: $e');
+        errorData = ApiError(code: -1, message: 'Error parsing response');
+      }
+    } else {
+      errorData = ApiError(code: -1, message: 'Error field missing or invalid');
+    }
+    
     return UserUploadImagesResponse(
-      success: json['success'],
-      payload: json['payload'] != null
-          ? UserUploadImagesPayload.fromJson(json['payload'])
-          : null,
-      error: ApiError.fromJson(json['error']),
+      success: json['success'] ?? false,
+      payload: payloadData,
+      error: errorData,
     );
   }
 
@@ -41,12 +61,17 @@ class UserUploadImagesPayload {
     final dataJson = json['data'];
     UserImageData? userImageData;
     if (dataJson is Map<String, dynamic>) {
-      userImageData = UserImageData.fromJson(dataJson);
+      try {
+        userImageData = UserImageData.fromJson(dataJson);
+      } catch (e) {
+        print('Error parsing UserImageData: $e');
+        userImageData = null;
+      }
     } else {
       userImageData = null;
     }
     return UserUploadImagesPayload(
-      message: json['message'],
+      message: json['message']?.toString() ?? '',
       data: userImageData,
     );
   }
@@ -88,17 +113,17 @@ class UserImageData {
 
   factory UserImageData.fromJson(Map<String, dynamic> json) {
     return UserImageData(
-      id: json['id'],
-      userId: json['user_id'],
-      img1: json['img1'] ?? '',
-      img2: json['img2'] ?? '',
-      img3: json['img3'] ?? '',
-      img4: json['img4'] ?? '',
-      img5: json['img5'] ?? '',
-      img6: json['img6'] ?? '',
-      status: json['status'],
-      created: json['created'],
-      updated: json['updated'],
+      id: json['id']?.toString() ?? '',
+      userId: json['user_id']?.toString() ?? '',
+      img1: json['img1']?.toString() ?? '',
+      img2: json['img2']?.toString() ?? '',
+      img3: json['img3']?.toString() ?? '',
+      img4: json['img4']?.toString() ?? '',
+      img5: json['img5']?.toString() ?? '',
+      img6: json['img6']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+      created: json['created']?.toString() ?? '',
+      updated: json['updated']?.toString() ?? '',
     );
   }
 
@@ -138,9 +163,17 @@ class ApiError {
   });
 
   factory ApiError.fromJson(Map<String, dynamic> json) {
+    int errorCode = 0;
+    if (json['code'] != null) {
+      if (json['code'] is int) {
+        errorCode = json['code'] as int;
+      } else if (json['code'] is String) {
+        errorCode = int.tryParse(json['code'] as String) ?? 0;
+      }
+    }
     return ApiError(
-      code: json['code'],
-      message: json['message'] ?? '',
+      code: errorCode,
+      message: json['message']?.toString() ?? '',
     );
   }
 

@@ -281,6 +281,15 @@ class EditProfilePageState extends State<EditProfilePage>
         return false;
       }
       
+      // Fetch user photos - needed for displaying images in edit profile
+      print('EditProfile: Fetching user photos...');
+      if (!await controller.fetchProfileUserPhotos()) {
+        print('EditProfile: Failed to fetch user photos (continuing anyway)');
+        // Don't return false here - continue even if photos fail to load
+      } else {
+        print('EditProfile: User photos fetched successfully');
+      }
+      
       // Set preferences and languages from fetched profile
       if (controller.userPreferences.isNotEmpty) {
       controller.userProfileUpdateRequest.preferences =

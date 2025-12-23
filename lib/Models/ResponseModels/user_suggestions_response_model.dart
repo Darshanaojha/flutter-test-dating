@@ -210,7 +210,7 @@ class SuggestedUser {
           return value.toString();
         }
         // For other types, try toString()
-        return value.toString();
+      return value.toString();
       } catch (e) {
         debugPrint('⚠️ Error parsing field "$fieldName": $e (value: $value, type: ${value.runtimeType})');
         return null;

@@ -195,22 +195,22 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  FadeTransition(
-                    opacity: opacityAnimation,
-                    child: ScaleTransition(
-                      scale: scaleAnimation,
-                      child: Text(
-                        appName,
-                        style: AppTextStyles.headingText.copyWith(
-                          fontSize: mQuery.width * 0.1,
-                          color: AppColors.textColor,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'RusticRoadway',
-                        ),
-                      ),
-                    ),
-                  ),
+                  // const SizedBox(height: 20),
+                  // FadeTransition(
+                  //   opacity: opacityAnimation,
+                  //   child: ScaleTransition(
+                  //     scale: scaleAnimation,
+                  //     child: Text(
+                  //       appName,
+                  //       style: AppTextStyles.headingText.copyWith(
+                  //         fontSize: mQuery.width * 0.1,
+                  //         color: AppColors.textColor,
+                  //         fontWeight: FontWeight.bold,
+                  //         fontFamily: 'RusticRoadway',
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),

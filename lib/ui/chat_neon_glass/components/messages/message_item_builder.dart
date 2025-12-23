@@ -213,33 +213,33 @@ class _MessageItemBuilderState extends State<MessageItemBuilder>
                 ),
               ),
               child: SafeArea(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (!hasImage)
-                      ListTile(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!hasImage)
+                ListTile(
                         leading: const Icon(Icons.edit, color: Colors.white),
                         title: const Text(
                           'Edit',
                           style: TextStyle(color: Colors.white),
                         ),
-                        onTap: () async {
-                          Navigator.pop(context);
-                          await widget.onEdit?.call(message);
-                        },
-                      ),
-                    ListTile(
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await widget.onEdit?.call(message);
+                  },
+                ),
+              ListTile(
                       leading: const Icon(Icons.delete_outline, color: Colors.white),
                       title: const Text(
                         'Delete',
                         style: TextStyle(color: Colors.white),
                       ),
-                      onTap: () async {
-                        Navigator.pop(context);
-                        await widget.onDelete?.call(message);
-                      },
-                    ),
-                  ],
+                onTap: () async {
+                  Navigator.pop(context);
+                  await widget.onDelete?.call(message);
+                },
+              ),
+            ],
                 ),
               ),
             ),

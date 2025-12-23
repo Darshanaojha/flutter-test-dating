@@ -316,9 +316,9 @@ class UserProfilePageState extends State<UserProfilePage>
                                                                           0.3,
                                                                       height: MediaQuery.of(
                                                                                   context)
-                                                                                  .size
-                                                                                  .height *
-                                                                              0.3,
+                                                                              .size
+                                                                              .height *
+                                                                          0.3,
                                                                       errorBuilder: (context,
                                                                           error, stackTrace) {
                                                                         debugPrint('⚠️ Image.memory decode error at index $index: $error');
@@ -491,11 +491,11 @@ class UserProfilePageState extends State<UserProfilePage>
                                                     ),
                                                   ],
                                                 ),
-                                                child: Icon(
-                                                  Icons.verified,
+                                              child: Icon(
+                                                Icons.verified,
                                                   color: AppColors.mediumGradientColor,
-                                                  size: getResponsiveFontSize(
-                                                      0.045),
+                                                size: getResponsiveFontSize(
+                                                    0.045),
                                                 ),
                                               ),
                                             ),
@@ -992,16 +992,16 @@ class UserProfilePageState extends State<UserProfilePage>
                                                 ),
                                                 child: Row(
                                                   children: [
-                                                    controller.userData
-                                                                .isNotEmpty &&
-                                                            (controller
-                                                                    .userData
-                                                                    .first
-                                                                    .accountVerificationStatus ==
-                                                                '1' || controller
-                                                                    .userData
-                                                                    .first
-                                                                    .packageStatus == '4' || controller.userData.first.packageStatus == '1')
+                                                      controller.userData
+                                                                  .isNotEmpty &&
+                                                              (controller
+                                                                      .userData
+                                                                      .first
+                                                                      .accountVerificationStatus ==
+                                                                  '1' || controller
+                                                                      .userData
+                                                                      .first
+                                                                      .packageStatus == '4' || controller.userData.first.packageStatus == '1')
                                                         ? Container(
                                                             decoration: BoxDecoration(
                                                               shape: BoxShape.circle,
@@ -1022,8 +1022,8 @@ class UserProfilePageState extends State<UserProfilePage>
                                                         : Icon(
                                                             Icons.error_outline_outlined,
                                                             color: Colors.yellow[700],
-                                                            size: screenWidth * 0.045,
-                                                          ),
+                                                      size: screenWidth * 0.045,
+                                                    ),
                                                     SizedBox(
                                                         width: screenWidth *
                                                             0.015),

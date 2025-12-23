@@ -8,6 +8,8 @@ import '../Controllers/controller.dart';
 import '../Models/RequestModels/user_login_request_model.dart';
 import '../Providers/fcmService.dart';
 import '../constants.dart';
+import '../widgets/loading_overlay.dart';
+import '../services/login_service.dart';
 import 'loginforgotpassword/forgotpasswordemail.dart';
 import 'register_subpag/useremailnameinput.dart';
 
@@ -25,7 +27,6 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
   late AnimationController animationController;
   late Animation<double> fadeInAnimation;
 
-  bool isLoading = false;
   bool _isObscured = true;
   bool emailvisibility = true;
   @override
@@ -91,52 +92,80 @@ class LoginState extends State<Login> with TickerProviderStateMixin {
                       if (formKey.currentState!.validate()) {
                         formKey.currentState!.save();
 
-                        setState(() {
-                          isLoading = true;
-                        });
-                        UserLoginResponse? response =
-                            await controller.login(loginRequest);
+                        try {
+                          // Show loading overlay immediately
+                          await showLoadingOverlay(
+                            context,
+                            messages: [
+                              'Authenticating...',
+                              'Setting up your account...',
+                              'Configuring notifications...',
+                            ],
+                            messageDuration: const Duration(seconds: 2),
+                            showBrandingAnimation: true,
+                          );
 
-                        setState(() {
-                          isLoading = false;
-                        });
+                          // Perform login with timeout and status updates
+                          final LoginResult result = await LoginService.performLoginWithTimeout(
+                            loginRequest: loginRequest,
+                            controller: controller,
+                            onStatusUpdate: (status) {
+                              debugPrint('Login status: $status');
+                            },
+                          );
 
-                        if (response != null) {
-                          if (response.success == true) {
-                            String packagestatus =
-                                response.payload.packagestatus;
+                          // Hide loading overlay
+                          await hideLoadingOverlay();
+
+                          // Handle result
+                          if (result.success && result.loginResponse != null) {
+                            final String packagestatus = result.packageStatus ?? '0';
+                            
                             if (packagestatus == '0') {
-                              FCMService().subscribeToTopic("unsubscribed");
-                              FCMService()
-                                  .subscribeToTopic(response.payload.userId);
-                              FCMService().subscribeToTopic("alluser");
                               Get.offAll(Unsubscribenavigation());
-                            } else if (packagestatus == '1' || packagestatus == '4') {
-                              // Status '1' and '4' both mean subscribed/verified
-                              FCMService().subscribeToTopic("subscribed");
-                              FCMService()
-                                  .subscribeToTopic(response.payload.userId);
-                              FCMService().subscribeToTopic("alluser");
-                              
-                              Get.offAll(NavigationBottomBar());
                             } else {
-                              // Handle other package statuses - default to subscribed navigation
-                              FCMService().subscribeToTopic("subscribed");
-                              FCMService()
-                                  .subscribeToTopic(response.payload.userId);
-                              FCMService().subscribeToTopic("alluser");
-                              
+                              // Status '1', '4', or any other - navigate to main app
                               Get.offAll(NavigationBottomBar());
                             }
                           } else {
+                            // Show error message
+                            if (result.timedOut) {
+                              Get.snackbar(
+                                'Login Timeout',
+                                'Login took too long. Please check your connection and try again.',
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Colors.orange,
+                                colorText: Colors.white,
+                                duration: const Duration(seconds: 4),
+                              );
+                            } else {
+                              final String errorMsg = result.errorMessage.isNotEmpty
+                                  ? result.errorMessage
+                                  : 'Login failed. Please check your credentials.';
+                              
                             Get.snackbar(
                               'Login Failed',
-                              'Invalid credentials or network error.',
+                                errorMsg,
                               snackPosition: SnackPosition.BOTTOM,
                               backgroundColor: Colors.red,
                               colorText: Colors.white,
+                                duration: const Duration(seconds: 4),
                             );
                           }
+                          }
+                        } catch (e) {
+                          // Hide loading overlay on error
+                          await hideLoadingOverlay();
+                          
+                          debugPrint('Error during login: $e');
+                          Get.snackbar(
+                            'Login Error',
+                            'An unexpected error occurred. Please try again.',
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: Colors.red,
+                            colorText: Colors.white,
+                            duration: const Duration(seconds: 4),
+                          );
                         }
                       }
                     },

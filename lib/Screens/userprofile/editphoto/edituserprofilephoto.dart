@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:dating_application/Screens/userprofile/editprofile/edituserprofile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -56,6 +57,115 @@ class EditPhotosPageState extends State<EditPhotosPage> {
   double getResponsiveFontSize(double scale) {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth * scale;
+  }
+
+  /// Helper function to normalize base64 string (add padding if needed)
+  String _normalizeBase64(String base64) {
+    // Remove data URL prefix if present
+    String clean = base64.contains(',') ? base64.split(',')[1] : base64;
+    // Remove whitespace
+    clean = clean.trim();
+    // Add padding if needed (base64 strings should be divisible by 4)
+    int remainder = clean.length % 4;
+    if (remainder != 0) {
+      clean += '=' * (4 - remainder);
+    }
+    return clean;
+  }
+
+  /// Helper function to check if a string is a base64 image
+  bool _isBase64Image(String? image) {
+    if (image == null || image.isEmpty) return false;
+    // If it starts with http, it's definitely a URL
+    if (image.startsWith('http://') || image.startsWith('https://')) {
+      return false;
+    }
+    // If it starts with /, it might be a base64 string (like /9j/ for JPEG)
+    // or it could be a path - check if it's long enough to be base64
+    if (image.startsWith('/') && image.length > 50) {
+      // Likely base64 if it's long and starts with /9j/ (JPEG) or /iVB (PNG)
+      if (image.startsWith('/9j/') || image.startsWith('/iVB')) {
+        try {
+          String normalized = _normalizeBase64(image);
+          base64Decode(normalized);
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+    }
+    // Remove data URL prefix if present (e.g., "data:image/jpeg;base64,")
+    String cleanImage = image.contains(',') ? image.split(',')[1] : image;
+    cleanImage = cleanImage.trim();
+    // Base64 strings should be reasonably long (at least 20 chars for a tiny image)
+    if (cleanImage.length < 20) return false;
+    // Try to normalize and decode
+    try {
+      String normalized = _normalizeBase64(cleanImage);
+      base64Decode(normalized);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Helper function to build image widget from string (handles both base64 and network URLs)
+  Widget _buildImageFromString(String imageUrl, Size screenSize) {
+    if (_isBase64Image(imageUrl)) {
+      try {
+        String normalizedBase64 = _normalizeBase64(imageUrl);
+        final Uint8List bytes = base64Decode(normalizedBase64);
+        return Image.memory(
+          bytes,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          errorBuilder: (context, error, stackTrace) {
+            debugPrint('Base64 image decode error: $error');
+            return Container(
+              alignment: Alignment.center,
+              color: Colors.grey[200],
+              child: Icon(
+                Icons.broken_image,
+                size: screenSize.width * 0.1,
+                color: AppColors.activeColor,
+              ),
+            );
+          },
+        );
+      } catch (e, stackTrace) {
+        debugPrint('Error decoding base64 image: $e');
+        debugPrint('Stack trace: $stackTrace');
+        return Container(
+          alignment: Alignment.center,
+          color: Colors.grey[200],
+          child: Icon(
+            Icons.broken_image,
+            size: screenSize.width * 0.1,
+            color: AppColors.activeColor,
+          ),
+        );
+      }
+    } else {
+      // Network image
+      return Image.network(
+        imageUrl,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            alignment: Alignment.center,
+            color: Colors.grey[200],
+            child: Icon(
+              Icons.broken_image,
+              size: screenSize.width * 0.1,
+              color: AppColors.activeColor,
+            ),
+          );
+        },
+      );
+    }
   }
 
   Future<bool> requestCameraPermission() async {
@@ -553,21 +663,7 @@ class EditPhotosPageState extends State<EditPhotosPage> {
                             return Padding(
                               padding: const EdgeInsets.all(4.0),
                               child: _buildImageWidget(
-                                Image.network(
-                                  imageUrl.value,
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      alignment: Alignment.center,
-                                      color: Colors.grey[200],
-                                      child: Icon(Icons.broken_image,
-                                          size: screenSize.width * 0.1,
-                                          color: AppColors.activeColor),
-                                    );
-                                  },
-                                ),
+                                _buildImageFromString(imageUrl.value, screenSize),
                                 index,
                               ),
                             );
@@ -731,6 +827,23 @@ class EditPhotosPageState extends State<EditPhotosPage> {
 
   Future<String> getAndSetImageAsBase64(String imageUrl) async {
     try {
+      // Check if the image is already base64 encoded
+      if (_isBase64Image(imageUrl)) {
+        // If it's already base64, normalize it and return as-is
+        String normalizedBase64 = _normalizeBase64(imageUrl);
+        // Validate that it can be decoded
+        try {
+          base64Decode(normalizedBase64);
+          return normalizedBase64;
+        } catch (e) {
+          debugPrint('Error validating base64 image: $e');
+          failure("Error", "Invalid base64 image data");
+          return '';
+        }
+      }
+      
+      // If it's a network URL, download and convert to base64
+      if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
       final response = await http.get(Uri.parse(imageUrl));
 
       if (response.statusCode == 200) {
@@ -739,10 +852,16 @@ class EditPhotosPageState extends State<EditPhotosPage> {
         return base64Image;
       } else {
         failure(
-            "Failed to load image.", " Status code: \${response.statusCode}");
+              "Failed to load image.", " Status code: ${response.statusCode}");
         return '';
+        }
       }
+      
+      // If it's neither base64 nor a URL, return empty
+      failure("Error", "Invalid image format. Expected base64 or URL.");
+      return '';
     } catch (e) {
+      debugPrint('Error in getAndSetImageAsBase64: $e');
       failure("Error downloading or processing the image:", e.toString());
       return '';
     }

@@ -369,7 +369,7 @@ class _UserProfileSummaryState extends State<UserProfileSummary> with TickerProv
                                         user.subGenderName,
                                       ],
                                       fontSize: valueFontSize,
-                                    ),
+                                            ),
                                     
                                     // City + Looking For (grouped)
                                     _buildAttributeLine(
@@ -381,7 +381,7 @@ class _UserProfileSummaryState extends State<UserProfileSummary> with TickerProv
                                             : "Hookup",
                                       ],
                                       fontSize: valueFontSize,
-                                    ),
+                                                  ),
                                     
                                     // Bio section (if available)
                                     if (user.bio.isNotEmpty) ...[
@@ -399,10 +399,10 @@ class _UserProfileSummaryState extends State<UserProfileSummary> with TickerProv
                                             width: 1,
                                           ),
                                         ),
-                                        child: Text(
-                                          user.bio,
-                                          style: AppTextStyles.bodyText.copyWith(
-                                            fontSize: valueFontSize * 0.95,
+                                          child: Text(
+                                            user.bio,
+                                            style: AppTextStyles.bodyText.copyWith(
+                                              fontSize: valueFontSize * 0.95,
                                             color: Colors.white.withOpacity(0.9),
                                           ),
                                         ),
@@ -461,8 +461,8 @@ class _UserProfileSummaryState extends State<UserProfileSummary> with TickerProv
       );
 
         // Always show like button FAB when viewing a profile (if userId is provided)
-        return Scaffold(
-          backgroundColor: AppColors.primaryColor,
+          return Scaffold(
+            backgroundColor: AppColors.primaryColor,
           body: Stack(
             children: [
               bodyStack,
@@ -534,24 +534,24 @@ class _UserProfileSummaryState extends State<UserProfileSummary> with TickerProv
           ),
           floatingActionButton: widget.userId != null
               ? FloatingActionButton(
-                  onPressed: _isLiking ? null : _handleLike,
-                  backgroundColor: AppColors.mediumGradientColor,
-                  child: _isLiking
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                      : const Icon(
-                          Icons.favorite,
-                          color: Colors.white,
-                        ),
+              onPressed: _isLiking ? null : _handleLike,
+              backgroundColor: AppColors.mediumGradientColor,
+              child: _isLiking
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Icon(
+                      Icons.favorite,
+                      color: Colors.white,
+                    ),
                 )
               : null,
-          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         );
       },
     );
@@ -644,11 +644,11 @@ class _UserProfileSummaryState extends State<UserProfileSummary> with TickerProv
                   children: [
                     Text(
                       entry.value,
-                      style: AppTextStyles.bodyText.copyWith(
+        style: AppTextStyles.bodyText.copyWith(
                         fontSize: fontSize * 0.9,
                         color: Colors.white.withOpacity(0.9),
                       ),
-                    ),
+        ),
                     if (!isLast) ...[
                       SizedBox(width: 8),
                       Text(
@@ -710,38 +710,38 @@ class _UserProfileSummaryState extends State<UserProfileSummary> with TickerProv
             padding: EdgeInsets.symmetric(
               horizontal: MediaQuery.of(context).size.width * 0.025,
             ),
-            child: Wrap(
-              spacing: 8.0,
+        child: Wrap(
+          spacing: 8.0,
               runSpacing: 6.0,
-              children: items.map((item) {
-                return Container(
+          children: items.map((item) {
+            return Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12.0,
                     vertical: 8.0,
                   ),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: AppColors.gradientBackgroundList,
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(25.0),
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Text(
-                    item,
-                    style: TextStyle(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: AppColors.gradientBackgroundList,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(25.0),
+                border: Border.all(
+                  color: Colors.white,
+                  width: 1.5,
+                ),
+              ),
+              child: Text(
+                item,
+                style: TextStyle(
                       fontSize: fontSize * 0.9,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
           ),
         ],
       ),

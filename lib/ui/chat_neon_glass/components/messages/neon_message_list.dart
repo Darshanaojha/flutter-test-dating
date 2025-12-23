@@ -165,7 +165,7 @@ class _NeonMessageListState extends State<NeonMessageList> {
           bottomPad,
         ),
         itemCount: messages.length,
-        itemBuilder: (context, index) {
+              itemBuilder: (context, index) {
           final Message msg = messages[index];
           final bool sameSenderPrev = index > 0 &&
               messages[index - 1].senderId == msg.senderId;
@@ -177,22 +177,22 @@ class _NeonMessageListState extends State<NeonMessageList> {
             children: [
               if (index > 0) SizedBox(height: gap),
               MessageItemBuilder(
-                message: msg,
-                viewerId: widget.viewerId,
-                bearerToken: widget.bearerToken,
-                tokens: widget.tokens,
-                uiState: widget.uiState,
-                timestampOpacityMultiplier: widget.timestampOpacityMultiplier,
-                soundHooks: widget.soundHooks,
-                hapticsHooks: widget.hapticsHooks,
-                blurMultiplier: widget.blurMultiplier,
-                glowMultiplier: widget.glowMultiplier,
-                scrollOffset: _scrollOffsetPx % 2000.0,
-                showTimestamp: true,
-                sameSenderPrev: sameSenderPrev,
-                sameSenderNext: sameSenderNext,
-                onEdit: (m) => _editMessage(context, m),
-                onDelete: (m) => _deleteMessage(context, m),
+            message: msg,
+            viewerId: widget.viewerId,
+            bearerToken: widget.bearerToken,
+            tokens: widget.tokens,
+            uiState: widget.uiState,
+            timestampOpacityMultiplier: widget.timestampOpacityMultiplier,
+            soundHooks: widget.soundHooks,
+            hapticsHooks: widget.hapticsHooks,
+            blurMultiplier: widget.blurMultiplier,
+            glowMultiplier: widget.glowMultiplier,
+            scrollOffset: _scrollOffsetPx % 2000.0,
+            showTimestamp: true,
+            sameSenderPrev: sameSenderPrev,
+            sameSenderNext: sameSenderNext,
+            onEdit: (m) => _editMessage(context, m),
+            onDelete: (m) => _deleteMessage(context, m),
               ),
             ],
           );

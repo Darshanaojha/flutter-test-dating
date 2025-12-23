@@ -22,6 +22,7 @@ class FetchAllUserConnectionsProvider extends GetConnect {
           'Authorization': 'Bearer $token',
         },
       );
+      print("response in fetchalluserconnections for chat history page: ${response.body}");
       if (response.statusCode == null || response.body == null) {
         failure('Error in fetchalluserconnectionsprovider', 'Server Failed To Respond');
         return null;

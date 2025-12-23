@@ -44,7 +44,7 @@ class UserRegistrationProvider extends GetConnect {
       final requestBody = userRegistrationRequest.toJson();
       print("📦 Request Body: $requestBody");
       print("📅 DOB in JSON: ${requestBody['dob']}");
-      
+  
       Response response = await post(
         '$baseurl/Authentication/register',
         userRegistrationRequest.toJson(),

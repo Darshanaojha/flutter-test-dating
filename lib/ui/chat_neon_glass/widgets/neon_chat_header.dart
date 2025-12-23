@@ -2,16 +2,19 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../../../Screens/userprofile/userprofilesummary.dart';
 
 class NeonChatHeader extends StatelessWidget {
   final String title;
   final String? imageUrl;
+  final String? peerId;
   final VoidCallback? onReport;
   final VoidCallback? onBlock;
   const NeonChatHeader({
     super.key,
     required this.title,
     this.imageUrl,
+    this.peerId,
     this.onReport,
     this.onBlock,
   });
@@ -113,16 +116,46 @@ class NeonChatHeader extends StatelessWidget {
             ),
           ),
           SizedBox(width: size.width * 0.03),
-          _buildAvatar(),
+          GestureDetector(
+            onTap: () {
+              if (peerId != null && peerId!.isNotEmpty) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => UserProfileSummary(
+                      userId: peerId,
+                      showLikeButton: false,
+                    ),
+                  ),
+                );
+              }
+            },
+            child: _buildAvatar(),
+          ),
           SizedBox(width: size.width * 0.03),
           Expanded(
-            child: Text(
-              title,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: size.width * 0.05,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
+            child: GestureDetector(
+              onTap: () {
+                if (peerId != null && peerId!.isNotEmpty) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => UserProfileSummary(
+                        userId: peerId,
+                        showLikeButton: false,
+                      ),
+                    ),
+                  );
+                }
+              },
+              child: Text(
+                title,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: size.width * 0.05,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),

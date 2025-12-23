@@ -31,13 +31,33 @@ class MessageRequestPageState extends State<MessageRequestPage> {
 
   bool _isBase64Image(String? image) {
     if (image == null || image.isEmpty) return false;
+    // If it starts with http, it's definitely a URL
     if (image.startsWith('http://') || image.startsWith('https://')) {
       return false;
     }
     final String trimmed = image.trim();
-    if (trimmed.length < 20) return false;
+    // If it starts with /, it might be a base64 string (like /9j/ for JPEG)
+    // or it could be a path - check if it's long enough to be base64
+    if (trimmed.startsWith('/') && trimmed.length > 50) {
+      // Likely base64 if it's long and starts with /9j/ (JPEG) or /iVB (PNG)
+      if (trimmed.startsWith('/9j/') || trimmed.startsWith('/iVB')) {
+        try {
+          final String normalized = _normalizeBase64(trimmed);
+          base64Decode(normalized);
+          return true;
+        } catch (_) {
+          return false;
+        }
+      }
+    }
+    // Remove data URL prefix if present (e.g., "data:image/jpeg;base64,")
+    String cleanImage = trimmed.contains(',') ? trimmed.split(',')[1] : trimmed;
+    cleanImage = cleanImage.trim();
+    // Base64 strings should be reasonably long (at least 20 chars for a tiny image)
+    if (cleanImage.length < 20) return false;
+    // Try to normalize and decode
     try {
-      final String normalized = _normalizeBase64(trimmed);
+      final String normalized = _normalizeBase64(cleanImage);
       base64Decode(normalized);
       return true;
     } catch (_) {
@@ -47,6 +67,7 @@ class MessageRequestPageState extends State<MessageRequestPage> {
 
   Widget _buildAvatar(String imageUrl, double radius) {
     if (imageUrl.isEmpty) {
+      debugPrint('_buildAvatar: imageUrl is empty, showing placeholder');
       return CircleAvatar(
         radius: radius,
         backgroundColor: Colors.grey.shade300,
@@ -54,7 +75,10 @@ class MessageRequestPageState extends State<MessageRequestPage> {
       );
     }
 
-    if (_isBase64Image(imageUrl)) {
+    final bool isBase64 = _isBase64Image(imageUrl);
+    debugPrint('_buildAvatar: imageUrl length: ${imageUrl.length}, isBase64: $isBase64');
+
+    if (isBase64) {
       try {
         final Uint8List bytes = base64Decode(_normalizeBase64(imageUrl));
         return CircleAvatar(
@@ -66,16 +90,19 @@ class MessageRequestPageState extends State<MessageRequestPage> {
               fit: BoxFit.cover,
               width: radius * 2,
               height: radius * 2,
-              errorBuilder: (_, __, ___) => Image.asset(
-                'assets/images/cajed_logo.png',
-                fit: BoxFit.cover,
-                width: radius * 2,
-                height: radius * 2,
-              ),
+              errorBuilder: (context, error, stackTrace) {
+                debugPrint('Error loading base64 avatar: $error');
+                return CircleAvatar(
+                  radius: radius,
+                  backgroundColor: Colors.grey.shade300,
+                  child: const Icon(Icons.person, color: Colors.white),
+                );
+              },
             ),
           ),
         );
-      } catch (_) {
+      } catch (e) {
+        debugPrint('Error decoding base64 avatar: $e');
         // Fallback to placeholder on decode failure
         return CircleAvatar(
           radius: radius,
@@ -85,15 +112,59 @@ class MessageRequestPageState extends State<MessageRequestPage> {
       }
     }
 
+    // Network image
     return CircleAvatar(
       radius: radius,
-      backgroundImage: NetworkImage(imageUrl),
       backgroundColor: Colors.grey.shade200,
-      onBackgroundImageError: (_, __) {},
+      child: ClipOval(
+        child: Image.network(
+          imageUrl,
+          fit: BoxFit.cover,
+          width: radius * 2,
+          height: radius * 2,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) {
+              return child;
+            }
+            return Container(
+              width: radius * 2,
+              height: radius * 2,
+              alignment: Alignment.center,
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+                strokeWidth: 2,
+              ),
+            );
+          },
+          errorBuilder: (context, error, stackTrace) {
+            debugPrint('Error loading network avatar: $error');
+            return Container(
+              width: radius * 2,
+              height: radius * 2,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.grey.shade300,
+              ),
+              child: const Icon(Icons.person, color: Colors.white, size: 20),
+            );
+          },
+        ),
+      ),
     );
   }
 
   void showImageDialog(String imageUrl) {
+    if (imageUrl.isEmpty) {
+      debugPrint('showImageDialog: imageUrl is empty');
+      return;
+    }
+    
+    debugPrint('showImageDialog: imageUrl length: ${imageUrl.length}');
+    debugPrint('showImageDialog: isBase64: ${_isBase64Image(imageUrl)}');
+    
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -103,16 +174,33 @@ class MessageRequestPageState extends State<MessageRequestPage> {
             onTap: () => Navigator.pop(context),
             child: Center(
               child: _isBase64Image(imageUrl)
-                  ? Image.memory(
-                      base64Decode(_normalizeBase64(imageUrl)),
-                      fit: BoxFit.contain,
-                      height: 300,
-                      width: 300,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Image.asset(
-                          'assets/images/cajed_logo.png',
-                          fit: BoxFit.contain,
-                        );
+                  ? Builder(
+                      builder: (context) {
+                        try {
+                          final String normalized = _normalizeBase64(imageUrl);
+                          final Uint8List bytes = base64Decode(normalized);
+                          return Image.memory(
+                            bytes,
+                            fit: BoxFit.contain,
+                            height: 300,
+                            width: 300,
+                            errorBuilder: (context, error, stackTrace) {
+                              debugPrint('Error displaying base64 image: $error');
+                              return const Icon(
+                                Icons.broken_image,
+                                size: 100,
+                                color: Colors.grey,
+                              );
+                            },
+                          );
+                        } catch (e) {
+                          debugPrint('Error decoding base64 in dialog: $e');
+                          return const Icon(
+                            Icons.broken_image,
+                            size: 100,
+                            color: Colors.grey,
+                          );
+                        }
                       },
                     )
                   : Image.network(
@@ -121,9 +209,11 @@ class MessageRequestPageState extends State<MessageRequestPage> {
                       height: 300,
                       width: 300,
                       errorBuilder: (context, error, stackTrace) {
-                        return Image.asset(
-                          'assets/images/cajed_logo.png',
-                          fit: BoxFit.contain,
+                        debugPrint('Error loading network image in dialog: $error');
+                        return const Icon(
+                          Icons.broken_image,
+                          size: 100,
+                          color: Colors.grey,
                         );
                       },
                     ),
@@ -155,6 +245,10 @@ class MessageRequestPageState extends State<MessageRequestPage> {
     } catch (e) {
       return '';
     }
+  }
+
+  Future<void> _refreshMessageRequests() async {
+    await controller.fetchallpingrequestmessage();
   }
 
   @override
@@ -198,103 +292,121 @@ class MessageRequestPageState extends State<MessageRequestPage> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Obx(() {
-          final receivedMessages = controller.messageRequest
-              .where((request) => request.messageSendByMe == 0)
-              .toList();
+      body: RefreshIndicator(
+        onRefresh: _refreshMessageRequests,
+        color: AppColors.lightGradientColor,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Obx(() {
+            final receivedMessages = controller.messageRequest
+                .where((request) => request.messageSendByMe == 0)
+                .toList();
 
-          if (receivedMessages.isEmpty) {
-            return Center(
-              child: Lottie.asset(
-                "assets/animations/requestmessageanimation.json",
-                repeat: true,
-                reverse: true,
-              ),
-            );
-          }
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              double screenWidth = constraints.maxWidth;
-
-              return ListView.builder(
-                itemCount: receivedMessages.length,
-                itemBuilder: (context, index) {
-                  final messageRequest = receivedMessages[index];
-
-                  return Card(
-                    // margin: EdgeInsets.only(bottom: 5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    elevation: 4,
-                    child: ListTile(
-                      contentPadding: EdgeInsets.all(5),
-                      leading: GestureDetector(
-                        onTap: () =>
-                            showImageDialog(messageRequest.profileImage),
-                        child: _buildAvatar(
-                          messageRequest.profileImage,
-                          screenWidth < 600 ? 30 : 40,
+            if (receivedMessages.isEmpty) {
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: SizedBox(
+                      height: constraints.maxHeight,
+                      child: Center(
+                        child: Lottie.asset(
+                          "assets/animations/requestmessageanimation.json",
+                          repeat: true,
+                          reverse: true,
                         ),
-                      ),
-                      title: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              messageRequest.name,
-                              style: AppTextStyles.bodyText.copyWith(
-                                fontSize: screenWidth < 600 ? 16 : 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            formatRequestDate(messageRequest.created),
-                            style: AppTextStyles.bodyText.copyWith(
-                              color: AppColors.disabled,
-                              fontSize: screenWidth < 600 ? 12 : 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                      subtitle: Text(
-                        messageRequest.message,
-                        style: AppTextStyles.bodyText.copyWith(
-                          color: AppColors.disabled,
-                          fontSize: screenWidth < 600 ? 14 : 16,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      trailing: IconButton(
-                        icon: Icon(Icons.reply,
-                            color: AppColors.lightGradientColor),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ReplyMessagePage(
-                                senderName: messageRequest.name,
-                                senderId: messageRequest.userId,
-                                lastMessage: messageRequest.message,
-                              ),
-                            ),
-                          );
-                        },
                       ),
                     ),
                   );
                 },
               );
-            },
-          );
-        }),
+            }
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                double screenWidth = constraints.maxWidth;
+
+                return ListView.builder(
+                  itemCount: receivedMessages.length,
+                  itemBuilder: (context, index) {
+                    final messageRequest = receivedMessages[index];
+
+                    return Card(
+                      // margin: EdgeInsets.only(bottom: 5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 4,
+                      child: ListTile(
+                        contentPadding: EdgeInsets.all(5),
+                        leading: GestureDetector(
+                          onTap: () {
+                            debugPrint('Avatar tapped, profileImage: ${messageRequest.profileImage?.isEmpty == false ? 'has image (length: ${messageRequest.profileImage.length})' : 'empty or null'}');
+                            if (messageRequest.profileImage != null && messageRequest.profileImage.isNotEmpty) {
+                              showImageDialog(messageRequest.profileImage);
+                            }
+                          },
+                          child: _buildAvatar(
+                            messageRequest.profileImage ?? '',
+                            screenWidth < 600 ? 30 : 40,
+                          ),
+                        ),
+                        title: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                messageRequest.name,
+                                style: AppTextStyles.bodyText.copyWith(
+                                  fontSize: screenWidth < 600 ? 16 : 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              formatRequestDate(messageRequest.created),
+                              style: AppTextStyles.bodyText.copyWith(
+                                color: AppColors.disabled,
+                                fontSize: screenWidth < 600 ? 12 : 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                        subtitle: Text(
+                          messageRequest.message,
+                          style: AppTextStyles.bodyText.copyWith(
+                            color: AppColors.disabled,
+                            fontSize: screenWidth < 600 ? 14 : 16,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        trailing: IconButton(
+                          icon: Icon(Icons.reply,
+                              color: AppColors.lightGradientColor),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ReplyMessagePage(
+                                  senderName: messageRequest.name,
+                                  senderId: messageRequest.userId,
+                                  lastMessage: messageRequest.message,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            );
+          }),
+        ),
       ),
     );
   }

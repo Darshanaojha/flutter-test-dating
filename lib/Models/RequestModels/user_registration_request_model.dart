@@ -214,8 +214,8 @@ class UserRegistrationRequest {
           (now.month == dateOfBirth.month && now.day < dateOfBirth.day)) {
         age--;
       }
-      if (age < 18) {
-        throw ArgumentError("User must be at least 18 years old.");
+    if (age < 18) {
+      throw ArgumentError("User must be at least 18 years old.");
       }
     } catch (e) {
       if (e is ArgumentError) {

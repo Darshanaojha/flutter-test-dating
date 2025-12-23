@@ -22,7 +22,7 @@ import '../homepage/homepage.dart';
 import '../likespages/userlikespage.dart';
 import '../settings/setting.dart';
 import '../userprofile/userprofilepage.dart';
-import '../introsliderpages/introsliderswipepage.dart';
+// import '../introsliderpages/introsliderswipepage.dart'; // Commented out - mock introslider
 
 class NavigationController extends GetxController {
   final Rx<int> selectedIndex = 0.obs;
@@ -271,7 +271,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                           onPressed: () async {
                             // Close the dialog first
                             Navigator.of(context).pop();
-                            
+                              
                             // Show loading overlay immediately
                             await showLoadingOverlay(
                               context,
@@ -327,7 +327,7 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
                                         onPressed: () {
                                           Navigator.of(context).pop();
                                           // Force navigation even on error
-                                          Get.offAll(() => CombinedAuthScreen());
+                            Get.offAll(() => CombinedAuthScreen());
                                         },
                                         child: const Text('Continue Anyway'),
                                       ),
@@ -515,14 +515,14 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
               },
             ),
             actions: [
-              // Test button for intro slider
-              IconButton(
-                icon: Icon(Icons.slideshow, color: Colors.pink),
-                onPressed: () {
-                  Get.to(() => IntroSlidingPages());
-                },
-                tooltip: 'Test Intro Slider',
-              ),
+              // Test button for intro slider - Commented out - mock introslider
+              // IconButton(
+              //   icon: Icon(Icons.slideshow, color: Colors.pink),
+              //   onPressed: () {
+              //     Get.to(() => IntroSlidingPages());
+              //   },
+              //   tooltip: 'Test Intro Slider',
+              // ),
               IconButton(
                 icon: Icon(Icons.exit_to_app),
                 onPressed: () {
@@ -545,12 +545,12 @@ class NavigationBottomBarState extends State<NavigationBottomBar>
           return SafeArea(
             top: false,
             child: Container(
-              decoration: BoxDecoration(
-                gradient: AppColors.appBarGradient,
-                borderRadius: BorderRadius.circular(
-                    30), // You can adjust the border radius here
-              ),
-              child: CurvedNavigationBar(
+            decoration: BoxDecoration(
+              gradient: AppColors.appBarGradient,
+              borderRadius: BorderRadius.circular(
+                  30), // You can adjust the border radius here
+            ),
+            child: CurvedNavigationBar(
               index: navigationcontroller.selectedIndex.value,
               onTap: (index) {
                 navigationcontroller.navigateTo(index);
